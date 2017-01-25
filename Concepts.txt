@@ -1,19 +1,84 @@
+====================
+=      UNITS       =
+====================
+
++ Creation
+
+- use dummy building for each unit, edit city screen to hide them (add column in building table)
+- Lua check for required resources for an unit in city at the start of a player turn to create or remove the dummy building
 
 
-enough horses to build any mounted unit in city -> Stable -> can build unit requiring horse
-Iron stock in city -> Iron Smith -> can build unit requiring iron
-Iron & coal stock in city -> Steel Factory -> can build units requiring steel
+====================
+=      COMBAT      =
+====================
 
-or hidden tech/civic/resource
-use dummy building for each unit, edit city screen to hide them (add column in building table)
++ Units can have more components than expected by its HP left (just put them in reserve)
 
-budget
+- excedental reserve is transfered to city if a supply line is open
+- if excedent > max active then the component is lost (that situation shouldn't happen)
 
-calculate need (maintenance cost, then bonus if superior, malus if inferior)
+example:
+- desertion in a mechanized units: remove the HP corresponding to the deserting personnel and put the vehicules corresponding to the HP lost in reserve.
+- mechanical failure in case of low reliability: remove the HP corresponding to the vehicules damaged and put the personnel corresponding to the HP lost in reserve.
+- chance of ejection/escape of the crew of an aircraft/vehicule destroyed in combat situation : when removing each vehicules corresponding to the HP lost in combat do a check and put unarmed crew in reserve (or wounded)
 
-military : moral (combat: pushthrough, retreat), reliability (mechanized need less materiel), loyalty (desertion, rebellion)
+
+====================
+=    Buildings     =
+====================
+
++ Resources creation
+
+- Iron stock in city -> Iron Smith -> produce Materiel
+- Iron & coal stock in city -> Steel Factory -> produce Steel
+
++ Resource stock
+
+- New table 'BuildingStock' ('BuildingType', 'ResourceType', 'Value')
+- Granary -> can stock 15 units of Rice, Wheat
+
+
+
+====================
+=      Budget      =
+====================
+
+
+calculate need (ie maintenance cost, then bonus if superior, malus if inferior)
+
+military : moral (combat: retreat), reliability (mechanized need less materiel), loyalty (desertion, rebellion, linked to moral and empire stability)
 culture
 diplomacy
 intelligence
 entertainement
 science
+
+
+====================
+=  Programmation   =
+====================
+
+- at the end of global utility Lua file in script context, after all utility functions:
+
+function Initialise()
+	ExposedMembers.GCO = {}
+	ExposedMembers.GCO.AnUtilityFunction = AnUtilityFunction
+	-- ...
+	ExposedMembers.GCO_Initialized = true
+end
+Initialise()
+
+- in other lua files
+
+GCO = {}
+function InitializeFunctions()
+	if ExposedMembers.GCO_Initialized then
+		GCO = ExposedMembers.GCO
+		Events.AppInitComplete.Remove( InitializeFunctions )
+	end
+end
+Events.AppInitComplete.Add( InitializeFunctions ) -- find the first possible event...
+
+- to call AnUtilityFunction in those scripts:
+
+GCO.AnUtilityFunction()
