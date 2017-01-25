@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="cf31281d-783b-47dd-bc58-992ed862bb74">
+  <Properties>
+    <Name>LOC_GCO_TITLE</Name>
+    <Stability>Alpha</Stability>
+    <Teaser>LOC_GCO_TEASER</Teaser>
+    <Description>LOC_GCO_DESCRIPTION</Description>
+    <Authors>Gedemon</Authors>
+  </Properties>
+  
+	<LocalizedText>
+		<Text id="LOC_GCO_TITLE">
+			<en_US>Gedemon's Civilization Overhaul</en_US>
+		</Text>
+		<Text id="LOC_GCO_TEASER">
+			<en_US>Gedemon's Civilization Overhaul</en_US>
+		</Text>
+		<Text id="LOC_GCO_DESCRIPTION">
+			<en_US>Gedemon's Civilization Overhaul</en_US>
+		</Text>
+	</LocalizedText>
+  
+	<Components>
+		<ImportFiles id="GCO_IMPORT">
+			<Items>
+				<File>UI/DiplomacyActionView.lua</File>
+				<File>UI/LeaderScene.xml</File>
+				<File>Art/dom_america.dds</File>
+				<File>Art/dom_china.dds</File>
+				<File>Art/dom_france.dds</File>
+				<File>Art/dom_germany.dds</File>
+				<File>Art/dom_greece.dds</File>
+				<File>Art/dom_italy.dds</File>
+				<File>Art/dom_japan.dds</File>
+				<File>Art/dom_uk.dds</File>
+				<File>Art/dom_ussr.dds</File>
+				<File>Art/scene_america.dds</File>
+				<File>Art/scene_china.dds</File>
+				<File>Art/scene_england.dds</File>
+				<File>Art/scene_france.dds</File>
+				<File>Art/scene_germany.dds</File>
+				<File>Art/scene_greece.dds</File>
+				<File>Art/scene_italy.dds</File>
+				<File>Art/scene_japan.dds</File>
+				<File>Art/scene_ussr.dds</File>
+			</Items>
+		</ImportFiles>
+        <GameplayScripts>
+            <Items>
+                <File>Scripts/GCO_Script.lua</File>
+            </Items>
+        </GameplayScripts>
+        <UserInterface>		
+			<Properties>
+				<Context>InGame</Context>
+			</Properties>
+            <Items>
+                <File>Scripts/SaveLoad.xml</File>
+            </Items>
+        </UserInterface>	
+		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
+			<Items>
+				<File>Data/Tables.sql</File>
+				<File>Data/GamePlay.sql</File>
+				<File>Data/CombatRules.sql</File>
+				<File>Data/LoadingInfo.xml</File>
+				<File>Data/DiplomacyInfo.xml</File>
+				<File>Data/Leaders.xml</File>
+			</Items>
+		</UpdateDatabase>
+		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
+           	<Properties>
+				<LoadOrder>10600</LoadOrder>
+           	</Properties>
+			<Items>
+				<File>custom.sql</File>
+				<File>custom.xml</File>
+			</Items>
+		</UpdateDatabase>
+		<LocalizedText id="GCO_DEFAULT_LOC">
+			<Items>
+				<File>Text/GameText.xml</File>
+			</Items>
+		</LocalizedText>
+		<ModArt id="GCO_ART_COMPOMENT">
+		  <Items>
+			<File>GCO.dep</File>
+		  </Items>
+		</ModArt>
+	</Components>
+	
+  <Settings>
+    <Custom id="GCO_SETTING">
+      <Items>
+        <File>Config/Config.xml</File>
+      </Items>
+    </Custom>
+  </Settings>
+  
+	<Files>
+		<File>Data/Tables.sql</File>
+		<File>Data/GamePlay.xml</File>
+		<File>Data/GamePlay.sql</File>
+		<File>Data/CombatRules.sql</File>
+		<File>Data/LoadingInfo.xml</File>
+		<File>Data/DiplomacyInfo.xml</File>
+		<File>Data/Leaders.xml</File>
+		<File>Text/GameText.xml</File>
+		<File>Text/ConfigText.xml</File>
+		<File>Config/Config.xml</File>
+		<File>Scripts/GCO_Script.lua</File>
+		<File>Scripts/SaveLoad.lua</File>
+		<File>Scripts/SaveLoad.xml</File>
+		<File>UI/LeaderScene.xml</File>
+		<File>UI/DiplomacyActionView.lua</File>
+		<File>Art/dom_america.dds</File>
+		<File>Art/dom_china.dds</File>
+		<File>Art/dom_france.dds</File>
+		<File>Art/dom_germany.dds</File>
+		<File>Art/dom_greece.dds</File>
+		<File>Art/dom_italy.dds</File>
+		<File>Art/dom_japan.dds</File>
+		<File>Art/dom_uk.dds</File>
+		<File>Art/dom_ussr.dds</File>
+		<File>Art/scene_america.dds</File>
+		<File>Art/scene_china.dds</File>
+		<File>Art/scene_england.dds</File>
+		<File>Art/scene_france.dds</File>
+		<File>Art/scene_germany.dds</File>
+		<File>Art/scene_greece.dds</File>
+		<File>Art/scene_italy.dds</File>
+		<File>Art/scene_japan.dds</File>
+		<File>Art/scene_ussr.dds</File>
+	</Files>
+</Mod>

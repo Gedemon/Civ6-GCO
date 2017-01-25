@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<AssetObjects::ArtDefSet>
+	<m_Version>
+		<major>4</major>
+		<minor>0</minor>
+		<build>236</build>
+		<revision>253</revision>
+	</m_Version>
+	<m_TemplateName text="LeaderFallback"/>
+	<m_RootCollections>
+		<Element>
+			<m_CollectionName text="Leaders"/>
+			<Element>
+				<m_Fields>
+					<m_Values/>
+				</m_Fields>
+				<m_ChildCollections>
+					<Element>
+						<m_CollectionName text="Animations"/>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects::BLPEntryValue">
+										<m_EntryName text="FALLBACK_NEUTRAL_CHINA"/>
+										<m_XLPClass text="LeaderFallback"/>
+										<m_XLPPath text="LeaderFallbackImages.xlp"/>
+										<m_BLPPackage text="LeaderFallbackImages"/>
+										<m_LibraryName text="LeaderFallback"/>
+										<m_ParamName text="BLP Entry"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="DEFAULT"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+				</m_ChildCollections>
+				<m_Name text="LEADER_CHINA"/>
+				<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+			</Element>
+			<Element>
+				<m_Fields>
+					<m_Values/>
+				</m_Fields>
+				<m_ChildCollections>
+					<Element>
+						<m_CollectionName text="Animations"/>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects::BLPEntryValue">
+										<m_EntryName text="FALLBACK_NEUTRAL_GREECE"/>
+										<m_XLPClass text="LeaderFallback"/>
+										<m_XLPPath text="LeaderFallbackImages.xlp"/>
+										<m_BLPPackage text="LeaderFallbackImages"/>
+										<m_LibraryName text="LeaderFallback"/>
+										<m_ParamName text="BLP Entry"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="DEFAULT"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+				</m_ChildCollections>
+				<m_Name text="LEADER_GREECE"/>
+				<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+			</Element>
+			<Element>
+				<m_Fields>
+					<m_Values/>
+				</m_Fields>
+				<m_ChildCollections>
+					<Element>
+						<m_CollectionName text="Animations"/>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects::BLPEntryValue">
+										<m_EntryName text="FALLBACK_NEUTRAL_GERMANY"/>
+										<m_XLPClass text="LeaderFallback"/>
+										<m_XLPPath text="LeaderFallbackImages.xlp"/>
+										<m_BLPPackage text="LeaderFallbackImages"/>
+										<m_LibraryName text="LeaderFallback"/>
+										<m_ParamName text="BLP Entry"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="DEFAULT"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+				</m_ChildCollections>
+				<m_Name text="LEADER_GERMANY"/>
+				<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+			</Element>
+			<Element>
+				<m_Fields>
+					<m_Values/>
+				</m_Fields>
+				<m_ChildCollections>
+					<Element>
+						<m_CollectionName text="Animations"/>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects::BLPEntryValue">
+										<m_EntryName text="FALLBACK_NEUTRAL_FRANCE"/>
+										<m_XLPClass text="LeaderFallback"/>
+										<m_XLPPath text="LeaderFallbackImages.xlp"/>
+										<m_BLPPackage text="LeaderFallbackImages"/>
+										<m_LibraryName text="LeaderFallback"/>
+										<m_ParamName text="BLP Entry"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="DEFAULT"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+				</m_ChildCollections>
+				<m_Name text="LEADER_FRANCE"/>
+				<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+			</Element>
+			<Element>
+				<m_Fields>
+					<m_Values/>
+				</m_Fields>
+				<m_ChildCollections>
+					<Element>
+						<m_CollectionName text="Animations"/>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects::BLPEntryValue">
+										<m_EntryName text="FALLBACK_NEUTRAL_AMERICA_V"/>
+										<m_XLPClass text="LeaderFallback"/>
+										<m_XLPPath text="LeaderFallbackImages.xlp"/>
+										<m_BLPPackage text="LeaderFallbackImages"/>
+										<m_LibraryName text="LeaderFallback"/>
+										<m_ParamName text="BLP Entry"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="DEFAULT"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+				</m_ChildCollections>
+				<m_Name text="LEADER_AMERICA"/>
+				<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+			</Element>
+			<Element>
+				<m_Fields>
+					<m_Values/>
+				</m_Fields>
+				<m_ChildCollections>
+					<Element>
+						<m_CollectionName text="Animations"/>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects::BLPEntryValue">
+										<m_EntryName text="FALLBACK_NEUTRAL_ENGLAND"/>
+										<m_XLPClass text="LeaderFallback"/>
+										<m_XLPPath text="LeaderFallbackImages.xlp"/>
+										<m_BLPPackage text="LeaderFallbackImages"/>
+										<m_LibraryName text="LeaderFallback"/>
+										<m_ParamName text="BLP Entry"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="DEFAULT"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+				</m_ChildCollections>
+				<m_Name text="LEADER_ENGLAND"/>
+				<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+			</Element>
+		</Element>
+	</m_RootCollections>
+</AssetObjects::ArtDefSet>
+

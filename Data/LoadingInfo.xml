@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameInfo>
+  <LoadingInfo>
+		<!--New-->
+		<Row LeaderType="LEADER_AMERICA" 	ForegroundImage="dom_america.dds"	BackgroundImage="dom_america.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_CHINA" 		ForegroundImage="dom_china.dds"		BackgroundImage="dom_china.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_ENGLAND" 	ForegroundImage="dom_england.dds"	BackgroundImage="dom_england.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_FRANCE" 	ForegroundImage="dom_france.dds"	BackgroundImage="dom_france.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_GERMANY" 	ForegroundImage="dom_germany.dds"	BackgroundImage="dom_germany.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_GREECE" 	ForegroundImage="dom_greece.dds"	BackgroundImage="dom_greece.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_ITALY" 		ForegroundImage="dom_italy.dds"		BackgroundImage="dom_italy.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_JAPAN" 		ForegroundImage="dom_japan.dds"		BackgroundImage="dom_japan.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_RUSSIA" 	ForegroundImage="dom_ussr.dds"		BackgroundImage="dom_ussr.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
+	</LoadingInfo>
+</GameInfo>
+
+
+
+
+
+
+
+
+

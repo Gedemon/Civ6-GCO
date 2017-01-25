@@ -1,0 +1,19 @@
+
+
+enough horses to build any mounted unit in city -> Stable -> can build unit requiring horse
+Iron stock in city -> Iron Smith -> can build unit requiring iron
+Iron & coal stock in city -> Steel Factory -> can build units requiring steel
+
+or hidden tech/civic/resource
+use dummy building for each unit, edit city screen to hide them (add column in building table)
+
+budget
+
+calculate need (maintenance cost, then bonus if superior, malus if inferior)
+
+military : moral (combat: pushthrough, retreat), reliability (mechanized need less materiel), loyalty (desertion, rebellion)
+culture
+diplomacy
+intelligence
+entertainement
+science

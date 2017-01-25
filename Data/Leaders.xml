@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Ed Beach (Firaxis Games) -->
+<GameInfo>
+	<Types>
+		<!-- New-->
+		<Row Type="LEADER_AMERICA" 	Kind="KIND_LEADER"/>
+		<Row Type="LEADER_CHINA" 	Kind="KIND_LEADER"/>
+		<Row Type="LEADER_ENGLAND" 	Kind="KIND_LEADER"/>
+		<Row Type="LEADER_FRANCE" 	Kind="KIND_LEADER"/>
+		<Row Type="LEADER_GERMANY" 	Kind="KIND_LEADER"/>
+		<Row Type="LEADER_GREECE" 	Kind="KIND_LEADER"/>
+		<Row Type="LEADER_JAPAN" 	Kind="KIND_LEADER"/>
+		<Row Type="LEADER_ITALY" 	Kind="KIND_LEADER"/>
+		<Row Type="LEADER_RUSSIA" 	Kind="KIND_LEADER"/>
+	</Types>
+	<Leaders>
+		<!--New-->
+		<Row LeaderType="LEADER_AMERICA" 	Name="LOC_LEADER_AMERICA"	InheritFrom="LEADER_DEFAULT"/>
+		<Row LeaderType="LEADER_CHINA" 		Name="LOC_LEADER_CHINA" 	InheritFrom="LEADER_DEFAULT"/>
+		<Row LeaderType="LEADER_ENGLAND" 	Name="LOC_LEADER_ENGLAND"	InheritFrom="LEADER_DEFAULT"/>
+		<Row LeaderType="LEADER_FRANCE" 	Name="LOC_LEADER_FRANCE" 	InheritFrom="LEADER_DEFAULT"/>
+		<Row LeaderType="LEADER_GERMANY" 	Name="LOC_LEADER_GERMANY"	InheritFrom="LEADER_DEFAULT"/>
+		<Row LeaderType="LEADER_GREECE" 	Name="LOC_LEADER_GREECE" 	InheritFrom="LEADER_DEFAULT"/>
+		<Row LeaderType="LEADER_JAPAN" 		Name="LOC_LEADER_JAPAN" 	InheritFrom="LEADER_DEFAULT"/>
+		<Row LeaderType="LEADER_ITALY" 		Name="LOC_LEADER_ITALY" 	InheritFrom="LEADER_DEFAULT"/>
+		<Row LeaderType="LEADER_RUSSIA" 	Name="LOC_LEADER_RUSSIA" 	InheritFrom="LEADER_DEFAULT"/>
+	</Leaders>
+	<HistoricalAgendas>
+		<Row LeaderType="LEADER_AMERICA" 	AgendaType="AGENDA_NUKE_LOVER"/>
+		<Row LeaderType="LEADER_CHINA" 		AgendaType="AGENDA_NUKE_LOVER"/>
+		<Row LeaderType="LEADER_ENGLAND" 	AgendaType="AGENDA_NUKE_LOVER"/>
+		<Row LeaderType="LEADER_FRANCE" 	AgendaType="AGENDA_NUKE_LOVER"/>
+		<Row LeaderType="LEADER_GERMANY" 	AgendaType="AGENDA_NUKE_LOVER"/>
+		<Row LeaderType="LEADER_GREECE" 	AgendaType="AGENDA_NUKE_LOVER"/>
+		<Row LeaderType="LEADER_JAPAN" 		AgendaType="AGENDA_NUKE_LOVER"/>
+		<Row LeaderType="LEADER_ITALY" 		AgendaType="AGENDA_NUKE_LOVER"/>
+		<Row LeaderType="LEADER_RUSSIA" 	AgendaType="AGENDA_NUKE_LOVER"/>
+	</HistoricalAgendas>
+	<LeaderTraits>
+		<Row LeaderType="LEADER_AMERICA" 	TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+		<Row LeaderType="LEADER_CHINA" 		TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+		<Row LeaderType="LEADER_ENGLAND" 	TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+		<Row LeaderType="LEADER_FRANCE" 	TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+		<Row LeaderType="LEADER_GERMANY" 	TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+		<Row LeaderType="LEADER_GREECE" 	TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+		<Row LeaderType="LEADER_JAPAN" 		TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+		<Row LeaderType="LEADER_ITALY" 		TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+		<Row LeaderType="LEADER_RUSSIA" 	TraitType="TRAIT_LEADER_MAJOR_CIV"/>
+	</LeaderTraits>	
+	<CivilizationLeaders>
+		<Row CivilizationType="CIVILIZATION_AMERICA" 	LeaderType="LEADER_AMERICA" 	CapitalName="LOC_CITY_NAME_WASHINGTON"/>
+		<Row CivilizationType="CIVILIZATION_CHINA" 		LeaderType="LEADER_CHINA" 		CapitalName="LOC_CITY_NAME_XIAN"/>
+		<Row CivilizationType="CIVILIZATION_ENGLAND" 	LeaderType="LEADER_ENGLAND" 	CapitalName="LOC_CITY_NAME_LONDON"/>
+		<Row CivilizationType="CIVILIZATION_FRANCE" 	LeaderType="LEADER_FRANCE" 		CapitalName="LOC_CITY_NAME_PARIS"/>
+		<Row CivilizationType="CIVILIZATION_GERMANY" 	LeaderType="LEADER_GERMANY" 	CapitalName="LOC_CITY_NAME_AACHEN"/>
+		<Row CivilizationType="CIVILIZATION_GREECE" 	LeaderType="LEADER_GREECE" 		CapitalName="LOC_CITY_NAME_ATHENS"/>
+		<Row CivilizationType="CIVILIZATION_JAPAN" 		LeaderType="LEADER_JAPAN" 		CapitalName="LOC_CITY_NAME_KYOTO"/>
+		<Row CivilizationType="CIVILIZATION_ROME" 		LeaderType="LEADER_ITALY" 		CapitalName="LOC_CITY_NAME_ROME"/>
+		<Row CivilizationType="CIVILIZATION_RUSSIA" 	LeaderType="LEADER_RUSSIA" 		CapitalName="LOC_CITY_NAME_ST_PETERSBURG"/>
+	</CivilizationLeaders>
+</GameInfo>
