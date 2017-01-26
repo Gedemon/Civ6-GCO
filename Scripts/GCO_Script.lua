@@ -20,16 +20,21 @@ function InitializeUtilityFunctions()
 		GCO = ExposedMembers.GCO
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions initialized...")
+		InitializeTables()
 	end
 end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+
+function InitializeTables()
+	if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
+end
 
 -----------------------------------------------------------------------------------------
 -- Unit composition
 -----------------------------------------------------------------------------------------
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
-local minCompLeftFactor = GlobalParameters.MIN_COMPONENT_LEFT_IN_UNIT_FACTOR -- 5
-local maxCompLeftFactor = GlobalParameters.MAX_COMPONENT_LEFT_IN_UNIT_FACTOR -- 3
+local minCompLeftFactor = GameInfo.GlobalParameters["MIN_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value -- Modded global parameters are not in GlobalParameters ?????
+local maxCompLeftFactor = GameInfo.GlobalParameters["MAX_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value
 function GetNumComponentAtHP(maxNumComponent, HPLeft)
 	local numComponent = 0
 	local maxCompLeft100 = 0
@@ -154,7 +159,5 @@ end
 function Initialize()
 	KillAllCS()
 	CreateUnitHitPointsTable()
-	-- load or create tables
-	if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
 end
 Initialize()
