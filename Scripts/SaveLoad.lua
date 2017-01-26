@@ -155,8 +155,11 @@ function LoadTableFromSlot(sSlotName)
 	end
 end
 
+
 function Initialize()
-	ExposedMembers.SaveTableToSlot = SaveTableToSlot
-	ExposedMembers.LoadTableFromSlot = LoadTableFromSlot
+	ExposedMembers.GCO = ExposedMembers.GCO or {}
+	ExposedMembers.GCO.SaveTableToSlot = SaveTableToSlot
+	ExposedMembers.GCO.LoadTableFromSlot = LoadTableFromSlot
+	ExposedMembers.SaveLoad_Initialized = true
 end
 Initialize()

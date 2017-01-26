@@ -145,8 +145,22 @@ UPDATE Units SET Personnel = 160, 	Vehicules = 40, Materiel = 400, MaterielPerVe
 UPDATE Units SET Personnel = 100, Materiel = 10  Where UnitType = "UNIT_SCOUT" OR UnitType = "UNIT_RANGER";
 
 /* Land Ranged */
-UPDATE Units SET Personnel = 2000,	Materiel = 50 	Where UnitType = "UNIT_SLINGER" OR UnitType = "UNIT_ARCHER" OR UnitType = "UNIT_CROSSBOWMAN";
-UPDATE Units SET Personnel = 500, 	Materiel = 100  Where UnitType = "UNIT_AT_CREW" OR UnitType = "UNIT_MACHINE_GUN" OR UnitType = "UNIT_MODERN_AT";
+UPDATE Units SET Personnel = 1500,	Materiel = 20 	Where UnitType = "UNIT_SLINGER";
+UPDATE Units SET Personnel = 2000,	Materiel = 30 	Where UnitType = "UNIT_ARCHER";
+UPDATE Units SET Personnel = 2500,	Materiel = 50 	Where UnitType = "UNIT_CROSSBOWMAN";
+UPDATE Units SET Personnel = 500, 	Materiel = 200  Where UnitType = "UNIT_AT_CREW" OR UnitType = "UNIT_MACHINE_GUN" OR UnitType = "UNIT_MODERN_AT";
 UPDATE Units SET Personnel = 100, 	Materiel = 200  Where UnitType = "UNIT_CATAPULT";
 UPDATE Units SET Personnel = 100, 	Materiel = 250  Where UnitType = "UNIT_BOMBARD" OR UnitType = "UNIT_FIELD_CANNON";
 UPDATE Units SET Personnel = 100, 	Materiel = 300  Where UnitType = "UNIT_ARTILLERY";
+
+/* Land infantry */
+UPDATE Units SET Personnel = 2000,	Materiel = 30 	Where UnitType = "UNIT_WARRIOR" OR UnitType = "UNIT_AZTEC_EAGLE_WARRIOR";
+UPDATE Units SET Personnel = 2500,	Materiel = 40 	Where UnitType = "UNIT_SPEARMAN" OR UnitType = "UNIT_GREEK_HOPLITE";
+UPDATE Units SET Personnel = 3000,	Materiel = 60 	Where UnitType = "UNIT_SWORDSMAN";
+UPDATE Units SET Personnel = 3500,	Materiel = 60 	Where UnitType = "UNIT_PIKEMAN";
+UPDATE Units SET Personnel = 4000,	Materiel = 60 	Where UnitType = "UNIT_MUSKETMAN";
+
+/* Cavalry */
+UPDATE Units SET Personnel = 300,	Materiel = 75, Horses = 150 	Where UnitType = "UNIT_HEAVY_CHARIOT";
+UPDATE Units SET Personnel = 300,	Materiel = 40, Horses = 300 	Where UnitType = "UNIT_BARBARIAN_HORSE_ARCHER";
+UPDATE Units SET Personnel = 300,	Materiel = 50, Horses = 300 	Where UnitType = "UNIT_HORSEMAN" OR UnitType = "UNIT_BARBARIAN_HORSEMAN";

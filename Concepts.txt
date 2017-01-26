@@ -71,13 +71,13 @@ Initialise()
 - in other lua files
 
 GCO = {}
-function InitializeFunctions()
+function InitializeUtilityFunctions()
 	if ExposedMembers.GCO_Initialized then
 		GCO = ExposedMembers.GCO
-		Events.AppInitComplete.Remove( InitializeFunctions )
+		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 	end
 end
-Events.AppInitComplete.Add( InitializeFunctions ) -- find the first possible event...
+Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 - to call AnUtilityFunction in those scripts:
 

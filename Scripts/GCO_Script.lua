@@ -9,8 +9,23 @@
 
 UnitHitPointsTable = {}
 
+
 -----------------------------------------------------------------------------------------
--- Unit Table
+-- Initialize Functions
+-----------------------------------------------------------------------------------------
+
+GCO = {}
+function InitializeUtilityFunctions()
+	if ExposedMembers.SaveLoad_Initialized then
+		GCO = ExposedMembers.GCO
+		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
+		print ("Exposed Functions initialized...")
+	end
+end
+Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+
+-----------------------------------------------------------------------------------------
+-- Unit composition
 -----------------------------------------------------------------------------------------
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 local minCompLeftFactor = GlobalParameters.MIN_COMPONENT_LEFT_IN_UNIT_FACTOR -- 5
@@ -24,6 +39,7 @@ function GetNumComponentAtHP(maxNumComponent, HPLeft)
 	else
 		maxCompLeft100 = math.min(maxNumComponent * 100, HPLeft * 100 * ( maxNumComponent / maxHP))
 	end	
+	print (minCompLeft100, minCompLeftFactor, maxCompLeft100 , maxCompLeftFactor, minCompLeftFactor , maxCompLeftFactor)
 	local numComponent100 = math.max( 100, ((( minCompLeft100 * minCompLeftFactor) + ( maxCompLeft100 * maxCompLeftFactor)) / ( minCompLeftFactor + maxCompLeftFactor )))
 	numComponent = math.ceil(numComponent100 / 100)
 	return numComponent
@@ -38,6 +54,7 @@ function CreateUnitHitPointsTable()
 		local Horses = row.Horses
 		local Materiel = row.Materiel
 		for hp = 1, maxHP do
+			UnitHitPointsTable[row.Index][hp] = {}
 			if Personnel > 0 then UnitHitPointsTable[row.Index][hp].Personnel = GetNumComponentAtHP(Personnel, hp) else UnitHitPointsTable[row.Index][hp].Personnel = 0 end
 			if Vehicules > 0 then UnitHitPointsTable[row.Index][hp].Vehicules = GetNumComponentAtHP(Vehicules, hp) else UnitHitPointsTable[row.Index][hp].Vehicules = 0 end
 			if Horses > 0 then UnitHitPointsTable[row.Index][hp].Horses = GetNumComponentAtHP(Horses, hp) else UnitHitPointsTable[row.Index][hp].Horses = 0 end
@@ -48,6 +65,66 @@ function CreateUnitHitPointsTable()
 	end
 end
 
+--------------------------------------------------------------
+-- Units Initialization
+--------------------------------------------------------------
+
+-- return unique key for units table [unitID,playerID]
+function GetUnitKey(unit)
+	if unit then
+		local ownerID = unit:GetOwner()
+		local unitID = unit:GetID()
+		local unitKey = unitID..","..ownerID
+		return unitKey
+	else
+		print("- WARNING: unit is nil for GetUnitKey()")
+	end
+end
+ExposedMembers.GetUnitKey = GetUnitKey
+
+function RegisterNewUnit(playerID, unit) -- unit is object, not ID
+
+	local unitType = unit:GetType()
+	local unitID = unit:GetID()
+	local unitKey = GetUnitKey(unit)
+	local hp = unit:GetMaxDamage() - unit:GetDamage()
+
+	ExposedMembers.UnitData[unitKey] = { 
+		UniqueID = unitKey.."-"..os.clock(), -- for linked statistics
+		--TurnCreated = Game.GetGameTurn(),
+		Personnel = UnitHitPointsTable[unitType][hp].Personnel,
+		Vehicules = UnitHitPointsTable[unitType][hp].Vehicules,
+		Horses = UnitHitPointsTable[unitType][hp].Horses,
+		Materiel = UnitHitPointsTable[unitType][hp].Materiel,
+		Moral = 100,
+		Alive = true,
+		TotalXP = unit:GetExperience():GetExperiencePoints(),
+		CombatXP = 0,
+	}
+
+	LuaEvents.NewUnitCreated()
+end
+
+function InitializeUnit(playerID, unitID)
+	local unit = UnitManager.GetUnit(playerID, unitID)
+	if unit then
+		local unitKey = GetUnitKey(unit)
+	
+		if ExposedMembers.UnitData[unitKey] then
+			-- unit already registered, don't add it again...
+			print("  - ".. unit:GetName() .." is already registered") 
+			return
+		end
+
+		print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID))
+		RegisterNewUnit(playerID, unit) -- no autonaming if unit already has a custom name
+		print("-------------------------------------")
+	else
+		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID))
+	end
+
+end
+Events.UnitAddedToMap.Add( InitializeUnit )
 
 -----------------------------------------------------------------------------------------
 -- Remove CS on game start
@@ -70,4 +147,14 @@ function KillAllCS()
 		end
 	end
 end
-KillAllCS()
+
+-----------------------------------------------------------------------------------------
+-- Initialize script
+-----------------------------------------------------------------------------------------
+function Initialize()
+	KillAllCS()
+	CreateUnitHitPointsTable()
+	-- load or create tables
+	if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
+end
+Initialize()

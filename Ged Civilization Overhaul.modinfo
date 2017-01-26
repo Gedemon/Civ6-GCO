@@ -24,6 +24,7 @@
 		<ImportFiles id="GCO_IMPORT">
 			<Items>
 				<File>UI/DiplomacyActionView.lua</File>
+				<File>UI/UnitFlagManager.lua</File>
 				<File>UI/LeaderScene.xml</File>
 				<File>Art/dom_america.dds</File>
 				<File>Art/dom_china.dds</File>
@@ -70,7 +71,7 @@
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
            	<Properties>
-				<LoadOrder>10600</LoadOrder>
+				<LoadOrder>100600</LoadOrder>
            	</Properties>
 			<Items>
 				<File>custom.sql</File>
@@ -82,11 +83,6 @@
 				<File>Text/GameText.xml</File>
 			</Items>
 		</LocalizedText>
-		<ModArt id="GCO_ART_COMPOMENT">
-		  <Items>
-			<File>GCO.dep</File>
-		  </Items>
-		</ModArt>
 	</Components>
 	
   <Settings>
@@ -111,8 +107,8 @@
 		<File>Scripts/GCO_Script.lua</File>
 		<File>Scripts/SaveLoad.lua</File>
 		<File>Scripts/SaveLoad.xml</File>
-		<File>UI/LeaderScene.xml</File>
 		<File>UI/DiplomacyActionView.lua</File>
+		<File>UI/UnitFlagManager.lua</File>
 		<File>Art/dom_america.dds</File>
 		<File>Art/dom_china.dds</File>
 		<File>Art/dom_france.dds</File>
