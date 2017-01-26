@@ -25,7 +25,6 @@
 			<Items>
 				<File>UI/DiplomacyActionView.lua</File>
 				<File>UI/UnitFlagManager.lua</File>
-				<File>UI/LeaderScene.xml</File>
 				<File>Art/dom_america.dds</File>
 				<File>Art/dom_china.dds</File>
 				<File>Art/dom_france.dds</File>
@@ -33,8 +32,9 @@
 				<File>Art/dom_greece.dds</File>
 				<File>Art/dom_italy.dds</File>
 				<File>Art/dom_japan.dds</File>
-				<File>Art/dom_uk.dds</File>
+				<File>Art/dom_england.dds</File>
 				<File>Art/dom_ussr.dds</File>
+				<File>Art/dom_blank.dds</File>
 				<File>Art/scene_america.dds</File>
 				<File>Art/scene_china.dds</File>
 				<File>Art/scene_england.dds</File>
@@ -48,7 +48,12 @@
 		</ImportFiles>
         <GameplayScripts>
             <Items>
-                <File>Scripts/GCO_Script.lua</File>
+                <File>Scripts/UnitScript.lua</File>
+            </Items>
+        </GameplayScripts>
+        <GameplayScripts>
+            <Items>
+                <File>Scripts/GCOScript.lua</File>
             </Items>
         </GameplayScripts>
         <UserInterface>		
@@ -104,7 +109,8 @@
 		<File>Text/GameText.xml</File>
 		<File>Text/ConfigText.xml</File>
 		<File>Config/Config.xml</File>
-		<File>Scripts/GCO_Script.lua</File>
+		<File>Scripts/UnitScript.lua</File>
+		<File>Scripts/GCOScript.lua</File>
 		<File>Scripts/SaveLoad.lua</File>
 		<File>Scripts/SaveLoad.xml</File>
 		<File>UI/DiplomacyActionView.lua</File>
@@ -116,8 +122,9 @@
 		<File>Art/dom_greece.dds</File>
 		<File>Art/dom_italy.dds</File>
 		<File>Art/dom_japan.dds</File>
-		<File>Art/dom_uk.dds</File>
+		<File>Art/dom_england.dds</File>
 		<File>Art/dom_ussr.dds</File>
+		<File>Art/dom_blank.dds</File>
 		<File>Art/scene_america.dds</File>
 		<File>Art/scene_china.dds</File>
 		<File>Art/scene_england.dds</File>

@@ -61,7 +61,7 @@ science
 - at the end of global utility Lua file in script context, after all utility functions:
 
 function Initialise()
-	ExposedMembers.GCO = {}
+	if not ExposedMembers.GCO then ExposedMembers.GCO = {}
 	ExposedMembers.GCO.AnUtilityFunction = AnUtilityFunction
 	-- ...
 	ExposedMembers.GCO_Initialized = true
