@@ -90,7 +90,6 @@ function unpickle(s)
 end
 
 
-
 --=================================================
 -- Load / Save
 -- Using Civ6 GameConfiguration
@@ -100,20 +99,35 @@ usage:
 > ExposedMembers.SaveTableToSlot(t, "myTable")
 > t = ExposedMembers.LoadTableFromSlot("myTable")
 
-When to save ?
+--]]
+--=================================================
 
--- this Lua event is called when listing files on the save/load menu
-function SaveMyTable()
-	ExposedMembers.SaveTableToSlot(myTable, "myTable")
+----------------------------------------------
+-- defines
+----------------------------------------------
+local SaveLoad_Initialized = false
+
+function IsSaveLoadInitialized()
+	return SaveLoad_Initialized
 end
-LuaEvents.FileListQueryComplete.Add( SaveMyTable )
+GameEvents.ExposedFunctionsInitialized.add( IsSaveLoadInitialized )
+
+
+----------------------------------------------
+-- events for saving
+----------------------------------------------
+-- this Lua event is called when listing files on the save/load menu
+function SaveMyTables()
+	LuaEvents.SaveTables()
+end
+LuaEvents.FileListQueryComplete.Add( SaveMyTables )
 
 -- could get the quicksave key here
 function OnInputHandler( pInputStruct:table )
 	local uiMsg = pInputStruct:GetMessageType();
 	if uiMsg == KeyEvents.KeyDown then
 		if pInputStruct:GetKey() == Keys.VK_F5 then -- but the binding can be changed...
-			ExposedMembers.SaveTableToSlot(myTable, "myTable")
+			LuaEvents.SaveTables()
 		end
 	end
 	-- pInputStruct:IsShiftDown() and pInputStruct:IsAltDown()
@@ -123,15 +137,18 @@ ContextPtr:SetInputHandler( OnInputHandler, true )
 -- Or on this event for quick save (but is it called soon enough before saving ?)
 function OnInputAction( actionID )
 	if actionID == Input.GetActionId("QuickSave") then
-		SaveMyTables()
+		LuaEvents.SaveTables()
 	end
 end
 Events.InputActionTriggered( OnInputAction )
---]]
---=================================================
 
+
+----------------------------------------------
+-- load/save
+----------------------------------------------
 -- save
-function SaveTableToSlot(t, sSlotName)
+function SaveTableToSlot(t, sSlotName)	
+	local startTime = Automation.GetTime()
 	if type(t) ~= "table" then 
 		print("ERROR: SaveTableToSlot(t, sSlotName), parameter #1 must be a table, nothing saved to slot ".. tostring(sSlotName))
 		return
@@ -141,7 +158,15 @@ function SaveTableToSlot(t, sSlotName)
 		return
 	end
 	local s = pickle(t)
+	local size = string.len(s)
 	GameConfiguration.SetValue(sSlotName, s)
+	local sCheck = GameConfiguration.GetValue(sSlotName)
+	if sCheck ~= s then
+		print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring(sSlotName))
+		print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
+	end
+	local endTime = Automation.GetTime()
+	print("SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(#t) .. ", serialized size = " .. tostring(size)) 
 end
 
 -- load
@@ -151,15 +176,17 @@ function LoadTableFromSlot(sSlotName)
 		local t = unpickle(s)
 		return t
 	else
-		print("ERROR: can't load table from ".. tostring(sSlotName)) 
+		print("WARNING: No saved data table in slot ".. tostring(sSlotName) .." (this should happen only on the first initialization of the table)") 
 	end
 end
 
-
+----------------------------------------------
+-- Initialize functions for other contexts
+----------------------------------------------
 function Initialize()
-	ExposedMembers.GCO = ExposedMembers.GCO or {}
+	if not ExposedMembers.GCO then ExposedMembers.GCO = {}
 	ExposedMembers.GCO.SaveTableToSlot = SaveTableToSlot
 	ExposedMembers.GCO.LoadTableFromSlot = LoadTableFromSlot
-	ExposedMembers.SaveLoad_Initialized = true
+	SaveLoad_Initialized = true
 end
 Initialize()
