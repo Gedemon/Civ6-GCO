@@ -37,6 +37,13 @@ example:
 
 
 ====================
+=     Healing      =
+====================
+
+- Unit heal from reserve first then receive supply
+
+
+====================
 =    Buildings     =
 ====================
 
