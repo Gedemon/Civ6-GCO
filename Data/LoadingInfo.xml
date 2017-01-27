@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
   <LoadingInfo>
-		<!--New-->
+		<!-- BackgroundImage = top left / ForegroundImage = right -->
 		<Row LeaderType="LEADER_AMERICA" 	ForegroundImage="dom_blank.dds"	BackgroundImage="dom_america.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
 		<Row LeaderType="LEADER_CHINA" 		ForegroundImage="dom_blank.dds"	BackgroundImage="dom_china.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
 		<Row LeaderType="LEADER_ENGLAND" 	ForegroundImage="dom_blank.dds"	BackgroundImage="dom_england.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>

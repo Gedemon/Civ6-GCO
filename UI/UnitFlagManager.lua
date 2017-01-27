@@ -832,16 +832,39 @@ function UnitFlag.UpdateName( self )
 			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_LEVY_ACTIVE", PlayerConfigurations[pUnit:GetOriginalOwner()]:GetPlayerName(), iLevyTurnsRemaining);
 		end
 
-		-- GCO
+		-- GCO <<<<<
 		local unitKey = ExposedMembers.GetUnitKey(pUnit)
 		local unitData = ExposedMembers.UnitData[unitKey]
 		local unitInfo = GameInfo.Units[pUnit:GetUnitType()]
 		if unitData then
-			if unitData.Personnel > 0 then nameString = nameString .. "[NEWLINE]Personnel = " .. tostring(unitData.Personnel) .. "/" .. tostring(unitInfo.Personnel) end
-			if unitData.Vehicules > 0 then nameString = nameString .. "[NEWLINE]Vehicules = " .. tostring(unitData.Vehicules) .. "/" .. tostring(unitInfo.Vehicules) end
-			if unitData.Horses > 0 then nameString = nameString .. "[NEWLINE]Horses = " .. tostring(unitData.Horses) .. "/" .. tostring(unitInfo.Horses) end
-			if unitData.Materiel > 0 then nameString = nameString .. "[NEWLINE]Materiel = " .. tostring(unitData.Materiel) .. "/" .. tostring(unitInfo.Materiel) end
+		
+			local bHasComponents = (unitInfo.Personnel + unitInfo.Vehicules + unitInfo.Horses + unitInfo.Materiel > 0)			
+			if bHasComponents then 
+			
+				if unitInfo.Personnel > 0 then nameString = nameString .. "[NEWLINE][ICON_Position] " .. tostring(unitData.Personnel) .. "/" .. tostring(unitInfo.Personnel) .. " Personnel" end
+				if unitInfo.Vehicules > 0 then nameString = nameString .. "[NEWLINE][ICON_DISTRICT_HANSA] " .. tostring(unitData.Vehicules) .. "/" .. tostring(unitInfo.Vehicules) .. " Vehicules" end
+				if unitInfo.Horses > 0 then nameString = nameString .. "[NEWLINE][ICON_RESOURCE_HORSES] " .. tostring(unitData.Horses) .. "/" .. tostring(unitInfo.Horses) .. " Horses" end
+				if unitInfo.Materiel > 0 then nameString = nameString .. "[NEWLINE][ICON_Charges] " .. tostring(unitData.Materiel) .. "/" .. tostring(unitInfo.Materiel) .. " Materiel" end	
+			
+				nameString = nameString .. "[NEWLINE]---------------"				
+				if unitInfo.Personnel > 0 then nameString = nameString .. "[NEWLINE][ICON_Position] " .. tostring(unitData.PersonnelReserve) .. " Personnel Reserve" end
+				if unitInfo.Vehicules > 0 then nameString = nameString .. "[NEWLINE][ICON_DISTRICT_HANSA] " .. tostring(unitData.VehiculesReserve) .. " Vehicules Reserve" end
+				if unitInfo.Horses > 0 then nameString = nameString .. "[NEWLINE][ICON_RESOURCE_HORSES] " .. tostring(unitData.HorsesReserve) .. " Horses Reserve" end
+				if unitInfo.Materiel > 0 then nameString = nameString .. "[NEWLINE][ICON_Charges] " .. tostring(unitData.MaterielReserve) .. " Materiel Reserve" end
+				
+				local bHasExtra = (unitData.WoundedPersonnel + unitData.DamagedVehicles + unitData.Prisonners > 0)				
+				if bHasExtra then
+				
+					nameString = nameString .. "[NEWLINE]---------------"					
+					if unitData.WoundedPersonnel > 0 then nameString = nameString .. "[NEWLINE][ICON_UnderSiege] " .. tostring(unitData.WoundedPersonnel) .. " Wounded Personnel" end
+					if unitData.DamagedVehicles > 0 then nameString = nameString .. "[NEWLINE][ICON_Pillaged] " .. tostring(unitData.DamagedVehicles) .. " Damaged Vehicles" end
+					if unitData.Prisonners > 0 then nameString = nameString .. "[NEWLINE][ICON_Occupied] " .. tostring(unitData.Prisonners) .. " Prisonners" end
+				end
+				
+			end
 		end
+			
+		-- GCO >>>>>
 		
 		self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) );
 	end
@@ -1877,3 +1900,19 @@ function Initialize()
 	RegisterDirtyEvents();
 end
 Initialize();
+
+-- GCO <<<<<
+function OnUnitsCompositionUpdated(playerID, unitID)
+	local pPlayer = Players[ playerID ];
+	if (pPlayer ~= nil) then
+		local pUnit = pPlayer:GetUnits():FindID(unitID);
+		if (pUnit ~= nil) then
+			local flag = GetUnitFlag(playerID, pUnit:GetID());
+			if (flag ~= nil) then
+				flag:UpdateName()
+			end
+		end
+	end
+end
+LuaEvents.UnitsCompositionUpdated.Add(OnUnitsCompositionUpdated)
+-- GCO >>>>>

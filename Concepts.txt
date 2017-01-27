@@ -12,6 +12,19 @@
 =      COMBAT      =
 ====================
 
+when destroying an unit in melee attack:
+- capture % of wounded left
+- capture % of materiel left
+- capture % of horses left
+- capture % of fuel left
+- transform % of damaged vehicule to materiel
+
+when destroying an unit in ranged attack:
+- % of wounded left -> defender city if linked
+- everything else lost
+
+---------------------------------------------------------------
+
 + Units can have more components than expected by its HP left (just put them in reserve)
 
 - excedental reserve is transfered to city if a supply line is open
@@ -55,30 +68,100 @@ science
 
 
 ====================
-=  Programmation   =
+= Resources stock  =
 ====================
 
-- at the end of global utility Lua file in script context, after all utility functions:
+how to find which resources can be sold & which can be bought
 
-function Initialise()
-	if not ExposedMembers.GCO then ExposedMembers.GCO = {}
-	ExposedMembers.GCO.AnUtilityFunction = AnUtilityFunction
-	-- ...
-	ExposedMembers.GCO_Initialized = true
-end
-Initialise()
+- slider to sell until X % of stock left 
+- slider to buy until Y % of stock filled
+- slider to convert to another resource until Z % of stock left
 
-- in other lua files
+converting a resource (in buildings like steel factory using coal and iron) has priority, so to always have a stock to sell, set Z > X, but the number of converted / buyed resources is limited per turn
 
-GCO = {}
-function InitializeUtilityFunctions()
-	if ExposedMembers.GCO_Initialized then
-		GCO = ExposedMembers.GCO
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-	end
-end
-Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+for example a market could allows 10 units of each resources / turn or a stock exchange 100 units of each resources / turn
 
-- to call AnUtilityFunction in those scripts:
 
-GCO.AnUtilityFunction()
+if X > Y 
+    - will buy until Y % of stock filled
+    - will sell until X % of stock left
+    - and means will not buy if it's selling
+if X < Y 
+    - will always buy until Y % of stock filled
+    - will sell until X % of stock left
+    - can buy and sell at the same time
+
+so maybe force X >= Y every time (if X = Y = % stock left -> no buying nor selling)
+
+default values:
+PERCENTAGE_STOCK_REQUIRED_TO_SELL = 50
+PERCENTAGE_STOCK_REQUIRED_TO_CONVERT = 40
+PERCENTAGE_STOCK_REQUIRED_TO_STOP_BUYING = 50
+
+UI :
+    - national stock (main menu on new screen)
+       - general slider for nation (ie default for all resources)
+       - sliders for all resources (when used not updated by general slider)
+       - button to reset values of all resources slider to general slider
+    - city stock (list and button to unfold at bottom of new screen)
+       - general slider for city (ie default for all resources in city - override general slider for nation at the city level)
+       - sliders for all resources (when used they are not updated by general slider)
+       - button to reset values of all resources slider to general slider for city
+       - button to reset value of general slider for city to general slider for nation
+       - button to reset values of all sliders of this city to general slider for nation
+
+====================
+=Resource Transfert=
+====================
+
+How much resources are transfered using trade routes
+
+default values:
+MAX_CARGO_PER_TRADER = 10 -- Max value for exported/imported resource per trader
+EXPORTED_CARGO_PER_TRADER = 10 -- default exported units of each resources
+IMPORTED_CARGO_PER_TRADER = 5 -- default imported units of each resources
+
+UI :
+    - national trading (main menu on new screen)
+       - 2 general values for max quantity to export/import (ie default for all resources)
+       - 2 values (max to export/import) for all resources
+        - button to reset values of all resources values to general values
+
+    - trader (list and button to unfold at bottom of new screen, button to unfold on trader screen)
+       - 2 general values for max quantity to export/import (ie default for all resources)
+       - 2 values (max to export/import) for each resources that this trader can access
+       - button to reset values of all resources values to this trader general values
+       - button to reset values of all this traders values to general values for nation
+
+====================
+=      Economy     =
+====================
+
+4 classes: upper, middle, lower, slave (prisonners of war, policy dependant)
+
+rich (max % from middle+poor), middle (default), poor
+rich give more gold from tax
+poor, slave give no gold from tax
+building / luxury resources / tax : change rate (per turn) of convertion from middle to rich/poor
+poor give unrest/unhappiness
+
+Taxe rate used to determine gold the change rate
+
+default value
+BASE_GOLD_PER_RICH_CITIZEN = 100
+BASE_TAXE_RICH_CLASS = 10
+
+BASE_GOLD_PER_MIDDLE_CLASS_CITIZEN = 10
+BASE_TAXE_RICH_CLASS = 10
+
+UI :
+    - national taxe rate
+       - 2 values for rich/middle class taxe rate
+    - city taxe rate
+       - 2 values for rich/middle class taxe rate
+       - 1 button to reset city values to national values
+	   
+====================
+=  Programmation   =
+====================
+	   

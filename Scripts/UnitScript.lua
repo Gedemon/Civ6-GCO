@@ -11,6 +11,9 @@ print ("Loading UnitScript.lua...")
 
 UnitHitPointsTable = {} -- cached table to store the value of an unit components based on it's HP
 
+-- This should be the first file loaded...
+--ExposedMembers.SaveLoad_Initialized = false
+--ExposedMembers.Utils_Initialized = false
 
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
@@ -18,8 +21,10 @@ UnitHitPointsTable = {} -- cached table to store the value of an unit components
 
 GCO = {}
 function InitializeUtilityFunctions() -- Get functions from other contexts
-	if GameEvents.ExposedFunctionsInitialized.TestAll() then
+	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 		GCO = ExposedMembers.GCO
+		UI = ExposedMembers.UI
+		ExposedMembers.UI = nil -- we may want to clean after everything initialized if we need this in another script context...
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
 		InitializeTables()
@@ -28,12 +33,17 @@ end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 function InitializeTables() -- Tables that may require other context to be loaded (saved/loaded tables)
-	if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
+	if not ExposedMembers.UnitData then ExposedMembers.UnitData = ExposedMembers.GCO.LoadTableFromSlot("UnitData") or {} end
 end
 
 function Initialize() -- Everything that can be initialized immediatly after loading this file(cached tables)
 	CreateUnitHitPointsTable()
 end
+
+function OnEnterGame() -- Everything that can only be initialized after everything as loaded and the game is initialized
+	
+end
+Events.LoadScreenClose.Add(OnEnterGame)
 
 -----------------------------------------------------------------------------------------
 -- Unit composition
@@ -50,12 +60,10 @@ function GetNumComponentAtHP(maxNumComponent, HPLeft)
 	else
 		maxCompLeft100 = math.min(maxNumComponent * 100, HPLeft * 100 * ( maxNumComponent / maxHP))
 	end	
-	print (minCompLeft100, minCompLeftFactor, maxCompLeft100 , maxCompLeftFactor, minCompLeftFactor , maxCompLeftFactor)
 	local numComponent100 = math.max( 100, ((( minCompLeft100 * minCompLeftFactor) + ( maxCompLeft100 * maxCompLeftFactor)) / ( minCompLeftFactor + maxCompLeftFactor )))
 	numComponent = math.ceil(numComponent100 / 100)
 	return numComponent
 end
-
 
 function CreateUnitHitPointsTable()
 	for row in GameInfo.Units() do 
@@ -97,18 +105,29 @@ function RegisterNewUnit(playerID, unit) -- unit is object, not ID
 	local unitID = unit:GetID()
 	local unitKey = GetUnitKey(unit)
 	local hp = unit:GetMaxDamage() - unit:GetDamage()
+	local reservePseudoHP = GCO.Round(maxHP / 2)
 
 	ExposedMembers.UnitData[unitKey] = { 
 		UniqueID = unitKey.."-"..os.clock(), -- for linked statistics
 		--TurnCreated = Game.GetGameTurn(),
-		Personnel = UnitHitPointsTable[unitType][hp].Personnel,
-		Vehicules = UnitHitPointsTable[unitType][hp].Vehicules,
-		Horses = UnitHitPointsTable[unitType][hp].Horses,
-		Materiel = UnitHitPointsTable[unitType][hp].Materiel,
-		Moral = 100,
-		Alive = true,
-		TotalXP = unit:GetExperience():GetExperiencePoints(),
-		CombatXP = 0,
+		Personnel 			= UnitHitPointsTable[unitType][hp].Personnel,
+		Vehicules 			= UnitHitPointsTable[unitType][hp].Vehicules,
+		Horses 				= UnitHitPointsTable[unitType][hp].Horses,
+		Materiel 			= UnitHitPointsTable[unitType][hp].Materiel,
+		
+		PersonnelReserve	= GCO.Round(UnitHitPointsTable[unitType][reservePseudoHP].Personnel / 10) * 10,
+		VehiclesReserve		= GCO.Round(UnitHitPointsTable[unitType][reservePseudoHP].Vehicules / 10) *10,
+		HorsesReserve		= GCO.Round(UnitHitPointsTable[unitType][reservePseudoHP].Horses / 10) *10,
+		MaterielReserve		= GCO.Round(UnitHitPointsTable[unitType][reservePseudoHP].Materiel / 10) *10,
+		
+		WoundedPersonnel	= 0,
+		DamagedVehicles		= 0,
+		Prisonners			= 0,
+		
+		Moral 				= 100,
+		Alive 				= true,
+		TotalXP 			= unit:GetExperience():GetExperiencePoints(),
+		CombatXP 			= 0,
 	}
 
 	LuaEvents.NewUnitCreated()
@@ -155,7 +174,37 @@ function OnDamageChanged(playerID, unitID, finalDamage, initialDamage)
 				local diffMateriel 	= UnitHitPointsTable[unitType][initialHP].Materiel 	- UnitHitPointsTable[unitType][finalHP].Materiel 
 				
 				-- Handle difference
-			
+				
+				-- simple version
+				ExposedMembers.UnitData[unitKey].Personnel  = ExposedMembers.UnitData[unitKey].Personnel  	- diffPersonnel 
+				ExposedMembers.UnitData[unitKey].Vehicules  = ExposedMembers.UnitData[unitKey].Vehicules  	- diffVehicules 
+				ExposedMembers.UnitData[unitKey].Horses	    = ExposedMembers.UnitData[unitKey].Horses	  	- diffHorses 	
+				ExposedMembers.UnitData[unitKey].Materiel 	= ExposedMembers.UnitData[unitKey].Materiel 	- diffMateriel 
+				
+				LuaEvents.UnitsCompositionUpdated(playerID, unitID)
+				
+				-- visualize
+				local sText
+
+				if diffPersonnel > 0 then
+					sText = "- ".. tostring(diffPersonnel).."[ICON_Position]"
+					UI.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				end
+				
+				if diffVehicules > 0 then
+					sText = "- ".. tostring(diffVehicules).."[ICON_DISTRICT_HANSA]"
+					UI.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				end
+				
+				if diffHorses > 0 then
+					sText = "- ".. tostring(diffHorses).."[ICON_RESOURCE_HORSES]"
+					UI.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				end
+				
+				if diffMateriel > 0 then
+					sText = "- ".. tostring(diffMateriel).."[ICON_Charges]"
+					UI.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				end
 			else
 				print("WARNING: no entry in UnitData for OnDamageChanged for player #".. tostring(playerID) ..", unitID = ".. tostring(unitID) ..", unit name = ".. unit:GetName())
 			end
@@ -164,7 +213,14 @@ function OnDamageChanged(playerID, unitID, finalDamage, initialDamage)
 		end
 	end
 end
-Events.UnitDamageChanged(OnDamageChanged)
+--Events.UnitDamageChanged.Add(OnDamageChanged)
+
+
+function OnCombat( combatResult )
+	local attacker = combatResult[CombatResultParameters.ATTACKER]
+	local defender = combatResult[CombatResultParameters.DEFENDER]
+end
+Events.Combat.Add( OnCombat )
 
 --------------------------------------------------------------
 -- Healing
@@ -184,3 +240,31 @@ LuaEvents.SaveTables.Add(SaveTables)
 -----------------------------------------------------------------------------------------
 
 Initialize()
+
+
+-----------------------------------------------------------------------------------------
+-- Cleaning on exit
+-----------------------------------------------------------------------------------------
+function Cleaning()
+	print ("Cleaning GCO stuff on LeaveGameComplete...")
+	ExposedMembers.SaveLoad_Initialized = nil
+	ExposedMembers.Utils_Initialized = nil
+	ExposedMembers.UnitData = nil
+	ExposedMembers.GCO = nil
+	ExposedMembers.GetUnitKey = nil
+end
+Events.LeaveGameComplete.Add(Cleaning)
+
+function TestA()
+	print ("Calling TestA...")
+end
+function TestB()
+	print ("Calling TestB...")
+end
+function TestC()
+	print ("Calling TestC...")
+end
+Events.LoadComplete.Add(TestA)
+Events.RequestSave.Add(TestB)
+Events.RequestLoad.Add(TestC)
+--EndGameView

@@ -44,6 +44,7 @@
 				<File>Art/scene_italy.dds</File>
 				<File>Art/scene_japan.dds</File>
 				<File>Art/scene_ussr.dds</File>
+				<File>Art/LEADER_FRANCE_NEUTRAL.dds</File>
 			</Items>
 		</ImportFiles>
         <GameplayScripts>
@@ -56,12 +57,18 @@
                 <File>Scripts/GCOScript.lua</File>
             </Items>
         </GameplayScripts>
+        <GameplayScripts>
+            <Items>
+                <File>Scripts/GCOUtils.lua</File>
+            </Items>
+        </GameplayScripts>
         <UserInterface>		
 			<Properties>
 				<Context>InGame</Context>
 			</Properties>
             <Items>
                 <File>Scripts/SaveLoad.xml</File>
+				<File>InGame/GCOInGame.xml</File>
             </Items>
         </UserInterface>	
 		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
@@ -111,8 +118,11 @@
 		<File>Config/Config.xml</File>
 		<File>Scripts/UnitScript.lua</File>
 		<File>Scripts/GCOScript.lua</File>
+		<File>Scripts/GCOUtils.lua</File>
 		<File>Scripts/SaveLoad.lua</File>
 		<File>Scripts/SaveLoad.xml</File>
+		<File>InGame/GCOInGame.lua</File>
+		<File>InGame/GCOInGame.xml</File>
 		<File>UI/DiplomacyActionView.lua</File>
 		<File>UI/UnitFlagManager.lua</File>
 		<File>Art/dom_america.dds</File>
@@ -134,5 +144,6 @@
 		<File>Art/scene_italy.dds</File>
 		<File>Art/scene_japan.dds</File>
 		<File>Art/scene_ussr.dds</File>
+		<File>Art/LEADER_FRANCE_NEUTRAL.dds</File>
 	</Files>
 </Mod>

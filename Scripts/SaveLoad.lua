@@ -105,13 +105,21 @@ usage:
 ----------------------------------------------
 -- defines
 ----------------------------------------------
-local SaveLoad_Initialized = false
 
-function IsSaveLoadInitialized()
-	return SaveLoad_Initialized
+
+----------------------------------------------
+-- Initialize Functions
+----------------------------------------------
+
+GCO = {}
+function InitializeUtilityFunctions() -- Get functions from other contexts
+	if ExposedMembers.Utils_Initialized and ExposedMembers.SaveLoad_Initialized then 
+		GCO = ExposedMembers.GCO
+		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
+		print ("Exposed Functions from other contexts initialized...")
+	end
 end
-GameEvents.ExposedFunctionsInitialized.add( IsSaveLoadInitialized )
-
+Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 ----------------------------------------------
 -- events for saving
@@ -166,11 +174,14 @@ function SaveTableToSlot(t, sSlotName)
 		print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
 	end
 	local endTime = Automation.GetTime()
-	print("SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(#t) .. ", serialized size = " .. tostring(size)) 
+	print("SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size)) 
 end
 
 -- load
 function LoadTableFromSlot(sSlotName)
+	if not GameConfiguration.GetValue then
+		print("ERROR: GameConfiguration.GetValue is null when trying to load from slot ".. tostring(sSlotName))
+	end
 	local s = GameConfiguration.GetValue(sSlotName)
 	if s then
 		local t = unpickle(s)
@@ -183,10 +194,14 @@ end
 ----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
+
+ExposedMembers.SaveLoad_Initialized = false
+
 function Initialize()
-	if not ExposedMembers.GCO then ExposedMembers.GCO = {}
+	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.SaveTableToSlot = SaveTableToSlot
 	ExposedMembers.GCO.LoadTableFromSlot = LoadTableFromSlot
-	SaveLoad_Initialized = true
+	ExposedMembers.UI = UI
+	ExposedMembers.SaveLoad_Initialized = true
 end
 Initialize()

@@ -104,6 +104,8 @@ UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_LAND_NEUTRAL';	
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_NAVAL_ENEMY';			-- default = 0
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_NAVAL_FRIENDLY';		-- default = 20
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_NAVAL_NEUTRAL';		-- default = 0
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'EXPERIENCE_PROMOTE_HEALED';		-- default = 50
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'EXPERIENCE_RETRAIN_HEALED';		-- default = 100
 UPDATE ModifierArguments SET Value = 0 		WHERE ModifierID = 'MEDIC_INCREASE_HEAL_RATE';	-- default = 20
 
 /* Bombard vs Units & Ranged vs Districts */
