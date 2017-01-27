@@ -9,22 +9,20 @@ print ("Loading UnitScript.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
-UnitHitPointsTable = {} -- cached table to store the value of an unit components based on it's HP
+UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
 
--- This should be the first file loaded...
---ExposedMembers.SaveLoad_Initialized = false
---ExposedMembers.Utils_Initialized = false
+local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
 GCO = {}
-function InitializeUtilityFunctions() -- Get functions from other contexts
+function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
-		GCO = ExposedMembers.GCO
-		UI = ExposedMembers.UI
-		ExposedMembers.UI = nil -- we may want to clean after everything initialized if we need this in another script context...
+		GCO = ExposedMembers.GCO		-- contains functions from other contexts 
+		UI = ExposedMembers.UI 			-- to use UI function in script context
+		ExposedMembers.UI = nil 		-- we may want to clean after everything initialized if we need this in another script context...
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
 		InitializeTables()
@@ -40,15 +38,9 @@ function Initialize() -- Everything that can be initialized immediatly after loa
 	CreateUnitHitPointsTable()
 end
 
-function OnEnterGame() -- Everything that can only be initialized after everything as loaded and the game is initialized
-	
-end
-Events.LoadScreenClose.Add(OnEnterGame)
-
 -----------------------------------------------------------------------------------------
 -- Unit composition
 -----------------------------------------------------------------------------------------
-local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 local minCompLeftFactor = GameInfo.GlobalParameters["MIN_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value -- Modded global parameters are not in GlobalParameters ?????
 local maxCompLeftFactor = GameInfo.GlobalParameters["MAX_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value
 function GetNumComponentAtHP(maxNumComponent, HPLeft)
@@ -82,9 +74,9 @@ function CreateUnitHitPointsTable()
 	end
 end
 
---------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 -- Units Initialization
---------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
 -- return unique key for units table [unitID,playerID]
 function GetUnitKey(unit)
@@ -97,15 +89,15 @@ function GetUnitKey(unit)
 		print("- WARNING: unit is nil for GetUnitKey()")
 	end
 end
-ExposedMembers.GetUnitKey = GetUnitKey
+ExposedMembers.GetUnitKey = GetUnitKey -- to use in UnitFlagManager.lua (no need to delay initialization, UI context are loaded after script context)
 
-function RegisterNewUnit(playerID, unit) -- unit is object, not ID
+function RegisterNewUnit(playerID, unit)
 
 	local unitType = unit:GetType()
 	local unitID = unit:GetID()
 	local unitKey = GetUnitKey(unit)
 	local hp = unit:GetMaxDamage() - unit:GetDamage()
-	local reservePseudoHP = GCO.Round(maxHP / 2)
+	local reserveRatio = GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value --75
 
 	ExposedMembers.UnitData[unitKey] = { 
 		UniqueID = unitKey.."-"..os.clock(), -- for linked statistics
@@ -115,10 +107,10 @@ function RegisterNewUnit(playerID, unit) -- unit is object, not ID
 		Horses 				= UnitHitPointsTable[unitType][hp].Horses,
 		Materiel 			= UnitHitPointsTable[unitType][hp].Materiel,
 		
-		PersonnelReserve	= GCO.Round(UnitHitPointsTable[unitType][reservePseudoHP].Personnel / 10) * 10,
-		VehiclesReserve		= GCO.Round(UnitHitPointsTable[unitType][reservePseudoHP].Vehicules / 10) *10,
-		HorsesReserve		= GCO.Round(UnitHitPointsTable[unitType][reservePseudoHP].Horses / 10) *10,
-		MaterielReserve		= GCO.Round(UnitHitPointsTable[unitType][reservePseudoHP].Materiel / 10) *10,
+		PersonnelReserve	= GCO.Round((UnitHitPointsTable[unitType][maxHP].Personnel * reserveRatio) / 10) * 10,
+		VehiclesReserve		= GCO.Round((UnitHitPointsTable[unitType][maxHP].Vehicules * reserveRatio) / 10) *10,
+		HorsesReserve		= GCO.Round((UnitHitPointsTable[unitType][maxHP].Horses * reserveRatio) / 10) *10,
+		MaterielReserve		= GCO.Round((UnitHitPointsTable[unitType][maxHP].Materiel / 10) *10, -- full stock for materiel
 		
 		WoundedPersonnel	= 0,
 		DamagedVehicles		= 0,
@@ -154,9 +146,9 @@ function InitializeUnit(playerID, unitID)
 end
 Events.UnitAddedToMap.Add( InitializeUnit )
 
---------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 -- Damage received
---------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 
 function OnDamageChanged(playerID, unitID, finalDamage, initialDamage)
 	local unit = UnitManager.GetUnit(playerID, unitID)
@@ -181,7 +173,7 @@ function OnDamageChanged(playerID, unitID, finalDamage, initialDamage)
 				ExposedMembers.UnitData[unitKey].Horses	    = ExposedMembers.UnitData[unitKey].Horses	  	- diffHorses 	
 				ExposedMembers.UnitData[unitKey].Materiel 	= ExposedMembers.UnitData[unitKey].Materiel 	- diffMateriel 
 				
-				LuaEvents.UnitsCompositionUpdated(playerID, unitID)
+				LuaEvents.UnitsCompositionUpdated(playerID, unitID) -- call to update flag
 				
 				-- visualize
 				local sText
@@ -219,12 +211,74 @@ end
 function OnCombat( combatResult )
 	local attacker = combatResult[CombatResultParameters.ATTACKER]
 	local defender = combatResult[CombatResultParameters.DEFENDER]
+	
+	attacker.FinalHP = combatResult[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]
+	attacker.InitialHP = attacker.FinalHP + attacker[CombatResultParameters.DAMAGE_TO]
+	
 end
 Events.Combat.Add( OnCombat )
 
---------------------------------------------------------------
+-----------------------------------------------------------------------------------------
 -- Healing
---------------------------------------------------------------
+-----------------------------------------------------------------------------------------
+
+function OnPlayerTurnActivated( playerID, bFirstTime )
+	if ( not bFirstTime) then
+		return
+	end
+	local player = Players[playerID]
+	local playerConfig = PlayerConfigurations[playerID]
+	local playerUnits = player:GetUnits()
+	if playerUnits then
+		print("-----------------------------------------------------------------------------------------")
+		print("Healing units for " .. tostring(playerConfig:GetCivilizationShortDescription()))
+		
+		-- stock units in a table from higher damage to lower
+		local damaged = {}		-- List of damaged units needing reinforcements, ordered by healt left	
+		local healTable = {} 	-- This table store HP gained to apply en masse after all reinforcements are calculated (visual fix) 
+		for n = 1, maxHP do
+			damaged[n] = {}
+		end		
+		for i, unit in playerUnits:Members() do
+			-- todo : check if the unit can heal (has a supply line, is not on water, ...)
+			--unitInfo = GameInfo.Units[unit:GetUnitType()]
+			local hp = unit:GetMaxDamage() - unit:GetDamage()
+			if hp < maxHP then
+				table.insert(damaged[hp], unit)
+				local key = GetUnitKey(unit)
+				healTable[key] = 0
+			end
+		end
+		
+		-- try to reinforce the selected units
+		-- up to MAX_HP_HEALED, 1hp per loop
+		for healHP = 1, GameInfo.GlobalParameters["MAX_HP_HEALED"].Value do
+			for n = 1, maxHP do
+				local unitTable = damaged[n]
+				for j, unit in ipairs (unitTable) do
+					local hp = unit:GetMaxDamage() - unit:GetDamage()
+					local key = GetUnitKey(unit)
+					if (unit:GetCurrHitPoints() + healTable[key] < unit:GetMaxHitPoints()) then
+						-- check here if the unit has enough reserves to get +1HP
+						healTable[key] = healTable[key] + 1 -- store +1 HP for this unit
+					end
+				end				
+			end
+		end
+		
+		-- Apply reinforcement from all passes to units in one call to SetDamage (fix visual display of one "+1" when the unit was getting possibly more)
+		for key, hp in pairs (healTable) do
+			local unit = GetUnitFromKey (key)
+			if unit then
+				local damage = unit:GetDamage()
+				-- update reserves
+				unit:SetDamage(damage-hp)
+				LuaEvents.UnitsCompositionUpdated(playerID, unitID) -- call to update flag
+			end
+		end
+		
+	end
+end
 
 -----------------------------------------------------------------------------------------
 -- Save the tables
