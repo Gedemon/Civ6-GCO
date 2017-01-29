@@ -838,27 +838,36 @@ function UnitFlag.UpdateName( self )
 		local unitInfo = GameInfo.Units[pUnit:GetUnitType()]
 		if unitData then
 		
-			local bHasComponents = (unitInfo.Personnel + unitInfo.Vehicules + unitInfo.Horses + unitInfo.Materiel > 0)			
+			local bHasComponents = (unitInfo.Personnel + unitInfo.Vehicles + unitInfo.Horses + unitInfo.Materiel > 0)			
 			if bHasComponents then 
-			
-				if unitInfo.Personnel > 0 then nameString = nameString .. "[NEWLINE][ICON_Position] " .. tostring(unitData.Personnel) .. "/" .. tostring(unitInfo.Personnel) .. " Personnel" end
-				if unitInfo.Vehicules > 0 then nameString = nameString .. "[NEWLINE][ICON_DISTRICT_HANSA] " .. tostring(unitData.Vehicules) .. "/" .. tostring(unitInfo.Vehicules) .. " Vehicules" end
-				if unitInfo.Horses > 0 then nameString = nameString .. "[NEWLINE][ICON_RESOURCE_HORSES] " .. tostring(unitData.Horses) .. "/" .. tostring(unitInfo.Horses) .. " Horses" end
-				if unitInfo.Materiel > 0 then nameString = nameString .. "[NEWLINE][ICON_Charges] " .. tostring(unitData.Materiel) .. "/" .. tostring(unitInfo.Materiel) .. " Materiel" end	
-			
-				nameString = nameString .. "[NEWLINE]---------------"				
-				if unitInfo.Personnel > 0 then nameString = nameString .. "[NEWLINE][ICON_Position] " .. tostring(unitData.PersonnelReserve) .. " Personnel Reserve" end
-				if unitInfo.Vehicules > 0 then nameString = nameString .. "[NEWLINE][ICON_DISTRICT_HANSA] " .. tostring(unitData.VehiculesReserve) .. " Vehicules Reserve" end
-				if unitInfo.Horses > 0 then nameString = nameString .. "[NEWLINE][ICON_RESOURCE_HORSES] " .. tostring(unitData.HorsesReserve) .. " Horses Reserve" end
-				if unitInfo.Materiel > 0 then nameString = nameString .. "[NEWLINE][ICON_Charges] " .. tostring(unitData.MaterielReserve) .. " Materiel Reserve" end
+				if unitInfo.Personnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL", unitData.Personnel, unitInfo.Personnel) end
+				if unitInfo.Vehicles 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_VEHICLES", unitData.Vehicles, unitInfo.Vehicles) end
+				if unitInfo.Horses 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES", unitData.Horses, unitInfo.Horses) end
+				if unitInfo.Materiel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MATERIEL", unitData.Materiel, unitInfo.Materiel) end
+							
+				nameString = nameString .. "[NEWLINE]---------------"
+				if unitInfo.Personnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL_RESERVE", unitData.PersonnelReserve) end
+				if unitInfo.Vehicles 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_VEHICLES_RESERVE", unitData.VehiclesReserve) end
+				if unitInfo.Horses 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES_RESERVE", unitData.HorsesReserve) end
+				if unitInfo.Materiel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MATERIEL_RESERVE", unitData.MaterielReserve) end
 				
-				local bHasExtra = (unitData.WoundedPersonnel + unitData.DamagedVehicles + unitData.Prisonners > 0)				
-				if bHasExtra then
+				local bHasExtra = (unitData.WoundedPersonnel + unitData.DamagedVehicles + unitData.Prisonners > 0)
+				if bHasExtra then				
+					nameString = nameString .. "[NEWLINE]---------------"					
+					if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) end
+					if unitData.DamagedVehicles 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_VEHICLES", unitData.DamagedVehicles) end
+					if unitData.Prisonners 			> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS", unitData.Prisonners) end					
+				end
+				
+				local bHasStatistics = (unitData.TotalDeath + unitData.TotalVehiclesLost + unitData.TotalHorsesLost > 0)				
+				if bHasStatistics then
 				
 					nameString = nameString .. "[NEWLINE]---------------"					
-					if unitData.WoundedPersonnel > 0 then nameString = nameString .. "[NEWLINE][ICON_UnderSiege] " .. tostring(unitData.WoundedPersonnel) .. " Wounded Personnel" end
-					if unitData.DamagedVehicles > 0 then nameString = nameString .. "[NEWLINE][ICON_Pillaged] " .. tostring(unitData.DamagedVehicles) .. " Damaged Vehicles" end
-					if unitData.Prisonners > 0 then nameString = nameString .. "[NEWLINE][ICON_Occupied] " .. tostring(unitData.Prisonners) .. " Prisonners" end
+					if unitData.TotalDeath 			> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_DEATH", unitData.TotalDeath) end
+					if unitData.TotalKill 			> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_KILL", unitData.TotalKill) end
+					if unitData.TotalVehiclesLost 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_VEHICLES_LOST", unitData.TotalVehiclesLost) end
+					if unitData.TotalHorsesLost 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_HORSES_LOST", unitData.TotalHorsesLost) end
+					
 				end
 				
 			end

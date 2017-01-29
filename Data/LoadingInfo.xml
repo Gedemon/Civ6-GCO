@@ -2,15 +2,15 @@
 <GameInfo>
   <LoadingInfo>
 		<!-- BackgroundImage = top left / ForegroundImage = right -->
-		<Row LeaderType="LEADER_AMERICA" 	ForegroundImage="dom_blank.dds"	BackgroundImage="dom_america.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
-		<Row LeaderType="LEADER_CHINA" 		ForegroundImage="dom_blank.dds"	BackgroundImage="dom_china.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
-		<Row LeaderType="LEADER_ENGLAND" 	ForegroundImage="dom_blank.dds"	BackgroundImage="dom_england.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
-		<Row LeaderType="LEADER_FRANCE" 	ForegroundImage="dom_blank.dds"	BackgroundImage="dom_france.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
-		<Row LeaderType="LEADER_GERMANY" 	ForegroundImage="dom_blank.dds"	BackgroundImage="dom_germany.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
-		<Row LeaderType="LEADER_GREECE" 	ForegroundImage="dom_blank.dds"	BackgroundImage="dom_greece.dds"	EraText="Hop" PlayDawnOfManAudio="0"/>
-		<Row LeaderType="LEADER_ITALY" 		ForegroundImage="dom_blank.dds"	BackgroundImage="dom_italy.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
-		<Row LeaderType="LEADER_JAPAN" 		ForegroundImage="dom_blank.dds"	BackgroundImage="dom_japan.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
-		<Row LeaderType="LEADER_RUSSIA" 	ForegroundImage="dom_blank.dds"	BackgroundImage="dom_ussr.dds"		EraText="Hop" PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_AMERICA" 	ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_CHINA" 		ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_ENGLAND" 	ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_FRANCE" 	ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_GERMANY" 	ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_GREECE" 	ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_ITALY" 		ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_JAPAN" 		ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
+		<Row LeaderType="LEADER_RUSSIA" 	ForegroundImage="dom_blank.dds"	BackgroundImage="Loading.dds"	EraText="G.C.O." PlayDawnOfManAudio="0"/>
 	</LoadingInfo>
 </GameInfo>
 

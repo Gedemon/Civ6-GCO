@@ -25,22 +25,74 @@ when destroying an unit in ranged attack:
 
 ---------------------------------------------------------------
 
-+ Units can have more components than expected by its HP left (just put them in reserve)
++ Units can have more components than expected by its HP left (just put them in reserve as surplus)
 
 - excedental reserve is transfered to city if a supply line is open
 - if excedent > max active then the component is lost (that situation shouldn't happen)
 
 example:
-- desertion in a mechanized units: remove the HP corresponding to the deserting personnel and put the vehicules corresponding to the HP lost in reserve.
-- mechanical failure in case of low reliability: remove the HP corresponding to the vehicules damaged and put the personnel corresponding to the HP lost in reserve.
-- chance of ejection/escape of the crew of an aircraft/vehicule destroyed in combat situation : when removing each vehicules corresponding to the HP lost in combat do a check and put unarmed crew in reserve (or wounded)
+- desertion in a mechanized units: remove the HP corresponding to the deserting personnel and put the Vehicles corresponding to the HP lost in reserve.
+- mechanical failure in case of low reliability: remove the HP corresponding to the Vehicles damaged and put the personnel corresponding to the HP lost in reserve.
+- chance of ejection/escape of the crew of an aircraft/vehicule destroyed in combat situation : when removing each Vehicles corresponding to the HP lost in combat do a check and put unarmed crew in reserve (or wounded)
+
+
+====================
+=      Ration      =
+====================
+
+- food reserve
+- get food from unit plot (or nearby plot at lower ratio)
+- food requirement = ( (personnel x2) + (wounded *1.5) + (prisonners*0.5) + (horses*3) ) / 1000
+- no food from owned plots
+- pillaging can give food (farm, ...), materiel (mines, ...), prisonners (neighborhood)
 
 
 ====================
 =     Healing      =
 ====================
 
-- Unit heal from reserve first then receive supply
+- Unit "heal" from reserve first then receive supply in reserve : "Rear" (Reinforcement / Healed / Repaired) -> Reserve -> Frontline 
+- Retreating: lose all damaged Vehicles & wounded -> prisoners
+- Need personnel to resuply #personnel in reserve
+- Need materiel to resuply #Vehicles in reserve
+- Tribal Villages (Barbarian outpost ?) should provide enough Personnel / Materiel to refill a Scout/Ranger reserve.
+
++ each turn:
+
+- if linked to city: 
+	all wounded, prisonners (and other captured components like horses, vehicule ?) -> city (if it can handle it)
+	all excedent from other components -> city (if it can handle it)
+	healing 10 "equivalent HP" max / turn from reserve, reserve receive 5 "equivalent HP" max / turn from cities
+
+	infantry
+		- reserve -> personnel/materiel to frontline troops (up to 10 equivalent hp) (reserve personnel + wounded can't be superior to max frontline personnel)
+		- linked city - > component (personnel, horses, materiel) to refill reserve (up to 5 equivalent hp)
+
+	mechanized unit
+		- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
+		- linked city -> component (personnel, materiel) to refill reserve (up to 5 equivalent hp or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+		- linked city -> materiel to repair each damaged vehicule in reserve (max 5 hp of equivalent vehicule or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+		- linked city -> materiel ("vehicule production" here) to reserve (if not reached the 5 hp/turn limit or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+
+	note: materiel in reserve is only used to repair, not to make a new vehicule "on the field"
+
+- if not linked to city: 
+
+	wounded -> % healed to reserve personnel (if medic/field hospital promotion)
+	wounded -> % dead (more important without medic/field hospital promotion, lowered at higher eras)
+
+	healing 10 "equivalent HP" max / turn from reserve
+
+	infantry
+		- reserve -> personnel/materiel to frontline troops (up to 10 equivalent HP)
+
+	mechanized unit
+		- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
+		- reserve -> materiel to repair each damaged vehicule (up to 5 equivalent vehicule HP)
+		if no materiel in reserve, "bleed" unit
+		
++ Mechanized units with "big" Vehicles (less than 20) have to be handled differently
+
 
 
 ====================
@@ -66,12 +118,24 @@ example:
 
 calculate need (ie maintenance cost, then bonus if superior, malus if inferior)
 
-military : moral (combat: retreat), reliability (mechanized need less materiel), loyalty (desertion, rebellion, linked to moral and empire stability)
+military :
+	- moral (combat: retreat)
+	- reliability (mechanized need less materiel to repair, vehicule can become damaged each turn)
+	- loyalty (desertion, rebellion, linked to moral and empire stability)
+
 culture
+
 diplomacy
+
 intelligence
+
 entertainement
+
 science
+
+infrastructure : 
+	- if not enough budget, roads, buildings, improvements can be damaged (decay rate)
+	- lower auto-repair time)
 
 
 ====================
@@ -151,6 +215,7 @@ rich give more gold from tax
 poor, slave give no gold from tax
 building / luxury resources / tax : change rate (per turn) of convertion from middle to rich/poor
 poor give unrest/unhappiness
+slaves give extra production, raise unrest
 
 Taxe rate used to determine gold the change rate
 
@@ -167,6 +232,16 @@ UI :
     - city taxe rate
        - 2 values for rich/middle class taxe rate
        - 1 button to reset city values to national values
+	   
++ Corruption
+
+Large empire raise corruption
+Corruption lower incomes (maybe only if the budget is positif ?)	   
+
++ Banditism
+
+some entertainement buildings raise banditism (taverns, whorehouses, nightclubs, ...)
+banditism raise corruption
 	   
 ====================
 =  Programmation   =

@@ -55,6 +55,47 @@ function GetSize(t)
 end
 
 ----------------------------------------------
+-- Units
+----------------------------------------------
+
+function GetMaxTransfertTable(unit)
+	local maxTranfert = {}
+	local unitType = unit:GetType()
+	local unitInfo = GameInfo.Units[unit:GetType()]
+	maxTranfert.Personnel = GameInfo.GlobalParameters["MAX_PERSONNEL_TRANSFERT_FROM_RESERVE"].Value
+	maxTranfert.Materiel = GameInfo.GlobalParameters["MAX_MATERIEL_TRANSFERT_FROM_RESERVE"].Value
+	return maxTranfert
+end
+
+function HandleCasualtiesByTo(A, B)
+
+	if A.AntiPersonnel then
+		B.Dead = Round(B.PersonnelCasualties * A.AntiPersonnel / 100)
+	else
+		B.Dead = Round(B.PersonnelCasualties * GameInfo.GlobalParameters["DEFAULT_ANTIPERSONNEL_RATIO"].Value / 100)
+	end
+	
+	
+	if A.CanTakePrisonners then
+	
+		if A.CapturedPersonnelRatio then
+			B.Captured = Round((B.PersonnelCasualties - B.Dead) * A.CapturedPersonnelRatio / 100)
+		else
+			B.Captured = Round((B.PersonnelCasualties - B.Dead) * GameInfo.GlobalParameters["DEFAULT_CAPTURED_PERSONNEL_RATIO"].Value / 100)
+		end	
+		if A.MaxCapture then
+			B.Captured = math.min(A.MaxCapture, B.Captured)
+		end
+	else
+		B.Captured = 0
+	end
+	
+	B.Wounded = B.PersonnelCasualties - B.Dead - B.Captured
+	
+	return B
+end
+
+----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
 
@@ -63,6 +104,8 @@ function Initialize()
 	ExposedMembers.GCO.Round = Round
 	ExposedMembers.GCO.Shuffle = Shuffle
 	ExposedMembers.GCO.GetSize = GetSize
+	ExposedMembers.GCO.GetMaxTransfertTable = GetMaxTransfertTable
+	ExposedMembers.GCO.HandleCasualtiesByTo = HandleCasualtiesByTo
 	ExposedMembers.Utils_Initialized = true
 end
 Initialize()

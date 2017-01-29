@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
-  <LocalizedText>
-  
-	<!-- Replacing -->	
+
+		<!-- ++++++++++++++++++++++++++ -->
+		<!-- +        Replacing       + -->
+		<!-- ++++++++++++++++++++++++++ -->
+	
+  <LocalizedText>  
+	<!--  -->	
 
 	
-	<!-- New entries -->
-    
+  </LocalizedText>
+
+		<!-- ++++++++++++++++++++++++++ -->
+		<!-- +       New entries      + -->
+		<!-- ++++++++++++++++++++++++++ -->
+	
+  <LocalizedText> <!-- To show FontIcons on Pedia front page... -->
+	
+	<!-- To show FontIcons on Pedia front page... -->
 	<Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_INTRO_CHAPTER_INTRO_PARA_2" Language="en_US">
 		<Text>[NEWLINE][ICON_Housing]ICON_Housing[NEWLINE][ICON_Amenities]ICON_Amenities[NEWLINE][ICON_Citizen]ICON_Citizen[NEWLINE][ICON_TradeRoute]ICON_TradeRoute[NEWLINE][ICON_Strength]ICON_Strength[NEWLINE][ICON_Ranged]ICON_Ranged[NEWLINE][ICON_Bombard]ICON_Bombard[NEWLINE][ICON_Movement]ICON_Movement[NEWLINE][ICON_Charges]ICON_Charges[NEWLINE][ICON_Range]ICON_Range[NEWLINE][ICON_Position]ICON_Position[NEWLINE][ICON_Promotion]ICON_Promotion[NEWLINE][ICON_Religion]ICON_Religion[NEWLINE][ICON_GreatPerson]ICON_GreatPerson[NEWLINE][ICON_Fortified]ICON_Fortified[NEWLINE][ICON_Fortifying]ICON_Fortifying[NEWLINE][ICON_Terrain]ICON_Terrain[NEWLINE][ICON_Ability]ICON_Ability[NEWLINE][ICON_Damaged]ICON_Damaged[NEWLINE][ICON_Government]ICON_Government[NEWLINE][ICON_Policy]ICON_Policy[NEWLINE][ICON_Turn]ICON_Turn[NEWLINE][ICON_FoodPerTurn]ICON_FoodPerTurn[NEWLINE][ICON_FoodSurplus]ICON_FoodSurplus[NEWLINE][ICON_FoodDeficit]ICON_FoodDeficit[NEWLINE][ICON_Envoy]ICON_Envoy[NEWLINE][ICON_TradingPost]ICON_TradingPost[NEWLINE][ICON_Barbarian]ICON_Barbarian[NEWLINE][ICON_District]ICON_District[NEWLINE][ICON_Unit]ICON_Unit[NEWLINE][ICON_Buildings]ICON_Buildings[NEWLINE][ICON_Formation]ICON_Formation[NEWLINE][ICON_InfluencePerTurn]ICON_InfluencePerTurn[NEWLINE][ICON_VisLimitedLarge]ICON_VisLimitedLarge[NEWLINE][ICON_VisOpenLarge]ICON_VisOpenLarge[NEWLINE][ICON_VisSecretLarge]ICON_VisSecretLarge[NEWLINE][ICON_VisTopSecretLarge]ICON_VisTopSecretLarge[NEWLINE][ICON_ScienceLarge]ICON_ScienceLarge[NEWLINE][ICON_GoldLarge]ICON_GoldLarge[NEWLINE][ICON_ProductionLarge]ICON_ProductionLarge[NEWLINE][ICON_FoodLarge]ICON_FoodLarge[NEWLINE][ICON_CultureLarge]ICON_CultureLarge[NEWLINE][ICON_FaithLarge]ICON_FaithLarge[NEWLINE][ICON_TourismLarge]ICON_TourismLarge[NEWLINE][ICON_VisLimited]ICON_VisLimited[NEWLINE][ICON_VisOpen]ICON_VisOpen[NEWLINE][ICON_VisSecret]ICON_VisSecret[NEWLINE][ICON_VisTopSecret]ICON_VisTopSecret[NEWLINE][ICON_Science]ICON_Science[NEWLINE][ICON_Gold]ICON_Gold[NEWLINE][ICON_Production]ICON_Production[NEWLINE][ICON_Food]ICON_Food[NEWLINE][ICON_Culture]ICON_Culture[NEWLINE][ICON_Faith]ICON_Faith[NEWLINE][ICON_Tourism]ICON_Tourism[NEWLINE]</Text>
 	</Replace>
@@ -24,4 +35,110 @@
 	</Replace>
 	
   </LocalizedText>
+
+  <LocalizedText> <!-- Floating Texts -->
+  
+	<!-- Casualties -->
+    <Replace Tag="LOC_FRONTLINE_PERSONNEL_CASUALTIES" Language="en_US">
+      <Text>[COLOR_Civ6Red]-{1_Num} [ENDCOLOR][ICON_Position] personnel</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit] deads[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Occupied] captured[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege] wounded</Text>
+    </Replace>	
+    <Replace Tag="LOC_FRONTLINE_VEHICLES_CASUALTIES" Language="en_US">
+      <Text>[COLOR_Civ6Red]-{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA] vehicles</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_VEHICLES_CASUALTIES_DETAILS" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Razed] destroyed[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Yellow]{2_Num} [ENDCOLOR][ICON_Pillaged] damaged</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_HORSES_CASUALTIES" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_RESOURCE_HORSES] horses</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_MATERIEL_CASUALTIES" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Charges] materiel</Text>
+    </Replace>
+	
+	<!-- Plundered -->
+    <Replace Tag="LOC_FRONTLINE_PRISONNERS_CAPTURED" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Position] prisonners</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_MATERIEL_CAPTURED" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Charges] materiel</Text>
+    </Replace>
+	
+	<!-- Reinforce Frontline -->
+    <Replace Tag="LOC_HEALING_PERSONNEL_MATERIEL" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Position] personnel[NEWLINE][ICON_TradeRouteLarge]{2_Num} [ICON_Charges] materiel</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALING_VEHICLES" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_DISTRICT_HANSA] vehicles</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALING_HORSES" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_RESOURCE_HORSES] horses</Text>
+    </Replace>
+	<!-- Healing -->
+    <Replace Tag="LOC_HEALING_WOUNDED" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_UnderSiege] wounded deads[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Green]{2_Num} [ENDCOLOR][ICON_UnderSiege] wounded healed</Text>
+    </Replace>
+    <Replace Tag="LOC_REPAIRING_VEHICLES" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA] vehicles repaired</Text>
+    </Replace>
+	
+  </LocalizedText>
+  
+  <LocalizedText> <!-- UnitFlagManager Texts -->
+  
+    <Replace Tag="LOC_UNITFLAG_PERSONNEL" Language="en_US">
+      <Text>[ICON_Position] {1_Num} / {2_Num} Personnel</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_VEHICLES" Language="en_US">
+      <Text>[ICON_DISTRICT_HANSA] {1_Num} / {2_Num} Vehicles</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_HORSES" Language="en_US">
+      <Text>[ICON_RESOURCE_HORSES] {1_Num} / {2_Num} Horses</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_MATERIEL" Language="en_US">
+      <Text>[ICON_Charges] {1_Num} / {2_Num} Materiel</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_PERSONNEL_RESERVE" Language="en_US">
+      <Text>[ICON_Position] {1_Num} Personnel Reserve</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_VEHICLES_RESERVE" Language="en_US">
+      <Text>[ICON_DISTRICT_HANSA] {1_Num} Vehicles Reserve</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_HORSES_RESERVE" Language="en_US">
+      <Text>[ICON_RESOURCE_HORSES] {1_Num} Horses Reserve</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_MATERIEL_RESERVE" Language="en_US">
+      <Text>[ICON_Charges] {1_Num} Materiel Reserve</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_WOUNDED_PERSONNEL" Language="en_US">
+      <Text>[ICON_UnderSiege] {1_Num} Wounded Personnel</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_DAMAGED_VEHICLES" Language="en_US">
+      <Text>[ICON_Pillaged] {1_Num} Damaged Vehicles</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_PRISONNERS" Language="en_US">
+      <Text>[ICON_Occupied] {1_Num} Prisonners</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_TOTAL_DEATH" Language="en_US">
+      <Text>[ICON_Unit] {1_Num} Deaths</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_TOTAL_KILL" Language="en_US">
+      <Text>[ICON_Unit] {1_Num} Kill</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_TOTAL_VEHICLES_LOST" Language="en_US">
+      <Text>[ICON_Razed] {1_Num} Lost Vehicles</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_TOTAL_HORSES_LOST" Language="en_US">
+      <Text>[ICON_RESOURCE_HORSES] {1_Num} Lost Horses</Text>
+    </Replace>
+	
+	
+	
+  </LocalizedText>
+  
 </GameData>

@@ -129,6 +129,8 @@ function SaveMyTables()
 	LuaEvents.SaveTables()
 end
 LuaEvents.FileListQueryComplete.Add( SaveMyTables )
+Events.RemotePlayerTurnBegin.Add( SaveMyTables )
+Events.RemotePlayerTurnEnd.Add( SaveMyTables )
 
 -- could get the quicksave key here
 function OnInputHandler( pInputStruct:table )
@@ -201,7 +203,8 @@ function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.SaveTableToSlot = SaveTableToSlot
 	ExposedMembers.GCO.LoadTableFromSlot = LoadTableFromSlot
-	ExposedMembers.UI = UI
+	ExposedMembers.UI = UI -- I'd like to handle UI stuff from scripts
+	ExposedMembers.CombatTypes = CombatTypes -- I can understand for the UI, but why this is not in script ???
 	ExposedMembers.SaveLoad_Initialized = true
 end
 Initialize()

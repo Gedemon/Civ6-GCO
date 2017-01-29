@@ -13,28 +13,19 @@
 			<en_US>Gedemon's Civilization Overhaul</en_US>
 		</Text>
 		<Text id="LOC_GCO_TEASER">
-			<en_US>Gedemon's Civilization Overhaul</en_US>
+			<en_US>Complete Overhaul</en_US>
 		</Text>
 		<Text id="LOC_GCO_DESCRIPTION">
-			<en_US>Gedemon's Civilization Overhaul</en_US>
+			<en_US>Civilization VI Overhaul</en_US>
 		</Text>
 	</LocalizedText>
   
 	<Components>
 		<ImportFiles id="GCO_IMPORT">
 			<Items>
-				<File>UI/DiplomacyActionView.lua</File>
 				<File>UI/UnitFlagManager.lua</File>
-				<File>Art/dom_america.dds</File>
-				<File>Art/dom_china.dds</File>
-				<File>Art/dom_france.dds</File>
-				<File>Art/dom_germany.dds</File>
-				<File>Art/dom_greece.dds</File>
-				<File>Art/dom_italy.dds</File>
-				<File>Art/dom_japan.dds</File>
-				<File>Art/dom_england.dds</File>
-				<File>Art/dom_ussr.dds</File>
 				<File>Art/dom_blank.dds</File>
+				<File>Art/Loading.dds</File>
 				<File>Art/scene_america.dds</File>
 				<File>Art/scene_china.dds</File>
 				<File>Art/scene_england.dds</File>
@@ -43,8 +34,7 @@
 				<File>Art/scene_greece.dds</File>
 				<File>Art/scene_italy.dds</File>
 				<File>Art/scene_japan.dds</File>
-				<File>Art/scene_ussr.dds</File>
-				<File>Art/LEADER_FRANCE_NEUTRAL.dds</File>
+				<File>Art/scene_russia.dds</File>
 			</Items>
 		</ImportFiles>
         <GameplayScripts>
@@ -123,18 +113,9 @@
 		<File>Scripts/SaveLoad.xml</File>
 		<File>InGame/GCOInGame.lua</File>
 		<File>InGame/GCOInGame.xml</File>
-		<File>UI/DiplomacyActionView.lua</File>
 		<File>UI/UnitFlagManager.lua</File>
-		<File>Art/dom_america.dds</File>
-		<File>Art/dom_china.dds</File>
-		<File>Art/dom_france.dds</File>
-		<File>Art/dom_germany.dds</File>
-		<File>Art/dom_greece.dds</File>
-		<File>Art/dom_italy.dds</File>
-		<File>Art/dom_japan.dds</File>
-		<File>Art/dom_england.dds</File>
-		<File>Art/dom_ussr.dds</File>
 		<File>Art/dom_blank.dds</File>
+		<File>Art/Loading.dds</File>
 		<File>Art/scene_america.dds</File>
 		<File>Art/scene_china.dds</File>
 		<File>Art/scene_england.dds</File>
@@ -143,7 +124,6 @@
 		<File>Art/scene_greece.dds</File>
 		<File>Art/scene_italy.dds</File>
 		<File>Art/scene_japan.dds</File>
-		<File>Art/scene_ussr.dds</File>
-		<File>Art/LEADER_FRANCE_NEUTRAL.dds</File>
+		<File>Art/scene_russia.dds</File>
 	</Files>
 </Mod>

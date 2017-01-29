@@ -9,6 +9,21 @@ print ("Loading GCOScript.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
+-----------------------------------------------------------------------------------------
+-- Initialize Functions
+-----------------------------------------------------------------------------------------
+
+--GCO = {}
+function InitializeUtilityFunctions() 	-- Get functions from other contexts
+	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
+		GCO = ExposedMembers.GCO		-- contains functions from other contexts 
+		UI = ExposedMembers.UI 			-- to use UI function in this script context
+		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
+		print ("Exposed Functions from other contexts initialized...")
+		InitializeTables()
+	end
+end
+--Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 -----------------------------------------------------------------------------------------
 -- Remove CS on game start

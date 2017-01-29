@@ -10,6 +10,6 @@
 		<Row Type="LEADER_GREECE" 	BackgroundImage="scene_greece.dds"/>
 		<Row Type="LEADER_ITALY" 	BackgroundImage="scene_italy.dds"/>
 		<Row Type="LEADER_JAPAN" 	BackgroundImage="scene_japan.dds"/>
-		<Row Type="LEADER_RUSSIA" 	BackgroundImage="scene_ussr.dds"/>
+		<Row Type="LEADER_RUSSIA" 	BackgroundImage="scene_russia.dds"/>
 	</DiplomacyInfo>
 </GameInfo>
