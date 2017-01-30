@@ -44,7 +44,7 @@ example:
 - get food from unit plot (or nearby plot at lower ratio)
 - food requirement = ( (personnel x2) + (wounded *1.5) + (prisonners*0.5) + (horses*3) ) / 1000
 - no food from owned plots
-- pillaging can give food (farm, ...), materiel (mines, ...), prisonners (neighborhood)
+- pillaging can give food (farm, ...), materiel (mines, ...), prisonners (district, ...)
 
 
 ====================
@@ -59,41 +59,62 @@ example:
 
 + each turn:
 
-- if linked to city: 
-	all wounded, prisonners (and other captured components like horses, vehicule ?) -> city (if it can handle it)
-	all excedent from other components -> city (if it can handle it)
-	healing 10 "equivalent HP" max / turn from reserve, reserve receive 5 "equivalent HP" max / turn from cities
+	- if linked to city: 
+		all wounded, prisonners (and other captured components like horses, vehicule ?) -> city (if it can handle it)
+		all excedent from other components -> city (if it can handle it)
+		healing 10 "equivalent HP" max / turn from reserve, reserve receive 5 "equivalent HP" max / turn from cities
 
-	infantry
-		- reserve -> personnel/materiel to frontline troops (up to 10 equivalent hp) (reserve personnel + wounded can't be superior to max frontline personnel)
-		- linked city - > component (personnel, horses, materiel) to refill reserve (up to 5 equivalent hp)
+		infantry
+			- reserve -> personnel/materiel to frontline troops (up to 10 equivalent hp) (reserve personnel + wounded can't be superior to max frontline personnel)
+			- linked city - > component (personnel, horses, materiel) to refill reserve (up to 5 equivalent hp)
 
-	mechanized unit
-		- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
-		- linked city -> component (personnel, materiel) to refill reserve (up to 5 equivalent hp or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
-		- linked city -> materiel to repair each damaged vehicule in reserve (max 5 hp of equivalent vehicule or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
-		- linked city -> materiel ("vehicule production" here) to reserve (if not reached the 5 hp/turn limit or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+		mechanized unit
+			- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
+			- linked city -> component (personnel, materiel) to refill reserve (up to 5 equivalent hp or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+			- linked city -> materiel to repair each damaged vehicule in reserve (max 5 hp of equivalent vehicule or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+			- linked city -> materiel ("vehicule production" here) to reserve (if not reached the 5 hp/turn limit or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
 
-	note: materiel in reserve is only used to repair, not to make a new vehicule "on the field"
+		note: materiel in reserve is only used to repair, not to make a new vehicule "on the field"
 
-- if not linked to city: 
+	- if not linked to city: 
 
-	wounded -> % healed to reserve personnel (if medic/field hospital promotion)
-	wounded -> % dead (more important without medic/field hospital promotion, lowered at higher eras)
+		wounded -> % healed to reserve personnel (if medic/field hospital promotion)
+		wounded -> % dead (more important without medic/field hospital promotion, lowered at higher eras)
 
-	healing 10 "equivalent HP" max / turn from reserve
+		healing 10 "equivalent HP" max / turn from reserve
 
-	infantry
-		- reserve -> personnel/materiel to frontline troops (up to 10 equivalent HP)
+		infantry
+			- reserve -> personnel/materiel to frontline troops (up to 10 equivalent HP)
 
-	mechanized unit
-		- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
-		- reserve -> materiel to repair each damaged vehicule (up to 5 equivalent vehicule HP)
-		if no materiel in reserve, "bleed" unit
+		mechanized unit
+			- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
+			- reserve -> materiel to repair each damaged vehicule (up to 5 equivalent vehicule HP)
+			if no materiel in reserve, "bleed" unit
 		
-+ Mechanized units with "big" Vehicles (less than 20) have to be handled differently
 
 
+====================
+=  Technologies    =
+====================
+
++ Ancien
+	Herbalism: Herborist (+health) - Less deads from wounds
+	
++ Classical
+	Surgery : Less deads from wounds
+	
++ Medieval
+	Medecine: Medieval Hospitals (+heals, heal wounded in city), Apothecary (replace Herborist), Less deads from wounds
+	
++ Rennaissance
+	Microbiologie: Hospital (replace Medieval Hospitals), Less deads from wounds
+	
++ Industrial
+	Vaccine: Pharmacy (replace Apothecary)
+	
++ Modern
+	Antibiotics: Modern Hospital (replace Hospitals), Minimal deads from wounds
+	
 
 ====================
 =    Buildings     =
@@ -101,15 +122,17 @@ example:
 
 + Resources creation
 
-- Iron stock in city -> Iron Smith -> produce Materiel
-- Iron & coal stock in city -> Steel Factory -> produce Steel
+	- Iron stock in city -> Iron Smith -> produce Materiel
+	- Iron & coal stock in city -> Steel Factory -> produce Steel
 
 + Resource stock
 
-- New table 'BuildingStock' ('BuildingType', 'ResourceType', 'Value')
-- Granary -> can stock 15 units of Rice, Wheat
+	- New table 'BuildingStock' ('BuildingType', 'ResourceType', 'Value')
+	- Granary -> can stock 15 units of Rice, Wheat
 
-
++ replacing building
+	- bonus in prod when previous building in city
+	- lua script to replace the old building on completion
 
 ====================
 =      Budget      =
