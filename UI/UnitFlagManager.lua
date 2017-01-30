@@ -7,6 +7,22 @@ include( "InstanceManager" );
 include( "SupportFunctions" );
 include( "Civ6Common" );
 
+-- GCO <<<<<
+-----------------------------------------------------------------------------------------
+-- Initialize Functions
+-----------------------------------------------------------------------------------------
+
+GCO = {}
+function InitializeUtilityFunctions() 	-- Get functions from other contexts
+	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
+		GCO = ExposedMembers.GCO		-- contains functions from other contexts
+		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
+		print ("Exposed Functions from other contexts initialized...")
+	end
+end
+Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+-- GCO >>>>>
+
 -- ===========================================================================
 --	CONSTANTS
 -- ===========================================================================
@@ -833,7 +849,7 @@ function UnitFlag.UpdateName( self )
 		end
 
 		-- GCO <<<<<
-		local unitKey = ExposedMembers.GetUnitKey(pUnit)
+		local unitKey = GCO.GetUnitKey(pUnit)
 		local unitData = ExposedMembers.UnitData[unitKey]
 		local unitInfo = GameInfo.Units[pUnit:GetUnitType()]
 		if unitData then

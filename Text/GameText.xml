@@ -60,10 +60,13 @@
 	
 	<!-- Plundered -->
     <Replace Tag="LOC_FRONTLINE_PRISONNERS_CAPTURED" Language="en_US">
-      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Position] prisonners</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Occupied] captured</Text>
     </Replace>
     <Replace Tag="LOC_FRONTLINE_MATERIEL_CAPTURED" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Charges] materiel</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_LIBERATED_PRISONNERS" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Occupied] liberated</Text>
     </Replace>
 	
 	<!-- Reinforce Frontline -->

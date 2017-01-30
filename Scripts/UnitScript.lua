@@ -25,8 +25,8 @@ GCO = {}
 CombatTypes = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
-		GCO = ExposedMembers.GCO		-- contains functions from other contexts
-		CombatTypes = ExposedMembers.CombatTypes
+		GCO = ExposedMembers.GCO					-- contains functions from other contexts
+		CombatTypes = ExposedMembers.CombatTypes 	-- Need those in combat results
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
 		InitializeTables()
@@ -40,6 +40,7 @@ end
 
 function Initialize() -- Everything that can be initialized immediatly after loading this file(cached tables)
 	CreateUnitHitPointsTable()
+	ExposedMembers.UnitHitPointsTable = UnitHitPointsTable
 end
 
 -----------------------------------------------------------------------------------------
@@ -68,7 +69,7 @@ function CreateUnitHitPointsTable()
 		local Vehicles = row.Vehicles
 		local Horses = row.Horses
 		local Materiel = row.Materiel
-		for hp = 1, maxHP do
+		for hp = 0, maxHP do
 			UnitHitPointsTable[row.Index][hp] = {}
 			if Personnel > 0 then UnitHitPointsTable[row.Index][hp].Personnel = GetNumComponentAtHP(Personnel, hp) else UnitHitPointsTable[row.Index][hp].Personnel = 0 end
 			if Vehicles > 0 then UnitHitPointsTable[row.Index][hp].Vehicles = GetNumComponentAtHP(Vehicles, hp) else UnitHitPointsTable[row.Index][hp].Vehicles = 0 end
@@ -82,39 +83,11 @@ end
 -- Units Initialization
 -----------------------------------------------------------------------------------------
 
--- return unique key for units table [unitID,playerID]
-function GetUnitKey(unit)
-	if unit then
-		local ownerID = unit:GetOwner()
-		local unitID = unit:GetID()
-		local unitKey = unitID..","..ownerID
-		return unitKey
-	else
-		print("- WARNING: unit is nil for GetUnitKey()")
-	end
-end
-ExposedMembers.GetUnitKey = GetUnitKey -- to use in UnitFlagManager.lua (no need to delay initialization, UI context are loaded after script context)
-
-function GetUnitFromKey ( unitKey )
-	if ExposedMembers.UnitData[unitKey] then
-		local unit = UnitManager.GetUnit(ExposedMembers.UnitData[unitKey].playerID, ExposedMembers.UnitData[unitKey].unitID)
-		if unit then
-			return unit
-		else
-			print("- WARNING: unit is marked alive but is nil for GetUnitFromKey(), marking as dead")
-			print("--- UnitId = " .. ExposedMembers.UnitData[unitKey].UnitID ..", playerID = " .. ExposedMembers.UnitData[unitKey].playerID )
-			ExposedMembers.UnitData[unitKey].Alive = false
-		end
-	else
-		print("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey()")
-	end
-end
-
 function RegisterNewUnit(playerID, unit)
 
 	local unitType = unit:GetType()
 	local unitID = unit:GetID()
-	local unitKey = GetUnitKey(unit)
+	local unitKey = GCO.GetUnitKey(unit)
 	local hp = unit:GetMaxDamage() - unit:GetDamage()
 	local reserveRatio = GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value --75
 
@@ -160,7 +133,7 @@ end
 function InitializeUnit(playerID, unitID)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
-		local unitKey = GetUnitKey(unit)
+		local unitKey = GCO.GetUnitKey(unit)
 
 		if ExposedMembers.UnitData[unitKey] then
 			-- unit already registered, don't add it again...
@@ -182,59 +155,64 @@ Events.UnitAddedToMap.Add( InitializeUnit )
 -- Damage received
 -----------------------------------------------------------------------------------------
 
-function ShowCasualtiesFloatingText(unit, data)
+function ShowCasualtiesFloatingText(data)
 
 	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
 	if (pLocalPlayerVis ~= nil) then
-		if (pLocalPlayerVis:IsVisible(unit:GetX(), unit:GetY())) then
+		if (pLocalPlayerVis:IsVisible(data.unit:GetX(), data.unit:GetY())) then
 			local sText
 
 			if data.PersonnelCasualties > 0 then
 				sText = Locale.Lookup("LOC_FRONTLINE_PERSONNEL_CASUALTIES", data.PersonnelCasualties)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
 			end
 			if data.Dead + data.Captured + data.Wounded > 0 then
 				sText = Locale.Lookup("LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS", data.Dead, data.Captured, data.Wounded)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
 			end
 
 			if data.VehiclesCasualties > 0 then
 				sText = Locale.Lookup("LOC_FRONTLINE_VEHICLES_CASUALTIES", data.VehiclesCasualties)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
 			end
 			if data.VehiclesLost +data.DamagedVehicles > 0 then
 				sText = Locale.Lookup("LOC_FRONTLINE_VEHICLES_CASUALTIES_DETAILS", data.VehiclesLost, data.DamagedVehicles)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
 			end
 
-			if data.HorseLost > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_HORSES_CASUALTIES", data.HorseLost)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+			if data.HorsesLost > 0 then
+				sText = Locale.Lookup("LOC_FRONTLINE_HORSES_CASUALTIES", data.HorsesLost)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
 			end
 
 			if data.MaterielLost > 0 then
 				sText = Locale.Lookup("LOC_FRONTLINE_MATERIEL_CASUALTIES", data.MaterielLost)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
 			end
 		end
 	end
 end
 
-function ShowCombatPlunderingFloatingText(unit, data)
+function ShowCombatPlunderingFloatingText(data)
 
 	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
 	if (pLocalPlayerVis ~= nil) then
-		if (pLocalPlayerVis:IsVisible(unit:GetX(), unit:GetY())) then
+		if (pLocalPlayerVis:IsVisible(data.unit:GetX(), data.unit:GetY())) then
 			local sText
 
 			if data.Prisonners > 0 then
 				sText = Locale.Lookup("LOC_FRONTLINE_PRISONNERS_CAPTURED", data.Prisonners)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
 			end
 
 			if data.MaterielGained > 0 then
 				sText = Locale.Lookup("LOC_FRONTLINE_MATERIEL_CAPTURED", data.MaterielGained)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
+			end
+
+			if data.LiberatedPrisonners and data.LiberatedPrisonners > 0 then -- LiberatedPrisonners is not nil only when the defender is dead...
+				sText = Locale.Lookup("LOC_FRONTLINE_LIBERATED_PRISONNERS", data.LiberatedPrisonners)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, data.unit:GetX(), data.unit:GetY(), 0)
 			end
 		end
 	end
@@ -246,254 +224,103 @@ function OnCombat( combatResult )
 
 	local attacker = combatResult[CombatResultParameters.ATTACKER]
 	local defender = combatResult[CombatResultParameters.DEFENDER]
-	
+
 	attacker.IsUnit = attacker[CombatResultParameters.ID].type == ComponentType.UNIT
 	defender.IsUnit = defender[CombatResultParameters.ID].type == ComponentType.UNIT
-	
-	-- We need some info before handling the change in the units composition
+
+	-- We need to set some info before handling the change in the units composition
 	if attacker.IsUnit then
-		local playerID = attacker[CombatResultParameters.ID].player
-		local unitID = attacker[CombatResultParameters.ID].id
-		local unit = UnitManager.GetUnit(playerID, unitID)
-		if unit then
-			local unitType = unit:GetType()
-			local unitKey = GetUnitKey(unit)
-			attacker.unitKey = unitKey
-			attacker.IsLandUnit = GameInfo.Units[unitType].Domain == "DOMAIN_LAND"
-			attacker.CanTakePrisonners = attacker.IsLandUnit and combatResult[CombatResultParameters.COMBAT_TYPE] == CombatTypes.MELEE
-			-- Max number of prisonners can't be higher than the unit's operationnal number of personnel or the number of remaining valid personnel x10
-			attacker.MaxPrisonners = math.min(GameInfo.Units[unitType].Personnel, (ExposedMembers.UnitData[unitKey].Personnel+ExposedMembers.UnitData[unitKey].PersonnelReserve)*10)
-			attacker.MaxCapture = GCO.Round((attacker.MaxPrisonners - ExposedMembers.UnitData[unitKey].Prisonners) * GameInfo.GlobalParameters["CAPTURE_RATIO_FROM_PRISONNERS_CAPACITY"].Value/100)
-			attacker.AntiPersonnel = GameInfo.Units[unitType].AntiPersonnel
-		end
-	end
-	if defender.IsUnit then
-		local playerID = defender[CombatResultParameters.ID].player
-		local unitID = defender[CombatResultParameters.ID].id
-		local unit = UnitManager.GetUnit(playerID, unitID)
-		if unit then
-			local unitType = unit:GetType()
-			local unitKey = GetUnitKey(unit)
-			defender.unitKey = unitKey
-			defender.IsLandUnit = GameInfo.Units[unitType].Domain == "DOMAIN_LAND"
-			defender.CanTakePrisonners = defender.IsLandUnit and combatResult[CombatResultParameters.COMBAT_TYPE] == CombatTypes.MELEE
-			-- Max number of prisonners can't be higher than the unit's operationnal number of personnel or the number of remaining valid personnel x10
-			defender.MaxPrisonners = math.min(GameInfo.Units[unitType].Personnel, (ExposedMembers.UnitData[unitKey].Personnel+ExposedMembers.UnitData[unitKey].PersonnelReserve)*10)
-			defender.MaxCapture = GCO.Round((defender.MaxPrisonners - ExposedMembers.UnitData[unitKey].Prisonners) * GameInfo.GlobalParameters["CAPTURE_RATIO_FROM_PRISONNERS_CAPACITY"].Value/100)
-			defender.AntiPersonnel = GameInfo.Units[unitType].AntiPersonnel
-		end
-	end
-	
-	-- Handle composition of an attacking unit
-	if attacker.IsUnit and attacker[CombatResultParameters.DAMAGE_TO] > 0 then
-
-		if attacker[CombatResultParameters.FINAL_DAMAGE_TO] > attacker[CombatResultParameters.MAX_HIT_POINTS] then
-			attacker.IsDead = true
-		end
-
+		attacker.IsAttacker = true
 		attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]
 		attacker.InitialHP = attacker.FinalHP + attacker[CombatResultParameters.DAMAGE_TO]
-		local playerID = attacker[CombatResultParameters.ID].player
-		local unitID = attacker[CombatResultParameters.ID].id
-		local unit = UnitManager.GetUnit(playerID, unitID)
-		if unit then
-			local unitType = unit:GetType()
-			local unitKey = attacker.unitKey
-			if ExposedMembers.UnitData[unitKey] then
-
-				local diffPersonnel, diffVehicles, diffHorses, diffMateriel = 0, 0, 0, 0
-
-				if attacker.IsDead then
-
-					attacker.FinalHP = 0
-					diffPersonnel 	= UnitHitPointsTable[unitType][attacker.InitialHP].Personnel
-					diffVehicles 	= UnitHitPointsTable[unitType][attacker.InitialHP].Vehicles
-					diffHorses 		= UnitHitPointsTable[unitType][attacker.InitialHP].Horses
-					diffMateriel 	= UnitHitPointsTable[unitType][attacker.InitialHP].Materiel
-
-					-- "Kill" the unit
-					ExposedMembers.UnitData[unitKey].Personnel  = 0
-					ExposedMembers.UnitData[unitKey].Vehicles  	= 0
-					ExposedMembers.UnitData[unitKey].Horses	    = 0
-					ExposedMembers.UnitData[unitKey].Materiel 	= 0
-					ExposedMembers.UnitData[unitKey].Alive 		= false
-				else
-
-					diffPersonnel 	= UnitHitPointsTable[unitType][attacker.InitialHP].Personnel - UnitHitPointsTable[unitType][attacker.FinalHP].Personnel
-					diffVehicles 	= UnitHitPointsTable[unitType][attacker.InitialHP].Vehicles - UnitHitPointsTable[unitType][attacker.FinalHP].Vehicles
-					diffHorses 		= UnitHitPointsTable[unitType][attacker.InitialHP].Horses	- UnitHitPointsTable[unitType][attacker.FinalHP].Horses
-					diffMateriel 	= UnitHitPointsTable[unitType][attacker.InitialHP].Materiel 	- UnitHitPointsTable[unitType][attacker.FinalHP].Materiel
-
-					-- Remove casualties from frontline
-					ExposedMembers.UnitData[unitKey].Personnel  = ExposedMembers.UnitData[unitKey].Personnel  	- diffPersonnel
-					ExposedMembers.UnitData[unitKey].Vehicles  = ExposedMembers.UnitData[unitKey].Vehicles  	- diffVehicles
-					ExposedMembers.UnitData[unitKey].Horses	    = ExposedMembers.UnitData[unitKey].Horses	  	- diffHorses
-					ExposedMembers.UnitData[unitKey].Materiel 	= ExposedMembers.UnitData[unitKey].Materiel 	- diffMateriel
-				end
-
-
-				-- Send wounded to the rear, bury the dead
-				attacker.PersonnelCasualties = diffPersonnel
-				attacker = GCO.HandleCasualtiesByTo(defender, attacker) -- set Dead, Captured and Wounded from Casualties and return the updated table
-				ExposedMembers.UnitData[unitKey].TotalDeath	= ExposedMembers.UnitData[unitKey].TotalDeath + attacker.Dead
-				ExposedMembers.UnitData[unitKey].WoundedPersonnel = ExposedMembers.UnitData[unitKey].WoundedPersonnel + attacker.Wounded
-
-				-- Salvage Vehicles
-				attacker.VehiclesCasualties = diffVehicles
-				attacker.VehiclesLost = GCO.Round(diffVehicles / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
-				attacker.DamagedVehicles = diffVehicles - attacker.VehiclesLost
-				ExposedMembers.UnitData[unitKey].TotalVehiclesLost	= ExposedMembers.UnitData[unitKey].TotalVehiclesLost + attacker.VehiclesLost
-				ExposedMembers.UnitData[unitKey].DamagedVehicles = ExposedMembers.UnitData[unitKey].DamagedVehicles + attacker.DamagedVehicles
-
-				-- They Shoot Horses, Don't They?
-				attacker.HorseLost = diffHorses -- some of those may be captured by the opponent ?
-				ExposedMembers.UnitData[unitKey].TotalHorsesLost = ExposedMembers.UnitData[unitKey].TotalHorsesLost + attacker.HorseLost
-
-				-- Materiel too is a full lost
-				attacker.MaterielLost = diffMateriel
-
-				if not attacker.IsDead then
-
-					-- call to update flag
-					LuaEvents.UnitsCompositionUpdated(playerID, unitID)
-
-					-- visualize casualties
-					ShowCasualtiesFloatingText(unit, attacker)
-				end
-
-			end
-		end
+		attacker.IsDead = attacker[CombatResultParameters.FINAL_DAMAGE_TO] >= attacker[CombatResultParameters.MAX_HIT_POINTS]
+		attacker.playerID = attacker[CombatResultParameters.ID].player
+		attacker.unitID = attacker[CombatResultParameters.ID].id
+		attacker = GCO.AddCombatInfoTo(attacker) -- Add information needed to handle casualties made to the other opponent
+		attacker.CanTakePrisonners = attacker.IsLandUnit and combatResult[CombatResultParameters.COMBAT_TYPE] == CombatTypes.MELEE and not attacker.IsDead
 	end
-
-	-- Handle composition of a defending unit
-	if defender.IsUnit and defender[CombatResultParameters.DAMAGE_TO] > 0 then
-
-		if defender[CombatResultParameters.FINAL_DAMAGE_TO] > defender[CombatResultParameters.MAX_HIT_POINTS] then
-			defender.IsDead = true
-		end
-
+	if defender.IsUnit then
+		defender.IsDefender = true
 		defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]
 		defender.InitialHP = defender.FinalHP + defender[CombatResultParameters.DAMAGE_TO]
-		local playerID = defender[CombatResultParameters.ID].player
-		local unitID = defender[CombatResultParameters.ID].id
-		local unit = UnitManager.GetUnit(playerID, unitID)
-		if unit then
-			local unitType = unit:GetType()
-			local unitKey = defender.unitKey
-			if ExposedMembers.UnitData[unitKey] then
+		defender.IsDead = defender[CombatResultParameters.FINAL_DAMAGE_TO] >= defender[CombatResultParameters.MAX_HIT_POINTS]
+		defender.playerID = defender[CombatResultParameters.ID].player
+		defender.unitID = defender[CombatResultParameters.ID].id
+		defender = GCO.AddCombatInfoTo(defender) -- Add information needed to handle casualties made to the other opponent
+		defender.CanTakePrisonners = defender.IsLandUnit and combatResult[CombatResultParameters.COMBAT_TYPE] == CombatTypes.MELEE and not defender.IsDead
+	end
 
-				local diffPersonnel, diffVehicles, diffHorses, diffMateriel = 0, 0, 0, 0
-
-				if defender.IsDead then
-
-					defender.FinalHP = 0
-					diffPersonnel 	= UnitHitPointsTable[unitType][defender.InitialHP].Personnel
-					diffVehicles 	= UnitHitPointsTable[unitType][defender.InitialHP].Vehicles
-					diffHorses 		= UnitHitPointsTable[unitType][defender.InitialHP].Horses
-					diffMateriel 	= UnitHitPointsTable[unitType][defender.InitialHP].Materiel
-
-					-- "Kill" the unit
-					ExposedMembers.UnitData[unitKey].Personnel  = 0
-					ExposedMembers.UnitData[unitKey].Vehicles  = 0
-					ExposedMembers.UnitData[unitKey].Horses	    = 0
-					ExposedMembers.UnitData[unitKey].Materiel 	= 0
-					ExposedMembers.UnitData[unitKey].Alive 		= false
-				else
-
-					diffPersonnel 	= UnitHitPointsTable[unitType][defender.InitialHP].Personnel - UnitHitPointsTable[unitType][defender.FinalHP].Personnel
-					diffVehicles 	= UnitHitPointsTable[unitType][defender.InitialHP].Vehicles - UnitHitPointsTable[unitType][defender.FinalHP].Vehicles
-					diffHorses 		= UnitHitPointsTable[unitType][defender.InitialHP].Horses	- UnitHitPointsTable[unitType][defender.FinalHP].Horses
-					diffMateriel 	= UnitHitPointsTable[unitType][defender.InitialHP].Materiel 	- UnitHitPointsTable[unitType][defender.FinalHP].Materiel
-
-					-- Remove casualties from frontline
-					ExposedMembers.UnitData[unitKey].Personnel  = ExposedMembers.UnitData[unitKey].Personnel  	- diffPersonnel
-					ExposedMembers.UnitData[unitKey].Vehicles  = ExposedMembers.UnitData[unitKey].Vehicles  	- diffVehicles
-					ExposedMembers.UnitData[unitKey].Horses	    = ExposedMembers.UnitData[unitKey].Horses	  	- diffHorses
-					ExposedMembers.UnitData[unitKey].Materiel 	= ExposedMembers.UnitData[unitKey].Materiel 	- diffMateriel
-				end
-
-
-				-- Send wounded to the rear, bury the dead
-				defender.PersonnelCasualties = diffPersonnel
-				defender = GCO.HandleCasualtiesByTo(attacker, defender) -- set Dead, Captured and Wounded from Casualties and return the updated table
-				ExposedMembers.UnitData[unitKey].TotalDeath	= ExposedMembers.UnitData[unitKey].TotalDeath + defender.Dead
-				ExposedMembers.UnitData[unitKey].WoundedPersonnel = ExposedMembers.UnitData[unitKey].WoundedPersonnel + defender.Wounded
-
-				-- Salvage Vehicles
-				defender.VehiclesCasualties = diffVehicles
-				defender.VehiclesLost = GCO.Round(diffVehicles / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
-				defender.DamagedVehicles = diffVehicles - defender.VehiclesLost
-				ExposedMembers.UnitData[unitKey].TotalVehiclesLost	= ExposedMembers.UnitData[unitKey].TotalVehiclesLost + defender.VehiclesLost
-				ExposedMembers.UnitData[unitKey].DamagedVehicles = ExposedMembers.UnitData[unitKey].DamagedVehicles + defender.DamagedVehicles
-
-				-- They Shoot Horses, Don't They?
-				defender.HorseLost = diffHorses -- some of those may be captured by the opponent ?
-				ExposedMembers.UnitData[unitKey].TotalHorsesLost	= ExposedMembers.UnitData[unitKey].TotalHorsesLost + defender.HorseLost
-
-				-- Materiel too is a full lost
-				defender.MaterielLost = diffMateriel
-
-				if not defender.IsDead then
-
-					-- call to update flag
-					LuaEvents.UnitsCompositionUpdated(playerID, unitID)
-
-					-- visualize casualties
-					ShowCasualtiesFloatingText(unit, defender)
+	-- Handle casualties
+	if attacker.IsUnit then -- and attacker[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
+		if attacker.unit then
+			if ExposedMembers.UnitData[attacker.unitKey] then
+				attacker = GCO.AddFrontLineCasualtiesInfoTo(attacker) 		-- Set Personnel, Vehicles, Horses and Materiel casualties from the HP lost
+				attacker = GCO.AddCasualtiesInfoByTo(defender, attacker) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
+				if not attacker.IsDead then
+					LuaEvents.UnitsCompositionUpdated(attacker.playerID, attacker.unitID) 	-- call to update flag
+					ShowCasualtiesFloatingText(attacker)									-- visualize all casualties
 				end
 			end
 		end
 	end
 
-	-- Plundering
-	if defender.IsLandUnit and attacker.IsLandUnit then
-		
-		-- Update some stats
-		ExposedMembers.UnitData[attacker.unitKey].TotalKill = ExposedMembers.UnitData[attacker.unitKey].TotalKill + defender.Dead
-		ExposedMembers.UnitData[defender.unitKey].TotalKill = ExposedMembers.UnitData[defender.unitKey].TotalKill + attacker.Dead
-			
-		if defender.IsDead then
-			-- capture all the wounded
-			attacker.Prisonners = defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel
-			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel = 0
-			ExposedMembers.UnitData[attacker.unitKey].Prisonners = ExposedMembers.UnitData[attacker.unitKey].Prisonners + attacker.Prisonners
+	if defender.IsUnit then -- and defender[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
+		if defender.unit then
+			if ExposedMembers.UnitData[defender.unitKey] then
+				defender = GCO.AddFrontLineCasualtiesInfoTo(defender) 		-- Set Personnel, Vehicles, Horses and Materiel casualties from the HP lost
+				defender = GCO.AddCasualtiesInfoByTo(attacker, defender) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
+				if not defender.IsDead then
+					LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)	-- call to update flag
+					ShowCasualtiesFloatingText(defender)									-- visualize all casualties
+				end
+			end
+		end
+	end
 
-			-- capture most materiel, convert some damaged Vehicles
-			attacker.MaterielGained = GCO.Round(defender.MaterielLost*80/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].DamagedVehicles * ExposedMembers.UnitData[defender.unitKey].MaterielPerVehicles*25/100)
-			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve = ExposedMembers.UnitData[attacker.unitKey].MaterielReserve + attacker.MaterielGained
-			-- to do : recruit some of the enemy prisonners and liberate own prisonners (change prisonners to table with all players)
+	-- Update some stats
+	if attacker.IsUnit and defender.Dead then ExposedMembers.UnitData[attacker.unitKey].TotalKill = ExposedMembers.UnitData[attacker.unitKey].TotalKill + defender.Dead end
+	if defender.IsUnit and attacker.Dead then ExposedMembers.UnitData[defender.unitKey].TotalKill = ExposedMembers.UnitData[defender.unitKey].TotalKill + attacker.Dead end
+
+	-- Plundering (with some bonuses to attack)
+	if defender.IsLandUnit and combatResult[CombatResultParameters.COMBAT_TYPE] == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
+
+		if defender.IsDead then
+
+			attacker.Prisonners = defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded
+			attacker.MaterielGained = GCO.Round(defender.MaterielLost*80/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].MaterielReserve*80/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].DamagedVehicles * ExposedMembers.UnitData[defender.unitKey].MaterielPerVehicles*25/100) -- capture most materiel, convert some damaged Vehicles
+			attacker.LiberatedPrisonners = ExposedMembers.UnitData[defender.unitKey].Prisonners -- to do : recruit only some of the enemy prisonners and liberate own prisonners (change prisonners to table with all players)
+
+			-- Update composition
+			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel 	= 0 -- Just to keep things clean...
+			ExposedMembers.UnitData[attacker.unitKey].Prisonners 		= ExposedMembers.UnitData[attacker.unitKey].Prisonners 			+ attacker.Prisonners
+			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	+ attacker.MaterielGained
+			ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve 	= ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve 	+ attacker.LiberatedPrisonners
 
 		else
 			-- attacker
-			attacker.Prisonners = defender.Captured
-			ExposedMembers.UnitData[attacker.unitKey].Prisonners = ExposedMembers.UnitData[attacker.unitKey].Prisonners + attacker.Prisonners
-
+			attacker.Prisonners 	= defender.Captured
 			attacker.MaterielGained = GCO.Round(defender.MaterielLost*80/100)
-			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve = ExposedMembers.UnitData[attacker.unitKey].MaterielReserve + attacker.MaterielGained
+			ExposedMembers.UnitData[attacker.unitKey].Prisonners 		= ExposedMembers.UnitData[attacker.unitKey].Prisonners 		+ attacker.Prisonners
+			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve + attacker.MaterielGained
 
 			-- defender
-			defender.Prisonners = attacker.Captured
-			ExposedMembers.UnitData[defender.unitKey].Prisonners = ExposedMembers.UnitData[defender.unitKey].Prisonners + defender.Prisonners
-
+			defender.Prisonners 	= attacker.Captured
 			defender.MaterielGained = GCO.Round(attacker.MaterielLost*40/100)
-			ExposedMembers.UnitData[defender.unitKey].MaterielReserve = ExposedMembers.UnitData[defender.unitKey].MaterielReserve + defender.MaterielGained
+			ExposedMembers.UnitData[defender.unitKey].Prisonners 		= ExposedMembers.UnitData[defender.unitKey].Prisonners 		+ defender.Prisonners
+			ExposedMembers.UnitData[defender.unitKey].MaterielReserve 	= ExposedMembers.UnitData[defender.unitKey].MaterielReserve + defender.MaterielGained
 
 		end
 
-		-- Update & visualize for attacker
-		local playerID = attacker[CombatResultParameters.ID].player
-		local unitID = attacker[CombatResultParameters.ID].id
-		local unit = UnitManager.GetUnit(playerID, unitID)
-		ShowCombatPlunderingFloatingText(unit, attacker)
-		LuaEvents.UnitsCompositionUpdated(playerID, unitID)
+		-- Update unit's flag & visualize for attacker
+		if not attacker.IsDead then
+			ShowCombatPlunderingFloatingText(attacker)
+			LuaEvents.UnitsCompositionUpdated(attacker.playerID, attacker.unitID)
+		end
 
-		-- Update & visualize for defender
+		-- Update unit's flag & visualize for defender
 		if not defender.IsDead then
-			local playerID = defender[CombatResultParameters.ID].player
-			local unitID = defender[CombatResultParameters.ID].id
-			local unit = UnitManager.GetUnit(playerID, unitID)
-			ShowCombatPlunderingFloatingText(unit, defender)
-			LuaEvents.UnitsCompositionUpdated(playerID, unitID)
+			ShowCombatPlunderingFloatingText(defender)
+			LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)
 		end
 	end
 end
@@ -520,9 +347,9 @@ function HealingUnits(playerID)
 		for n = 0, maxHP do 	-- An unit can still be alive at 0 HP ?
 			damaged[n] = {}
 		end
-		
+
 		local maxTransfert = {}	-- maximum value of a component that can be used to heal in one turn
-		local alreadyUsed = {}	-- materiel is used both to heal the unit (reserve -> front) and repair vehicules in reserve, up to a limit 
+		local alreadyUsed = {}	-- materiel is used both to heal the unit (reserve -> front) and repair vehicules in reserve, up to a limit
 		for i, unit in playerUnits:Members() do
 			-- todo : check if the unit can heal (has a supply line, is not on water, ...)
 			local hp = unit:GetMaxDamage() - unit:GetDamage()
@@ -544,7 +371,7 @@ function HealingUnits(playerID)
 				for j, unit in ipairs (unitTable) do
 					if not hasReachedLimit[unit] then
 						local hp = unit:GetMaxDamage() - unit:GetDamage()
-						local key = GetUnitKey(unit)
+						local key = GCO.GetUnitKey(unit)
 						if (hp + healTable[unit] < maxHP) then
 							local unitInfo = GameInfo.Units[unit:GetType()] -- GetType in script, GetUnitType in UI context...
 							-- check here if the unit has enough reserves to get +1HP
@@ -552,16 +379,16 @@ function HealingUnits(playerID)
 							local reqVehicles 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Vehicles 	- UnitHitPointsTable[unitInfo.Index][hp].Vehicles
 							local reqHorses 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Horses 	- UnitHitPointsTable[unitInfo.Index][hp].Horses
 							local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Materiel 	- UnitHitPointsTable[unitInfo.Index][hp].Materiel
-							
+
 							-- unit limit (vehicles and horses are handled by personnel...)
 							if reqPersonnel > tonumber(maxTransfert[unit].Personnel) or reqMateriel > tonumber(maxTransfert[unit].Materiel) then
 								hasReachedLimit[unit] = true
 								print("- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
-								
+
 							elseif  ExposedMembers.UnitData[key].PersonnelReserve >= reqPersonnel
 							and 	ExposedMembers.UnitData[key].VehiclesReserve >= reqVehicles
 							and 	ExposedMembers.UnitData[key].HorsesReserve >= reqHorses
-							and 	ExposedMembers.UnitData[key].MaterielReserve >= reqMateriel 
+							and 	ExposedMembers.UnitData[key].MaterielReserve >= reqMateriel
 							then
 								healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
 							end
@@ -573,8 +400,8 @@ function HealingUnits(playerID)
 
 		-- apply reinforcement from all passes to units in one call to SetDamage (fix visual display of one "+1" when the unit was getting possibly more)
 		for unit, hp in pairs (healTable) do
-			local key = GetUnitKey(unit)
-			
+			local key = GCO.GetUnitKey(unit)
+
 			local unitInfo = GameInfo.Units[unit:GetType()]
 			local damage = unit:GetDamage()
 			local initialHP = maxHP - damage
@@ -596,7 +423,7 @@ function HealingUnits(playerID)
 			ExposedMembers.UnitData[key].Vehicles 	= ExposedMembers.UnitData[key].Vehicles 	+ reqVehicles
 			ExposedMembers.UnitData[key].Horses 	= ExposedMembers.UnitData[key].Horses 		+ reqHorses
 			ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	+ reqMateriel
-			
+
 			alreadyUsed[unit].Materiel = reqMateriel
 
 			-- Visualize healing
@@ -622,10 +449,10 @@ function HealingUnits(playerID)
 			LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 
 		end
-		
+
 		-- try to heal wounded and repair Vehicles using materiel (move healed personnel and repaired Vehicles to reserve)
 		for i, unit in playerUnits:Members() do
-			local key = GetUnitKey(unit)
+			local key = GCO.GetUnitKey(unit)
 			-- wounded soldiers may die...
 			local deads = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
 			ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - deads
@@ -633,7 +460,7 @@ function HealingUnits(playerID)
 			local healed = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
 			ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - healed
 			ExposedMembers.UnitData[key].PersonnelReserve = ExposedMembers.UnitData[key].PersonnelReserve + healed
-			
+
 			-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
 			local materielAvailable = maxTransfert[unit].Materiel - alreadyUsed[unit].Materiel
 			local maxRepairedVehicles = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerVehicles* GameInfo.GlobalParameters["MATERIEL_PERCENTAGE_TO_REPAIR_VEHICLE"].Value/100))
@@ -643,7 +470,7 @@ function HealingUnits(playerID)
 				ExposedMembers.UnitData[key].DamagedVehicles = ExposedMembers.UnitData[key].DamagedVehicles - repairedVehicules
 				ExposedMembers.UnitData[key].VehiclesReserve = ExposedMembers.UnitData[key].VehiclesReserve + repairedVehicules
 			end
-			
+
 			-- Visualize healing
 			local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
 			if (pLocalPlayerVis ~= nil) then
@@ -660,7 +487,7 @@ function HealingUnits(playerID)
 				end
 			end
 
-			LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag			
+			LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 		end
 
 		local endTime = Automation.GetTime()
@@ -717,6 +544,7 @@ function Cleaning()
 	ExposedMembers.GetUnitKey = nil
 	ExposedMembers.UI = nil
 	ExposedMembers.CombatTypes = nil
+	ExposedMembers.UnitHitPointsTable = nil
 end
 Events.LeaveGameComplete.Add(Cleaning)
 

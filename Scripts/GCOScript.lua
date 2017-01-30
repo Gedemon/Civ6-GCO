@@ -20,7 +20,6 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 		UI = ExposedMembers.UI 			-- to use UI function in this script context
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
-		InitializeTables()
 	end
 end
 --Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
