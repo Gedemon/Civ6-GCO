@@ -129,8 +129,14 @@ function SaveMyTables()
 	LuaEvents.SaveTables()
 end
 LuaEvents.FileListQueryComplete.Add( SaveMyTables )
-Events.RemotePlayerTurnBegin.Add( SaveMyTables )
-Events.RemotePlayerTurnEnd.Add( SaveMyTables )
+
+function SaveOnBarbarianTurnEnd(playerID)
+	local player = Players[playerID]
+	if player:IsBarbarian() then
+		LuaEvents.SaveTables()
+	end
+end
+Events.RemotePlayerTurnEnd.Add( SaveOnBarbarianTurnEnd )
 
 -- could get the quicksave key here
 function OnInputHandler( pInputStruct:table )

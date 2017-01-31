@@ -9,12 +9,8 @@ print ("Loading UnitScript.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
--- This should be the first loading files, do some cleaning if Events.LeaveGameComplete hasn't fired on returning to main menu or loading a game.
-ExposedMembers.SaveLoad_Initialized = nil
-ExposedMembers.Utils_Initialized = nil
-
-UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
---EverAliveZeroTable = {}	-- cached table to initialize an empty table with civID as keys and 0 as initial values 
+local UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
+local EverAliveZeroTable = {}	-- cached table to initialize an empty table with civID as keys and 0 as initial values 
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
@@ -37,7 +33,7 @@ Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 function InitializeTables() -- Tables that may require other context to be loaded (saved/loaded tables)
 	if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
-	--EverAliveZeroTable = GCO.CreateEverAliveTableWithDefaultValue(0)
+	EverAliveZeroTable = GCO.CreateEverAliveTableWithDefaultValue(0)
 end
 
 function Initialize() -- Everything that can be initialized immediatly after loading this file(cached tables)
@@ -105,14 +101,15 @@ function RegisterNewUnit(playerID, unit)
 		Horses 				= UnitHitPointsTable[unitType][hp].Horses,
 		Materiel 			= UnitHitPointsTable[unitType][hp].Materiel,
 		-- "Tactical Reserve" : ready to reinforce frontline, that's where reinforcements from cities, healed personnel and repaired Vehicles are affected first
-		PersonnelReserve	= GCO.Round((UnitHitPointsTable[unitType][maxHP].Personnel * reserveRatio) / 1000) * 10,
-		VehiclesReserve		= GCO.Round((UnitHitPointsTable[unitType][maxHP].Vehicles * reserveRatio) / 1000) *10,
-		HorsesReserve		= GCO.Round((UnitHitPointsTable[unitType][maxHP].Horses * reserveRatio) / 1000) *10,
-		MaterielReserve		= UnitHitPointsTable[unitType][maxHP].Materiel, -- full stock for materiel
+		PersonnelReserve	= GCO.GetPersonnelReserve(unitType)
+		VehiclesReserve		= GCO.GetVehiclesReserve(unitType)
+		HorsesReserve		= GCO.GetHorsesReserve(unitType)
+		MaterielReserve		= GCO.GetMaterielReserve(unitType)
 		-- "Rear"
 		WoundedPersonnel	= 0,
 		DamagedVehicles		= 0,
 		Prisonners			= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisonners by nationality
+		FoodStock 			= GCO.GetBaseFoodStock(unitType) 
 		-- Statistics
 		TotalDeath			= 0,
 		TotalVehiclesLost	= 0,
@@ -499,26 +496,36 @@ function HealingUnits(playerID)
 	end
 end
 
-function CheckForHealingOnPlayerTurnActivated( playerID, bFirstTime )
+
+-----------------------------------------------------------------------------------------
+-- Do Turn for Units
+-----------------------------------------------------------------------------------------
+
+function DoUnitsTurn( playerID )
+	HealingUnits( playerID )
+end
+
+function DoUnitsTurnForHuman( playerID, bFirstTime )
 	if ( not bFirstTime) then
 		return
 	end
 	local player = Players[playerID]
 	if player:IsHuman() then
-		HealingUnits(playerID)
+		DoUnitsTurn( playerID )
 		LuaEvents.SaveTables()
 	end
 end
-Events.PlayerTurnActivated.Add( CheckForHealingOnPlayerTurnActivated )
+Events.PlayerTurnActivated.Add( DoUnitsTurnForHuman )
 
-function CheckForHealingOnRemotePlayerTurnBegin( playerID )
+function DoUnitsTurnForAI( playerID )
 	local player = Players[playerID]
 	if player:IsHuman() then
 		return
 	end
-	HealingUnits(playerID)
+	DoUnitsTurn( playerID )
 end
-Events.RemotePlayerTurnBegin.Add( CheckForHealingOnRemotePlayerTurnBegin )
+Events.RemotePlayerTurnBegin.Add( DoUnitsTurnForAI )
+
 
 -----------------------------------------------------------------------------------------
 -- Save the tables
@@ -534,23 +541,6 @@ LuaEvents.SaveTables.Add(SaveTables)
 -----------------------------------------------------------------------------------------
 
 Initialize()
-
-
------------------------------------------------------------------------------------------
--- Cleaning on exit
------------------------------------------------------------------------------------------
-function Cleaning()
-	print ("Cleaning GCO stuff on LeaveGameComplete...")
-	ExposedMembers.SaveLoad_Initialized = nil
-	ExposedMembers.Utils_Initialized = nil
-	ExposedMembers.UnitData = nil
-	ExposedMembers.GCO = nil
-	ExposedMembers.GetUnitKey = nil
-	ExposedMembers.UI = nil
-	ExposedMembers.CombatTypes = nil
-	ExposedMembers.UnitHitPointsTable = nil
-end
-Events.LeaveGameComplete.Add(Cleaning)
 
 -----------------------------------------------------------------------------------------
 -- Testing...

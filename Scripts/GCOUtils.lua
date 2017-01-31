@@ -9,6 +9,10 @@ print ("Loading GCOUtils.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
+-- This should be the first loading file (to do : make sure of that !), do some cleaning if Events.LeaveGameComplete hasn't fired on returning to main menu or loading a game...
+ExposedMembers.SaveLoad_Initialized = nil
+ExposedMembers.Utils_Initialized = nil
+
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
@@ -16,7 +20,7 @@ print ("Loading GCOUtils.lua...")
 GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
-		GCO = ExposedMembers.GCO		-- contains functions from other contexts 
+		GCO = ExposedMembers.GCO		-- contains functions from other contexts
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
 	end
@@ -110,6 +114,70 @@ function GetUnitFromKey ( unitKey )
 	else
 		print("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey()")
 	end
+end
+
+function GetPersonnelReserve(unitType)
+	return Round((GameInfo.Units[unitType].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 1000) * 10)
+end
+
+function GetVehiclesReserve(unitType)
+	return Round((GameInfo.Units[unitType].Vehicles * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 1000) * 10)
+end
+
+function GetHorsesReserve(unitType)
+	return Round((GameInfo.Units[unitType].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 1000) * 10)
+end
+
+function GetMaterielReserve(unitType)
+	return Round(GameInfo.Units[unitType].Materiel -- 100% stock for materiel reserve
+end
+
+function GetFoodConsumption(unitData)
+	local foodConsumption1000 = 0
+	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve)*GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value)
+	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve)*GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value)
+	-- value belows may be nil
+	if unitData.Wounded then
+		foodConsumption1000 = foodConsumption1000 + (unitData.Wounded *GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value)
+	end
+	if unitData.Prisonners then	
+		foodConsumption1000 = foodConsumption1000 + (unitData.Prisonners *GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value)
+	end	
+	return math.max(1, Round( foodConsumption1000 / 1000 ))
+end
+
+function GetFoodConsumptionString(unitData)
+	local str = ""
+	local totalPersonnel = unitData.Personnel + unitData.PersonnelReserve
+	if totalPersonnel > 0 then 
+		local personnelFood = (totalPersonnel*GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value)/1000
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL", personnelFood, totalPersonnel) 
+	end	
+	local totalHorses = unitData.Horses + unitData.HorsesReserve
+	if totalHorses > 0 then 
+		local horsesFood = (totalHorses*GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value)/1000
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_HORSES", horsesFood, totalHorses ) 
+	end
+	
+	-- value belows may be nil
+	if unitData.Wounded and unitData.Wounded > 0 then 
+		local woundedFood = (unitData.Wounded*GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value)/1000
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_WOUNDED", woundedFood, unitData.Wounded ) 
+	end
+	if unitData.Prisonners then			
+		local prisonnersFood = (unitData.Prisonners*GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value)/1000
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONNERS", prisonnersFood, unitData.Prisonners )
+	end	
+	return str
+end
+
+function GetBaseFoodStock(unitType)
+	local unitData = {} 
+	unitData.Personnel 			= GameInfo.Units[unitType].Personnel
+	unitData.Horses 			= GameInfo.Units[unitType].Horses
+	unitData.PersonnelReserve	= GetPersonnelReserve(unitType)
+	unitData.HorsesReserve 		= GetHorsesReserve(unitType)	
+	return GetFoodConsumption(unitData)*5 -- set enough stock for 5 turns
 end
 
 function GetTotalPrisonners(data)
@@ -268,6 +336,29 @@ function Initialize()
 	ExposedMembers.GCO.GetTotalPrisonners = GetTotalPrisonners
 	ExposedMembers.GCO.GetPrisonnersStringByCiv = GetPrisonnersStringByCiv
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
+	ExposedMembers.GCO.GetPersonnelReserve = GetPersonnelReserve
+	ExposedMembers.GCO.GetVehiclesReserve = GetVehiclesReserve
+	ExposedMembers.GCO.GetHorsesReserve = GetHorsesReserve
+	ExposedMembers.GCO.GetMaterielReserve = GetMaterielReserve
+	ExposedMembers.GCO.GetFoodConsumption = GetFoodConsumption
+	ExposedMembers.GCO.GetBaseFoodStock = GetBaseFoodStock
 	ExposedMembers.Utils_Initialized = true
 end
 Initialize()
+
+
+-----------------------------------------------------------------------------------------
+-- Cleaning on exit
+-----------------------------------------------------------------------------------------
+function Cleaning()
+	print ("Cleaning GCO stuff on LeaveGameComplete...")
+	ExposedMembers.SaveLoad_Initialized = nil
+	ExposedMembers.Utils_Initialized = nil
+	ExposedMembers.UnitData = nil
+	ExposedMembers.GCO = nil
+	ExposedMembers.GetUnitKey = nil
+	ExposedMembers.UI = nil
+	ExposedMembers.CombatTypes = nil
+	ExposedMembers.UnitHitPointsTable = nil
+end
+Events.LeaveGameComplete.Add(Cleaning)
