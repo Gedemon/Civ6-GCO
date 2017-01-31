@@ -46,6 +46,42 @@ example:
 - no food from owned plots
 - pillaging can give food (farm, ...), materiel (mines, ...), prisonners (district, ...)
 
++ rationing
+	if less than 50% MaxFoodStock left
+		moral-, 50% food consumption, wounded mortality rate+
+	if less than 25% MaxFoodStock left
+		moral--, 25% food consumption, wounded mortality rate++
+	if less than 10% MaxFoodStock left
+		moral---, 10% food consumption, wounded mortality rate+++
+		if unit has horses
+			% of horses (min of 1) removed from reserve -> food 
+	if no food stock
+		moral----, wounded mortality rate++++
+		if unit has horses
+			% of horses (min of 1) removed from reserve -> food
+			if no horses in reserve and more than 50 hp left in unit, remove 1hp (equivalent hp of horses removed -> food, other components transfered to reserve)
+
+====================
+=      Moral      =
+====================
+
+++ victory
+++++ large victory
++++++ kill unit
+- defeat
+-- large defeat
+- rationing
++++ friendly tribe
+
+each turn @low morale (default = 50%) : desertion (modifiers to default: promotions, policies, ...)
+	- remove 1 equivalent hp on personnel in reserve per turn until 50% MaxPersonnelReserve is reached
+	- if less than 50% MaxPersonnelReserve remove 1 hp per turn until hp = 50% max (equivalent hp of personnel removed, other components transfered to reserve)
+	- morale++
+	
+each turn
+	- morale+ if less than 25% of total personnel wounded
+	- morale++ if less than 5% of total personnel wounded
+	- morale- if more than 50% of total personnel wounded
 
 ====================
 =     Healing      =
@@ -55,7 +91,7 @@ example:
 - Retreating: lose all damaged Vehicles & wounded -> prisoners
 - Need personnel to resuply #personnel in reserve
 - Need materiel to resuply #Vehicles in reserve
-- Tribal Villages (Barbarian outpost ?) should provide enough Personnel / Materiel to refill a Scout/Ranger reserve.
+- Tribal Villages (Barbarian outpost ?) should provide enough Personnel / Materiel to refill at least a Scout/Ranger reserve.
 
 + each turn:
 
