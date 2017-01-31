@@ -68,6 +68,9 @@
     <Replace Tag="LOC_FRONTLINE_LIBERATED_PRISONNERS" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Occupied] liberated</Text>
     </Replace>
+    <Replace Tag="LOC_FRONTLINE_FOOD_CAPTURED" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Food] captured</Text>
+    </Replace>
 	
 	<!-- Reinforce Frontline -->
     <Replace Tag="LOC_HEALING_PERSONNEL_MATERIEL" Language="en_US">
@@ -86,6 +89,14 @@
     <Replace Tag="LOC_REPAIRING_VEHICLES" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA] vehicles repaired</Text>
     </Replace>
+	<!-- -->
+    <Replace Tag="LOC_UNIT_EATING" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR][ICON_Food] eaten</Text>
+    </Replace>
+    <Replace Tag="LOC_UNIT_GET_FOOD" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Food] collected</Text>
+    </Replace>
+	
 	
   </LocalizedText>
   
@@ -134,19 +145,28 @@
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_FOOD_RATION" Language="en_US">
-      <Text>[ICON_Food] {1_Num} Rations</Text>
+      <Text>[ICON_Food] {1_Num} / {2_Num} Rations</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Yellow]Light Rationing[ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_FOOD_RATION_MEDIUM_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6Red]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Red]Medium Rationing[ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6DarkRed]Heavy Rationing[ENDCOLOR]</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL" Language="en_US">
-      <Text>[ICON_Food] {1_Num} food by [ICON_Position] {2_Num} Personnel</Text>
+      <Text>[ICON_FoodPerTurn] {1_Num} food by [ICON_Position] {2_Num} Personnel</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_HORSES" Language="en_US">
-      <Text>[ICON_Food] {1_Num} food by [ICON_Position] {2_Num} Horses</Text>
+      <Text>[ICON_FoodPerTurn] {1_Num} food by [ICON_Position] {2_Num} Horses</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_WOUNDED" Language="en_US">
-      <Text>[ICON_Food] {1_Num} food by [ICON_Position] {2_Num} Wounded</Text>
+      <Text>[ICON_FoodPerTurn] {1_Num} food by [ICON_Position] {2_Num} Wounded</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONNERS" Language="en_US">
-      <Text>[ICON_Food] {1_Num} food by [ICON_Position] {2_Num} Prisonners</Text>
+      <Text>[ICON_FoodPerTurn] {1_Num} food by [ICON_Position] {2_Num} Prisonners</Text>
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_TOTAL_DEATH" Language="en_US">
