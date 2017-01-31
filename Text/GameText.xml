@@ -133,6 +133,22 @@
       <Text>[ICON_Occupied] {1_Num} others Prisonners</Text>
     </Replace>
 	
+    <Replace Tag="LOC_UNITFLAG_FOOD_RATION" Language="en_US">
+      <Text>[ICON_Food] {1_Num} Rations</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL" Language="en_US">
+      <Text>[ICON_Food] {1_Num} food by [ICON_Position] {2_Num} Personnel</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_HORSES" Language="en_US">
+      <Text>[ICON_Food] {1_Num} food by [ICON_Position] {2_Num} Horses</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_WOUNDED" Language="en_US">
+      <Text>[ICON_Food] {1_Num} food by [ICON_Position] {2_Num} Wounded</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONNERS" Language="en_US">
+      <Text>[ICON_Food] {1_Num} food by [ICON_Position] {2_Num} Prisonners</Text>
+    </Replace>
+	
     <Replace Tag="LOC_UNITFLAG_TOTAL_DEATH" Language="en_US">
       <Text>[ICON_Unit] {1_Num} Deaths</Text>
     </Replace>
