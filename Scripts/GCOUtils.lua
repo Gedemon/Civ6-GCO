@@ -68,6 +68,19 @@ function GetSize(t)
 end
 
 ----------------------------------------------
+-- Civilizations
+----------------------------------------------
+
+function CreateEverAliveTableWithDefaultValue(value)
+	local t = {}
+	for i, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		t[playerID] = value
+	end
+	return t
+end
+
+
+----------------------------------------------
 -- Units
 ----------------------------------------------
 
@@ -99,6 +112,37 @@ function GetUnitFromKey ( unitKey )
 	end
 end
 
+function GetTotalPrisonners(data)
+	local prisonners = 0
+	for playerID, number in pairs(data.Prisonners) do
+		prisonners = prisonners + number
+	end	
+	return prisonners
+end
+
+function GetPrisonnersStringByCiv(data)
+	local sortedPrisonners = {}
+	for playerID, number in pairs(data.Prisonners) do
+		table.insert(sortedPrisonners, {playerID = playerID, Number = number})
+	end	
+	table.sort(sortedPrisonners, function(a,b) return a.Number>b.Number end)
+	local numLines = tonumber(GameInfo.GlobalParameters["MAX_PRISONNERS_LINE_IN_UNIT_FLAG"].Value)
+	local str = ""
+	local other = 0
+	local iter = 1
+	for i, t in ipairs(sortedPrisonners) do
+		if (iter <= numLines) or (#sortedPrisonners == numLines + 1) then
+			local playerConfig = PlayerConfigurations[t.playerID]
+			local civAdjective = Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
+			if t.Number > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS_NATIONALITY", t.Number, civAdjective) end
+		else
+			other = other + t.Number
+		end
+		iter = iter + 1
+	end
+	if other > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS_OTHER_NATIONALITY", other) end
+	return str
+end
 
 function GetMaxTransfertTable(unit)
 	local maxTranfert = {}
@@ -118,7 +162,12 @@ function AddCombatInfoTo(Opponent)
 		Opponent.IsLandUnit = GameInfo.Units[Opponent.unitType].Domain == "DOMAIN_LAND"
 		-- Max number of prisonners can't be higher than the unit's operationnal number of personnel or the number of remaining valid personnel x10
 		Opponent.MaxPrisonners = math.min(GameInfo.Units[Opponent.unitType].Personnel, (ExposedMembers.UnitData[Opponent.unitKey].Personnel+ExposedMembers.UnitData[Opponent.unitKey].PersonnelReserve)*10)
-		Opponent.MaxCapture = GCO.Round((Opponent.MaxPrisonners - ExposedMembers.UnitData[Opponent.unitKey].Prisonners) * GameInfo.GlobalParameters["CAPTURE_RATIO_FROM_PRISONNERS_CAPACITY"].Value/100)
+		local diff = (Opponent.MaxPrisonners - GCO.GetTotalPrisonners(ExposedMembers.UnitData[Opponent.unitKey]))
+		if diff > 0 then
+			Opponent.MaxCapture = GCO.Round(diff * GameInfo.GlobalParameters["CAPTURE_RATIO_FROM_PRISONNERS_CAPACITY"].Value/100)
+		else
+			Opponent.MaxCapture = 0
+		end
 		Opponent.AntiPersonnel = GameInfo.Units[Opponent.unitType].AntiPersonnel
 	end	
 
@@ -202,10 +251,6 @@ function AddCasualtiesInfoByTo(OpponentA, OpponentB)
 end
 
 ----------------------------------------------
--- WorldText functions for other contexts
-----------------------------------------------
-
-----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
 
@@ -220,6 +265,9 @@ function Initialize()
 	ExposedMembers.GCO.AddCombatInfoTo = AddCombatInfoTo
 	ExposedMembers.GCO.AddFrontLineCasualtiesInfoTo = AddFrontLineCasualtiesInfoTo
 	ExposedMembers.GCO.AddCasualtiesInfoByTo = AddCasualtiesInfoByTo
+	ExposedMembers.GCO.GetTotalPrisonners = GetTotalPrisonners
+	ExposedMembers.GCO.GetPrisonnersStringByCiv = GetPrisonnersStringByCiv
+	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.Utils_Initialized = true
 end
 Initialize()

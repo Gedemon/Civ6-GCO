@@ -94,6 +94,13 @@ example:
 
 
 ====================
+=   Promotions     =
+====================
+
+- berserk/totenkopf : +25% chance of causing retreat, more dead, less prisonners, less wounded 
+
+
+====================
 =  Technologies    =
 ====================
 

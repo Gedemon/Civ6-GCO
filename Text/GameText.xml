@@ -124,7 +124,13 @@
       <Text>[ICON_Pillaged] {1_Num} Damaged Vehicles</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_PRISONNERS" Language="en_US">
-      <Text>[ICON_Occupied] {1_Num} Prisonners</Text>
+      <Text>[ICON_Occupied] {1_Num} Total Prisonners</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_PRISONNERS_NATIONALITY" Language="en_US">
+      <Text>[ICON_Occupied] {1_Num} {2_EnemyAdjective} Prisonners</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_PRISONNERS_OTHER_NATIONALITY" Language="en_US">
+      <Text>[ICON_Occupied] {1_Num} others Prisonners</Text>
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_TOTAL_DEATH" Language="en_US">

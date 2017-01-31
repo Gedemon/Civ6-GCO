@@ -14,6 +14,7 @@ ExposedMembers.SaveLoad_Initialized = nil
 ExposedMembers.Utils_Initialized = nil
 
 UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
+--EverAliveZeroTable = {}	-- cached table to initialize an empty table with civID as keys and 0 as initial values 
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
@@ -35,7 +36,8 @@ end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 function InitializeTables() -- Tables that may require other context to be loaded (saved/loaded tables)
-	if not ExposedMembers.UnitData then ExposedMembers.UnitData = ExposedMembers.GCO.LoadTableFromSlot("UnitData") or {} end
+	if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
+	--EverAliveZeroTable = GCO.CreateEverAliveTableWithDefaultValue(0)
 end
 
 function Initialize() -- Everything that can be initialized immediatly after loading this file(cached tables)
@@ -110,7 +112,7 @@ function RegisterNewUnit(playerID, unit)
 		-- "Rear"
 		WoundedPersonnel	= 0,
 		DamagedVehicles		= 0,
-		Prisonners			= 0,
+		Prisonners			= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisonners by nationality
 		-- Statistics
 		TotalDeath			= 0,
 		TotalVehiclesLost	= 0,
@@ -286,28 +288,29 @@ function OnCombat( combatResult )
 
 		if defender.IsDead then
 
-			attacker.Prisonners = defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded
-			attacker.MaterielGained = GCO.Round(defender.MaterielLost*80/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].MaterielReserve*80/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].DamagedVehicles * ExposedMembers.UnitData[defender.unitKey].MaterielPerVehicles*25/100) -- capture most materiel, convert some damaged Vehicles
-			attacker.LiberatedPrisonners = ExposedMembers.UnitData[defender.unitKey].Prisonners -- to do : recruit only some of the enemy prisonners and liberate own prisonners (change prisonners to table with all players)
+			attacker.Prisonners = defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded (to do : add prisonners drom enemy nationality here)
+			attacker.MaterielGained = GCO.Round(defender.MaterielLost*50/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].MaterielReserve*75/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].DamagedVehicles * ExposedMembers.UnitData[defender.unitKey].MaterielPerVehicles*15/100) -- capture most materiel, convert some damaged Vehicles
+			attacker.LiberatedPrisonners = GCO.GetTotalPrisonners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
 
 			-- Update composition
 			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel 	= 0 -- Just to keep things clean...
-			ExposedMembers.UnitData[attacker.unitKey].Prisonners 		= ExposedMembers.UnitData[attacker.unitKey].Prisonners 			+ attacker.Prisonners
 			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	+ attacker.MaterielGained
 			ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve 	= ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve 	+ attacker.LiberatedPrisonners
+			-- To do : prisonners by nationality			
+			ExposedMembers.UnitData[attacker.unitKey].Prisonners[defender.playerID]	= ExposedMembers.UnitData[attacker.unitKey].Prisonners[defender.playerID] + attacker.Prisonners
 
 		else
 			-- attacker
 			attacker.Prisonners 	= defender.Captured
-			attacker.MaterielGained = GCO.Round(defender.MaterielLost*80/100)
-			ExposedMembers.UnitData[attacker.unitKey].Prisonners 		= ExposedMembers.UnitData[attacker.unitKey].Prisonners 		+ attacker.Prisonners
-			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve + attacker.MaterielGained
+			attacker.MaterielGained = GCO.Round(defender.MaterielLost*50/100)
+			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 				= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve + attacker.MaterielGained
+			ExposedMembers.UnitData[attacker.unitKey].Prisonners[defender.playerID]	= ExposedMembers.UnitData[attacker.unitKey].Prisonners[defender.playerID] + attacker.Prisonners
 
 			-- defender
 			defender.Prisonners 	= attacker.Captured
-			defender.MaterielGained = GCO.Round(attacker.MaterielLost*40/100)
-			ExposedMembers.UnitData[defender.unitKey].Prisonners 		= ExposedMembers.UnitData[defender.unitKey].Prisonners 		+ defender.Prisonners
-			ExposedMembers.UnitData[defender.unitKey].MaterielReserve 	= ExposedMembers.UnitData[defender.unitKey].MaterielReserve + defender.MaterielGained
+			defender.MaterielGained = GCO.Round(attacker.MaterielLost*25/100)
+			ExposedMembers.UnitData[defender.unitKey].MaterielReserve 				= ExposedMembers.UnitData[defender.unitKey].MaterielReserve + defender.MaterielGained
+			ExposedMembers.UnitData[defender.unitKey].Prisonners[attacker.playerID]	= ExposedMembers.UnitData[defender.unitKey].Prisonners[attacker.playerID] + defender.Prisonners
 
 		end
 
@@ -503,6 +506,7 @@ function CheckForHealingOnPlayerTurnActivated( playerID, bFirstTime )
 	local player = Players[playerID]
 	if player:IsHuman() then
 		HealingUnits(playerID)
+		LuaEvents.SaveTables()
 	end
 end
 Events.PlayerTurnActivated.Add( CheckForHealingOnPlayerTurnActivated )

@@ -16,3 +16,4 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MAX_PSEUDO_HP_FRO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('DEFAULT_ANTIPERSONNEL_RATIO',			50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CAPTURE_RATIO_FROM_PRISONNERS_CAPACITY',	55);	-- To calculate the max prisonners an unit can capture in combat 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('DEFAULT_CAPTURED_PERSONNEL_RATIO',		45);	-- To calculate the captured personnel from an unit casualties
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MAX_PRISONNERS_LINE_IN_UNIT_FLAG',		2);		-- Number of lines showing prisonners nationality in unit's flag 
