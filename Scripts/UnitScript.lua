@@ -143,7 +143,7 @@ function InitializeUnit(playerID, unitID)
 		RegisterNewUnit(playerID, unit)
 		print("-------------------------------------")
 	else
-		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID))
+		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when lauching a new game)")
 	end
 
 end
