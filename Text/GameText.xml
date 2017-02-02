@@ -44,6 +44,9 @@
     </Replace>
     <Replace Tag="LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit] deads[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Occupied] captured[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege] wounded</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS_SHORT" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit],[ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Occupied] captured,[ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege]</Text>
     </Replace>	
     <Replace Tag="LOC_FRONTLINE_VEHICLES_CASUALTIES" Language="en_US">
       <Text>[COLOR_Civ6Red]-{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA] vehicles</Text>
@@ -51,10 +54,19 @@
     <Replace Tag="LOC_FRONTLINE_VEHICLES_CASUALTIES_DETAILS" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Razed] destroyed[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Yellow]{2_Num} [ENDCOLOR][ICON_Pillaged] damaged</Text>
     </Replace>
+    <Replace Tag="LOC_FRONTLINE_VEHICLES_CASUALTIES_DETAILS_SHORT" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Razed],[ICON_TradeRouteLarge][COLOR_Civ6Yellow]{2_Num} [ENDCOLOR][ICON_Pillaged]</Text>
+    </Replace>
     <Replace Tag="LOC_FRONTLINE_HORSES_CASUALTIES" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_RESOURCE_HORSES] horses</Text>
     </Replace>
+    <Replace Tag="LOC_FRONTLINE_HORSES_CASUALTIES_SHORT" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_RESOURCE_HORSES]</Text>
+    </Replace>
     <Replace Tag="LOC_FRONTLINE_MATERIEL_CASUALTIES" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Charges] materiel</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_MATERIEL_CASUALTIES_SHORT" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Charges] materiel</Text>
     </Replace>
 	
@@ -62,45 +74,84 @@
     <Replace Tag="LOC_FRONTLINE_PRISONNERS_CAPTURED" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Occupied] captured</Text>
     </Replace>
+    <Replace Tag="LOC_FRONTLINE_PRISONNERS_CAPTURED_SHORT" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Occupied]</Text>
+    </Replace>
     <Replace Tag="LOC_FRONTLINE_MATERIEL_CAPTURED" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Charges] materiel</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_MATERIEL_CAPTURED_SHORT" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Charges]</Text>
     </Replace>
     <Replace Tag="LOC_FRONTLINE_LIBERATED_PRISONNERS" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Occupied] liberated</Text>
     </Replace>
+    <Replace Tag="LOC_FRONTLINE_LIBERATED_PRISONNERS_SHORT" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Position]</Text>
+    </Replace>
     <Replace Tag="LOC_FRONTLINE_FOOD_CAPTURED" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Food] captured</Text>
+    </Replace>
+    <Replace Tag="LOC_FRONTLINE_FOOD_CAPTURED_SHORT" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Food]</Text>
     </Replace>
 	
 	<!-- Reinforce Frontline -->
     <Replace Tag="LOC_HEALING_PERSONNEL_MATERIEL" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Position] personnel[NEWLINE][ICON_TradeRouteLarge]{2_Num} [ICON_Charges] materiel</Text>
     </Replace>
+    <Replace Tag="LOC_HEALING_PERSONNEL_MATERIEL_SHORT" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Position],[ICON_TradeRouteLarge]{2_Num} [ICON_Charges]</Text>
+    </Replace>
     <Replace Tag="LOC_HEALING_VEHICLES" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_DISTRICT_HANSA] vehicles</Text>
     </Replace>
+    <Replace Tag="LOC_HEALING_VEHICLES_SHORT" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_DISTRICT_HANSA]</Text>
+    </Replace>
     <Replace Tag="LOC_HEALING_HORSES" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_RESOURCE_HORSES] horses</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALING_HORSES_SHORT" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_RESOURCE_HORSES]</Text>
     </Replace>
 	<!-- Healing -->
     <Replace Tag="LOC_HEALING_WOUNDED" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_UnderSiege] wounded deads[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Green]{2_Num} [ENDCOLOR][ICON_UnderSiege] wounded healed</Text>
     </Replace>
+    <Replace Tag="LOC_HEALING_WOUNDED_SHORT" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_UnderSiege],[ICON_TradeRouteLarge][COLOR_Civ6Green]{2_Num} [ENDCOLOR][ICON_UnderSiege]</Text>
+    </Replace>
     <Replace Tag="LOC_REPAIRING_VEHICLES" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA] vehicles repaired</Text>
     </Replace>
-	<!-- -->
+    <Replace Tag="LOC_REPAIRING_VEHICLES_SHORT" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA]</Text>
+    </Replace>
+	<!-- Food -->
     <Replace Tag="LOC_UNIT_EATING" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR][ICON_Food] eaten</Text>
     </Replace>
     <Replace Tag="LOC_UNIT_GET_FOOD" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Food] collected</Text>
-    </Replace>
-	
+    </Replace>	
 	
   </LocalizedText>
   
-  <LocalizedText> <!-- UnitFlagManager Texts -->
+  <LocalizedText> <!-- UnitFlagManager Texts -->	
+	
+    <Replace Tag="LOC_UNITFLAG_MORALE" Language="en_US">
+      <Text>[ICON_] {1_Num} / {2_Num} Morale</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_HIGH_MORALE" Language="en_US">
+      <Text>[ICON_] [COLOR_Civ6Green]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6Green]High Morale[ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_LOW_MORALE" Language="en_US">
+      <Text>[ICON_] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6Yellow]Low Morale[ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_BAD_MORALE" Language="en_US">
+      <Text>[ICON_] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6DarkRed]Bad Morale[ENDCOLOR]</Text>
+    </Replace>	
   
     <Replace Tag="LOC_UNITFLAG_PERSONNEL" Language="en_US">
       <Text>[ICON_Position] {1_Num} / {2_Num} Personnel</Text>
@@ -155,7 +206,7 @@
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING" Language="en_US">
       <Text>[ICON_FoodDeficit] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6DarkRed]Heavy Rationing[ENDCOLOR]</Text>
-    </Replace>	
+    </Replace>
     <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL" Language="en_US">
       <Text>[ICON_FoodPerTurn] {1_Num} food by [ICON_Position] {2_Num} Personnel</Text>
     </Replace>
@@ -181,8 +232,6 @@
     <Replace Tag="LOC_UNITFLAG_TOTAL_HORSES_LOST" Language="en_US">
       <Text>[ICON_RESOURCE_HORSES] {1_Num} Lost Horses</Text>
     </Replace>
-	
-	
 	
   </LocalizedText>
   
