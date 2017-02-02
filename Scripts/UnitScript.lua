@@ -94,7 +94,7 @@ function RegisterNewUnit(playerID, unit)
 		playerID = playerID,
 		unitType = unitType,
 		MaterielPerVehicles = GameInfo.Units[unitType].MaterielPerVehicles,
-		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve for all required components
+		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 			= UnitHitPointsTable[unitType][hp].Personnel,
 		Vehicles 			= UnitHitPointsTable[unitType][hp].Vehicles,
 		Horses 				= UnitHitPointsTable[unitType][hp].Horses,
@@ -109,6 +109,7 @@ function RegisterNewUnit(playerID, unit)
 		DamagedVehicles		= 0,
 		Prisonners			= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisonners by nationality
 		FoodStock 			= GCO.GetBaseFoodStock(unitType),
+		FoodStockVariation	= 0,
 		-- Statistics
 		TotalDeath			= 0,
 		TotalVehiclesLost	= 0,
@@ -118,8 +119,12 @@ function RegisterNewUnit(playerID, unit)
 		TotalShipSunk		= 0,
 		TotalTankDestroyed	= 0,
 		TotalAircraftKilled	= 0,
-		--
-		Moral 				= 100,
+		-- Others
+		Morale 				= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value), -- 100
+		MoraleVariation		= 0,
+		LastCombatTurn		= 0,
+		LastCombatResult	= 0,
+		LastCombatType		= 0,
 		Alive 				= true,
 		TotalXP 			= unit:GetExperience():GetExperiencePoints(),
 		CombatXP 			= 0,
@@ -159,6 +164,8 @@ function OnCombat( combatResult )
 
 	local attacker = combatResult[CombatResultParameters.ATTACKER]
 	local defender = combatResult[CombatResultParameters.DEFENDER]
+	
+	local combatType = combatResult[CombatResultParameters.COMBAT_TYPE]
 
 	attacker.IsUnit = attacker[CombatResultParameters.ID].type == ComponentType.UNIT
 	defender.IsUnit = defender[CombatResultParameters.ID].type == ComponentType.UNIT
@@ -166,23 +173,29 @@ function OnCombat( combatResult )
 	-- We need to set some info before handling the change in the units composition
 	if attacker.IsUnit then
 		attacker.IsAttacker = true
+		-- attach everything required by the update functions from the base CombatResultParameters
 		attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]
 		attacker.InitialHP = attacker.FinalHP + attacker[CombatResultParameters.DAMAGE_TO]
 		attacker.IsDead = attacker[CombatResultParameters.FINAL_DAMAGE_TO] >= attacker[CombatResultParameters.MAX_HIT_POINTS]
 		attacker.playerID = attacker[CombatResultParameters.ID].player
 		attacker.unitID = attacker[CombatResultParameters.ID].id
-		attacker = GCO.AddCombatInfoTo(attacker) -- Add information needed to handle casualties made to the other opponent
-		attacker.CanTakePrisonners = attacker.IsLandUnit and combatResult[CombatResultParameters.COMBAT_TYPE] == CombatTypes.MELEE and not attacker.IsDead
+		-- add information needed to handle casualties made to the other opponent (including unitKey)
+		attacker = GCO.AddCombatInfoTo(attacker)
+		-- 
+		attacker.CanTakePrisonners = attacker.IsLandUnit and combatType == CombatTypes.MELEE and not attacker.IsDead
 	end
 	if defender.IsUnit then
 		defender.IsDefender = true
+		-- attach everything required by the update functions from the base CombatResultParameters
 		defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]
 		defender.InitialHP = defender.FinalHP + defender[CombatResultParameters.DAMAGE_TO]
 		defender.IsDead = defender[CombatResultParameters.FINAL_DAMAGE_TO] >= defender[CombatResultParameters.MAX_HIT_POINTS]
 		defender.playerID = defender[CombatResultParameters.ID].player
 		defender.unitID = defender[CombatResultParameters.ID].id
-		defender = GCO.AddCombatInfoTo(defender) -- Add information needed to handle casualties made to the other opponent
-		defender.CanTakePrisonners = defender.IsLandUnit and combatResult[CombatResultParameters.COMBAT_TYPE] == CombatTypes.MELEE and not defender.IsDead
+		-- add information needed to handle casualties made to the other opponent (including unitKey)
+		defender = GCO.AddCombatInfoTo(defender)
+		--
+		defender.CanTakePrisonners = defender.IsLandUnit and combatType == CombatTypes.MELEE and not defender.IsDead
 	end
 
 	-- Handle casualties
@@ -216,8 +229,20 @@ function OnCombat( combatResult )
 	if attacker.IsUnit and defender.Dead then ExposedMembers.UnitData[attacker.unitKey].TotalKill = ExposedMembers.UnitData[attacker.unitKey].TotalKill + defender.Dead end
 	if defender.IsUnit and attacker.Dead then ExposedMembers.UnitData[defender.unitKey].TotalKill = ExposedMembers.UnitData[defender.unitKey].TotalKill + attacker.Dead end
 
+	if attacker.IsUnit and defender.IsUnit then
+		local turn = Game.GetCurrentGameTurn()
+		ExposedMembers.UnitData[attacker.unitKey].LastCombatTurn = turn
+		ExposedMembers.UnitData[defender.unitKey].LastCombatTurn = turn		
+		
+		ExposedMembers.UnitData[attacker.unitKey].LastCombatResult = defender[CombatResultParameters.DAMAGE_TO] - attacker[CombatResultParameters.DAMAGE_TO]
+		ExposedMembers.UnitData[defender.unitKey].LastCombatResult = attacker[CombatResultParameters.DAMAGE_TO] - defender[CombatResultParameters.DAMAGE_TO]
+		
+		ExposedMembers.UnitData[attacker.unitKey].LastCombatType = combatType
+		ExposedMembers.UnitData[defender.unitKey].LastCombatType = combatType		
+	end
+	
 	-- Plundering (with some bonuses to attack)
-	if defender.IsLandUnit and combatResult[CombatResultParameters.COMBAT_TYPE] == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
+	if defender.IsLandUnit and combatType == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
 
 		if defender.IsDead then
 
@@ -367,24 +392,8 @@ function HealingUnits(playerID)
 			alreadyUsed[unit].Materiel = reqMateriel
 
 			-- Visualize healing
-			local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
-			if (pLocalPlayerVis ~= nil) then
-				if (pLocalPlayerVis:IsVisible(unit:GetX(), unit:GetY())) then
-					local sText
-					if reqPersonnel + reqMateriel > 0 then
-						sText = Locale.Lookup("LOC_HEALING_PERSONNEL_MATERIEL", reqPersonnel, reqMateriel)
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
-					end
-					if reqVehicles > 0 then
-						sText = Locale.Lookup("LOC_HEALING_VEHICLES", reqVehicles)
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
-					end
-					if reqHorses > 0 then
-						sText = Locale.Lookup("LOC_HEALING_HORSES", reqHorses)
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
-					end
-				end
-			end
+			local healingData = {reqPersonnel = reqPersonnel, reqMateriel = reqMateriel, reqVehicles = reqVehicles, reqHorses = reqHorses, X = unit:GetX(), Y = unit:GetY() }
+			GCO.ShowFontLineHealingFloatingText(healingData)
 
 			LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 
@@ -412,20 +421,8 @@ function HealingUnits(playerID)
 			end
 
 			-- Visualize healing
-			local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
-			if (pLocalPlayerVis ~= nil) then
-				if (pLocalPlayerVis:IsVisible(unit:GetX(), unit:GetY())) then
-					local sText
-					if deads + healed > 0 then
-						sText = Locale.Lookup("LOC_HEALING_WOUNDED", deads, healed)
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
-					end
-					if repairedVehicules > 0 then
-						sText = Locale.Lookup("LOC_REPAIRING_VEHICLES", repairedVehicules)
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
-					end
-				end
-			end
+			local healingData = {deads = deads, healed = healed, repairedVehicules = repairedVehicules, X = unit:GetX(), Y = unit:GetY() }
+			GCO.ShowReserveHealingFloatingText(healingData)
 
 			LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 		end
@@ -440,72 +437,68 @@ end
 -- Do Turn for Units
 -----------------------------------------------------------------------------------------
 
-function Eat(unit)
+function DoUnitFood(unit)
+	
 	local key = GCO.GetUnitKey(unit)
-	local unitData = ExposedMembers.UnitData[key]
+	local unitData = ExposedMembers.UnitData[key]	
+	
+	-- Eat Food
+	
 	local foodEat = math.min(GCO.GetFoodConsumption(unitData), ExposedMembers.UnitData[key].FoodStock)
-	ExposedMembers.UnitData[key].FoodStock = ExposedMembers.UnitData[key].FoodStock - foodEat
-	-- Visualize
-	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
-	if (pLocalPlayerVis ~= nil) then
-		if (pLocalPlayerVis:IsVisible(unit:GetX(), unit:GetY())) then
-			local sText
-			if foodEat > 0 then
-				sText = Locale.Lookup("LOC_UNIT_EATING", foodEat)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
-			end
-		end
-	end
-end
-
-function GetFood(unit)
-	local key = GCO.GetUnitKey(unit)
-	local unitData = ExposedMembers.UnitData[key]
-	local food = 0
-	print("I", key, food)
+	
+	-- Get Food
+	
+	local foodGet = 0
 	local iX = unit:GetX()
 	local iY = unit:GetY()
 	local adjacentRatio = tonumber(GameInfo.GlobalParameters["FOOD_COLLECTING_ADJACENT_PLOT_RATIO"].Value)
 	local yieldFood = GameInfo.Yields["YIELD_FOOD"].Index
-	local maxFoodStock = GCO.GetBaseFoodStock(unitData.unitType)
-	
+	local maxFoodStock = GCO.GetBaseFoodStock(unitData.unitType)	
 	-- Get food from the plot
 	local plot = Map.GetPlot(iX, iY)
 	if plot then
-		food = food + (plot:GetYield(yieldFood) / (math.max(1, Units.GetUnitCountInPlot(plot))))
-	end
-	print("C", key, food)
-	
+		foodGet = foodGet + (plot:GetYield(yieldFood) / (math.max(1, Units.GetUnitCountInPlot(plot))))
+	end	
 	-- Get food from adjacent plots
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		adjacentPlot = Map.GetAdjacentPlot(iX, iY, direction);
 		if (adjacentPlot ~= nil) and (not adjacentPlot:IsOwned()) then
-			food = food + ((adjacentPlot:GetYield(yieldFood) / (1 + Units.GetUnitCountInPlot(adjacentPlot))) * adjacentRatio)
-			print(direction, key, food)
+			foodGet = foodGet + ((adjacentPlot:GetYield(yieldFood) / (1 + Units.GetUnitCountInPlot(adjacentPlot))) * adjacentRatio)
 		end
-	end
+	end	
+	foodGet = GCO.Round(foodGet)
+	foodGet = math.max(0, math.min(maxFoodStock - ExposedMembers.UnitData[key].FoodStock, foodGet))
 	
-	food = GCO.Round(food)
-	food = math.max(0, math.min(maxFoodStock - ExposedMembers.UnitData[key].FoodStock, food))
-	ExposedMembers.UnitData[key].FoodStock = ExposedMembers.UnitData[key].FoodStock + food
-	-- Visualize	
-	if food > 0 then
-		local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
-		if (pLocalPlayerVis ~= nil) then
-			if (pLocalPlayerVis:IsVisible(unit:GetX(), unit:GetY())) then
-				local sText
-				sText = Locale.Lookup("LOC_UNIT_GET_FOOD", food)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, unit:GetX(), unit:GetY(), 0)
-			end
-		end
-	end
+	-- Update variation
+	local foodVariation = foodGet - foodEat
+	ExposedMembers.UnitData[key].FoodStock = ExposedMembers.UnitData[key].FoodStock + foodVariation
+	ExposedMembers.UnitData[key].FoodStockVariation = foodVariation
+	
+	-- Visualize
+	local foodData = { foodEat = foodEat, foodGet = foodGet, X = unit:GetX(), Y = unit:GetY() }
+	GCO.ShowFoodFloatingText(foodData)	
+end
+
+
+function DoUnitMorale(unit)	
+	local key = GCO.GetUnitKey(unit)
+	local unitData = ExposedMembers.UnitData[key]
+	local moraleVariation = 0
+	moraleVariation = moraleVariation + GCO.GetMoraleFromFood(unitData)
+	moraleVariation = moraleVariation + GCO.GetMoraleFromLastCombat(unitData)
+	moraleVariation = moraleVariation + GCO.GetMoraleFromWounded(unitData)
+		
+	ExposedMembers.UnitData[key].Morale = ExposedMembers.UnitData[key].Morale + moraleVariation
+	ExposedMembers.UnitData[key].FoodStockVariation = MoraleVariation
 end
 
 function UnitDoTurn(unit)
 	local key = GCO.GetUnitKey(unit)
+	if not ExposedMembers.UnitData[key] then
+		return
+	end
 	local playerID = unit:GetOwner()
-	Eat(unit)
-	GetFood(unit)
+	DoUnitFood(unit)
 	LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID())
 end
 

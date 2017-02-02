@@ -13,6 +13,12 @@ print ("Loading GCOUtils.lua...")
 ExposedMembers.SaveLoad_Initialized = nil
 ExposedMembers.Utils_Initialized = nil
 
+-- Floating Texts LOD
+FLOATING_TEXT_NONE = 0
+FLOATING_TEXT_SHORT = 1
+FLOATING_TEXT_LONG = 2
+local floatingTextLevel = FLOATING_TEXT_SHORT
+
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
@@ -294,6 +300,37 @@ function AddCasualtiesInfoByTo(OpponentA, OpponentB)
 	return OpponentB
 end
 
+function GetMoraleFromFood(unitData)	
+	local moralefromFood 	= tonumber(GameInfo.GlobalParameters["MORALE_WELL_FED"].Value)
+	local lightRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
+	local mediumRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
+	local heavyRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
+	local baseFoodStock 	= GetBaseFoodStock(unitData.unitType)
+	
+	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
+		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_FOOD_RATIONING_HEAVY"].Value)
+	elseif unitData.FoodStock < (baseFoodStock * mediumRationing) then
+		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_FOOD_RATIONING_MEDIUM"].Value)
+	elseif unitData.FoodStock < (baseFoodStock * lightRationing) then
+		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_FOOD_RATIONING_LIGHT"].Value)
+	end
+	return moralefromFood	
+end
+
+function GetMoraleFromLastCombat(unitData)
+	if (Game.GetCurrentGameTurn() - unitData.LastCombatTurn) > 5 then
+		return 0
+	end
+	local moraleFromCombat 	= 0
+
+
+	return moraleFromCombat	
+
+end
+
+function GetMoraleFromWounded(unitData)
+
+end
 
 ----------------------------------------------
 -- Texts function
@@ -304,6 +341,7 @@ function GetFoodStockString(unitData)
 	local mediumRationing = tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 	local heavyRationing = 	tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
 	local baseFoodStock = GetBaseFoodStock(unitData.unitType)
+	local foodStockVariation	= unitData.FoodStockVariation
 	local str = ""
 	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
 		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", unitData.FoodStock, baseFoodStock)
@@ -313,7 +351,14 @@ function GetFoodStockString(unitData)
 		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", unitData.FoodStock, baseFoodStock)
 	else
 		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", unitData.FoodStock, baseFoodStock)
+	end	
+	
+	if foodStockVariation > 0 then
+		str = str .. "[ICON_PressureUp]"
+	elseif foodStockVariation < 0 then
+		str = str .." [ICON_PressureDown]"
 	end
+	
 	return str
 end
 
@@ -370,74 +415,261 @@ function GetPrisonnersStringByCiv(unitData)
 	return str
 end
 
-function ShowCasualtiesFloatingText(CombatData)
+function GetMoraleString(unitData) 
+	local baseMorale 		= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)
+	local lowMorale 		= Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) / 100)
+	local badMorale 		= Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) / 100)
+	local unitMorale 		= unitData.Morale
+	local moraleVariation	= unitData.MoraleVariation
+	
+	local str = ""	
+	if unitMorale < badMorale then
+		str = Locale.Lookup("LOC_UNITFLAG_BAD_MORALE", unitMorale, baseMorale)
+	elseif unitMorale < lowMorale then
+		str = Locale.Lookup("LOC_UNITFLAG_LOW_MORALE", unitMorale, baseMorale)
+	else
+	elseif unitMorale == baseMorale then
+		str = Locale.Lookup("LOC_UNITFLAG_HIGH_MORALE", unitMorale, baseMorale)
+	else
+		str = Locale.Lookup("LOC_UNITFLAG_MORALE", unitMorale, baseMorale)
+	end
+	
+	if moraleVariation > 0 then
+		str = str .. "[ICON_PressureUp]"
+	elseif moraleVariation < 0 then
+		str = str .." [ICON_PressureDown]"
+	end
+	
+	return str
+end
 
+function ShowCasualtiesFloatingText(CombatData)
+	if floatingTextLevel == FLOATING_TEXT_NONE then
+		return
+	end
 	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
 	if (pLocalPlayerVis ~= nil) then
 		if (pLocalPlayerVis:IsVisible(CombatData.unit:GetX(), CombatData.unit:GetY())) then
-			local sText
+			local sText = ""
+			if floatingTextLevel == FLOATING_TEXT_SHORT then
+				-- Show everything in one call to AddWorldViewText
+				-- Format text with newlines or separator as required, with 3 lines max
+				local bNeedNewLine, bNeedSeparator = false, false
+				if CombatData.PersonnelCasualties > 0 then
+					sText = sText .. Locale.Lookup("LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS_SHORT", CombatData.Dead, CombatData.Captured, CombatData.Wounded)
+					bNeedNewLine = true
+				end
+				if CombatData.VehiclesCasualties > 0 then
+					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+					sText = sText .. Locale.Lookup("LOC_FRONTLINE_VEHICLES_CASUALTIES_DETAILS_SHORT", CombatData.VehiclesLost, CombatData.DamagedVehicles)
+					bNeedNewLine = true
+				end
+				if CombatData.HorsesLost > 0 then
+					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+					sText = sText .. Locale.Lookup("LOC_FRONTLINE_HORSES_CASUALTIES_SHORT", CombatData.HorsesLost)
+					bNeedNewLine, bNeedSeparator = false, true
+				end
+				if CombatData.MaterielLost > 0 then
+					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+					if bNeedSeparator then sText = sText .. "," end
+					sText = sText .. Locale.Lookup("LOC_FRONTLINE_MATERIEL_CASUALTIES_SHORT", CombatData.MaterielLost)
+				end				
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+			
+			else
+				-- Show details with multiple calls to AddWorldViewText
+				if CombatData.PersonnelCasualties > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_PERSONNEL_CASUALTIES", CombatData.PersonnelCasualties)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
+				if CombatData.Dead + CombatData.Captured + CombatData.Wounded > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS", CombatData.Dead, CombatData.Captured, CombatData.Wounded)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
 
-			if CombatData.PersonnelCasualties > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_PERSONNEL_CASUALTIES", CombatData.PersonnelCasualties)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
-			end
-			if CombatData.Dead + CombatData.Captured + CombatData.Wounded > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS", CombatData.Dead, CombatData.Captured, CombatData.Wounded)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
-			end
+				if CombatData.VehiclesCasualties > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_VEHICLES_CASUALTIES", CombatData.VehiclesCasualties)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
+				if CombatData.VehiclesLost +CombatData.DamagedVehicles > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_VEHICLES_CASUALTIES_DETAILS", CombatData.VehiclesLost, CombatData.DamagedVehicles)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
 
-			if CombatData.VehiclesCasualties > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_VEHICLES_CASUALTIES", CombatData.VehiclesCasualties)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
-			end
-			if CombatData.VehiclesLost +CombatData.DamagedVehicles > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_VEHICLES_CASUALTIES_DETAILS", CombatData.VehiclesLost, CombatData.DamagedVehicles)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
-			end
+				if CombatData.HorsesLost > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_HORSES_CASUALTIES", CombatData.HorsesLost)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
 
-			if CombatData.HorsesLost > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_HORSES_CASUALTIES", CombatData.HorsesLost)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
-			end
-
-			if CombatData.MaterielLost > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_MATERIEL_CASUALTIES", CombatData.MaterielLost)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				if CombatData.MaterielLost > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_MATERIEL_CASUALTIES", CombatData.MaterielLost)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
 			end
 		end
 	end
 end
 
 function ShowCombatPlunderingFloatingText(CombatData)
-
+	if floatingTextLevel == FLOATING_TEXT_NONE then
+		return
+	end
 	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
 	if (pLocalPlayerVis ~= nil) then
 		if (pLocalPlayerVis:IsVisible(CombatData.unit:GetX(), CombatData.unit:GetY())) then
-			local sText
-
-			if CombatData.Prisonners > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_PRISONNERS_CAPTURED", CombatData.Prisonners)
+			local sText = ""
+			if floatingTextLevel == FLOATING_TEXT_SHORT then
+				-- Show everything in one call to AddWorldViewText
+				-- Format text with newlines or separator as required
+				local bNeedNewLine, bNeedSeparator = false, false
+				-- first line				
+				if CombatData.Prisonners > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_PRISONNERS_CAPTURED_SHORT", CombatData.Prisonners)
+					bNeedNewLine, bNeedSeparator = true, true
+				end
+				if CombatData.MaterielGained > 0 then
+					if bNeedSeparator then sText = sText .. "," end
+					sText = Locale.Lookup("LOC_FRONTLINE_MATERIEL_CAPTURED_SHORT", CombatData.MaterielGained)
+					bNeedNewLine, bNeedSeparator = true, false
+				end
+				-- second line
+				bNeedSeparator = false -- we don't want a separator at the beginning of a new line
+				if CombatData.LiberatedPrisonners and CombatData.LiberatedPrisonners > 0 then -- LiberatedPrisonners is not nil only when the defender is dead...
+					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+					sText = Locale.Lookup("LOC_FRONTLINE_LIBERATED_PRISONNERS_SHORT", CombatData.LiberatedPrisonners)
+					bNeedNewLine, bNeedSeparator = false, true
+				end				
+				if CombatData.FoodGained and CombatData.FoodGained > 0 then  -- FoodGained is not nil only when the defender is dead...
+					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+					if bNeedSeparator then sText = sText .. "," end
+					sText = Locale.Lookup("LOC_FRONTLINE_FOOD_CAPTURED_SHORT", CombatData.FoodGained)
+				end
 				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
-			end
-
-			if CombatData.MaterielGained > 0 then
-				sText = Locale.Lookup("LOC_FRONTLINE_MATERIEL_CAPTURED", CombatData.MaterielGained)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
-			end
-
-			if CombatData.LiberatedPrisonners and CombatData.LiberatedPrisonners > 0 then -- LiberatedPrisonners is not nil only when the defender is dead...
-				sText = Locale.Lookup("LOC_FRONTLINE_LIBERATED_PRISONNERS", CombatData.LiberatedPrisonners)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
-			end
-			
-			if CombatData.FoodGained and CombatData.FoodGained > 0 then  -- FoodGained is not nil only when the defender is dead...
-				sText = Locale.Lookup("LOC_FRONTLINE_FOOD_CAPTURED", CombatData.FoodGained)
-				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+			else
+				-- Show details with multiple calls to AddWorldViewText			
+				if CombatData.Prisonners > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_PRISONNERS_CAPTURED", CombatData.Prisonners)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
+				if CombatData.MaterielGained > 0 then
+					sText = Locale.Lookup("LOC_FRONTLINE_MATERIEL_CAPTURED", CombatData.MaterielGained)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
+				if CombatData.LiberatedPrisonners and CombatData.LiberatedPrisonners > 0 then -- LiberatedPrisonners is not nil only when the defender is dead...
+					sText = Locale.Lookup("LOC_FRONTLINE_LIBERATED_PRISONNERS", CombatData.LiberatedPrisonners)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end				
+				if CombatData.FoodGained and CombatData.FoodGained > 0 then  -- FoodGained is not nil only when the defender is dead...
+					sText = Locale.Lookup("LOC_FRONTLINE_FOOD_CAPTURED", CombatData.FoodGained)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
+				end
 			end
 		end
 	end
 end
 
+function ShowFoodFloatingText(foodData)
+	if floatingTextLevel == FLOATING_TEXT_NONE then
+		return
+	end
+	if foodData.foodEat + foodData.foodGet > 0 then
+		local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+		if (pLocalPlayerVis ~= nil) then
+			if (pLocalPlayerVis:IsVisible(foodData.X, foodData.Y)) then
+				local sText = ""
+				if foodData.foodEat > 0 then sText = Locale.Lookup("LOC_UNIT_EATING", foodData.foodEat) end
+				if foodData.foodGet > 0 then sText = sText .. "[NEWLINE]" ..Locale.Lookup("LOC_UNIT_GET_FOOD", foodData.foodGet) end
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, foodData.X, foodData.Y, 0)
+			end
+		end
+	end
+end
+
+function ShowFontLineHealingFloatingText(healingData)
+	if floatingTextLevel == FLOATING_TEXT_NONE then
+		return
+	end
+	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+	if (pLocalPlayerVis ~= nil) then
+		if (pLocalPlayerVis:IsVisible(healingData.X, healingData.Y)) then
+			local sText = ""
+			if floatingTextLevel == FLOATING_TEXT_SHORT then
+				-- Show everything in one call to AddWorldViewText
+				-- Format text with newlines or separator as required
+				local bNeedNewLine, bNeedSeparator = false, false
+				if healingData.reqPersonnel + healingData.reqMateriel > 0 then
+					sText = sText .. Locale.Lookup("LOC_HEALING_PERSONNEL_MATERIEL_SHORT", healingData.reqPersonnel, healingData.reqMateriel)
+					bNeedNewLine, bNeedSeparator = true, false
+				end
+				-- second line				
+				if healingData.reqVehicles > 0 then
+					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+					sText = sText .. Locale.Lookup("LOC_HEALING_VEHICLES_SHORT", healingData.reqVehicles)					
+					bNeedNewLine, bNeedSeparator = false, true
+				end
+				if healingData.reqHorses > 0 then
+					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+					if bNeedSeparator then sText = sText .. "," end
+					sText = sText .. Locale.Lookup("LOC_HEALING_HORSES_SHORT", healingData.reqHorses)
+				end
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
+			else
+				-- Show details with multiple calls to AddWorldViewText	
+				if healingData.reqPersonnel + healingData.reqMateriel > 0 then
+					sText = Locale.Lookup("LOC_HEALING_PERSONNEL_MATERIEL", healingData.reqPersonnel, healingData.reqMateriel)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
+				end
+				if healingData.reqVehicles > 0 then
+					sText = Locale.Lookup("LOC_HEALING_VEHICLES", healingData.reqVehicles)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
+				end
+				if healingData.reqHorses > 0 then
+					sText = Locale.Lookup("LOC_HEALING_HORSES", healingData.reqHorses)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
+				end
+			end
+		end
+	end
+end
+
+function ShowReserveHealingFloatingText(healingData)
+	if floatingTextLevel == FLOATING_TEXT_NONE then
+		return
+	end
+	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+	if (pLocalPlayerVis ~= nil) then
+		if (pLocalPlayerVis:IsVisible(healingData.X, healingData.Y)) then
+			local sText = ""
+			if floatingTextLevel == FLOATING_TEXT_SHORT then
+				-- Show everything in one call to AddWorldViewText
+				-- Format text with NEWLINE as required				
+				local bNeedNewLine, bNeedSeparator = false, false
+				-- first line
+				if healingData.deads + healingData.healed > 0 then
+					sText = sText .. Locale.Lookup("LOC_HEALING_WOUNDED", healingData.deads, healingData.healed)
+					bNeedNewLine, bNeedSeparator = true, false
+				end
+				-- second line
+				bNeedSeparator = false
+				if healingData.repairedVehicules > 0 then
+					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+					sText = sText .. Locale.Lookup("LOC_REPAIRING_VEHICLES", healingData.repairedVehicules)
+				end
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
+			else			
+				-- Show details with multiple calls to AddWorldViewText	
+				if healingData.deads + healingData.healed > 0 then
+					sText = Locale.Lookup("LOC_HEALING_WOUNDED", healingData.deads, healingData.healed)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
+				end
+				if healingData.repairedVehicules > 0 then
+					sText = Locale.Lookup("LOC_REPAIRING_VEHICLES", healingData.repairedVehicules)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
+				end
+			end
+		end
+	end
+end
 
 ----------------------------------------------
 -- Initialize functions for other contexts
@@ -445,30 +677,42 @@ end
 
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
-	ExposedMembers.GCO.Round = Round
-	ExposedMembers.GCO.Shuffle = Shuffle
-	ExposedMembers.GCO.GetSize = GetSize
-	ExposedMembers.GCO.GetUnitKey = GetUnitKey
-	ExposedMembers.GCO.GetUnitFromKey = GetUnitFromKey
-	ExposedMembers.GCO.GetMaxTransfertTable = GetMaxTransfertTable
-	ExposedMembers.GCO.AddCombatInfoTo = AddCombatInfoTo
-	ExposedMembers.GCO.AddFrontLineCasualtiesInfoTo = AddFrontLineCasualtiesInfoTo
-	ExposedMembers.GCO.AddCasualtiesInfoByTo = AddCasualtiesInfoByTo
-	ExposedMembers.GCO.GetTotalPrisonners = GetTotalPrisonners
-	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
-	ExposedMembers.GCO.GetPersonnelReserve = GetPersonnelReserve
-	ExposedMembers.GCO.GetVehiclesReserve = GetVehiclesReserve
-	ExposedMembers.GCO.GetHorsesReserve = GetHorsesReserve
-	ExposedMembers.GCO.GetMaterielReserve = GetMaterielReserve
-	ExposedMembers.GCO.GetFoodConsumptionRatioString = GetFoodConsumptionRatioString
-	ExposedMembers.GCO.GetFoodConsumption = GetFoodConsumption
-	ExposedMembers.GCO.GetBaseFoodStock = GetBaseFoodStock
-	ExposedMembers.GCO.GetPrisonnersStringByCiv = GetPrisonnersStringByCiv
-	ExposedMembers.GCO.GetFoodConsumptionString = GetFoodConsumptionString
-	ExposedMembers.GCO.GetFoodStockString = GetFoodStockString
-	ExposedMembers.GCO.ShowCasualtiesFloatingText = ShowCasualtiesFloatingText
+	
+	ExposedMembers.GCO.Round 		= Round
+	ExposedMembers.GCO.Shuffle 		= Shuffle
+	ExposedMembers.GCO.GetSize 		= GetSize
+	ExposedMembers.GCO.ToDecimals 	= ToDecimals
+	
+	ExposedMembers.GCO.GetUnitKey 							= GetUnitKey
+	ExposedMembers.GCO.GetUnitFromKey 						= GetUnitFromKey	
+	ExposedMembers.GCO.GetMaxTransfertTable 				= GetMaxTransfertTable
+	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue	
+	
+	ExposedMembers.GCO.GetPersonnelReserve 				= GetPersonnelReserve
+	ExposedMembers.GCO.GetVehiclesReserve 				= GetVehiclesReserve
+	ExposedMembers.GCO.GetHorsesReserve 				= GetHorsesReserve
+	ExposedMembers.GCO.GetMaterielReserve 				= GetMaterielReserve
+	ExposedMembers.GCO.AddCombatInfoTo 					= AddCombatInfoTo
+	ExposedMembers.GCO.AddFrontLineCasualtiesInfoTo 	= AddFrontLineCasualtiesInfoTo
+	ExposedMembers.GCO.AddCasualtiesInfoByTo 			= AddCasualtiesInfoByTo
+	ExposedMembers.GCO.GetTotalPrisonners 				= GetTotalPrisonners
+	ExposedMembers.GCO.GetFoodConsumption 				= GetFoodConsumption
+	ExposedMembers.GCO.GetBaseFoodStock 				= GetBaseFoodStock
+	ExposedMembers.GCO.GetMoraleFromFood 				= GetMoraleFromFood
+	ExposedMembers.GCO.GetMoraleFromLastCombat 			= GetMoraleFromLastCombat
+	ExposedMembers.GCO.GetMoraleFromWounded				= GetMoraleFromWounded
+	
+	ExposedMembers.GCO.GetPrisonnersStringByCiv 		= GetPrisonnersStringByCiv
+	ExposedMembers.GCO.GetFoodConsumptionRatioString 	= GetFoodConsumptionRatioString
+	ExposedMembers.GCO.GetFoodConsumptionString 		= GetFoodConsumptionString
+	ExposedMembers.GCO.GetFoodStockString 				= GetFoodStockString
+	ExposedMembers.GCO.GetMoraleString 					= GetMoraleString
+	
+	ExposedMembers.GCO.ShowCasualtiesFloatingText 		= ShowCasualtiesFloatingText
 	ExposedMembers.GCO.ShowCombatPlunderingFloatingText = ShowCombatPlunderingFloatingText
-	ExposedMembers.GCO.ToDecimals = ToDecimals
+	ExposedMembers.GCO.ShowFoodFloatingText 			= ShowFoodFloatingText
+	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
+	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
 	ExposedMembers.Utils_Initialized = true
 end
 Initialize()
