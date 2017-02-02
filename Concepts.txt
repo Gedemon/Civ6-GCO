@@ -79,9 +79,15 @@ each turn @low morale (default = 50%) : desertion (modifiers to default: promoti
 	- morale++
 	
 each turn
+	- morale+ if enough food
 	- morale+ if less than 25% of total personnel wounded
+	- morale++ if victory in the last combat (5 turns max)
+	- morale+++ if large victory in the last combat (5 turns max)
+	- morale+++++ if killing enemy unit in the last combat (5 turns max)
 	- morale++ if less than 5% of total personnel wounded
 	- morale- if more than 50% of total personnel wounded
+	- morale- if defeat in the last combat (5 turns max)
+	- morale-- if large defeat in the last combat (5 turns max)
 
 ====================
 =     Healing      =
