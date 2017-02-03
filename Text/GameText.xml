@@ -46,7 +46,7 @@
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit] deads[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Occupied] captured[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege] wounded</Text>
     </Replace>
     <Replace Tag="LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS_SHORT" Language="en_US">
-      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit],[ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Occupied] captured,[ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege]</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit],[ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Occupied],[ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege]</Text>
     </Replace>	
     <Replace Tag="LOC_FRONTLINE_VEHICLES_CASUALTIES" Language="en_US">
       <Text>[COLOR_Civ6Red]-{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA] vehicles</Text>
@@ -67,7 +67,7 @@
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Charges] materiel</Text>
     </Replace>
     <Replace Tag="LOC_FRONTLINE_MATERIEL_CASUALTIES_SHORT" Language="en_US">
-      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Charges] materiel</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ICON_Charges]</Text>
     </Replace>
 	
 	<!-- Plundered -->
@@ -140,18 +140,58 @@
   
   <LocalizedText> <!-- UnitFlagManager Texts -->	
 	
+    <Replace Tag="LOC_UNITFLAG_MORALE_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]--------------- Morale --------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_FRONTLINE_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------- Frontline ------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_RESERVE_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]-------------- Reserve -------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_REAR_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]----------------- Rear ----------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_STATS_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]-------------- Statistics -------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_CONSUMPTION_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------ Consumption ---------[ENDCOLOR]</Text>
+    </Replace>
+	
     <Replace Tag="LOC_UNITFLAG_MORALE" Language="en_US">
-      <Text>[ICON_] {1_Num} / {2_Num} Morale</Text>
+      <Text>[ICON_Ability] {1_Num} / {2_Num} Morale</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_HIGH_MORALE" Language="en_US">
-      <Text>[ICON_] [COLOR_Civ6Green]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6Green]High Morale[ENDCOLOR]</Text>
+      <Text>[ICON_Ability] {1_Num} / {2_Num} [COLOR_Civ6Green]High Morale[ENDCOLOR]</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_LOW_MORALE" Language="en_US">
-      <Text>[ICON_] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6Yellow]Low Morale[ENDCOLOR]</Text>
+      <Text>[ICON_Ability] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6Yellow]Low Morale[ENDCOLOR]</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_BAD_MORALE" Language="en_US">
-      <Text>[ICON_] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6DarkRed]Bad Morale[ENDCOLOR]</Text>
+      <Text>[ICON_Ability] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6DarkRed]Bad Morale[ENDCOLOR]</Text>
     </Replace>	
+	
+    <Replace Tag="LOC_UNITFLAG_MORALE_WELL_FED" Language="en_US">
+      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being Well Fed [ICON_Food]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_MORALE_FOOD_RATIONING" Language="en_US">
+      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from food rationing [ICON_FoodDeficit]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_MORALE_VICTORY" Language="en_US">
+      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from the last victory ({2_Num} [ICON_Turn] left)</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_MORALE_DEFEAT" Language="en_US">
+      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from the last defeat ({2_Num} [ICON_Turn] left)</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_MORALE_NO_WOUNDED" Language="en_US">
+      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from 100% active (no wounded)</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_MORALE_WOUNDED" Language="en_US">
+      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from wounded [ICON_UnderSiege]</Text>
+    </Replace>
   
     <Replace Tag="LOC_UNITFLAG_PERSONNEL" Language="en_US">
       <Text>[ICON_Position] {1_Num} / {2_Num} Personnel</Text>

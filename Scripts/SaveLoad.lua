@@ -195,7 +195,7 @@ function LoadTableFromSlot(sSlotName)
 		local t = unpickle(s)
 		return t
 	else
-		print("WARNING: No saved data table in slot ".. tostring(sSlotName) .." (this happens when initializing the table, you can ignore this warning when lauching a new game)") 
+		print("WARNING: No saved data table in slot ".. tostring(sSlotName) .." (this happens when initializing the table, you can ignore this warning when launching a new game)") 
 	end
 end
 

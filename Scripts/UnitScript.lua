@@ -124,7 +124,7 @@ function RegisterNewUnit(playerID, unit)
 		MoraleVariation		= 0,
 		LastCombatTurn		= 0,
 		LastCombatResult	= 0,
-		LastCombatType		= 0,
+		LastCombatType		= -1,
 		Alive 				= true,
 		TotalXP 			= unit:GetExperience():GetExperiencePoints(),
 		CombatXP 			= 0,
@@ -148,7 +148,7 @@ function InitializeUnit(playerID, unitID)
 		RegisterNewUnit(playerID, unit)
 		print("-------------------------------------")
 	else
-		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when lauching a new game)")
+		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when launching a new game)")
 	end
 
 end
@@ -227,6 +227,8 @@ function OnCombat( combatResult )
 
 	-- Update some stats
 	if attacker.IsUnit and defender.Dead then ExposedMembers.UnitData[attacker.unitKey].TotalKill = ExposedMembers.UnitData[attacker.unitKey].TotalKill + defender.Dead end
+	print(defender.IsUnit, attacker.Dead, defender.unitKey )
+	print(ExposedMembers.UnitData[defender.unitKey].TotalKill )
 	if defender.IsUnit and attacker.Dead then ExposedMembers.UnitData[defender.unitKey].TotalKill = ExposedMembers.UnitData[defender.unitKey].TotalKill + attacker.Dead end
 
 	if attacker.IsUnit and defender.IsUnit then
@@ -406,7 +408,7 @@ function HealingUnits(playerID)
 			local deads = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
 			ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - deads
 			-- wounded soldiers may heal...
-			local healed = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
+			local healed = math.ceil(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support (not rounded to heal last wounded)
 			ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - healed
 			ExposedMembers.UnitData[key].PersonnelReserve = ExposedMembers.UnitData[key].PersonnelReserve + healed
 
@@ -444,7 +446,7 @@ function DoUnitFood(unit)
 	
 	-- Eat Food
 	
-	local foodEat = math.min(GCO.GetFoodConsumption(unitData), ExposedMembers.UnitData[key].FoodStock)
+	local foodEat = math.min(GCO.GetFoodConsumption(unitData), unitData.FoodStock)
 	
 	-- Get Food
 	
@@ -467,11 +469,11 @@ function DoUnitFood(unit)
 		end
 	end	
 	foodGet = GCO.Round(foodGet)
-	foodGet = math.max(0, math.min(maxFoodStock - ExposedMembers.UnitData[key].FoodStock, foodGet))
+	foodGet = math.max(0, math.min(maxFoodStock - unitData.FoodStock, foodGet))
 	
 	-- Update variation
 	local foodVariation = foodGet - foodEat
-	ExposedMembers.UnitData[key].FoodStock = ExposedMembers.UnitData[key].FoodStock + foodVariation
+	ExposedMembers.UnitData[key].FoodStock = unitData.FoodStock + foodVariation
 	ExposedMembers.UnitData[key].FoodStockVariation = foodVariation
 	
 	-- Visualize
@@ -488,8 +490,8 @@ function DoUnitMorale(unit)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromLastCombat(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromWounded(unitData)
 		
-	ExposedMembers.UnitData[key].Morale = ExposedMembers.UnitData[key].Morale + moraleVariation
-	ExposedMembers.UnitData[key].FoodStockVariation = MoraleVariation
+	ExposedMembers.UnitData[key].Morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
+	ExposedMembers.UnitData[key].MoraleVariation = moraleVariation
 end
 
 function UnitDoTurn(unit)
@@ -499,6 +501,7 @@ function UnitDoTurn(unit)
 	end
 	local playerID = unit:GetOwner()
 	DoUnitFood(unit)
+	DoUnitMorale(unit)
 	LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID())
 end
 
