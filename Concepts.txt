@@ -316,6 +316,14 @@ some entertainement buildings raise banditism (taverns, whorehouses, nightclubs,
 banditism raise corruption
 	   
 ====================
+=     Policies     =
+====================
+
+Military cards policies:
+	- Foreign Legion : can draft foreign citizens in the army
+	
+
+====================
 =  Programmation   =
 ====================
 	   
