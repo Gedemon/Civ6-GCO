@@ -11,13 +11,13 @@ print ("Loading GCOUtils.lua...")
 
 -- This should be the first loading file (to do : make sure of that !), do some cleaning if Events.LeaveGameComplete hasn't fired on returning to main menu or loading a game...
 ExposedMembers.SaveLoad_Initialized = nil
-ExposedMembers.Utils_Initialized = nil
+ExposedMembers.Utils_Initialized 	= nil
 
 -- Floating Texts LOD
-FLOATING_TEXT_NONE = 0
+FLOATING_TEXT_NONE 	= 0
 FLOATING_TEXT_SHORT = 1
-FLOATING_TEXT_LONG = 2
-floatingTextLevel = FLOATING_TEXT_SHORT
+FLOATING_TEXT_LONG 	= 2
+floatingTextLevel 	= FLOATING_TEXT_SHORT
 
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
@@ -200,6 +200,16 @@ function GetTotalPrisonners(unitData)
 	return prisonners
 end
 
+function GetMaterielFromKillOfBy(OpponentA, OpponentB)
+	-- capture most materiel, convert some damaged Vehicles
+	local materielFromKill = 0
+	local materielFromCombat = OpponentA.MaterielLost * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value) / 100
+	local materielFromReserve = ExposedMembers.UnitData[OpponentA.unitKey].MaterielReserve* tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value) /100
+	local materielFromVehicles = ExposedMembers.UnitData[OpponentA.unitKey].DamagedVehicles * ExposedMembers.UnitData[OpponentA.unitKey].MaterielPerVehicles * tonumber(GameInfo.GlobalParameters["MATERIEL_PERCENTAGE_TO_REPAIR_VEHICLE"].Value) / 100 * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_VEHICLES_KILL_PERCENT"].Value) / 100
+	materielFromKill = Round(materielFromCombat + materielFromReserve + materielFromVehicles) 
+	return materielFromKill
+end
+
 function GetMaxTransfertTable(unit)
 	local maxTranfert = {}
 	local unitType = unit:GetType()
@@ -220,7 +230,7 @@ function AddCombatInfoTo(Opponent)
 		Opponent.MaxPrisonners = math.min(GameInfo.Units[Opponent.unitType].Personnel, (ExposedMembers.UnitData[Opponent.unitKey].Personnel+ExposedMembers.UnitData[Opponent.unitKey].PersonnelReserve)*10)
 		local diff = (Opponent.MaxPrisonners - GCO.GetTotalPrisonners(ExposedMembers.UnitData[Opponent.unitKey]))
 		if diff > 0 then
-			Opponent.MaxCapture = GCO.Round(diff * GameInfo.GlobalParameters["CAPTURE_RATIO_FROM_PRISONNERS_CAPACITY"].Value/100)
+			Opponent.MaxCapture = GCO.Round(diff * GameInfo.GlobalParameters["COMBAT_CAPTURE_FROM_CAPACITY_PERCENT"].Value/100)
 		else
 			Opponent.MaxCapture = 0
 		end
@@ -270,13 +280,13 @@ function AddCasualtiesInfoByTo(OpponentA, OpponentB)
 	if OpponentA.AntiPersonnel then
 		OpponentB.Dead = Round(OpponentB.PersonnelCasualties * OpponentA.AntiPersonnel / 100)
 	else
-		OpponentB.Dead = Round(OpponentB.PersonnelCasualties * GameInfo.GlobalParameters["DEFAULT_ANTIPERSONNEL_RATIO"].Value / 100)
+		OpponentB.Dead = Round(OpponentB.PersonnelCasualties * GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value / 100)
 	end	
 	if OpponentA.CanTakePrisonners then	
 		if OpponentA.CapturedPersonnelRatio then
 			OpponentB.Captured = Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * OpponentA.CapturedPersonnelRatio / 100)
 		else
-			OpponentB.Captured = Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * GameInfo.GlobalParameters["DEFAULT_CAPTURED_PERSONNEL_RATIO"].Value / 100)
+			OpponentB.Captured = Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * GameInfo.GlobalParameters["COMBAT_CAPTURED_PERSONNEL_PERCENT"].Value / 100)
 		end	
 		if OpponentA.MaxCapture then
 			OpponentB.Captured = math.min(OpponentA.MaxCapture, OpponentB.Captured)
@@ -309,18 +319,18 @@ function AddCasualtiesInfoByTo(OpponentA, OpponentB)
 end
 
 function GetMoraleFromFood(unitData)	
-	local moralefromFood 	= tonumber(GameInfo.GlobalParameters["MORALE_WELL_FED"].Value)
+	local moralefromFood 	= tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WELL_FED"].Value)
 	local lightRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 	local mediumRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 	local heavyRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
 	local baseFoodStock 	= GetBaseFoodStock(unitData.unitType)
 	
 	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
-		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_FOOD_RATIONING_HEAVY"].Value)
+		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FOOD_RATIONING_HEAVY"].Value)
 	elseif unitData.FoodStock < (baseFoodStock * mediumRationing) then
-		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_FOOD_RATIONING_MEDIUM"].Value)
+		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FOOD_RATIONING_MEDIUM"].Value)
 	elseif unitData.FoodStock < (baseFoodStock * lightRationing) then
-		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_FOOD_RATIONING_LIGHT"].Value)
+		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FOOD_RATIONING_LIGHT"].Value)
 	end
 	return moralefromFood	
 end
@@ -329,15 +339,15 @@ function GetMoraleFromLastCombat(unitData)
 	if (Game.GetCurrentGameTurn() - unitData.LastCombatTurn) > tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_EFFECT_NUM_TURNS"].Value) then
 		return 0
 	end
-	local moraleFromCombat 	= 0
+	local moraleFromCombat = 0
 	if unitData.LastCombatResult > tonumber(GameInfo.GlobalParameters["COMBAT_HEAVY_DIFFERENCE_VALUE"].Value) then
-		moraleFromCombat = tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_LARGE_VICTORY"].Value)
+		moraleFromCombat = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_COMBAT_LARGE_VICTORY"].Value)
 	elseif unitData.LastCombatResult > 0 then
-		moraleFromCombat = tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_VICTORY"].Value)	
+		moraleFromCombat = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_COMBAT_VICTORY"].Value)	
 	elseif unitData.LastCombatResult < 0 then
-		moraleFromCombat = tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_DEFEAT"].Value)	
+		moraleFromCombat = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_COMBAT_DEFEAT"].Value)	
 	elseif unitData.LastCombatResult < - tonumber(GameInfo.GlobalParameters["COMBAT_HEAVY_DIFFERENCE_VALUE"].Value) then
-		moraleFromCombat = tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_LARGE_DEFEAT"].Value)	
+		moraleFromCombat = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_COMBAT_LARGE_DEFEAT"].Value)	
 	end
 	
 	if unitData.LastCombatType ~= CombatTypes.MELEE then
@@ -348,13 +358,13 @@ function GetMoraleFromLastCombat(unitData)
 end
 
 function GetMoraleFromWounded(unitData)
-	local moraleFromWounded 	= 0
+	local moraleFromWounded = 0
 	if unitData.WoundedPersonnel == 0 then
-		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_NONE"].Value)
+		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WOUNDED_NONE"].Value)
 	elseif unitData.WoundedPersonnel > ( (unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_HIGH_PERCENT"].Value) / 100) then
-		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_HIGH"].Value)
+		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WOUNDED_HIGH"].Value)
 	elseif unitData.WoundedPersonnel > ( (unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_LOW_PERCENT"].Value) / 100) then 
-		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_LOW"].Value)	
+		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WOUNDED_LOW"].Value)	
 	end
 	return moraleFromWounded	
 end
@@ -449,7 +459,8 @@ function GetMoraleString(unitData)
 	local unitMorale 		= unitData.Morale
 	local moraleVariation	= unitData.MoraleVariation
 	
-	local str = ""	
+	local str = ""
+	-- summary, one line
 	if unitMorale < badMorale then
 		str = Locale.Lookup("LOC_UNITFLAG_BAD_MORALE", unitMorale, baseMorale)
 	elseif unitMorale < lowMorale then
@@ -465,30 +476,28 @@ function GetMoraleString(unitData)
 		str = str .. " [ICON_PressureDown]"
 	end
 	
-	--if moraleVariation ~= 0 then
-		local moraleFromFood = GetMoraleFromFood(unitData)
-		if moraleFromFood > 0 then
-			str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WELL_FED", moraleFromFood)
-		elseif moraleFromFood < 0 then
-			str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FOOD_RATIONING", moraleFromFood)
-		end	
-		
-		local moraleFromCombat = GetMoraleFromLastCombat(unitData)
-		local turnLeft = tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_EFFECT_NUM_TURNS"].Value) - (Game.GetCurrentGameTurn() - unitData.LastCombatTurn)
-		if moraleFromCombat > 0 then
-			str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_VICTORY", moraleFromCombat, turnLeft)
-		elseif moraleFromCombat < 0 then
-			str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_DEFEAT", moraleFromCombat, turnLeft)
-		end			
-		
-		local moraleFromWounded = GetMoraleFromWounded(unitData)
-		if moraleFromWounded > 0 then
-			str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WOUNDED", moraleFromWounded)
-		elseif moraleFromWounded < 0 then
-			str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WOUNDED", moraleFromWounded)
-		end	
+	-- details, multiple lines
+	local moraleFromFood = GetMoraleFromFood(unitData)
+	if moraleFromFood > 0 then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WELL_FED", moraleFromFood)
+	elseif moraleFromFood < 0 then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FOOD_RATIONING", moraleFromFood)
+	end	
 	
-	--end
+	local moraleFromCombat = GetMoraleFromLastCombat(unitData)
+	local turnLeft = tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_EFFECT_NUM_TURNS"].Value) - (Game.GetCurrentGameTurn() - unitData.LastCombatTurn)
+	if moraleFromCombat > 0 then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_VICTORY", moraleFromCombat, turnLeft)
+	elseif moraleFromCombat < 0 then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_DEFEAT", moraleFromCombat, turnLeft)
+	end			
+	
+	local moraleFromWounded = GetMoraleFromWounded(unitData)
+	if moraleFromWounded > 0 then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WOUNDED", moraleFromWounded)
+	elseif moraleFromWounded < 0 then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WOUNDED", moraleFromWounded)
+	end
 	
 	return str
 end
@@ -755,6 +764,7 @@ function Initialize()
 	ExposedMembers.GCO.AddFrontLineCasualtiesInfoTo 	= AddFrontLineCasualtiesInfoTo
 	ExposedMembers.GCO.AddCasualtiesInfoByTo 			= AddCasualtiesInfoByTo
 	ExposedMembers.GCO.GetTotalPrisonners 				= GetTotalPrisonners
+	ExposedMembers.GCO.GetMaterielFromKillOfBy			= GetMaterielFromKillOfBy
 	ExposedMembers.GCO.GetFoodConsumption 				= GetFoodConsumption
 	ExposedMembers.GCO.GetBaseFoodStock 				= GetBaseFoodStock
 	ExposedMembers.GCO.GetMoraleFromFood 				= GetMoraleFromFood
@@ -772,6 +782,7 @@ function Initialize()
 	ExposedMembers.GCO.ShowFoodFloatingText 			= ShowFoodFloatingText
 	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
+	
 	ExposedMembers.Utils_Initialized = true
 end
 Initialize()

@@ -2,12 +2,11 @@
 <Mod id="cf31281d-783b-47dd-bc58-992ed862bb74">
   <Properties>
     <Name>LOC_GCO_TITLE</Name>
-    <Stability>Alpha</Stability>
     <Teaser>LOC_GCO_TEASER</Teaser>
     <Description>LOC_GCO_DESCRIPTION</Description>
     <Authors>Gedemon</Authors>
   </Properties>
-  
+
 	<LocalizedText>
 		<Text id="LOC_GCO_TITLE">
 			<en_US>Gedemon's Civilization Overhaul</en_US>
@@ -19,24 +18,39 @@
 			<en_US>Civilization VI Overhaul</en_US>
 		</Text>
 	</LocalizedText>
-  
+
 	<Components>
 		<ImportFiles id="GCO_IMPORT">
 			<Items>
 				<File>UI/UnitFlagManager.lua</File>
 				<File>Art/dom_blank.dds</File>
 				<File>Art/Loading.dds</File>
-				<File>Art/scene_america.dds</File>
-				<File>Art/scene_china.dds</File>
-				<File>Art/scene_england.dds</File>
-				<File>Art/scene_france.dds</File>
-				<File>Art/scene_germany.dds</File>
-				<File>Art/scene_greece.dds</File>
-				<File>Art/scene_italy.dds</File>
-				<File>Art/scene_japan.dds</File>
-				<File>Art/scene_russia.dds</File>
+				<File>Art/PortraitBackground.dds</File>
+				<File>Art/Portrait.dds</File>
+				<File>Art/scene_AMERICA.dds</File>
+				<File>Art/scene_CHINA.dds</File>
+				<File>Art/scene_ENGLAND.dds</File>
+				<File>Art/scene_FRANCE.dds</File>
+				<File>Art/scene_GERMANY.dds</File>
+				<File>Art/scene_GREECE.dds</File>
+				<File>Art/scene_ITALY.dds</File>
+				<File>Art/scene_JAPAN.dds</File>
+				<File>Art/scene_RUSSIA.dds</File>
+				<File>Art/Icons/FlagsAtlas256.dds</File>
+				<File>Art/Icons/FlagsAtlas32.dds</File>
+				<File>Art/Icons/FlagsAtlas45.dds</File>
+				<File>Art/Icons/FlagsAtlas48.dds</File>
+				<File>Art/Icons/FlagsAtlas50.dds</File>
+				<File>Art/Icons/FlagsAtlas55.dds</File>
+				<File>Art/Icons/FlagsAtlas64.dds</File>
+				<File>Art/Icons/FlagsAtlas80.dds</File>
 			</Items>
 		</ImportFiles>
+		<Icons id="GCO_ICONS">
+			<Items>
+				<File>Data/Icons.xml</File>
+			</Items>
+		</Icons>
         <GameplayScripts>
             <Items>
                 <File>Scripts/GCOUtils.lua</File>
@@ -52,7 +66,7 @@
                 <File>Scripts/GCOScript.lua</File>
             </Items>
         </GameplayScripts>
-        <UserInterface>		
+        <UserInterface>
 			<Properties>
 				<Context>InGame</Context>
 			</Properties>
@@ -60,15 +74,23 @@
                 <File>Scripts/SaveLoad.xml</File>
 				<File>InGame/GCOInGame.xml</File>
             </Items>
-        </UserInterface>	
+        </UserInterface>
 		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
 			<Items>
 				<File>Data/Tables.sql</File>
-				<File>Data/GamePlay.sql</File>
+				<File>Data/GlobalParameters.sql</File>
 				<File>Data/CombatRules.sql</File>
-				<File>Data/LoadingInfo.xml</File>
-				<File>Data/DiplomacyInfo.xml</File>
-				<File>Data/Leaders.xml</File>
+			</Items>
+		</UpdateDatabase>
+		<UpdateDatabase id="GCO_POST_COMPONENTS">
+           	<Properties>
+				<LoadOrder>100500</LoadOrder>
+           	</Properties>
+			<Items>
+				<File>Data/Civilization.sql</File>
+				<File>Data/CivilizationPost.xml</File>
+				<File>Data/TSL.xml</File>
+				<File>Data/PostData.sql</File>
 			</Items>
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
@@ -81,31 +103,73 @@
 			</Items>
 		</UpdateDatabase>
 		<LocalizedText id="GCO_DEFAULT_LOC">
+           	<Properties>
+				<LoadOrder>100700</LoadOrder>
+           	</Properties>
 			<Items>
 				<File>Text/GameText.xml</File>
+				<File>Text/CivilizationsText.sql</File>
 			</Items>
 		</LocalizedText>
 	</Components>
-	
-  <Settings>
-    <Custom id="GCO_SETTING">
-      <Items>
-        <File>Config/Config.xml</File>
-      </Items>
-    </Custom>
-  </Settings>
-  
+
+	<Settings>
+		<Custom id="GCO_SETTING">
+			<Items>
+				<File>Config/Config.xml</File>
+				<File>Config/CivilizationsConfig.sql</File>
+			</Items>
+		</Custom>
+		<Custom id="GCO_POST_SETTING">
+           	<Properties>
+				<LoadOrder>100800</LoadOrder>
+           	</Properties>
+			<Items>
+				<File>Config/PostConfig.sql</File>
+			</Items>
+		</Custom>
+		<LocalizedText id="GCO_SETTING_LOC">
+			<Items>
+				<File>Text/CivilizationsText.sql</File>
+			</Items>
+		</LocalizedText>
+		<ImportFiles id="GCO_SETTING_IMPORT">
+			<Items>
+				<File>Art/PortraitBackground.dds</File>
+				<File>Art/Portrait.dds</File>
+				<File>Art/Icons/FlagsAtlas256.dds</File>
+				<File>Art/Icons/FlagsAtlas32.dds</File>
+				<File>Art/Icons/FlagsAtlas45.dds</File>
+				<File>Art/Icons/FlagsAtlas48.dds</File>
+				<File>Art/Icons/FlagsAtlas50.dds</File>
+				<File>Art/Icons/FlagsAtlas55.dds</File>
+				<File>Art/Icons/FlagsAtlas64.dds</File>
+				<File>Art/Icons/FlagsAtlas80.dds</File>
+			</Items>
+		</ImportFiles>
+		<Icons id="GCO_SETTING_ICONS">
+			<Items>
+				<File>Data/Icons.xml</File>
+			</Items>
+		</Icons>
+	</Settings>
+
 	<Files>
 		<File>Data/Tables.sql</File>
 		<File>Data/GamePlay.xml</File>
-		<File>Data/GamePlay.sql</File>
+		<File>Data/Icons.xml</File>
+		<File>Data/GlobalParameters.sql</File>
+		<File>Data/Civilization.sql</File>
+		<File>Data/CivilizationPost.xml</File>
 		<File>Data/CombatRules.sql</File>
-		<File>Data/LoadingInfo.xml</File>
-		<File>Data/DiplomacyInfo.xml</File>
-		<File>Data/Leaders.xml</File>
+		<File>Data/TSL.xml</File>
+		<File>Data/PostData.sql</File>
 		<File>Text/GameText.xml</File>
+		<File>Text/CivilizationsText.sql</File>
 		<File>Text/ConfigText.xml</File>
 		<File>Config/Config.xml</File>
+		<File>Config/CivilizationsConfig.sql</File>
+		<File>Config/PostConfig.sql</File>
 		<File>Scripts/GCOUtils.lua</File>
 		<File>Scripts/UnitScript.lua</File>
 		<File>Scripts/GCOScript.lua</File>
@@ -116,14 +180,24 @@
 		<File>UI/UnitFlagManager.lua</File>
 		<File>Art/dom_blank.dds</File>
 		<File>Art/Loading.dds</File>
-		<File>Art/scene_america.dds</File>
-		<File>Art/scene_china.dds</File>
-		<File>Art/scene_england.dds</File>
-		<File>Art/scene_france.dds</File>
-		<File>Art/scene_germany.dds</File>
-		<File>Art/scene_greece.dds</File>
-		<File>Art/scene_italy.dds</File>
-		<File>Art/scene_japan.dds</File>
-		<File>Art/scene_russia.dds</File>
+		<File>Art/PortraitBackground.dds</File>
+		<File>Art/Portrait.dds</File>
+		<File>Art/scene_AMERICA.dds</File>
+		<File>Art/scene_CHINA.dds</File>
+		<File>Art/scene_ENGLAND.dds</File>
+		<File>Art/scene_FRANCE.dds</File>
+		<File>Art/scene_GERMANY.dds</File>
+		<File>Art/scene_GREECE.dds</File>
+		<File>Art/scene_ITALY.dds</File>
+		<File>Art/scene_JAPAN.dds</File>
+		<File>Art/scene_RUSSIA.dds</File>
+		<File>Art/Icons/FlagsAtlas256.dds</File>
+		<File>Art/Icons/FlagsAtlas32.dds</File>
+		<File>Art/Icons/FlagsAtlas45.dds</File>
+		<File>Art/Icons/FlagsAtlas48.dds</File>
+		<File>Art/Icons/FlagsAtlas50.dds</File>
+		<File>Art/Icons/FlagsAtlas55.dds</File>
+		<File>Art/Icons/FlagsAtlas64.dds</File>
+		<File>Art/Icons/FlagsAtlas80.dds</File>
 	</Files>
 </Mod>

@@ -249,9 +249,9 @@ function OnCombat( combatResult )
 		if defender.IsDead then
 
 			attacker.Prisonners = defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded (to do : add prisonners drom enemy nationality here)
-			attacker.MaterielGained = GCO.Round(defender.MaterielLost*50/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].MaterielReserve*75/100) + GCO.Round(ExposedMembers.UnitData[defender.unitKey].DamagedVehicles * ExposedMembers.UnitData[defender.unitKey].MaterielPerVehicles*15/100) -- capture most materiel, convert some damaged Vehicles
+			attacker.MaterielGained = GCO.GetMaterielFromKillOfBy(defender, attacker)
 			attacker.LiberatedPrisonners = GCO.GetTotalPrisonners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
-			attacker.FoodGained = GCO.Round(ExposedMembers.UnitData[defender.unitKey].FoodStock * 75/100)
+			attacker.FoodGained = GCO.Round(ExposedMembers.UnitData[defender.unitKey].FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) /100)
 			attacker.FoodGained = math.max(0, math.min(GCO.GetBaseFoodStock(attacker.unit:GetType()) - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
 			
 			-- Update composition
@@ -266,13 +266,13 @@ function OnCombat( combatResult )
 		else
 			-- attacker
 			attacker.Prisonners 	= defender.Captured
-			attacker.MaterielGained = GCO.Round(defender.MaterielLost*50/100)
+			attacker.MaterielGained = GCO.Round(defender.MaterielLost * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value) /100)
 			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 				= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve + attacker.MaterielGained
 			ExposedMembers.UnitData[attacker.unitKey].Prisonners[defender.playerID]	= ExposedMembers.UnitData[attacker.unitKey].Prisonners[defender.playerID] + attacker.Prisonners
 
 			-- defender
 			defender.Prisonners 	= attacker.Captured
-			defender.MaterielGained = GCO.Round(attacker.MaterielLost*25/100)
+			defender.MaterielGained = GCO.Round(attacker.MaterielLost * tonumber(GameInfo.GlobalParameters["COMBAT_DEFENDER_MATERIEL_GAIN_PERCENT"].Value) /100)
 			ExposedMembers.UnitData[defender.unitKey].MaterielReserve 				= ExposedMembers.UnitData[defender.unitKey].MaterielReserve + defender.MaterielGained
 			ExposedMembers.UnitData[defender.unitKey].Prisonners[attacker.playerID]	= ExposedMembers.UnitData[defender.unitKey].Prisonners[attacker.playerID] + defender.Prisonners
 

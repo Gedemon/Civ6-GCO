@@ -27,3 +27,15 @@ ALTER TABLE Units ADD COLUMN AntiPersonnel 	integer DEFAULT '55'; -- 100 means a
 ALTER TABLE Units ADD COLUMN AntiArmor 		integer DEFAULT '20';
 ALTER TABLE Units ADD COLUMN AntiShip 		integer DEFAULT '50';
 ALTER TABLE Units ADD COLUMN AntiAir 		integer DEFAULT '50';
+
+
+-----------------------------------------------
+-- Create Start Positions Table if needed
+-----------------------------------------------
+
+CREATE TABLE IF NOT EXISTS StartPosition
+	(	MapName TEXT,
+		Civilization TEXT,
+		Leader TEXT,
+		X INT default 0,
+		Y INT default 0);
