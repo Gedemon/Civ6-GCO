@@ -113,7 +113,7 @@ usage:
 
 GCO = {}
 function InitializeUtilityFunctions() -- Get functions from other contexts
-	if ExposedMembers.Utils_Initialized and ExposedMembers.SaveLoad_Initialized then 
+	if ExposedMembers.Utils_Initialized and ExposedMembers.SaveLoad_Initialized and ExposedMembers.binser_Initialized then 
 		GCO = ExposedMembers.GCO
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
@@ -182,7 +182,22 @@ function SaveTableToSlot(t, sSlotName)
 		print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
 	end
 	local endTime = Automation.GetTime()
-	print("SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size)) 
+	print("pickle(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size)) 
+
+	
+	startTime = Automation.GetTime()
+	s = GCO.serialize(t)
+	size = string.len(s)
+	GameConfiguration.SetValue("test", s)
+	local sCheck = GameConfiguration.GetValue("test")
+	if sCheck ~= s then
+		print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring("test"))
+		print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
+	end
+	endTime = Automation.GetTime()
+	print("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+	
+	
 end
 
 -- load
@@ -192,7 +207,18 @@ function LoadTableFromSlot(sSlotName)
 	end
 	local s = GameConfiguration.GetValue(sSlotName)
 	if s then
-		local t = unpickle(s)
+	
+		local startTime = Automation.GetTime()
+		local t = unpickle(s)		
+		local endTime = Automation.GetTime()
+		print("pickle(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+
+		startTime = Automation.GetTime()
+		local test = GameConfiguration.GetValue("test")
+		local u = unpickle(test)		
+		endTime = Automation.GetTime()
+		print("GCO.serialize(t) : LoadTableFromSlot for slot " .. tostring("test") .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(u)) .. ", serialized size = " .. tostring(test))	
+	
 		return t
 	else
 		print("WARNING: No saved data table in slot ".. tostring(sSlotName) .." (this happens when initializing the table, you can ignore this warning when launching a new game)") 
@@ -209,8 +235,8 @@ function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.SaveTableToSlot = SaveTableToSlot
 	ExposedMembers.GCO.LoadTableFromSlot = LoadTableFromSlot
-	ExposedMembers.UI = UI -- I'd like to handle UI stuff from scripts
-	ExposedMembers.CombatTypes = CombatTypes -- I can understand for the UI, but why this is not in script ???
+	ExposedMembers.UI = UI -- to handle UI stuff from scripts
+	ExposedMembers.CombatTypes = CombatTypes -- why this is not in script ?
 	ExposedMembers.SaveLoad_Initialized = true
 end
 Initialize()

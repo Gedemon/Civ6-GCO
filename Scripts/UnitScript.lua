@@ -464,7 +464,7 @@ function DoUnitFood(unit)
 	-- Get food from adjacent plots
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		adjacentPlot = Map.GetAdjacentPlot(iX, iY, direction);
-		if (adjacentPlot ~= nil) and (not adjacentPlot:IsOwned()) then
+		if (adjacentPlot ~= nil) and ((not adjacentPlot:IsOwned()) or adjacentPlot:GetOwner() == unit:GetOwner() ) then
 			foodGet = foodGet + ((adjacentPlot:GetYield(yieldFood) / (1 + Units.GetUnitCountInPlot(adjacentPlot))) * adjacentRatio)
 		end
 	end	
@@ -490,8 +490,50 @@ function DoUnitMorale(unit)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromLastCombat(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromWounded(unitData)
 		
-	ExposedMembers.UnitData[key].Morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
+	local morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
+	ExposedMembers.UnitData[key].Morale = morale
 	ExposedMembers.UnitData[key].MoraleVariation = moraleVariation
+	
+	local desertionRate, minPercentHP, minPercentReserve = 0
+	if morale < tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) then
+		desertionRate = 2
+		minPercentHP = 50
+		minPercentReserve = 25
+	elseif morale < tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) then
+		desertionRate = 1
+		minPercentHP = 75
+		minPercentReserve = 50
+	end
+	if desertionRate > 0 then
+		local HP = unit:GetMaxDamage() - unit:GetDamage()
+		local unitType = unit:GetType()
+		local personnelReservePercent = GCO.Round( ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve / GCO.GetPersonnelReserve(unitType) * 100)
+		if HP > minPercentHP and personnelReservePercent > minPercentReserve then
+			local finalHP = HP - desertionRate
+			local desertion = {}
+			
+			desertion.Personnel = UnitHitPointsTable[unitType][HP].Personnel 	- UnitHitPointsTable[unitType][finalHP].Personnel
+			desertion.Vehicles 	= UnitHitPointsTable[unitType][HP].Vehicles 	- UnitHitPointsTable[unitType][finalHP].Vehicles
+			desertion.Horses 	= UnitHitPointsTable[unitType][HP].Horses		- UnitHitPointsTable[unitType][finalHP].Horses
+			desertion.Materiel	= UnitHitPointsTable[unitType][HP].Materiel 	- UnitHitPointsTable[unitType][finalHP].Materiel
+			
+			-- Remove deserters from frontline
+			ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel  	- desertion.Personnel 
+			ExposedMembers.UnitData[key].Vehicles  	= ExposedMembers.UnitData[key].Vehicles  	- desertion.Vehicles 	
+			ExposedMembers.UnitData[key].Horses		= ExposedMembers.UnitData[key].Horses	  	- desertion.Horses 	
+			ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	- desertion.Materiel
+			
+			-- Store materiel, vehicles, horses			
+			ExposedMembers.UnitData[key].VehiclesReserve  	= ExposedMembers.UnitData[key].VehiclesReserve 	+ desertion.Vehicles 	
+			ExposedMembers.UnitData[key].HorsesReserve		= ExposedMembers.UnitData[key].HorsesReserve	+ desertion.Horses 	
+			ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	+ desertion.Materiel
+			
+			-- Visualize
+			
+			-- Set Damage
+			unit:SetDamage(unit:GetDamage() + desertionRate)		
+		end
+	end	
 end
 
 function UnitDoTurn(unit)
