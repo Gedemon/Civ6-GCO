@@ -229,11 +229,11 @@ function LoadTableFromSlot(sSlotName)
 	end
 	local s = GameConfiguration.GetValue(sSlotName)
 	if s then
-	
+		local size = string.len(s)
 		local startTime = Automation.GetTime()
 		local t = unpickle(s)		
 		local endTime = Automation.GetTime()
-		--print("pickle(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+		print("pickle(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
 	--[[
 		startTime = Automation.GetTime()
 		local test = GameConfiguration.GetValue("test")

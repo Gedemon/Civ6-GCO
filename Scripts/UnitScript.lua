@@ -10,7 +10,7 @@ print ("Loading UnitScript.lua...")
 -----------------------------------------------------------------------------------------
 
 local UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
-local EverAliveZeroTable = {}	-- cached table to initialize an empty table with civID as keys and 0 as initial values 
+local EverAliveZeroTable = {} -- cached table to initialize an empty table with civID as keys and 0 as initial values 
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
@@ -509,43 +509,65 @@ function DoUnitMorale(unit)
 	ExposedMembers.UnitData[key].MoraleVariation = moraleVariation
 	
 	local desertionRate, minPercentHP, minPercentReserve = 0
-	if morale < tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) then
-		desertionRate = 2
-		minPercentHP = 50
-		minPercentReserve = 25
-	elseif morale < tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) then
-		desertionRate = 1
-		minPercentHP = 75
-		minPercentReserve = 50
+	if morale < tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) then -- very low morale
+		desertionRate 		= tonumber(GameInfo.GlobalParameters["MORALE_BAD_DESERTION_RATE"].Value --3
+		minPercentHP 		= tonumber(GameInfo.GlobalParameters["MORALE_BAD_MIN_PERCENT_HP"].Value --50
+		minPercentReserve 	= tonumber(GameInfo.GlobalParameters["MORALE_BAD_MIN_PERCENT_RESERVE"].Value --25
+	elseif morale < tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) then -- low morale
+		desertionRate 		= tonumber(GameInfo.GlobalParameters["MORALE_LOW_DESERTION_RATE"].Value --1
+		minPercentHP 		= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_HP"].Value --75
+		minPercentReserve 	= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_RESERVE"].Value --50
 	end
 	if desertionRate > 0 then
 		local HP = unit:GetMaxDamage() - unit:GetDamage()
 		local unitType = unit:GetType()
 		local personnelReservePercent = GCO.Round( ExposedMembers.UnitData[key].PersonnelReserve / GCO.GetPersonnelReserve(unitType) * 100)
-		if HP > minPercentHP and personnelReservePercent > minPercentReserve then
+		local desertionData = {Personnel = 0, Vehicles = 0, Horses = 0, Materiel = 0, GiveDamage = false, Show = false, X = unit:GetX(), Y = unit:GetY() }
+		if HP > minPercentHP then
+			local lostHP = math.max(1, GCO.Round(HP * desertionRate / 100))
 			local finalHP = HP - desertionRate
-			local desertion = {}
 			
-			desertion.Personnel = UnitHitPointsTable[unitType][HP].Personnel 	- UnitHitPointsTable[unitType][finalHP].Personnel
-			desertion.Vehicles 	= UnitHitPointsTable[unitType][HP].Vehicles 	- UnitHitPointsTable[unitType][finalHP].Vehicles
-			desertion.Horses 	= UnitHitPointsTable[unitType][HP].Horses		- UnitHitPointsTable[unitType][finalHP].Horses
-			desertion.Materiel	= UnitHitPointsTable[unitType][HP].Materiel 	- UnitHitPointsTable[unitType][finalHP].Materiel
+			-- Get desertion number
+			desertionData.Personnel = UnitHitPointsTable[unitType][HP].Personnel 	- UnitHitPointsTable[unitType][finalHP].Personnel
+			desertionData.Vehicles 	= UnitHitPointsTable[unitType][HP].Vehicles 	- UnitHitPointsTable[unitType][finalHP].Vehicles
+			desertionData.Horses 	= UnitHitPointsTable[unitType][HP].Horses		- UnitHitPointsTable[unitType][finalHP].Horses
+			desertionData.Materiel	= UnitHitPointsTable[unitType][HP].Materiel 	- UnitHitPointsTable[unitType][finalHP].Materiel
 			
 			-- Remove deserters from frontline
-			ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel  	- desertion.Personnel 
-			ExposedMembers.UnitData[key].Vehicles  	= ExposedMembers.UnitData[key].Vehicles  	- desertion.Vehicles 	
-			ExposedMembers.UnitData[key].Horses		= ExposedMembers.UnitData[key].Horses	  	- desertion.Horses 	
-			ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	- desertion.Materiel
+			ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel  	- desertionData.Personnel 
+			ExposedMembers.UnitData[key].Vehicles  	= ExposedMembers.UnitData[key].Vehicles  	- desertionData.Vehicles 	
+			ExposedMembers.UnitData[key].Horses		= ExposedMembers.UnitData[key].Horses	  	- desertionData.Horses 	
+			ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	- desertionData.Materiel
 			
 			-- Store materiel, vehicles, horses			
-			ExposedMembers.UnitData[key].VehiclesReserve  	= ExposedMembers.UnitData[key].VehiclesReserve 	+ desertion.Vehicles 	
-			ExposedMembers.UnitData[key].HorsesReserve		= ExposedMembers.UnitData[key].HorsesReserve	+ desertion.Horses 	
-			ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	+ desertion.Materiel
+			ExposedMembers.UnitData[key].VehiclesReserve  	= ExposedMembers.UnitData[key].VehiclesReserve 	+ desertionData.Vehicles 	
+			ExposedMembers.UnitData[key].HorsesReserve		= ExposedMembers.UnitData[key].HorsesReserve	+ desertionData.Horses 	
+			ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	+ desertionData.Materiel
 			
-			-- Visualize
+			desertionData.GiveDamage = true
+			desertionData.Show = true
+								
+		end
+		if personnelReservePercent > minPercentReserve then
+			local lostPersonnel = math.max(1, GCO.Round(ExposedMembers.UnitData[key].PersonnelReserve * desertionRate / 100))
 			
-			-- Set Damage
-			unit:SetDamage(unit:GetDamage() + desertionRate)		
+			-- Add desertion number
+			desertionData.Personnel = desertionData.Personnel + lostPersonnel
+			
+			-- Remove deserters from reserve
+			ExposedMembers.UnitData[key].PersonnelReserve 	= ExposedMembers.UnitData[key].PersonnelReserve	- lostPersonnel
+
+			desertionData.Show = true			
+					
+		end
+		-- Visualize
+		if desertionData.Show then
+			GCO.ShowDesertionFloatingText(desertionData)
+		end
+		
+		-- Set Damage
+		if desertionData.GiveDamage then
+			unit:SetDamage(unit:GetDamage() + desertionRate)
 		end
 	end	
 end
@@ -609,9 +631,11 @@ function SaveTables()
 		GCO.SaveTableToSlot(ExposedMembers.UnitData[key], key)
 		table.insert(UnitIndex, key)
 	end
+	local interTime = Automation.GetTime()
 	GCO.SaveTableToSlot(UnitIndex, "UnitIndex")
 	local endTime = Automation.GetTime()
 	print("- SaveTable used " .. tostring(endTime-startTime) .. " seconds")
+	print("- SaveIndex used " .. tostring(endTime-interTime) .. " seconds")
 end
 LuaEvents.SaveTables.Add(SaveTables)
 

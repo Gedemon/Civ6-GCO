@@ -662,21 +662,27 @@ function ShowFontLineHealingFloatingText(healingData)
 				-- Format text with newlines or separator as required
 				local bNeedNewLine, bNeedSeparator = false, false
 				if healingData.reqPersonnel + healingData.reqMateriel > 0 then
-					sText = sText .. Locale.Lookup("LOC_HEALING_PERSONNEL_MATERIEL_SHORT", healingData.reqPersonnel, healingData.reqMateriel)
-					bNeedNewLine, bNeedSeparator = true, false
+					sText = sText .. Locale.Lookup("LOC_PERSONNEL_RESERVE_TRANSFERT", healingData.reqPersonnel)
+					bNeedNewLine, bNeedSeparator = true, true
+				end
+				if healingData.reqMateriel > 0 then
+					if bNeedSeparator then sText = sText .. "," end
+					sText = sText .. Locale.Lookup("LOC_MATERIEL_RESERVE_TRANSFERT", healingData.reqMateriel)
+					bNeedNewLine, bNeedSeparator = true, true
 				end
 				-- second line
 				if bNeedNewLine then Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0) end
+				bNeedNewLine, bNeedSeparator = false, false
 				sText = ""
 				if healingData.reqVehicles > 0 then
 					--if bNeedNewLine then sText = sText .. "[NEWLINE]" end
-					sText = sText .. Locale.Lookup("LOC_HEALING_VEHICLES_SHORT", healingData.reqVehicles)					
+					sText = sText .. Locale.Lookup("LOC_VEHICLES_RESERVE_TRANSFERT", healingData.reqVehicles)					
 					bNeedNewLine, bNeedSeparator = false, true
 				end
 				if healingData.reqHorses > 0 then
 					--if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 					if bNeedSeparator then sText = sText .. "," end
-					sText = sText .. Locale.Lookup("LOC_HEALING_HORSES_SHORT", healingData.reqHorses)
+					sText = sText .. Locale.Lookup("LOC_HORSES_RESERVE_TRANSFERT", healingData.reqHorses)
 				end
 				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 			else
@@ -739,6 +745,38 @@ function ShowReserveHealingFloatingText(healingData)
 	end
 end
 
+function ShowDesertionFloatingText(desertionData)
+	if floatingTextLevel == FLOATING_TEXT_NONE then
+		return
+	end
+	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+	if (pLocalPlayerVis ~= nil) then
+		if (pLocalPlayerVis:IsVisible(desertionData.X, desertionData.Y)) then
+			local sText = Locale.Lookup("LOC_UNIT_PERSONNEL_DESERTION", desertionData.Personnel) end
+			local bNeedNewLine, bNeedSeparator = true, false
+			if desertionData.Vehicles > 0 then
+				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+				if bNeedSeparator then sText = sText .. "," end
+				sText = sText .. Locale.Lookup("LOC_VEHICLES_RESERVE_TRANSFERT", desertionData.Vehicles)
+				bNeedNewLine, bNeedSeparator = false, true
+			end
+			if desertionData.Horses > 0 then
+				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+				if bNeedSeparator then sText = sText .. "," end
+				sText = sText .. Locale.Lookup("LOC_HORSES_RESERVE_TRANSFERT", desertionData.Horses)
+				bNeedNewLine, bNeedSeparator = false, true
+			end
+			if desertionData.Materiel > 0 then
+				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
+				if bNeedSeparator then sText = sText .. "," end
+				sText = sText .. Locale.Lookup("LOC_MATERIEL_RESERVE_TRANSFERT", desertionData.Materiel)
+				bNeedNewLine, bNeedSeparator = false, true
+			end
+			Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, desertionData.X, desertionData.Y, 0)
+		end
+	end
+end
+
 ----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
@@ -782,6 +820,7 @@ function Initialize()
 	ExposedMembers.GCO.ShowFoodFloatingText 			= ShowFoodFloatingText
 	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
+	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
 	
 	ExposedMembers.Utils_Initialized = true
 end
