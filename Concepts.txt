@@ -143,6 +143,14 @@ each turn
 
 
 ====================
+=     Loyalty      =
+====================
+
+- units loyalty is following the stability of the city it's linked to
+- variation speed is dependant of moral
+- loyalty lower when not linked to a city
+
+====================
 =  Technologies    =
 ====================
 
