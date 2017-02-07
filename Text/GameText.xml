@@ -100,20 +100,23 @@
     <Replace Tag="LOC_HEALING_PERSONNEL_MATERIEL" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Position] personnel[NEWLINE][ICON_TradeRouteLarge]{2_Num} [ICON_Charges] materiel</Text>
     </Replace>
-    <Replace Tag="LOC_HEALING_PERSONNEL_MATERIEL_SHORT" Language="en_US">
-      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Position],[ICON_TradeRouteLarge]{2_Num} [ICON_Charges]</Text>
-    </Replace>
     <Replace Tag="LOC_HEALING_VEHICLES" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_DISTRICT_HANSA] vehicles</Text>
-    </Replace>
-    <Replace Tag="LOC_HEALING_VEHICLES_SHORT" Language="en_US">
-      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_DISTRICT_HANSA]</Text>
     </Replace>
     <Replace Tag="LOC_HEALING_HORSES" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_RESOURCE_HORSES] horses</Text>
     </Replace>
-    <Replace Tag="LOC_HEALING_HORSES_SHORT" Language="en_US">
+    <Replace Tag="LOC_PERSONNEL_RESERVE_TRANSFERT" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Position]</Text>
+    </Replace>
+    <Replace Tag="LOC_VEHICLES_RESERVE_TRANSFERT" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_DISTRICT_HANSA]</Text>
+    </Replace>
+    <Replace Tag="LOC_HORSES_RESERVE_TRANSFERT" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_RESOURCE_HORSES]</Text>
+    </Replace>
+    <Replace Tag="LOC_MATERIEL_RESERVE_TRANSFERT" Language="en_US">
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Charges]</Text>
     </Replace>
 	<!-- Healing -->
     <Replace Tag="LOC_HEALING_WOUNDED" Language="en_US">
@@ -135,6 +138,10 @@
     <Replace Tag="LOC_UNIT_GET_FOOD" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Food] collected</Text>
     </Replace>	
+	<!-- Desertion -->	
+    <Replace Tag="LOC_UNIT_PERSONNEL_DESERTION" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Position] deserters</Text>
+    </Replace>
 	
   </LocalizedText>
   
