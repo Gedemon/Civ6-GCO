@@ -85,6 +85,19 @@ function ToDecimals(num)
 	return num
 end
 
+
+----------------------------------------------
+-- Timer
+----------------------------------------------
+
+local Timer = {}
+function StartTimer(name)
+	Timer[name] = Automation.GetTime()
+end
+function ShowTimer(name)
+	if Timer[name] then print("- "..tostring(name) .." timer = " .. tostring(Automation.GetTime()-Timer[name]) .. " seconds") end
+end
+
 ----------------------------------------------
 -- Civilizations
 ----------------------------------------------
@@ -821,6 +834,8 @@ function Initialize()
 	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
 	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
+	ExposedMembers.GCO.StartTimer 						= StartTimer
+	ExposedMembers.GCO.ShowTimer 						= ShowTimer
 	
 	ExposedMembers.Utils_Initialized = true
 end

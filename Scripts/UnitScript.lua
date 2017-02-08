@@ -10,7 +10,7 @@ print ("Loading UnitScript.lua...")
 -----------------------------------------------------------------------------------------
 
 local UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
-local EverAliveZeroTable = {} -- cached table to initialize an empty table with civID as keys and 0 as initial values 
+local EverAliveZeroTable = {} -- cached table to initialize an empty table with civID as keys and 0 as initial values
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
@@ -20,10 +20,10 @@ local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
 local GCO = {}
 local CombatTypes = {}
-function InitializeUtilityFunctions() 	-- Get functions from other contexts
+function InitializeUtilityFunctions() 	-- get functions from other contexts
 	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 		GCO = ExposedMembers.GCO					-- contains functions from other contexts
-		CombatTypes = ExposedMembers.CombatTypes 	-- Need those in combat results
+		CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
 		InitializeTables()
@@ -31,22 +31,8 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
-function InitializeTables() -- Tables that may require other context to be loaded (saved/loaded tables)
-	if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
-	--[[
-	local startTime = Automation.GetTime()
-	if not ExposedMembers.UnitData then	
-		ExposedMembers.UnitData = {}
-		local UnitIndex = GCO.LoadTableFromSlot("UnitIndex")
-		if UnitIndex then
-			for i, key in ipairs(UnitIndex) do
-				ExposedMembers.UnitData[key] = GCO.LoadTableFromSlot(key)
-			end
-		end
-	end
-	local endTime = Automation.GetTime()
-	print("- LoadTable used " .. tostring(endTime-startTime) .. " seconds")
-	--]]
+function InitializeTables() -- tables that may require other context to be loaded (saved/loaded tables)
+	LoadUnitTable()
 	EverAliveZeroTable = GCO.CreateEverAliveTableWithDefaultValue(0)
 end
 
@@ -58,7 +44,7 @@ end
 -----------------------------------------------------------------------------------------
 -- Unit composition
 -----------------------------------------------------------------------------------------
-local minCompLeftFactor = GameInfo.GlobalParameters["MIN_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value -- Modded global parameters are not in GlobalParameters ?????
+local minCompLeftFactor = GameInfo.GlobalParameters["MIN_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value -- Modded global parameters are not in GlobalParameters.NAME like vanilla parameters ?????
 local maxCompLeftFactor = GameInfo.GlobalParameters["MAX_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value
 function GetNumComponentAtHP(maxNumComponent, HPLeft)
 	local numComponent = 0
@@ -92,6 +78,130 @@ function CreateUnitHitPointsTable()
 end
 
 -----------------------------------------------------------------------------------------
+-- Load/Save the tables
+-----------------------------------------------------------------------------------------
+
+local unitTableEnum = {
+
+	unitID					= 1,
+	playerID				= 2,
+	unitType				= 3,
+	MaterielPerVehicles		= 4,
+	Personnel				= 5,
+	Vehicles				= 6,
+	Horses					= 7,
+	Materiel				= 8,
+	PersonnelReserve		= 9,
+	VehiclesReserve			= 10,
+	HorsesReserve			= 11,
+	MaterielReserve			= 12,
+	WoundedPersonnel		= 13,
+	DamagedVehicles			= 14,
+	Prisonners				= 15,
+	FoodStock				= 16,
+	FoodStockVariation		= 17,
+	TotalDeath				= 18,
+	TotalVehiclesLost		= 19,
+	TotalHorsesLost			= 20,
+	TotalKill				= 21,
+	TotalUnitsKilled		= 22,
+	TotalShipSunk			= 23,
+	TotalTankDestroyed		= 24,
+	TotalAircraftKilled		= 25,
+	Morale					= 26,
+	MoraleVariation			= 27,
+	LastCombatTurn			= 28,
+	LastCombatResult		= 29,
+	LastCombatType			= 30,
+	Alive					= 31,
+	TotalXP					= 32,
+	CombatXP				= 33,
+	
+	EndOfEnum				= 99
+}                           
+
+function SaveUnitTable()
+
+	-- 1/ direct but too slow ?
+	--GCO.SaveTableToSlot(ExposedMembers.UnitData, "UnitData")
+	
+	-- 2/ Use enums for shorter string
+	GCO.StartTimer("Pre-Save UnitTable")
+	local t = {}
+	for key, data in pairs(ExposedMembers.UnitData) do
+		t[key] = {}
+		for name, enum in pairs(unitTableEnum) do
+			t[key][enum] = data[name]
+		end
+	end	
+	GCO.ShowTimer("Pre-Save UnitTable")
+	GCO.SaveTableToSlot(t, "UnitData")
+	
+	-- 3/ Save short strings in multiple slots
+	--[[
+	local startTime = Automation.GetTime()
+	local UnitIndex = {}
+	for key, data in pairs(ExposedMembers.UnitData) do
+		GCO.SaveTableToSlot(ExposedMembers.UnitData[key], key)
+		table.insert(UnitIndex, key)
+	end
+	local interTime = Automation.GetTime()
+	GCO.SaveTableToSlot(UnitIndex, "UnitIndex")
+	local endTime = Automation.GetTime()
+	print("- SaveTable used " .. tostring(endTime-startTime) .. " seconds")
+	print("- SaveIndex used " .. tostring(endTime-interTime) .. " seconds")
+	--]]
+end
+
+function LoadUnitTable()
+
+	-- 1/ direct but too slow ?
+	--if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
+	
+	-- 2/ Use enums for shorter string
+	---[[
+	local unitData = {}
+	local loadedTable = GCO.LoadTableFromSlot("UnitData")
+	GCO.StartTimer("Post-Load UnitTable")
+	if loadedTable then
+		for key, data in pairs(loadedTable) do
+			unitData[key] = {}
+			for name, enum in pairs(unitTableEnum) do
+				unitData[key][name] = data[enum]
+			end			
+		end
+		ExposedMembers.UnitData = unitData
+		GCO.ShowTimer("Post-Load UnitTable")
+	else
+		ExposedMembers.UnitData = {}
+	end
+	--]]
+	
+	-- 3/ Save short strings in multiple slots
+	--[[
+	local startTime = Automation.GetTime()
+	if not ExposedMembers.UnitData then
+		ExposedMembers.UnitData = {}
+		local UnitIndex = GCO.LoadTableFromSlot("UnitIndex")
+		if UnitIndex then
+			for i, key in ipairs(UnitIndex) do
+				ExposedMembers.UnitData[key] = GCO.LoadTableFromSlot(key)
+			end
+		end
+	end
+	local endTime = Automation.GetTime()
+	print("- LoadTable used " .. tostring(endTime-startTime) .. " seconds")
+	--]]
+	
+end
+
+function SaveTables()
+	SaveUnitTable()
+end
+LuaEvents.SaveTables.Add(SaveTables)
+
+
+-----------------------------------------------------------------------------------------
 -- Units Initialization
 -----------------------------------------------------------------------------------------
 
@@ -103,10 +213,10 @@ function RegisterNewUnit(playerID, unit)
 	local hp = unit:GetMaxDamage() - unit:GetDamage()
 
 	ExposedMembers.UnitData[unitKey] = {
-		UniqueID = unitKey.."-"..os.clock(), -- for linked statistics
-		unitID = unitID,
-		playerID = playerID,
-		unitType = unitType,
+		--UniqueID = unitKey.."-"..os.clock(), -- for linked statistics
+		unitID 				= unitID,
+		playerID 			= playerID,
+		unitType 			= unitType,
 		MaterielPerVehicles = GameInfo.Units[unitType].MaterielPerVehicles,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 			= UnitHitPointsTable[unitType][hp].Personnel,
@@ -178,7 +288,7 @@ function OnCombat( combatResult )
 
 	local attacker = combatResult[CombatResultParameters.ATTACKER]
 	local defender = combatResult[CombatResultParameters.DEFENDER]
-	
+
 	local combatType = combatResult[CombatResultParameters.COMBAT_TYPE]
 
 	attacker.IsUnit = attacker[CombatResultParameters.ID].type == ComponentType.UNIT
@@ -195,7 +305,7 @@ function OnCombat( combatResult )
 		attacker.unitID = attacker[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
 		attacker = GCO.AddCombatInfoTo(attacker)
-		-- 
+		--
 		attacker.CanTakePrisonners = attacker.IsLandUnit and combatType == CombatTypes.MELEE and not attacker.IsDead
 	end
 	if defender.IsUnit then
@@ -246,15 +356,15 @@ function OnCombat( combatResult )
 	if attacker.IsUnit and defender.IsUnit then
 		local turn = Game.GetCurrentGameTurn()
 		ExposedMembers.UnitData[attacker.unitKey].LastCombatTurn = turn
-		ExposedMembers.UnitData[defender.unitKey].LastCombatTurn = turn		
-		
+		ExposedMembers.UnitData[defender.unitKey].LastCombatTurn = turn
+
 		ExposedMembers.UnitData[attacker.unitKey].LastCombatResult = defender[CombatResultParameters.DAMAGE_TO] - attacker[CombatResultParameters.DAMAGE_TO]
 		ExposedMembers.UnitData[defender.unitKey].LastCombatResult = attacker[CombatResultParameters.DAMAGE_TO] - defender[CombatResultParameters.DAMAGE_TO]
-		
+
 		ExposedMembers.UnitData[attacker.unitKey].LastCombatType = combatType
-		ExposedMembers.UnitData[defender.unitKey].LastCombatType = combatType		
+		ExposedMembers.UnitData[defender.unitKey].LastCombatType = combatType
 	end
-	
+
 	-- Plundering (with some bonuses to attack)
 	if defender.IsLandUnit and combatType == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
 
@@ -265,14 +375,14 @@ function OnCombat( combatResult )
 			attacker.LiberatedPrisonners = GCO.GetTotalPrisonners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
 			attacker.FoodGained = GCO.Round(ExposedMembers.UnitData[defender.unitKey].FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) /100)
 			attacker.FoodGained = math.max(0, math.min(GCO.GetBaseFoodStock(attacker.unit:GetType()) - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
-			
+
 			-- Update composition
 			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel 	= 0 -- Just to keep things clean...
 			ExposedMembers.UnitData[defender.unitKey].FoodStock 		= ExposedMembers.UnitData[defender.unitKey].FoodStock 			- attacker.FoodGained -- Just to keep things clean...
 			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	+ attacker.MaterielGained
 			ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve 	= ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve 	+ attacker.LiberatedPrisonners
 			ExposedMembers.UnitData[attacker.unitKey].FoodStock 		= ExposedMembers.UnitData[attacker.unitKey].FoodStock 			+ attacker.FoodGained
-			-- To do : prisonners by nationality			
+			-- To do : prisonners by nationality
 			ExposedMembers.UnitData[attacker.unitKey].Prisonners[defender.playerID]	= ExposedMembers.UnitData[attacker.unitKey].Prisonners[defender.playerID] + attacker.Prisonners
 
 		else
@@ -416,8 +526,8 @@ function HealingUnits(playerID)
 		-- try to heal wounded and repair Vehicles using materiel (move healed personnel and repaired Vehicles to reserve)
 		for i, unit in playerUnits:Members() do
 			local key = GCO.GetUnitKey(unit)
-			if key then	
-				if ExposedMembers.UnitData[key] then	
+			if key then
+				if ExposedMembers.UnitData[key] then
 					-- wounded soldiers may die...
 					local deads = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
 					ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - deads
@@ -441,10 +551,10 @@ function HealingUnits(playerID)
 					GCO.ShowReserveHealingFloatingText(healingData)
 
 					LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
-				else				
+				else
 					print ("- WARNING : no entry in ExposedMembers.UnitData for unit ".. tostring(unit:GetName()) .." (key = ".. tostring(key) ..") in HealingUnits()")
 				end
-			else				
+			else
 				print ("- WARNING : key is nil for unit ".. tostring(unit) .." in HealingUnits()")
 			end
 		end
@@ -460,60 +570,60 @@ end
 -----------------------------------------------------------------------------------------
 
 function DoUnitFood(unit)
-	
+
 	local key = GCO.GetUnitKey(unit)
-	local unitData = ExposedMembers.UnitData[key]	
-	
+	local unitData = ExposedMembers.UnitData[key]
+
 	-- Eat Food
-	
+
 	local foodEat = math.min(GCO.GetFoodConsumption(unitData), unitData.FoodStock)
-	
+
 	-- Get Food
-	
+
 	local foodGet = 0
 	local iX = unit:GetX()
 	local iY = unit:GetY()
 	local adjacentRatio = tonumber(GameInfo.GlobalParameters["FOOD_COLLECTING_ADJACENT_PLOT_RATIO"].Value)
 	local yieldFood = GameInfo.Yields["YIELD_FOOD"].Index
-	local maxFoodStock = GCO.GetBaseFoodStock(unitData.unitType)	
+	local maxFoodStock = GCO.GetBaseFoodStock(unitData.unitType)
 	-- Get food from the plot
 	local plot = Map.GetPlot(iX, iY)
 	if plot then
 		foodGet = foodGet + (plot:GetYield(yieldFood) / (math.max(1, Units.GetUnitCountInPlot(plot))))
-	end	
+	end
 	-- Get food from adjacent plots
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		adjacentPlot = Map.GetAdjacentPlot(iX, iY, direction);
 		if (adjacentPlot ~= nil) and ((not adjacentPlot:IsOwned()) or adjacentPlot:GetOwner() == unit:GetOwner() ) then
 			foodGet = foodGet + ((adjacentPlot:GetYield(yieldFood) / (1 + Units.GetUnitCountInPlot(adjacentPlot))) * adjacentRatio)
 		end
-	end	
+	end
 	foodGet = GCO.Round(foodGet)
 	foodGet = math.max(0, math.min(maxFoodStock - unitData.FoodStock, foodGet))
-	
+
 	-- Update variation
 	local foodVariation = foodGet - foodEat
 	ExposedMembers.UnitData[key].FoodStock = unitData.FoodStock + foodVariation
 	ExposedMembers.UnitData[key].FoodStockVariation = foodVariation
-	
+
 	-- Visualize
 	local foodData = { foodEat = foodEat, foodGet = foodGet, X = unit:GetX(), Y = unit:GetY() }
-	GCO.ShowFoodFloatingText(foodData)	
+	GCO.ShowFoodFloatingText(foodData)
 end
 
 
-function DoUnitMorale(unit)	
+function DoUnitMorale(unit)
 	local key = GCO.GetUnitKey(unit)
 	local unitData = ExposedMembers.UnitData[key]
 	local moraleVariation = 0
 	moraleVariation = moraleVariation + GCO.GetMoraleFromFood(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromLastCombat(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromWounded(unitData)
-		
+
 	local morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
 	ExposedMembers.UnitData[key].Morale = morale
 	ExposedMembers.UnitData[key].MoraleVariation = moraleVariation
-	
+
 	local desertionRate, minPercentHP, minPercentReserve = 0
 	if morale < tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) then -- very low morale
 		desertionRate 		= tonumber(GameInfo.GlobalParameters["MORALE_BAD_DESERTION_RATE"].Value) --3
@@ -532,50 +642,50 @@ function DoUnitMorale(unit)
 		if HP > minPercentHP then
 			local lostHP = math.max(1, GCO.Round(HP * desertionRate / 100))
 			local finalHP = HP - desertionRate
-			
+
 			-- Get desertion number
 			desertionData.Personnel = UnitHitPointsTable[unitType][HP].Personnel 	- UnitHitPointsTable[unitType][finalHP].Personnel
 			desertionData.Vehicles 	= UnitHitPointsTable[unitType][HP].Vehicles 	- UnitHitPointsTable[unitType][finalHP].Vehicles
 			desertionData.Horses 	= UnitHitPointsTable[unitType][HP].Horses		- UnitHitPointsTable[unitType][finalHP].Horses
 			desertionData.Materiel	= UnitHitPointsTable[unitType][HP].Materiel 	- UnitHitPointsTable[unitType][finalHP].Materiel
-			
+
 			-- Remove deserters from frontline
-			ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel  	- desertionData.Personnel 
-			ExposedMembers.UnitData[key].Vehicles  	= ExposedMembers.UnitData[key].Vehicles  	- desertionData.Vehicles 	
-			ExposedMembers.UnitData[key].Horses		= ExposedMembers.UnitData[key].Horses	  	- desertionData.Horses 	
+			ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel  	- desertionData.Personnel
+			ExposedMembers.UnitData[key].Vehicles  	= ExposedMembers.UnitData[key].Vehicles  	- desertionData.Vehicles
+			ExposedMembers.UnitData[key].Horses		= ExposedMembers.UnitData[key].Horses	  	- desertionData.Horses
 			ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	- desertionData.Materiel
-			
-			-- Store materiel, vehicles, horses			
-			ExposedMembers.UnitData[key].VehiclesReserve  	= ExposedMembers.UnitData[key].VehiclesReserve 	+ desertionData.Vehicles 	
-			ExposedMembers.UnitData[key].HorsesReserve		= ExposedMembers.UnitData[key].HorsesReserve	+ desertionData.Horses 	
+
+			-- Store materiel, vehicles, horses
+			ExposedMembers.UnitData[key].VehiclesReserve  	= ExposedMembers.UnitData[key].VehiclesReserve 	+ desertionData.Vehicles
+			ExposedMembers.UnitData[key].HorsesReserve		= ExposedMembers.UnitData[key].HorsesReserve	+ desertionData.Horses
 			ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	+ desertionData.Materiel
-			
+
 			desertionData.GiveDamage = true
 			desertionData.Show = true
-								
+
 		end
 		if personnelReservePercent > minPercentReserve then
 			local lostPersonnel = math.max(1, GCO.Round(ExposedMembers.UnitData[key].PersonnelReserve * desertionRate / 100))
-			
+
 			-- Add desertion number
 			desertionData.Personnel = desertionData.Personnel + lostPersonnel
-			
+
 			-- Remove deserters from reserve
 			ExposedMembers.UnitData[key].PersonnelReserve 	= ExposedMembers.UnitData[key].PersonnelReserve	- lostPersonnel
 
-			desertionData.Show = true			
-					
+			desertionData.Show = true
+
 		end
 		-- Visualize
 		if desertionData.Show then
 			GCO.ShowDesertionFloatingText(desertionData)
 		end
-		
+
 		-- Set Damage
 		if desertionData.GiveDamage then
 			unit:SetDamage(unit:GetDamage() + desertionRate)
 		end
-	end	
+	end
 end
 
 function UnitDoTurn(unit)
@@ -592,13 +702,13 @@ end
 function DoUnitsTurn( playerID )
 
 	HealingUnits( playerID )
-	
+
 	local player = Players[playerID]
 	local playerConfig = PlayerConfigurations[playerID]
 	local playerUnits = player:GetUnits()
 	if playerUnits then
 		for i, unit in playerUnits:Members() do
-			UnitDoTurn(unit)			
+			UnitDoTurn(unit)
 		end
 	end
 end
@@ -623,29 +733,6 @@ function DoUnitsTurnForAI( playerID )
 	DoUnitsTurn( playerID )
 end
 Events.RemotePlayerTurnBegin.Add( DoUnitsTurnForAI )
-
-
------------------------------------------------------------------------------------------
--- Save the tables
------------------------------------------------------------------------------------------
-
-function SaveTables()
-	GCO.SaveTableToSlot(ExposedMembers.UnitData, "UnitData")	
-	--[[
-	local startTime = Automation.GetTime()
-	local UnitIndex = {}
-	for key, data in pairs(ExposedMembers.UnitData) do
-		GCO.SaveTableToSlot(ExposedMembers.UnitData[key], key)
-		table.insert(UnitIndex, key)
-	end
-	local interTime = Automation.GetTime()
-	GCO.SaveTableToSlot(UnitIndex, "UnitIndex")
-	local endTime = Automation.GetTime()
-	print("- SaveTable used " .. tostring(endTime-startTime) .. " seconds")
-	print("- SaveIndex used " .. tostring(endTime-interTime) .. " seconds")
-	--]]
-end
-LuaEvents.SaveTables.Add(SaveTables)
 
 -----------------------------------------------------------------------------------------
 -- Initialize after loading the file...

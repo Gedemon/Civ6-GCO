@@ -5,89 +5,7 @@
 --  http://lua-users.org/wiki/PickleTable
 -----------------------------------------------------------------------------------------
 
-----------------------------------------------
--- Pickle.lua
--- A table serialization utility for lua
--- Steve Dekorte, http://www.dekorte.com, Apr 2000
--- Freeware
-----------------------------------------------
 
-function pickle(t)
-  return Pickle:clone():pickle_(t)
-end
-
-Pickle = {
-  clone = function (t) local nt={}; for i, v in pairs(t) do nt[i]=v end return nt end 
-}
-
-function Pickle:pickle_(root)
-  if type(root) ~= "table" then 
-    error("can only pickle tables, not ".. type(root).."s")
-  end
-  self._tableToRef = {}
-  self._refToTable = {}
-  local savecount = 0
-  self:ref_(root)
-  local s = ""
-
-  while #(self._refToTable) > savecount do
-    savecount = savecount + 1
-    local t = self._refToTable[savecount]
-    s = s.."{\n"
-    for i, v in pairs(t) do
-        s = string.format("%s[%s]=%s,\n", s, self:value_(i), self:value_(v))
-    end
-    s = s.."},\n"
-  end
-
-  return string.format("{%s}", s)
-end
-
-function Pickle:value_(v)
-  local vtype = type(v)
-  if     vtype == "string" then return string.format("%q", v)
-  elseif vtype == "number" then return v
-  elseif vtype == "boolean" then return tostring(v)
-  elseif vtype == "table" then return "{"..self:ref_(v).."}"
-  else --error("pickle a "..type(v).." is not supported")
-  end  
-end
-
-function Pickle:ref_(t)
-  local ref = self._tableToRef[t]
-  if not ref then 
-    if t == self then error("can't pickle the pickle class") end
-    table.insert(self._refToTable, t)
-    ref = #(self._refToTable)
-    self._tableToRef[t] = ref
-  end
-  return ref
-end
-
-----------------------------------------------
--- unpickle
-----------------------------------------------
-
-function unpickle(s)
-  if type(s) ~= "string" then
-    error("can't unpickle a "..type(s)..", only strings")
-  end
-  local gentables = loadstring("return "..s)
-  local tables = gentables()
-  
-  for tnum = 1, #(tables) do
-    local t = tables[tnum]
-    local tcopy = {}; for i, v in pairs(t) do tcopy[i] = v end
-    for i, v in pairs(tcopy) do
-      local ni, nv
-      if type(i) == "table" then ni = tables[i[1]] else ni = i end
-      if type(v) == "table" then nv = tables[v[1]] else nv = v end
-      t[i] = nil
-      t[ni] = nv
-    end
-  end
-  return tables[1]
-end
 
 
 --=================================================
@@ -163,7 +81,8 @@ Events.InputActionTriggered( OnInputAction )
 -- load/save
 ----------------------------------------------
 -- save
-function SaveTableToSlot(t, sSlotName)	
+function SaveTableToSlot(t, sSlotName)
+	GCO.StartTimer("SaveTableToSlot")
 	local startTime = Automation.GetTime()
 	if type(t) ~= "table" then 
 		print("ERROR: SaveTableToSlot(t, sSlotName), parameter #1 must be a table, nothing saved to slot ".. tostring(sSlotName))
@@ -173,33 +92,34 @@ function SaveTableToSlot(t, sSlotName)
 		print("ERROR: SaveTableToSlot(t, sSlotName), parameter #2 must be a string, the table wasn't saved")
 		return
 	end
-	--local s = pickle(t)
+	
 	local s = GCO.serialize(t)
 	local size = string.len(s)
 	GameConfiguration.SetValue(sSlotName, s)
-	local sCheck = GameConfiguration.GetValue(sSlotName)
-	if sCheck ~= s then
-		print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring(sSlotName))
-		print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
-	end
-	local endTime = Automation.GetTime()
-	--print("pickle(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size)) 
-	print("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
+	GCO.ShowTimer("SaveTableToSlot")
+	print("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
 
-	--[[
+	-- test saved value
+	---[[
 	do
-		local startTime = Automation.GetTime()
-		local s = GameConfiguration.GetValue(sSlotName)
-		local size = string.len(s)
-		local t = unpickle(s)		
-		local endTime = Automation.GetTime()
-		print("pickle(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+		GCO.StartTimer("SaveTableToSlot")
+		local s2 = GameConfiguration.GetValue(sSlotName)
+		local size2 = string.len(s2)
+		if s2 ~= s then
+			print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring(sSlotName))
+			print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(size2))
+		end
+		local t2 = GCO.deserialize(s2)
+		GCO.ShowTimer("SaveTableToSlot")
+		print("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))
 	end
 	--]]
-	--[[
+	
+	-- test other serializers
+	---[[
 	do
-		local startTime = Automation.GetTime()
-		local s = GCO.serialize(t)
+		GCO.StartTimer("SaveTableToSlot")
+		local s = GCO.serialize2(t)
 		local size = string.len(s)
 		GameConfiguration.SetValue("test", s)
 		local sCheck = GameConfiguration.GetValue("test")
@@ -207,18 +127,38 @@ function SaveTableToSlot(t, sSlotName)
 			print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring("test"))
 			print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
 		end
-		local endTime = Automation.GetTime()
-		print("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+		GCO.ShowTimer("SaveTableToSlot")
+		print("GCO.serialize2(t) : SaveTableToSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+
+		GCO.StartTimer("SaveTableToSlot")
+		local s2 = GameConfiguration.GetValue("test")
+		local size2 = string.len(s2)
+		local t2 = GCO.deserialize2(s2)
+		GCO.ShowTimer("SaveTableToSlot")
+		print("GCO.deserialize2(t) : LoadTableFromSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))
 	end
 	--]]
-	--[[
+	
+	---[[
 	do
-		local startTime = Automation.GetTime()
-		local s = GameConfiguration.GetValue("test")
+		GCO.StartTimer("SaveTableToSlot")
+		local s = GCO.serialize3(t)
 		local size = string.len(s)
-		local t = GCO.deserialize(s)
-		local endTime = Automation.GetTime()
-		print("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring("test") .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
+		GameConfiguration.SetValue("test", s)
+		local sCheck = GameConfiguration.GetValue("test")
+		if sCheck ~= s then
+			print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring("test"))
+			print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
+		end
+		GCO.ShowTimer("SaveTableToSlot")
+		print("GCO.serialize3(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+
+		GCO.StartTimer("SaveTableToSlot")
+		local s2 = GameConfiguration.GetValue("test")
+		local size2 = string.len(s2)
+		local t2 = GCO.deserialize3(s2)
+		GCO.ShowTimer("SaveTableToSlot")
+		print("GCO.deserialize3(t) : LoadTableFromSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))
 	end
 	--]]
 end
