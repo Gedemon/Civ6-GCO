@@ -18,8 +18,8 @@ local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
-GCO = {}
-CombatTypes = {}
+local GCO = {}
+local CombatTypes = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 		GCO = ExposedMembers.GCO					-- contains functions from other contexts
@@ -32,7 +32,8 @@ end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 function InitializeTables() -- Tables that may require other context to be loaded (saved/loaded tables)
-	--if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
+	if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
+	--[[
 	local startTime = Automation.GetTime()
 	if not ExposedMembers.UnitData then	
 		ExposedMembers.UnitData = {}
@@ -45,6 +46,7 @@ function InitializeTables() -- Tables that may require other context to be loade
 	end
 	local endTime = Automation.GetTime()
 	print("- LoadTable used " .. tostring(endTime-startTime) .. " seconds")
+	--]]
 	EverAliveZeroTable = GCO.CreateEverAliveTableWithDefaultValue(0)
 end
 
@@ -415,29 +417,33 @@ function HealingUnits(playerID)
 		for i, unit in playerUnits:Members() do
 			local key = GCO.GetUnitKey(unit)
 			if key then	
-				-- wounded soldiers may die...
-				local deads = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
-				ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - deads
-				-- wounded soldiers may heal...
-				local healed = math.ceil(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support (not rounded to heal last wounded)
-				ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - healed
-				ExposedMembers.UnitData[key].PersonnelReserve = ExposedMembers.UnitData[key].PersonnelReserve + healed
+				if ExposedMembers.UnitData[key] then	
+					-- wounded soldiers may die...
+					local deads = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
+					ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - deads
+					-- wounded soldiers may heal...
+					local healed = math.ceil(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support (not rounded to heal last wounded)
+					ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - healed
+					ExposedMembers.UnitData[key].PersonnelReserve = ExposedMembers.UnitData[key].PersonnelReserve + healed
 
-				-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
-				local materielAvailable = maxTransfert[unit].Materiel - alreadyUsed[unit].Materiel
-				local maxRepairedVehicles = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerVehicles* GameInfo.GlobalParameters["MATERIEL_PERCENTAGE_TO_REPAIR_VEHICLE"].Value/100))
-				local repairedVehicules = 0
-				if maxRepairedVehicles > 0 then
-					repairedVehicules = math.min(maxRepairedVehicles, ExposedMembers.UnitData[key].DamagedVehicles)
-					ExposedMembers.UnitData[key].DamagedVehicles = ExposedMembers.UnitData[key].DamagedVehicles - repairedVehicules
-					ExposedMembers.UnitData[key].VehiclesReserve = ExposedMembers.UnitData[key].VehiclesReserve + repairedVehicules
+					-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
+					local materielAvailable = maxTransfert[unit].Materiel - alreadyUsed[unit].Materiel
+					local maxRepairedVehicles = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerVehicles* GameInfo.GlobalParameters["MATERIEL_PERCENTAGE_TO_REPAIR_VEHICLE"].Value/100))
+					local repairedVehicules = 0
+					if maxRepairedVehicles > 0 then
+						repairedVehicules = math.min(maxRepairedVehicles, ExposedMembers.UnitData[key].DamagedVehicles)
+						ExposedMembers.UnitData[key].DamagedVehicles = ExposedMembers.UnitData[key].DamagedVehicles - repairedVehicules
+						ExposedMembers.UnitData[key].VehiclesReserve = ExposedMembers.UnitData[key].VehiclesReserve + repairedVehicules
+					end
+
+					-- Visualize healing
+					local healingData = {deads = deads, healed = healed, repairedVehicules = repairedVehicules, X = unit:GetX(), Y = unit:GetY() }
+					GCO.ShowReserveHealingFloatingText(healingData)
+
+					LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
+				else				
+					print ("- WARNING : no entry in ExposedMembers.UnitData for unit ".. tostring(unit:GetName()) .." (key = ".. tostring(key) ..") in HealingUnits()")
 				end
-
-				-- Visualize healing
-				local healingData = {deads = deads, healed = healed, repairedVehicules = repairedVehicules, X = unit:GetX(), Y = unit:GetY() }
-				GCO.ShowReserveHealingFloatingText(healingData)
-
-				LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 			else				
 				print ("- WARNING : key is nil for unit ".. tostring(unit) .." in HealingUnits()")
 			end
@@ -510,13 +516,13 @@ function DoUnitMorale(unit)
 	
 	local desertionRate, minPercentHP, minPercentReserve = 0
 	if morale < tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) then -- very low morale
-		desertionRate 		= tonumber(GameInfo.GlobalParameters["MORALE_BAD_DESERTION_RATE"].Value --3
-		minPercentHP 		= tonumber(GameInfo.GlobalParameters["MORALE_BAD_MIN_PERCENT_HP"].Value --50
-		minPercentReserve 	= tonumber(GameInfo.GlobalParameters["MORALE_BAD_MIN_PERCENT_RESERVE"].Value --25
+		desertionRate 		= tonumber(GameInfo.GlobalParameters["MORALE_BAD_DESERTION_RATE"].Value) --3
+		minPercentHP 		= tonumber(GameInfo.GlobalParameters["MORALE_BAD_MIN_PERCENT_HP"].Value) --50
+		minPercentReserve 	= tonumber(GameInfo.GlobalParameters["MORALE_BAD_MIN_PERCENT_RESERVE"].Value) --25
 	elseif morale < tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) then -- low morale
-		desertionRate 		= tonumber(GameInfo.GlobalParameters["MORALE_LOW_DESERTION_RATE"].Value --1
-		minPercentHP 		= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_HP"].Value --75
-		minPercentReserve 	= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_RESERVE"].Value --50
+		desertionRate 		= tonumber(GameInfo.GlobalParameters["MORALE_LOW_DESERTION_RATE"].Value) --1
+		minPercentHP 		= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_HP"].Value) --75
+		minPercentReserve 	= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_RESERVE"].Value) --50
 	end
 	if desertionRate > 0 then
 		local HP = unit:GetMaxDamage() - unit:GetDamage()
@@ -624,7 +630,8 @@ Events.RemotePlayerTurnBegin.Add( DoUnitsTurnForAI )
 -----------------------------------------------------------------------------------------
 
 function SaveTables()
-	--GCO.SaveTableToSlot(ExposedMembers.UnitData, "UnitData")	
+	GCO.SaveTableToSlot(ExposedMembers.UnitData, "UnitData")	
+	--[[
 	local startTime = Automation.GetTime()
 	local UnitIndex = {}
 	for key, data in pairs(ExposedMembers.UnitData) do
@@ -636,6 +643,7 @@ function SaveTables()
 	local endTime = Automation.GetTime()
 	print("- SaveTable used " .. tostring(endTime-startTime) .. " seconds")
 	print("- SaveIndex used " .. tostring(endTime-interTime) .. " seconds")
+	--]]
 end
 LuaEvents.SaveTables.Add(SaveTables)
 

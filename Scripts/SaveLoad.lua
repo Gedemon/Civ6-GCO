@@ -111,10 +111,10 @@ usage:
 -- Initialize Functions
 ----------------------------------------------
 
-GCO = {}
+local GCO = ExposedMembers.GCO -- Initialize with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded
 function InitializeUtilityFunctions() -- Get functions from other contexts
 	if ExposedMembers.Utils_Initialized and ExposedMembers.SaveLoad_Initialized and ExposedMembers.binser_Initialized then 
-		GCO = ExposedMembers.GCO
+		GCO = ExposedMembers.GCO -- Reinitialize with what may have been added with other UI contexts
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
 	end
@@ -173,7 +173,8 @@ function SaveTableToSlot(t, sSlotName)
 		print("ERROR: SaveTableToSlot(t, sSlotName), parameter #2 must be a string, the table wasn't saved")
 		return
 	end
-	local s = pickle(t)
+	--local s = pickle(t)
+	local s = GCO.serialize(t)
 	local size = string.len(s)
 	GameConfiguration.SetValue(sSlotName, s)
 	local sCheck = GameConfiguration.GetValue(sSlotName)
@@ -183,6 +184,7 @@ function SaveTableToSlot(t, sSlotName)
 	end
 	local endTime = Automation.GetTime()
 	--print("pickle(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size)) 
+	print("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
 
 	--[[
 	do
@@ -193,6 +195,8 @@ function SaveTableToSlot(t, sSlotName)
 		local endTime = Automation.GetTime()
 		print("pickle(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
 	end
+	--]]
+	--[[
 	do
 		local startTime = Automation.GetTime()
 		local s = GCO.serialize(t)
@@ -206,18 +210,15 @@ function SaveTableToSlot(t, sSlotName)
 		local endTime = Automation.GetTime()
 		print("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
 	end
-	print("here")
+	--]]
+	--[[
 	do
-	print("here2")
 		local startTime = Automation.GetTime()
 		local s = GameConfiguration.GetValue("test")
 		local size = string.len(s)
-	print("here3")
 		local t = GCO.deserialize(s)
-	print("here4")
-		print (t)
 		local endTime = Automation.GetTime()
-		print("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring("test") .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(s))
+		print("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring("test") .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
 	end
 	--]]
 end
@@ -231,9 +232,10 @@ function LoadTableFromSlot(sSlotName)
 	if s then
 		local size = string.len(s)
 		local startTime = Automation.GetTime()
-		local t = unpickle(s)		
+		local t = GCO.deserialize(t)		
 		local endTime = Automation.GetTime()
-		print("pickle(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+		--print("pickle(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+		print("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring("test") .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(u)) .. ", serialized size = " .. tostring(test))	
 	--[[
 		startTime = Automation.GetTime()
 		local test = GameConfiguration.GetValue("test")

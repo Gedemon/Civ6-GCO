@@ -23,8 +23,8 @@ floatingTextLevel 	= FLOATING_TEXT_SHORT
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
-GCO = {}
-CombatTypes = {}
+local GCO = {}
+local CombatTypes = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 		GCO = ExposedMembers.GCO		-- contains functions from other contexts
@@ -752,7 +752,7 @@ function ShowDesertionFloatingText(desertionData)
 	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
 	if (pLocalPlayerVis ~= nil) then
 		if (pLocalPlayerVis:IsVisible(desertionData.X, desertionData.Y)) then
-			local sText = Locale.Lookup("LOC_UNIT_PERSONNEL_DESERTION", desertionData.Personnel) end
+			local sText = Locale.Lookup("LOC_UNIT_PERSONNEL_DESERTION", desertionData.Personnel)
 			local bNeedNewLine, bNeedSeparator = true, false
 			if desertionData.Vehicles > 0 then
 				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
