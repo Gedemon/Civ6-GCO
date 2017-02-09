@@ -127,6 +127,17 @@ function CreateEverAliveTableWithDefaultValue(value)
 	return t
 end
 
+----------------------------------------------
+-- Map
+----------------------------------------------
+
+function GetPlotKey ( plot )
+	local x = plot:GetX()
+	local y = plot:GetY()
+	local plotKey = x..","..y
+	return plotKey
+end
+
 
 ----------------------------------------------
 -- Units
@@ -857,6 +868,8 @@ function Initialize()
 	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
 	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
+	
+	ExposedMembers.GCO.GetPlotKey 						= GetPlotKey
 	
 	ExposedMembers.Utils_Initialized = true
 end
