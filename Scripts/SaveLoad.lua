@@ -82,7 +82,7 @@ Events.InputActionTriggered( OnInputAction )
 ----------------------------------------------
 -- save
 function SaveTableToSlot(t, sSlotName)
-	GCO.StartTimer("SaveTableToSlot")
+	GCO.StartTimer("serialize")
 	local startTime = Automation.GetTime()
 	if type(t) ~= "table" then 
 		print("ERROR: SaveTableToSlot(t, sSlotName), parameter #1 must be a table, nothing saved to slot ".. tostring(sSlotName))
@@ -96,71 +96,61 @@ function SaveTableToSlot(t, sSlotName)
 	local s = GCO.serialize(t)
 	local size = string.len(s)
 	GameConfiguration.SetValue(sSlotName, s)
-	GCO.ShowTimer("SaveTableToSlot")
-	print("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
+	GCO.ShowTimer("serialize")
+	GCO.Dprint("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
 
 	-- test saved value
 	---[[
 	do
-		GCO.StartTimer("SaveTableToSlot")
+		GCO.StartTimer("deserialize")
 		local s2 = GameConfiguration.GetValue(sSlotName)
 		local size2 = string.len(s2)
 		if s2 ~= s then
-			print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring(sSlotName))
-			print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(size2))
+			GCO.Dprint("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring(sSlotName))
+			GCO.Dprint("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(size2))
+			GCO.Dprint("----------------------------------------------------------------------------------------------------------------------------------------")
+			GCO.Dprint(s)
+			GCO.Dprint("----------------------------------------------------------------------------------------------------------------------------------------")
+			GCO.Dprint(s2)
+			GCO.Dprint("----------------------------------------------------------------------------------------------------------------------------------------")
 		end
 		local t2 = GCO.deserialize(s2)
-		GCO.ShowTimer("SaveTableToSlot")
-		print("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))
+		GCO.ShowTimer("deserialize")
+		GCO.Dprint("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))
 	end
 	--]]
 	
 	-- test other serializers
-	---[[
-	do
-		GCO.StartTimer("SaveTableToSlot")
+	--[[
+	do	
+		GCO.Dprint("------------------------------")
+		GCO.StartTimer("serialize2")
 		local s = GCO.serialize2(t)
 		local size = string.len(s)
 		GameConfiguration.SetValue("test", s)
 		local sCheck = GameConfiguration.GetValue("test")
 		if sCheck ~= s then
-			print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring("test"))
-			print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
+			GCO.Dprint("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring("test"))
+			GCO.Dprint("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
+			GCO.Dprint("----------------------------------------------------------------------------------------------------------------------------------------")
+			GCO.Dprint(s)
+			GCO.Dprint("----------------------------------------------------------------------------------------------------------------------------------------")
+			GCO.Dprint(sCheck)
+			GCO.Dprint("----------------------------------------------------------------------------------------------------------------------------------------")
 		end
-		GCO.ShowTimer("SaveTableToSlot")
-		print("GCO.serialize2(t) : SaveTableToSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+		GCO.ShowTimer("serialize2")
+		GCO.Dprint("GCO.serialize2(t) : SaveTableToSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
 
-		GCO.StartTimer("SaveTableToSlot")
+		GCO.StartTimer("deserialize2")
 		local s2 = GameConfiguration.GetValue("test")
 		local size2 = string.len(s2)
 		local t2 = GCO.deserialize2(s2)
-		GCO.ShowTimer("SaveTableToSlot")
-		print("GCO.deserialize2(t) : LoadTableFromSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))
+		GCO.ShowTimer("deserialize2")
+		GCO.Dprint("GCO.deserialize2(t) : LoadTableFromSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))		
+		GCO.Dprint("------------------------------")
 	end
 	--]]
 	
-	---[[
-	do
-		GCO.StartTimer("SaveTableToSlot")
-		local s = GCO.serialize3(t)
-		local size = string.len(s)
-		GameConfiguration.SetValue("test", s)
-		local sCheck = GameConfiguration.GetValue("test")
-		if sCheck ~= s then
-			print("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring("test"))
-			print("ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(string.len(sCheck)))
-		end
-		GCO.ShowTimer("SaveTableToSlot")
-		print("GCO.serialize3(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
-
-		GCO.StartTimer("SaveTableToSlot")
-		local s2 = GameConfiguration.GetValue("test")
-		local size2 = string.len(s2)
-		local t2 = GCO.deserialize3(s2)
-		GCO.ShowTimer("SaveTableToSlot")
-		print("GCO.deserialize3(t) : LoadTableFromSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))
-	end
-	--]]
 end
 
 -- load
@@ -168,21 +158,27 @@ function LoadTableFromSlot(sSlotName)
 	if not GameConfiguration.GetValue then
 		print("ERROR: GameConfiguration.GetValue is null when trying to load from slot ".. tostring(sSlotName))
 	end
+	GCO.StartTimer("GameConfiguration.GetValue")
 	local s = GameConfiguration.GetValue(sSlotName)
-	if s then
+	GCO.ShowTimer("GameConfiguration.GetValue")
+	if s then	
 		local size = string.len(s)
-		local startTime = Automation.GetTime()
-		local t = GCO.deserialize(t)		
-		local endTime = Automation.GetTime()
-		--print("pickle(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
-		print("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring("test") .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(u)) .. ", serialized size = " .. tostring(test))	
-	--[[
-		startTime = Automation.GetTime()
+		GCO.StartTimer("GCO.deserialize(s)")
+		local t = GCO.deserialize(s)		
+		GCO.ShowTimer("GCO.deserialize(s)")
+		GCO.Dprint("GCO.deserialize(s) : LoadTableFromSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+
+		-- test other serializers
+		--[[
+		GCO.Dprint("------------------------------")
+		GCO.StartTimer("GCO.deserialize2(s)")
 		local test = GameConfiguration.GetValue("test")
-		local u = GCO.deserialize(test)		
-		endTime = Automation.GetTime()
-		print("GCO.serialize(t) : LoadTableFromSlot for slot " .. tostring("test") .. " used " .. tostring(endTime-startTime) .. " seconds, table size = " .. tostring(GCO.GetSize(u)) .. ", serialized size = " .. tostring(test))	
-	--]]
+		local u = GCO.deserialize2(test)		
+		GCO.ShowTimer("GCO.deserialize2(s)")
+		GCO.Dprint("GCO.deserialize2(s) : LoadTableFromSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(u)) .. ", serialized size = " .. tostring(size))
+		GCO.Dprint("------------------------------")		
+		--]]
+		
 		return t
 	else
 		print("WARNING: No saved data table in slot ".. tostring(sSlotName) .." (this happens when initializing the table, you can ignore this warning when launching a new game)") 

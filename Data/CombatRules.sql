@@ -153,7 +153,7 @@ UPDATE Units SET Personnel = 75, 	Vehicles = 75, Materiel = 250, MaterielPerVehi
 UPDATE Units SET Personnel = 160, 	Vehicles = 40, Materiel = 400, MaterielPerVehicles = 20 Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
 
 /* Recon */
-UPDATE Units SET Personnel = 100, Materiel = 10  Where UnitType = "UNIT_SCOUT" OR UnitType = "UNIT_RANGER";
+UPDATE Units SET Personnel = 200, Materiel = 10  Where UnitType = "UNIT_SCOUT" OR UnitType = "UNIT_RANGER";
 
 /* Land Ranged */
 UPDATE Units SET Personnel = 1500,	Materiel = 20 	Where UnitType = "UNIT_SLINGER";
@@ -162,18 +162,25 @@ UPDATE Units SET Personnel = 2500,	Materiel = 50 	Where UnitType = "UNIT_CROSSBO
 UPDATE Units SET Personnel = 500, 	Materiel = 200  Where UnitType = "UNIT_AT_CREW" OR UnitType = "UNIT_MACHINE_GUN" OR UnitType = "UNIT_MODERN_AT";
 UPDATE Units SET Personnel = 100, 	Materiel = 200  Where UnitType = "UNIT_CATAPULT";
 UPDATE Units SET Personnel = 100, 	Materiel = 250  Where UnitType = "UNIT_BOMBARD" OR UnitType = "UNIT_FIELD_CANNON";
-UPDATE Units SET Personnel = 100, 	Materiel = 300  Where UnitType = "UNIT_ARTILLERY";
+UPDATE Units SET Personnel = 100, 	Materiel = 300  Where UnitType = "UNIT_ARTILLERY" OR UnitType = "UNIT_ANTIAIR_GUN";
 
 /* Land infantry */
 UPDATE Units SET Personnel = 2000,	Materiel = 30 	Where UnitType = "UNIT_WARRIOR" OR UnitType = "UNIT_AZTEC_EAGLE_WARRIOR";
 UPDATE Units SET Personnel = 2500,	Materiel = 40 	Where UnitType = "UNIT_SPEARMAN" OR UnitType = "UNIT_GREEK_HOPLITE";
 UPDATE Units SET Personnel = 3000,	Materiel = 75 	Where UnitType = "UNIT_SWORDSMAN" OR UnitType= "UNIT_ROMAN_LEGION" OR UnitType= "UNIT_KONGO_SHIELD_BEARER";
-UPDATE Units SET Personnel = 3500,	Materiel = 60 	Where UnitType = "UNIT_PIKEMAN";
-UPDATE Units SET Personnel = 4000,	Materiel = 60 	Where UnitType = "UNIT_MUSKETMAN" OR UnitType = "UNIT_SPANISH_CONQUISTADOR";
+UPDATE Units SET Personnel = 4500,	Materiel = 60 	Where UnitType = "UNIT_PIKEMAN";
+UPDATE Units SET Personnel = 6000,	Materiel = 60 	Where UnitType = "UNIT_MUSKETMAN" OR UnitType = "UNIT_SPANISH_CONQUISTADOR";
+UPDATE Units SET Personnel = 10000,	Materiel = 60 	Where UnitType = "UNIT_INFANTRY";
 
 /* Cavalry */
-UPDATE Units SET Personnel = 300,	Materiel = 75, 	Horses = 150 	Where UnitType = "UNIT_HEAVY_CHARIOT" or UnitType = "UNIT_EGYPTIAN_CHARIOT_ARCHER";
+UPDATE Units SET Personnel = 400,	Materiel = 75, 	Horses = 200 	Where UnitType = "UNIT_HEAVY_CHARIOT" or UnitType = "UNIT_EGYPTIAN_CHARIOT_ARCHER";
 UPDATE Units SET Personnel = 300,	Materiel = 40, 	Horses = 300 	Where UnitType = "UNIT_BARBARIAN_HORSE_ARCHER";
 UPDATE Units SET Personnel = 300,	Materiel = 50, 	Horses = 300 	Where UnitType = "UNIT_HORSEMAN" OR UnitType = "UNIT_BARBARIAN_HORSEMAN";
 UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300 	Where UnitType = "UNIT_KNIGHT" OR UnitType = "UNIT_ARABIAN_MAMLUK";
 UPDATE Units SET Personnel = 300,	Materiel = 75, 	Horses = 300 	Where UnitType = "UNIT_CAVALRY" OR UnitType = "UNIT_RUSSIAN_COSSACK";
+
+/* Mechanized */
+UPDATE Units SET Personnel = 800, 	Vehicles = 200, Materiel = 1000, MaterielPerVehicles = 10 Where UnitType = "UNIT_TANK" OR UnitType = "UNIT_MODERN_ARMOR";
+UPDATE Units SET Personnel = 2500, 	Vehicles = 250, Materiel = 500, MaterielPerVehicles = 5 Where UnitType = "UNIT_MECHANIZED_INFANTRY";
+UPDATE Units SET Personnel = 100, 	Vehicles = 50, 	Materiel = 500, MaterielPerVehicles = 10 Where UnitType = "UNIT_ROCKET_ARTILLERY" OR UnitType = "UNIT_MOBILE_SAM";
+UPDATE Units SET Personnel = 150, 	Vehicles = 75, 	Materiel = 250, MaterielPerVehicles = 10 Where UnitType = "UNIT_HELICOPTER";

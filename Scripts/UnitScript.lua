@@ -122,46 +122,66 @@ local unitTableEnum = {
 
 function SaveUnitTable()
 
+	local UnitData = ExposedMembers.UnitData
+
 	-- 1/ direct but too slow ?
-	--GCO.SaveTableToSlot(ExposedMembers.UnitData, "UnitData")
+	---[[
+	print("--------------------------- Direct Save ---------------------------")
+	GCO.StartTimer("Direct Save")
+	GCO.SaveTableToSlot(UnitData, "UnitData")
+	GCO.ShowTimer("Direct Save")
+	--]]
 	
 	-- 2/ Use enums for shorter string
+	---[[
+	print("--------------------------- Save w/Enum ---------------------------")
+	GCO.StartTimer("Save w/Enum")
 	GCO.StartTimer("Pre-Save UnitTable")
 	local t = {}
-	for key, data in pairs(ExposedMembers.UnitData) do
+	for key, data in pairs(UnitData) do
 		t[key] = {}
 		for name, enum in pairs(unitTableEnum) do
 			t[key][enum] = data[name]
 		end
 	end	
 	GCO.ShowTimer("Pre-Save UnitTable")
-	GCO.SaveTableToSlot(t, "UnitData")
+	GCO.SaveTableToSlot(t, "UnitData2")	
+	GCO.ShowTimer("Save w/Enum")
+	--]]
 	
 	-- 3/ Save short strings in multiple slots
-	--[[
-	local startTime = Automation.GetTime()
+	---[[
+	print("--------------------------- Multi-Save ---------------------------")	
+	GCO.StartTimer("MultiSave")
 	local UnitIndex = {}
-	for key, data in pairs(ExposedMembers.UnitData) do
-		GCO.SaveTableToSlot(ExposedMembers.UnitData[key], key)
+	GCO.ToggleOutput()
+	for key, data in pairs(UnitData) do
+		GCO.SaveTableToSlot(UnitData[key], key)
 		table.insert(UnitIndex, key)
 	end
-	local interTime = Automation.GetTime()
+	GCO.ToggleOutput()
+	GCO.StartTimer("Pre-Save UnitTable")
 	GCO.SaveTableToSlot(UnitIndex, "UnitIndex")
-	local endTime = Automation.GetTime()
-	print("- SaveTable used " .. tostring(endTime-startTime) .. " seconds")
-	print("- SaveIndex used " .. tostring(endTime-interTime) .. " seconds")
+	GCO.ShowTimer("Pre-Save UnitTable")
+	GCO.ShowTimer("MultiSave")
 	--]]
 end
 
 function LoadUnitTable()
 
 	-- 1/ direct but too slow ?
+	---[[
+	print("--------------------------- Direct Load ---------------------------")
 	--if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
+	ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {}
+	--ShowUnitData()
+	--]]
 	
 	-- 2/ Use enums for shorter string
 	---[[
+	print("--------------------------- Load w/Enum ---------------------------")
 	local unitData = {}
-	local loadedTable = GCO.LoadTableFromSlot("UnitData")
+	local loadedTable = GCO.LoadTableFromSlot("UnitData2")
 	GCO.StartTimer("Post-Load UnitTable")
 	if loadedTable then
 		for key, data in pairs(loadedTable) do
@@ -175,22 +195,28 @@ function LoadUnitTable()
 	else
 		ExposedMembers.UnitData = {}
 	end
+	--ShowUnitData()
 	--]]
 	
-	-- 3/ Save short strings in multiple slots
-	--[[
-	local startTime = Automation.GetTime()
-	if not ExposedMembers.UnitData then
-		ExposedMembers.UnitData = {}
-		local UnitIndex = GCO.LoadTableFromSlot("UnitIndex")
+	-- 3/ Load short strings in multiple slots
+	---[[
+	print("--------------------------- Multi-Load ---------------------------")		
+	GCO.StartTimer("Multi-Load")
+	--if not ExposedMembers.UnitData then
+		ExposedMembers.UnitData = {}		
+		GCO.StartTimer("Pre-Load UnitTable")
+		local UnitIndex = GCO.LoadTableFromSlot("UnitIndex")		
+		GCO.ShowTimer("Pre-Load UnitTable")
+		GCO.ToggleOutput()
 		if UnitIndex then
 			for i, key in ipairs(UnitIndex) do
 				ExposedMembers.UnitData[key] = GCO.LoadTableFromSlot(key)
 			end
 		end
-	end
-	local endTime = Automation.GetTime()
-	print("- LoadTable used " .. tostring(endTime-startTime) .. " seconds")
+		GCO.ToggleOutput()
+		GCO.ShowTimer("Multi-Load")
+	--end
+	--ShowUnitData()
 	--]]
 	
 end
@@ -200,6 +226,19 @@ function SaveTables()
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
+function ShowUnitData()
+	for unitKey, data in pairs(ExposedMembers.UnitData) do
+		print (unitKey, data)
+		for k, v in pairs (data) do
+			print ("-", k, v)
+			if k == "Prisonners" then
+				for id, num in pairs (v) do
+					print ("-", "-", id, num)
+				end			
+			end
+		end
+	end
+end
 
 -----------------------------------------------------------------------------------------
 -- Units Initialization
@@ -301,7 +340,7 @@ function OnCombat( combatResult )
 		attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]
 		attacker.InitialHP = attacker.FinalHP + attacker[CombatResultParameters.DAMAGE_TO]
 		attacker.IsDead = attacker[CombatResultParameters.FINAL_DAMAGE_TO] >= attacker[CombatResultParameters.MAX_HIT_POINTS]
-		attacker.playerID = attacker[CombatResultParameters.ID].player
+		attacker.playerID = tostring(attacker[CombatResultParameters.ID].player) -- playerID is a key for Prisonners table
 		attacker.unitID = attacker[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
 		attacker = GCO.AddCombatInfoTo(attacker)
@@ -314,7 +353,7 @@ function OnCombat( combatResult )
 		defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]
 		defender.InitialHP = defender.FinalHP + defender[CombatResultParameters.DAMAGE_TO]
 		defender.IsDead = defender[CombatResultParameters.FINAL_DAMAGE_TO] >= defender[CombatResultParameters.MAX_HIT_POINTS]
-		defender.playerID = defender[CombatResultParameters.ID].player
+		defender.playerID = tostring(defender[CombatResultParameters.ID].player)
 		defender.unitID = defender[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
 		defender = GCO.AddCombatInfoTo(defender)
@@ -460,26 +499,28 @@ function HealingUnits(playerID)
 				for j, unit in ipairs (unitTable) do
 					if not hasReachedLimit[unit] then
 						local hp = unit:GetMaxDamage() - unit:GetDamage()
-						local key = GCO.GetUnitKey(unit)
-						if (hp + healTable[unit] < maxHP) then
-							local unitInfo = GameInfo.Units[unit:GetType()] -- GetType in script, GetUnitType in UI context...
-							-- check here if the unit has enough reserves to get +1HP
-							local reqPersonnel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Personnel - UnitHitPointsTable[unitInfo.Index][hp].Personnel
-							local reqVehicles 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Vehicles 	- UnitHitPointsTable[unitInfo.Index][hp].Vehicles
-							local reqHorses 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Horses 	- UnitHitPointsTable[unitInfo.Index][hp].Horses
-							local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Materiel 	- UnitHitPointsTable[unitInfo.Index][hp].Materiel
+						local key = GCO.GetUnitKey(unit)						
+						if key then
+							if (hp + healTable[unit] < maxHP) then
+								local unitInfo = GameInfo.Units[unit:GetType()] -- GetType in script, GetUnitType in UI context...
+								-- check here if the unit has enough reserves to get +1HP
+								local reqPersonnel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Personnel - UnitHitPointsTable[unitInfo.Index][hp].Personnel
+								local reqVehicles 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Vehicles 	- UnitHitPointsTable[unitInfo.Index][hp].Vehicles
+								local reqHorses 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Horses 	- UnitHitPointsTable[unitInfo.Index][hp].Horses
+								local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Materiel 	- UnitHitPointsTable[unitInfo.Index][hp].Materiel
 
-							-- unit limit (vehicles and horses are handled by personnel...)
-							if reqPersonnel > tonumber(maxTransfert[unit].Personnel) or reqMateriel > tonumber(maxTransfert[unit].Materiel) then
-								hasReachedLimit[unit] = true
-								print("- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
+								-- unit limit (vehicles and horses are handled by personnel...)
+								if reqPersonnel > tonumber(maxTransfert[unit].Personnel) or reqMateriel > tonumber(maxTransfert[unit].Materiel) then
+									hasReachedLimit[unit] = true
+									print("- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
 
-							elseif  ExposedMembers.UnitData[key].PersonnelReserve >= reqPersonnel
-							and 	ExposedMembers.UnitData[key].VehiclesReserve >= reqVehicles
-							and 	ExposedMembers.UnitData[key].HorsesReserve >= reqHorses
-							and 	ExposedMembers.UnitData[key].MaterielReserve >= reqMateriel
-							then
-								healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
+								elseif  ExposedMembers.UnitData[key].PersonnelReserve >= reqPersonnel
+								and 	ExposedMembers.UnitData[key].VehiclesReserve >= reqVehicles
+								and 	ExposedMembers.UnitData[key].HorsesReserve >= reqHorses
+								and 	ExposedMembers.UnitData[key].MaterielReserve >= reqMateriel
+								then
+									healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
+								end
 							end
 						end
 					end
@@ -490,36 +531,38 @@ function HealingUnits(playerID)
 		-- apply reinforcement from all passes to units in one call to SetDamage (fix visual display of one "+1" when the unit was getting possibly more)
 		for unit, hp in pairs (healTable) do
 			local key = GCO.GetUnitKey(unit)
+			if key then
 
-			local unitInfo = GameInfo.Units[unit:GetType()]
-			local damage = unit:GetDamage()
-			local initialHP = maxHP - damage
-			local finalHP = initialHP + hp
-			unit:SetDamage(damage-hp)
+				local unitInfo = GameInfo.Units[unit:GetType()]
+				local damage = unit:GetDamage()
+				local initialHP = maxHP - damage
+				local finalHP = initialHP + hp
+				unit:SetDamage(damage-hp)
 
-			-- update reserve and frontline...
-			local reqPersonnel 	= UnitHitPointsTable[unitInfo.Index][finalHP].Personnel - UnitHitPointsTable[unitInfo.Index][initialHP].Personnel
-			local reqVehicles 	= UnitHitPointsTable[unitInfo.Index][finalHP].Vehicles - UnitHitPointsTable[unitInfo.Index][initialHP].Vehicles
-			local reqHorses 	= UnitHitPointsTable[unitInfo.Index][finalHP].Horses 	- UnitHitPointsTable[unitInfo.Index][initialHP].Horses
-			local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][finalHP].Materiel 	- UnitHitPointsTable[unitInfo.Index][initialHP].Materiel
+				-- update reserve and frontline...
+				local reqPersonnel 	= UnitHitPointsTable[unitInfo.Index][finalHP].Personnel - UnitHitPointsTable[unitInfo.Index][initialHP].Personnel
+				local reqVehicles 	= UnitHitPointsTable[unitInfo.Index][finalHP].Vehicles - UnitHitPointsTable[unitInfo.Index][initialHP].Vehicles
+				local reqHorses 	= UnitHitPointsTable[unitInfo.Index][finalHP].Horses 	- UnitHitPointsTable[unitInfo.Index][initialHP].Horses
+				local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][finalHP].Materiel 	- UnitHitPointsTable[unitInfo.Index][initialHP].Materiel
 
-			ExposedMembers.UnitData[key].PersonnelReserve 	= ExposedMembers.UnitData[key].PersonnelReserve - reqPersonnel
-			ExposedMembers.UnitData[key].VehiclesReserve 	= ExposedMembers.UnitData[key].VehiclesReserve 	- reqVehicles
-			ExposedMembers.UnitData[key].HorsesReserve 		= ExposedMembers.UnitData[key].HorsesReserve 	- reqHorses
-			ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	- reqMateriel
+				ExposedMembers.UnitData[key].PersonnelReserve 	= ExposedMembers.UnitData[key].PersonnelReserve - reqPersonnel
+				ExposedMembers.UnitData[key].VehiclesReserve 	= ExposedMembers.UnitData[key].VehiclesReserve 	- reqVehicles
+				ExposedMembers.UnitData[key].HorsesReserve 		= ExposedMembers.UnitData[key].HorsesReserve 	- reqHorses
+				ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	- reqMateriel
 
-			ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel 	+ reqPersonnel
-			ExposedMembers.UnitData[key].Vehicles 	= ExposedMembers.UnitData[key].Vehicles 	+ reqVehicles
-			ExposedMembers.UnitData[key].Horses 	= ExposedMembers.UnitData[key].Horses 		+ reqHorses
-			ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	+ reqMateriel
+				ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel 	+ reqPersonnel
+				ExposedMembers.UnitData[key].Vehicles 	= ExposedMembers.UnitData[key].Vehicles 	+ reqVehicles
+				ExposedMembers.UnitData[key].Horses 	= ExposedMembers.UnitData[key].Horses 		+ reqHorses
+				ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	+ reqMateriel
 
-			alreadyUsed[unit].Materiel = reqMateriel
+				alreadyUsed[unit].Materiel = reqMateriel
 
-			-- Visualize healing
-			local healingData = {reqPersonnel = reqPersonnel, reqMateriel = reqMateriel, reqVehicles = reqVehicles, reqHorses = reqHorses, X = unit:GetX(), Y = unit:GetY() }
-			GCO.ShowFontLineHealingFloatingText(healingData)
+				-- Visualize healing
+				local healingData = {reqPersonnel = reqPersonnel, reqMateriel = reqMateriel, reqVehicles = reqVehicles, reqHorses = reqHorses, X = unit:GetX(), Y = unit:GetY() }
+				GCO.ShowFontLineHealingFloatingText(healingData)
 
-			LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
+				LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
+			end
 
 		end
 

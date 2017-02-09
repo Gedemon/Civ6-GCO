@@ -85,6 +85,18 @@ function ToDecimals(num)
 	return num
 end
 
+local bNoOutput = false
+function ToggleOutput()
+	bNoOutput = not bNoOutput
+	print("Spam control = " .. tostring(bNoOutput))
+end
+
+function Dprint(str)
+	if bNoOutput then -- spam control
+		return
+	end
+	print(str)
+end
 
 ----------------------------------------------
 -- Timer
@@ -95,7 +107,12 @@ function StartTimer(name)
 	Timer[name] = Automation.GetTime()
 end
 function ShowTimer(name)
-	if Timer[name] then print("- "..tostring(name) .." timer = " .. tostring(Automation.GetTime()-Timer[name]) .. " seconds") end
+	if bNoOutput then -- spam control
+		return
+	end
+	if Timer[name] then
+		print("- "..tostring(name) .." timer = " .. tostring(Automation.GetTime()-Timer[name]) .. " seconds")
+	end
 end
 
 ----------------------------------------------
@@ -105,7 +122,7 @@ end
 function CreateEverAliveTableWithDefaultValue(value)
 	local t = {}
 	for i, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
-		t[playerID] = value
+		t[tostring(playerID)] = value -- key must be string for correct serialization
 	end
 	return t
 end
@@ -444,7 +461,7 @@ end
 function GetPrisonnersStringByCiv(unitData)
 	local sortedPrisonners = {}
 	for playerID, number in pairs(unitData.Prisonners) do
-		table.insert(sortedPrisonners, {playerID = playerID, Number = number})
+		table.insert(sortedPrisonners, {playerID = tonumber(playerID), Number = number})
 	end	
 	table.sort(sortedPrisonners, function(a,b) return a.Number>b.Number end)
 	local numLines = tonumber(GameInfo.GlobalParameters["MAX_PRISONNERS_LINE_IN_UNIT_FLAG"].Value)
@@ -802,6 +819,12 @@ function Initialize()
 	ExposedMembers.GCO.GetSize 		= GetSize
 	ExposedMembers.GCO.ToDecimals 	= ToDecimals
 	
+	ExposedMembers.GCO.StartTimer 	= StartTimer
+	ExposedMembers.GCO.ShowTimer 	= ShowTimer
+	
+	ExposedMembers.GCO.ToggleOutput = ToggleOutput
+	ExposedMembers.GCO.Dprint		= Dprint
+	
 	ExposedMembers.GCO.GetUnitKey 							= GetUnitKey
 	ExposedMembers.GCO.GetUnitFromKey 						= GetUnitFromKey	
 	ExposedMembers.GCO.GetMaxTransfertTable 				= GetMaxTransfertTable
@@ -834,8 +857,6 @@ function Initialize()
 	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
 	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
-	ExposedMembers.GCO.StartTimer 						= StartTimer
-	ExposedMembers.GCO.ShowTimer 						= ShowTimer
 	
 	ExposedMembers.Utils_Initialized = true
 end

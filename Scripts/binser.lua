@@ -5,7 +5,8 @@
 --[[
 Serializes given data and returns result string.  Invalid data types:
 function, userdata, thread.
-]]
+]] 
+--[[
 function serialize( p )
   
   local r = ""; local t = type( p );
@@ -36,6 +37,42 @@ function serialize( p )
     end
   end
   return r;
+end
+--]]
+
+---[[
+function serialize( p )
+  
+  local acc = {}
+  local t = type( p );
+  if t == "function" or t == "userdata" or t == "thread" then
+    print( "serialize(): Invalid type: "..t ); --error.
+  elseif p ~= nil then
+    if t ~= "table" then
+      if p == nil or p == true or p == false
+        or t == "number" then table.insert (acc, tostring( p ));
+      elseif t == "string" then
+        if p:lower() == "true" or p:lower() == "false"
+            or tonumber( p ) ~= nil then table.insert (acc, '"'..p..'"');
+        else table.insert (acc, p);
+        end
+      end
+      --r = r:gsub( "{", "\[LCB\]" );
+      --r = r:gsub( "}", "\[RCB\]" );
+      --r = r:gsub( "=", "\[EQL\]" );
+      --r = r:gsub( ",", "\[COM\]" );
+    else
+	  table.insert (acc, "{")
+	  local b = false;
+      for k,v in pairs( p ) do
+        if b then table.insert (acc,","); end
+        table.insert (acc, serialize( k ).."="..serialize( v ));
+        b = true;
+      end
+      table.insert (acc,"}")
+    end
+  end
+  return table.concat(acc);
 end
 --]]
 
@@ -694,17 +731,11 @@ end
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end	
 	
-	ExposedMembers.GCO.serialize 	= serialize
-	ExposedMembers.GCO.deserialize 	= deserialize
+	ExposedMembers.GCO.serialize 	= serialize2
+	ExposedMembers.GCO.deserialize 	= deserialize2
 	
-	ExposedMembers.GCO.serialize2 	= serialize2
-	ExposedMembers.GCO.deserialize2	= deserialize2
-	
-	ExposedMembers.GCO.serialize3 	= serialize3
-	ExposedMembers.GCO.deserialize3	= deserialize3
-	
-	ExposedMembers.GCO.serialize4 	= serialize4
-	ExposedMembers.GCO.deserialize4	= deserialize4
+	ExposedMembers.GCO.serialize2 	= serialize
+	ExposedMembers.GCO.deserialize2	= deserialize
 	
 	ExposedMembers.binser_Initialized = true
 end
