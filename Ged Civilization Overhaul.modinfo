@@ -85,6 +85,7 @@
 			<Items>
 				<File>Data/Tables.sql</File>
 				<File>Data/GlobalParameters.sql</File>
+				<File>Data/CultureDiffusionParameters.sql</File>
 				<File>Data/CombatRules.sql</File>
 			</Items>
 		</UpdateDatabase>
@@ -165,6 +166,7 @@
 		<File>Data/GamePlay.xml</File>
 		<File>Data/Icons.xml</File>
 		<File>Data/GlobalParameters.sql</File>
+		<File>Data/CultureDiffusionParameters.sql</File>
 		<File>Data/Civilization.sql</File>
 		<File>Data/CivilizationPost.xml</File>
 		<File>Data/CombatRules.sql</File>
