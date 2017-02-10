@@ -155,14 +155,14 @@ function SaveUnitTable()
 	GCO.StartTimer("MultiSave")
 	local UnitIndex = {}
 	GCO.ToggleOutput()
+	GCO.StartTimer("Pre-Save UnitTable")
 	for key, data in pairs(UnitData) do
 		GCO.SaveTableToSlot(UnitData[key], key)
 		table.insert(UnitIndex, key)
 	end
 	GCO.ToggleOutput()
-	GCO.StartTimer("Pre-Save UnitTable")
-	GCO.SaveTableToSlot(UnitIndex, "UnitIndex")
 	GCO.ShowTimer("Pre-Save UnitTable")
+	GCO.SaveTableToSlot(UnitIndex, "UnitIndex")
 	GCO.ShowTimer("MultiSave")
 	--]]	
 	
@@ -222,20 +222,39 @@ function LoadUnitTable()
 	---[[
 	print("--------------------------- Multi-Load ---------------------------")		
 	GCO.StartTimer("Multi-Load")
-	--if not ExposedMembers.UnitData then
-		ExposedMembers.UnitData = {}		
-		GCO.StartTimer("Pre-Load UnitTable")
-		local UnitIndex = GCO.LoadTableFromSlot("UnitIndex")		
-		GCO.ShowTimer("Pre-Load UnitTable")
-		GCO.ToggleOutput()
-		if UnitIndex then
-			for i, key in ipairs(UnitIndex) do
-				ExposedMembers.UnitData[key] = GCO.LoadTableFromSlot(key)
-			end
+	ExposedMembers.UnitData = {}		
+	GCO.StartTimer("Pre-Load UnitTable")
+	local UnitIndex = GCO.LoadTableFromSlot("UnitIndex")		
+	GCO.ShowTimer("Pre-Load UnitTable")
+	GCO.ToggleOutput()
+	if UnitIndex then
+		for i, key in ipairs(UnitIndex) do
+			ExposedMembers.UnitData[key] = GCO.LoadTableFromSlot(key)
 		end
-		GCO.ToggleOutput()
-		GCO.ShowTimer("Multi-Load")
-	--end
+	end
+	GCO.ToggleOutput()
+	GCO.ShowTimer("Multi-Load")
+	--ShowUnitData()
+	--]]
+	
+	
+	-- 4/ Load from player slots
+	--[[
+	print("--------------------------- Players Slots ---------------------------")		
+	GCO.StartTimer("Players Slots Load")
+	ExposedMembers.UnitData = {}
+	GCO.ToggleOutput()
+	for i, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		local playerConfig = PlayerConfigurations[playerID]
+		local slotName = playerConfig:GetCivilizationTypeName() .. "_UNITS"
+		local unitTable = GCO.LoadTableFromSlot(slotName)
+		for key, data in pairs(unitTable) do
+			ExposedMembers.UnitData[key] = unitTable[key]
+		end
+	end	
+	GCO.ToggleOutput()
+	GCO.ShowTimer("Players Slots Load")
+
 	--ShowUnitData()
 	--]]
 	

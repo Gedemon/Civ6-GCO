@@ -140,12 +140,11 @@ end
 ----------------------------------------------
 
 function GetPlotKey ( plot )
-	local x = plot:GetX()
-	local y = plot:GetY()
-	local plotKey = x..","..y
-	return plotKey
+	return tostring(plot:GetIndex()) -- use string for correct serialisation/deserialization of tables when using this as a key
 end
-
+function GetPlotFromKey (key )
+	return Map.GetPlotByIndex(tonumber(key))
+end
 
 ----------------------------------------------
 -- Units
