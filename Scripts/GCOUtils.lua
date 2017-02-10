@@ -127,6 +127,14 @@ function CreateEverAliveTableWithDefaultValue(value)
 	return t
 end
 
+function CreateEverAliveTableWithEmptyTable()
+	local t = {}
+	for i, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		t[tostring(playerID)] = {} -- key must be string for correct serialization
+	end
+	return t
+end
+
 ----------------------------------------------
 -- Map
 ----------------------------------------------
@@ -839,7 +847,8 @@ function Initialize()
 	ExposedMembers.GCO.GetUnitKey 							= GetUnitKey
 	ExposedMembers.GCO.GetUnitFromKey 						= GetUnitFromKey	
 	ExposedMembers.GCO.GetMaxTransfertTable 				= GetMaxTransfertTable
-	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue	
+	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
+	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
 	
 	ExposedMembers.GCO.GetPersonnelReserve 				= GetPersonnelReserve
 	ExposedMembers.GCO.GetVehiclesReserve 				= GetVehiclesReserve

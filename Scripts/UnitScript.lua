@@ -164,7 +164,27 @@ function SaveUnitTable()
 	GCO.SaveTableToSlot(UnitIndex, "UnitIndex")
 	GCO.ShowTimer("Pre-Save UnitTable")
 	GCO.ShowTimer("MultiSave")
+	--]]	
+	
+	-- 4/ Save in each player slots
+	---[[
+	print("--------------------------- Player Slots ---------------------------")	
+	GCO.StartTimer("Player Slots")
+	local PlayerUnits = {}
+	for key, data in pairs(UnitData) do
+		if not PlayerUnits[tostring(data.playerID)] then PlayerUnits[tostring(data.playerID)] = {} end
+		PlayerUnits[tostring(data.playerID)][key] = data
+	end
+	GCO.ToggleOutput()
+	for playerID, data in pairs(PlayerUnits) do
+		local playerConfig = PlayerConfigurations[tonumber(playerID)]
+		local slot = playerConfig:GetCivilizationTypeName() .. "_UNITS"
+		GCO.SaveTableToSlot(data, slot)
+	end
+	GCO.ToggleOutput()
+	GCO.ShowTimer("Player Slots")
 	--]]
+	
 end
 
 function LoadUnitTable()

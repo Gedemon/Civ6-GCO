@@ -64,6 +64,11 @@
         </GameplayScripts>
         <GameplayScripts>
             <Items>
+                <File>Scripts/CultureDiffusionScript.lua</File>
+            </Items>
+        </GameplayScripts>
+        <GameplayScripts>
+            <Items>
                 <File>Scripts/GCOScript.lua</File>
             </Items>
         </GameplayScripts>
@@ -180,6 +185,7 @@
 		<File>Config/PostConfig.sql</File>
 		<File>Scripts/GCOUtils.lua</File>
 		<File>Scripts/UnitScript.lua</File>
+		<File>Scripts/CultureDiffusionScript.lua</File>
 		<File>Scripts/GCOScript.lua</File>
 		<File>Scripts/SaveLoad.lua</File>
 		<File>Scripts/SaveLoad.xml</File>
