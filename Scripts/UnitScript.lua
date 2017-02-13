@@ -346,7 +346,7 @@ function InitializeUnit(playerID, unitID)
 			return
 		end
 
-		print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID))
+		print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
 		RegisterNewUnit(playerID, unit)
 		print("-------------------------------------")
 	else
@@ -547,7 +547,7 @@ function HealingUnits(playerID)
 								local reqVehicles 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Vehicles 	- UnitHitPointsTable[unitInfo.Index][hp].Vehicles
 								local reqHorses 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Horses 	- UnitHitPointsTable[unitInfo.Index][hp].Horses
 								local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Materiel 	- UnitHitPointsTable[unitInfo.Index][hp].Materiel
-
+if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tostring(unit:GetName()) .. " id#" .. tostring(unit:GetID())) end
 								-- unit limit (vehicles and horses are handled by personnel...)
 								if reqPersonnel > tonumber(maxTransfert[unit].Personnel) or reqMateriel > tonumber(maxTransfert[unit].Materiel) then
 									hasReachedLimit[unit] = true

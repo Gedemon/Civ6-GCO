@@ -139,11 +139,33 @@ end
 -- Map
 ----------------------------------------------
 
-function GetPlotKey ( plot )
+function GetPlotKey( plot )
 	return tostring(plot:GetIndex()) -- use string for correct serialisation/deserialization of tables when using this as a key
 end
-function GetPlotFromKey (key )
+function GetPlotFromKey( key )
 	return Map.GetPlotByIndex(tonumber(key))
+end
+
+function FindNearestPlayerCity( eTargetPlayer, iX, iY )
+
+	local pCity = nil
+    local iShortestDistance = 10000
+	local pPlayer = Players[eTargetPlayer]
+   
+	local pPlayerCities:table = pPlayer:GetCities()
+	for i, pLoopCity in pPlayerCities:Members() do
+		local iDistance = Map.GetPlotDistance(iX, iY, pLoopCity:GetX(), pLoopCity:GetY())
+		if (iDistance < iShortestDistance) then
+			pCity = pLoopCity
+			iShortestDistance = iDistance
+		end
+	end
+
+	if (not pCity) then
+		print ("No city found of player " .. tostring(eTargetPlayer) .. "in range from " .. tostring(iX) .. ", " .. tostring(iY));
+	end
+   
+    return pCity, iShortestDistance;
 end
 
 ----------------------------------------------
@@ -878,6 +900,7 @@ function Initialize()
 	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
 	
 	ExposedMembers.GCO.GetPlotKey 						= GetPlotKey
+	ExposedMembers.GCO.FindNearestPlayerCity 			= FindNearestPlayerCity
 	
 	ExposedMembers.Utils_Initialized = true
 end

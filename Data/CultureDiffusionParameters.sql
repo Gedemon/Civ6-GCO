@@ -159,12 +159,34 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_SEPARATIS
 -- Variations by Era
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_VARIATION_BY_ERA',  1); -- if true, Cultural Diffusion values may change by Eras
 --
-UPDATE Eras SET CultureMinimumForAcquisitionMod ='0'	, CultureDiffusionThresholdMod ='0'		, CultureFlippingMaxDistance ='0'	, CultureConquestEnabled ='1'	WHERE Type = 'ERA_FUTURE';
-UPDATE Eras SET CultureMinimumForAcquisitionMod ='15'	, CultureDiffusionThresholdMod ='15'	, CultureFlippingMaxDistance ='0'	, CultureConquestEnabled ='1'	WHERE Type = 'ERA_POSTMODERN';
-UPDATE Eras SET CultureMinimumForAcquisitionMod ='30'	, CultureDiffusionThresholdMod ='30'	, CultureFlippingMaxDistance ='0'	, CultureConquestEnabled ='1'	WHERE Type = 'ERA_MODERN';
-UPDATE Eras SET CultureMinimumForAcquisitionMod ='50'	, CultureDiffusionThresholdMod ='50'	, CultureFlippingMaxDistance ='0'	, CultureConquestEnabled ='1'	WHERE Type = 'ERA_INDUSTRIAL';
-UPDATE Eras SET CultureMinimumForAcquisitionMod ='70'	, CultureDiffusionThresholdMod ='70'	, CultureFlippingMaxDistance ='10'	, CultureConquestEnabled ='1'	WHERE Type = 'ERA_RENAISSANCE';
-UPDATE Eras SET CultureMinimumForAcquisitionMod ='85'	, CultureDiffusionThresholdMod ='85'	, CultureFlippingMaxDistance ='6'	, CultureConquestEnabled ='0'	WHERE Type = 'ERA_MEDIEVAL';
-UPDATE Eras SET CultureMinimumForAcquisitionMod ='95'	, CultureDiffusionThresholdMod ='95'	, CultureFlippingMaxDistance ='4'	, CultureConquestEnabled ='0'	WHERE Type = 'ERA_CLASSICAL';
-UPDATE Eras SET CultureMinimumForAcquisitionMod ='100'	, CultureDiffusionThresholdMod ='100'	, CultureFlippingMaxDistance ='3'	, CultureConquestEnabled ='0'	WHERE Type = 'ERA_ANCIENT';
+UPDATE Eras SET CultureMinimumForAcquisitionMod ='0'	, CultureDiffusionThresholdMod ='0'		, CultureFlippingMaxDistance ='0'	, CultureConquestEnabled ='1'	WHERE EraType = 'ERA_FUTURE';
+UPDATE Eras SET CultureMinimumForAcquisitionMod ='15'	, CultureDiffusionThresholdMod ='15'	, CultureFlippingMaxDistance ='0'	, CultureConquestEnabled ='1'	WHERE EraType = 'ERA_POSTMODERN';
+UPDATE Eras SET CultureMinimumForAcquisitionMod ='30'	, CultureDiffusionThresholdMod ='30'	, CultureFlippingMaxDistance ='0'	, CultureConquestEnabled ='1'	WHERE EraType = 'ERA_MODERN';
+UPDATE Eras SET CultureMinimumForAcquisitionMod ='50'	, CultureDiffusionThresholdMod ='50'	, CultureFlippingMaxDistance ='0'	, CultureConquestEnabled ='1'	WHERE EraType = 'ERA_INDUSTRIAL';
+UPDATE Eras SET CultureMinimumForAcquisitionMod ='70'	, CultureDiffusionThresholdMod ='70'	, CultureFlippingMaxDistance ='10'	, CultureConquestEnabled ='1'	WHERE EraType = 'ERA_RENAISSANCE';
+UPDATE Eras SET CultureMinimumForAcquisitionMod ='85'	, CultureDiffusionThresholdMod ='85'	, CultureFlippingMaxDistance ='6'	, CultureConquestEnabled ='0'	WHERE EraType = 'ERA_MEDIEVAL';
+UPDATE Eras SET CultureMinimumForAcquisitionMod ='95'	, CultureDiffusionThresholdMod ='95'	, CultureFlippingMaxDistance ='4'	, CultureConquestEnabled ='0'	WHERE EraType = 'ERA_CLASSICAL';
+UPDATE Eras SET CultureMinimumForAcquisitionMod ='100'	, CultureDiffusionThresholdMod ='100'	, CultureFlippingMaxDistance ='3'	, CultureConquestEnabled ='0'	WHERE EraType = 'ERA_ANCIENT';
+--
+
+
+------------------------------------------------------------------------------------------------------------------------
+--
+-- Variations by Features
+UPDATE Features SET CultureThreshold = 125 	, CulturePenalty = 10 	, CultureMaxPercent = 80	WHERE FeatureType 	= 'FEATURE_FOREST';
+UPDATE Features SET CultureThreshold = 450 	, CulturePenalty = 60 	, CultureMaxPercent = 20	WHERE FeatureType 	= 'FEATURE_JUNGLE';
+UPDATE Features SET CultureThreshold = 500 	, CulturePenalty = 65 	, CultureMaxPercent = 20	WHERE FeatureType 	= 'FEATURE_MARSH';
+UPDATE Features SET CultureThreshold = 750 	, CulturePenalty = 75 	, CultureMaxPercent = 10	WHERE Impassable 	= 1;
+
+------------------------------------------------------------------------------------------------------------------------
+--
+-- Variations by Terrain
+UPDATE Terrains SET CultureThreshold = 450	, CulturePenalty = 55	, CultureMaxPercent = 30	WHERE TerrainType 	= 'TERRAIN_DESERT';
+UPDATE Terrains SET CultureThreshold = 250	, CulturePenalty = 25	, CultureMaxPercent = 40	WHERE TerrainType 	= 'TERRAIN_TUNDRA';
+UPDATE Terrains SET CultureThreshold = 400	, CulturePenalty = 55	, CultureMaxPercent = 25	WHERE TerrainType 	= 'TERRAIN_SNOW';
+
+-- Add hill
+UPDATE Terrains SET CultureThreshold = CultureThreshold + 50, CulturePenalty = CulturePenalty + 10	, CultureMaxPercent = CultureMaxPercent * 60/100	WHERE Hills = 1;
+-- Add mountain
+UPDATE Terrains SET CultureThreshold = 750	, CulturePenalty = 75	, CultureMaxPercent = 10	WHERE Mountain = 1;
 --

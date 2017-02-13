@@ -24,6 +24,7 @@
 			<Items>
 				<File>UI/UnitFlagManager.lua</File>
 				<File>UI/CityBannerManager.lua</File>
+				<File>UI/PlotToolTip.lua</File>
 				<File>Art/dom_blank.dds</File>
 				<File>Art/Loading.dds</File>
 				<File>Art/PortraitBackground.dds</File>
@@ -194,6 +195,7 @@
 		<File>InGame/GCOInGame.xml</File>
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/CityBannerManager.lua</File>
+		<File>UI/PlotToolTip.lua</File>
 		<File>Art/dom_blank.dds</File>
 		<File>Art/Loading.dds</File>
 		<File>Art/PortraitBackground.dds</File>

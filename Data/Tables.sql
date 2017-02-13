@@ -33,6 +33,13 @@ ALTER TABLE Eras ADD COLUMN CultureDiffusionThresholdMod integer DEFAULT '100';	
 ALTER TABLE Eras ADD COLUMN CultureFlippingMaxDistance integer DEFAULT '100';			-- Replace CULTURE_FLIPPING_MAX_DISTANCE (0 = unlimited)
 ALTER TABLE Eras ADD COLUMN CultureConquestEnabled integer DEFAULT '100';				-- Replace CULTURE_CONQUEST_ENABLED (boolean = 0,1) 
 
+-- Culture Diffusion modifiers
+ALTER TABLE Features ADD COLUMN CultureThreshold integer DEFAULT '0';
+ALTER TABLE Features ADD COLUMN CulturePenalty integer DEFAULT '0';
+ALTER TABLE Features ADD COLUMN CultureMaxPercent integer DEFAULT '0';
+ALTER TABLE Terrains ADD COLUMN CultureThreshold integer DEFAULT '0';
+ALTER TABLE Terrains ADD COLUMN CulturePenalty integer DEFAULT '0';
+ALTER TABLE Terrains ADD COLUMN CultureMaxPercent integer DEFAULT '0';
 
 -----------------------------------------------
 -- Create Start Positions Table if needed

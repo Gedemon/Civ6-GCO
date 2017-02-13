@@ -166,7 +166,7 @@ function LoadTableFromSlot(sSlotName)
 		GCO.StartTimer("GCO.deserialize(s)")
 		local t = GCO.deserialize(s)		
 		GCO.ShowTimer("GCO.deserialize(s)")
-		GCO.Dprint("GCO.deserialize(s) : LoadTableFromSlot for slot " .. tostring("test") .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
+		GCO.Dprint("GCO.deserialize(s) : LoadTableFromSlot for slot " .. tostring("sSlotName") .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))	
 
 		-- test other serializers
 		--[[
@@ -186,6 +186,28 @@ function LoadTableFromSlot(sSlotName)
 end
 
 ----------------------------------------------
+-- Create functions for other contexts
+----------------------------------------------
+
+function GetCityCultureYield(plot)
+	local city = Cities.GetCityInPlot(plot:GetX(), plot:GetY())
+	if not city then return 0 end
+	local cityCulture = city:GetCulture()
+	if cityCulture then
+		return cityCulture:GetCultureYield()
+	else
+		return 0
+	end
+end
+-- to do
+--[[
+
+	get local c = getmetatable(city).__index on event city added to map
+	then use ExposedMembers.GCO.City.GetCulture	= c.GetCulture in scripts that requires it
+
+--]]
+
+----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
 
@@ -193,10 +215,17 @@ ExposedMembers.SaveLoad_Initialized = false
 
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
-	ExposedMembers.GCO.SaveTableToSlot = SaveTableToSlot
-	ExposedMembers.GCO.LoadTableFromSlot = LoadTableFromSlot
-	ExposedMembers.UI = UI -- to handle UI stuff from scripts
-	ExposedMembers.CombatTypes = CombatTypes -- why this is not in script ?
-	ExposedMembers.SaveLoad_Initialized = true
+	
+	-- UI only objects that we may use in script...
+	local p = getmetatable(Map.GetPlot(1,1)).__index
+	ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged
+	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
+	ExposedMembers.UI 								= UI
+	ExposedMembers.CombatTypes 						= CombatTypes
+	
+	-- Load / Save
+	ExposedMembers.GCO.SaveTableToSlot 				= SaveTableToSlot
+	ExposedMembers.GCO.LoadTableFromSlot 			= LoadTableFromSlot	
+	ExposedMembers.SaveLoad_Initialized 			= true
 end
 Initialize()
