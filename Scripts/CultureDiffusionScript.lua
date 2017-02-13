@@ -258,7 +258,11 @@ function GetPotentialOwner( self )
 	return bestPlayer
 end
 
+local debugTable = {}
 function UpdateCulture( self )
+
+	table.insert(debugTable, "-------------------------------- UPDATE CULTURE FOR PLOT (".. tostring(self.GetX() .. "," .. tostring(self:GetY() ..") --------------------------------" )
+
 	-- No culture on water
 	if self:IsWater() then
 		return
@@ -267,6 +271,7 @@ function UpdateCulture( self )
 	-- Decay
 	local plotCulture = ExposedMembers.CultureMap[self:GetKey()]
 	if plotCulture then
+		table.insert(debugTable, "----- Decay -----")
 		for playerID, value in pairs (plotCulture) do
 			
 			-- Apply decay
@@ -276,35 +281,45 @@ function UpdateCulture( self )
 				if (value - decay) <= 0 then
 					if self:GetOwner() == playerID then
 						self:SetCulture(playerID, minValueOwner)
+						table.insert(debugTable, "Player #"..tostring(playerID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) ..") <= 0 -> SetCulture("..tostring(playerID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")
 					else -- don't remove yet, to show variation with previous turn
 						self:SetCulture(playerID, 0)
+						table.insert(debugTable, "Player #"..tostring(playerID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) ..") <= 0 -> SetCulture("..tostring(playerID) ..", ".. tostring(0)..")")
 					end
 				else
 					if self:GetOwner() == playerID and (value - decay) < minValueOwner then
 						self:SetCulture(playerID, minValueOwner)
+						table.insert(debugTable, "Player #"..tostring(playerID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) ..") <= minValueOwner [".. tostring(minValueOwner).."  -> SetCulture("..tostring(playerID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")						
 					else
 						self:ChangeCulture(playerID, -decay)
+						table.insert(debugTable, "Player #"..tostring(playerID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) ..") = [".. tostring(value - decay).."  -> ChangeCulture("..tostring(playerID) ..", ".. tostring(- decay)..")")	
 					end					
 				end
 			else -- remove dead culture
 				ExposedMembers.CultureMap[self:GetKey()][tostring(playerID)] = nil
+				table.insert(debugTable, "Player #"..tostring(playerID) .." value ["..tostring(value).."] <= 0 before decay, removing entry...")	
 			end
-		end
+		end		
+		table.insert(debugTable, "----- ----- -----")
 	end
 	
 	-- diffuse culture on adjacent plots
+	table.insert(debugTable, "Check for diffuse, self:GetTotalCulture() = "..tostring(self:GetTotalCulture()) ..",  CULTURE_DIFFUSION_THRESHOLD = "..tostring(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value))
 	if self:GetTotalCulture() > tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value) then
 		self:DiffuseCulture()
 	end
 	
 	-- update culture in cities
+	table.insert(debugTable, "Check for city")
 	if self:IsCity() then
 		local city = Cities.GetCityInPlot(self:GetX(), self:GetY())
 		--local cityCulture = city:GetCulture()
+		table.insert(debugTable, "----- ".. tostring(city:GetName) .." -----")
 		
 		-- Culture creation in cities
 		local baseCulture = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_BASE_PRODUCTION"].Value)
 		local maxCulture = (city:GetPopulation() + GCO.GetCityCultureYield(self)) * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value)
+		table.insert(debugTable, "baseCulture = " .. tostring(baseCulture) ..", maxCulture ["..tostring(maxCulture).."] = (city:GetPopulation() ["..tostring(city:GetPopulation()) .." + GCO.GetCityCultureYield(self)[".. tostring(GCO.GetCityCultureYield(self)).."]) * CULTURE_CITY_CAPED_FACTOR["..tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value).."]")
 		if self:GetTotalCulture() < maxCulture then -- don't add culture if above max, the excedent will decay each turn
 			if plotCulture then
 				for playerID, value in pairs (plotCulture) do
@@ -324,7 +339,7 @@ function UpdateCulture( self )
 							end						
 						end
 						cultureAdded = cultureAdded + baseCulture
-						print(city:GetName(), city:GetPopulation(), GCO.GetCityCultureYield(self), value, math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10), math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)), baseCulture, cultureAdded)
+						table.insert(debugTable, "- Player#".. tostring(playerID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
 						self:ChangeCulture(playerID, cultureAdded)						
 					end				
 				end
@@ -351,6 +366,7 @@ function UpdateCulture( self )
 				end
 			end				
 		end
+		table.insert(debugTable, "----- ----- -----")
 	end
 	
 	-- Todo : improvements/units can affect culture
