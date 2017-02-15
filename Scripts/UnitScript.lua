@@ -27,6 +27,7 @@ function InitializeUtilityFunctions() 	-- get functions from other contexts
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
 		InitializeTables()
+		InitializeUnitFunctions()
 	end
 end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
@@ -116,6 +117,8 @@ local unitTableEnum = {
 	Alive					= 31,
 	TotalXP					= 32,
 	CombatXP				= 33,
+	SupplyLineCityID		= 34,
+	SupplyLineEfficiency	= 35,
 	
 	EndOfEnum				= 99
 }                           
@@ -292,44 +295,46 @@ function RegisterNewUnit(playerID, unit)
 
 	ExposedMembers.UnitData[unitKey] = {
 		--UniqueID = unitKey.."-"..os.clock(), -- for linked statistics
-		unitID 				= unitID,
-		playerID 			= playerID,
-		unitType 			= unitType,
-		MaterielPerVehicles = GameInfo.Units[unitType].MaterielPerVehicles,
+		unitID 					= unitID,
+		playerID 				= playerID,
+		unitType 				= unitType,
+		MaterielPerVehicles 	= GameInfo.Units[unitType].MaterielPerVehicles,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
-		Personnel 			= UnitHitPointsTable[unitType][hp].Personnel,
-		Vehicles 			= UnitHitPointsTable[unitType][hp].Vehicles,
-		Horses 				= UnitHitPointsTable[unitType][hp].Horses,
-		Materiel 			= UnitHitPointsTable[unitType][hp].Materiel,
+		Personnel 				= UnitHitPointsTable[unitType][hp].Personnel,
+		Vehicles 				= UnitHitPointsTable[unitType][hp].Vehicles,
+		Horses 					= UnitHitPointsTable[unitType][hp].Horses,
+		Materiel 				= UnitHitPointsTable[unitType][hp].Materiel,
 		-- "Tactical Reserve" : ready to reinforce frontline, that's where reinforcements from cities, healed personnel and repaired Vehicles are affected first
-		PersonnelReserve	= GCO.GetPersonnelReserve(unitType),
-		VehiclesReserve		= GCO.GetVehiclesReserve(unitType),
-		HorsesReserve		= GCO.GetHorsesReserve(unitType),
-		MaterielReserve		= GCO.GetMaterielReserve(unitType),
+		PersonnelReserve		= GCO.GetPersonnelReserve(unitType),
+		VehiclesReserve			= GCO.GetVehiclesReserve(unitType),
+		HorsesReserve			= GCO.GetHorsesReserve(unitType),
+		MaterielReserve			= GCO.GetMaterielReserve(unitType),
 		-- "Rear"
-		WoundedPersonnel	= 0,
-		DamagedVehicles		= 0,
-		Prisonners			= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisonners by nationality
-		FoodStock 			= GCO.GetBaseFoodStock(unitType),
-		FoodStockVariation	= 0,
+		WoundedPersonnel		= 0,
+		DamagedVehicles			= 0,
+		Prisonners				= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisonners by nationality
+		FoodStock 				= GCO.GetBaseFoodStock(unitType),
+		FoodStockVariation		= 0,
 		-- Statistics
-		TotalDeath			= 0,
-		TotalVehiclesLost	= 0,
-		TotalHorsesLost		= 0,
-		TotalKill			= 0,
-		TotalUnitsKilled	= 0,
-		TotalShipSunk		= 0,
-		TotalTankDestroyed	= 0,
-		TotalAircraftKilled	= 0,
+		TotalDeath				= 0,
+		TotalVehiclesLost		= 0,
+		TotalHorsesLost			= 0,
+		TotalKill				= 0,
+		TotalUnitsKilled		= 0,
+		TotalShipSunk			= 0,
+		TotalTankDestroyed		= 0,
+		TotalAircraftKilled		= 0,
 		-- Others
-		Morale 				= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value), -- 100
-		MoraleVariation		= 0,
-		LastCombatTurn		= 0,
-		LastCombatResult	= 0,
-		LastCombatType		= -1,
-		Alive 				= true,
-		TotalXP 			= unit:GetExperience():GetExperiencePoints(),
-		CombatXP 			= 0,
+		Morale 					= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value), -- 100
+		MoraleVariation			= 0,
+		LastCombatTurn			= 0,
+		LastCombatResult		= 0,
+		LastCombatType			= -1,
+		Alive 					= true,
+		TotalXP 				= unit:GetExperience():GetExperiencePoints(),
+		CombatXP 				= 0,
+		SupplyLineCityID		= -1,
+		SupplyLineEfficiency 	= 0,
 	}
 
 	LuaEvents.NewUnitCreated()
@@ -647,6 +652,43 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 	end
 end
 
+
+-----------------------------------------------------------------------------------------
+-- Supply Lines
+-----------------------------------------------------------------------------------------
+-- cf Worldinput.lua
+--pathPlots, turnsList, obstacles = UnitManager.GetMoveToPath( kUnit, endPlotId )
+
+function SetUnitsupplyLines(unit)
+	local key = GCO.GetUnitKey(unit)
+	local NoSupplyLine = true
+	--local unitData = ExposedMembers.UnitData[key]
+	local closestCity, distance = GCO.FindNearestPlayerCity( unit:GetOwner(), unit:GetX(), unit:GetY() )
+	if closestCity then
+		local cityPlot = Map.GetPlot(closestCity:GetX(), closestCity.GetY())
+		local pathPlots, turnsList, obstacles = UnitManager.GetMoveToPath( unit, cityPlot:GetIndex() )
+		if table.count(pathPlots) > 1 then
+			local numTurns = turnsList[table.count( turnsList )]
+			local efficiency = GCO.Round( 100 - math.pow(numTurns,2) )
+			if efficiency > 50 then -- to do : allow players to change this value
+				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
+				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
+				NoSupplyLine = false
+			end
+		
+		elseif distance == 0 then -- unit is on the city's plot...
+			ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
+			ExposedMembers.UnitData[key].SupplyLineEfficiency = 100
+			NoSupplyLine = false
+		end
+	end
+	
+	if NoSupplyLine then
+		ExposedMembers.UnitData[key].SupplyLineCityID = -1
+		ExposedMembers.UnitData[key].SupplyLineEfficiency = 0
+	end
+end
+
 -----------------------------------------------------------------------------------------
 -- Do Turn for Units
 -----------------------------------------------------------------------------------------
@@ -692,7 +734,6 @@ function DoUnitFood(unit)
 	local foodData = { foodEat = foodEat, foodGet = foodGet, X = unit:GetX(), Y = unit:GetY() }
 	GCO.ShowFoodFloatingText(foodData)
 end
-
 
 function DoUnitMorale(unit)
 	local key = GCO.GetUnitKey(unit)
@@ -778,6 +819,7 @@ function UnitDoTurn(unit)
 	local playerID = unit:GetOwner()
 	DoUnitFood(unit)
 	DoUnitMorale(unit)
+	SetUnitsupplyLine(unit)
 	LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID())
 end
 
@@ -815,6 +857,27 @@ function DoUnitsTurnForAI( playerID )
 	DoUnitsTurn( playerID )
 end
 Events.RemotePlayerTurnBegin.Add( DoUnitsTurnForAI )
+
+-----------------------------------------------------------------------------------------
+-- Initialize Unit Functions
+-----------------------------------------------------------------------------------------
+
+local unitMetatable
+function GetUnitMetaTable(playerID, unitID)
+	local unit = UnitManager.GetUnit(playerID, unitID)
+	if unit then
+		unitMetatableIndex = getmetatable(unit).__index
+		Events.UnitAddedToMap.Remove(GetUnitMetaTable)
+	end
+end
+Events.UnitAddedToMap.Add(GetUnitMetaTable)
+
+function InitializeUnitFunctions() -- Note that those are limited to this file context
+	local u = unitMetatableIndex
+		
+	u.GetKey						= GetUnitKey
+	
+end
 
 -----------------------------------------------------------------------------------------
 -- Initialize after loading the file...
