@@ -134,6 +134,24 @@ each turn
 			if no materiel in reserve, "bleed" unit
 		
 
+====================
+=     Supply       =
+====================
+
+Supply line efficiency by distance
+% efficiency for example at 50%
+	- 50% of max personnel transfered (the other 50% stay in the city/camp)
+	- 50% of max food, materiel, resources for vehicule transfered, 50% lost on the way
+	- make min % efficiency a player choice
+		- unit slider (with a "restore to global" button)
+		- global slider (with an "apply to all units" button)
+	
+
+vehicles requires materiel and resources to be build
+table for resources required per vehicle
+	- wood
+	- steel
+	- aluminum
 
 ====================
 =   Promotions     =
