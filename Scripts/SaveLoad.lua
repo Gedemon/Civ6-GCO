@@ -207,6 +207,11 @@ end
 
 --]]
 
+function IsImprovementPillaged(plot)
+	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY())
+	return contextPlot:IsImprovementPillaged()
+end
+
 ----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
@@ -219,6 +224,7 @@ function Initialize()
 	-- UI only objects that we may use in script...
 	local p = getmetatable(Map.GetPlot(1,1)).__index
 	ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged
+	ExposedMembers.GCO.IsImprovementPillaged 		= IsImprovementPillaged
 	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
 	ExposedMembers.UI 								= UI
 	ExposedMembers.CombatTypes 						= CombatTypes

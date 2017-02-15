@@ -5,6 +5,9 @@
 */
 
 
+UPDATE GlobalParameters SET Value = 999999		WHERE Name = 'CULTURE_COST_FIRST_PLOT';	-- default = 10
+UPDATE GlobalParameters SET Value = 999999		WHERE Name = 'PLOT_BUY_BASE_COST';		-- default = 50
+
 --------------------------------------------------------------
 -- 
 -- General settings
@@ -22,7 +25,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_BASE
 -- Base culture production factor in cities
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_FACTOR',	10000);	-- culture value factor used for logarithmic progression (log10)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_RATIO',		15);	-- percent of culture value used for sqrt progression
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_OUTPUT_USE_LOG', 0);		-- if true use logarithmic progression (slower), else use sqrt (faster)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_OUTPUT_USE_LOG', 1);		-- if true use logarithmic progression (slower), else use sqrt (faster)
 ------------------------------------------------------------------------------------------------------------------------
 --
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_CAPED_FACTOR',		2000);	-- maxCulture on a city plot = (population + cityCultureProduction) * CULTURE_CITY_CAPED_FACTOR
@@ -33,7 +36,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_GAIN_CITY
 ------------------------------------------------------------------------------------------------------------------------
 --
 -- Minimum culture value before a plot can have ownership, ratio applied to change ownership and max distance from city
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_MINIMUM_FOR_ACQUISITION',	300);	-- higher value means more stability (less tile flipping)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_MINIMUM_FOR_ACQUISITION',	100);	-- higher value means more stability (less tile flipping)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_FLIPPING_RATIO',				65);	-- that percentage of the most important culture group value must be superior of the 2nd CG value for a tile to flip. 50 means the first CG must have more than twice the value of the second CG. 100 means the first CG get the tile immediatly.
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_FLIPPING_MAX_DISTANCE',		6);		-- max distance from a civ's city a plot may flip (0 means no limit)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_FLIPPING_ONLY_ADJACENT',		1);		-- flip tile only if adjacent to an already owned tile
@@ -43,7 +46,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_MINIMAL_O
 ------------------------------------------------------------------------------------------------------------------------
 --
 -- Minimum culture value before a plot start diffusing to normal adjacents plots
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_THRESHOLD',  100); -- higher value means slower diffusion
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_THRESHOLD',  50); -- higher value means slower diffusion
 
 ------------------------------------------------------------------------------------------------------------------------
 --
@@ -62,7 +65,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CROSS_FOR
 ------------------------------------------------------------------------------------------------------------------------
 --
 -- Rate of diffusion
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_RATE',  25); --	percentage*10 : if CULTURE_DIFFUSION_RATE = 1000 then diffusion is 100% of diffusing plot value.
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_RATE',  125); --	percentage*10 : if CULTURE_DIFFUSION_RATE = 1000 then diffusion is 100% of diffusing plot value.
 --							Defaut is 55',  5,5% diffusion
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -181,12 +184,16 @@ UPDATE Features SET CultureThreshold = 750 	, CulturePenalty = 75 	, CultureMaxP
 ------------------------------------------------------------------------------------------------------------------------
 --
 -- Variations by Terrain
+UPDATE Terrains SET CultureThreshold = 100	, CulturePenalty = 0	, CultureMaxPercent = 100	WHERE TerrainType 	= 'TERRAIN_GRASS';
+UPDATE Terrains SET CultureThreshold = 150	, CulturePenalty = 10	, CultureMaxPercent = 60	WHERE TerrainType 	= 'TERRAIN_GRASS_HILLS';
+UPDATE Terrains SET CultureThreshold = 100	, CulturePenalty = 0	, CultureMaxPercent = 100	WHERE TerrainType 	= 'TERRAIN_PLAINS';
+UPDATE Terrains SET CultureThreshold = 150	, CulturePenalty = 10	, CultureMaxPercent = 60	WHERE TerrainType 	= 'TERRAIN_PLAINS_HILLS';
 UPDATE Terrains SET CultureThreshold = 450	, CulturePenalty = 55	, CultureMaxPercent = 30	WHERE TerrainType 	= 'TERRAIN_DESERT';
+UPDATE Terrains SET CultureThreshold = 500	, CulturePenalty = 65	, CultureMaxPercent = 18	WHERE TerrainType 	= 'TERRAIN_DESERT_HILLS';
 UPDATE Terrains SET CultureThreshold = 250	, CulturePenalty = 25	, CultureMaxPercent = 40	WHERE TerrainType 	= 'TERRAIN_TUNDRA';
+UPDATE Terrains SET CultureThreshold = 300	, CulturePenalty = 35	, CultureMaxPercent = 25	WHERE TerrainType 	= 'TERRAIN_TUNDRA_HILLS';
 UPDATE Terrains SET CultureThreshold = 400	, CulturePenalty = 55	, CultureMaxPercent = 25	WHERE TerrainType 	= 'TERRAIN_SNOW';
-
--- Add hill
-UPDATE Terrains SET CultureThreshold = CultureThreshold + 50, CulturePenalty = CulturePenalty + 10	, CultureMaxPercent = CultureMaxPercent * 60/100	WHERE Hills = 1;
--- Add mountain
+UPDATE Terrains SET CultureThreshold = 450	, CulturePenalty = 65	, CultureMaxPercent = 15	WHERE TerrainType 	= 'TERRAIN_SNOW_HILLS';
+-- All mountains identical
 UPDATE Terrains SET CultureThreshold = 750	, CulturePenalty = 75	, CultureMaxPercent = 10	WHERE Mountain = 1;
 --

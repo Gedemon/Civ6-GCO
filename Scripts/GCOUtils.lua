@@ -151,14 +151,17 @@ function FindNearestPlayerCity( eTargetPlayer, iX, iY )
 	local pCity = nil
     local iShortestDistance = 10000
 	local pPlayer = Players[eTargetPlayer]
-   
-	local pPlayerCities:table = pPlayer:GetCities()
-	for i, pLoopCity in pPlayerCities:Members() do
-		local iDistance = Map.GetPlotDistance(iX, iY, pLoopCity:GetX(), pLoopCity:GetY())
-		if (iDistance < iShortestDistance) then
-			pCity = pLoopCity
-			iShortestDistance = iDistance
+	if pPlayer then
+		local pPlayerCities:table = pPlayer:GetCities()
+		for i, pLoopCity in pPlayerCities:Members() do
+			local iDistance = Map.GetPlotDistance(iX, iY, pLoopCity:GetX(), pLoopCity:GetY())
+			if (iDistance < iShortestDistance) then
+				pCity = pLoopCity
+				iShortestDistance = iDistance
+			end
 		end
+	else
+		print ("WARNING : Player is nil in FindNearestPlayerCity for ID = ".. tostring(eTargetPlayer) .. "at" .. tostring(iX) ..","..tostring(iY))
 	end
 
 	if (not pCity) then
