@@ -909,7 +909,24 @@ function UnitFlag.UpdateName( self )
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_CONSUMPTION_TITLE")
 				if foodConsumption 				> 0 then nameString = nameString .. GCO.GetFoodConsumptionString(unitData) end
 				
-			end				
+			end	
+
+			-- Supply Line
+			if bHasComponents then
+			
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TITLE")
+				if unitData.SupplyLineCityID ~= -1 then
+					local city = CityManager.GetCity(self.m_Player:GetID(), unitData.SupplyLineCityID)
+					if city then
+						nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", city:GetName(), unitData.SupplyLineEfficiency)
+					else
+						print("WARNING : city is nil for SupplyLineCityID#"..tostring(unitData.SupplyLineCityID).." for " .. pUnit:GetName() .." - ID# " .. tostring(pUnit:GetID()) )
+					end
+				else
+					nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_NO_SUPPLY_LINE")
+				end
+				
+			end
 		end
 			
 		-- GCO >>>>>

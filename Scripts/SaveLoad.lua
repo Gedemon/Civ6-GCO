@@ -199,7 +199,7 @@ function GetCityCultureYield(plot)
 		return 0
 	end
 end
--- to do
+-- to do ? 
 --[[
 
 	get local c = getmetatable(city).__index on event city added to map
@@ -208,8 +208,18 @@ end
 --]]
 
 function IsImprovementPillaged(plot)
-	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY())
+	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY()) -- Can't use the plot from a script context in the UI context.
 	return contextPlot:IsImprovementPillaged()
+end
+
+function GetMoveToPath( unit, plotIndex )
+	local contextUnit = UnitManager.GetUnit(unit:GetOwner(), unit:GetID())
+	return UnitManager.GetMoveToPath( contextUnit, plotIndex )
+end
+
+function HasPlayerOpenBordersFrom(Player, otherPlayerID)
+	local contextPlayer = Players[Player:GetID()]
+	return contextPlayer:GetDiplomacy():HasOpenBordersFrom( otherPlayerID )
 end
 
 ----------------------------------------------
@@ -228,6 +238,8 @@ function Initialize()
 	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
 	ExposedMembers.UI 								= UI
 	ExposedMembers.CombatTypes 						= CombatTypes
+	ExposedMembers.GCO.GetMoveToPath				= GetMoveToPath
+	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
 	
 	-- Load / Save
 	ExposedMembers.GCO.SaveTableToSlot 				= SaveTableToSlot

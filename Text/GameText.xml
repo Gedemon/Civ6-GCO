@@ -165,6 +165,9 @@
     <Replace Tag="LOC_UNITFLAG_CONSUMPTION_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------ Consumption ---------[ENDCOLOR]</Text>
     </Replace>
+    <Replace Tag="LOC_UNITFLAG_SUPPLY_LINE_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------ Supply Line ---------[ENDCOLOR]</Text>
+    </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_MORALE" Language="en_US">
       <Text>[ICON_Ability] {1_Num} / {2_Num} Morale</Text>
@@ -278,6 +281,13 @@
     </Replace>
     <Replace Tag="LOC_UNITFLAG_TOTAL_HORSES_LOST" Language="en_US">
       <Text>[ICON_RESOURCE_HORSES] {1_Num} Lost Horses</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_SUPPLY_LINE_DETAILS" Language="en_US">
+      <Text>[ICON_TradeRouteLarge] Supply from {1_CityName} at {2_Num}% efficiency</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_NO_SUPPLY_LINE" Language="en_US">
+      <Text>[ICON_HousingInsufficient] Can't find a route for supply</Text>
     </Replace>
 	
   </LocalizedText>

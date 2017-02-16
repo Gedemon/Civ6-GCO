@@ -78,6 +78,11 @@
                 <File>Scripts/binser.lua</File>
             </Items>
         </GameplayScripts>
+        <GameplayScripts>
+            <Items>
+                <File>Scripts/RouteConnections.lua</File>
+            </Items>
+        </GameplayScripts>
         <UserInterface>
 			<Properties>
 				<Context>InGame</Context>
@@ -191,6 +196,7 @@
 		<File>Scripts/SaveLoad.lua</File>
 		<File>Scripts/SaveLoad.xml</File>
 		<File>Scripts/binser.lua</File>
+		<File>Scripts/RouteConnections.lua</File>
 		<File>InGame/GCOInGame.lua</File>
 		<File>InGame/GCOInGame.xml</File>
 		<File>UI/UnitFlagManager.lua</File>

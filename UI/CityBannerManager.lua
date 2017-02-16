@@ -694,7 +694,9 @@ function CityBanner.SetColor( self : CityBanner )
 		self.m_Instance.CityName:SetColor( darkerBackColor, 1 );
 		self.m_Instance.CityPopulation:SetColor( frontColor, 0 );
 		self.m_Instance.CityPopulation:SetColor( darkerBackColor, 1 );
+		-- GCO <<<<<
 		--if not self:IsTeam() then self.m_Instance.CivIcon:SetColor( frontColor ); end
+		-- GCO >>>>>
 	elseif (self.m_Type == BANNERTYPE_AERODROME) then
 		if self.m_Instance.AerodromeUnitsButton_Base ~= nil then
 			self.m_Instance.AerodromeUnitsButton_Base:SetColor( backColor );

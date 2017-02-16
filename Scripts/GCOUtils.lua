@@ -165,7 +165,7 @@ function FindNearestPlayerCity( eTargetPlayer, iX, iY )
 	end
 
 	if (not pCity) then
-		print ("No city found of player " .. tostring(eTargetPlayer) .. "in range from " .. tostring(iX) .. ", " .. tostring(iY));
+		print ("No city found of player " .. tostring(eTargetPlayer) .. " in range of " .. tostring(iX) .. ", " .. tostring(iY));
 	end
    
     return pCity, iShortestDistance;

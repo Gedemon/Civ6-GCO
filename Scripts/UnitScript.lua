@@ -21,13 +21,12 @@ local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 local GCO = {}
 local CombatTypes = {}
 function InitializeUtilityFunctions() 	-- get functions from other contexts
-	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
+	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized and ExposedMembers.RouteConnections_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 		GCO = ExposedMembers.GCO					-- contains functions from other contexts
 		CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
 		InitializeTables()
-		InitializeUnitFunctions()
 	end
 end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
@@ -336,7 +335,7 @@ function RegisterNewUnit(playerID, unit)
 		SupplyLineCityID		= -1,
 		SupplyLineEfficiency 	= 0,
 	}
-
+	SetUnitsupplyLine(unit)
 	LuaEvents.NewUnitCreated()
 end
 
@@ -659,17 +658,51 @@ end
 -- cf Worldinput.lua
 --pathPlots, turnsList, obstacles = UnitManager.GetMoveToPath( kUnit, endPlotId )
 
-function SetUnitsupplyLines(unit)
+function SupplyPathBlocked(pPlot, pPlayer)
+
+	local ownerID = pPlot:GetOwner()
+	local playerID = pPlayer:GetID()
+
+	local aUnits = Units.GetUnitsInPlot(plot);
+	for i, pUnit in ipairs(aUnits) do
+		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
+	end
+		
+	if ( ownerID == playerID or ownerID == -1 ) then
+		return false
+	end
+
+	if GCO.HasPlayerOpenBordersFrom(pPlayer, ownerID) then
+		return false
+	end	
+
+	return true -- return true if the path is blocked...
+end
+
+
+function SetUnitsupplyLine(unit)
 	local key = GCO.GetUnitKey(unit)
 	local NoSupplyLine = true
 	--local unitData = ExposedMembers.UnitData[key]
 	local closestCity, distance = GCO.FindNearestPlayerCity( unit:GetOwner(), unit:GetX(), unit:GetY() )
 	if closestCity then
-		local cityPlot = Map.GetPlot(closestCity:GetX(), closestCity.GetY())
-		local pathPlots, turnsList, obstacles = UnitManager.GetMoveToPath( unit, cityPlot:GetIndex() )
+		local cityPlot = Map.GetPlot(closestCity:GetX(), closestCity:GetY())
+		--[[
+		local pathPlots, turnsList, obstacles = GCO.GetMoveToPath( unit, cityPlot:GetIndex() ) -- can't be used as it takes unit stacking in account and return false if there is an unit in the city.
 		if table.count(pathPlots) > 1 then
 			local numTurns = turnsList[table.count( turnsList )]
 			local efficiency = GCO.Round( 100 - math.pow(numTurns,2) )
+			if efficiency > 50 then -- to do : allow players to change this value
+				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
+				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
+				NoSupplyLine = false
+			end
+		--]]
+		local bShortestRoute = true
+		local bIsPlotConnected = GCO.IsPlotConnected(Players[unit:GetOwner()], Map.GetPlot(unit:GetX(), unit:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
+		local routeLength = GCO.GetRouteLength()
+		if bIsPlotConnected then
+			local efficiency = GCO.Round( 100 - math.pow(routeLength*0.85,2) )
 			if efficiency > 50 then -- to do : allow players to change this value
 				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
@@ -862,22 +895,13 @@ Events.RemotePlayerTurnBegin.Add( DoUnitsTurnForAI )
 -- Initialize Unit Functions
 -----------------------------------------------------------------------------------------
 
-local unitMetatable
-function GetUnitMetaTable(playerID, unitID)
+function InitializeUnitFunctions(playerID, unitID) -- Note that those are limited to this file context
 	local unit = UnitManager.GetUnit(playerID, unitID)
-	if unit then
-		unitMetatableIndex = getmetatable(unit).__index
-		Events.UnitAddedToMap.Remove(GetUnitMetaTable)
-	end
+	local u = getmetatable(unit).__index	
+	u.GetKey						= GCO.GetUnitKey	
+	Events.UnitAddedToMap.Remove(InitializeUnitFunctions)
 end
-Events.UnitAddedToMap.Add(GetUnitMetaTable)
-
-function InitializeUnitFunctions() -- Note that those are limited to this file context
-	local u = unitMetatableIndex
-		
-	u.GetKey						= GetUnitKey
-	
-end
+Events.UnitAddedToMap.Add(InitializeUnitFunctions)
 
 -----------------------------------------------------------------------------------------
 -- Initialize after loading the file...
