@@ -220,6 +220,7 @@ military :
 	- moral (combat: retreat)
 	- reliability (mechanized need less materiel to repair, vehicule can become damaged each turn)
 	- loyalty (desertion, rebellion, linked to moral and empire stability)
+	- suply line efficiency
 
 culture
 
@@ -228,12 +229,14 @@ diplomacy
 intelligence
 
 entertainement
+	- low budget lower the benefits of entertainement budget or policies
+	- no over budget
 
 science
 
 infrastructure : 
 	- if not enough budget, roads, buildings, improvements can be damaged (decay rate)
-	- lower auto-repair time)
+	- lower auto-repair time
 
 
 ====================
@@ -341,6 +344,84 @@ Corruption lower incomes (maybe only if the budget is positif ?)
 some entertainement buildings raise banditism (taverns, whorehouses, nightclubs, ...)
 banditism raise corruption
 	   
+====================
+=    Stability     =
+====================
+
+local
+	lower
+		risk of being attacked (enemy units near the city)
+		supplying personnel in time of war
+		lack of food
+		lack of justice (absence of related buildings)
+		high taxes
+		low health
+		
+	raise
+		food variety
+		luxury products variety
+		low taxes
+		entertainement (presence of related buildings)
+		military presence (martial law)
+		policies
+		
+global
+	lower		
+		below tech level of known civs
+		high % of poor population
+		War-weariness: % deaths from combats, % material loss from combats, asymetric war (more war weariness when attacking a smaller nation)
+	raise
+		above tech level of known civs
+		high % of rich population
+		bigger empire size compared of other known civs
+		
+	
+====================
+=     Relation     =
+====================
+
+relation with other culture groups
+
+lower
+	being at war
+	denounced
+	opposed government
+	
+raise
+	being friend
+	being allied
+	same governement
+
+	
+====================
+=    Diplomacy     =
+====================
+
+war
+	create a new entry in war table when a new war start:
+		- warID
+		- startDate
+		- endDate
+		- SideA = {[civID1] = {Death, Kills, startTurn, endTurn}, ... }
+		- SideB = {}
+	auto-create sides: civ A at war with civ B, civ C enter war against A, auto-side with B	
+	a civ may not be at war with all civs from other side
+	a civ can't declare war to a civ of the same side before making peace with the other side but a civ can change side in a war (peace treaty condition, ...)
+	
+peace treaty
+	can be individual or collective
+	territory (gain/loss using a fixed % of culture from winner, the % could raise with larger victory)
+	change government type
+	change side in a war
+	open market
+	open border
+	
+casus belly
+	territory (refuse to give plots with a majority of culture)
+	non-respect of a treaty (peace, commerce, military)
+	spy actions
+
+
 ====================
 =     Policies     =
 ====================
