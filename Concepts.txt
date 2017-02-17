@@ -225,6 +225,9 @@ military :
 culture
 
 diplomacy
+	- less envoys
+	- faster decay of positives modifiers
+	- slower decay of negative modifiers
 
 intelligence
 
@@ -377,7 +380,7 @@ global
 		
 	
 ====================
-=     Relation     =
+= Culture Relation =
 ====================
 
 relation with other culture groups
@@ -396,6 +399,63 @@ raise
 ====================
 =    Diplomacy     =
 ====================
+
+diplomacy action require envoys
+	need X envoys for a meeting with X civs (the envoys are removed only if a decision is made)
+
+deal/treaty
+	can be public or secret
+		spy network can reveal secret deals
+		civ concerned (directly or indirectly) by the secret deal can be offended if they find out
+	can be delayed (x turns) or immediate
+	in case of public and delayed deal, civ concerned (for example civA had territorial integrity treaty with civB but ask for territory, civC has also integrity treaty with civA and is now concerned that A may not respect it) can warn about it
+	
+type of deal (things that will be exchanged immediatly)
+	territory: ask for territory in which a civ has a majority of culture
+	joint declaration of war (can prepare coalition with delayed deal, civA ask civB for joint war and B accept under reserve that x civs join the coalition)
+	information from spy
+	send delegation (with or without spy)
+	introduce to another civ
+	borders map
+	
+type of demand
+	ask to denounce
+	ask to give territory in which a civ has a majority of culture
+	ask to remove embargo
+	ask to stop declaration of friendship
+	ask to stop defensive pact
+	ask to stop open borders
+	ask to stop open market
+	ask for gold
+	
+type of treaty (things that will take effects for a specified duration)
+	territorial integrity: recognize borders, engagement to not make demand of territory based on culture %
+	defensive pact
+	non agression pact
+	open borders
+	declaration of friendship
+	open market: engagement to not start an embargo of any resource
+	information sharing against another civ (civA and civB share spy informations about civC)
+	garanteed access for trade to a % of specific resources (which means priority access for civ A to that resource over civ B own industry and units)
+	embargo of specific resources against another civ (civA and civB agree to not trade a resource with civC)
+	denounciation (not a "treaty", but use the same mechanism)
+	ambassy
+	research agreement
+	
+type of alliance (an alliance can cover multiple domain, an alliance can only be created to oppose another civ or alliance)
+	economic
+		can vote embargo against a civ that is not part of the alliance or against another alliance
+		automatic open market
+	militaristic
+		can vote joint war against a civ that is not part of the alliance or against another alliance
+		automatic defensive pact
+		automatic non agression pact
+	diplomatic
+		automatic open borders
+		automatic non agression pact
+		automatic territorial integrity
+	research
+		automatic research agreement
 
 war
 	create a new entry in war table when a new war start:
@@ -422,6 +482,73 @@ casus belly
 	spy actions
 
 
+====================
+=   Civ Relation   =
+====================
+
+table
+[CivID1]
+	[CivID2] = { Thrust = { [ModifierID] = value, }, Relation  = { [ModifierID] = value, }}
+	[CivID3] = ...
+	
+thrust modifiers
+	Break Treaty with an enemy civ = -10 (decay +1/turn) (maybe use % rate of decay istead of fixed value)
+	Break Treaty with another civ = -25 (decay +1/turn)
+	Break Treaty with a friend civ = -50  (decay +1/turn)
+	Break Treaty with us = -100 (decay +2/turn)
+	declare a surprise war with an enemy civ = -5 (decay +1/turn)
+	declare a surprise war with another civ = -25 (decay +1/turn)
+	declare a surprise war with a friend civ = -100  (decay +2/turn)
+	declare a surprise war with us = -200 (decay +3/turn)
+	Respect Treaty with us = +1/turn with treaty (reset to 0 when breaking a treaty with us)
+	Respect delayed deal = +2/deal (reset to 0 when breaking a delayed deal with us)
+	Respect other civ delayed deal = +1/deal (reset to 0 when breaking a delayed deal with another civ)
+	spy actions
+	
+relation modifiers
+	send delegation				= +5
+	ambassy						= +10 when active
+	open border					= +5 when active
+	open market					= +15 when active
+	defensive pact				= +25 when active
+	non agression pact			= +10 when active
+	common friend				= +5 per friend (declaration of friendship)
+	common enemy				= +10 per enemy (enemy = at war or denounced)
+	friend of an enemy			= -15 per friend
+	territory (give)			= +5 per tile (decay -1/turn) } when it's part of a demand or peace treaty, it won't count when part of a deal.
+	territory (taken)			= -5 per tile (decay +1/turn) } 
+	occupy territory 			= -2 per tile (occupied territory = tile captured with still a majority of the previous owner culture)
+	occupy territory of a friend= -1 per tile
+	occupy city 				= -20 per city (occupied city = city captured with still a majority of the previous owner culture)
+	occupy city of a friend		= -10 per city
+	territorial integrity		= +10 when active
+	research agreement			= +10 when active
+	same side in war			= +50 when active
+	declaration of friendship	= +50 when active
+	information from spy		= +25 (decay -1/turn)
+	information sharing			= +10 when active
+	garanteed access for trade	= +1 (bonus), +2 (strategic), +5 (luxuries) per resource type when active
+	embargo						= -2 (bonus), -5 (strategic), -10 (luxuries) per resource type when active
+	denounciation				= -100 when active
+	at war						= -200 when active
+	break delayed deal			= -25 (decay +1/turn)
+	break territorial integrity = -20 (decay +1/turn)
+	break defensive pact		= -100 (decay +2/turn)
+	break non agression pact	= -200 (decay +3/turn)
+	break embargo				= -20 (decay +1/turn)
+	break open border			= -20 (decay +1/turn)
+	break DOF					= -50 (decay +2/turn)
+	refuse to denounce			= -10 (decay +1/turn)
+	refuse to remove embargo	= -25 (decay +1/turn)
+	refuse to stop DOF			= -15 (decay +1/turn)
+	refuse to stop def. pact	= -10 (decay +1/turn)
+	refuse to stop open borders	= -10 (decay +1/turn)
+	refuse to stop open market	= -10 (decay +1/turn)
+	refuse to give gold			= -10 (decay +1/turn)
+	spy actions
+	opposing governments
+
+	
 ====================
 =     Policies     =
 ====================
