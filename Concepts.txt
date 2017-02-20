@@ -401,7 +401,7 @@ raise
 ====================
 
 diplomacy action require envoys
-	need X envoys for a meeting with X civs (the envoys are removed only if a decision is made)
+	need X envoys for a meeting with X civs (but the envoys are removed only if a decision is made)
 
 deal/treaty
 	can be public or secret
@@ -446,11 +446,11 @@ type of alliance (an alliance can cover multiple domain, an alliance can only be
 	economic
 		can vote embargo against a civ that is not part of the alliance or against another alliance
 		automatic open market
-	militaristic
+	militaristic (pact)
 		can vote joint war against a civ that is not part of the alliance or against another alliance
 		automatic defensive pact
 		automatic non agression pact
-	diplomatic
+	diplomatic (federation)
 		automatic open borders
 		automatic non agression pact
 		automatic territorial integrity
@@ -488,11 +488,11 @@ casus belly
 
 table
 [CivID1]
-	[CivID2] = { Thrust = { [ModifierID] = value, }, Relation  = { [ModifierID] = value, }}
+	[CivID2] = { Thrust = { [ModifierID] = value, ...}, Relation  = { [ModifierID] = value, ...}}
 	[CivID3] = ...
 	
 thrust modifiers
-	Break Treaty with an enemy civ = -10 (decay +1/turn) (maybe use % rate of decay istead of fixed value)
+	Break Treaty with an enemy civ = -10 (decay +1/turn) (maybe use % rate of decay instead of fixed value)
 	Break Treaty with another civ = -25 (decay +1/turn)
 	Break Treaty with a friend civ = -50  (decay +1/turn)
 	Break Treaty with us = -100 (decay +2/turn)
@@ -549,6 +549,91 @@ relation modifiers
 	opposing governments
 
 	
+====================
+=    Suzerainty    =
+====================
+
+Permanent agreement between 2 nations, 1 being considered less powerful (client score <65% of suzerain score ?)
+Agreement can be revoked anytime by any party (with relation/thrust modifiers affected), or by the client (without penalty) if its score became >85% of suzerain  
+
+Client states types:
+
+	+ Satellite State (modern, require same government))
+		The term satellite state designates a country that is formally independent in the world,
+		but under heavy political, economic and military influence or control from another country.
+		- Suzerain can decide the Client diplomacy independantly of it's own (proxy war, ...)
+		- de facto Non Agression Pact
+		- Defensive Pact from Suzerain
+		- common Open Market	
+		- common Open Borders			
+	
+	+ Associated state (modern) 
+		An associated state is the minor partner in a formal, free relationship between a political territory with a degree of statehood and a (usually larger) nation,
+		for which no other specific term, such as protectorate, is adopted.
+		- Open Borders given to Suzerain
+		- under complete military protection of Suzerain (give control of all its military land units, Defensive Pact from Suzerain)
+		- not required to follow the Suzerain in wars
+		- limited diplomacy (can't declare war independantly of Suzerain or join a different alliance than Suzerain')
+		- de facto Non Agression Pact
+		- common Open Market
+		
+	+ Puppet State (modern, can have different government)
+		A puppet state is a metaphor of a state that is supposedly independent but is in fact dependent upon an outside power.
+		It is nominally sovereign but effectively controlled by a foreign or otherwise alien power, for reasons such as financial interests.
+		A puppet state preserves the external paraphernalia of independence like a name, flag, anthem, constitution, law codes and motto but in reality is an organ of another state which created or sponsored the government
+		- Strict following of Suzerain diplomacy actions (DOW, DOF, Denounce, Embargo, ...), with lesser modifiers penalties
+		- Suzerain can decide the Client diplomacy independantly of it's own (proxy war, ...)
+		- Exchange Territorial Integrity and Non Agression Pact (But both exchange occupied territory before applying)
+		- Open Borders given to Suzerain
+		- Open Market given to Suzerain
+		
+	+ Colony (other continent, far from Capital city)
+		In politics and history, a colony is a territory under the immediate political control of a state, distinct from the home territory of the sovereign.
+		Some colonies were historically countries, while others were territories without definite statehood from their inception.
+		The Metropolitan state is the state that owns the colony.
+		Unlike a puppet state or satellite state, a colony has no independent international representation,
+		and its top-level administration is under direct control of the metropolitan state.
+		- Open Borders given to Suzerain
+		- Open Market given to Suzerain
+		- Exchange Territorial Integrity
+		- Exchange Non Agression Pact
+		- Exchange Defensive Pact
+	
+	+ Protectorate
+		A protectorate, in its inception adopted by modern international law,
+		is a dependent territory that has been granted local autonomy and some independence while still retaining the suzerainty of a greater sovereign state.
+		In exchange for this, the protectorate usually accepts specified obligations, which may vary greatly, depending on the real nature of their relationship
+		- Exchange Territorial Integrity
+		- Exchange Non Agression Pact
+		- More inclined to accept Suzerain diplomatic demands
+		- Open Borders given to Suzerain
+		- Open Market given to Suzerain
+		- Defensive Pact from Suzerain
+		
+	+ Vassal State (pre-modern)
+		A vassal state is any state that is subordinate to another. The vassal in these cases is the ruler, rather than the state itself.
+		Being a vassal most commonly implies providing military assistance to the dominant state when requested to do so.
+		It sometimes implies paying tribute, but a state which does so is better described as a tributary state.
+		In simpler terms the vassal state would have to provide military power to the dominant state.
+		Today, more common terms are puppet state, protectorate or associated state.
+		- Strict following of Suzerain diplomacy actions (DOW, DOF, Denounce, Embargo, ...), with lesser modifiers penalties
+		- Must defend the Suzerain when attacked
+		- Can have its own diplomacy (including declaration of war)
+		- Exchange Territorial Integrity and Non Agression Pact (But both exchange occupied territory before applying)
+		- Open Borders given to Suzerain
+		- Open Market given to Suzerain
+		
+	+ Tributary State (pre-modern)
+		The term tributary state refers to one of the two main ways in which a pre-modern state might be subordinate to a more powerful state.
+		The heart of the relationship was that the tributary would send a regular token of submission (tribute) to the superior power.
+		This token often took the form of a substantial transfer of wealth, such as the delivery of gold, produce, or slaves, 
+		so that tribute might best be seen as the payment of protection money.
+		- Give something to Suzerain (gold per turn, Open Market, ...)
+		- Do not oppose Suzerain in diplomacy (Client count less negative modifiers to Suzerain action)
+		- Exchange Territorial Integrity and Non Agression Pact
+
+Hegemony as a possible victory condition ?
+
 ====================
 =     Policies     =
 ====================
