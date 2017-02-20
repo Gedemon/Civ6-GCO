@@ -1,32 +1,41 @@
 --=====================================================================================--
---	FILE:	 GCOUtils.lua
+--	FILE:	 ModUtils.lua
 --  Gedemon (2017)
 --=====================================================================================--
 
-print ("Loading GCOUtils.lua...")
+print ("Loading ModUtils.lua...")
 
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
 
 -- This should be the first loading file (to do : make sure of that !), do some cleaning if Events.LeaveGameComplete hasn't fired on returning to main menu or loading a game...
-ExposedMembers.SaveLoad_Initialized = nil
-ExposedMembers.Utils_Initialized 	= nil
+ExposedMembers.SaveLoad_Initialized 		= nil
+ExposedMembers.Serialize_Initialized 		= nil
+ExposedMembers.ContextFunctions_Initialized	= nil
+ExposedMembers.Utils_Initialized 			= nil
+ExposedMembers.RouteConnections_Initialized	= nil
 
 -- Floating Texts LOD
-FLOATING_TEXT_NONE 	= 0
-FLOATING_TEXT_SHORT = 1
-FLOATING_TEXT_LONG 	= 2
-floatingTextLevel 	= FLOATING_TEXT_SHORT
+local FLOATING_TEXT_NONE 	= 0
+local FLOATING_TEXT_SHORT 	= 1
+local FLOATING_TEXT_LONG 	= 2
+local floatingTextLevel 	= FLOATING_TEXT_SHORT
+
+local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS
 
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
+function IsInitializedGCO()
+	return (ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized and ExposedMembers.Serialize_Initialized and ExposedMembers.ContextFunctions_Initialized and ExposedMembers.RouteConnections_Initialized)
+end
+
 local GCO = {}
 local CombatTypes = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
+	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then -- we can't use something like GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 		GCO = ExposedMembers.GCO		-- contains functions from other contexts
 		CombatTypes = ExposedMembers.CombatTypes 	-- Need those in combat results
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
@@ -34,6 +43,7 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	end
 end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+
 
 -----------------------------------------------------------------------------------------
 -- Maths
@@ -95,7 +105,7 @@ function Dprint(str)
 	if bNoOutput then -- spam control
 		return
 	end
-	print(str)
+	--print(str)
 end
 
 ----------------------------------------------
@@ -111,7 +121,7 @@ function ShowTimer(name)
 		return
 	end
 	if Timer[name] then
-		print("- "..tostring(name) .." timer = " .. tostring(Automation.GetTime()-Timer[name]) .. " seconds")
+		--print("- "..tostring(name) .." timer = " .. tostring(Automation.GetTime()-Timer[name]) .. " seconds")
 	end
 end
 
@@ -165,7 +175,7 @@ function FindNearestPlayerCity( eTargetPlayer, iX, iY )
 	end
 
 	if (not pCity) then
-		print ("No city found of player " .. tostring(eTargetPlayer) .. " in range of " .. tostring(iX) .. ", " .. tostring(iY));
+		--print ("No city found of player " .. tostring(eTargetPlayer) .. " in range of " .. tostring(iX) .. ", " .. tostring(iY));
 	end
    
     return pCity, iShortestDistance;
@@ -205,6 +215,31 @@ function GetUnitFromKey ( unitKey )
 	else
 		print("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey()")
 	end
+end
+
+function CheckComponentsHP(unit, str)
+	if not unit then
+		print("WARNING : unit is nil in CheckComponentsHP() for " .. tostring(str))
+		return
+	end
+	local HP = unit:GetMaxDamage() - unit:GetDamage()
+	local unitType = unit:GetType()
+	local key = GetUnitKey(unit)
+	if HP < 0 then
+		print("---------------------------------------------------------------------------")
+		print("in CheckComponentsHP() for " .. tostring(str))
+		--print("WARNING : HP < 0 in CheckComponentsHP() for " .. tostring(str))
+		print("key", key, "type", unitType, "HP", HP)	
+		print(ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
+		print(ExposedMembers.UnitData[key], ExposedMembers.UnitHitPointsTable[unitType])
+		print(ExposedMembers.UnitData[key].Personnel, ExposedMembers.UnitHitPointsTable[unitType][HP])
+		print(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
+		return
+	end
+	if ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Personnel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Personnel).."]")   end
+	if ExposedMembers.UnitData[key].Vehicles  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles  then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Vehicles["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Vehicles).."]")      end
+	if ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	  then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Horses["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Horses).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Horses).."]")            end
+	if ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel  then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Materiel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel ).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Materiel).."]")     end
 end
 
 function GetPersonnelReserve(unitType)
@@ -432,14 +467,31 @@ end
 
 function GetMoraleFromWounded(unitData)
 	local moraleFromWounded = 0
-	if unitData.WoundedPersonnel == 0 then
-		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WOUNDED_NONE"].Value)
-	elseif unitData.WoundedPersonnel > ( (unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_HIGH_PERCENT"].Value) / 100) then
+	if unitData.WoundedPersonnel > ( (unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_HIGH_PERCENT"].Value) / 100) then
 		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WOUNDED_HIGH"].Value)
 	elseif unitData.WoundedPersonnel > ( (unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_LOW_PERCENT"].Value) / 100) then 
 		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WOUNDED_LOW"].Value)	
 	end
 	return moraleFromWounded	
+end
+
+function GetMoraleFromHP(unitData)
+	local moraleFromHP = 0
+	local unit = UnitManager.GetUnit(unitData.playerID, unitData.unitID)
+	if unit then
+		local HP = unit:GetMaxDamage() - unit:GetDamage()		
+		if HP == maxHP then
+			moraleFromHP = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_HP_FULL"].Value)
+		else
+			local percentHP = (HP / maxHP * 100)
+			if  percentHP < tonumber(GameInfo.GlobalParameters["MORALE_HP_VERY_LOW_PERCENT"].Value) then
+				moraleFromHP = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_HP_VERY_LOW"].Value)
+			elseif  percentHP < tonumber(GameInfo.GlobalParameters["MORALE_HP_LOW_PERCENT"].Value) then
+				moraleFromHP = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_HP_LOW"].Value)
+			end
+		end
+	end
+	return moraleFromHP
 end
 
 ----------------------------------------------
@@ -570,6 +622,13 @@ function GetMoraleString(unitData)
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WOUNDED", moraleFromWounded)
 	elseif moraleFromWounded < 0 then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WOUNDED", moraleFromWounded)
+	end	
+	
+	local moraleFromHP = GetMoraleFromHP(unitData)
+	if moraleFromHP > 0 then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FULL_HP", moraleFromHP)
+	elseif moraleFromHP < 0 then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_LOW_HP", moraleFromHP)
 	end
 	
 	return str
@@ -888,6 +947,8 @@ function Initialize()
 	ExposedMembers.GCO.GetMoraleFromFood 				= GetMoraleFromFood
 	ExposedMembers.GCO.GetMoraleFromLastCombat 			= GetMoraleFromLastCombat
 	ExposedMembers.GCO.GetMoraleFromWounded				= GetMoraleFromWounded
+	ExposedMembers.GCO.GetMoraleFromHP 					= GetMoraleFromHP
+	ExposedMembers.GCO.CheckComponentsHP 				= CheckComponentsHP
 	
 	ExposedMembers.GCO.GetPrisonnersStringByCiv 		= GetPrisonnersStringByCiv
 	ExposedMembers.GCO.GetFoodConsumptionRatioString 	= GetFoodConsumptionRatioString
@@ -905,7 +966,8 @@ function Initialize()
 	ExposedMembers.GCO.GetPlotKey 						= GetPlotKey
 	ExposedMembers.GCO.FindNearestPlayerCity 			= FindNearestPlayerCity
 	
-	ExposedMembers.Utils_Initialized = true
+	ExposedMembers.Utils_Initialized 	= true
+	ExposedMembers.IsInitializedGCO		= IsInitializedGCO
 end
 Initialize()
 
@@ -915,13 +977,37 @@ Initialize()
 -----------------------------------------------------------------------------------------
 function Cleaning()
 	print ("Cleaning GCO stuff on LeaveGameComplete...")
-	ExposedMembers.SaveLoad_Initialized = nil
-	ExposedMembers.Utils_Initialized = nil
-	ExposedMembers.UnitData = nil
-	ExposedMembers.GCO = nil
-	ExposedMembers.GetUnitKey = nil
-	ExposedMembers.UI = nil
-	ExposedMembers.CombatTypes = nil
-	ExposedMembers.UnitHitPointsTable = nil
+	ExposedMembers.SaveLoad_Initialized 		= nil
+	ExposedMembers.ContextFunctions_Initialized	= nil
+	ExposedMembers.Utils_Initialized 			= nil
+	ExposedMembers.Serialize_Initialized 		= nil
+	ExposedMembers.RouteConnections_Initialized	= nil
+	ExposedMembers.IsInitializedGCO 			= nil
+	ExposedMembers.UnitData 					= nil
+	ExposedMembers.CityData 					= nil
+	ExposedMembers.PlayerData 					= nil
+	ExposedMembers.GCO 							= nil
+	ExposedMembers.GetUnitKey 					= nil
+	ExposedMembers.UI 							= nil
+	ExposedMembers.CombatTypes 					= nil
+	ExposedMembers.UnitHitPointsTable 			= nil
 end
 Events.LeaveGameComplete.Add(Cleaning)
+
+
+-----------------------------------------------------------------------------------------
+-- Testing...
+-----------------------------------------------------------------------------------------
+function TestA()
+	print ("Calling TestA...")
+end
+function TestB()
+	print ("Calling TestB...")
+end
+function TestC()
+	print ("Calling TestC...")
+end
+--Events.LoadComplete.Add(TestA)
+--Events.RequestSave.Add(TestB)
+--Events.RequestLoad.Add(TestC)
+--EndGameView

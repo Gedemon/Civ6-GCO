@@ -1,9 +1,9 @@
 --=====================================================================================--
---	FILE:	 GCOScript.lua
+--	FILE:	 ModScript.lua
 --  Gedemon (2017)
 --=====================================================================================--
 
-print ("Loading GCOScript.lua...")
+print ("Loading ModScript.lua...")
 
 -----------------------------------------------------------------------------------------
 -- Defines
@@ -13,9 +13,9 @@ print ("Loading GCOScript.lua...")
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
---GCO = {}
+local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
+	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then 
 		GCO = ExposedMembers.GCO		-- contains functions from other contexts 
 		UI = ExposedMembers.UI 			-- to use UI function in this script context
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )

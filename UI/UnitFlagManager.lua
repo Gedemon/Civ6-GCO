@@ -918,7 +918,11 @@ function UnitFlag.UpdateName( self )
 				if unitData.SupplyLineCityID ~= -1 then
 					local city = CityManager.GetCity(self.m_Player:GetID(), unitData.SupplyLineCityID)
 					if city then
-						nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", city:GetName(), unitData.SupplyLineEfficiency)
+						if unitData.SupplyLineEfficiency > 0 then
+							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", city:GetName(), unitData.SupplyLineEfficiency)
+						else
+							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR", city:GetName())
+						end
 					else
 						print("WARNING : city is nil for SupplyLineCityID#"..tostring(unitData.SupplyLineCityID).." for " .. pUnit:GetName() .." - ID# " .. tostring(pUnit:GetID()) )
 					end

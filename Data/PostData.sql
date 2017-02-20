@@ -1,2 +1,0 @@
-
-DELETE from CivilizationRequestedResource;

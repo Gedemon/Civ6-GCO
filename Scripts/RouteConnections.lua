@@ -9,9 +9,9 @@
 -- on the condition that this comment block is preserved in its entirity
 --
 
+-- Converted to civ6 by Gedemon
 
-print("Loading Route Connections...")
-print("-------------------------------------")
+print("Loading RouteConnections.lua.")
 
 -------------------------------------------------------------------------------------------
 -- FLuaVector

@@ -1,27 +1,23 @@
 -----------------------------------------------------------------------------------------
 --	FILE:	 SaveLoad.lua
 --  Gedemon (2017)
---  Loading/Saving simple tables with the game file using Pickle Table for serialization
---  http://lua-users.org/wiki/PickleTable
 -----------------------------------------------------------------------------------------
 
-
-
-
---=================================================
+--==================================================================================================
 -- Load / Save
--- Using Civ6 GameConfiguration
---=================================================
+-- Using Civ6 GameConfiguration, require functions from Serialize.lua
+-- This is an InGame context because GameConfiguration.SetValue is nil in scripts context
+--==================================================================================================
 --[[
 usage:
-> ExposedMembers.SaveTableToSlot(t, "myTable")
-> t = ExposedMembers.LoadTableFromSlot("myTable")
+> ExposedMembers.GCO.SaveTableToSlot(t, "myTable")
+> t = ExposedMembers.GCO.LoadTableFromSlot("myTable")
 
 --]]
---=================================================
+--==================================================================================================
 
 ----------------------------------------------
--- defines
+-- Defines
 ----------------------------------------------
 
 
@@ -29,9 +25,9 @@ usage:
 -- Initialize Functions
 ----------------------------------------------
 
-local GCO = ExposedMembers.GCO -- Initialize with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded
+local GCO = ExposedMembers.GCO -- Initialize with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded (in this file's case it's the timers functions)
 function InitializeUtilityFunctions() -- Get functions from other contexts
-	if ExposedMembers.Utils_Initialized and ExposedMembers.SaveLoad_Initialized and ExposedMembers.binser_Initialized then 
+	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then 
 		GCO = ExposedMembers.GCO -- Reinitialize with what may have been added with other UI contexts
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
@@ -40,41 +36,34 @@ end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 ----------------------------------------------
--- events for saving
+-- Events for saving
 ----------------------------------------------
--- this Lua event is called when listing files on the save/load menu
+-- This Lua event is called when listing files on the save/load menu
 function SaveMyTables()
+	print("Calling LuaEvents.SaveTables() on FileListQueryComplete...")
 	LuaEvents.SaveTables()
 end
 LuaEvents.FileListQueryComplete.Add( SaveMyTables )
 
+-- This should happen just before the autosave
 function SaveOnBarbarianTurnEnd(playerID)
 	local player = Players[playerID]
 	if player:IsBarbarian() then
+		print("Calling LuaEvents.SaveTables() on Barbarian Turn End...")
 		LuaEvents.SaveTables()
 	end
 end
 Events.RemotePlayerTurnEnd.Add( SaveOnBarbarianTurnEnd )
 
--- could get the quicksave key here
-function OnInputHandler( pInputStruct:table )
-	local uiMsg = pInputStruct:GetMessageType();
-	if uiMsg == KeyEvents.KeyDown then
-		if pInputStruct:GetKey() == Keys.VK_F5 then -- but the binding can be changed...
-			LuaEvents.SaveTables()
-		end
-	end
-	-- pInputStruct:IsShiftDown() and pInputStruct:IsAltDown()
-end
-ContextPtr:SetInputHandler( OnInputHandler, true )
 
--- Or on this event for quick save (but is it called soon enough before saving ?)
+-- This event to handle quick saving
 function OnInputAction( actionID )
 	if actionID == Input.GetActionId("QuickSave") then
+		print("Calling LuaEvents.SaveTables() on QuickSave action...")
 		LuaEvents.SaveTables()
 	end
 end
-Events.InputActionTriggered( OnInputAction )
+Events.InputActionTriggered.Add( OnInputAction )
 
 
 ----------------------------------------------
@@ -100,7 +89,7 @@ function SaveTableToSlot(t, sSlotName)
 	GCO.Dprint("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
 
 	-- test saved value
-	---[[
+	--[[
 	do
 		GCO.StartTimer("deserialize")
 		local s2 = GameConfiguration.GetValue(sSlotName)
@@ -186,43 +175,6 @@ function LoadTableFromSlot(sSlotName)
 end
 
 ----------------------------------------------
--- Create functions for other contexts
-----------------------------------------------
-
-function GetCityCultureYield(plot)
-	local city = Cities.GetCityInPlot(plot:GetX(), plot:GetY())
-	if not city then return 0 end
-	local cityCulture = city:GetCulture()
-	if cityCulture then
-		return cityCulture:GetCultureYield()
-	else
-		return 0
-	end
-end
--- to do ? 
---[[
-
-	get local c = getmetatable(city).__index on event city added to map
-	then use ExposedMembers.GCO.City.GetCulture	= c.GetCulture in scripts that requires it
-
---]]
-
-function IsImprovementPillaged(plot)
-	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY()) -- Can't use the plot from a script context in the UI context.
-	return contextPlot:IsImprovementPillaged()
-end
-
-function GetMoveToPath( unit, plotIndex )
-	local contextUnit = UnitManager.GetUnit(unit:GetOwner(), unit:GetID())
-	return UnitManager.GetMoveToPath( contextUnit, plotIndex )
-end
-
-function HasPlayerOpenBordersFrom(Player, otherPlayerID)
-	local contextPlayer = Players[Player:GetID()]
-	return contextPlayer:GetDiplomacy():HasOpenBordersFrom( otherPlayerID )
-end
-
-----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
 
@@ -230,17 +182,7 @@ ExposedMembers.SaveLoad_Initialized = false
 
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
-	
-	-- UI only objects that we may use in script...
-	local p = getmetatable(Map.GetPlot(1,1)).__index
-	ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged
-	ExposedMembers.GCO.IsImprovementPillaged 		= IsImprovementPillaged
-	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
-	ExposedMembers.UI 								= UI
-	ExposedMembers.CombatTypes 						= CombatTypes
-	ExposedMembers.GCO.GetMoveToPath				= GetMoveToPath
-	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
-	
+		
 	-- Load / Save
 	ExposedMembers.GCO.SaveTableToSlot 				= SaveTableToSlot
 	ExposedMembers.GCO.LoadTableFromSlot 			= LoadTableFromSlot	

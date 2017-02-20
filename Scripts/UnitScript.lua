@@ -21,7 +21,7 @@ local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 local GCO = {}
 local CombatTypes = {}
 function InitializeUtilityFunctions() 	-- get functions from other contexts
-	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized and ExposedMembers.RouteConnections_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
+	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then
 		GCO = ExposedMembers.GCO					-- contains functions from other contexts
 		CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
@@ -81,6 +81,7 @@ end
 -- Load/Save the tables
 -----------------------------------------------------------------------------------------
 
+-- Enum for faster serialization
 local unitTableEnum = {
 
 	unitID					= 1,
@@ -125,10 +126,12 @@ local unitTableEnum = {
 function SaveUnitTable()
 
 	local UnitData = ExposedMembers.UnitData
+	
+	--print("--------------------------- Saving UnitData ---------------------------")
 
 	-- 1/ direct but too slow ?
-	---[[
-	print("--------------------------- Direct Save ---------------------------")
+	--[[
+	print("--------------------------- UnitData: Direct Save ---------------------------")
 	GCO.StartTimer("Direct Save")
 	GCO.SaveTableToSlot(UnitData, "UnitData")
 	GCO.ShowTimer("Direct Save")
@@ -136,7 +139,7 @@ function SaveUnitTable()
 	
 	-- 2/ Use enums for shorter string
 	---[[
-	print("--------------------------- Save w/Enum ---------------------------")
+	--print("--------------------------- UnitData: Save w/Enum ---------------------------")
 	GCO.StartTimer("Save w/Enum")
 	GCO.StartTimer("Pre-Save UnitTable")
 	local t = {}
@@ -147,13 +150,13 @@ function SaveUnitTable()
 		end
 	end	
 	GCO.ShowTimer("Pre-Save UnitTable")
-	GCO.SaveTableToSlot(t, "UnitData2")	
+	GCO.SaveTableToSlot(t, "UnitData")	
 	GCO.ShowTimer("Save w/Enum")
 	--]]
 	
 	-- 3/ Save short strings in multiple slots
-	---[[
-	print("--------------------------- Multi-Save ---------------------------")	
+	--[[
+	print("--------------------------- UnitData: Multi-Save ---------------------------")	
 	GCO.StartTimer("MultiSave")
 	local UnitIndex = {}
 	GCO.ToggleOutput()
@@ -169,8 +172,8 @@ function SaveUnitTable()
 	--]]	
 	
 	-- 4/ Save in each player slots
-	---[[
-	print("--------------------------- Player Slots ---------------------------")	
+	--[[
+	print("--------------------------- UnitData: Player Slots save ---------------------------")	
 	GCO.StartTimer("Player Slots")
 	local PlayerUnits = {}
 	for key, data in pairs(UnitData) do
@@ -192,8 +195,8 @@ end
 function LoadUnitTable()
 
 	-- 1/ direct but too slow ?
-	---[[
-	print("--------------------------- Direct Load ---------------------------")
+	--[[
+	print("--------------------------- UnitData: Direct Load ---------------------------")
 	--if not ExposedMembers.UnitData then ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {} end
 	ExposedMembers.UnitData = GCO.LoadTableFromSlot("UnitData") or {}
 	--ShowUnitData()
@@ -201,9 +204,9 @@ function LoadUnitTable()
 	
 	-- 2/ Use enums for shorter string
 	---[[
-	print("--------------------------- Load w/Enum ---------------------------")
+	print("--------------------------- UnitData: Load w/Enum ---------------------------")
 	local unitData = {}
-	local loadedTable = GCO.LoadTableFromSlot("UnitData2")
+	local loadedTable = GCO.LoadTableFromSlot("UnitData")
 	GCO.StartTimer("Post-Load UnitTable")
 	if loadedTable then
 		for key, data in pairs(loadedTable) do
@@ -221,8 +224,8 @@ function LoadUnitTable()
 	--]]
 	
 	-- 3/ Load short strings in multiple slots
-	---[[
-	print("--------------------------- Multi-Load ---------------------------")		
+	--[[
+	print("--------------------------- UnitData: Multi-Load ---------------------------")		
 	GCO.StartTimer("Multi-Load")
 	ExposedMembers.UnitData = {}		
 	GCO.StartTimer("Pre-Load UnitTable")
@@ -242,7 +245,7 @@ function LoadUnitTable()
 	
 	-- 4/ Load from player slots
 	--[[
-	print("--------------------------- Players Slots ---------------------------")		
+	print("--------------------------- UnitData: Load from Players Slots ---------------------------")		
 	GCO.StartTimer("Players Slots Load")
 	ExposedMembers.UnitData = {}
 	GCO.ToggleOutput()
@@ -267,6 +270,7 @@ function SaveTables()
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
+-- for debugging load/save
 function ShowUnitData()
 	for unitKey, data in pairs(ExposedMembers.UnitData) do
 		print (unitKey, data)
@@ -293,7 +297,6 @@ function RegisterNewUnit(playerID, unit)
 	local hp = unit:GetMaxDamage() - unit:GetDamage()
 
 	ExposedMembers.UnitData[unitKey] = {
-		--UniqueID = unitKey.."-"..os.clock(), -- for linked statistics
 		unitID 					= unitID,
 		playerID 				= playerID,
 		unitType 				= unitType,
@@ -350,9 +353,9 @@ function InitializeUnit(playerID, unitID)
 			return
 		end
 
-		print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
+		--print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
 		RegisterNewUnit(playerID, unit)
-		print("-------------------------------------")
+		--print("-------------------------------------")
 	else
 		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when launching a new game)")
 	end
@@ -494,6 +497,9 @@ function OnCombat( combatResult )
 			LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)
 		end
 	end
+		
+	if attacker.IsUnit and not attacker.IsDead then GCO.CheckComponentsHP(attacker.unit, "attacker after combat") end
+	if defender.IsUnit and not defender.IsDead then GCO.CheckComponentsHP(defender.unit, "defender after combat") end
 end
 Events.Combat.Add( OnCombat )
 
@@ -507,8 +513,8 @@ function HealingUnits(playerID)
 	local playerConfig = PlayerConfigurations[playerID]
 	local playerUnits = player:GetUnits()
 	if playerUnits then
-		print("-----------------------------------------------------------------------------------------")
-		print("Healing units for " .. tostring(playerConfig:GetCivilizationShortDescription()))
+		--print("-----------------------------------------------------------------------------------------")
+		--print("Healing units for " .. tostring(playerConfig:GetCivilizationShortDescription()))
 
 		local startTime = Automation.GetTime()
 
@@ -555,7 +561,7 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 								-- unit limit (vehicles and horses are handled by personnel...)
 								if reqPersonnel > tonumber(maxTransfert[unit].Personnel) or reqMateriel > tonumber(maxTransfert[unit].Materiel) then
 									hasReachedLimit[unit] = true
-									print("- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
+									--print("- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
 
 								elseif  ExposedMembers.UnitData[key].PersonnelReserve >= reqPersonnel
 								and 	ExposedMembers.UnitData[key].VehiclesReserve >= reqVehicles
@@ -605,6 +611,8 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 				GCO.ShowFontLineHealingFloatingText(healingData)
 
 				LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
+				
+				GCO.CheckComponentsHP(unit, "after Healing")
 			end
 
 		end
@@ -646,8 +654,8 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 		end
 
 		local endTime = Automation.GetTime()
-		print("Healing units used " .. tostring(endTime-startTime) .. " seconds")
-		print("-----------------------------------------------------------------------------------------")
+		--print("Healing units used " .. tostring(endTime-startTime) .. " seconds")
+		--print("-----------------------------------------------------------------------------------------")
 	end
 end
 
@@ -679,10 +687,9 @@ function SupplyPathBlocked(pPlot, pPlayer)
 	return true -- return true if the path is blocked...
 end
 
-
 function SetUnitsupplyLine(unit)
 	local key = GCO.GetUnitKey(unit)
-	local NoSupplyLine = true
+	local NoLinkToCity = true
 	--local unitData = ExposedMembers.UnitData[key]
 	local closestCity, distance = GCO.FindNearestPlayerCity( unit:GetOwner(), unit:GetX(), unit:GetY() )
 	if closestCity then
@@ -695,7 +702,7 @@ function SetUnitsupplyLine(unit)
 			if efficiency > 50 then -- to do : allow players to change this value
 				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
-				NoSupplyLine = false
+				NoLinkToCity = false
 			end
 		--]]
 		local bShortestRoute = true
@@ -706,17 +713,21 @@ function SetUnitsupplyLine(unit)
 			if efficiency > 50 then -- to do : allow players to change this value
 				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
-				NoSupplyLine = false
+				NoLinkToCity = false
+			else
+				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
+				ExposedMembers.UnitData[key].SupplyLineEfficiency = 0
+				NoLinkToCity = false
 			end
 		
 		elseif distance == 0 then -- unit is on the city's plot...
 			ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
 			ExposedMembers.UnitData[key].SupplyLineEfficiency = 100
-			NoSupplyLine = false
+			NoLinkToCity = false
 		end
 	end
 	
-	if NoSupplyLine then
+	if NoLinkToCity then
 		ExposedMembers.UnitData[key].SupplyLineCityID = -1
 		ExposedMembers.UnitData[key].SupplyLineEfficiency = 0
 	end
@@ -775,6 +786,7 @@ function DoUnitMorale(unit)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromFood(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromLastCombat(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromWounded(unitData)
+	moraleVariation = moraleVariation + GCO.GetMoraleFromHP(unitData)
 
 	local morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
 	ExposedMembers.UnitData[key].Morale = morale
@@ -842,6 +854,7 @@ function DoUnitMorale(unit)
 			unit:SetDamage(unit:GetDamage() + desertionRate)
 		end
 	end
+	GCO.CheckComponentsHP(unit, "after DoUnitMorale()")
 end
 
 function UnitDoTurn(unit)
@@ -869,27 +882,7 @@ function DoUnitsTurn( playerID )
 		end
 	end
 end
-
-function DoUnitsTurnForHuman( playerID, bFirstTime )
-	if ( not bFirstTime) then
-		return
-	end
-	local player = Players[playerID]
-	if player:IsHuman() then
-		DoUnitsTurn( playerID )
-		LuaEvents.SaveTables()
-	end
-end
-Events.PlayerTurnActivated.Add( DoUnitsTurnForHuman )
-
-function DoUnitsTurnForAI( playerID )
-	local player = Players[playerID]
-	if player:IsHuman() then
-		return
-	end
-	DoUnitsTurn( playerID )
-end
-Events.RemotePlayerTurnBegin.Add( DoUnitsTurnForAI )
+LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
 
 -----------------------------------------------------------------------------------------
 -- Initialize Unit Functions
@@ -908,20 +901,3 @@ Events.UnitAddedToMap.Add(InitializeUnitFunctions)
 -----------------------------------------------------------------------------------------
 
 Initialize()
-
------------------------------------------------------------------------------------------
--- Testing...
------------------------------------------------------------------------------------------
-function TestA()
-	print ("Calling TestA...")
-end
-function TestB()
-	print ("Calling TestB...")
-end
-function TestC()
-	print ("Calling TestC...")
-end
---Events.LoadComplete.Add(TestA)
---Events.RequestSave.Add(TestB)
---Events.RequestLoad.Add(TestC)
---EndGameView

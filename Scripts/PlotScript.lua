@@ -1,9 +1,9 @@
 --=====================================================================================--
---	FILE:	 CultureDiffusionScript.lua
+--	FILE:	 PlotScript.lua
 --  Gedemon (2017)
 --=====================================================================================--
 
-print ("Loading CultureDiffusionScript.lua...")
+print ("Loading PlotScript.lua...")
 
 -----------------------------------------------------------------------------------------
 -- Defines
@@ -31,7 +31,7 @@ ExposedMembers.PreviousCultureMap 	= {}
 
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then
+	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then
 		GCO = ExposedMembers.GCO		-- contains functions from other contexts
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
@@ -44,7 +44,7 @@ end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 function SaveTables()
-	print("--------------------------- CultureMap ---------------------------")
+	--print("--------------------------- Saving CultureMap ---------------------------")
 	GCO.StartTimer("CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.CultureMap, "CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.PreviousCultureMap, "PreviousCultureMap")
@@ -267,6 +267,9 @@ function UpdateCulture( self )
 
 	-- No culture on water
 	if self:IsWater() then
+		if self:GetOwner() ~= NO_OWNER then
+			WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), false )
+		end
 		return
 	end
 	
@@ -630,9 +633,9 @@ function OnNewTurn()
 		local plot = Map.GetPlotByIndex(i)
 		plot:UpdateCulture()
 	end
-	print("-----------------------------------------------------------------------------------------")
+	--print("-----------------------------------------------------------------------------------------")
 	GCO.ShowTimer("Culture Diffusion")
-	print("-----------------------------------------------------------------------------------------")
+	--print("-----------------------------------------------------------------------------------------")
 end
 Events.TurnBegin.Add(OnNewTurn)
 

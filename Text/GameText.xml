@@ -181,26 +181,29 @@
     <Replace Tag="LOC_UNITFLAG_BAD_MORALE" Language="en_US">
       <Text>[ICON_Ability] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6DarkRed]Bad Morale[ENDCOLOR]</Text>
     </Replace>	
-	
     <Replace Tag="LOC_UNITFLAG_MORALE_WELL_FED" Language="en_US">
       <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being Well Fed [ICON_Food]</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_FOOD_RATIONING" Language="en_US">
       <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from food rationing [ICON_FoodDeficit]</Text>
-    </Replace>
-	
+    </Replace>	
     <Replace Tag="LOC_UNITFLAG_MORALE_VICTORY" Language="en_US">
       <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from the last victory ({2_Num} [ICON_Turn] left)</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_DEFEAT" Language="en_US">
       <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from the last defeat ({2_Num} [ICON_Turn] left)</Text>
-    </Replace>
-	
+    </Replace>	
     <Replace Tag="LOC_UNITFLAG_MORALE_NO_WOUNDED" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from 100% active (no wounded)</Text>
+      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from no wounded personnel</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_WOUNDED" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from wounded [ICON_UnderSiege]</Text>
+      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from % of wounded [ICON_UnderSiege]</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_MORALE_FULL_HP" Language="en_US">
+      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being 100% operationnal</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_MORALE_LOW_HP" Language="en_US">
+      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from low operationnal %</Text>
     </Replace>
   
     <Replace Tag="LOC_UNITFLAG_PERSONNEL" Language="en_US">
@@ -285,6 +288,9 @@
 	
     <Replace Tag="LOC_UNITFLAG_SUPPLY_LINE_DETAILS" Language="en_US">
       <Text>[ICON_TradeRouteLarge] Supply from {1_CityName} at {2_Num}% efficiency</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR" Language="en_US">
+      <Text>[ICON_HousingInsufficient] Too far from {1_CityName} to get supply</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_NO_SUPPLY_LINE" Language="en_US">
       <Text>[ICON_HousingInsufficient] Can't find a route for supply</Text>

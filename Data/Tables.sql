@@ -40,14 +40,3 @@ ALTER TABLE Features ADD COLUMN CultureMaxPercent integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CultureThreshold integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CulturePenalty integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CultureMaxPercent integer DEFAULT '0';
-
------------------------------------------------
--- Create Start Positions Table if needed
------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS StartPosition
-	(	MapName TEXT,
-		Civilization TEXT,
-		Leader TEXT,
-		X INT default 0,
-		Y INT default 0);
