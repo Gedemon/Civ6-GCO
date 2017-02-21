@@ -37,7 +37,25 @@ LuaEvents.SaveTables.Add(SaveTables)
 -- City functions
 -----------------------------------------------------------------------------------------
 
+function GetKey(self)
+	return self:GetID() ..",".. self:GetOriginalOwner()
+end
 
+function ChangeSize(self)
+	if math.pow(self:GetPopulation()-1, 2.8) * 1000 > self:GetCurrentPopulation() then
+		self:ChangePopulation(-1) -- (-1, true) ?
+	elseif math.pow(self:GetPopulation()+1, 2.8) * 1000 < self:GetCurrentPopulation() then
+		self:ChangePopulation(1)
+	end
+end
+
+function GetCurrentPopulation(self)
+	local key = self:GetKey()
+	if ExposedMembers.CityData[key] then
+		return ExposedMembers.CityData[key].Population
+	end
+	return 0
+end
 
 
 -----------------------------------------------------------------------------------------
@@ -47,7 +65,9 @@ LuaEvents.SaveTables.Add(SaveTables)
 function InitializeCityFunctions(playerID, cityID) -- Note that those functions are limited to this file context
 	local city = CityManager.GetCity(playerID, cityID)
 	local c = getmetatable(city).__index
-	--c.function			= function
+	c.ChangeSize				= ChangeSize
+	c.GetCurrentPopulation		= GetCurrentPopulation
+	c.GetKey					= GetKey
 	
 	Events.CityAddedToMap.Remove(InitializeCityFunctions)
 end
