@@ -593,11 +593,10 @@ Client states types:
 		The Metropolitan state is the state that owns the colony.
 		Unlike a puppet state or satellite state, a colony has no independent international representation,
 		and its top-level administration is under direct control of the metropolitan state.
+		- Inherit the Diplomatic relations of the Suzerain (de faco Non Agression and Defensive Pacts but also follow in offensive wars and every diplomatic actions, including economics)
 		- Open Borders given to Suzerain
 		- Open Market given to Suzerain
 		- Exchange Territorial Integrity
-		- Exchange Non Agression Pact
-		- Exchange Defensive Pact
 	
 	+ Protectorate
 		A protectorate, in its inception adopted by modern international law,
@@ -610,7 +609,7 @@ Client states types:
 		- Open Market given to Suzerain
 		- Defensive Pact from Suzerain
 		
-	+ Vassal State (pre-modern)
+	+ Vassal State (pre-modern) -> Satellite State or Puppet State
 		A vassal state is any state that is subordinate to another. The vassal in these cases is the ruler, rather than the state itself.
 		Being a vassal most commonly implies providing military assistance to the dominant state when requested to do so.
 		It sometimes implies paying tribute, but a state which does so is better described as a tributary state.
@@ -623,7 +622,7 @@ Client states types:
 		- Open Borders given to Suzerain
 		- Open Market given to Suzerain
 		
-	+ Tributary State (pre-modern)
+	+ Tributary State (pre-modern) -> Associated State or Satellite State
 		The term tributary state refers to one of the two main ways in which a pre-modern state might be subordinate to a more powerful state.
 		The heart of the relationship was that the tributary would send a regular token of submission (tribute) to the superior power.
 		This token often took the form of a substantial transfer of wealth, such as the delivery of gold, produce, or slaves, 
