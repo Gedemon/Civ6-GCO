@@ -14,7 +14,7 @@ include( "Civ6Common" );
 
 GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
+	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 		GCO = ExposedMembers.GCO		-- contains functions from other contexts
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
@@ -915,8 +915,8 @@ function UnitFlag.UpdateName( self )
 			if bHasComponents then
 			
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TITLE")
-				if unitData.SupplyLineCityID ~= -1 then
-					local city = CityManager.GetCity(self.m_Player:GetID(), unitData.SupplyLineCityID)
+				if unitData.SupplyLineCityKey then
+					local city = GCO.GetCityFromKey( unitData.SupplyLineCityKey )
 					if city then
 						if unitData.SupplyLineEfficiency > 0 then
 							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", city:GetName(), unitData.SupplyLineEfficiency)
@@ -924,7 +924,7 @@ function UnitFlag.UpdateName( self )
 							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR", city:GetName())
 						end
 					else
-						print("WARNING : city is nil for SupplyLineCityID#"..tostring(unitData.SupplyLineCityID).." for " .. pUnit:GetName() .." - ID# " .. tostring(pUnit:GetID()) )
+						print("WARNING : city is nil for SupplyLineCityKey("..tostring(unitData.SupplyLineCityKey)..") for " .. pUnit:GetName() .." - ID# " .. tostring(pUnit:GetID()) )
 					end
 				else
 					nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_NO_SUPPLY_LINE")
