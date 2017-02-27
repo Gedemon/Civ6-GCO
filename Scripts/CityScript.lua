@@ -9,6 +9,8 @@ print ("Loading CityScript.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
+local LinkedUnits 	= {}
+local LinkedCities 	= {}
 
 -----------------------------------------------------------------------------------------
 -- Initialize Globals Functions
@@ -49,10 +51,6 @@ end
 -----------------------------------------------------------------------------------------
 -- City functions
 -----------------------------------------------------------------------------------------
-
-function GetKey(self)
-	return self:GetID() ..",".. self:GetOriginalOwner()
-end
 
 function GetSize(self) -- for code consistency
 	return self:GetPopulation()
@@ -132,6 +130,50 @@ end
 
 
 -----------------------------------------------------------------------------------------
+-- Resources functions
+-----------------------------------------------------------------------------------------
+
+function UpdateLinkedUnits(self)
+	LinkedUnits[self] = {}
+	for unitKey, data in pairs(ExposedMembers.UnitData) do
+		if data.SupplyLineCityKey == self:GetKey() then
+			local unit = UnitManager.GetUnit(data.playerID, data.unitID)
+			if unit then
+				table.insert(LinkedUnits[self], unit)
+			end
+		end
+	end	
+end
+
+function UpdateLinkedCities(self)
+	LinkedCities[self] = {}
+end
+
+-----------------------------------------------------------------------------------------
+-- Do Turn for Cities
+-----------------------------------------------------------------------------------------
+
+function CityDoTurn(city)
+	city:UpdateLinkedUnits()
+	city:UpdateLinkedCities()
+	-- get Resources (allow excedents)
+	-- diffuse to other cities, sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
+	-- remove excedents left
+end
+
+function DoCitiesTurn( playerID )
+
+	local player = Players[playerID]
+	local playerCities = player:GetCities()
+	if playerCities then
+		for i, city in playerCities:Members() do
+			CityDoTurn(city)
+		end
+	end
+end
+LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
+
+-----------------------------------------------------------------------------------------
 -- Initialize City Functions
 -----------------------------------------------------------------------------------------
 
@@ -142,9 +184,11 @@ function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToM
 	c.ChangeSize				= ChangeSize
 	c.GetSize					= GetSize
 	c.GetRealPopulation			= GetRealPopulation
-	c.GetKey					= GetKey
+	c.GetKey					= GCO.GetCityKey
 	c.GetMaxStock				= GetMaxStock
 	c.GetMaxPersonnel			= GetMaxPersonnel
+	c.UpdateLinkedUnits			= UpdateLinkedUnits
+	c.UpdateLinkedCities		= UpdateLinkedCities
 	
 	Events.CityAddedToMap.Remove(InitializeCityFunctions)
 end

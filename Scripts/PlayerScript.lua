@@ -39,8 +39,9 @@ LuaEvents.SaveTables.Add(SaveTables)
 -- Player functions
 -----------------------------------------------------------------------------------------
 
-function DoPlayerTurn(playerID)
-	LuaEvents.DoUnitsTurn(playerID)
+function DoPlayerTurn( playerID )
+	LuaEvents.DoUnitsTurn( playerID )
+	LuaEvents.DoCitiesTurn( playerID )
 end
 
 function DoTurnForHuman( playerID, bFirstTime )

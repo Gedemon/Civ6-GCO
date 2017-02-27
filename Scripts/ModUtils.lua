@@ -182,6 +182,29 @@ function FindNearestPlayerCity( eTargetPlayer, iX, iY )
 end
 
 ----------------------------------------------
+-- Cities
+----------------------------------------------
+
+function GetCityKey(city)
+	return city:GetID() ..",".. city:GetOriginalOwner()
+end
+
+
+function GetCityFromKey ( cityKey )
+	if ExposedMembers.CityData[unitKey] then
+		local city = CityManager.GetCity(ExposedMembers.CityData[cityKey].playerID, ExposedMembers.CityData[cityKey].cityID)
+		if city then
+			return city
+		else
+			print("- WARNING: city is nil for GetUnitFromKey(".. tostring(cityKey)..")")
+			print("--- UnitId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID )
+		end
+	else
+		print("- WARNING: ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")")
+	end
+end
+
+----------------------------------------------
 -- Units
 ----------------------------------------------
 
@@ -200,7 +223,6 @@ function GetUnitKey(unit)
 		print("- WARNING: unit is nil for GetUnitKey()")
 	end
 end
-ExposedMembers.GetUnitKey = GetUnitKey -- to use in UnitFlagManager.lua (no need to delay initialization, UI context are loaded after script context)
 
 function GetUnitFromKey ( unitKey )
 	if ExposedMembers.UnitData[unitKey] then
@@ -208,12 +230,12 @@ function GetUnitFromKey ( unitKey )
 		if unit then
 			return unit
 		else
-			print("- WARNING: unit is marked alive but is nil for GetUnitFromKey(), marking as dead")
+			print("- WARNING: unit is nil for GetUnitFromKey(".. tostring(unitKey).."), marking as dead")
 			print("--- UnitId = " .. ExposedMembers.UnitData[unitKey].UnitID ..", playerID = " .. ExposedMembers.UnitData[unitKey].playerID )
 			ExposedMembers.UnitData[unitKey].Alive = false
 		end
 	else
-		print("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey()")
+		print("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey(".. tostring(unitKey)..")"")
 	end
 end
 
@@ -966,6 +988,9 @@ function Initialize()
 	ExposedMembers.GCO.GetPlotKey 						= GetPlotKey
 	ExposedMembers.GCO.FindNearestPlayerCity 			= FindNearestPlayerCity
 	
+	ExposedMembers.GCO.GetCityKey 						= GetCityKey
+	ExposedMembers.GCO.GetCityFromKey 					= GetCityFromKey
+	
 	ExposedMembers.Utils_Initialized 	= true
 	ExposedMembers.IsInitializedGCO		= IsInitializedGCO
 end
@@ -987,7 +1012,6 @@ function Cleaning()
 	ExposedMembers.CityData 					= nil
 	ExposedMembers.PlayerData 					= nil
 	ExposedMembers.GCO 							= nil
-	ExposedMembers.GetUnitKey 					= nil
 	ExposedMembers.UI 							= nil
 	ExposedMembers.CombatTypes 					= nil
 	ExposedMembers.UnitHitPointsTable 			= nil

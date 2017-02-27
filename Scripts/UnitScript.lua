@@ -117,7 +117,7 @@ local unitTableEnum = {
 	Alive					= 31,
 	TotalXP					= 32,
 	CombatXP				= 33,
-	SupplyLineCityID		= 34,
+	SupplyLineCityKey		= 34,
 	SupplyLineEfficiency	= 35,
 	
 	EndOfEnum				= 99
@@ -335,7 +335,7 @@ function RegisterNewUnit(playerID, unit)
 		Alive 					= true,
 		TotalXP 				= unit:GetExperience():GetExperiencePoints(),
 		CombatXP 				= 0,
-		SupplyLineCityID		= -1,
+		SupplyLineCityKey		= nil,
 		SupplyLineEfficiency 	= 0,
 	}
 	SetUnitsupplyLine(unit)
@@ -700,7 +700,8 @@ function SetUnitsupplyLine(unit)
 			local numTurns = turnsList[table.count( turnsList )]
 			local efficiency = GCO.Round( 100 - math.pow(numTurns,2) )
 			if efficiency > 50 then -- to do : allow players to change this value
-				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
+				ExposedMembers.UnitData[key].SupplyLineCityKey = GCO.GetCityKey(closestCity)
+				ExposedMembers.UnitData[key].SupplyLineCityOwner = closestCity:GetOwner()
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
 				NoLinkToCity = false
 			end
@@ -711,24 +712,24 @@ function SetUnitsupplyLine(unit)
 		if bIsPlotConnected then
 			local efficiency = GCO.Round( 100 - math.pow(routeLength*0.85,2) )
 			if efficiency > 50 then -- to do : allow players to change this value
-				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
+				ExposedMembers.UnitData[key].SupplyLineCityKey = GCO.GetCityKey(closestCity)
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
 				NoLinkToCity = false
 			else
-				ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
+				ExposedMembers.UnitData[key].SupplyLineCityKey = GCO.GetCityKey(closestCity)
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = 0
 				NoLinkToCity = false
 			end
 		
 		elseif distance == 0 then -- unit is on the city's plot...
-			ExposedMembers.UnitData[key].SupplyLineCityID = closestCity:GetID()
+			ExposedMembers.UnitData[key].SupplyLineCityKey = GCO.GetCityKey(closestCity)
 			ExposedMembers.UnitData[key].SupplyLineEfficiency = 100
 			NoLinkToCity = false
 		end
 	end
 	
 	if NoLinkToCity then
-		ExposedMembers.UnitData[key].SupplyLineCityID = -1
+		ExposedMembers.UnitData[key].SupplyLineCityKey = nil
 		ExposedMembers.UnitData[key].SupplyLineEfficiency = 0
 	end
 end
