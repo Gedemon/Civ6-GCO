@@ -286,6 +286,37 @@ UI :
        - button to reset values of all sliders of this city to general slider for nation
 
 ====================
+= Resources stock  = (REVISED)
+====================
+
+MIN_PERCENT_LEFT_TO_SELL 		-- Selling to another Civ
+MIN_PERCENT_LEFT_TO_CONVERT		-- Converted in local industry
+MIN_PERCENT_LEFT_TO_SUPPLY		-- Used to reinforce units
+MIN_PERCENT_LEFT_TO_TRANSFERT	-- Transfered to other cities
+
+MAX_PERCENT_LEFT_TO_BUY			-- Buying from another civ 
+MAX_PERCENT_LEFT_TO_REQUEST		-- Transfered from other cities
+
+1st loop on units
+	build linked units table
+	
+1st loop on cities
+	build linked cities table	
+	collect resources in city plots (allow excedent)
+	get supply demand (units linked to that city)
+	get industry demand (local buildings that convert resources)
+	create requests/buy values (based on current stocks minus supply/industry demands)
+	
+2nd loop on cities	
+	get trade demand (external trade routes)
+	get cities requests (internal trade routes to/from that city)
+	
+3rd loop on cities
+	calculate transfert ratio between Sell, Convertion, Supply, Transfert
+	do transferts
+	remove excedent
+
+====================
 =Resource Transfert=
 ====================
 
