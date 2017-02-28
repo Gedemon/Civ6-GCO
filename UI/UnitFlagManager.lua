@@ -886,7 +886,8 @@ function UnitFlag.UpdateName( self )
 				if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) end
 				if unitData.DamagedVehicles 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_VEHICLES", unitData.DamagedVehicles) end
 				if totalPrisonners	 			> 0 then nameString = nameString .. GCO.GetPrisonnersStringByCiv(unitData) end	-- "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS", totalPrisonners) .. GCO.GetPrisonnersStringByCiv(unitData) end
-				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetFoodStockString(unitData) end					
+				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetFoodStockString(unitData) end
+				if unitData.FuelStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetFuelStockString(unitData) end
 			end
 				
 			-- Statistics
@@ -903,11 +904,13 @@ function UnitFlag.UpdateName( self )
 				
 			-- Unit Consumption
 			local foodConsumption = GCO.GetFoodConsumption(unitData)
-			local bHasConsumption = ( foodConsumption > 0)				
+			local fuelConsumption = GCO.GetFuelConsumption(unitData)
+			local bHasConsumption = ( foodConsumption + fuelConsumption > 0)				
 			if bHasConsumption then
 			
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_CONSUMPTION_TITLE")
 				if foodConsumption 				> 0 then nameString = nameString .. GCO.GetFoodConsumptionString(unitData) end
+				if fuelConsumption 				> 0 then nameString = nameString .. GCO.GetFuelConsumptionString(unitData) end
 				
 			end	
 
