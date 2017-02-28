@@ -149,8 +149,8 @@ UPDATE Units SET AntiPersonnel = 25 Where UnitType = "UNIT_SLINGER";
 -----------------------------------------------
 
 /* Air */
-UPDATE Units SET Personnel = 75, 	Vehicles = 75, Materiel = 250, MaterielPerVehicles = 10 Where UnitType = "UNIT_BIPLANE" OR UnitType = "UNIT_FIGHTER" OR UnitType = "UNIT_AMERICAN_P51" OR UnitType = "UNIT_JET_FIGHTER";
-UPDATE Units SET Personnel = 160, 	Vehicles = 40, Materiel = 400, MaterielPerVehicles = 20 Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
+UPDATE Units SET Personnel = 75, 	Vehicles = 75, Materiel = 250, MaterielPerVehicles = 10, FuelConsumptionPerVehicle = 10 Where UnitType = "UNIT_BIPLANE" OR UnitType = "UNIT_FIGHTER" OR UnitType = "UNIT_AMERICAN_P51" OR UnitType = "UNIT_JET_FIGHTER";
+UPDATE Units SET Personnel = 160, 	Vehicles = 40, Materiel = 400, MaterielPerVehicles = 20, FuelConsumptionPerVehicle = 15 Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
 
 /* Recon */
 UPDATE Units SET Personnel = 200, Materiel = 10  Where UnitType = "UNIT_SCOUT" OR UnitType = "UNIT_RANGER";
@@ -180,7 +180,7 @@ UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300 	Where UnitType =
 UPDATE Units SET Personnel = 300,	Materiel = 75, 	Horses = 300 	Where UnitType = "UNIT_CAVALRY" OR UnitType = "UNIT_RUSSIAN_COSSACK";
 
 /* Mechanized */
-UPDATE Units SET Personnel = 800, 	Vehicles = 200, Materiel = 1000, MaterielPerVehicles = 10 Where UnitType = "UNIT_TANK" OR UnitType = "UNIT_MODERN_ARMOR";
-UPDATE Units SET Personnel = 2500, 	Vehicles = 250, Materiel = 500, MaterielPerVehicles = 5 Where UnitType = "UNIT_MECHANIZED_INFANTRY";
-UPDATE Units SET Personnel = 100, 	Vehicles = 50, 	Materiel = 500, MaterielPerVehicles = 10 Where UnitType = "UNIT_ROCKET_ARTILLERY" OR UnitType = "UNIT_MOBILE_SAM";
-UPDATE Units SET Personnel = 150, 	Vehicles = 75, 	Materiel = 250, MaterielPerVehicles = 10 Where UnitType = "UNIT_HELICOPTER";
+UPDATE Units SET Personnel = 800, 	Vehicles = 200, Materiel = 1000, MaterielPerVehicles = 10, FuelConsumptionPerVehicle = 5 Where UnitType = "UNIT_TANK" OR UnitType = "UNIT_MODERN_ARMOR";
+UPDATE Units SET Personnel = 2500, 	Vehicles = 250, Materiel = 500, MaterielPerVehicles = 5, FuelConsumptionPerVehicle = 1 Where UnitType = "UNIT_MECHANIZED_INFANTRY";
+UPDATE Units SET Personnel = 100, 	Vehicles = 50, 	Materiel = 500, MaterielPerVehicles = 10, FuelConsumptionPerVehicle = 3 Where UnitType = "UNIT_ROCKET_ARTILLERY" OR UnitType = "UNIT_MOBILE_SAM";
+UPDATE Units SET Personnel = 150, 	Vehicles = 75, 	Materiel = 250, MaterielPerVehicles = 10, FuelConsumptionPerVehicle = 8 Where UnitType = "UNIT_HELICOPTER";
