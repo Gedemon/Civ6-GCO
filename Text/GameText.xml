@@ -142,6 +142,10 @@
     <Replace Tag="LOC_UNIT_PERSONNEL_DESERTION" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Position] deserters</Text>
     </Replace>
+	<!-- Food -->
+    <Replace Tag="LOC_FUEL_CONSUMPTION" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR][ICON_RESOURCE_OIL] used</Text>
+    </Replace>
 	
   </LocalizedText>
   
@@ -271,6 +275,25 @@
     </Replace>
     <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONNERS" Language="en_US">
       <Text>[ICON_FoodPerTurn] {1_Num} food by [ICON_Position] {2_Num} Prisonners</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_FUEL_STOCK" Language="en_US">
+      <Text>[ICON_RESOURCE_OIL] {1_Num} / {2_Num} Rations</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_FUEL_STOCK_LIGHT_RATIONING" Language="en_US">
+      <Text>[ICON_RESOURCE_OIL] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Yellow]Light Rationing[ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_FUEL_STOCK_MEDIUM_RATIONING" Language="en_US">
+      <Text>[ICON_RESOURCE_OIL] [COLOR_Civ6Red]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Red]Medium Rationing[ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_UNITFLAG_FUEL_STOCK_HEAVY_RATIONING" Language="en_US">
+      <Text>[ICON_RESOURCE_OIL] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6DarkRed]Heavy Rationing[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_FUEL_CONSUMPTION_ACTIVE" Language="en_US">
+      <Text>[ICON_RESOURCE_OIL] {1_Num} fuel by [ICON_DISTRICT_HANSA] {2_Num} active vehicles</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_FUEL_CONSUMPTION_DAMAGED" Language="en_US">
+      <Text>[ICON_RESOURCE_OIL] {1_Num} fuel by [ICON_DISTRICT_HANSA] {2_Num} damaged vehicles</Text>
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_TOTAL_DEATH" Language="en_US">
