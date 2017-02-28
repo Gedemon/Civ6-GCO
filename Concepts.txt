@@ -20,8 +20,9 @@ when destroying an unit in melee attack:
 - transform % of damaged vehicule to materiel
 
 when destroying an unit in ranged attack:
-- % of wounded left -> defender city if linked
+- few % of wounded left -> defender city if linked
 - everything else lost
+- to do: leave materiel, fuel (wounded ? Horses ?) on the plot using assets
 
 ---------------------------------------------------------------
 
