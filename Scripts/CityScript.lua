@@ -9,8 +9,10 @@ print ("Loading CityScript.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
-local LinkedUnits 	= {}
-local LinkedCities 	= {}
+local LinkedUnits 		= {}	-- temporary table to list all units linked to a city for supply
+local UnitsSupplyDemand	= {}	-- temporary table to list all resources required by units
+local CitiesForTransfer = {}	-- temporary table to list all cities connected via (internal) trade routes to a city
+local CitiesForTrade	= {}	-- temporary table to list all cities connected via (external) trade routes to a city
 
 -----------------------------------------------------------------------------------------
 -- Initialize Globals Functions
@@ -134,7 +136,8 @@ end
 -----------------------------------------------------------------------------------------
 
 function UpdateLinkedUnits(self)
-	LinkedUnits[self] = {}
+	LinkedUnits[self] 		= {}
+	UnitsSupplyDemand[self] = {}
 	for unitKey, data in pairs(ExposedMembers.UnitData) do
 		if data.SupplyLineCityKey == self:GetKey() then
 			local unit = UnitManager.GetUnit(data.playerID, data.unitID)
@@ -146,7 +149,8 @@ function UpdateLinkedUnits(self)
 end
 
 function UpdateLinkedCities(self)
-	LinkedCities[self] = {}
+	CitiesForTransfer[self] = {}
+	CitiesForTrade[self] 	= {}
 end
 
 -----------------------------------------------------------------------------------------
@@ -154,11 +158,21 @@ end
 -----------------------------------------------------------------------------------------
 
 function CityDoTurn(city)
+
+	-- get linked units and supply demand
 	city:UpdateLinkedUnits()
+	
+	-- get linked cities
 	city:UpdateLinkedCities()
+	
 	-- get Resources (allow excedents)
+	
 	-- diffuse to other cities, sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
+	
 	-- remove excedents left
+	
+	-- Update City Size
+	city:ChangeSize()
 end
 
 function DoCitiesTurn( playerID )

@@ -100,7 +100,7 @@ local unitTableEnum = {
 	DamagedVehicles			= 14,
 	Prisonners				= 15,
 	FoodStock				= 16,
-	FoodStockVariation		= 17,
+	PreviousFoodStock		= 17,
 	TotalDeath				= 18,
 	TotalVehiclesLost		= 19,
 	TotalHorsesLost			= 20,
@@ -119,6 +119,8 @@ local unitTableEnum = {
 	CombatXP				= 33,
 	SupplyLineCityKey		= 34,
 	SupplyLineEfficiency	= 35,
+	FuelStock				= 36,
+	PreviousFuelStock		= 37,
 	
 	EndOfEnum				= 99
 }                           
@@ -316,7 +318,10 @@ function RegisterNewUnit(playerID, unit)
 		DamagedVehicles			= 0,
 		Prisonners				= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisonners by nationality
 		FoodStock 				= GCO.GetBaseFoodStock(unitType),
-		FoodStockVariation		= 0,
+		PreviousFoodStock		= 0,
+		FuelStock 				= GCO.GetBaseFuelStock(unitType),
+		PreviousFuelStock		= 0,
+		
 		-- Statistics
 		TotalDeath				= 0,
 		TotalVehiclesLost		= 0,
@@ -772,8 +777,8 @@ function DoUnitFood(unit)
 
 	-- Update variation
 	local foodVariation = foodGet - foodEat
+	ExposedMembers.UnitData[key].PreviousFoodStock = unitData.FoodStock
 	ExposedMembers.UnitData[key].FoodStock = unitData.FoodStock + foodVariation
-	ExposedMembers.UnitData[key].FoodStockVariation = foodVariation
 
 	-- Visualize
 	local foodData = { foodEat = foodEat, foodGet = foodGet, X = unit:GetX(), Y = unit:GetY() }
@@ -858,6 +863,22 @@ function DoUnitMorale(unit)
 	GCO.CheckComponentsHP(unit, "after DoUnitMorale()")
 end
 
+function DoUnitFuel(unit)
+
+	local key = GCO.GetUnitKey(unit)
+	local unitData = ExposedMembers.UnitData[key]
+
+	local fuelConsumption = math.min(GCO.GetFuelConsumption(unitData), unitData.FuelStock)
+
+	-- Update variation
+	ExposedMembers.UnitData[key].PreviousfuelStock = unitData.FuelStock
+	ExposedMembers.UnitData[key].FuelStock = unitData.FuelStock - fuelConsumption
+
+	-- Visualize
+	local fuelData = { fuelConsumption = fuelConsumption, X = unit:GetX(), Y = unit:GetY() }
+	GCO.ShowFuelConsumptionFloatingText(fuelData)
+end
+
 function UnitDoTurn(unit)
 	local key = GCO.GetUnitKey(unit)
 	if not ExposedMembers.UnitData[key] then
@@ -866,6 +887,7 @@ function UnitDoTurn(unit)
 	local playerID = unit:GetOwner()
 	DoUnitFood(unit)
 	DoUnitMorale(unit)
+	DoUnitFuel(unit)
 	SetUnitsupplyLine(unit)
 	LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID())
 end

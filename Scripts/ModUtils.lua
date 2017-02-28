@@ -9,7 +9,7 @@ print ("Loading ModUtils.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
--- This should be the first loading file (to do : make sure of that !), do some cleaning if Events.LeaveGameComplete hasn't fired on returning to main menu or loading a game...
+-- This file should be the first to load, do some cleaning just in case Events.LeaveGameComplete hasn't fired on returning to main menu or loading a game...
 ExposedMembers.SaveLoad_Initialized 		= nil
 ExposedMembers.Serialize_Initialized 		= nil
 ExposedMembers.ContextFunctions_Initialized	= nil
@@ -235,7 +235,7 @@ function GetUnitFromKey ( unitKey )
 			ExposedMembers.UnitData[unitKey].Alive = false
 		end
 	else
-		print("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey(".. tostring(unitKey)..")"")
+		print("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey(".. tostring(unitKey)..")")
 	end
 end
 
@@ -260,7 +260,7 @@ function CheckComponentsHP(unit, str)
 	end
 	if ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Personnel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Personnel).."]")   end
 	if ExposedMembers.UnitData[key].Vehicles  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles  then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Vehicles["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Vehicles).."]")      end
-	if ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	  then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Horses["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Horses).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Horses).."]")            end
+	if ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	 then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Horses["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Horses).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Horses).."]")            end
 	if ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel  then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Materiel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel ).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Materiel).."]")     end
 end
 
@@ -320,6 +320,48 @@ function GetBaseFoodStock(unitType)
 	unitData.HorsesReserve 		= GetHorsesReserve(unitType)
 	local fixedRatio = 1
 	return GetFoodConsumption(unitData, fixedRatio)*5 -- set enough stock for 5 turns
+end
+
+function GetFuelConsumptionRatio(unitData) -- local
+	local ratio = 1
+	local lightRationing 	= tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_LIGHT_RATIO"].Value)
+	local mediumRationing 	= tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_MEDIUM_RATIO"].Value)
+	local heavyRationing 	= tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_HEAVY_RATIO"].Value)
+	local baseFuelStock = GetBaseFuelStock(unitData.unitType)
+	if unitData.FuelStock < (baseFuelStock * heavyRationing) then
+		ratio = tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_HEAVY_RATIO"].Value)
+	elseif unitData.FuelStock < (baseFuelStock * mediumRationing) then
+		ratio = tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_MEDIUM_RATIO"].Value)
+	elseif unitData.FuelStock < (baseFuelStock * lightRationing) then
+		ratio = tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_LIGHT_RATIO"].Value)
+	end
+	return ratio
+end
+
+function GetFuelConsumption(unitData, fixedRatio)
+	if (not unitData.Vehicles) or (unitData.Vehicles == 0) then
+		return 0
+	end
+	local fuelConsumption1000 = 0
+	local ratio = fixedRatio or GetFuelConsumptionRatio(unitData) -- to prevent an infinite loop between GetBaseFuelStock & GetFuelConsumptionRatio
+	fuelConsumption1000 = fuelConsumption1000 + unitData.Vehicles * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) * ratio
+	
+	if unitData.DamagedVehicles then	
+		foodConsumption1000 = foodConsumption1000 + (unitData.DamagedVehicles * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_DAMAGED_FACTOR"].Value) * ratio )
+	end	
+	return math.max(1, Round( fuelConsumption1000 / 1000))
+end
+
+function GetBaseFuelStock(unitType)
+	local unitData = {}
+	unitData.unitType 					= unitType
+	unitData.Vehicles 					= GameInfo.Units[unitType].Vehicles
+	unitData.FuelConsumptionPerVehicle 	= GameInfo.Units[unitType].FuelConsumptionPerVehicle	
+	local fixedRatio = 1
+	if unitData.Vehicles > 0 and unitData.FuelConsumptionPerVehicle > 0 then
+		return GetFuelConsumption(unitData, fixedRatio) * 5 -- set enough stock for 5 turns
+	end
+	return 0
 end
 
 function GetTotalPrisonners(unitData)
@@ -520,12 +562,52 @@ end
 -- Texts function
 ----------------------------------------------
 
+function GetFuelStockString(unitData) 
+	local lightRationing = 	tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_LIGHT_RATIO"].Value)
+	local mediumRationing = tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_MEDIUM_RATIO"].Value)
+	local heavyRationing = 	tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_HEAVY_RATIO"].Value)
+	local baseFuelStock = GetBaseFuelStock(unitData.unitType)
+	local fuelStockVariation = unitData.FuelStock - unitData.PreviousFuelStock
+	local str = ""
+	if unitData.FuelStock < (baseFuelStock * heavyRationing) then
+		str = Locale.Lookup("LOC_UNITFLAG_FUEL_STOCK_HEAVY_RATIONING", unitData.FuelStock, baseFuelStock)
+	elseif unitData.FuelStock < (baseFuelStock * mediumRationing) then
+		str = Locale.Lookup("LOC_UNITFLAG_FUEL_STOCK_MEDIUM_RATIONING", unitData.FuelStock, baseFuelStock)
+	elseif unitData.FuelStock < (baseFuelStock * lightRationing) then
+		str = Locale.Lookup("LOC_UNITFLAG_FUEL_STOCK_LIGHT_RATIONING", unitData.FuelStock, baseFuelStock)
+	else
+		str = Locale.Lookup("LOC_UNITFLAG_FUEL_STOCK", unitData.FuelStock, baseFuelStock)
+	end	
+	
+	if fuelStockVariation > 0 then
+		str = str .. "[ICON_PressureUp]"
+	elseif fuelStockVariation < 0 then
+		str = str .." [ICON_PressureDown]"
+	end
+	
+	return str
+end
+
+function GetFuelConsumptionString(unitData)
+	local str = ""
+	local ratio = GetFuelConsumptionRatio(unitData)
+	if unitData.Vehicles > 0 then 
+		local fuel = ( unitData.Vehicles * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) )/1000
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FUEL_CONSUMPTION_ACTIVE", ToDecimals(fuel * ratio), unitData.Vehicles) 
+	end	
+	if unitData.DamagedVehicles > 0 then 
+		local fuel = ( unitData.DamagedVehicles * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) )/1000
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FUEL_CONSUMPTION_DAMAGED", ToDecimals(fuel * ratio), unitData.DamagedVehicles) 
+	end	
+	return str
+end
+
 function GetFoodStockString(unitData) 
 	local lightRationing = 	tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 	local mediumRationing = tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 	local heavyRationing = 	tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
 	local baseFoodStock = GetBaseFoodStock(unitData.unitType)
-	local foodStockVariation	= unitData.FoodStockVariation
+	local foodStockVariation = unitData.FoodStock - unitData.PreviousFoodStock
 	local str = ""
 	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
 		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", unitData.FoodStock, baseFoodStock)
@@ -931,6 +1013,21 @@ function ShowDesertionFloatingText(desertionData)
 	end
 end
 
+function ShowFuelFloatingText(fuelData)
+	if floatingTextLevel == FLOATING_TEXT_NONE then
+		return
+	end
+	if fuelData.fuelConsumption > 0 then
+		local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+		if (pLocalPlayerVis ~= nil) then
+			if (pLocalPlayerVis:IsVisible(fuelData.X, fuelData.Y)) then
+				local sText = Locale.Lookup("LOC_UNIT_FUEL_CONSUMPTION", fuelData.fuelConsumption)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, fuelData.X, fuelData.Y, 0)
+			end
+		end
+	end
+end
+
 ----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
@@ -966,6 +1063,8 @@ function Initialize()
 	ExposedMembers.GCO.GetMaterielFromKillOfBy			= GetMaterielFromKillOfBy
 	ExposedMembers.GCO.GetFoodConsumption 				= GetFoodConsumption
 	ExposedMembers.GCO.GetBaseFoodStock 				= GetBaseFoodStock
+	ExposedMembers.GCO.GetFuelConsumption 				= GetFuelConsumption
+	ExposedMembers.GCO.GetBaseFuelStock 				= GetBaseFuelStock
 	ExposedMembers.GCO.GetMoraleFromFood 				= GetMoraleFromFood
 	ExposedMembers.GCO.GetMoraleFromLastCombat 			= GetMoraleFromLastCombat
 	ExposedMembers.GCO.GetMoraleFromWounded				= GetMoraleFromWounded
@@ -976,6 +1075,8 @@ function Initialize()
 	ExposedMembers.GCO.GetFoodConsumptionRatioString 	= GetFoodConsumptionRatioString
 	ExposedMembers.GCO.GetFoodConsumptionString 		= GetFoodConsumptionString
 	ExposedMembers.GCO.GetFoodStockString 				= GetFoodStockString
+	ExposedMembers.GCO.GetFuelStockString 				= GetFuelStockString
+	ExposedMembers.GCO.GetFuelConsumptionString 		= GetFuelConsumptionString
 	ExposedMembers.GCO.GetMoraleString 					= GetMoraleString
 	
 	ExposedMembers.GCO.ShowCasualtiesFloatingText 		= ShowCasualtiesFloatingText
@@ -984,6 +1085,7 @@ function Initialize()
 	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
 	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
+	ExposedMembers.GCO.ShowFuelFloatingText 			= ShowFuelFloatingText
 	
 	ExposedMembers.GCO.GetPlotKey 						= GetPlotKey
 	ExposedMembers.GCO.FindNearestPlayerCity 			= FindNearestPlayerCity
