@@ -320,8 +320,7 @@ function RegisterNewUnit(playerID, unit)
 		FoodStock 				= GCO.GetBaseFoodStock(unitType),
 		PreviousFoodStock		= 0,
 		FuelStock 				= GCO.GetBaseFuelStock(unitType),
-		PreviousFuelStock		= 0,
-		
+		PreviousFuelStock		= 0,		
 		-- Statistics
 		TotalDeath				= 0,
 		TotalVehiclesLost		= 0,
@@ -358,7 +357,7 @@ function InitializeUnit(playerID, unitID)
 			return
 		end
 
-		--print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
+		print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
 		RegisterNewUnit(playerID, unit)
 		--print("-------------------------------------")
 	else
@@ -584,6 +583,7 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 
 		-- apply reinforcement from all passes to units in one call to SetDamage (fix visual display of one "+1" when the unit was getting possibly more)
 		for unit, hp in pairs (healTable) do
+			GCO.CheckComponentsHP(unit, "before Healing")
 			local key = GCO.GetUnitKey(unit)
 			if key then
 
@@ -591,6 +591,7 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 				local damage = unit:GetDamage()
 				local initialHP = maxHP - damage
 				local finalHP = initialHP + hp
+				print("initialHP:", initialHP , "finalHP:", finalHP, "hp from heal table:", hp)
 				unit:SetDamage(damage-hp)
 
 				-- update reserve and frontline...
@@ -867,16 +868,15 @@ function DoUnitFuel(unit)
 
 	local key = GCO.GetUnitKey(unit)
 	local unitData = ExposedMembers.UnitData[key]
-
 	local fuelConsumption = math.min(GCO.GetFuelConsumption(unitData), unitData.FuelStock)
-
-	-- Update variation
-	ExposedMembers.UnitData[key].PreviousfuelStock = unitData.FuelStock
-	ExposedMembers.UnitData[key].FuelStock = unitData.FuelStock - fuelConsumption
-
-	-- Visualize
-	local fuelData = { fuelConsumption = fuelConsumption, X = unit:GetX(), Y = unit:GetY() }
-	GCO.ShowFuelConsumptionFloatingText(fuelData)
+	if fuelConsumption > 0 then
+		-- Update variation
+		ExposedMembers.UnitData[key].PreviousFuelStock = unitData.FuelStock
+		ExposedMembers.UnitData[key].FuelStock = unitData.FuelStock - fuelConsumption
+		-- Visualize
+		local fuelData = { fuelConsumption = fuelConsumption, X = unit:GetX(), Y = unit:GetY() }
+		GCO.ShowFuelConsumptionFloatingText(fuelData)
+	end
 end
 
 function UnitDoTurn(unit)

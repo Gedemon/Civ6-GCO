@@ -191,7 +191,7 @@ end
 
 
 function GetCityFromKey ( cityKey )
-	if ExposedMembers.CityData[unitKey] then
+	if ExposedMembers.CityData[cityKey] then
 		local city = CityManager.GetCity(ExposedMembers.CityData[cityKey].playerID, ExposedMembers.CityData[cityKey].cityID)
 		if city then
 			return city
@@ -258,10 +258,10 @@ function CheckComponentsHP(unit, str)
 		print(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
 		return
 	end
-	if ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Personnel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Personnel).."]")   end
-	if ExposedMembers.UnitData[key].Vehicles  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles  then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Vehicles["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Vehicles).."]")      end
-	if ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	 then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Horses["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Horses).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Horses).."]")            end
-	if ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel  then print("WARNING : ".. tostring(str).." - HP["..tostring(HP).."] Materiel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel ).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Materiel).."]")     end
+	if ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel then print("WARNING : For "..tostring(unit:GetType()).." id # ".. tostring(unit:GetID()).." player #"..tostring(unit:GetOwner()).." ".. tostring(str).." - HP["..tostring(HP).."] Personnel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Personnel).."]")   end
+	if ExposedMembers.UnitData[key].Vehicles  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles  then print("WARNING : For "..tostring(unit:GetType()).." id # ".. tostring(unit:GetID()).." player #"..tostring(unit:GetOwner()).." ".. tostring(str).." - HP["..tostring(HP).."] Vehicles["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Vehicles).."]")      end
+	if ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	 then print("WARNING : For "..tostring(unit:GetType()).." id # ".. tostring(unit:GetID()).." player #"..tostring(unit:GetOwner()).." ".. tostring(str).." - HP["..tostring(HP).."] Horses["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Horses).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Horses).."]")            end
+	if ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel  then print("WARNING : For "..tostring(unit:GetType()).." id # ".. tostring(unit:GetID()).." player #"..tostring(unit:GetOwner()).." ".. tostring(str).." - HP["..tostring(HP).."] Materiel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel ).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Materiel).."]")     end
 end
 
 function GetPersonnelReserve(unitType)
@@ -1013,7 +1013,7 @@ function ShowDesertionFloatingText(desertionData)
 	end
 end
 
-function ShowFuelFloatingText(fuelData)
+function ShowFuelConsumptionFloatingText(fuelData)
 	if floatingTextLevel == FLOATING_TEXT_NONE then
 		return
 	end
@@ -1085,7 +1085,7 @@ function Initialize()
 	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
 	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
-	ExposedMembers.GCO.ShowFuelFloatingText 			= ShowFuelFloatingText
+	ExposedMembers.GCO.ShowFuelConsumptionFloatingText 	= ShowFuelConsumptionFloatingText
 	
 	ExposedMembers.GCO.GetPlotKey 						= GetPlotKey
 	ExposedMembers.GCO.FindNearestPlayerCity 			= FindNearestPlayerCity

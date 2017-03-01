@@ -94,9 +94,10 @@ end
 function RegisterNewCity(playerID, city)
 
 	local cityKey 	= city:GetKey()
+	print(cityKey)
 	local personnel = city:GetMaxPersonnel()
 	
-	ExposedMembers.UnitData[cityKey] = {
+	ExposedMembers.CityData[cityKey] = {
 		cityID 					= city:GetID(),
 		playerID 				= playerID,
 		Personnel 				= personnel,
