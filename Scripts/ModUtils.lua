@@ -189,7 +189,6 @@ function GetCityKey(city)
 	return city:GetID() ..",".. city:GetOriginalOwner()
 end
 
-
 function GetCityFromKey ( cityKey )
 	if ExposedMembers.CityData[cityKey] then
 		local city = CityManager.GetCity(ExposedMembers.CityData[cityKey].playerID, ExposedMembers.CityData[cityKey].cityID)
@@ -247,21 +246,67 @@ function CheckComponentsHP(unit, str)
 	local HP = unit:GetMaxDamage() - unit:GetDamage()
 	local unitType = unit:GetType()
 	local key = GetUnitKey(unit)
-	if HP < 0 then
+	--if HP < 0 then
+	function debug()
 		print("---------------------------------------------------------------------------")
 		print("in CheckComponentsHP() for " .. tostring(str))
+		print("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
 		--print("WARNING : HP < 0 in CheckComponentsHP() for " .. tostring(str))
-		print("key", key, "type", unitType, "HP", HP)	
-		print(ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
-		print(ExposedMembers.UnitData[key], ExposedMembers.UnitHitPointsTable[unitType])
-		print(ExposedMembers.UnitData[key].Personnel, ExposedMembers.UnitHitPointsTable[unitType][HP])
-		print(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
+		print("key =", key, "unitType =", unitType, "HP =", HP)	
+		--print(ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
+		--print(ExposedMembers.UnitData[key], ExposedMembers.UnitHitPointsTable[unitType])
+		print("UnitData[key].Personnel =", ExposedMembers.UnitData[key].Personnel, "UnitHitPointsTable[unitType][HP].Personnel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
+		print("UnitData[key].Vehicles =", ExposedMembers.UnitData[key].Vehicles, "UnitHitPointsTable[unitType][HP].Vehicles =", ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles)
+		print("UnitData[key].Horses =", ExposedMembers.UnitData[key].Horses, "UnitHitPointsTable[unitType][HP].Horses =", ExposedMembers.UnitHitPointsTable[unitType][HP].Horses)
+		print("UnitData[key].Materiel =", ExposedMembers.UnitData[key].Materiel, "UnitHitPointsTable[unitType][HP].Materiel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel)
+		print("---------------------------------------------------------------------------")
+	end
+	if 		ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel 
+		or 	ExposedMembers.UnitData[key].Vehicles  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles  
+		or 	ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	 
+		or 	ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel 
+	then 
+		debug()
+	end
+end
+
+local debugTable = {}
+function DebugComponentsHP(unit, str)
+	if not unit then
+		print("WARNING : unit is nil in DebugComponentsHP, REF = " .. tostring(str))
 		return
 	end
-	if ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel then print("WARNING : For "..tostring(unit:GetType()).." id # ".. tostring(unit:GetID()).." player #"..tostring(unit:GetOwner()).." ".. tostring(str).." - HP["..tostring(HP).."] Personnel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Personnel).."]")   end
-	if ExposedMembers.UnitData[key].Vehicles  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles  then print("WARNING : For "..tostring(unit:GetType()).." id # ".. tostring(unit:GetID()).." player #"..tostring(unit:GetOwner()).." ".. tostring(str).." - HP["..tostring(HP).."] Vehicles["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Vehicles).."]")      end
-	if ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	 then print("WARNING : For "..tostring(unit:GetType()).." id # ".. tostring(unit:GetID()).." player #"..tostring(unit:GetOwner()).." ".. tostring(str).." - HP["..tostring(HP).."] Horses["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Horses).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Horses).."]")            end
-	if ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel  then print("WARNING : For "..tostring(unit:GetType()).." id # ".. tostring(unit:GetID()).." player #"..tostring(unit:GetOwner()).." ".. tostring(str).." - HP["..tostring(HP).."] Materiel["..tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel ).."] is different than actual unit["..tostring(ExposedMembers.UnitData[key].Materiel).."]")     end
+	if not debugTable[unit] then debugTable[unit] = {} end
+	local HP = unit:GetMaxDamage() - unit:GetDamage()
+	local unitType = unit:GetType()
+	local key = GetUnitKey(unit)
+	--if HP < 0 then
+	table.insert(debugTable, "---------------------------------------------------------------------------")
+	table.insert(debugTable, "In DebugComponentsHP at turn#"..tostring(Game.GetCurrentGameTurn())..", REF = " .. tostring(str))
+	table.insert(debugTable, "For "..tostring(GameInfo.Units[unitType].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
+	--table.insert(debugTable, "WARNING : HP < 0 in CheckComponentsHP() for " .. tostring(str))
+	table.insert(debugTable, "key =", key, "unitType =", unitType, "HP =", HP)	
+	--table.insert(debugTable, ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
+	--table.insert(debugTable, ExposedMembers.UnitData[key], ExposedMembers.UnitHitPointsTable[unitType])
+	table.insert(debugTable, "UnitData[key].Personnel =", ExposedMembers.UnitData[key].Personnel, "UnitHitPointsTable[unitType][HP].Personnel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
+	table.insert(debugTable, "UnitData[key].Vehicles =", ExposedMembers.UnitData[key].Vehicles, "UnitHitPointsTable[unitType][HP].Vehicles =", ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles)
+	table.insert(debugTable, "UnitData[key].Horses =", ExposedMembers.UnitData[key].Horses, "UnitHitPointsTable[unitType][HP].Horses =", ExposedMembers.UnitHitPointsTable[unitType][HP].Horses)
+	table.insert(debugTable, "UnitData[key].Materiel =", ExposedMembers.UnitData[key].Materiel, "UnitHitPointsTable[unitType][HP].Materiel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel)
+	table.insert(debugTable, "---------------------------------------------------------------------------")
+end
+
+function ShowDebugComponentsHP(unit)
+	local key = GetUnitKey(unit)
+	if 		ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel 
+		or 	ExposedMembers.UnitData[key].Vehicles  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles  
+		or 	ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	 
+		or 	ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel 
+	then 
+		for _, text in ipairs(debugTable[unit]) do
+			print(text)
+		end
+		debugTable[unit] = {}
+	end
 end
 
 function GetPersonnelReserve(unitType)
@@ -376,7 +421,7 @@ function GetMaterielFromKillOfBy(OpponentA, OpponentB)
 	-- capture most materiel, convert some damaged Vehicles
 	local materielFromKill = 0
 	local materielFromCombat = OpponentA.MaterielLost * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value) / 100
-	local materielFromReserve = ExposedMembers.UnitData[OpponentA.unitKey].MaterielReserve* tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value) /100
+	local materielFromReserve = ExposedMembers.UnitData[OpponentA.unitKey].MaterielReserve * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value) /100
 	local materielFromVehicles = ExposedMembers.UnitData[OpponentA.unitKey].DamagedVehicles * ExposedMembers.UnitData[OpponentA.unitKey].MaterielPerVehicles * tonumber(GameInfo.GlobalParameters["MATERIEL_PERCENTAGE_TO_REPAIR_VEHICLE"].Value) / 100 * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_VEHICLES_KILL_PERCENT"].Value) / 100
 	materielFromKill = Round(materielFromCombat + materielFromReserve + materielFromVehicles) 
 	return materielFromKill
@@ -1069,7 +1114,10 @@ function Initialize()
 	ExposedMembers.GCO.GetMoraleFromLastCombat 			= GetMoraleFromLastCombat
 	ExposedMembers.GCO.GetMoraleFromWounded				= GetMoraleFromWounded
 	ExposedMembers.GCO.GetMoraleFromHP 					= GetMoraleFromHP
+	
 	ExposedMembers.GCO.CheckComponentsHP 				= CheckComponentsHP
+	ExposedMembers.GCO.ShowDebugComponentsHP 			= ShowDebugComponentsHP
+	ExposedMembers.GCO.DebugComponentsHP 				= DebugComponentsHP
 	
 	ExposedMembers.GCO.GetPrisonnersStringByCiv 		= GetPrisonnersStringByCiv
 	ExposedMembers.GCO.GetFoodConsumptionRatioString 	= GetFoodConsumptionRatioString

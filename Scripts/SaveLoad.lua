@@ -89,9 +89,9 @@ function SaveTableToSlot(t, sSlotName)
 	GCO.Dprint("GCO.serialize(t) : SaveTableToSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t)) .. ", serialized size = " .. tostring(size))
 
 	-- test saved value
-	--[[
+	---[[
 	do
-		GCO.StartTimer("deserialize")
+		--GCO.StartTimer("deserialize")
 		local s2 = GameConfiguration.GetValue(sSlotName)
 		local size2 = string.len(s2)
 		if s2 ~= s then
@@ -104,7 +104,7 @@ function SaveTableToSlot(t, sSlotName)
 			GCO.Dprint("----------------------------------------------------------------------------------------------------------------------------------------")
 		end
 		local t2 = GCO.deserialize(s2)
-		GCO.ShowTimer("deserialize")
+		--GCO.ShowTimer("deserialize")
 		GCO.Dprint("GCO.deserialize(t) : LoadTableFromSlot for slot " .. tostring(sSlotName) .. ", table size = " .. tostring(GCO.GetSize(t2)) .. ", serialized size = " .. tostring(size2))
 	end
 	--]]

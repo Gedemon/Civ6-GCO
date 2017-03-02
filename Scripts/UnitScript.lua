@@ -410,6 +410,15 @@ function OnCombat( combatResult )
 		--
 		defender.CanTakePrisonners = defender.IsLandUnit and combatType == CombatTypes.MELEE and not defender.IsDead
 	end
+	
+	if attacker.IsUnit and not attacker.IsDead then
+		GCO.DebugComponentsHP(attacker.unit, "attacker before handling combat casualties")
+		GCO.ShowDebugComponentsHP(attacker.unit)
+	end
+	if defender.IsUnit and not defender.IsDead then
+		GCO.DebugComponentsHP(defender.unit, "defender before handling combat casualties")
+		GCO.ShowDebugComponentsHP(defender.unit)
+	end
 
 	-- Handle casualties
 	if attacker.IsUnit then -- and attacker[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
@@ -502,8 +511,9 @@ function OnCombat( combatResult )
 		end
 	end
 		
-	if attacker.IsUnit and not attacker.IsDead then GCO.CheckComponentsHP(attacker.unit, "attacker after combat") end
-	if defender.IsUnit and not defender.IsDead then GCO.CheckComponentsHP(defender.unit, "defender after combat") end
+	if attacker.IsUnit and not attacker.IsDead then GCO.DebugComponentsHP(attacker.unit, "attacker after combat") end
+	if defender.IsUnit and not defender.IsDead then GCO.DebugComponentsHP(defender.unit, "defender after combat") end
+	
 end
 Events.Combat.Add( OnCombat )
 
@@ -583,7 +593,8 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 
 		-- apply reinforcement from all passes to units in one call to SetDamage (fix visual display of one "+1" when the unit was getting possibly more)
 		for unit, hp in pairs (healTable) do
-			GCO.CheckComponentsHP(unit, "before Healing")
+			--GCO.CheckComponentsHP(unit, "before Healing")
+			GCO.DebugComponentsHP(unit, "before Healing")
 			local key = GCO.GetUnitKey(unit)
 			if key then
 
@@ -618,7 +629,9 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 
 				LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 				
-				GCO.CheckComponentsHP(unit, "after Healing")
+				--GCO.CheckComponentsHP(unit, "after Healing")
+				GCO.DebugComponentsHP(unit, "after Healing")
+				ShowDebugComponentsHP(unit)
 			end
 
 		end
@@ -809,6 +822,7 @@ function DoUnitMorale(unit)
 		minPercentHP 		= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_HP"].Value) --75
 		minPercentReserve 	= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_RESERVE"].Value) --50
 	end
+	GCO.DebugComponentsHP(unit, "In DoUnitMorale(), desertion Rate = " .. tostring(desertionRate))
 	if desertionRate > 0 then
 		local HP = unit:GetMaxDamage() - unit:GetDamage()
 		local unitType = unit:GetType()
@@ -816,7 +830,7 @@ function DoUnitMorale(unit)
 		local desertionData = {Personnel = 0, Vehicles = 0, Horses = 0, Materiel = 0, GiveDamage = false, Show = false, X = unit:GetX(), Y = unit:GetY() }
 		if HP > minPercentHP then
 			local lostHP = math.max(1, GCO.Round(HP * desertionRate / 100))
-			local finalHP = HP - desertionRate
+			local finalHP = HP - lostHP
 
 			-- Get desertion number
 			desertionData.Personnel = UnitHitPointsTable[unitType][HP].Personnel 	- UnitHitPointsTable[unitType][finalHP].Personnel
@@ -858,10 +872,12 @@ function DoUnitMorale(unit)
 
 		-- Set Damage
 		if desertionData.GiveDamage then
-			unit:SetDamage(unit:GetDamage() + desertionRate)
+			unit:SetDamage(unit:GetDamage() + lostHP)
 		end
 	end
-	GCO.CheckComponentsHP(unit, "after DoUnitMorale()")
+	--GCO.CheckComponentsHP(unit, "after DoUnitMorale()")	
+	GCO.DebugComponentsHP(unit, "after DoUnitMorale()")
+	ShowDebugComponentsHP(unit)
 end
 
 function DoUnitFuel(unit)
