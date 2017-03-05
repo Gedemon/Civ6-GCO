@@ -12,15 +12,12 @@ include( "Civ6Common" );
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
-GCO = {}
-function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then -- can't use GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
-		GCO = ExposedMembers.GCO		-- contains functions from other contexts
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		print ("Exposed Functions from other contexts initialized...")
-	end
+local GCO = {}
+function InitializeUtilityFunctions()
+	GCO = ExposedMembers.GCO		-- contains functions from other contexts
+	print ("Exposed Functions from other contexts initialized...")
 end
-Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 -- GCO >>>>>
 
 -- ===========================================================================

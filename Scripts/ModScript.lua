@@ -15,14 +15,11 @@ print ("Loading ModScript.lua...")
 
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then 
-		GCO = ExposedMembers.GCO		-- contains functions from other contexts 
-		UI = ExposedMembers.UI 			-- to use UI function in this script context
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		print ("Exposed Functions from other contexts initialized...")
-	end
+	GCO = ExposedMembers.GCO			-- contains functions from other contexts 
+	LuaEvents.InitializeGCO.Remove( InitializeUtilityFunctions )
+	print ("Exposed Functions from other contexts initialized...")
 end
---Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 -----------------------------------------------------------------------------------------
 -- Remove CS on game start

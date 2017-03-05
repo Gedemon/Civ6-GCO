@@ -169,6 +169,16 @@ table for resources required per vehicle
 - variation speed is dependant of moral
 - loyalty lower when not linked to a city
 
+
+====================
+=Tribes/Barbarians =
+====================
+
+grouped tribal village
+can spawn barbarians camps if pillaged
+visiting with scout, civilian = friendly but less goodies / military units = unfriendly but more goodies ?
+popup to allow choice (pay for reinforcements or pillage or no action for example ?) 
+
 ====================
 =  Technologies    =
 ====================
@@ -210,10 +220,10 @@ table for resources required per vehicle
 	- bonus in prod when previous building in city
 	- lua script to replace the old building on completion
 
+	
 ====================
 =      Budget      =
 ====================
-
 
 calculate need (ie maintenance cost, then bonus if superior, malus if inferior)
 

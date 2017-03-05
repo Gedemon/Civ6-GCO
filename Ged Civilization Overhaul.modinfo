@@ -23,6 +23,7 @@
 		<ImportFiles id="GCO_IMPORT">
 			<Items>
 				<File>UI/UnitFlagManager.lua</File>
+				<File>UI/CityBannerManager.lua</File>
 				<File>UI/PlotToolTip.lua</File>
 			</Items>
 		</ImportFiles>
@@ -64,6 +65,11 @@
         <GameplayScripts>
             <Items>
                 <File>Scripts/RouteConnections.lua</File>
+            </Items>
+        </GameplayScripts>
+        <GameplayScripts>
+            <Items>
+                <File>Scripts/PlotIterators.lua</File>
             </Items>
         </GameplayScripts>
         <UserInterface>
@@ -132,6 +138,7 @@
 		<File>Scripts/ContextFunctions.xml</File>
 		<File>Scripts/Serialize.lua</File>
 		<File>Scripts/RouteConnections.lua</File>
+		<File>Scripts/PlotIterators.lua</File>
 		<File>InGame/ModInGame.lua</File>
 		<File>InGame/ModInGame.xml</File>
 		<File>UI/UnitFlagManager.lua</File>

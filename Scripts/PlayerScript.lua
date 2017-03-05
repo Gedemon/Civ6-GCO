@@ -11,20 +11,16 @@ print ("Loading PlayerScript.lua...")
 
 
 -----------------------------------------------------------------------------------------
--- Initialize Globals Functions
+-- Initialize
 -----------------------------------------------------------------------------------------
 
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then
-		GCO = ExposedMembers.GCO		-- contains functions from other contexts
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		print ("Exposed Functions from other contexts initialized...")
-		ExposedMembers.PlayerData = GCO.LoadTableFromSlot("PlayerData") or {}
-		InitializePlayerFunctions()
-	end
+	GCO = ExposedMembers.GCO
+	print ("Exposed Functions from other contexts initialized...")
+	PostInitialize()
 end
-Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
 	--print("--------------------------- Saving PlayerData ---------------------------")
@@ -34,6 +30,10 @@ function SaveTables()
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
+function PostInitialize() -- everything that may require other context to be loaded first
+	ExposedMembers.PlayerData = GCO.LoadTableFromSlot("PlayerData") or {}
+	InitializePlayerFunctions()
+end
 
 -----------------------------------------------------------------------------------------
 -- Player functions

@@ -9,7 +9,7 @@
 -- on the condition that this comment block is preserved in its entirity
 --
 
--- Converted to civ6 by Gedemon
+-- Partially converted to civ6 by Gedemon (don't use "Road" or "Railroad")
 
 print("Loading RouteConnections.lua.")
 
@@ -38,6 +38,29 @@ function VecSubtract( v1, v2 )
     if( v1.w ~= nil and v2.w ~= nil ) then temp.w = v1.w - v2.w; end
     return temp;
 end
+
+
+-------------------------------------------------------------------------------------------
+-- Hex Coordinate (thx astog)
+-- https://forums.civfanatics.com/threads/using-whowards-border-and-plot-iterators-in-civ-6.607334/
+-------------------------------------------------------------------------------------------
+
+function ToHexFromGrid(grid)
+    local hex = {
+        x = grid.x - (grid.y - (grid.y % 2)) / 2;
+        y = grid.y;
+    }
+    return hex
+end
+
+function ToGridFromHex(hex_x, hex_y)
+    local grid = {
+        x = hex_x + (hex_y - (hex_y % 2)) / 2;
+        y = hex_y;
+    }
+    return grid.x, grid.y
+end
+
 -------------------------------------------------------------------------------------------
 
 ----- PUBLIC METHODS -----

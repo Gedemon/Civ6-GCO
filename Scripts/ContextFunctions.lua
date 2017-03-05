@@ -4,28 +4,30 @@
 -----------------------------------------------------------------------------------------
 
 --=================================================
--- Initialize UI context function
--- to use them in scripts
+-- Initialize UI context function to use them in scripts
+-- Notes from Salec (Firaxis) https://forums.civfanatics.com/threads/information-from-firaxis-developer-on-the-mod-tools.611291/
+--[[
+		The gameplay DLL is running on a separate thread and has it's own set of lua exposures.
+		The UI scripts act on cached data that may not be 100% in sync with the state of the gameplay dll (for example if it's playing back combat)
+		Because of this the UI-side lua scripts have some different exposures than the gameplay side.
+--]]
 --=================================================
 
 ----------------------------------------------
--- defines
+-- Defines
 ----------------------------------------------
 
 
 ----------------------------------------------
--- Initialize Functions
+-- Initialize
 ----------------------------------------------
 
 local GCO = ExposedMembers.GCO -- Initialize with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded
-function InitializeUtilityFunctions() -- Get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then 
-		GCO = ExposedMembers.GCO -- Reinitialize with what may have been added with other UI contexts
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		print ("Exposed Functions from other contexts initialized...")
-	end
+function InitializeUtilityFunctions()
+	GCO = ExposedMembers.GCO -- Reinitialize with what may have been added with other UI contexts
+	print ("Exposed Functions from other contexts initialized...")
 end
-Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 
 ----------------------------------------------
@@ -33,7 +35,7 @@ Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 ----------------------------------------------
 
 function GetCityCultureYield(plot)
-	local contextCity = Cities.GetCityInPlot(plot:GetX(), plot:GetY())
+	local contextCity = Cities.GetCityInPlot(plot:GetX(), plot:GetY())  -- We can't use an object comming from a script context to call a function exposed only to the UI context...
 	if not contextCity then return 0 end
 	local cityCulture = contextCity:GetCulture()
 	if cityCulture then
@@ -42,21 +44,18 @@ function GetCityCultureYield(plot)
 		return 0
 	end
 end
--- to do ? 
---[[
 
-	get local c = getmetatable(city).__index on event city added to map
-	then use ExposedMembers.GCO.City.GetCulture	= c.GetCulture in scripts that requires it
-
---]]
-
+function GetCityPlots(city)
+	contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	return Map.GetCityPlots():GetPurchasedPlots(contextCity)
+end
 
 ----------------------------------------------
 -- Players functions
 ----------------------------------------------
 
 function HasPlayerOpenBordersFrom(Player, otherPlayerID)
-	local contextPlayer = Players[Player:GetID()]
+	local contextPlayer = Players[Player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
 	return contextPlayer:GetDiplomacy():HasOpenBordersFrom( otherPlayerID )
 end
 
@@ -66,7 +65,7 @@ end
 ----------------------------------------------
 
 function IsImprovementPillaged(plot)
-	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY()) -- Can't use the plot from a script context in the UI context.
+	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY())
 	return contextPlot:IsImprovementPillaged()
 end
 
@@ -91,6 +90,7 @@ function Initialize()
 	
 	-- cities
 	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
+	ExposedMembers.GCO.GetCityPlots					= GetCityPlots
 	-- players
 	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
 	-- plots

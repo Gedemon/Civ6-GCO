@@ -15,21 +15,22 @@ local CitiesForTransfer = {}	-- temporary table to list all cities connected via
 local CitiesForTrade	= {}	-- temporary table to list all cities connected via (external) trade routes to a city
 
 -----------------------------------------------------------------------------------------
--- Initialize Globals Functions
+-- Initialize
 -----------------------------------------------------------------------------------------
 
 local GCO = {}
-function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then
-		GCO = ExposedMembers.GCO		-- contains functions from other contexts
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		print ("Exposed Functions from other contexts initialized...")
-		ExposedMembers.CityData = GCO.LoadTableFromSlot("CityData") or {}
-	end
+function InitializeUtilityFunctions()
+	GCO = ExposedMembers.GCO		-- contains functions from other contexts
+	print ("Exposed Functions from other contexts initialized...")
+	PostInitialize()
 end
-Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
-function Initialize() -- called immediatly on load
+function PostInitialize() -- everything that may require other context to be loaded first
+	ExposedMembers.CityData = GCO.LoadTableFromSlot("CityData") or {}
+end
+
+function Initialize() -- called immediatly after loading this file
 	Events.CityAddedToMap.Add( InitializeCityFunctions ) -- first as InitializeCity() may require those functions
 	Events.CityAddedToMap.Add( InitializeCity )
 end
@@ -94,7 +95,6 @@ end
 function RegisterNewCity(playerID, city)
 
 	local cityKey 	= city:GetKey()
-	print(cityKey)
 	local personnel = city:GetMaxPersonnel()
 	
 	ExposedMembers.CityData[cityKey] = {
@@ -131,6 +131,20 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 
 end
 
+-- for debugging
+function ShowCityData()
+	for cityKey, data in pairs(ExposedMembers.CityData) do
+		print (cityKey, data)
+		for k, v in pairs (data) do
+			print ("-", k, v)
+			if k == "Prisonners" then
+				for id, num in pairs (v) do
+					print ("-", "-", id, num)
+				end			
+			end
+		end
+	end
+end
 
 -----------------------------------------------------------------------------------------
 -- Resources functions
@@ -173,7 +187,7 @@ function CityDoTurn(city)
 	-- remove excedents left
 	
 	-- Update City Size
-	city:ChangeSize()
+	--city:ChangeSize()
 end
 
 function DoCitiesTurn( playerID )

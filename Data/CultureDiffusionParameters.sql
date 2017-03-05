@@ -21,11 +21,11 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_SHOW_VARI
 --------------------------------------------------------------
 --
 -- Initial culture value in cities
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_BASE_PRODUCTION',  10); -- default',  10
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_BASE_PRODUCTION',  25); -- default',  10
 -- Base culture production factor in cities
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_FACTOR',	10000);	-- culture value factor used for logarithmic progression (log10)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_RATIO',		15);	-- percent of culture value used for sqrt progression
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_OUTPUT_USE_LOG', 1);		-- if true use logarithmic progression (slower), else use sqrt (faster)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_OUTPUT_USE_LOG', 0);		-- if true use logarithmic progression (slower), else use sqrt (faster)
 ------------------------------------------------------------------------------------------------------------------------
 --
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_CAPED_FACTOR',		2000);	-- maxCulture on a city plot = (population + cityCultureProduction) * CULTURE_CITY_CAPED_FACTOR
@@ -65,7 +65,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CROSS_FOR
 ------------------------------------------------------------------------------------------------------------------------
 --
 -- Rate of diffusion
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_RATE',  125); --	percentage*10 : if CULTURE_DIFFUSION_RATE = 1000 then diffusion is 100% of diffusing plot value.
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_RATE',  250); --	percentage*10 : if CULTURE_DIFFUSION_RATE = 1000 then diffusion is 100% of diffusing plot value.
 --							Defaut is 55',  5,5% diffusion
 
 ------------------------------------------------------------------------------------------------------------------------

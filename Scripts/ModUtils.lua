@@ -28,18 +28,28 @@ local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
-function IsInitializedGCO()
-	return (ExposedMembers.SaveLoad_Initialized and ExposedMembers.Utils_Initialized and ExposedMembers.Serialize_Initialized and ExposedMembers.ContextFunctions_Initialized and ExposedMembers.RouteConnections_Initialized)
+function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
+	local bIsInitialized = 	(	ExposedMembers.SaveLoad_Initialized 
+							and ExposedMembers.Utils_Initialized
+							and	ExposedMembers.Serialize_Initialized
+							and ExposedMembers.ContextFunctions_Initialized
+							and ExposedMembers.RouteConnections_Initialized
+							and ExposedMembers.PlotIterator_Initialized
+							)
+	return bIsInitialized
 end
 
 local GCO = {}
 local CombatTypes = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then -- we can't use something like GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
-		GCO = ExposedMembers.GCO		-- contains functions from other contexts
+	if IsInitializedGCO() then 	
+		print ("All GCO script files loaded...")
+		GCO = ExposedMembers.GCO					-- contains functions from other contexts
 		CombatTypes = ExposedMembers.CombatTypes 	-- Need those in combat results
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		print ("Exposed Functions from other contexts initialized...")
+		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
+		-- tell all other scripts they can initialize now
+		LuaEvents.InitializeGCO() 
 	end
 end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
@@ -285,18 +295,21 @@ function DebugComponentsHP(unit, str)
 	table.insert(debugTable, "In DebugComponentsHP at turn#"..tostring(Game.GetCurrentGameTurn())..", REF = " .. tostring(str))
 	table.insert(debugTable, "For "..tostring(GameInfo.Units[unitType].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
 	--table.insert(debugTable, "WARNING : HP < 0 in CheckComponentsHP() for " .. tostring(str))
-	table.insert(debugTable, "key =", key, "unitType =", unitType, "HP =", HP)	
+	table.insert(debugTable, "key =".. tostring(key).. ", unitType =".. tostring(unitType).. ", HP =".. tostring(HP))	
 	--table.insert(debugTable, ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
 	--table.insert(debugTable, ExposedMembers.UnitData[key], ExposedMembers.UnitHitPointsTable[unitType])
-	table.insert(debugTable, "UnitData[key].Personnel =", ExposedMembers.UnitData[key].Personnel, "UnitHitPointsTable[unitType][HP].Personnel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
-	table.insert(debugTable, "UnitData[key].Vehicles =", ExposedMembers.UnitData[key].Vehicles, "UnitHitPointsTable[unitType][HP].Vehicles =", ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles)
-	table.insert(debugTable, "UnitData[key].Horses =", ExposedMembers.UnitData[key].Horses, "UnitHitPointsTable[unitType][HP].Horses =", ExposedMembers.UnitHitPointsTable[unitType][HP].Horses)
-	table.insert(debugTable, "UnitData[key].Materiel =", ExposedMembers.UnitData[key].Materiel, "UnitHitPointsTable[unitType][HP].Materiel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel)
+	table.insert(debugTable, "UnitData[key].Personnel =".. tostring(ExposedMembers.UnitData[key].Personnel) ..", UnitHitPointsTable[unitType][HP].Personnel =".. tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel))
+	table.insert(debugTable, "UnitData[key].Vehicles =".. tostring(ExposedMembers.UnitData[key].Vehicles) ..", UnitHitPointsTable[unitType][HP].Vehicles =".. tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles))
+	table.insert(debugTable, "UnitData[key].Horses =".. tostring(ExposedMembers.UnitData[key].Horses) ..", UnitHitPointsTable[unitType][HP].Horses =".. tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Horses))
+	table.insert(debugTable, "UnitData[key].Materiel =".. tostring(ExposedMembers.UnitData[key].Materiel) ..", UnitHitPointsTable[unitType][HP].Materiel =".. tostring(ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel))
 	table.insert(debugTable, "---------------------------------------------------------------------------")
 end
 
 function ShowDebugComponentsHP(unit)
+	if not unit then return end
 	local key = GetUnitKey(unit)
+	local unitType = unit:GetType()
+	local HP = unit:GetMaxDamage() - unit:GetDamage()
 	if 		ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel 
 		or 	ExposedMembers.UnitData[key].Vehicles  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Vehicles  
 		or 	ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	 
@@ -1142,7 +1155,6 @@ function Initialize()
 	ExposedMembers.GCO.GetCityFromKey 					= GetCityFromKey
 	
 	ExposedMembers.Utils_Initialized 	= true
-	ExposedMembers.IsInitializedGCO		= IsInitializedGCO
 end
 Initialize()
 
@@ -1156,8 +1168,8 @@ function Cleaning()
 	ExposedMembers.ContextFunctions_Initialized	= nil
 	ExposedMembers.Utils_Initialized 			= nil
 	ExposedMembers.Serialize_Initialized 		= nil
-	ExposedMembers.RouteConnections_Initialized	= nil
-	ExposedMembers.IsInitializedGCO 			= nil
+	ExposedMembers.RouteConnections_Initialized	= nil	
+	ExposedMembers.PlotIterator_Initialized		= nil
 	ExposedMembers.UnitData 					= nil
 	ExposedMembers.CityData 					= nil
 	ExposedMembers.PlayerData 					= nil
@@ -1181,6 +1193,20 @@ end
 function TestC()
 	print ("Calling TestC...")
 end
+function TestD()
+	print ("Calling TestD...")
+end
+function TestE()
+	print ("Calling TestE...")
+end
+function TestF()
+	print ("Calling TestF...")
+end
+--Events.AppInitComplete.Add(TestA)
+--Events.GameViewStateDone.Add(TestB)
+--Events.LoadGameViewStateDone.Add(TestC)
+--Events.LoadScreenContentReady.Add(TestD)
+--Events.MainMenuStateDone.Add(TestE)
 --Events.LoadComplete.Add(TestA)
 --Events.RequestSave.Add(TestB)
 --Events.RequestLoad.Add(TestC)

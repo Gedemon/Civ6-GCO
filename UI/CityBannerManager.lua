@@ -6,6 +6,19 @@ include( "InstanceManager" );
 include( "SupportFunctions" );
 include( "Civ6Common" );
 
+-- GCO <<<<<
+-----------------------------------------------------------------------------------------
+-- Initialize Functions
+-----------------------------------------------------------------------------------------
+
+GCO = {}
+function InitializeUtilityFunctions()
+	GCO = ExposedMembers.GCO		-- contains functions from other contexts
+	print ("Exposed Functions from other contexts initialized...")
+end
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+-- GCO >>>>>
+
 -- ===========================================================================
 --	CONSTANTS
 -- ===========================================================================
@@ -1202,6 +1215,21 @@ function CityBanner.UpdateName( self : CityBanner )
 					end
 				end
 			end
+			
+			-- GCO <<<<<
+			local cityKey = GCO.GetCityKey(pCity)
+			local cityData = ExposedMembers.CityData[cityKey]
+			local cityToolTipString = ""
+			for k, v in pairs (cityData) do
+				cityToolTipString = cityToolTipString .. "[NEWLINE]-" ..tostring(k).." : ".. tostring(v)
+				if k == "Prisonners" then
+					for id, num in pairs (v) do
+						cityToolTipString = cityToolTipString .. "[NEWLINE]---".. tostring(id).." : ".. tostring(num)
+					end			
+				end
+			end
+			self.m_Instance.CityName:SetToolTipString(cityToolTipString);
+			-- GCO >>>>>
 
 			self.m_Instance.CityQuestIcon:SetToolTipString(questTooltip);
 			self.m_Instance.CityQuestIcon:SetText(statusString);

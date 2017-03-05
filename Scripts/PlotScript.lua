@@ -26,22 +26,16 @@ ExposedMembers.CultureMap 			= {}
 ExposedMembers.PreviousCultureMap 	= {}
 
 -----------------------------------------------------------------------------------------
--- Initialize Globals Functions
+-- Initialize
 -----------------------------------------------------------------------------------------
 
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then
-		GCO = ExposedMembers.GCO		-- contains functions from other contexts
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		print ("Exposed Functions from other contexts initialized...")
-		ExposedMembers.CultureMap 			= GCO.LoadTableFromSlot("CultureMap") or {}
-		ExposedMembers.PreviousCultureMap 	= GCO.LoadTableFromSlot("PreviousCultureMap") or {}
-		InitializePlotFunctions()
-		SetCultureDiffusionRatePer1000()
-	end
+	GCO = ExposedMembers.GCO
+	print ("Exposed Functions from other contexts initialized...")
+	PostInitialize()
 end
-Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
 	--print("--------------------------- Saving CultureMap ---------------------------")
@@ -51,6 +45,13 @@ function SaveTables()
 	GCO.ShowTimer("CultureMap")
 end
 LuaEvents.SaveTables.Add(SaveTables)
+
+function PostInitialize() -- everything that may require other context to be loaded first
+	ExposedMembers.CultureMap 			= GCO.LoadTableFromSlot("CultureMap") or {}
+	ExposedMembers.PreviousCultureMap 	= GCO.LoadTableFromSlot("PreviousCultureMap") or {}
+	InitializePlotFunctions()
+	SetCultureDiffusionRatePer1000()
+end
 
 -----------------------------------------------------------------------------------------
 -- Plots Functions
@@ -328,25 +329,29 @@ function UpdateCulture( self )
 		--table.insert(debugTable, "baseCulture = " .. tostring(baseCulture) ..", maxCulture ["..tostring(maxCulture).."] = (city:GetPopulation() ["..tostring(city:GetPopulation()) .." + GCO.GetCityCultureYield(self)[".. tostring(GCO.GetCityCultureYield(self)).."]) * CULTURE_CITY_CAPED_FACTOR["..tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value).."]")
 		if self:GetTotalCulture() < maxCulture then -- don't add culture if above max, the excedent will decay each turn
 			if plotCulture then
+				-- First add culture for city owner				
+				local cultureAdded = 0
+				local value = self:GetCulture( city:GetOwner() )
+				if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
+					cultureAdded = GCO.Round((city:GetPopulation() + GCO.GetCityCultureYield(self)) * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
+				else
+					cultureAdded = GCO.Round((city:GetPopulation() + GCO.GetCityCultureYield(self)) * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
+				end	
+				cultureAdded = cultureAdded + baseCulture
+				--table.insert(debugTable, "- Player#".. tostring(playerID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
+				self:ChangeCulture(city:GetOwner(), cultureAdded)	
+				
+				-- Then update all other Culture
 				for playerID, value in pairs (plotCulture) do
 					if value > 0 then
 						local cultureAdded = 0
-						if playerID == city:GetOwner() then
-							if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
-								cultureAdded = GCO.Round((city:GetPopulation() + GCO.GetCityCultureYield(self)) * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
-							else
-								cultureAdded = GCO.Round((city:GetPopulation() + GCO.GetCityCultureYield(self)) * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
-							end						
-						else
+						if playerID ~= city:GetOwner() then
 							if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
 								cultureAdded = GCO.Round(city:GetPopulation() * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
 							else
 								cultureAdded = GCO.Round(city:GetPopulation() * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
 							end						
-						end
-						cultureAdded = cultureAdded + baseCulture
-						--table.insert(debugTable, "- Player#".. tostring(playerID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
-						self:ChangeCulture(playerID, cultureAdded)						
+						end					
 					end				
 				end
 			elseif self:GetOwner() == city:GetOwner() then -- initialize culture in city
@@ -640,16 +645,63 @@ end
 Events.TurnBegin.Add(OnNewTurn)
 
 
-function RemoveCultureOnWater(playerID, cityID, iX, iY)
-	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
-		local adjacentPlot = Map.GetAdjacentPlot(iX, iY, direction)
-		if (adjacentPlot ~= nil) and (adjacentPlot:IsWater()) and (adjacentPlot:GetOwner() ~= NO_OWNER) then
+function RemoveCityCultureOnWater(playerID, cityID, iX, iY)
+	local city 		= CityManager.GetCity(playerID, cityID)
+	local cityPlot 	= Map.GetPlot(iX, iY)
+	local cityPlots	= GCO.GetCityPlots(city)
+	local counter 	= 0
+	local ring		= 2 -- first ring to test for replacement plots
+	for _, plotID in ipairs(cityPlots) do		
+		local plot	= Map.GetPlotByIndex(plotID)
+		local x		= plot:GetX()
+		local y		= plot:GetY()
+		if (plot:IsWater() or ( (plot:GetArea():GetID() ~= cityPlot:GetArea():GetID()) and not plot:IsMountain() )) and (plot:GetOwner() ~= NO_OWNER) then
 			--adjacentPlot:SetOwner(NO_OWNER)
-			WorldBuilder.CityManager():SetPlotOwner( adjacentPlot:GetX(), adjacentPlot:GetY(), false )
+			WorldBuilder.CityManager():SetPlotOwner( x, y, false )
+			counter = counter + 1
 		end
 	end
+	print("plots to replace = ", counter)
+	function ReplacePlots()
+		local plotList = {}
+		if counter > 0 then
+			for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
+				if not ((pEdgePlot:IsWater() or ( pEdgePlot:GetArea():GetID() ~= cityPlot:GetArea():GetID() ))) and (pEdgePlot:GetOwner() == NO_OWNER) and pEdgePlot:IsAdjacentPlayer(playerID) then
+					print("adding to list :", pEdgePlot:GetX(), pEdgePlot:GetY(), "on ring :", ring)
+					local totalYield = 0
+					for row in GameInfo.Yields() do
+						local yield = pEdgePlot:GetYield(row.Index);
+						if (yield > 0) then
+							totalYield = totalYield + 1
+						end
+					end
+					table.insert(plotList, {plot = pEdgePlot, yield = totalYield})				
+				end
+			end
+		end
+		table.sort(plotList, function(a, b) return a.yield > b.yield; end)
+		for _, data in ipairs(plotList) do
+			print("replacing at : ", data.plot:GetX(), data.plot:GetY())
+			WorldBuilder.CityManager():SetPlotOwner( data.plot:GetX(), data.plot:GetY(), playerID, cityID )
+			counter = counter - 1
+			if counter == 0 then
+				return
+			end
+		end
+	end
+	local loop = 0
+	while (counter > 0 and loop < 4) do
+		print("loop =", loop, "plots to replace left =", counter )
+		ReplacePlots()
+		ring = ring + 1
+		ReplacePlots()
+		ring = ring - 1  -- some plots that where not adjacent to another plot of that player maybe now
+		ReplacePlots()
+		ring = ring + 1
+		loop = loop + 1
+	end
 end
-Events.CityInitialized.Add(RemoveCultureOnWater)
+Events.CityInitialized.Add(RemoveCityCultureOnWater)
 
 -----------------------------------------------------------------------------------------
 -- UI Functions

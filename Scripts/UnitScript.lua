@@ -15,23 +15,20 @@ local EverAliveZeroTable = {} -- cached table to initialize an empty table with 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
 -----------------------------------------------------------------------------------------
--- Initialize Functions
+-- Initialize 
 -----------------------------------------------------------------------------------------
 
 local GCO = {}
 local CombatTypes = {}
-function InitializeUtilityFunctions() 	-- get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then
-		GCO = ExposedMembers.GCO					-- contains functions from other contexts
-		CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		print ("Exposed Functions from other contexts initialized...")
-		InitializeTables()
-	end
+function InitializeUtilityFunctions()
+	GCO 		= ExposedMembers.GCO			-- contains functions from other contexts
+	CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
+	print ("Exposed Functions from other contexts initialized...")
+	PostInitialize()
 end
-Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
-function InitializeTables() -- tables that may require other context to be loaded (saved/loaded tables)
+function PostInitialize() -- everything that may require other context to be loaded first
 	LoadUnitTable()
 	EverAliveZeroTable = GCO.CreateEverAliveTableWithDefaultValue(0)
 end
@@ -602,7 +599,7 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 				local damage = unit:GetDamage()
 				local initialHP = maxHP - damage
 				local finalHP = initialHP + hp
-				print("initialHP:", initialHP , "finalHP:", finalHP, "hp from heal table:", hp)
+				--print("initialHP:", initialHP , "finalHP:", finalHP, "hp from heal table:", hp)
 				unit:SetDamage(damage-hp)
 
 				-- update reserve and frontline...
@@ -631,7 +628,7 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 				
 				--GCO.CheckComponentsHP(unit, "after Healing")
 				GCO.DebugComponentsHP(unit, "after Healing")
-				ShowDebugComponentsHP(unit)
+				GCO.ShowDebugComponentsHP(unit)
 			end
 
 		end
@@ -803,11 +800,12 @@ function DoUnitMorale(unit)
 	local key = GCO.GetUnitKey(unit)
 	local unitData = ExposedMembers.UnitData[key]
 	local moraleVariation = 0
+	
 	moraleVariation = moraleVariation + GCO.GetMoraleFromFood(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromLastCombat(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromWounded(unitData)
 	moraleVariation = moraleVariation + GCO.GetMoraleFromHP(unitData)
-
+	
 	local morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
 	ExposedMembers.UnitData[key].Morale = morale
 	ExposedMembers.UnitData[key].MoraleVariation = moraleVariation
@@ -877,7 +875,7 @@ function DoUnitMorale(unit)
 	end
 	--GCO.CheckComponentsHP(unit, "after DoUnitMorale()")	
 	GCO.DebugComponentsHP(unit, "after DoUnitMorale()")
-	ShowDebugComponentsHP(unit)
+	GCO.ShowDebugComponentsHP(unit)
 end
 
 function DoUnitFuel(unit)
@@ -901,6 +899,7 @@ function UnitDoTurn(unit)
 		return
 	end
 	local playerID = unit:GetOwner()
+	
 	DoUnitFood(unit)
 	DoUnitMorale(unit)
 	DoUnitFuel(unit)
@@ -909,7 +908,6 @@ function UnitDoTurn(unit)
 end
 
 function DoUnitsTurn( playerID )
-
 	HealingUnits( playerID )
 
 	local player = Players[playerID]
