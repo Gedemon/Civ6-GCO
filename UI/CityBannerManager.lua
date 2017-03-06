@@ -1219,16 +1219,44 @@ function CityBanner.UpdateName( self : CityBanner )
 			-- GCO <<<<<
 			local cityKey = GCO.GetCityKey(pCity)
 			local cityData = ExposedMembers.CityData[cityKey]
-			local cityToolTipString = ""
+			local cityString = cityName
+			if cityData then
+				-- Population
+				local population = GCO.GetRealPopulation(pCity)
+				if population > 0 then
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE")
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_TOTAL_POPULATION", population)
+					if cityData.UpperClass 	> 0 then cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", cityData.UpperClass) end
+					if cityData.MiddleClass	> 0 then cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", cityData.MiddleClass) end
+					if cityData.LowerClass 	> 0 then cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", cityData.LowerClass) end
+					if cityData.Slaves	 	> 0 then cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", cityData.Slaves) end
+				 end
+				
+				-- Personnel				
+				if cityData.Personnel > 0 then
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", cityData.Personnel, GCO.GetMaxPersonnel(pCity))
+				end
+				
+				-- Prisonners
+				local totalPrisonners = GCO.GetTotalPrisonners(cityData)
+				if totalPrisonners > 0 then
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PRISONNERS_TITLE")
+					cityString = cityString .. GCO.GetPrisonnersStringByCiv(cityData)
+				end
+				
+				self.m_Instance.CityName:SetToolTipString(cityString);
+			end
+			--[[
 			for k, v in pairs (cityData) do
-				cityToolTipString = cityToolTipString .. "[NEWLINE]-" ..tostring(k).." : ".. tostring(v)
+				cityString = cityString .. "[NEWLINE]-" ..tostring(k).." : ".. tostring(v)
 				if k == "Prisonners" then
 					for id, num in pairs (v) do
-						cityToolTipString = cityToolTipString .. "[NEWLINE]---".. tostring(id).." : ".. tostring(num)
+						cityString = cityString .. "[NEWLINE]---".. tostring(id).." : ".. tostring(num)
 					end			
 				end
 			end
-			self.m_Instance.CityName:SetToolTipString(cityToolTipString);
+			--]]
 			-- GCO >>>>>
 
 			self.m_Instance.CityQuestIcon:SetToolTipString(questTooltip);
