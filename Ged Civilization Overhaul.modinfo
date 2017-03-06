@@ -88,6 +88,7 @@
 				<File>Data/GlobalParameters.sql</File>
 				<File>Data/CultureDiffusionParameters.sql</File>
 				<File>Data/CombatRules.sql</File>
+				<File>Data/GamePlay.sql</File>
 			</Items>
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
