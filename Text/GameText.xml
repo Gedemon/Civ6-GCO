@@ -320,5 +320,49 @@
     </Replace>
 	
   </LocalizedText>
-  
+    
+  <LocalizedText> <!-- CityBannerManager Texts -->
+	
+    <Replace Tag="LOC_CITYBANNER_POPULATION_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]--------------- Population --------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_PERSONNEL_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]--------------- Personnel --------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_PRISONNERS_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]--------------- Prisonners --------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_STOCK_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]----------------- Stock ----------------[ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_CITYBANNER_TOTAL_POPULATION" Language="en_US">
+      <Text>Total Population = {1_Num} hab.</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_UPPER_CLASS" Language="en_US">
+      <Text>{1_Num} Upper Class</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_MIDDLE_CLASS" Language="en_US">
+      <Text>{1_Num} Middle Class</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_LOWER_CLASS" Language="en_US">
+      <Text>{1_Num} Lower Class</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_SLAVES" Language="en_US">
+      <Text>{1_Num} Slaves</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_CITYBANNER_PERSONNEL" Language="en_US">
+      <Text>[ICON_Position] {1_Num} / {2_Num} Personnel</Text>
+    </Replace>
+	
+  </LocalizedText>
+    
+  <LocalizedText> <!-- Resources -->
+	
+    <Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 	Text="Materiel" 	Language="en_US" /> 
+    <Replace Tag="LOC_RESOURCE_STEEL_NAME" 		Text="Steel" 		Language="en_US" /> 
+    <Replace Tag="LOC_RESOURCE_FOOD_NAME" 		Text="Food" 		Language="en_US" /> 
+	
+  </LocalizedText>
 </GameData>
