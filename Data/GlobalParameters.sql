@@ -5,18 +5,23 @@
 */
  
 /* Defines */
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MIN_COMPONENT_LEFT_IN_UNIT_FACTOR', 		5);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MAX_COMPONENT_LEFT_IN_UNIT_FACTOR', 		3);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MATERIEL_PERCENTAGE_TO_REPAIR_VEHICLE', 	50);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_RESERVE_RATIO', 					0.75);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MAX_HP_HEALED_FROM_RESERVE',				25);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MAX_PERSONNEL_TRANSFERT_FROM_RESERVE',	250);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MAX_MATERIEL_TRANSFERT_FROM_RESERVE',	100);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MAX_PSEUDO_HP_FROM_REINFORCEMENT',		5);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MAX_PRISONNERS_LINE_IN_UNIT_FLAG',		2);		-- Number of lines showing prisonners nationality in unit's flag 
-
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_STOCK_PER_SIZE', 				10);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERSONNEL_PER_SIZE', 			500);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_UPPER_CLASS_PERCENT', 			10);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_MIDDLE_CLASS_PERCENT', 		50);
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_HEAVY_DIFFERENCE_VALUE',			10);	-- Minimal damage difference to consider a large victory/defeat
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTIPERSONNEL_PERCENT',		50);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTITANK_PERCENT',			15);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTIAIR_PERCENT',			25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTISHIP_PERCENT',			10);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_CAPTURE_FROM_CAPACITY_PERCENT',	55);	-- To calculate the max prisonners an unit can capture in combat 
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_CAPTURED_PERSONNEL_PERCENT',		45);	-- To calculate the captured personnel from an unit casualties
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT',	50);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_MATERIEL_KILL_PERCENT',	75);	-- Percentage of the opponent's materiel gained when killing it
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_VEHICLES_KILL_PERCENT',	15);	-- Percentage of the opponent's converted vehicules to materiel gained when killing it
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_FOOD_KILL_PERCENT',		75);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_DEFENDER_MATERIEL_GAIN_PERCENT',	25);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_PERSONNEL_FACTOR',		2);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_HORSES_FACTOR',			6);
@@ -59,23 +64,19 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_WOUNDED_LO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_WOUNDED_HIGH_PERCENT',			50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_WOUNDED_LOW',				-1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_WOUNDED_HIGH',				-3);
-
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_HP_LOW_PERCENT',					50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_HP_VERY_LOW_PERCENT',				25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_HP_FULL',					2);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_HP_LOW',					-1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_HP_VERY_LOW',				-3);
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_HEAVY_DIFFERENCE_VALUE',			10);	-- Minimal damage difference to consider a large victory/defeat
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTIPERSONNEL_PERCENT',		50);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTITANK_PERCENT',			15);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTIAIR_PERCENT',			25);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTISHIP_PERCENT',			10);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_CAPTURE_FROM_CAPACITY_PERCENT',	55);	-- To calculate the max prisonners an unit can capture in combat 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_CAPTURED_PERSONNEL_PERCENT',		45);	-- To calculate the captured personnel from an unit casualties
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UI_MAX_PRISONNERS_LINE_IN_TOOLTIP',		2);		-- Number of lines showing prisonners nationality in unit's flag 
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT',	50);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_MATERIEL_KILL_PERCENT',	75);	-- Percentage of the opponent's materiel gained when killing it
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_VEHICLES_KILL_PERCENT',	15);	-- Percentage of the opponent's converted vehicules to materiel gained when killing it
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_FOOD_KILL_PERCENT',		75);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_DEFENDER_MATERIEL_GAIN_PERCENT',	25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MIN_COMPONENT_LEFT_FACTOR', 		5);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_COMPONENT_LEFT_FACTOR', 		3);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT',50);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_RESERVE_RATIO', 					0.75);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_HP_HEALED_FROM_RESERVE',		25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PERSONNEL_FROM_RESERVE',		250);	-- Max personnel transfered from reserve to front line
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_MATERIEL_FROM_RESERVE',			100);	-- Max materiel transfered from reserve to front line
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PSEUDO_HP_FROM_REINFORCEMENT',	5);
