@@ -115,7 +115,7 @@ function Dprint(str)
 	if bNoOutput then -- spam control
 		return
 	end
-	--print(str)
+	print(str)
 end
 
 ----------------------------------------------
@@ -191,6 +191,7 @@ function FindNearestPlayerCity( eTargetPlayer, iX, iY )
     return pCity, iShortestDistance;
 end
 
+
 ----------------------------------------------
 -- Cities
 ----------------------------------------------
@@ -211,6 +212,52 @@ function GetCityFromKey ( cityKey )
 	else
 		print("- WARNING: ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")")
 	end
+end
+
+function GetRealPopulation(city) -- city:GetPopulation() returns city size
+	local key = GetCityKey(city)
+	if ExposedMembers.CityData[key] then
+		return ExposedMembers.CityData[key].UpperClass + ExposedMembers.CityData[key].MiddleClass + ExposedMembers.CityData[key].LowerClass + ExposedMembers.CityData[key].Slaves
+	end
+	return 0
+end
+
+function GetMaxStock(city, resourceID)
+	local maxStock = city:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_MAX_STOCK_PER_SIZE"].Value)
+
+	return maxStock
+end
+
+function GetMaxPersonnel(city)
+	local maxPersonnel = city:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_MAX_PERSONNEL_PER_SIZE"].Value)
+
+	return maxPersonnel
+end
+
+
+----------------------------------------------
+-- Common
+----------------------------------------------
+
+function GetTotalPrisonners(data) -- works for cityData and unitData
+	local prisonners = 0
+	for playerID, number in pairs(data.Prisonners) do
+		prisonners = prisonners + number
+	end	
+	return prisonners
+end
+
+----------------------------------------------
+-- Players
+----------------------------------------------
+
+function GetPlayerUpperClassPercent( playerID )
+	return tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_PERCENT"].Value)
+end
+
+
+function GetPlayerMiddleClassPercent( playerID )
+	return tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_PERCENT"].Value)
 end
 
 ----------------------------------------------
@@ -422,20 +469,12 @@ function GetBaseFuelStock(unitType)
 	return 0
 end
 
-function GetTotalPrisonners(unitData)
-	local prisonners = 0
-	for playerID, number in pairs(unitData.Prisonners) do
-		prisonners = prisonners + number
-	end	
-	return prisonners
-end
-
 function GetMaterielFromKillOfBy(OpponentA, OpponentB)
 	-- capture most materiel, convert some damaged Vehicles
 	local materielFromKill = 0
 	local materielFromCombat = OpponentA.MaterielLost * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value) / 100
 	local materielFromReserve = ExposedMembers.UnitData[OpponentA.unitKey].MaterielReserve * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value) /100
-	local materielFromVehicles = ExposedMembers.UnitData[OpponentA.unitKey].DamagedVehicles * ExposedMembers.UnitData[OpponentA.unitKey].MaterielPerVehicles * tonumber(GameInfo.GlobalParameters["MATERIEL_PERCENTAGE_TO_REPAIR_VEHICLE"].Value) / 100 * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_VEHICLES_KILL_PERCENT"].Value) / 100
+	local materielFromVehicles = ExposedMembers.UnitData[OpponentA.unitKey].DamagedVehicles * ExposedMembers.UnitData[OpponentA.unitKey].MaterielPerVehicles * tonumber(GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value) / 100 * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_VEHICLES_KILL_PERCENT"].Value) / 100
 	materielFromKill = Round(materielFromCombat + materielFromReserve + materielFromVehicles) 
 	return materielFromKill
 end
@@ -444,8 +483,8 @@ function GetMaxTransfertTable(unit)
 	local maxTranfert = {}
 	local unitType = unit:GetType()
 	local unitInfo = GameInfo.Units[unit:GetType()]
-	maxTranfert.Personnel = GameInfo.GlobalParameters["MAX_PERSONNEL_TRANSFERT_FROM_RESERVE"].Value
-	maxTranfert.Materiel = GameInfo.GlobalParameters["MAX_MATERIEL_TRANSFERT_FROM_RESERVE"].Value
+	maxTranfert.Personnel = GameInfo.GlobalParameters["UNIT_MAX_PERSONNEL_FROM_RESERVE"].Value
+	maxTranfert.Materiel = GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_FROM_RESERVE"].Value
 	return maxTranfert
 end
 
@@ -616,9 +655,34 @@ function GetMoraleFromHP(unitData)
 	return moraleFromHP
 end
 
+
 ----------------------------------------------
 -- Texts function
 ----------------------------------------------
+
+function GetPrisonnersStringByCiv(data) -- works for unitData and cityData
+	local sortedPrisonners = {}
+	for playerID, number in pairs(data.Prisonners) do
+		table.insert(sortedPrisonners, {playerID = tonumber(playerID), Number = number})
+	end	
+	table.sort(sortedPrisonners, function(a,b) return a.Number>b.Number end)
+	local numLines = tonumber(GameInfo.GlobalParameters["UI_MAX_PRISONNERS_LINE_IN_TOOLTIP"].Value)
+	local str = ""
+	local other = 0
+	local iter = 1
+	for i, t in ipairs(sortedPrisonners) do
+		if (iter <= numLines) or (#sortedPrisonners == numLines + 1) then
+			local playerConfig = PlayerConfigurations[t.playerID]
+			local civAdjective = Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
+			if t.Number > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS_NATIONALITY", t.Number, civAdjective) end
+		else
+			other = other + t.Number
+		end
+		iter = iter + 1
+	end
+	if other > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS_OTHER_NATIONALITY", other) end
+	return str
+end
 
 function GetFuelStockString(unitData) 
 	local lightRationing = 	tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_LIGHT_RATIO"].Value)
@@ -712,30 +776,6 @@ function GetFoodConsumptionString(unitData)
 			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONNERS", ToDecimals(prisonnersFood * ratio), totalPrisonners )
 		end
 	end	
-	return str
-end
-
-function GetPrisonnersStringByCiv(unitData)
-	local sortedPrisonners = {}
-	for playerID, number in pairs(unitData.Prisonners) do
-		table.insert(sortedPrisonners, {playerID = tonumber(playerID), Number = number})
-	end	
-	table.sort(sortedPrisonners, function(a,b) return a.Number>b.Number end)
-	local numLines = tonumber(GameInfo.GlobalParameters["MAX_PRISONNERS_LINE_IN_UNIT_FLAG"].Value)
-	local str = ""
-	local other = 0
-	local iter = 1
-	for i, t in ipairs(sortedPrisonners) do
-		if (iter <= numLines) or (#sortedPrisonners == numLines + 1) then
-			local playerConfig = PlayerConfigurations[t.playerID]
-			local civAdjective = Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
-			if t.Number > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS_NATIONALITY", t.Number, civAdjective) end
-		else
-			other = other + t.Number
-		end
-		iter = iter + 1
-	end
-	if other > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS_OTHER_NATIONALITY", other) end
 	return str
 end
 
@@ -1092,24 +1132,36 @@ end
 
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
-	
+	-- maths
 	ExposedMembers.GCO.Round 		= Round
 	ExposedMembers.GCO.Shuffle 		= Shuffle
 	ExposedMembers.GCO.GetSize 		= GetSize
 	ExposedMembers.GCO.ToDecimals 	= ToDecimals
-	
+	-- timers
 	ExposedMembers.GCO.StartTimer 	= StartTimer
 	ExposedMembers.GCO.ShowTimer 	= ShowTimer
-	
+	-- debug
 	ExposedMembers.GCO.ToggleOutput = ToggleOutput
 	ExposedMembers.GCO.Dprint		= Dprint
-	
-	ExposedMembers.GCO.GetUnitKey 							= GetUnitKey
-	ExposedMembers.GCO.GetUnitFromKey 						= GetUnitFromKey	
-	ExposedMembers.GCO.GetMaxTransfertTable 				= GetMaxTransfertTable
+	-- cities
+	ExposedMembers.GCO.GetCityKey 			= GetCityKey
+	ExposedMembers.GCO.GetCityFromKey 		= GetCityFromKey
+	ExposedMembers.GCO.GetRealPopulation 	= GetRealPopulation
+	ExposedMembers.GCO.GetMaxStock 			= GetMaxStock
+	ExposedMembers.GCO.GetMaxPersonnel		= GetMaxPersonnel
+	-- civilizations
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
-	
+	-- map
+	ExposedMembers.GCO.GetPlotKey 					= GetPlotKey
+	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
+	-- player
+	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
+	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
+	-- units
+	ExposedMembers.GCO.GetUnitKey 						= GetUnitKey
+	ExposedMembers.GCO.GetUnitFromKey 					= GetUnitFromKey	
+	ExposedMembers.GCO.GetMaxTransfertTable 			= GetMaxTransfertTable	
 	ExposedMembers.GCO.GetPersonnelReserve 				= GetPersonnelReserve
 	ExposedMembers.GCO.GetVehiclesReserve 				= GetVehiclesReserve
 	ExposedMembers.GCO.GetHorsesReserve 				= GetHorsesReserve
@@ -1126,12 +1178,11 @@ function Initialize()
 	ExposedMembers.GCO.GetMoraleFromFood 				= GetMoraleFromFood
 	ExposedMembers.GCO.GetMoraleFromLastCombat 			= GetMoraleFromLastCombat
 	ExposedMembers.GCO.GetMoraleFromWounded				= GetMoraleFromWounded
-	ExposedMembers.GCO.GetMoraleFromHP 					= GetMoraleFromHP
-	
+	ExposedMembers.GCO.GetMoraleFromHP 					= GetMoraleFromHP	
 	ExposedMembers.GCO.CheckComponentsHP 				= CheckComponentsHP
 	ExposedMembers.GCO.ShowDebugComponentsHP 			= ShowDebugComponentsHP
 	ExposedMembers.GCO.DebugComponentsHP 				= DebugComponentsHP
-	
+	-- units flag strings
 	ExposedMembers.GCO.GetPrisonnersStringByCiv 		= GetPrisonnersStringByCiv
 	ExposedMembers.GCO.GetFoodConsumptionRatioString 	= GetFoodConsumptionRatioString
 	ExposedMembers.GCO.GetFoodConsumptionString 		= GetFoodConsumptionString
@@ -1139,7 +1190,7 @@ function Initialize()
 	ExposedMembers.GCO.GetFuelStockString 				= GetFuelStockString
 	ExposedMembers.GCO.GetFuelConsumptionString 		= GetFuelConsumptionString
 	ExposedMembers.GCO.GetMoraleString 					= GetMoraleString
-	
+	-- units floating texts
 	ExposedMembers.GCO.ShowCasualtiesFloatingText 		= ShowCasualtiesFloatingText
 	ExposedMembers.GCO.ShowCombatPlunderingFloatingText = ShowCombatPlunderingFloatingText
 	ExposedMembers.GCO.ShowFoodFloatingText 			= ShowFoodFloatingText
@@ -1147,13 +1198,7 @@ function Initialize()
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
 	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
 	ExposedMembers.GCO.ShowFuelConsumptionFloatingText 	= ShowFuelConsumptionFloatingText
-	
-	ExposedMembers.GCO.GetPlotKey 						= GetPlotKey
-	ExposedMembers.GCO.FindNearestPlayerCity 			= FindNearestPlayerCity
-	
-	ExposedMembers.GCO.GetCityKey 						= GetCityKey
-	ExposedMembers.GCO.GetCityFromKey 					= GetCityFromKey
-	
+	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true
 end
 Initialize()

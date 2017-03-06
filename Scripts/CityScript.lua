@@ -67,26 +67,6 @@ function ChangeSize(self)
 	end
 end
 
-function GetRealPopulation(self) -- city:GetPopulation() returns city size
-	local key = self:GetKey()
-	if ExposedMembers.CityData[key] then
-		return ExposedMembers.CityData[key].Population
-	end
-	return 0
-end
-
-function GetMaxStock(self, resourceID)
-	local maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_MAX_STOCK_PER_SIZE"].Value)
-
-	return maxStock
-end
-
-function GetMaxPersonnel(self)
-	local maxPersonnel = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_MAX_PERSONNEL_PER_SIZE"].Value)
-
-	return maxPersonnel
-end
-
 
 -----------------------------------------------------------------------------------------
 -- Initialize Cities
@@ -94,8 +74,11 @@ end
 
 function RegisterNewCity(playerID, city)
 
-	local cityKey 	= city:GetKey()
-	local personnel = city:GetMaxPersonnel()
+	local cityKey 			= city:GetKey()
+	local personnel 		= city:GetMaxPersonnel()
+	local totalPopulation 	= GetPopulationPerSize(city:GetSize())
+	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID))
+	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID))
 	
 	ExposedMembers.CityData[cityKey] = {
 		cityID 					= city:GetID(),
@@ -105,7 +88,10 @@ function RegisterNewCity(playerID, city)
 		Prisonners				= GCO.CreateEverAliveTableWithDefaultValue(0),
 		Stock					= {},
 		PreviousStock			= {},
-		Population				= GetPopulationPerSize(city:GetSize()),
+		UpperClass				= upperClass,
+		MiddleClass				= middleClass,
+		LowerClass				= totalPopulation - upperClass - middleClass,
+		Slaves					= 0,
 	}
 	
 	LuaEvents.NewCityCreated()	
@@ -212,10 +198,10 @@ function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToM
 	local c = getmetatable(city).__index
 	c.ChangeSize				= ChangeSize
 	c.GetSize					= GetSize
-	c.GetRealPopulation			= GetRealPopulation
+	c.GetRealPopulation			= GCO.GetRealPopulation
 	c.GetKey					= GCO.GetCityKey
-	c.GetMaxStock				= GetMaxStock
-	c.GetMaxPersonnel			= GetMaxPersonnel
+	c.GetMaxStock				= GCO.GetMaxStock
+	c.GetMaxPersonnel			= GCO.GetMaxPersonnel
 	c.UpdateLinkedUnits			= UpdateLinkedUnits
 	c.UpdateLinkedCities		= UpdateLinkedCities
 	

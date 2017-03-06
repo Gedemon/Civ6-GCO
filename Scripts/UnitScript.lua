@@ -41,8 +41,8 @@ end
 -----------------------------------------------------------------------------------------
 -- Unit composition
 -----------------------------------------------------------------------------------------
-local minCompLeftFactor = GameInfo.GlobalParameters["MIN_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value -- Modded global parameters are not in GlobalParameters.NAME like vanilla parameters ?????
-local maxCompLeftFactor = GameInfo.GlobalParameters["MAX_COMPONENT_LEFT_IN_UNIT_FACTOR"].Value
+local minCompLeftFactor = GameInfo.GlobalParameters["UNIT_MIN_COMPONENT_LEFT_FACTOR"].Value -- Modded global parameters are not in GlobalParameters.NAME like vanilla parameters ?????
+local maxCompLeftFactor = GameInfo.GlobalParameters["UNIT_MAX_COMPONENT_LEFT_FACTOR"].Value
 function GetNumComponentAtHP(maxNumComponent, HPLeft)
 	local numComponent = 0
 	local maxCompLeft100 = 0
@@ -553,7 +553,7 @@ function HealingUnits(playerID)
 		-- try to reinforce the selected units (move personnel, vehicule, horses, materiel from reserve to frontline)
 		-- up to MAX_HP_HEALED (or an unit component limit), 1hp per loop
 		local hasReachedLimit = {}
-		for healHP = 1, GameInfo.GlobalParameters["MAX_HP_HEALED_FROM_RESERVE"].Value do -- to do : add limit by units in the loop
+		for healHP = 1, GameInfo.GlobalParameters["UNIT_MAX_HP_HEALED_FROM_RESERVE"].Value do -- to do : add limit by units in the loop
 			for n = 0, maxHP do
 				local unitTable = damaged[n]
 				for j, unit in ipairs (unitTable) do
@@ -648,7 +648,7 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 
 					-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
 					local materielAvailable = maxTransfert[unit].Materiel - alreadyUsed[unit].Materiel
-					local maxRepairedVehicles = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerVehicles* GameInfo.GlobalParameters["MATERIEL_PERCENTAGE_TO_REPAIR_VEHICLE"].Value/100))
+					local maxRepairedVehicles = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerVehicles* GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
 					local repairedVehicules = 0
 					if maxRepairedVehicles > 0 then
 						repairedVehicules = math.min(maxRepairedVehicles, ExposedMembers.UnitData[key].DamagedVehicles)
