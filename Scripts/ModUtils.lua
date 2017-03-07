@@ -222,14 +222,18 @@ function GetRealPopulation(city) -- city:GetPopulation() returns city size
 	return 0
 end
 
+function GetSize(city) -- for code consistency
+	return city:GetPopulation()
+end
+
 function GetMaxStock(city, resourceID)
-	local maxStock = city:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_MAX_STOCK_PER_SIZE"].Value)
+	local maxStock = GetSize(city) * tonumber(GameInfo.GlobalParameters["CITY_MAX_STOCK_PER_SIZE"].Value)
 
 	return maxStock
 end
 
 function GetMaxPersonnel(city)
-	local maxPersonnel = city:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_MAX_PERSONNEL_PER_SIZE"].Value)
+	local maxPersonnel = GetSize(city) * tonumber(GameInfo.GlobalParameters["CITY_MAX_PERSONNEL_PER_SIZE"].Value)
 
 	return maxPersonnel
 end
@@ -254,7 +258,6 @@ end
 function GetPlayerUpperClassPercent( playerID )
 	return tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_PERCENT"].Value)
 end
-
 
 function GetPlayerMiddleClassPercent( playerID )
 	return tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_PERCENT"].Value)
@@ -295,7 +298,7 @@ function GetUnitFromKey ( unitKey )
 	end
 end
 
-function CheckComponentsHP(unit, str)
+function CheckComponentsHP(unit, str, bNoWarning)
 	if not unit then
 		print("WARNING : unit is nil in CheckComponentsHP() for " .. tostring(str))
 		return
@@ -307,7 +310,11 @@ function CheckComponentsHP(unit, str)
 	function debug()
 		print("---------------------------------------------------------------------------")
 		print("in CheckComponentsHP() for " .. tostring(str))
-		print("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
+		if bNoWarning then
+			print("SHOWING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
+		else
+			print("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
+		end
 		--print("WARNING : HP < 0 in CheckComponentsHP() for " .. tostring(str))
 		print("key =", key, "unitType =", unitType, "HP =", HP)	
 		--print(ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
@@ -1149,6 +1156,7 @@ function Initialize()
 	ExposedMembers.GCO.GetRealPopulation 	= GetRealPopulation
 	ExposedMembers.GCO.GetMaxStock 			= GetMaxStock
 	ExposedMembers.GCO.GetMaxPersonnel		= GetMaxPersonnel
+	ExposedMembers.GCO.GetSize 				= GetSize
 	-- civilizations
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
@@ -1229,6 +1237,14 @@ Events.LeaveGameComplete.Add(Cleaning)
 -----------------------------------------------------------------------------------------
 -- Testing...
 -----------------------------------------------------------------------------------------
+
+local currentPlayer = -1
+function GetNextPlayerTurn()
+-- UnitMovementPointsChanged
+	LuaEvents.StartPlayerTurn(playerID)
+end
+--Events.GameCoreEventPublishComplete.Add( GetNextPlayerTurn )
+
 function TestA()
 	print ("Calling TestA...")
 end

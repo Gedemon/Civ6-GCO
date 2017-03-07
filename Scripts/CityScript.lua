@@ -55,10 +55,6 @@ end
 -- City functions
 -----------------------------------------------------------------------------------------
 
-function GetSize(self) -- for code consistency
-	return self:GetPopulation()
-end
-
 function ChangeSize(self)
 	if GetPopulationPerSize(self:GetSize()-1) > self:GetRealPopulation() then
 		self:ChangePopulation(-1) -- (-1, true) ?
@@ -77,8 +73,8 @@ function RegisterNewCity(playerID, city)
 	local cityKey 			= city:GetKey()
 	local personnel 		= city:GetMaxPersonnel()
 	local totalPopulation 	= GetPopulationPerSize(city:GetSize())
-	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID))
-	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID))
+	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID) / 100)
+	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID) / 100)
 	
 	ExposedMembers.CityData[cityKey] = {
 		cityID 					= city:GetID(),
@@ -197,7 +193,7 @@ function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToM
 	local city = CityManager.GetCity(playerID, cityID)
 	local c = getmetatable(city).__index
 	c.ChangeSize				= ChangeSize
-	c.GetSize					= GetSize
+	c.GetSize					= GCO.GetSize
 	c.GetRealPopulation			= GCO.GetRealPopulation
 	c.GetKey					= GCO.GetCityKey
 	c.GetMaxStock				= GCO.GetMaxStock
