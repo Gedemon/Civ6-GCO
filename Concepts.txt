@@ -190,7 +190,7 @@ popup to allow choice (pay for reinforcements or pillage or no action for exampl
 	Surgery : Less deads from wounds
 	
 + Medieval
-	Medecine: Medieval Hospitals (+heals, heal wounded in city), Apothecary (replace Herborist), Less deads from wounds
+	Medecine: Medieval Hospitals (+healths, heal wounded in city), Apothecary (replace Herborist), Less deads from wounds
 	
 + Rennaissance
 	Microbiologie: Hospital (replace Medieval Hospitals), Less deads from wounds
@@ -388,6 +388,51 @@ Corruption lower incomes (maybe only if the budget is positif ?)
 
 some entertainement buildings raise banditism (taverns, whorehouses, nightclubs, ...)
 banditism raise corruption
+	   
+
+====================
+=    City Growth   =
+====================
+
+BirthRate = total number of live births per 1,000 of a population in a year = 22.5 in 2000, 37.2 in 1950 (50 max, 6 min in 2000)
+MortalityRate = units of deaths per 1,000 individuals per year = 8.8 in 2000, 19.1 in 1950 (17 max, 1 min in 2000)
+GrowthRate = BirthRate - MortalityRate
+
+UpperClassBirthRate 	= 5
+MiddleClassBirthRate 	= 15
+LowerClassBirthRate		= 50
+SlaveBirthRate			= 20
+
+National values
+	policies, techs
+	
+City values
+	health, food (mortality rate)
+	housing (birth rate)
+
+
+====================
+=      Health      =
+====================
+
+raise
+	food variation
+	health buildings
+	forest
+	
+lower
+	surpopulation
+	jungle
+	swamp
+	pollution buildings
+
+====================
+=     Housing      =
+====================
+
+can we represent housing with 3D models
+build houses with ethnicity
+keep ethnicity/ancient house model until upgraded
 	   
 ====================
 =    Stability     =
