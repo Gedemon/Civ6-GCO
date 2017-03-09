@@ -222,18 +222,18 @@ function GetRealPopulation(city) -- city:GetPopulation() returns city size
 	return 0
 end
 
-function GetSize(city) -- for code consistency
+function GetCitySize(city) -- for code consistency
 	return city:GetPopulation()
 end
 
 function GetMaxStock(city, resourceID)
-	local maxStock = GetSize(city) * tonumber(GameInfo.GlobalParameters["CITY_MAX_STOCK_PER_SIZE"].Value)
+	local maxStock = GetCitySize(city) * tonumber(GameInfo.GlobalParameters["CITY_MAX_STOCK_PER_SIZE"].Value)
 
 	return maxStock
 end
 
 function GetMaxPersonnel(city)
-	local maxPersonnel = GetSize(city) * tonumber(GameInfo.GlobalParameters["CITY_MAX_PERSONNEL_PER_SIZE"].Value)
+	local maxPersonnel = GetCitySize(city) * tonumber(GameInfo.GlobalParameters["CITY_MAX_PERSONNEL_PER_SIZE"].Value)
 
 	return maxPersonnel
 end
@@ -476,16 +476,6 @@ function GetBaseFuelStock(unitType)
 	return 0
 end
 
-function GetMaterielFromKillOfBy(OpponentA, OpponentB)
-	-- capture most materiel, convert some damaged Vehicles
-	local materielFromKill = 0
-	local materielFromCombat = OpponentA.MaterielLost * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value) / 100
-	local materielFromReserve = ExposedMembers.UnitData[OpponentA.unitKey].MaterielReserve * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value) /100
-	local materielFromVehicles = ExposedMembers.UnitData[OpponentA.unitKey].DamagedVehicles * ExposedMembers.UnitData[OpponentA.unitKey].MaterielPerVehicles * tonumber(GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value) / 100 * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_VEHICLES_KILL_PERCENT"].Value) / 100
-	materielFromKill = Round(materielFromCombat + materielFromReserve + materielFromVehicles) 
-	return materielFromKill
-end
-
 function GetMaxTransfertTable(unit)
 	local maxTranfert = {}
 	local unitType = unit:GetType()
@@ -493,105 +483,6 @@ function GetMaxTransfertTable(unit)
 	maxTranfert.Personnel = GameInfo.GlobalParameters["UNIT_MAX_PERSONNEL_FROM_RESERVE"].Value
 	maxTranfert.Materiel = GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_FROM_RESERVE"].Value
 	return maxTranfert
-end
-
-function AddCombatInfoTo(Opponent)
-
-	Opponent.unit = UnitManager.GetUnit(Opponent.playerID, Opponent.unitID)
-	if Opponent.unit then
-		Opponent.unitType = Opponent.unit:GetType()
-		Opponent.unitKey = GetUnitKey(Opponent.unit)
-		Opponent.IsLandUnit = GameInfo.Units[Opponent.unitType].Domain == "DOMAIN_LAND"
-		-- Max number of prisonners can't be higher than the unit's operationnal number of personnel or the number of remaining valid personnel x10
-		Opponent.MaxPrisonners = math.min(GameInfo.Units[Opponent.unitType].Personnel, (ExposedMembers.UnitData[Opponent.unitKey].Personnel+ExposedMembers.UnitData[Opponent.unitKey].PersonnelReserve)*10)
-		local diff = (Opponent.MaxPrisonners - GCO.GetTotalPrisonners(ExposedMembers.UnitData[Opponent.unitKey]))
-		if diff > 0 then
-			Opponent.MaxCapture = GCO.Round(diff * GameInfo.GlobalParameters["COMBAT_CAPTURE_FROM_CAPACITY_PERCENT"].Value/100)
-		else
-			Opponent.MaxCapture = 0
-		end
-		Opponent.AntiPersonnel = GameInfo.Units[Opponent.unitType].AntiPersonnel
-	else
-		Opponent.unitKey = GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)
-	end	
-
-	return Opponent
-end
-
-function AddFrontLineCasualtiesInfoTo(Opponent)
-
-	if Opponent.IsDead then
-
-		Opponent.FinalHP = 0
-		Opponent.PersonnelCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Personnel
-		Opponent.VehiclesCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Vehicles
-		Opponent.HorsesCasualties 		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Horses
-		Opponent.MaterielCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Materiel
-
-		-- "Kill" the unit
-		ExposedMembers.UnitData[Opponent.unitKey].Personnel = 0
-		ExposedMembers.UnitData[Opponent.unitKey].Vehicles  = 0
-		ExposedMembers.UnitData[Opponent.unitKey].Horses	= 0
-		ExposedMembers.UnitData[Opponent.unitKey].Materiel 	= 0
-		ExposedMembers.UnitData[Opponent.unitKey].Alive 	= false
-	else
-		Opponent.PersonnelCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Personnel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Personnel
-		Opponent.VehiclesCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Vehicles 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Vehicles
-		Opponent.HorsesCasualties 		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Horses		- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Horses
-		Opponent.MaterielCasualties		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Materiel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Materiel
-
-		-- Remove casualties from frontline
-		ExposedMembers.UnitData[Opponent.unitKey].Personnel = ExposedMembers.UnitData[Opponent.unitKey].Personnel  	- Opponent.PersonnelCasualties
-		ExposedMembers.UnitData[Opponent.unitKey].Vehicles  = ExposedMembers.UnitData[Opponent.unitKey].Vehicles  	- Opponent.VehiclesCasualties
-		ExposedMembers.UnitData[Opponent.unitKey].Horses	= ExposedMembers.UnitData[Opponent.unitKey].Horses	  	- Opponent.HorsesCasualties
-		ExposedMembers.UnitData[Opponent.unitKey].Materiel 	= ExposedMembers.UnitData[Opponent.unitKey].Materiel 	- Opponent.MaterielCasualties
-	end
-
-	return Opponent
-end
-
-function AddCasualtiesInfoByTo(OpponentA, OpponentB)
-
-	-- Send wounded to the rear, bury the dead, take prisonners
-	if OpponentA.AntiPersonnel then
-		OpponentB.Dead = Round(OpponentB.PersonnelCasualties * OpponentA.AntiPersonnel / 100)
-	else
-		OpponentB.Dead = Round(OpponentB.PersonnelCasualties * GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value / 100)
-	end	
-	if OpponentA.CanTakePrisonners then	
-		if OpponentA.CapturedPersonnelRatio then
-			OpponentB.Captured = Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * OpponentA.CapturedPersonnelRatio / 100)
-		else
-			OpponentB.Captured = Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * GameInfo.GlobalParameters["COMBAT_CAPTURED_PERSONNEL_PERCENT"].Value / 100)
-		end	
-		if OpponentA.MaxCapture then
-			OpponentB.Captured = math.min(OpponentA.MaxCapture, OpponentB.Captured)
-		end
-	else
-		OpponentB.Captured = 0
-	end	
-	OpponentB.Wounded = OpponentB.PersonnelCasualties - OpponentB.Dead - OpponentB.Captured
-	
-	-- Salvage Vehicles
-	OpponentB.VehiclesLost = GCO.Round(OpponentB.VehiclesCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
-	OpponentB.DamagedVehicles = OpponentB.VehiclesCasualties - OpponentB.VehiclesLost
-	
-	-- They Shoot Horses, Don't They?
-	OpponentB.HorsesLost = OpponentB.HorsesCasualties -- some of those may be captured by the opponent ?
-	
-	-- Materiel too is a full lost
-	OpponentB.MaterielLost = OpponentB.MaterielCasualties
-				
-	-- Apply Casualties	transfert
-	ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel = ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel 	+ OpponentB.Wounded
-	ExposedMembers.UnitData[OpponentB.unitKey].DamagedVehicles 	= ExposedMembers.UnitData[OpponentB.unitKey].DamagedVehicles 	+ OpponentB.DamagedVehicles
-	
-	-- Update Stats
-	ExposedMembers.UnitData[OpponentB.unitKey].TotalDeath			= ExposedMembers.UnitData[OpponentB.unitKey].TotalDeath 		+ OpponentB.Dead
-	ExposedMembers.UnitData[OpponentB.unitKey].TotalVehiclesLost	= ExposedMembers.UnitData[OpponentB.unitKey].TotalVehiclesLost 	+ OpponentB.VehiclesLost
-	ExposedMembers.UnitData[OpponentB.unitKey].TotalHorsesLost 		= ExposedMembers.UnitData[OpponentB.unitKey].TotalHorsesLost 	+ OpponentB.HorsesLost
-
-	return OpponentB
 end
 
 function GetMoraleFromFood(unitData)	
@@ -1156,7 +1047,7 @@ function Initialize()
 	ExposedMembers.GCO.GetRealPopulation 	= GetRealPopulation
 	ExposedMembers.GCO.GetMaxStock 			= GetMaxStock
 	ExposedMembers.GCO.GetMaxPersonnel		= GetMaxPersonnel
-	ExposedMembers.GCO.GetSize 				= GetSize
+	ExposedMembers.GCO.GetCitySize 			= GetCitySize
 	-- civilizations
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
@@ -1168,17 +1059,18 @@ function Initialize()
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
 	-- units
 	ExposedMembers.GCO.GetUnitKey 						= GetUnitKey
-	ExposedMembers.GCO.GetUnitFromKey 					= GetUnitFromKey	
+	ExposedMembers.GCO.GetUnitFromKey 					= GetUnitFromKey
+	ExposedMembers.GCO.GetUnitKeyFromIDs 				= GetUnitKeyFromIDs
 	ExposedMembers.GCO.GetMaxTransfertTable 			= GetMaxTransfertTable	
 	ExposedMembers.GCO.GetPersonnelReserve 				= GetPersonnelReserve
 	ExposedMembers.GCO.GetVehiclesReserve 				= GetVehiclesReserve
 	ExposedMembers.GCO.GetHorsesReserve 				= GetHorsesReserve
 	ExposedMembers.GCO.GetMaterielReserve 				= GetMaterielReserve
-	ExposedMembers.GCO.AddCombatInfoTo 					= AddCombatInfoTo
-	ExposedMembers.GCO.AddFrontLineCasualtiesInfoTo 	= AddFrontLineCasualtiesInfoTo
-	ExposedMembers.GCO.AddCasualtiesInfoByTo 			= AddCasualtiesInfoByTo
+	--ExposedMembers.GCO.AddCombatInfoTo 					= AddCombatInfoTo
+	--ExposedMembers.GCO.AddFrontLineCasualtiesInfoTo 	= AddFrontLineCasualtiesInfoTo
+	--ExposedMembers.GCO.AddCasualtiesInfoByTo 			= AddCasualtiesInfoByTo
 	ExposedMembers.GCO.GetTotalPrisonners 				= GetTotalPrisonners
-	ExposedMembers.GCO.GetMaterielFromKillOfBy			= GetMaterielFromKillOfBy
+	--ExposedMembers.GCO.GetMaterielFromKillOfBy			= GetMaterielFromKillOfBy
 	ExposedMembers.GCO.GetFoodConsumption 				= GetFoodConsumption
 	ExposedMembers.GCO.GetBaseFoodStock 				= GetBaseFoodStock
 	ExposedMembers.GCO.GetFuelConsumption 				= GetFuelConsumption
@@ -1238,12 +1130,20 @@ Events.LeaveGameComplete.Add(Cleaning)
 -- Testing...
 -----------------------------------------------------------------------------------------
 
-local currentPlayer = -1
-function GetNextPlayerTurn()
--- UnitMovementPointsChanged
-	LuaEvents.StartPlayerTurn(playerID)
+local currentTurn = -1
+local playerMadeTurn = {}
+function GetPlayerTurn(playerID)
+	if (currentTurn ~= Game.GetCurrentGameTurn()) then
+		currentTurn = Game.GetCurrentGameTurn()
+		playerMadeTurn = {}
+	end
+	if not playerMadeTurn[playerID] then
+		LuaEvents.StartPlayerTurn(playerID)
+		playerMadeTurn[playerID] = true
+	end
 end
---Events.GameCoreEventPublishComplete.Add( GetNextPlayerTurn )
+--Events.GameCoreEventPublishComplete.Add( GetPlayerTurn )
+Events.UnitMovementPointsChanged.Add(GetPlayerTurn)
 
 function TestA()
 	print ("Calling TestA...")

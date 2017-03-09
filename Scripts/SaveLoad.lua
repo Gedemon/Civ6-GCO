@@ -27,13 +27,10 @@ usage:
 
 local GCO = ExposedMembers.GCO -- Initialize with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded (in this file's case it's the timers functions)
 function InitializeUtilityFunctions() -- Get functions from other contexts
-	if ExposedMembers.IsInitializedGCO and ExposedMembers.IsInitializedGCO() then 
-		GCO = ExposedMembers.GCO -- Reinitialize with what may have been added with other UI contexts
-		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		print ("Exposed Functions from other contexts initialized...")
-	end
+	GCO = ExposedMembers.GCO -- Reinitialize with what may have been added with other UI contexts
+	print ("Exposed Functions from other contexts initialized...")
 end
-Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 ----------------------------------------------
 -- Events for saving

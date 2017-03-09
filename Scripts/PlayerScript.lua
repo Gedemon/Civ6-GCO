@@ -40,30 +40,28 @@ end
 -----------------------------------------------------------------------------------------
 
 function DoPlayerTurn( playerID )
+	local player = Players[playerID]
+	local playerConfig = PlayerConfigurations[playerID]
+	print("---============================================================================================================================================================================---")
+	print("--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
+	print("---============================================================================================================================================================================---")
 	LuaEvents.DoUnitsTurn( playerID )
 	LuaEvents.DoCitiesTurn( playerID )
 end
+--LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
 
-function DoTurnForHuman( playerID, bFirstTime )
-	if ( not bFirstTime) then
-		return
-	end
-	local player = Players[playerID]
-	if player:IsHuman() then
-		DoPlayerTurn(playerID)
-		LuaEvents.SaveTables()
-	end
+function DoTurnForLocal()
+	local playerID = Game.GetLocalPlayer()
+	DoPlayerTurn(playerID)
+	LuaEvents.SaveTables()
 end
-Events.PlayerTurnActivated.Add( DoTurnForHuman )
+Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
 
-function DoTurnForAI( playerID )
-	local player = Players[playerID]
-	if player:IsHuman() then
-		return
-	end
+function DoTurnForRemote( playerID )
 	DoPlayerTurn(playerID)
 end
-Events.RemotePlayerTurnBegin.Add( DoTurnForAI )
+Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
+
 
 
 -----------------------------------------------------------------------------------------

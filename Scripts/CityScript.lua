@@ -193,7 +193,7 @@ function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToM
 	local city = CityManager.GetCity(playerID, cityID)
 	local c = getmetatable(city).__index
 	c.ChangeSize				= ChangeSize
-	c.GetSize					= GCO.GetSize
+	c.GetSize					= GCO.GetCitySize
 	c.GetRealPopulation			= GCO.GetRealPopulation
 	c.GetKey					= GCO.GetCityKey
 	c.GetMaxStock				= GCO.GetMaxStock

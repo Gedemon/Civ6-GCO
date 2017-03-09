@@ -119,6 +119,8 @@ local unitTableEnum = {
 	FuelStock				= 36,
 	PreviousFuelStock		= 37,
 	HP 						= 38,
+	testHP					= 39,
+	TurnCreated				= 40,
 	
 	EndOfEnum				= 99
 }                           
@@ -297,12 +299,13 @@ function RegisterNewUnit(playerID, unit)
 	local hp = unit:GetMaxDamage() - unit:GetDamage()
 
 	ExposedMembers.UnitData[unitKey] = {
+		TurnCreated				= Game.GetCurrentGameTurn(),
 		unitID 					= unitID,
 		playerID 				= playerID,
 		unitType 				= unitType,
 		MaterielPerVehicles 	= GameInfo.Units[unitType].MaterielPerVehicles,
 		HP	 					= unit:GetMaxDamage() - unit:GetDamage(),
-		testHP	 					= unit:GetMaxDamage() - unit:GetDamage(),
+		testHP	 				= unit:GetMaxDamage() - unit:GetDamage(),
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 				= UnitHitPointsTable[unitType][hp].Personnel,
 		Vehicles 				= UnitHitPointsTable[unitType][hp].Vehicles,
@@ -368,18 +371,130 @@ end
 Events.UnitAddedToMap.Add( InitializeUnit )
 
 -----------------------------------------------------------------------------------------
--- Damage received
+-- Combat
 -----------------------------------------------------------------------------------------
+
+function AddCombatInfoTo(Opponent)
+
+	Opponent.unit = UnitManager.GetUnit(Opponent.playerID, Opponent.unitID)
+	if Opponent.unit then
+		Opponent.unitType = Opponent.unit:GetType()
+		Opponent.unitKey = GCO.GetUnitKey(Opponent.unit)
+		Opponent.IsLandUnit = GameInfo.Units[Opponent.unitType].Domain == "DOMAIN_LAND"
+		-- Max number of prisonners can't be higher than the unit's operationnal number of personnel or the number of remaining valid personnel x10
+		Opponent.MaxPrisonners = math.min(GameInfo.Units[Opponent.unitType].Personnel, (ExposedMembers.UnitData[Opponent.unitKey].Personnel+ExposedMembers.UnitData[Opponent.unitKey].PersonnelReserve)*10)
+		local diff = (Opponent.MaxPrisonners - GCO.GetTotalPrisonners(ExposedMembers.UnitData[Opponent.unitKey]))
+		if diff > 0 then
+			Opponent.MaxCapture = GCO.Round(diff * GameInfo.GlobalParameters["COMBAT_CAPTURE_FROM_CAPACITY_PERCENT"].Value/100)
+		else
+			Opponent.MaxCapture = 0
+		end
+		Opponent.AntiPersonnel = GameInfo.Units[Opponent.unitType].AntiPersonnel
+	else
+		Opponent.unitKey = GCO.GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)
+	end	
+
+	return Opponent
+end
+
+function AddFrontLineCasualtiesInfoTo(Opponent)
+
+	if Opponent.IsDead then
+
+		Opponent.FinalHP = 0
+		--[[
+		Opponent.PersonnelCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Personnel
+		Opponent.VehiclesCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Vehicles
+		Opponent.HorsesCasualties 		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Horses
+		Opponent.MaterielCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Materiel
+
+		-- "Kill" the unit
+		ExposedMembers.UnitData[Opponent.unitKey].Personnel = 0
+		ExposedMembers.UnitData[Opponent.unitKey].Vehicles  = 0
+		ExposedMembers.UnitData[Opponent.unitKey].Horses	= 0
+		ExposedMembers.UnitData[Opponent.unitKey].Materiel 	= 0
+		--]]
+		ExposedMembers.UnitData[Opponent.unitKey].Alive 	= false
+	end
+	--else
+		Opponent.PersonnelCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Personnel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Personnel
+		Opponent.VehiclesCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Vehicles 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Vehicles
+		Opponent.HorsesCasualties 		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Horses		- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Horses
+		Opponent.MaterielCasualties		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Materiel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Materiel
+
+		-- Remove casualties from frontline
+		ExposedMembers.UnitData[Opponent.unitKey].Personnel = ExposedMembers.UnitData[Opponent.unitKey].Personnel  	- Opponent.PersonnelCasualties
+		ExposedMembers.UnitData[Opponent.unitKey].Vehicles  = ExposedMembers.UnitData[Opponent.unitKey].Vehicles  	- Opponent.VehiclesCasualties
+		ExposedMembers.UnitData[Opponent.unitKey].Horses	= ExposedMembers.UnitData[Opponent.unitKey].Horses	  	- Opponent.HorsesCasualties
+		ExposedMembers.UnitData[Opponent.unitKey].Materiel 	= ExposedMembers.UnitData[Opponent.unitKey].Materiel 	- Opponent.MaterielCasualties
+	--end
+
+	return Opponent
+end
+
+function AddCasualtiesInfoByTo(OpponentA, OpponentB)
+
+	-- Send wounded to the rear, bury the dead, take prisonners
+	if OpponentA.AntiPersonnel then
+		OpponentB.Dead = GCO.Round(OpponentB.PersonnelCasualties * OpponentA.AntiPersonnel / 100)
+	else
+		OpponentB.Dead = GCO.Round(OpponentB.PersonnelCasualties * GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value / 100)
+	end	
+	if OpponentA.CanTakePrisonners then	
+		if OpponentA.CapturedPersonnelRatio then
+			OpponentB.Captured = GCO.Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * OpponentA.CapturedPersonnelRatio / 100)
+		else
+			OpponentB.Captured = GCO.Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * GameInfo.GlobalParameters["COMBAT_CAPTURED_PERSONNEL_PERCENT"].Value / 100)
+		end	
+		if OpponentA.MaxCapture then
+			OpponentB.Captured = math.min(OpponentA.MaxCapture, OpponentB.Captured)
+		end
+	else
+		OpponentB.Captured = 0
+	end	
+	OpponentB.Wounded = OpponentB.PersonnelCasualties - OpponentB.Dead - OpponentB.Captured
+	
+	-- Salvage Vehicles
+	OpponentB.VehiclesLost = GCO.Round(OpponentB.VehiclesCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
+	OpponentB.DamagedVehicles = OpponentB.VehiclesCasualties - OpponentB.VehiclesLost
+	
+	-- They Shoot Horses, Don't They?
+	OpponentB.HorsesLost = OpponentB.HorsesCasualties -- some of those may be captured by the opponent ?
+	
+	-- Materiel too is a full lost
+	OpponentB.MaterielLost = OpponentB.MaterielCasualties
+				
+	-- Apply Casualties	transfert
+	ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel = ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel 	+ OpponentB.Wounded
+	ExposedMembers.UnitData[OpponentB.unitKey].DamagedVehicles 	= ExposedMembers.UnitData[OpponentB.unitKey].DamagedVehicles 	+ OpponentB.DamagedVehicles
+	
+	-- Update Stats
+	ExposedMembers.UnitData[OpponentB.unitKey].TotalDeath			= ExposedMembers.UnitData[OpponentB.unitKey].TotalDeath 		+ OpponentB.Dead
+	ExposedMembers.UnitData[OpponentB.unitKey].TotalVehiclesLost	= ExposedMembers.UnitData[OpponentB.unitKey].TotalVehiclesLost 	+ OpponentB.VehiclesLost
+	ExposedMembers.UnitData[OpponentB.unitKey].TotalHorsesLost 		= ExposedMembers.UnitData[OpponentB.unitKey].TotalHorsesLost 	+ OpponentB.HorsesLost
+
+	return OpponentB
+end
+
+function GetMaterielFromKillOfBy(OpponentA, OpponentB)
+	-- capture most materiel, convert some damaged Vehicles
+	local materielFromKill = 0
+	local materielFromCombat = OpponentA.MaterielLost * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value) / 100
+	local materielFromReserve = ExposedMembers.UnitData[OpponentA.unitKey].MaterielReserve * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value) /100
+	local materielFromVehicles = ExposedMembers.UnitData[OpponentA.unitKey].DamagedVehicles * ExposedMembers.UnitData[OpponentA.unitKey].MaterielPerVehicles * tonumber(GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value) / 100 * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_VEHICLES_KILL_PERCENT"].Value) / 100
+	materielFromKill = GCO.Round(materielFromCombat + materielFromReserve + materielFromVehicles) 
+	return materielFromKill
+end
+
 local combatCount = 0
 function OnCombat( combatResult )
 	-- for console debugging...
 	ExposedMembers.lastCombat = combatResult
 	
 	combatCount = combatCount + 1
-	print("--+++++++++--")
-	print("- on combat -")
-	print("   #"..tostring(combatCount))
-	print("--+++++++++--")
+	print("--============================================--")
+	print("-- Starting Combat #"..tostring(combatCount))
+	print("--============================================--")
 
 	local attacker = combatResult[CombatResultParameters.ATTACKER]
 	local defender = combatResult[CombatResultParameters.DEFENDER]
@@ -388,6 +503,10 @@ function OnCombat( combatResult )
 
 	attacker.IsUnit = attacker[CombatResultParameters.ID].type == ComponentType.UNIT
 	defender.IsUnit = defender[CombatResultParameters.ID].type == ComponentType.UNIT
+
+	local componentString = { [ComponentType.UNIT] = "UNIT", [ComponentType.CITY] = "CITY", [ComponentType.DISTRICT] = "DISTRICT"}
+	print("-- Attacker is " .. tostring(componentString[attacker[CombatResultParameters.ID].type]) ..", Damage = " .. attacker[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]))
+	print("-- Defender is " .. tostring(componentString[defender[CombatResultParameters.ID].type]) ..", Damage = " .. defender[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]))
 
 	-- We need to set some info before handling the change in the units composition
 	if attacker.IsUnit then
@@ -399,9 +518,10 @@ function OnCombat( combatResult )
 		attacker.playerID = tostring(attacker[CombatResultParameters.ID].player) -- playerID is a key for Prisonners table
 		attacker.unitID = attacker[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
-		attacker = GCO.AddCombatInfoTo(attacker)
+		attacker = AddCombatInfoTo(attacker)
 		--
 		attacker.CanTakePrisonners = attacker.IsLandUnit and combatType == CombatTypes.MELEE and not attacker.IsDead
+		print("-- Attacker data initialized, IsUnit = ".. tostring(attacker.IsUnit) .. ", IsDead = ".. tostring(attacker.IsDead) .. ", CanTakePrisonners = ".. tostring(attacker.CanTakePrisonners))
 	end
 	if defender.IsUnit then
 		defender.IsDefender = true
@@ -412,41 +532,43 @@ function OnCombat( combatResult )
 		defender.playerID = tostring(defender[CombatResultParameters.ID].player)
 		defender.unitID = defender[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
-		defender = GCO.AddCombatInfoTo(defender)
+		defender = AddCombatInfoTo(defender)
 		--
 		defender.CanTakePrisonners = defender.IsLandUnit and combatType == CombatTypes.MELEE and not defender.IsDead
+		print("-- Defender data initialized, IsUnit = ".. tostring(defender.IsUnit) .. ", IsDead = ".. tostring(defender.IsDead) .. ", CanTakePrisonners = ".. tostring(defender.CanTakePrisonners))
 	end
 
 	-- Error control
-	if defender.unit then
-		local testHP = defender.unit:GetMaxDamage() - defender.unit:GetDamage()
-		if testHP ~= defender.FinalHP then
-			print("ERROR: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()))
-			print("defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO] = ")
-			print(defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
-			print("real HP =", testHP)
-			print("previous HP = ", ExposedMembers.UnitData[defender.unitKey].HP)
-			print("defender[CombatResultParameters.DAMAGE_TO] = ", defender[CombatResultParameters.DAMAGE_TO])
-			defender.InitialHP = ExposedMembers.UnitData[defender.unitKey].HP
-			defender.FinalHP = testHP			
-		end		
-		ExposedMembers.UnitData[defender.unitKey].HP = testHP
-	end	
 	if attacker.unit then
 		local testHP = attacker.unit:GetMaxDamage() - attacker.unit:GetDamage()
-		if testHP ~= attacker.FinalHP then
+		if testHP ~= attacker.FinalHP or ExposedMembers.UnitData[attacker.unitKey].HP ~= attacker.InitialHP then
 			print("ERROR: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()))
 			print("attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO] = ")
 			print(attacker.FinalHP, "=", attacker[CombatResultParameters.MAX_HIT_POINTS], "-", attacker[CombatResultParameters.FINAL_DAMAGE_TO])
 			print("real HP =", testHP)
+			print("attacker.InitialHP = ", attacker.InitialHP)
 			print("previous HP = ", ExposedMembers.UnitData[attacker.unitKey].HP)
 			print("attacker[CombatResultParameters.DAMAGE_TO] = ", attacker[CombatResultParameters.DAMAGE_TO])
-			attacker.InitialHP = ExposedMembers.UnitData[attacker.unitKey].HP
-			attacker.FinalHP = testHP			
+			--attacker.InitialHP = ExposedMembers.UnitData[attacker.unitKey].HP
+			--attacker.FinalHP = testHP			
 		end		
 		ExposedMembers.UnitData[attacker.unitKey].HP = testHP
 	end
-	
+	if defender.unit then
+		local testHP = defender.unit:GetMaxDamage() - defender.unit:GetDamage()
+		if testHP ~= defender.FinalHP or ExposedMembers.UnitData[defender.unitKey].HP ~= defender.InitialHP then
+			print("ERROR: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()))
+			print("defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO] = ")
+			print(defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
+			print("real HP =", testHP)
+			print("defender.InitialHP = ", defender.InitialHP)
+			print("previous HP = ", ExposedMembers.UnitData[defender.unitKey].HP)
+			print("defender[CombatResultParameters.DAMAGE_TO] = ", defender[CombatResultParameters.DAMAGE_TO])
+			--defender.InitialHP = ExposedMembers.UnitData[defender.unitKey].HP
+			--defender.FinalHP = testHP			
+		end		
+		ExposedMembers.UnitData[defender.unitKey].HP = testHP
+	end	
 	
 	if attacker.IsUnit and not attacker.IsDead then
 		GCO.CheckComponentsHP(attacker.unit, "attacker before handling combat casualties", true)
@@ -457,19 +579,18 @@ function OnCombat( combatResult )
 		GCO.CheckComponentsHP(defender.unit, "defender before handling combat casualties", true)
 		GCO.DebugComponentsHP(defender.unit, "defender before handling combat casualties")
 		GCO.ShowDebugComponentsHP(defender.unit)		
-	end
-	
-	print("--+++++++++--")
-	print("- combat  2 -")
-	print("   #"..tostring(combatCount))
-	print("--+++++++++--")
+	end	
+
+	print("--++++++++++++++++++++++--")
+	print("-- Casualties in Combat #"..tostring(combatCount))
+	print("--++++++++++++++++++++++--")
 
 	-- Handle casualties
 	if attacker.IsUnit then -- and attacker[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
 		if attacker.unit then
 			if ExposedMembers.UnitData[attacker.unitKey] then
-				attacker = GCO.AddFrontLineCasualtiesInfoTo(attacker) 		-- Set Personnel, Vehicles, Horses and Materiel casualties from the HP lost
-				attacker = GCO.AddCasualtiesInfoByTo(defender, attacker) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
+				attacker = AddFrontLineCasualtiesInfoTo(attacker) 		-- Set Personnel, Vehicles, Horses and Materiel casualties from the HP lost
+				attacker = AddCasualtiesInfoByTo(defender, attacker) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
 				if not attacker.IsDead then
 					LuaEvents.UnitsCompositionUpdated(attacker.playerID, attacker.unitID) 	-- call to update flag
 					GCO.ShowCasualtiesFloatingText(attacker)								-- visualize all casualties
@@ -481,8 +602,8 @@ function OnCombat( combatResult )
 	if defender.IsUnit then -- and defender[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
 		if defender.unit then
 			if ExposedMembers.UnitData[defender.unitKey] then
-				defender = GCO.AddFrontLineCasualtiesInfoTo(defender) 		-- Set Personnel, Vehicles, Horses and Materiel casualties from the HP lost
-				defender = GCO.AddCasualtiesInfoByTo(attacker, defender) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
+				defender = AddFrontLineCasualtiesInfoTo(defender) 		-- Set Personnel, Vehicles, Horses and Materiel casualties from the HP lost
+				defender = AddCasualtiesInfoByTo(attacker, defender) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
 				if not defender.IsDead then
 					LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)	-- call to update flag
 					GCO.ShowCasualtiesFloatingText(defender)								-- visualize all casualties
@@ -491,10 +612,10 @@ function OnCombat( combatResult )
 		end
 	end
 	
-	print("--+++++++++--")
-	print("- combat  3 -")
-	print("   #"..tostring(combatCount))
-	print("--+++++++++--")
+
+	print("--++++++++++++++++++++++--")
+	print("-- Stats in Combat #"..tostring(combatCount))
+	print("--++++++++++++++++++++++--")
 
 	-- Update some stats
 	if attacker.IsUnit and defender.Dead then ExposedMembers.UnitData[attacker.unitKey].TotalKill = ExposedMembers.UnitData[attacker.unitKey].TotalKill + defender.Dead end
@@ -512,10 +633,10 @@ function OnCombat( combatResult )
 		ExposedMembers.UnitData[defender.unitKey].LastCombatType = combatType
 	end
 	
-	print("--+++++++++--")
-	print("- combat  4 -")
-	print("   #"..tostring(combatCount))
-	print("--+++++++++--")
+
+	print("--++++++++++++++++++++++--")
+	print("-- Plundering in Combat #"..tostring(combatCount))
+	print("--++++++++++++++++++++++--")
 
 	-- Plundering (with some bonuses to attack)
 	if defender.IsLandUnit and combatType == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
@@ -523,7 +644,7 @@ function OnCombat( combatResult )
 		if defender.IsDead then
 
 			attacker.Prisonners = defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded (to do : add prisonners drom enemy nationality here)
-			attacker.MaterielGained = GCO.GetMaterielFromKillOfBy(defender, attacker)
+			attacker.MaterielGained = GetMaterielFromKillOfBy(defender, attacker)
 			attacker.LiberatedPrisonners = GCO.GetTotalPrisonners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
 			attacker.FoodGained = GCO.Round(ExposedMembers.UnitData[defender.unitKey].FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) /100)
 			attacker.FoodGained = math.max(0, math.min(GCO.GetBaseFoodStock(attacker.unit:GetType()) - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
@@ -565,10 +686,10 @@ function OnCombat( combatResult )
 		end
 	end
 	
-	print("--+++++++++--")
-	print("- combat  5 -")
-	print("   #"..tostring(combatCount))
-	print("--+++++++++--")
+
+	print("--++++++++++++++++++++++--")
+	print("-- Control in Combat #"..tostring(combatCount))
+	print("--++++++++++++++++++++++--")
 		
 	if attacker.IsUnit and not attacker.IsDead then GCO.DebugComponentsHP(attacker.unit, "attacker after combat") end
 	if defender.IsUnit and not defender.IsDead then GCO.DebugComponentsHP(defender.unit, "defender after combat") end
@@ -581,10 +702,10 @@ function OnCombat( combatResult )
 			 if type(k) == "string" and type(v) ~= "table" then print(k,v); end
 		end;
 	end
-	print("--+++++++++--")
-	print("- combat  6 -")
-	print("   #"..tostring(combatCount))
-	print("--+++++++++--")
+
+	print("--++++++++++++++++++++++--")
+	print("-- Ending Combat #"..tostring(combatCount))
+	print("--++++++++++++++++++++++--")
 	--[[
 	print("-  ATTACKER -")
 	print("--+++++++++--")
@@ -610,7 +731,7 @@ function HealingUnits(playerID)
 	local playerUnits = player:GetUnits()
 	if playerUnits then
 		print("-----------------------------------------------------------------------------------------")
-		print("Healing units for " .. tostring(playerConfig:GetCivilizationShortDescription()))
+		print("Healing units for " .. tostring(Locale.Lookup(playerConfig:GetCivilizationShortDescription())))
 
 		local startTime = Automation.GetTime()
 
@@ -686,6 +807,7 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 				local finalHP = initialHP + hp
 				--print("initialHP:", initialHP , "finalHP:", finalHP, "hp from heal table:", hp)
 				unit:SetDamage(damage-hp)
+				ExposedMembers.UnitData[key].HP = finalHP
 
 				-- update reserve and frontline...
 				local reqPersonnel 	= UnitHitPointsTable[unitInfo.Index][finalHP].Personnel - UnitHitPointsTable[unitInfo.Index][initialHP].Personnel
@@ -843,6 +965,8 @@ function DoUnitFood(unit)
 
 	local key = GCO.GetUnitKey(unit)
 	local unitData = ExposedMembers.UnitData[key]
+	
+	if unitData.TurnCreated == Game.GetCurrentGameTurn() then return end -- don't eat on first turn
 
 	-- Eat Food
 
@@ -913,9 +1037,11 @@ function DoUnitMorale(unit)
 		local unitType = unit:GetType()
 		local personnelReservePercent = GCO.Round( ExposedMembers.UnitData[key].PersonnelReserve / GCO.GetPersonnelReserve(unitType) * 100)
 		local desertionData = {Personnel = 0, Vehicles = 0, Horses = 0, Materiel = 0, GiveDamage = false, Show = false, X = unit:GetX(), Y = unit:GetY() }
+		local lostHP = 0
+		local finalHP = HP
 		if HP > minPercentHP then
-			local lostHP = math.max(1, GCO.Round(HP * desertionRate / 100))
-			local finalHP = HP - lostHP
+			lostHP = math.max(1, GCO.Round(HP * desertionRate / 100))
+			finalHP = HP - lostHP
 
 			-- Get desertion number
 			desertionData.Personnel = UnitHitPointsTable[unitType][HP].Personnel 	- UnitHitPointsTable[unitType][finalHP].Personnel
@@ -958,6 +1084,7 @@ function DoUnitMorale(unit)
 		-- Set Damage
 		if desertionData.GiveDamage then
 			unit:SetDamage(unit:GetDamage() + lostHP)
+			ExposedMembers.UnitData[key].HP = finalHP
 		end
 	end
 	GCO.CheckComponentsHP(unit, "after DoUnitMorale()")	
