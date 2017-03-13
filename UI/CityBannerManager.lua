@@ -1247,7 +1247,7 @@ function CityBanner.UpdateName( self : CityBanner )
 				
 				-- Stock
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STOCK_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. GCO.GetCityFoodStockString(cityData) --Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", cityData.FoodStock) 
+				cityString = cityString .. GCO.GetResourcesStockString(cityData) 
 				
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", GCO.GetCityFoodConsumption(cityData))
