@@ -362,6 +362,13 @@
 	<Replace Tag="LOC_CITYBANNER_FOOD_STOCK" Language="en_US">
       <Text>[ICON_Food] {1_Num} Food</Text>
     </Replace>	
+    <Replace Tag="LOC_CITYBANNER_MATERIEL_STOCK" Language="en_US">
+      <Text>[ICON_Charges] {1_Num} Materiel</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_RESOURCE_STOCK" Language="en_US">
+      <Text>[ICON_{3_Name}] {1_Num} {2_Name}</Text>
+    </Replace>	
 	
   </LocalizedText>
     
