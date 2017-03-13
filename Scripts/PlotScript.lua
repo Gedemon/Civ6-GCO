@@ -22,8 +22,8 @@ local iCrossingRiverMax 			= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_R
 local iCrossingRiverPenalty			= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_RIVER_PENALTY"].Value)
 local iCrossingRiverThreshold		= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_RIVER_THRESHOLD"].Value)
 local iBaseThreshold 				= tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value)
-ExposedMembers.CultureMap 			= {}
-ExposedMembers.PreviousCultureMap 	= {}
+--ExposedMembers.CultureMap 			= {}
+--ExposedMembers.PreviousCultureMap 	= {}
 
 -----------------------------------------------------------------------------------------
 -- Initialize

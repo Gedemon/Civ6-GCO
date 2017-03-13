@@ -27,6 +27,9 @@ local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS
 local foodResourceID 	= GameInfo.Resources["RESOURCE_FOOD"].Index
 local baseFoodStock 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 
+local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
+local steelResourceID 		= GameInfo.Resources["RESOURCE_STEEL"].Index
+
 local lightRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 local mediumRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 local heavyRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
@@ -112,6 +115,11 @@ function ToDecimals(num)
 	return num
 end
 
+
+----------------------------------------------
+-- Debug
+----------------------------------------------
+
 local bNoOutput = false
 function ToggleOutput()
 	bNoOutput = not bNoOutput
@@ -138,7 +146,7 @@ function ShowTimer(name)
 		return
 	end
 	if Timer[name] then
-		--print("- "..tostring(name) .." timer = " .. tostring(Automation.GetTime()-Timer[name]) .. " seconds")
+		print("- "..tostring(name) .." timer = " .. tostring(Automation.GetTime()-Timer[name]) .. " seconds")
 	end
 end
 
@@ -203,8 +211,61 @@ end
 -- Cities
 ----------------------------------------------
 
+-- City Capture Events
+local cityCaptureTest = {}
+function CityCaptureDistrictRemoved(playerID, districtID, cityID, iX, iY) -- districtID = hash type ? if so check for city center...
+	local key = iX..","..iY
+	print("CityCaptureDistrictRemoved: districtID =", districtID, GameInfo.Districts[districtID])
+	print("GameInfo.Districts[districtID].Type", GameInfo.Districts[districtID].DistrictType)
+	cityCaptureTest[key]			= {}
+	cityCaptureTest[key].Turn 		= Game.GetCurrentGameTurn()
+	cityCaptureTest[key].PlayerID 	= playerID
+	cityCaptureTest[key].CityID 	= cityID
+end
+Events.DistrictRemovedFromMap.Add(CityCaptureDistrictRemoved)
+function CityCaptureCityAddedToMap(playerID, cityID, iX, iY)
+	local key = iX..","..iY
+	if (	cityCaptureTest[key]
+		and cityCaptureTest[key].Turn 	== Game.GetCurrentGameTurn()
+		and not	cityCaptureTest[key].CityAddedXY	)
+	then
+		cityCaptureTest[key].CityAddedXY = true
+		local city = CityManager.GetCity(playerID, cityID)
+		local originalOwnerID 	= city:GetOriginalOwner()
+		local originalCityID	= cityCaptureTest[key].CityID
+		local newOwnerID 		= playerID
+		local newCityID			= cityID
+		if cityCaptureTest[key].PlayerID == originalOwnerID then
+			print("Calling LuaEvents.CapturedCityAddedToMap (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
+			LuaEvents.CapturedCityAddedToMap(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+		end
+	end
+end
+Events.CityAddedToMap.Add(CityCaptureCityAddedToMap)
+function CityCaptureCityInitialized(playerID, cityID, iX, iY)
+	local key = iX..","..iY
+	if (	cityCaptureTest[key]
+		and cityCaptureTest[key].Turn 	== Game.GetCurrentGameTurn() )
+	then
+		cityCaptureTest[key].CityInitializedXY = true
+		local city = CityManager.GetCity(playerID, cityID)
+		local originalOwnerID 	= city:GetOriginalOwner()
+		local originalCityID	= cityCaptureTest[key].CityID
+		local newOwnerID 		= playerID
+		local newCityID			= cityID
+		if cityCaptureTest[key].PlayerID == originalOwnerID then
+			LuaEvents.CapturedCityInitialized(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+		end
+	end
+end
+Events.CityInitialized.Add(CityCaptureCityInitialized)
+
+function GetCityKeyFromIDs(cityID, ownerID)
+	return cityID..","..ownerID
+end
+
 function GetCityKey(city)
-	return city:GetID() ..",".. city:GetOriginalOwner()
+	GetCityKeyFromIDs (city:GetID(), city:GetOwner())
 end
 
 function GetCityFromKey ( cityKey )
@@ -221,7 +282,7 @@ function GetCityFromKey ( cityKey )
 	end
 end
 
-function GetRealPopulation(city) -- city:GetPopulation() returns city size
+function GetRealPopulation(city) -- the original city:GetPopulation() returns city size
 	local key = GetCityKey(city)
 	if ExposedMembers.CityData[key] then
 		return ExposedMembers.CityData[key].UpperClass + ExposedMembers.CityData[key].MiddleClass + ExposedMembers.CityData[key].LowerClass + ExposedMembers.CityData[key].Slaves
@@ -611,6 +672,30 @@ function GetPrisonnersStringByCiv(data) -- works for unitData and cityData
 	return str
 end
 
+function GetResourcesStockString(data)
+	local str = ""
+	for resourceID, value in pairs(data.Stock) do
+		if value > 0 then
+			local stockVariation = value - data.PreviousStock[resourceID]
+			local resourceID = tonumber(resourceID)
+			local resRow = GameInfo.Resources[resourceID]
+			if resourceID == foodResourceID then
+				str = str .. "[NEWLINE]" .. GetCityFoodStockString(data) --Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", value) 
+			else if resourceID == materielResourceID then
+				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MATERIEL_STOCK", value) 
+			else 
+				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK", value, resRow.Name, resRow.ResourceType) 
+			end
+			
+			if stockVariation > 0 then
+				str = str .. "[ICON_PressureUp][COLOR_Civ6Green] +".. tostring(stockVariation).."[ENDCOLOR]"
+			elseif stockVariation < 0 then
+				str = str .." [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(stockVariation).."[ENDCOLOR]"
+			end
+		end
+	end		
+end
+
 function GetFuelStockString(unitData) 
 	local lightRationing = 	tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_LIGHT_RATIO"].Value)
 	local mediumRationing = tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_MEDIUM_RATIO"].Value)
@@ -691,12 +776,13 @@ function GetCityFoodStockString(data)
 	else
 		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", foodStock, maxFoodStock)
 	end	
-	
+	--[[
 	if foodStockVariation > 0 then
-		str = str .. "[ICON_PressureUp]"
+		str = str .. "[ICON_PressureUp] +".. tostring(foodStockVariation).."[ENDCOLOR]"
 	elseif foodStockVariation < 0 then
-		str = str .." [ICON_PressureDown]"
+		str = str .." [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(foodStockVariation).."[ENDCOLOR]"
 	end
+	--]]
 	
 	return str
 end
@@ -1095,6 +1181,7 @@ function Initialize()
 	ExposedMembers.GCO.ToggleOutput = ToggleOutput
 	ExposedMembers.GCO.Dprint		= Dprint
 	-- cities
+	ExposedMembers.GCO.GetCityKeyFromIDs 		= GetCityKeyFromIDs
 	ExposedMembers.GCO.GetCityKey 				= GetCityKey
 	ExposedMembers.GCO.GetCityFromKey 			= GetCityFromKey
 	ExposedMembers.GCO.GetRealPopulation 		= GetRealPopulation
@@ -1104,6 +1191,7 @@ function Initialize()
 	ExposedMembers.GCO.GetCityFoodConsumption 	= GetCityFoodConsumption
 	-- cities flag strings
 	ExposedMembers.GCO.GetCityFoodStockString 	= GetCityFoodStockString
+	ExposedMembers.GCO.GetResourcesStockString	= GetResourcesStockString
 	-- civilizations
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
@@ -1161,20 +1249,26 @@ Initialize()
 -----------------------------------------------------------------------------------------
 function Cleaning()
 	print ("Cleaning GCO stuff on LeaveGameComplete...")
+	-- 
 	ExposedMembers.SaveLoad_Initialized 		= nil
 	ExposedMembers.ContextFunctions_Initialized	= nil
 	ExposedMembers.Utils_Initialized 			= nil
 	ExposedMembers.Serialize_Initialized 		= nil
 	ExposedMembers.RouteConnections_Initialized	= nil	
 	ExposedMembers.PlotIterator_Initialized		= nil
+	--
+	ExposedMembers.UnitHitPointsTable 			= nil
+	--
 	ExposedMembers.UnitData 					= nil
 	ExposedMembers.CityData 					= nil
 	ExposedMembers.PlayerData 					= nil
+	ExposedMembers.CultureMap 					= nil
+	ExposedMembers.PreviousCultureMap 			= nil
 	ExposedMembers.GCO 							= nil
+	--
 	ExposedMembers.UI 							= nil
 	ExposedMembers.Calendar 					= nil
 	ExposedMembers.CombatTypes 					= nil
-	ExposedMembers.UnitHitPointsTable 			= nil
 end
 Events.LeaveGameComplete.Add(Cleaning)
 
@@ -1195,8 +1289,21 @@ function GetPlayerTurn(playerID)
 		playerMadeTurn[playerID] = true
 	end
 end
+function OnUnitMovementPointsChanged(playerID)
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	print("-- Test Start Turn On UnitMovementPointsChanged player#"..tostring(playerID))
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	GetPlayerTurn(playerID)
+end
+function OnAiAdvisorUpdated(playerID)
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	print("-- Test Start Turn On AiAdvisorUpdated player#"..tostring(playerID))
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	GetPlayerTurn(playerID)
+end
 --Events.GameCoreEventPublishComplete.Add( GetPlayerTurn )
-Events.UnitMovementPointsChanged.Add(GetPlayerTurn)
+Events.UnitMovementPointsChanged.Add(OnUnitMovementPointsChanged)
+Events.OnAiAdvisorUpdated.Add(OnAiAdvisorUpdated)
 
 function TestA()
 	print ("Calling TestA...")

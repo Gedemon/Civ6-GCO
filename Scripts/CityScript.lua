@@ -126,6 +126,43 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 
 end
 
+function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+	local originalCityKey 	= GCO.GetCityKeyFromIDs(originalCityID, originalOwnerID)
+	local newCityKey 		= GCO.GetCityKeyFromIDs(newCityID, newOwnerID)
+	if ExposedMembers.CityData[originalCityKey] then
+		originalData = ExposedMembers.CityData[originalCityKey]
+		
+		if ExposedMembers.CityData[newCityKey] then
+			local city = CityManager.GetCity(newOwnerID, newCityID)
+			print("Updating captured city (".. city:GetName() ..") for player #".. tostring(newOwnerID).. " id#" .. tostring(city:GetID()))
+			print("-------------------------------------")
+		
+			ExposedMembers.CityData[newCityKey].Personnel 			= 0
+			ExposedMembers.CityData[newCityKey].WoundedPersonnel 	= 0
+			ExposedMembers.CityData[newCityKey].PreviousPersonnel 	= 0
+			for civID, value in pairs(originalData.Prisonners) do
+				ExposedMembers.CityData[newCityKey].Prisonners[civID] = value
+			end
+			ExposedMembers.CityData[newCityKey].Prisonners[tostring(originalOwnerID)] = originalData.Personnel + originalData.WoundedPersonnel	
+			for resourceID, value in pairs(originalData.Stock) do
+				ExposedMembers.CityData[newCityKey].Stock[resourceID] = value
+			end
+			for resourceID, value in pairs(originalData.PreviousStock) do
+				ExposedMembers.CityData[newCityKey].PreviousStock[resourceID] = value
+			end
+			ExposedMembers.CityData[newCityKey].UpperClass 			= originalData.UpperClass
+			ExposedMembers.CityData[newCityKey].MiddleClass 		= originalData.MiddleClass
+			ExposedMembers.CityData[newCityKey].LowerClass 			= originalData.LowerClass
+			ExposedMembers.CityData[newCityKey].Slaves 				= originalData.Slaves
+		else
+			print("ERROR: no data for new City on capture, cityID #", newCityID, "playerID #", newOwnerID)
+		end	
+	else
+		print("ERROR: no data for original City on capture, cityID #", originalCityID, "playerID #", originalOwnerID)
+	end
+end
+LuaEvents.CapturedCityInitialized( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
+
 -- for debugging
 function ShowCityData()
 	for cityKey, data in pairs(ExposedMembers.CityData) do
@@ -312,6 +349,7 @@ function CollectResources(self)
 end
 
 function ChangeResourceStock(self, resourceID, value)
+	local resourceID = tostring(resourceID)
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
 	print("ChangeResourceStock : ", resourceID, value)
