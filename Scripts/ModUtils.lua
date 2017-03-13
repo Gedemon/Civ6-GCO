@@ -24,6 +24,13 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS
 
+local foodResourceID 	= GameInfo.Resources["RESOURCE_FOOD"].Index
+local baseFoodStock 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
+
+local lightRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
+local mediumRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
+local heavyRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
+
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
@@ -227,15 +234,38 @@ function GetCitySize(city) -- for code consistency
 end
 
 function GetMaxStock(city, resourceID)
-	local maxStock = GetCitySize(city) * tonumber(GameInfo.GlobalParameters["CITY_MAX_STOCK_PER_SIZE"].Value)
-
+	local maxStock = GetCitySize(city) * tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
+	if resourceID == foodResourceID then maxStock = maxStock + baseFoodStock end
 	return maxStock
 end
 
 function GetMaxPersonnel(city)
-	local maxPersonnel = GetCitySize(city) * tonumber(GameInfo.GlobalParameters["CITY_MAX_PERSONNEL_PER_SIZE"].Value)
+	local maxPersonnel = GetCitySize(city) * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
 
 	return maxPersonnel
+end
+
+function GetCityBaseFoodStock(data)
+	local city 				= CityManager.GetCity(data.playerID, data.cityID)
+	return GCO.Round(GetMaxStock(city, foodResourceID) / 2)
+end
+
+function GetCityFoodConsumption(data)
+	local foodConsumption1000 = 0
+	local ratio = data.FoodRatio
+	foodConsumption1000 = foodConsumption1000 + (data.UpperClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_UPPER_CLASS_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (data.MiddleClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_MIDDLE_CLASS_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (data.LowerClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_LOWER_CLASS_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (data.Slaves 			* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SLAVE_CLASS_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (data.Personnel 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )
+	-- value belows may be nil
+	if data.WoundedPersonnel then
+		foodConsumption1000 = foodConsumption1000 + (data.WoundedPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )
+	end
+	if data.Prisonners then	
+		foodConsumption1000 = foodConsumption1000 + (GetTotalPrisonners(data) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value) )
+	end	
+	return math.max(1, Round( foodConsumption1000 * ratio / 1000 ))
 end
 
 
@@ -331,7 +361,9 @@ function CheckComponentsHP(unit, str, bNoWarning)
 		or 	ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel 
 	then 
 		debug()
+		return false
 	end
+	return true
 end
 
 local debugTable = {}
@@ -392,12 +424,9 @@ function GetMaterielReserve(unitType)
 	return GameInfo.Units[unitType].Materiel -- 100% stock for materiel reserve
 end
 
-function GetFoodConsumptionRatio(unitData) -- local
+function GetUnitFoodConsumptionRatio(unitData) -- local
 	local ratio = 1
-	local lightRationing =  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
-	local mediumRationing =  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
-	local heavyRationing =  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
-	local baseFoodStock = GetBaseFoodStock(unitData.unitType)
+	local baseFoodStock = GetUnitBaseFoodStock(unitData.unitType)
 	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
 		ratio = heavyRationing
 	elseif unitData.FoodStock < (baseFoodStock * mediumRationing) then
@@ -408,9 +437,9 @@ function GetFoodConsumptionRatio(unitData) -- local
 	return ratio
 end
 
-function GetFoodConsumption(unitData, fixedRatio)
+function GetUnitFoodConsumption(unitData, fixedRatio)
 	local foodConsumption1000 = 0
-	local ratio = fixedRatio or GetFoodConsumptionRatio(unitData) -- to prevent an infinite loop between GetBaseFoodStock & GetFoodConsumptionRatio
+	local ratio = fixedRatio or GetUnitFoodConsumptionRatio(unitData) -- to prevent an infinite loop between GetUnitBaseFoodStock & GetUnitFoodConsumptionRatio
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) * ratio)
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value) * ratio)
 	-- value belows may be nil
@@ -423,7 +452,7 @@ function GetFoodConsumption(unitData, fixedRatio)
 	return math.max(1, Round( foodConsumption1000 / 1000 ))
 end
 
-function GetBaseFoodStock(unitType)
+function GetUnitBaseFoodStock(unitType)
 	local unitData = {}
 	unitData.unitType 			= unitType
 	unitData.Personnel 			= GameInfo.Units[unitType].Personnel
@@ -431,7 +460,7 @@ function GetBaseFoodStock(unitType)
 	unitData.PersonnelReserve	= GetPersonnelReserve(unitType)
 	unitData.HorsesReserve 		= GetHorsesReserve(unitType)
 	local fixedRatio = 1
-	return GetFoodConsumption(unitData, fixedRatio)*5 -- set enough stock for 5 turns
+	return GetUnitFoodConsumption(unitData, fixedRatio)*5 -- set enough stock for 5 turns
 end
 
 function GetFuelConsumptionRatio(unitData) -- local
@@ -490,7 +519,7 @@ function GetMoraleFromFood(unitData)
 	local lightRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 	local mediumRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 	local heavyRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
-	local baseFoodStock 	= GetBaseFoodStock(unitData.unitType)
+	local baseFoodStock 	= GetUnitBaseFoodStock(unitData.unitType)
 	
 	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
 		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FOOD_RATIONING_HEAVY"].Value)
@@ -622,21 +651,18 @@ function GetFuelConsumptionString(unitData)
 	return str
 end
 
-function GetFoodStockString(unitData) 
-	local lightRationing = 	tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
-	local mediumRationing = tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
-	local heavyRationing = 	tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
-	local baseFoodStock = GetBaseFoodStock(unitData.unitType)
-	local foodStockVariation = unitData.FoodStock - unitData.PreviousFoodStock
+function GetUnitFoodStockString(data) 
+	local baseFoodStock = GetUnitBaseFoodStock(data.unitType)
+	local foodStockVariation = data.FoodStock - data.PreviousFoodStock
 	local str = ""
-	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", unitData.FoodStock, baseFoodStock)
-	elseif unitData.FoodStock < (baseFoodStock * mediumRationing) then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_MEDIUM_RATIONING", unitData.FoodStock, baseFoodStock)
-	elseif unitData.FoodStock < (baseFoodStock * lightRationing) then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", unitData.FoodStock, baseFoodStock)
+	if data.FoodStock < (baseFoodStock * heavyRationing) then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", data.FoodStock, baseFoodStock)
+	elseif data.FoodStock < (baseFoodStock * mediumRationing) then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_MEDIUM_RATIONING", data.FoodStock, baseFoodStock)
+	elseif data.FoodStock < (baseFoodStock * lightRationing) then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", data.FoodStock, baseFoodStock)
 	else
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", unitData.FoodStock, baseFoodStock)
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", data.FoodStock, baseFoodStock)
 	end	
 	
 	if foodStockVariation > 0 then
@@ -648,9 +674,36 @@ function GetFoodStockString(unitData)
 	return str
 end
 
-function GetFoodConsumptionString(unitData)
+function GetCityFoodStockString(data) 
+	local city 					= CityManager.GetCity(data.playerID, data.cityID)
+	local baseFoodStock 		= GetCityBaseFoodStock(data)
+	local maxFoodStock 			= GetMaxStock(city, foodResourceID)
+	local foodStock 			= data.Stock[foodResourceID]
+	local foodStockVariation 	= foodStock - data.PreviousStock[foodResourceID]
+	local cityRationning 		= data.FoodRatio
+	local str 					= ""
+	if cityRationning == heavyRationing then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
+	elseif cityRationning == mediumRationing then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_MEDIUM_RATIONING", foodStock, maxFoodStock)
+	elseif cityRationning == lightRationing then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", foodStock, maxFoodStock)
+	else
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", foodStock, maxFoodStock)
+	end	
+	
+	if foodStockVariation > 0 then
+		str = str .. "[ICON_PressureUp]"
+	elseif foodStockVariation < 0 then
+		str = str .." [ICON_PressureDown]"
+	end
+	
+	return str
+end
+
+function GetUnitFoodConsumptionString(unitData)
 	local str = ""
-	local ratio = GetFoodConsumptionRatio(unitData)
+	local ratio = GetUnitFoodConsumptionRatio(unitData)
 	local totalPersonnel = unitData.Personnel + unitData.PersonnelReserve
 	if totalPersonnel > 0 then 
 		local personnelFood = ( totalPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )/1000
@@ -1042,12 +1095,15 @@ function Initialize()
 	ExposedMembers.GCO.ToggleOutput = ToggleOutput
 	ExposedMembers.GCO.Dprint		= Dprint
 	-- cities
-	ExposedMembers.GCO.GetCityKey 			= GetCityKey
-	ExposedMembers.GCO.GetCityFromKey 		= GetCityFromKey
-	ExposedMembers.GCO.GetRealPopulation 	= GetRealPopulation
-	ExposedMembers.GCO.GetMaxStock 			= GetMaxStock
-	ExposedMembers.GCO.GetMaxPersonnel		= GetMaxPersonnel
-	ExposedMembers.GCO.GetCitySize 			= GetCitySize
+	ExposedMembers.GCO.GetCityKey 				= GetCityKey
+	ExposedMembers.GCO.GetCityFromKey 			= GetCityFromKey
+	ExposedMembers.GCO.GetRealPopulation 		= GetRealPopulation
+	ExposedMembers.GCO.GetMaxStock 				= GetMaxStock
+	ExposedMembers.GCO.GetMaxPersonnel			= GetMaxPersonnel
+	ExposedMembers.GCO.GetCitySize 				= GetCitySize
+	ExposedMembers.GCO.GetCityFoodConsumption 	= GetCityFoodConsumption
+	-- cities flag strings
+	ExposedMembers.GCO.GetCityFoodStockString 	= GetCityFoodStockString
 	-- civilizations
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
@@ -1066,13 +1122,9 @@ function Initialize()
 	ExposedMembers.GCO.GetVehiclesReserve 				= GetVehiclesReserve
 	ExposedMembers.GCO.GetHorsesReserve 				= GetHorsesReserve
 	ExposedMembers.GCO.GetMaterielReserve 				= GetMaterielReserve
-	--ExposedMembers.GCO.AddCombatInfoTo 					= AddCombatInfoTo
-	--ExposedMembers.GCO.AddFrontLineCasualtiesInfoTo 	= AddFrontLineCasualtiesInfoTo
-	--ExposedMembers.GCO.AddCasualtiesInfoByTo 			= AddCasualtiesInfoByTo
 	ExposedMembers.GCO.GetTotalPrisonners 				= GetTotalPrisonners
-	--ExposedMembers.GCO.GetMaterielFromKillOfBy			= GetMaterielFromKillOfBy
-	ExposedMembers.GCO.GetFoodConsumption 				= GetFoodConsumption
-	ExposedMembers.GCO.GetBaseFoodStock 				= GetBaseFoodStock
+	ExposedMembers.GCO.GetUnitFoodConsumption 				= GetUnitFoodConsumption
+	ExposedMembers.GCO.GetUnitBaseFoodStock 				= GetUnitBaseFoodStock
 	ExposedMembers.GCO.GetFuelConsumption 				= GetFuelConsumption
 	ExposedMembers.GCO.GetBaseFuelStock 				= GetBaseFuelStock
 	ExposedMembers.GCO.GetMoraleFromFood 				= GetMoraleFromFood
@@ -1083,13 +1135,13 @@ function Initialize()
 	ExposedMembers.GCO.ShowDebugComponentsHP 			= ShowDebugComponentsHP
 	ExposedMembers.GCO.DebugComponentsHP 				= DebugComponentsHP
 	-- units flag strings
-	ExposedMembers.GCO.GetPrisonnersStringByCiv 		= GetPrisonnersStringByCiv
-	ExposedMembers.GCO.GetFoodConsumptionRatioString 	= GetFoodConsumptionRatioString
-	ExposedMembers.GCO.GetFoodConsumptionString 		= GetFoodConsumptionString
-	ExposedMembers.GCO.GetFoodStockString 				= GetFoodStockString
-	ExposedMembers.GCO.GetFuelStockString 				= GetFuelStockString
-	ExposedMembers.GCO.GetFuelConsumptionString 		= GetFuelConsumptionString
-	ExposedMembers.GCO.GetMoraleString 					= GetMoraleString
+	ExposedMembers.GCO.GetPrisonnersStringByCiv 			= GetPrisonnersStringByCiv
+	ExposedMembers.GCO.GetUnitFoodConsumptionRatioString 	= GetUnitFoodConsumptionRatioString
+	ExposedMembers.GCO.GetUnitFoodConsumptionString 		= GetUnitFoodConsumptionString
+	ExposedMembers.GCO.GetUnitFoodStockString 				= GetUnitFoodStockString
+	ExposedMembers.GCO.GetFuelStockString 					= GetFuelStockString
+	ExposedMembers.GCO.GetFuelConsumptionString 			= GetFuelConsumptionString
+	ExposedMembers.GCO.GetMoraleString 						= GetMoraleString
 	-- units floating texts
 	ExposedMembers.GCO.ShowCasualtiesFloatingText 		= ShowCasualtiesFloatingText
 	ExposedMembers.GCO.ShowCombatPlunderingFloatingText = ShowCombatPlunderingFloatingText
@@ -1120,6 +1172,7 @@ function Cleaning()
 	ExposedMembers.PlayerData 					= nil
 	ExposedMembers.GCO 							= nil
 	ExposedMembers.UI 							= nil
+	ExposedMembers.Calendar 					= nil
 	ExposedMembers.CombatTypes 					= nil
 	ExposedMembers.UnitHitPointsTable 			= nil
 end

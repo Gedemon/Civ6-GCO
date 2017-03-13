@@ -28,6 +28,9 @@
 			</Items>
 		</ImportFiles>
         <GameplayScripts>
+		    <Properties>
+				<LoadOrder>-100</LoadOrder>
+		    </Properties>
             <Items>
                 <File>Scripts/ModUtils.lua</File>
             </Items>
@@ -88,7 +91,8 @@
 				<File>Data/GlobalParameters.sql</File>
 				<File>Data/CultureDiffusionParameters.sql</File>
 				<File>Data/CombatRules.sql</File>
-				<File>Data/GamePlay.sql</File>
+				<File>Data/ModRules.sql</File>
+				<File>Data/GamePlay.xml</File>
 			</Items>
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
@@ -124,6 +128,7 @@
 		<File>Data/GlobalParameters.sql</File>
 		<File>Data/CultureDiffusionParameters.sql</File>
 		<File>Data/CombatRules.sql</File>
+		<File>Data/ModRules.sql</File>
 		<File>Text/GameText.xml</File>
 		<File>Text/ConfigText.xml</File>
 		<File>Config/Config.xml</File>

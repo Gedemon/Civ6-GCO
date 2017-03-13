@@ -50,6 +50,11 @@ function GetCityPlots(city)
 	return Map.GetCityPlots():GetPurchasedPlots(contextCity)
 end
 
+function GetCityYield(city, yieldType)
+	contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	return contextCity:GetYield(yieldType)
+end
+
 ----------------------------------------------
 -- Players functions
 ----------------------------------------------
@@ -91,16 +96,18 @@ function Initialize()
 	-- cities
 	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
 	ExposedMembers.GCO.GetCityPlots					= GetCityPlots
+	ExposedMembers.GCO.GetCityYield 				= GetCityYield
 	-- players
 	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
 	-- plots
-	local p = getmetatable(Map.GetPlot(1,1)).__index
-	ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged -- attaching this in script context doesn't work as the plot object from script miss other elements required for this by the plot object in UI context 
+	--local p = getmetatable(Map.GetPlot(1,1)).__index
+	--ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged -- attaching this in script context doesn't work as the plot object from script miss other elements required for this by the plot object in UI context 
 	ExposedMembers.GCO.IsImprovementPillaged 		= IsImprovementPillaged
 	-- units
 	ExposedMembers.GCO.GetMoveToPath				= GetMoveToPath
 	-- others
 	ExposedMembers.UI 								= UI
+	ExposedMembers.Calendar							= Calendar
 	ExposedMembers.CombatTypes 						= CombatTypes
 	
 	ExposedMembers.ContextFunctions_Initialized 	= true

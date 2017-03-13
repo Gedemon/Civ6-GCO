@@ -40,6 +40,7 @@ end
 -----------------------------------------------------------------------------------------
 
 function DoPlayerTurn( playerID )
+	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	local player = Players[playerID]
 	local playerConfig = PlayerConfigurations[playerID]
 	print("---============================================================================================================================================================================---")

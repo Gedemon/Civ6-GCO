@@ -320,7 +320,7 @@ function RegisterNewUnit(playerID, unit)
 		WoundedPersonnel		= 0,
 		DamagedVehicles			= 0,
 		Prisonners				= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisonners by nationality
-		FoodStock 				= GCO.GetBaseFoodStock(unitType),
+		FoodStock 				= GCO.GetUnitBaseFoodStock(unitType),
 		PreviousFoodStock		= 0,
 		FuelStock 				= GCO.GetBaseFuelStock(unitType),
 		PreviousFuelStock		= 0,		
@@ -521,7 +521,7 @@ function OnCombat( combatResult )
 		attacker = AddCombatInfoTo(attacker)
 		--
 		attacker.CanTakePrisonners = attacker.IsLandUnit and combatType == CombatTypes.MELEE and not attacker.IsDead
-		print("-- Attacker data initialized, IsUnit = ".. tostring(attacker.IsUnit) .. ", IsDead = ".. tostring(attacker.IsDead) .. ", CanTakePrisonners = ".. tostring(attacker.CanTakePrisonners))
+		print("-- Attacker data initialized : "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()) .. ", IsDead = ".. tostring(attacker.IsDead) .. ", CanTakePrisonners = ".. tostring(attacker.CanTakePrisonners))
 	end
 	if defender.IsUnit then
 		defender.IsDefender = true
@@ -535,10 +535,11 @@ function OnCombat( combatResult )
 		defender = AddCombatInfoTo(defender)
 		--
 		defender.CanTakePrisonners = defender.IsLandUnit and combatType == CombatTypes.MELEE and not defender.IsDead
-		print("-- Defender data initialized, IsUnit = ".. tostring(defender.IsUnit) .. ", IsDead = ".. tostring(defender.IsDead) .. ", CanTakePrisonners = ".. tostring(defender.CanTakePrisonners))
+		print("-- Defender data initialized : "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()) .. ", IsDead = ".. tostring(defender.IsDead) .. ", CanTakePrisonners = ".. tostring(defender.CanTakePrisonners))
 	end
 
 	-- Error control
+	---[[
 	if attacker.unit then
 		local testHP = attacker.unit:GetMaxDamage() - attacker.unit:GetDamage()
 		if testHP ~= attacker.FinalHP or ExposedMembers.UnitData[attacker.unitKey].HP ~= attacker.InitialHP then
@@ -584,6 +585,7 @@ function OnCombat( combatResult )
 	print("--++++++++++++++++++++++--")
 	print("-- Casualties in Combat #"..tostring(combatCount))
 	print("--++++++++++++++++++++++--")
+	--]]
 
 	-- Handle casualties
 	if attacker.IsUnit then -- and attacker[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
@@ -613,9 +615,9 @@ function OnCombat( combatResult )
 	end
 	
 
-	print("--++++++++++++++++++++++--")
-	print("-- Stats in Combat #"..tostring(combatCount))
-	print("--++++++++++++++++++++++--")
+	--print("--++++++++++++++++++++++--")
+	--print("-- Stats in Combat #"..tostring(combatCount))
+	--print("--++++++++++++++++++++++--")
 
 	-- Update some stats
 	if attacker.IsUnit and defender.Dead then ExposedMembers.UnitData[attacker.unitKey].TotalKill = ExposedMembers.UnitData[attacker.unitKey].TotalKill + defender.Dead end
@@ -634,9 +636,9 @@ function OnCombat( combatResult )
 	end
 	
 
-	print("--++++++++++++++++++++++--")
-	print("-- Plundering in Combat #"..tostring(combatCount))
-	print("--++++++++++++++++++++++--")
+	--print("--++++++++++++++++++++++--")
+	--print("-- Plundering in Combat #"..tostring(combatCount))
+	--print("--++++++++++++++++++++++--")
 
 	-- Plundering (with some bonuses to attack)
 	if defender.IsLandUnit and combatType == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
@@ -647,7 +649,7 @@ function OnCombat( combatResult )
 			attacker.MaterielGained = GetMaterielFromKillOfBy(defender, attacker)
 			attacker.LiberatedPrisonners = GCO.GetTotalPrisonners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
 			attacker.FoodGained = GCO.Round(ExposedMembers.UnitData[defender.unitKey].FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) /100)
-			attacker.FoodGained = math.max(0, math.min(GCO.GetBaseFoodStock(attacker.unit:GetType()) - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
+			attacker.FoodGained = math.max(0, math.min(GCO.GetUnitBaseFoodStock(attacker.unit:GetType()) - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
 
 			-- Update composition
 			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel 	= 0 -- Just to keep things clean...
@@ -674,19 +676,19 @@ function OnCombat( combatResult )
 		end
 
 		-- Update unit's flag & visualize for attacker
-		if not attacker.IsDead then
+		if attacker.unit then
 			GCO.ShowCombatPlunderingFloatingText(attacker)
 			LuaEvents.UnitsCompositionUpdated(attacker.playerID, attacker.unitID)
 		end
 
 		-- Update unit's flag & visualize for defender
-		if not defender.IsDead then
+		if defender.unit then
 			GCO.ShowCombatPlunderingFloatingText(defender)
 			LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)
 		end
 	end
 	
-
+	---[[
 	print("--++++++++++++++++++++++--")
 	print("-- Control in Combat #"..tostring(combatCount))
 	print("--++++++++++++++++++++++--")
@@ -702,11 +704,10 @@ function OnCombat( combatResult )
 			 if type(k) == "string" and type(v) ~= "table" then print(k,v); end
 		end;
 	end
-
+--[[
 	print("--++++++++++++++++++++++--")
 	print("-- Ending Combat #"..tostring(combatCount))
 	print("--++++++++++++++++++++++--")
-	--[[
 	print("-  ATTACKER -")
 	print("--+++++++++--")
 	p(attacker)
@@ -747,7 +748,7 @@ function HealingUnits(playerID)
 		for i, unit in playerUnits:Members() do
 			-- todo : check if the unit can heal (has a supply line, is not on water, ...)
 			local hp = unit:GetMaxDamage() - unit:GetDamage()
-			if hp < maxHP then
+			if hp < maxHP and GCO.CheckComponentsHP(unit, "bypassing healing") then
 				table.insert(damaged[hp], unit)
 				healTable[unit] = 0
 			end
@@ -774,7 +775,7 @@ function HealingUnits(playerID)
 								local reqVehicles 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Vehicles 	- UnitHitPointsTable[unitInfo.Index][hp].Vehicles
 								local reqHorses 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Horses 	- UnitHitPointsTable[unitInfo.Index][hp].Horses
 								local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Materiel 	- UnitHitPointsTable[unitInfo.Index][hp].Materiel
-if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tostring(unit:GetName()) .. " id#" .. tostring(unit:GetID())) end
+								if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tostring(unit:GetName()) .. " id#" .. tostring(unit:GetID())) end
 								-- unit limit (vehicles and horses are handled by personnel...)
 								if reqPersonnel > tonumber(maxTransfert[unit].Personnel) or reqMateriel > tonumber(maxTransfert[unit].Materiel) then
 									hasReachedLimit[unit] = true
@@ -797,7 +798,7 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 		-- apply reinforcement from all passes to units in one call to SetDamage (fix visual display of one "+1" when the unit was getting possibly more)
 		for unit, hp in pairs (healTable) do
 			GCO.CheckComponentsHP(unit, "before Healing")
-			GCO.DebugComponentsHP(unit, "before Healing")
+			--GCO.DebugComponentsHP(unit, "before Healing")
 			local key = GCO.GetUnitKey(unit)
 			if key then
 
@@ -834,8 +835,8 @@ if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tost
 				LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 				
 				GCO.CheckComponentsHP(unit, "after Healing")
-				GCO.DebugComponentsHP(unit, "after Healing")
-				GCO.ShowDebugComponentsHP(unit)
+				--GCO.DebugComponentsHP(unit, "after Healing")
+				--GCO.ShowDebugComponentsHP(unit)
 			end
 
 		end
@@ -969,17 +970,15 @@ function DoUnitFood(unit)
 	if unitData.TurnCreated == Game.GetCurrentGameTurn() then return end -- don't eat on first turn
 
 	-- Eat Food
-
-	local foodEat = math.min(GCO.GetFoodConsumption(unitData), unitData.FoodStock)
+	local foodEat = math.min(GCO.GetUnitFoodConsumption(unitData), unitData.FoodStock)
 
 	-- Get Food
-
 	local foodGet = 0
 	local iX = unit:GetX()
 	local iY = unit:GetY()
 	local adjacentRatio = tonumber(GameInfo.GlobalParameters["FOOD_COLLECTING_ADJACENT_PLOT_RATIO"].Value)
 	local yieldFood = GameInfo.Yields["YIELD_FOOD"].Index
-	local maxFoodStock = GCO.GetBaseFoodStock(unitData.unitType)
+	local maxFoodStock = GCO.GetUnitBaseFoodStock(unitData.unitType)
 	-- Get food from the plot
 	local plot = Map.GetPlot(iX, iY)
 	if plot then
@@ -993,7 +992,7 @@ function DoUnitFood(unit)
 		end
 	end
 	foodGet = GCO.Round(foodGet)
-	foodGet = math.max(0, math.min(maxFoodStock - unitData.FoodStock, foodGet))
+	foodGet = math.max(0, math.min(maxFoodStock + foodEat - unitData.FoodStock, foodGet))
 
 	-- Update variation
 	local foodVariation = foodGet - foodEat
@@ -1006,6 +1005,11 @@ function DoUnitFood(unit)
 end
 
 function DoUnitMorale(unit)
+
+	if not GCO.CheckComponentsHP(unit, "bypassing DoUnitMorale()") then
+		return
+	end
+	
 	local key = GCO.GetUnitKey(unit)
 	local unitData = ExposedMembers.UnitData[key]
 	local moraleVariation = 0
@@ -1031,7 +1035,7 @@ function DoUnitMorale(unit)
 	end
 	
 	GCO.CheckComponentsHP(unit, "In DoUnitMorale(), desertion Rate = " .. tostring(desertionRate))
-	GCO.DebugComponentsHP(unit, "In DoUnitMorale(), desertion Rate = " .. tostring(desertionRate))
+	--GCO.DebugComponentsHP(unit, "In DoUnitMorale(), desertion Rate = " .. tostring(desertionRate))
 	if desertionRate > 0 then
 		local HP = unit:GetMaxDamage() - unit:GetDamage()
 		local unitType = unit:GetType()
@@ -1088,8 +1092,8 @@ function DoUnitMorale(unit)
 		end
 	end
 	GCO.CheckComponentsHP(unit, "after DoUnitMorale()")	
-	GCO.DebugComponentsHP(unit, "after DoUnitMorale()")
-	GCO.ShowDebugComponentsHP(unit)
+	--GCO.DebugComponentsHP(unit, "after DoUnitMorale()")
+	--GCO.ShowDebugComponentsHP(unit)
 end
 
 function DoUnitFuel(unit)
@@ -1152,6 +1156,11 @@ Events.UnitAddedToMap.Add(InitializeUnitFunctions)
 -----------------------------------------------------------------------------------------
 
 Initialize()
+
+
+-----------------------------------------------------------------------------------------
+-- Test / Debug
+-----------------------------------------------------------------------------------------
 
 function TestDamage()
 	if not ExposedMembers.UnitData then return end

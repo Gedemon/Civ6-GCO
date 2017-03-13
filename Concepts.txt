@@ -153,6 +153,8 @@ table for resources required per vehicle
 	- wood
 	- steel
 	- aluminum
+	
+forts (with stockage) linked to city, units linked to fort
 
 ====================
 =   Promotions     =

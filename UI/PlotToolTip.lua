@@ -511,6 +511,9 @@ function View(data:table, bIsUpdate:boolean)
 				iVisCount = pLocalPlayerVis:GetLayerValue(VisibilityLayerTypes.TERRAIN, data.X, data.Y);
 			end
 		end
+		-- GCO <<<<<	
+		table.insert(debugInfo, "------------------")
+		-- GCO >>>>>
 		table.insert(debugInfo, "Plot #:" .. tostring(data.Index) .. " @("..tostring(data.X) .. ", " .. tostring(data.Y) .. "), vis:" .. tostring(iVisCount));
 			
 	end

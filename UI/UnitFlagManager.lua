@@ -883,7 +883,7 @@ function UnitFlag.UpdateName( self )
 				if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) end
 				if unitData.DamagedVehicles 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_VEHICLES", unitData.DamagedVehicles) end
 				if totalPrisonners	 			> 0 then nameString = nameString .. GCO.GetPrisonnersStringByCiv(unitData) end	-- "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS", totalPrisonners) .. GCO.GetPrisonnersStringByCiv(unitData) end
-				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetFoodStockString(unitData) end
+				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetUnitFoodStockString(unitData) end
 				if unitData.FuelStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetFuelStockString(unitData) end
 			end
 				
@@ -900,13 +900,13 @@ function UnitFlag.UpdateName( self )
 			end
 				
 			-- Unit Consumption
-			local foodConsumption = GCO.GetFoodConsumption(unitData)
+			local foodConsumption = GCO.GetUnitFoodConsumption(unitData)
 			local fuelConsumption = GCO.GetFuelConsumption(unitData)
 			local bHasConsumption = ( foodConsumption + fuelConsumption > 0)				
 			if bHasConsumption then
 			
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_CONSUMPTION_TITLE")
-				if foodConsumption 				> 0 then nameString = nameString .. GCO.GetFoodConsumptionString(unitData) end
+				if foodConsumption 				> 0 then nameString = nameString .. GCO.GetUnitFoodConsumptionString(unitData) end
 				if fuelConsumption 				> 0 then nameString = nameString .. GCO.GetFuelConsumptionString(unitData) end
 				
 			end	
@@ -1972,11 +1972,12 @@ Initialize();
 
 -- GCO <<<<<
 function OnUnitsCompositionUpdated(playerID, unitID)
-	local pPlayer = Players[ playerID ];
-	if (pPlayer ~= nil) then
-		local pUnit = pPlayer:GetUnits():FindID(unitID);
+	local playerID = tonumber(playerID) -- playerID may be a string when used for key in tables
+	local pPlayer = Players[ playerID ]
+	if (pPlayer ~= nil) then	
+		local pUnit = pPlayer:GetUnits():FindID(unitID)
 		if (pUnit ~= nil) then
-			local flag = GetUnitFlag(playerID, pUnit:GetID());
+			local flag = GetUnitFlag(playerID, pUnit:GetID())
 			if (flag ~= nil) then
 				flag:UpdateName()
 			end

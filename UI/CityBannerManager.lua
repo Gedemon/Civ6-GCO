@@ -1245,6 +1245,13 @@ function CityBanner.UpdateName( self : CityBanner )
 					cityString = cityString .. GCO.GetPrisonnersStringByCiv(cityData)
 				end
 				
+				-- Stock
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STOCK_TITLE")
+				cityString = cityString .. "[NEWLINE]" .. GCO.GetCityFoodStockString(cityData) --Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", cityData.FoodStock) 
+				
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", GCO.GetCityFoodConsumption(cityData))
+				
 				self.m_Instance.CityName:SetToolTipString(cityString);
 			end
 			--[[
@@ -2900,3 +2907,9 @@ function Initialize()
 end
 Initialize();
 
+-- GCO <<<<<
+function OnCityCompositionUpdated(playerID, cityID)
+	RefreshBanner (playerID, cityID)
+end
+LuaEvents.CityCompositionUpdated.Add(OnCityCompositionUpdated)
+-- GCO >>>>>
