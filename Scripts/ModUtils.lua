@@ -11,10 +11,13 @@ print ("Loading ModUtils.lua...")
 
 -- This file should be the first to load, do some cleaning just in case Events.LeaveGameComplete hasn't fired on returning to main menu or loading a game...
 ExposedMembers.SaveLoad_Initialized 		= nil
-ExposedMembers.Serialize_Initialized 		= nil
 ExposedMembers.ContextFunctions_Initialized	= nil
 ExposedMembers.Utils_Initialized 			= nil
+ExposedMembers.Serialize_Initialized 		= nil
 ExposedMembers.RouteConnections_Initialized	= nil
+ExposedMembers.PlotIterator_Initialized		= nil
+ExposedMembers.PlotScript_Initialized 		= nil
+ExposedMembers.CityScript_Initialized 		= nil
 
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
@@ -25,7 +28,8 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS
 
 local foodResourceID 	= GameInfo.Resources["RESOURCE_FOOD"].Index
-local baseFoodStock 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
+local foodResourceKey	= tostring(foodResourceID)
+--local baseFoodStock 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 
 local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local steelResourceID 		= GameInfo.Resources["RESOURCE_STEEL"].Index
@@ -45,6 +49,8 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 							and ExposedMembers.ContextFunctions_Initialized
 							and ExposedMembers.RouteConnections_Initialized
 							and ExposedMembers.PlotIterator_Initialized
+							and ExposedMembers.PlotScript_Initialized
+							and ExposedMembers.CityScript_Initialized
 							)
 	return bIsInitialized
 end
@@ -213,10 +219,8 @@ end
 
 -- City Capture Events
 local cityCaptureTest = {}
-function CityCaptureDistrictRemoved(playerID, districtID, cityID, iX, iY) -- districtID = hash type ? if so check for city center...
+function CityCaptureDistrictRemoved(playerID, districtID, cityID, iX, iY)
 	local key = iX..","..iY
-	print("CityCaptureDistrictRemoved: districtID =", districtID, GameInfo.Districts[districtID])
-	print("GameInfo.Districts[districtID].Type", GameInfo.Districts[districtID].DistrictType)
 	cityCaptureTest[key]			= {}
 	cityCaptureTest[key].Turn 		= Game.GetCurrentGameTurn()
 	cityCaptureTest[key].PlayerID 	= playerID
@@ -255,60 +259,15 @@ function CityCaptureCityInitialized(playerID, cityID, iX, iY)
 		local newCityID			= cityID
 		if cityCaptureTest[key].PlayerID == originalOwnerID then
 			LuaEvents.CapturedCityInitialized(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+			cityCaptureTest[key] = {}
 		end
 	end
 end
 Events.CityInitialized.Add(CityCaptureCityInitialized)
 
-function GetCityKeyFromIDs(cityID, ownerID)
-	return cityID..","..ownerID
-end
-
-function GetCityKey(city)
-	GetCityKeyFromIDs (city:GetID(), city:GetOwner())
-end
-
-function GetCityFromKey ( cityKey )
-	if ExposedMembers.CityData[cityKey] then
-		local city = CityManager.GetCity(ExposedMembers.CityData[cityKey].playerID, ExposedMembers.CityData[cityKey].cityID)
-		if city then
-			return city
-		else
-			print("- WARNING: city is nil for GetUnitFromKey(".. tostring(cityKey)..")")
-			print("--- UnitId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID )
-		end
-	else
-		print("- WARNING: ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")")
-	end
-end
-
-function GetRealPopulation(city) -- the original city:GetPopulation() returns city size
-	local key = GetCityKey(city)
-	if ExposedMembers.CityData[key] then
-		return ExposedMembers.CityData[key].UpperClass + ExposedMembers.CityData[key].MiddleClass + ExposedMembers.CityData[key].LowerClass + ExposedMembers.CityData[key].Slaves
-	end
-	return 0
-end
-
-function GetCitySize(city) -- for code consistency
-	return city:GetPopulation()
-end
-
-function GetMaxStock(city, resourceID)
-	local maxStock = GetCitySize(city) * tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
-	if resourceID == foodResourceID then maxStock = maxStock + baseFoodStock end
-	return maxStock
-end
-
-function GetMaxPersonnel(city)
-	local maxPersonnel = GetCitySize(city) * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
-
-	return maxPersonnel
-end
-
 function GetCityBaseFoodStock(data)
-	local city 				= CityManager.GetCity(data.playerID, data.cityID)
-	return GCO.Round(GetMaxStock(city, foodResourceID) / 2)
+	local city = GCO.GetCity(data.playerID, data.cityID)
+	return GCO.Round(city:GetMaxStock(foodResourceID) / 2)
 end
 
 function GetCityFoodConsumption(data)
@@ -676,12 +635,13 @@ function GetResourcesStockString(data)
 	local str = ""
 	for resourceID, value in pairs(data.Stock) do
 		if value > 0 then
-			local stockVariation = value - data.PreviousStock[resourceID]
+			local stockVariation = 0
+			if  data.PreviousStock[resourceID] then stockVariation = value - data.PreviousStock[resourceID] end
 			local resourceID = tonumber(resourceID)
 			local resRow = GameInfo.Resources[resourceID]
 			if resourceID == foodResourceID then
 				str = str .. "[NEWLINE]" .. GetCityFoodStockString(data) --Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", value) 
-			else if resourceID == materielResourceID then
+			elseif resourceID == materielResourceID then
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MATERIEL_STOCK", value) 
 			else 
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK", value, resRow.Name, resRow.ResourceType) 
@@ -693,7 +653,8 @@ function GetResourcesStockString(data)
 				str = str .." [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(stockVariation).."[ENDCOLOR]"
 			end
 		end
-	end		
+	end	
+	return str
 end
 
 function GetFuelStockString(unitData) 
@@ -760,11 +721,11 @@ function GetUnitFoodStockString(data)
 end
 
 function GetCityFoodStockString(data) 
-	local city 					= CityManager.GetCity(data.playerID, data.cityID)
+	local city 					= GCO.GetCity(data.playerID, data.cityID)
 	local baseFoodStock 		= GetCityBaseFoodStock(data)
-	local maxFoodStock 			= GetMaxStock(city, foodResourceID)
-	local foodStock 			= data.Stock[foodResourceID]
-	local foodStockVariation 	= foodStock - data.PreviousStock[foodResourceID]
+	local maxFoodStock 			= city:GetMaxStock(foodResourceID)
+	local foodStock 			= data.Stock[foodResourceKey]
+	local foodStockVariation 	= foodStock - data.PreviousStock[foodResourceKey]
 	local cityRationning 		= data.FoodRatio
 	local str 					= ""
 	if cityRationning == heavyRationing then
@@ -1020,7 +981,7 @@ function ShowFoodFloatingText(foodData)
 	end
 end
 
-function ShowFontLineHealingFloatingText(healingData)
+function ShowFrontLineHealingFloatingText(healingData)
 	if floatingTextLevel == FLOATING_TEXT_NONE then
 		return
 	end
@@ -1164,7 +1125,7 @@ function ShowFuelConsumptionFloatingText(fuelData)
 end
 
 ----------------------------------------------
--- Initialize functions for other contexts
+-- Share functions for other contexts
 ----------------------------------------------
 
 function Initialize()
@@ -1181,13 +1142,6 @@ function Initialize()
 	ExposedMembers.GCO.ToggleOutput = ToggleOutput
 	ExposedMembers.GCO.Dprint		= Dprint
 	-- cities
-	ExposedMembers.GCO.GetCityKeyFromIDs 		= GetCityKeyFromIDs
-	ExposedMembers.GCO.GetCityKey 				= GetCityKey
-	ExposedMembers.GCO.GetCityFromKey 			= GetCityFromKey
-	ExposedMembers.GCO.GetRealPopulation 		= GetRealPopulation
-	ExposedMembers.GCO.GetMaxStock 				= GetMaxStock
-	ExposedMembers.GCO.GetMaxPersonnel			= GetMaxPersonnel
-	ExposedMembers.GCO.GetCitySize 				= GetCitySize
 	ExposedMembers.GCO.GetCityFoodConsumption 	= GetCityFoodConsumption
 	-- cities flag strings
 	ExposedMembers.GCO.GetCityFoodStockString 	= GetCityFoodStockString
@@ -1211,8 +1165,8 @@ function Initialize()
 	ExposedMembers.GCO.GetHorsesReserve 				= GetHorsesReserve
 	ExposedMembers.GCO.GetMaterielReserve 				= GetMaterielReserve
 	ExposedMembers.GCO.GetTotalPrisonners 				= GetTotalPrisonners
-	ExposedMembers.GCO.GetUnitFoodConsumption 				= GetUnitFoodConsumption
-	ExposedMembers.GCO.GetUnitBaseFoodStock 				= GetUnitBaseFoodStock
+	ExposedMembers.GCO.GetUnitFoodConsumption 			= GetUnitFoodConsumption
+	ExposedMembers.GCO.GetUnitBaseFoodStock 			= GetUnitBaseFoodStock
 	ExposedMembers.GCO.GetFuelConsumption 				= GetFuelConsumption
 	ExposedMembers.GCO.GetBaseFuelStock 				= GetBaseFuelStock
 	ExposedMembers.GCO.GetMoraleFromFood 				= GetMoraleFromFood
@@ -1234,7 +1188,7 @@ function Initialize()
 	ExposedMembers.GCO.ShowCasualtiesFloatingText 		= ShowCasualtiesFloatingText
 	ExposedMembers.GCO.ShowCombatPlunderingFloatingText = ShowCombatPlunderingFloatingText
 	ExposedMembers.GCO.ShowFoodFloatingText 			= ShowFoodFloatingText
-	ExposedMembers.GCO.ShowFontLineHealingFloatingText 	= ShowFontLineHealingFloatingText
+	ExposedMembers.GCO.ShowFrontLineHealingFloatingText	= ShowFrontLineHealingFloatingText
 	ExposedMembers.GCO.ShowReserveHealingFloatingText 	= ShowReserveHealingFloatingText
 	ExposedMembers.GCO.ShowDesertionFloatingText 		= ShowDesertionFloatingText
 	ExposedMembers.GCO.ShowFuelConsumptionFloatingText 	= ShowFuelConsumptionFloatingText
@@ -1256,6 +1210,8 @@ function Cleaning()
 	ExposedMembers.Serialize_Initialized 		= nil
 	ExposedMembers.RouteConnections_Initialized	= nil	
 	ExposedMembers.PlotIterator_Initialized		= nil
+	ExposedMembers.PlotScript_Initialized 		= nil
+	ExposedMembers.CityScript_Initialized 		= nil
 	--
 	ExposedMembers.UnitHitPointsTable 			= nil
 	--
@@ -1285,7 +1241,10 @@ function GetPlayerTurn(playerID)
 		playerMadeTurn = {}
 	end
 	if not playerMadeTurn[playerID] then
-		LuaEvents.StartPlayerTurn(playerID)
+		LuaEvents.StartPlayerTurn(playerID)			
+		print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+		print("-- Test Start Turn player#"..tostring(playerID))
+		print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 		playerMadeTurn[playerID] = true
 	end
 end
@@ -1301,9 +1260,17 @@ function OnAiAdvisorUpdated(playerID)
 	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	GetPlayerTurn(playerID)
 end
---Events.GameCoreEventPublishComplete.Add( GetPlayerTurn )
-Events.UnitMovementPointsChanged.Add(OnUnitMovementPointsChanged)
-Events.OnAiAdvisorUpdated.Add(OnAiAdvisorUpdated)
+function FindActivePlayer()
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
+		local player = Players[playerID]
+		if player:IsTurnActive() then
+			GetPlayerTurn(playerID)
+		end
+	end
+end
+Events.GameCoreEventPublishComplete.Add( FindActivePlayer )
+--Events.UnitMovementPointsChanged.Add(OnUnitMovementPointsChanged)
+--Events.OnAiAdvisorUpdated.Add(OnAiAdvisorUpdated)
 
 function TestA()
 	print ("Calling TestA...")

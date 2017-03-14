@@ -830,7 +830,7 @@ function HealingUnits(playerID)
 
 				-- Visualize healing
 				local healingData = {reqPersonnel = reqPersonnel, reqMateriel = reqMateriel, reqVehicles = reqVehicles, reqHorses = reqHorses, X = unit:GetX(), Y = unit:GetY() }
-				GCO.ShowFontLineHealingFloatingText(healingData)
+				GCO.ShowFrontLineHealingFloatingText(healingData)
 
 				LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 				
@@ -917,6 +917,7 @@ function SetUnitsupplyLine(unit)
 	--local unitData = ExposedMembers.UnitData[key]
 	local closestCity, distance = GCO.FindNearestPlayerCity( unit:GetOwner(), unit:GetX(), unit:GetY() )
 	if closestCity then
+		GCO.AttachCityFunctions(closestCity)
 		local cityPlot = Map.GetPlot(closestCity:GetX(), closestCity:GetY())
 		--[[
 		local pathPlots, turnsList, obstacles = GCO.GetMoveToPath( unit, cityPlot:GetIndex() ) -- can't be used as it takes unit stacking in account and return false if there is an unit in the city.
@@ -936,17 +937,17 @@ function SetUnitsupplyLine(unit)
 		if bIsPlotConnected then
 			local efficiency = GCO.Round( 100 - math.pow(routeLength*0.85,2) )
 			if efficiency > 50 then -- to do : allow players to change this value
-				ExposedMembers.UnitData[key].SupplyLineCityKey = GCO.GetCityKey(closestCity)
+				ExposedMembers.UnitData[key].SupplyLineCityKey = closestCity:GetKey()
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
 				NoLinkToCity = false
 			else
-				ExposedMembers.UnitData[key].SupplyLineCityKey = GCO.GetCityKey(closestCity)
+				ExposedMembers.UnitData[key].SupplyLineCityKey = closestCity:GetKey()
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = 0
 				NoLinkToCity = false
 			end
 		
 		elseif distance == 0 then -- unit is on the city's plot...
-			ExposedMembers.UnitData[key].SupplyLineCityKey = GCO.GetCityKey(closestCity)
+			ExposedMembers.UnitData[key].SupplyLineCityKey = closestCity:GetKey()
 			ExposedMembers.UnitData[key].SupplyLineEfficiency = 100
 			NoLinkToCity = false
 		end

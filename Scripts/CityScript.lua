@@ -27,6 +27,8 @@ local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWE
 local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
 
 local foodResourceID 	= GameInfo.Resources["RESOURCE_FOOD"].Index
+local foodResourceKey	= tostring(foodResourceID)
+local baseFoodStock 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 
 local lightRationing 			=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 local mediumRationing 			=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
@@ -63,6 +65,7 @@ end
 function Initialize() -- called immediatly after loading this file
 	Events.CityAddedToMap.Add( InitializeCityFunctions ) -- first as InitializeCity() may require those functions
 	Events.CityAddedToMap.Add( InitializeCity )
+	ShareFunctions()
 end
 
 function SaveTables()
@@ -93,8 +96,8 @@ function RegisterNewCity(playerID, city)
 		WoundedPersonnel 		= 0,
 		PreviousPersonnel		= personnel,
 		Prisonners				= GCO.CreateEverAliveTableWithDefaultValue(0),
-		Stock					= { [foodResourceID] = StartingFood },
-		PreviousStock			= { [foodResourceID] = StartingFood },
+		Stock					= { [tostring(foodResourceID)] = StartingFood },
+		PreviousStock			= { [tostring(foodResourceID)] = StartingFood },
 		UpperClass				= upperClass,
 		MiddleClass				= middleClass,
 		LowerClass				= totalPopulation - upperClass - middleClass,
@@ -127,8 +130,8 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 end
 
 function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
-	local originalCityKey 	= GCO.GetCityKeyFromIDs(originalCityID, originalOwnerID)
-	local newCityKey 		= GCO.GetCityKeyFromIDs(newCityID, newOwnerID)
+	local originalCityKey 	= GetCityKeyFromIDs(originalCityID, originalOwnerID)
+	local newCityKey 		= GetCityKeyFromIDs(newCityID, newOwnerID)
 	if ExposedMembers.CityData[originalCityKey] then
 		originalData = ExposedMembers.CityData[originalCityKey]
 		
@@ -187,6 +190,56 @@ function GetPopulationPerSize(size)
 	return math.pow(size, 2.8) * 1000
 end
 
+-----------------------------------------------------------------------------------------
+-- City functions
+-----------------------------------------------------------------------------------------
+
+function GetCityKeyFromIDs(cityID, ownerID)
+	return cityID..","..ownerID
+end
+
+function GetKey(self)
+	return GetCityKeyFromIDs (self:GetID(), self:GetOwner())
+end
+
+function GetCityFromKey ( cityKey )
+	if ExposedMembers.CityData[cityKey] then
+		local city = CityManager.GetCity(ExposedMembers.CityData[cityKey].playerID, ExposedMembers.CityData[cityKey].cityID)
+		if city then
+			return city
+		else
+			print("- WARNING: city is nil for GetUnitFromKey(".. tostring(cityKey)..")")
+			print("--- UnitId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID )
+		end
+	else
+		print("- WARNING: ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")")
+	end
+end
+
+function GetRealPopulation(self) -- the original city:GetPopulation() returns city size
+	local key = self:GetKey()
+	if ExposedMembers.CityData[key] then
+		return ExposedMembers.CityData[key].UpperClass + ExposedMembers.CityData[key].MiddleClass + ExposedMembers.CityData[key].LowerClass + ExposedMembers.CityData[key].Slaves
+	end
+	return 0
+end
+
+function GetSize(self) -- for code consistency
+	return self:GetPopulation()
+end
+
+function GetMaxStock(self, resourceID)
+	local maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
+	if resourceID == foodResourceID then maxStock = maxStock + baseFoodStock end
+	return maxStock
+end
+
+function GetMaxPersonnel(self)
+	local maxPersonnel = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
+
+	return maxPersonnel
+end
+
 function GetBirthRate(self)
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
@@ -208,10 +261,6 @@ function GetDeathRate(self)
 	if cityRationning == lightRationing 	then deathRate = deathRate + (deathRate * deathRateLightRationing/100) end
 	return deathRate
 end
-
------------------------------------------------------------------------------------------
--- City functions
------------------------------------------------------------------------------------------
 
 function ChangeSize(self)
 print("check change size", self:GetSize()+1, GetPopulationPerSize(self:GetSize()+1), self:GetRealPopulation())
@@ -237,8 +286,8 @@ function SetCityRationing(self)
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]	
 	local ratio 				= cityData.FoodRatio
-	local foodStock 			= cityData.Stock[foodResourceID]
-	local foodVariation 		= foodStock - cityData.PreviousStock[foodResourceID] 
+	local foodStock 			= cityData.Stock[foodResourceKey]
+	local foodVariation 		= foodStock - cityData.PreviousStock[foodResourceKey] 
 	if foodVariation < 0 then
 		local turnBeforeFamine		= -(foodStock / foodVariation)
 		if turnBeforeFamine < turnsToFamineHeavy then
@@ -397,11 +446,11 @@ function CityDoTurn(city)
 	
 	-- set previous stock
 	print("set previous stock")
-	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceID], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceID])
+	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceKey], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceKey])
 	for resourceID, value in pairs(cityData.Stock) do
 		ExposedMembers.CityData[cityKey].PreviousStock[resourceID]	= cityData.Stock[resourceID]
 	end
-	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceID], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceID])
+	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceKey], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceKey])
 	
 	-- get linked units and supply demand
 	print("- get linked units and supply demand")
@@ -414,12 +463,12 @@ function CityDoTurn(city)
 	-- get Resources (allow excedents)
 	print("- get Resources (allow excedents)")
 	city:CollectResources()
-	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceID], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceID])
+	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceKey], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceKey])
 	
 	-- feed population
 	print("- feed population")
 	city:DoFood()
-	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceID], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceID])
+	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceKey], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceKey])
 	
 	-- diffuse to other cities, sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
 	
@@ -443,6 +492,17 @@ function DoCitiesTurn( playerID )
 end
 LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 
+
+-----------------------------------------------------------------------------------------
+-- Shared Functions
+-----------------------------------------------------------------------------------------
+
+function GetCity(playerID, cityID) -- return a city with CityScript functions for another context
+	local city = CityManager.GetCity(playerID, cityID)
+	AttachCityFunctions(city)
+	return city
+end
+
 -----------------------------------------------------------------------------------------
 -- Initialize City Functions
 -----------------------------------------------------------------------------------------
@@ -450,13 +510,18 @@ LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToMap in initialize()
 	-- Note that those functions are limited to this file context
 	local city = CityManager.GetCity(playerID, cityID)
+	AttachCityFunctions(city)	
+	Events.CityAddedToMap.Remove(InitializeCityFunctions)
+end
+
+function AttachCityFunctions(city)
 	local c = getmetatable(city).__index
 	c.ChangeSize					= ChangeSize
-	c.GetSize						= GCO.GetCitySize
-	c.GetRealPopulation				= GCO.GetRealPopulation
-	c.GetKey						= GCO.GetCityKey
-	c.GetMaxStock					= GCO.GetMaxStock
-	c.GetMaxPersonnel				= GCO.GetMaxPersonnel
+	c.GetSize						= GetSize
+	c.GetRealPopulation				= GetRealPopulation
+	c.GetKey						= GetKey
+	c.GetMaxStock					= GetMaxStock
+	c.GetMaxPersonnel				= GetMaxPersonnel
 	c.UpdateLinkedUnits				= UpdateLinkedUnits
 	c.UpdateLinkedCities			= UpdateLinkedCities
 	c.DoGrowth						= DoGrowth
@@ -467,8 +532,24 @@ function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToM
 	c.ChangeResourceStock 			= ChangeResourceStock
 	c.SetCityRationing				= SetCityRationing
 	c.DoSocialClassStratification	= DoSocialClassStratification
-	
-	Events.CityAddedToMap.Remove(InitializeCityFunctions)
 end
 
+
+----------------------------------------------
+-- Share functions for other contexts
+----------------------------------------------
+
+function ShareFunctions()
+	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
+	ExposedMembers.GCO.GetCity 				= GetCity
+	ExposedMembers.GCO.GetCityFromKey 		= GetCityFromKey
+	ExposedMembers.GCO.AttachCityFunctions 	= AttachCityFunctions
+	ExposedMembers.CityScript_Initialized 	= true
+end
+
+
+----------------------------------------------
+-- Initialize after loading
+----------------------------------------------
 Initialize()
+

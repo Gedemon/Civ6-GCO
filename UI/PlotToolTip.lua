@@ -11,6 +11,18 @@
 --
 -- ===========================================================================
 
+-- GCO <<<<<
+-----------------------------------------------------------------------------------------
+-- Initialize Functions
+-----------------------------------------------------------------------------------------
+
+local GCO = {}
+function InitializeUtilityFunctions()
+	GCO = ExposedMembers.GCO		-- contains functions from other contexts
+	print ("Exposed Functions from other contexts initialized...")
+end
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+-- GCO >>>>>
 
 -- ===========================================================================
 --	Debug constants
@@ -518,13 +530,32 @@ function View(data:table, bIsUpdate:boolean)
 			
 	end
 
-	-- GCO <<<<<
-	if (ExposedMembers.CultureMap and ExposedMembers.CultureMap[tostring(data.Index)]) then		
+	-- GCO <<<<<	
+	local plot = GCO.GetPlotByIndex(data.Index) -- to get a PlotScript context plot
+	local totalCulture = plot:GetTotalCulture()
+	if totalCulture > 0 then	
 		table.insert(details, "------------------")
-		for playerID, value in pairs (ExposedMembers.CultureMap[tostring(data.Index)]) do
-			table.insert(details, "player #" .. tostring(playerID) .. " culture = " .. tostring(value))
+		local sortedCulture = {}
+		for playerID, value in pairs (plot:GetCulturePercentTable()) do
+			table.insert(sortedCulture, {playerID = tonumber(playerID), value = value})
+		end	
+		table.sort(sortedCulture, function(a,b) return a.value>b.value end)
+		local numLines = 5--tonumber(GameInfo.GlobalParameters["UI_MAX_PRISONNERS_LINE_IN_TOOLTIP"].Value)
+		local other = 0
+		local iter = 1
+		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ))
+		for i, t in ipairs(sortedCulture) do
+			if (iter <= numLines) or (#sortedCulture == numLines + 1) then
+				local playerConfig = PlayerConfigurations[t.playerID]
+				local civAdjective = Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
+				if t.value > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", GCO.ToDecimals(t.value), civAdjective)) end
+			else
+				other = other + t.value
+			end
+			iter = iter + 1
 		end
-	end
+		if other > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER", other)) end
+	end	
 	-- GCO >>>>>
 	
 	-- Set the control values

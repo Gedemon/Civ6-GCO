@@ -587,6 +587,12 @@ function GetCultureFlippingMaxDistance( playerID )
 	return tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_MAX_DISTANCE"].Value)
 end
 
+function GetPlotByIndex(index) -- return a plot with PlotScript functions for another context
+	local plot = Map.GetPlotByIndex(index)
+	InitializePlotFunctions(plot)
+	return plot
+end
+
 function ShowDebug()
 	if bshowDebug then
 		for _, text in ipairs(debugTable) do
@@ -713,14 +719,17 @@ Events.CityInitialized.Add(RemoveCityCultureOnWater)
 -- Initialize Plot Functions
 -----------------------------------------------------------------------------------------
 
-function InitializePlotFunctions() -- Note that those functions are limited to this file context
-	local p = getmetatable(Map.GetPlot(1,1)).__index
+function InitializePlotFunctions(plot) -- Note that those functions are limited to this file context
+
+	if not plot then plot = Map.GetPlot(1,1) end
+	local p = getmetatable(plot).__index
 	
 	p.IsImprovementPillaged			= GCO.PlotIsImprovementPillaged -- not working ?
 	
 	p.GetKey						= GetKey
 	p.GetTotalCulture 				= GetTotalCulture
 	p.GetCulturePercent				= GetCulturePercent
+	p.GetCulturePercentTable		= GetCulturePercentTable
 	p.DoConquestCountDown 			= DoConquestCountDown
 	p.GetConquestCountDown 			= GetConquestCountDown
 	p.SetConquestCountDown 			= SetConquestCountDown
@@ -740,3 +749,17 @@ function InitializePlotFunctions() -- Note that those functions are limited to t
 	p.DiffuseCulture				= DiffuseCulture
 	
 end
+
+
+----------------------------------------------
+-- Share functions for other contexts
+----------------------------------------------
+
+function Initialize()
+	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
+	-- plot
+	ExposedMembers.GCO.GetPlotByIndex 		= GetPlotByIndex
+	-- initialization	
+	ExposedMembers.PlotScript_Initialized 	= true
+end
+Initialize()

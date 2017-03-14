@@ -372,6 +372,20 @@
 	
   </LocalizedText>
     
+  <LocalizedText> <!-- Plot ToolTip Texts -->
+	
+    <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_TOTAL" Language="en_US">
+      <Text>Total Culture: {1_Num} [ICON_CultureLarge]</Text>
+    </Replace>	
+    <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE" Language="en_US">
+      <Text>{1_Num} % {2_Name}</Text>
+    </Replace>	
+    <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER" Language="en_US">
+      <Text>{1_Num} % others</Text>
+    </Replace>	
+	
+  </LocalizedText>
+    
   <LocalizedText> <!-- Resources -->
 	
     <Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 	Text="Materiel" 	Language="en_US" /> 
