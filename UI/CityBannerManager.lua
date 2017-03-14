@@ -1251,20 +1251,10 @@ function CityBanner.UpdateName( self : CityBanner )
 				cityString = cityString .. GCO.GetResourcesStockString(cityData) 
 				
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", GCO.GetCityFoodConsumption(cityData))
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
 				
 				self.m_Instance.CityName:SetToolTipString(cityString);
 			end
-			--[[
-			for k, v in pairs (cityData) do
-				cityString = cityString .. "[NEWLINE]-" ..tostring(k).." : ".. tostring(v)
-				if k == "Prisonners" then
-					for id, num in pairs (v) do
-						cityString = cityString .. "[NEWLINE]---".. tostring(id).." : ".. tostring(num)
-					end			
-				end
-			end
-			--]]
 			-- GCO >>>>>
 
 			self.m_Instance.CityQuestIcon:SetToolTipString(questTooltip);

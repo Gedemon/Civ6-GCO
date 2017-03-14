@@ -846,10 +846,11 @@ function UnitFlag.UpdateName( self )
 		end
 
 		-- GCO <<<<<
-		local unitKey = GCO.GetUnitKey(pUnit)
-		local unitData = ExposedMembers.UnitData[unitKey]
-		local unitType = pUnit:GetUnitType()
-		local unitInfo = GameInfo.Units[unitType]
+		GCO.AttachUnitFunctions(pUnit)
+		local unitKey 	= pUnit:GetKey()
+		local unitData 	= ExposedMembers.UnitData[unitKey]
+		local unitType 	= pUnit:GetUnitType()
+		local unitInfo 	= GameInfo.Units[unitType]
 		if unitData then
 		
 			-- Condition
