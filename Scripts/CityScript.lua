@@ -69,10 +69,8 @@ function Initialize() -- called immediatly after loading this file
 end
 
 function SaveTables()
-	--print("--------------------------- Saving CityData ---------------------------")
-	GCO.StartTimer("CityData")
+	print("--------------------------- Saving CityData ---------------------------")
 	GCO.SaveTableToSlot(ExposedMembers.CityData, "CityData")
-	GCO.ShowTimer("CityData")
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
@@ -208,7 +206,7 @@ function GetCityFromKey ( cityKey )
 		if city then
 			return city
 		else
-			print("- WARNING: city is nil for GetUnitFromKey(".. tostring(cityKey)..")")
+			print("- WARNING: city is nil for GetCityFromKey(".. tostring(cityKey)..")")
 			print("--- UnitId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID )
 		end
 	else
@@ -272,13 +270,11 @@ print("check change size", self:GetSize()-1, GetPopulationPerSize(self:GetSize()
 	end
 end
 
-function DoFood(self)
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]	
+function DoFood(self)	
 	-- get city food yield
 	local food = GCO.GetCityYield( self, YieldTypes.FOOD )
 	-- food eaten
-	local eaten = GCO.GetCityFoodConsumption(cityData)
+	local eaten = self:GetFoodConsumption()
 	self:ChangeResourceStock(foodResourceID, food - eaten)	
 end
 
@@ -411,6 +407,85 @@ function ChangeResourceStock(self, resourceID, value)
 	print("new value =", ExposedMembers.CityData[cityKey].Stock[resourceID])
 end
 
+function GetFoodConsumption(self)
+	local cityKey = self:GetKey()
+	local data = ExposedMembers.CityData[cityKey]
+	local foodConsumption1000 = 0
+	local ratio = data.FoodRatio
+	foodConsumption1000 = foodConsumption1000 + (data.UpperClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_UPPER_CLASS_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (data.MiddleClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_MIDDLE_CLASS_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (data.LowerClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_LOWER_CLASS_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (data.Slaves 			* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SLAVE_CLASS_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (data.Personnel 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )
+	-- value belows may be nil
+	if data.WoundedPersonnel then
+		foodConsumption1000 = foodConsumption1000 + (data.WoundedPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )
+	end
+	if data.Prisonners then	
+		foodConsumption1000 = foodConsumption1000 + (GetTotalPrisonners(data) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value) )
+	end	
+	return math.max(1, Round( foodConsumption1000 * ratio / 1000 ))
+end
+
+
+----------------------------------------------
+-- Texts function
+----------------------------------------------
+
+function GetResourcesStockString(data)
+	local str = ""
+	for resourceID, value in pairs(data.Stock) do
+		if value > 0 then
+			local stockVariation = 0
+			if  data.PreviousStock[resourceID] then stockVariation = value - data.PreviousStock[resourceID] end
+			local resourceID = tonumber(resourceID)
+			local resRow = GameInfo.Resources[resourceID]
+			if resourceID == foodResourceID then
+				str = str .. "[NEWLINE]" .. GetFoodStockString(data) --Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", value) 
+			elseif resourceID == materielResourceID then
+				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MATERIEL_STOCK", value) 
+			else 
+				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK", value, resRow.Name, resRow.ResourceType) 
+			end
+			
+			if stockVariation > 0 then
+				str = str .. "[ICON_PressureUp][COLOR_Civ6Green] +".. tostring(stockVariation).."[ENDCOLOR]"
+			elseif stockVariation < 0 then
+				str = str .." [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(stockVariation).."[ENDCOLOR]"
+			end
+		end
+	end	
+	return str
+end
+
+function GetFoodStockString(data) 
+	local city 					= GCO.GetCity(data.playerID, data.cityID)
+	local baseFoodStock 		= GetCityBaseFoodStock(data)
+	local maxFoodStock 			= city:GetMaxStock(foodResourceID)
+	local foodStock 			= data.Stock[foodResourceKey]
+	local foodStockVariation 	= foodStock - data.PreviousStock[foodResourceKey]
+	local cityRationning 		= data.FoodRatio
+	local str 					= ""
+	if cityRationning == heavyRationing then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
+	elseif cityRationning == mediumRationing then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_MEDIUM_RATIONING", foodStock, maxFoodStock)
+	elseif cityRationning == lightRationing then
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", foodStock, maxFoodStock)
+	else
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", foodStock, maxFoodStock)
+	end	
+	--[[
+	if foodStockVariation > 0 then
+		str = str .. "[ICON_PressureUp] +".. tostring(foodStockVariation).."[ENDCOLOR]"
+	elseif foodStockVariation < 0 then
+		str = str .." [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(foodStockVariation).."[ENDCOLOR]"
+	end
+	--]]
+	
+	return str
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Do Turn for Cities
@@ -445,30 +520,21 @@ function CityDoTurn(city)
 	city:SetCityRationing()
 	
 	-- set previous stock
-	print("set previous stock")
-	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceKey], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceKey])
 	for resourceID, value in pairs(cityData.Stock) do
 		ExposedMembers.CityData[cityKey].PreviousStock[resourceID]	= cityData.Stock[resourceID]
 	end
-	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceKey], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceKey])
 	
 	-- get linked units and supply demand
-	print("- get linked units and supply demand")
 	city:UpdateLinkedUnits()
 	
 	-- get linked cities
-	print("- get linked cities")
 	city:UpdateLinkedCities()
 	
 	-- get Resources (allow excedents)
-	print("- get Resources (allow excedents)")
 	city:CollectResources()
-	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceKey], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceKey])
 	
 	-- feed population
-	print("- feed population")
 	city:DoFood()
-	print ("previous food =", ExposedMembers.CityData[cityKey].PreviousStock[foodResourceKey], "current food = ", ExposedMembers.CityData[cityKey].Stock[foodResourceKey])
 	
 	-- diffuse to other cities, sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
 	
@@ -528,6 +594,7 @@ function AttachCityFunctions(city)
 	c.GetBirthRate					= GetBirthRate
 	c.GetDeathRate					= GetDeathRate
 	c.DoFood						= DoFood
+	c.GetFoodConsumption 			= GetFoodConsumption
 	c.CollectResources				= CollectResources
 	c.ChangeResourceStock 			= ChangeResourceStock
 	c.SetCityRationing				= SetCityRationing
@@ -538,12 +605,18 @@ end
 ----------------------------------------------
 -- Share functions for other contexts
 ----------------------------------------------
+ExposedMembers.CityScript_Initialized 	= false
 
 function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.GetCity 				= GetCity
-	ExposedMembers.GCO.GetCityFromKey 		= GetCityFromKey
 	ExposedMembers.GCO.AttachCityFunctions 	= AttachCityFunctions
+	--
+	ExposedMembers.GCO.GetCityFromKey 			= GetCityFromKey
+	--
+	ExposedMembers.GCO.GetResourcesStockString	= GetResourcesStockString
+	ExposedMembers.GCO.GetCityFoodStockString 	= GetFoodStockString
+	--
 	ExposedMembers.CityScript_Initialized 	= true
 end
 

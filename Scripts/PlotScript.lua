@@ -38,11 +38,9 @@ end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
-	--print("--------------------------- Saving CultureMap ---------------------------")
-	GCO.StartTimer("CultureMap")
+	print("--------------------------- Saving CultureMap ---------------------------")
 	GCO.SaveTableToSlot(ExposedMembers.CultureMap, "CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.PreviousCultureMap, "PreviousCultureMap")
-	GCO.ShowTimer("CultureMap")
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
@@ -587,12 +585,6 @@ function GetCultureFlippingMaxDistance( playerID )
 	return tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_MAX_DISTANCE"].Value)
 end
 
-function GetPlotByIndex(index) -- return a plot with PlotScript functions for another context
-	local plot = Map.GetPlotByIndex(index)
-	InitializePlotFunctions(plot)
-	return plot
-end
-
 function ShowDebug()
 	if bshowDebug then
 		for _, text in ipairs(debugTable) do
@@ -716,6 +708,17 @@ Events.CityInitialized.Add(RemoveCityCultureOnWater)
 
 
 -----------------------------------------------------------------------------------------
+-- Shared Functions
+-----------------------------------------------------------------------------------------
+
+function GetPlotByIndex(index) -- return a plot with PlotScript functions for another context
+	local plot = Map.GetPlotByIndex(index)
+	InitializePlotFunctions(plot)
+	return plot
+end
+
+
+-----------------------------------------------------------------------------------------
 -- Initialize Plot Functions
 -----------------------------------------------------------------------------------------
 
@@ -757,9 +760,7 @@ end
 
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
-	-- plot
 	ExposedMembers.GCO.GetPlotByIndex 		= GetPlotByIndex
-	-- initialization	
 	ExposedMembers.PlotScript_Initialized 	= true
 end
 Initialize()

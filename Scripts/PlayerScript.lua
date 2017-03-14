@@ -23,10 +23,8 @@ end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
-	--print("--------------------------- Saving PlayerData ---------------------------")
-	GCO.StartTimer("PlayerData")
+	print("--------------------------- Saving PlayerData ---------------------------")
 	GCO.SaveTableToSlot(ExposedMembers.PlayerData, "PlayerData")
-	GCO.ShowTimer("PlayerData")
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
