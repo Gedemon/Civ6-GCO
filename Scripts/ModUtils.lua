@@ -35,10 +35,6 @@ local foodResourceKey	= tostring(foodResourceID)
 local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local steelResourceID 		= GameInfo.Resources["RESOURCE_STEEL"].Index
 
-local lightRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
-local mediumRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
-local heavyRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
-
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
@@ -274,10 +270,6 @@ function CityCaptureCityInitialized(playerID, cityID, iX, iY)
 end
 Events.CityInitialized.Add(CityCaptureCityInitialized)
 
-function GetCityBaseFoodStock(data)
-	local city = GCO.GetCity(data.playerID, data.cityID)
-	return GCO.Round(city:GetMaxStock(foodResourceID) / 2)
-end
 
 ----------------------------------------------
 -- Common

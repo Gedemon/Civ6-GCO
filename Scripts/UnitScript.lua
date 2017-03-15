@@ -14,6 +14,10 @@ local EverAliveZeroTable = {} -- cached table to initialize an empty table with 
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
+local lightRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
+local mediumRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
+local heavyRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
+
 -----------------------------------------------------------------------------------------
 -- Initialize 
 -----------------------------------------------------------------------------------------
@@ -37,6 +41,9 @@ function Initialize() -- Everything that can be initialized immediatly after loa
 	CreateUnitHitPointsTable()
 	ExposedMembers.UnitHitPointsTable = UnitHitPointsTable
 	ShareFunctions()
+	
+	Events.UnitAddedToMap.Add( InitializeUnitFunctions )
+	Events.UnitAddedToMap.Add( InitializeUnit ) -- InitializeUnitFunctions must be called before InitializeUnit...
 end
 
 -----------------------------------------------------------------------------------------
@@ -258,7 +265,6 @@ function InitializeUnit(playerID, unitID)
 	end
 
 end
-Events.UnitAddedToMap.Add( InitializeUnit )
 
 
 -----------------------------------------------------------------------------------------
@@ -334,15 +340,15 @@ end
 -- Resources functions
 -----------------------------------------------------------------------------------------
 function GetPersonnelReserve(unitType)
-	return Round((GameInfo.Units[unitType].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
+	return GCO.Round((GameInfo.Units[unitType].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
 function GetVehiclesReserve(unitType)
-	return Round((GameInfo.Units[unitType].Vehicles * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
+	return GCO.Round((GameInfo.Units[unitType].Vehicles * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
 function GetHorsesReserve(unitType)
-	return Round((GameInfo.Units[unitType].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
+	return GCO.Round((GameInfo.Units[unitType].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
 function GetMaterielReserve(unitType)
@@ -374,7 +380,7 @@ function GetUnitFoodConsumption(unitData, fixedRatio)
 	if unitData.Prisonners then	
 		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisonners(unitData) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value) * ratio )
 	end	
-	return math.max(1, Round( foodConsumption1000 / 1000 ))
+	return math.max(1, GCO.Round( foodConsumption1000 / 1000 ))
 end
 
 function GetUnitBaseFoodStock(unitType)
@@ -415,7 +421,7 @@ function GetFuelConsumption(unitData, fixedRatio)
 	if unitData.DamagedVehicles then	
 		foodConsumption1000 = foodConsumption1000 + (unitData.DamagedVehicles * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_DAMAGED_FACTOR"].Value) * ratio )
 	end	
-	return math.max(1, Round( fuelConsumption1000 / 1000))
+	return math.max(1, GCO.Round( fuelConsumption1000 / 1000))
 end
 
 function GetBaseFuelStock(unitType)
@@ -472,7 +478,7 @@ function GetMoraleFromLastCombat(unitData)
 	end
 	
 	if unitData.LastCombatType ~= CombatTypes.MELEE then
-		moraleFromCombat = Round(moraleFromCombat * tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_NON_MELEE_RATIO"].Value))
+		moraleFromCombat = GCO.Round(moraleFromCombat * tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_NON_MELEE_RATIO"].Value))
 	end
 
 	return moraleFromCombat	
@@ -519,24 +525,24 @@ function GetUnitFoodConsumptionString(unitData)
 	local totalPersonnel = unitData.Personnel + unitData.PersonnelReserve
 	if totalPersonnel > 0 then 
 		local personnelFood = ( totalPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL", ToDecimals(personnelFood * ratio), totalPersonnel) 
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL", GCO.ToDecimals(personnelFood * ratio), totalPersonnel) 
 	end	
 	local totalHorses = unitData.Horses + unitData.HorsesReserve
 	if totalHorses > 0 then 
 		local horsesFood = ( totalHorses * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_HORSES", ToDecimals(horsesFood * ratio), totalHorses ) 
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_HORSES", GCO.ToDecimals(horsesFood * ratio), totalHorses ) 
 	end
 	
 	-- value belows may be nil
 	if unitData.WoundedPersonnel and unitData.WoundedPersonnel > 0 then 
 		local woundedFood = ( unitData.WoundedPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_WOUNDED", ToDecimals(woundedFood * ratio), unitData.WoundedPersonnel ) 
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_WOUNDED", GCO.ToDecimals(woundedFood * ratio), unitData.WoundedPersonnel ) 
 	end
 	if unitData.Prisonners then	
 		local totalPrisonners = GCO.GetTotalPrisonners(unitData)		
 		if totalPrisonners > 0 then 
 			local prisonnersFood = ( totalPrisonners * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value) )/1000
-			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONNERS", ToDecimals(prisonnersFood * ratio), totalPrisonners )
+			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONNERS", GCO.ToDecimals(prisonnersFood * ratio), totalPrisonners )
 		end
 	end	
 	return str
@@ -544,8 +550,8 @@ end
 
 function GetMoraleString(unitData) 
 	local baseMorale 		= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)
-	local lowMorale 		= Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) / 100)
-	local badMorale 		= Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) / 100)
+	local lowMorale 		= GCO.Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) / 100)
+	local badMorale 		= GCO.Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) / 100)
 	local unitMorale 		= unitData.Morale
 	local moraleVariation	= unitData.MoraleVariation
 	
@@ -630,11 +636,11 @@ function GetFuelConsumptionString(unitData)
 	local ratio = GetFuelConsumptionRatio(unitData)
 	if unitData.Vehicles > 0 then 
 		local fuel = ( unitData.Vehicles * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FUEL_CONSUMPTION_ACTIVE", ToDecimals(fuel * ratio), unitData.Vehicles) 
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FUEL_CONSUMPTION_ACTIVE", GCO.ToDecimals(fuel * ratio), unitData.Vehicles) 
 	end	
 	if unitData.DamagedVehicles > 0 then 
 		local fuel = ( unitData.DamagedVehicles * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FUEL_CONSUMPTION_DAMAGED", ToDecimals(fuel * ratio), unitData.DamagedVehicles) 
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FUEL_CONSUMPTION_DAMAGED", GCO.ToDecimals(fuel * ratio), unitData.DamagedVehicles) 
 	end	
 	return str
 end
@@ -974,7 +980,7 @@ function AddCombatInfoTo(Opponent)
 		end
 		Opponent.AntiPersonnel = GameInfo.Units[Opponent.unitType].AntiPersonnel
 	else
-		Opponent.unitKey = GCO.GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)
+		Opponent.unitKey = GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)
 	end	
 
 	return Opponent
@@ -1719,7 +1725,6 @@ function InitializeUnitFunctions(playerID, unitID) -- Note that those are limite
 	AttachUnitFunctions(unit)
 	Events.UnitAddedToMap.Remove(InitializeUnitFunctions)
 end
-Events.UnitAddedToMap.Add(InitializeUnitFunctions)
 
 function AttachUnitFunctions(unit)
 	local u = getmetatable(unit).__index	

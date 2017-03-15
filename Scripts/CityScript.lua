@@ -422,11 +422,15 @@ function GetFoodConsumption(self)
 		foodConsumption1000 = foodConsumption1000 + (data.WoundedPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )
 	end
 	if data.Prisonners then	
-		foodConsumption1000 = foodConsumption1000 + (GetTotalPrisonners(data) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value) )
+		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisonners(data) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value) )
 	end	
-	return math.max(1, Round( foodConsumption1000 * ratio / 1000 ))
+	return math.max(1, GCO.Round( foodConsumption1000 * ratio / 1000 ))
 end
 
+function GetCityBaseFoodStock(data)
+	local city = CityManager.GetCity(data.playerID, data.cityID)
+	return GCO.Round(city:GetMaxStock(foodResourceID) / 2)
+end
 
 ----------------------------------------------
 -- Texts function
@@ -459,7 +463,7 @@ function GetResourcesStockString(data)
 end
 
 function GetFoodStockString(data) 
-	local city 					= GCO.GetCity(data.playerID, data.cityID)
+	local city 					= CityManager.GetCity(data.playerID, data.cityID)
 	local baseFoodStock 		= GetCityBaseFoodStock(data)
 	local maxFoodStock 			= city:GetMaxStock(foodResourceID)
 	local foodStock 			= data.Stock[foodResourceKey]
