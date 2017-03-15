@@ -540,7 +540,7 @@ function View(data:table, bIsUpdate:boolean)
 			table.insert(sortedCulture, {playerID = tonumber(playerID), value = value})
 		end	
 		table.sort(sortedCulture, function(a,b) return a.value>b.value end)
-		local numLines = 5--tonumber(GameInfo.GlobalParameters["UI_MAX_PRISONNERS_LINE_IN_TOOLTIP"].Value)
+		local numLines = 5
 		local other = 0
 		local iter = 1
 		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ))
