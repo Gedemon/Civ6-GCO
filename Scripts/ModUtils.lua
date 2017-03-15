@@ -9,7 +9,7 @@ print ("Loading ModUtils.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
--- This file should be the first to load, do some cleaning just in case Events.LeaveGameComplete hasn't fired on returning to main menu or loading a game...
+-- This file is the first to load, do some cleaning here just in case Events.LeaveGameComplete() hasn't fired on returning to main menu or loading a game...
 ExposedMembers.SaveLoad_Initialized 		= nil
 ExposedMembers.ContextFunctions_Initialized	= nil
 ExposedMembers.Utils_Initialized 			= nil
@@ -19,21 +19,13 @@ ExposedMembers.PlotIterator_Initialized		= nil
 ExposedMembers.PlotScript_Initialized 		= nil
 ExposedMembers.CityScript_Initialized 		= nil
 ExposedMembers.UnitScript_Initialized		= nil
+ExposedMembers.PlayerScript_Initialized 	= nil
 
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
 local FLOATING_TEXT_SHORT 	= 1
 local FLOATING_TEXT_LONG 	= 2
 local floatingTextLevel 	= FLOATING_TEXT_SHORT
-
-local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS
-
-local foodResourceID 	= GameInfo.Resources["RESOURCE_FOOD"].Index
-local foodResourceKey	= tostring(foodResourceID)
---local baseFoodStock 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
-
-local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
-local steelResourceID 		= GameInfo.Resources["RESOURCE_STEEL"].Index
 
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
@@ -49,17 +41,16 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 							and ExposedMembers.PlotScript_Initialized
 							and ExposedMembers.CityScript_Initialized
 							and ExposedMembers.UnitScript_Initialized
+							and ExposedMembers.PlayerScript_Initialized
 							)
 	return bIsInitialized
 end
 
 local GCO = {}
-local CombatTypes = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if IsInitializedGCO() then 	
 		print ("All GCO script files loaded...")
 		GCO = ExposedMembers.GCO					-- contains functions from other contexts
-		CombatTypes = ExposedMembers.CombatTypes 	-- Need those in combat results
 		print ("Exposed Functions from other contexts initialized...")
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		-- tell all other scripts they can initialize now
@@ -184,13 +175,6 @@ end
 ----------------------------------------------
 -- Map
 ----------------------------------------------
-
-function GetPlotKey( plot )
-	return tostring(plot:GetIndex()) -- use string for correct serialisation/deserialization of tables when using this as a key
-end
-function GetPlotFromKey( key )
-	return Map.GetPlotByIndex(tonumber(key))
-end
 
 function FindNearestPlayerCity( eTargetPlayer, iX, iY )
 
@@ -348,7 +332,6 @@ function Initialize()
 	-- common
 	ExposedMembers.GCO.GetTotalPrisonners 			= GetTotalPrisonners
 	-- map
-	ExposedMembers.GCO.GetPlotKey 					= GetPlotKey
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
 	-- player
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
@@ -374,6 +357,7 @@ function Cleaning()
 	ExposedMembers.PlotScript_Initialized 		= nil
 	ExposedMembers.CityScript_Initialized 		= nil
 	ExposedMembers.UnitScript_Initialized		= nil
+	ExposedMembers.PlayerScript_Initialized 	= nil
 	--
 	ExposedMembers.UnitHitPointsTable 			= nil
 	--

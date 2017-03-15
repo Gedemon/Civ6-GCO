@@ -61,15 +61,38 @@ function DoTurnForRemote( playerID )
 end
 Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
 
-
+-----------------------------------------------------------------------------------------
+-- Shared Functions
+-----------------------------------------------------------------------------------------
+function GetPlayer(playerID)
+	local player= Players[playerID]
+	if not player then
+		print("ERROR : player is nil in GetPlayer for playerID#", playerID)
+		return
+	end
+	InitializePlayerFunctions(player)
+	return player
+end
 
 -----------------------------------------------------------------------------------------
 -- Initialize Player Functions
 -----------------------------------------------------------------------------------------
-
-function InitializePlayerFunctions() -- Note that those functions are limited to this file context
-	local p = getmetatable(Players[0]).__index
+function InitializePlayerFunctions(player) -- Note that those functions are limited to this file context
+	if not player then player = Players[0] end
+	local p = getmetatable(player).__index
 	
 	--p.function			= function
 	
 end
+
+
+----------------------------------------------
+-- Share functions for other contexts
+----------------------------------------------
+function Initialize()
+	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
+	ExposedMembers.GCO.GetPlayer 					= GetPlayer
+	ExposedMembers.GCO.InitializePlayerFunctions 	= InitializePlayerFunctions
+	ExposedMembers.PlayerScript_Initialized 		= true
+end
+Initialize()

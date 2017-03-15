@@ -8,7 +8,6 @@ print ("Loading UnitScript.lua...")
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
-
 local UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
 local EverAliveZeroTable = {} -- cached table to initialize an empty table with civID as keys and 0 as initial values
 
@@ -21,7 +20,6 @@ local heavyRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAV
 -----------------------------------------------------------------------------------------
 -- Initialize 
 -----------------------------------------------------------------------------------------
-
 local GCO = {}
 local CombatTypes = {}
 function InitializeUtilityFunctions()
@@ -85,7 +83,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Load/Save the tables
 -----------------------------------------------------------------------------------------
-
 -- Use Enum for faster serialization
 local unitTableEnum = {
 
@@ -187,7 +184,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Units Initialization
 -----------------------------------------------------------------------------------------
-
 function RegisterNewUnit(playerID, unit)
 
 	local unitType = unit:GetType()
@@ -517,7 +513,6 @@ end
 ----------------------------------------------
 -- Texts function
 ----------------------------------------------
-
 -- Flag
 function GetUnitFoodConsumptionString(unitData)
 	local str = ""
@@ -1735,8 +1730,6 @@ end
 ----------------------------------------------
 -- Share functions for other contexts
 ----------------------------------------------
-ExposedMembers.UnitScript_Initialized 	= false
-
 function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	--

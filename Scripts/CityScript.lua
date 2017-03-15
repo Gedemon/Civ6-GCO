@@ -8,7 +8,6 @@ print ("Loading CityScript.lua...")
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
-
 local LinkedUnits 		= {}	-- temporary table to list all units linked to a city for supply
 local UnitsSupplyDemand	= {}	-- temporary table to list all resources required by units
 local CitiesForTransfer = {}	-- temporary table to list all cities connected via (internal) trade routes to a city
@@ -26,8 +25,14 @@ local MiddleClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MID
 local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_DEATH_RATE_FACTOR"].Value)
 local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
 
-local foodResourceID 	= GameInfo.Resources["RESOURCE_FOOD"].Index
-local foodResourceKey	= tostring(foodResourceID)
+local foodResourceID 		= GameInfo.Resources["RESOURCE_FOOD"].Index
+local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
+local steelResourceID 		= GameInfo.Resources["RESOURCE_STEEL"].Index
+
+local foodResourceKey		= tostring(foodResourceID)
+local materielResourceKey	= tostring(materielResourceID)
+local steelResourceKey		= tostring(steelResourceID)
+
 local baseFoodStock 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 
 local lightRationing 			=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
@@ -48,7 +53,6 @@ local deathRateHeavyRationing	=  tonumber(GameInfo.GlobalParameters["CITY_HEAVY_
 -----------------------------------------------------------------------------------------
 -- Initialize
 -----------------------------------------------------------------------------------------
-
 local GCO = {}
 function InitializeUtilityFunctions()
 	GCO = ExposedMembers.GCO		-- contains functions from other contexts
@@ -74,10 +78,10 @@ function SaveTables()
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
+
 -----------------------------------------------------------------------------------------
 -- Initialize Cities
 -----------------------------------------------------------------------------------------
-
 function RegisterNewCity(playerID, city)
 
 	local cityKey 			= city:GetKey()
@@ -183,15 +187,14 @@ end
 -----------------------------------------------------------------------------------------
 -- Utils functions
 -----------------------------------------------------------------------------------------
-
 function GetPopulationPerSize(size)
 	return math.pow(size, 2.8) * 1000
 end
 
+
 -----------------------------------------------------------------------------------------
 -- City functions
 -----------------------------------------------------------------------------------------
-
 function GetCityKeyFromIDs(cityID, ownerID)
 	return cityID..","..ownerID
 end
@@ -357,10 +360,10 @@ function DoSocialClassStratification(self)
 	end	
 end
 
+
 -----------------------------------------------------------------------------------------
 -- Resources functions
 -----------------------------------------------------------------------------------------
-
 function UpdateLinkedUnits(self)
 	LinkedUnits[self] 		= {}
 	UnitsSupplyDemand[self] = {}
@@ -432,10 +435,10 @@ function GetCityBaseFoodStock(data)
 	return GCO.Round(city:GetMaxStock(foodResourceID) / 2)
 end
 
+
 ----------------------------------------------
 -- Texts function
 ----------------------------------------------
-
 function GetResourcesStockString(data)
 	local str = ""
 	for resourceID, value in pairs(data.Stock) do
@@ -494,7 +497,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Do Turn for Cities
 -----------------------------------------------------------------------------------------
-
 function DoGrowth(self)
 	if Game.GetCurrentGameTurn() < 2 then return end 
 	local cityKey = self:GetKey()
@@ -566,7 +568,6 @@ LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 -----------------------------------------------------------------------------------------
 -- Shared Functions
 -----------------------------------------------------------------------------------------
-
 function GetCity(playerID, cityID) -- return a city with CityScript functions for another context
 	local city = CityManager.GetCity(playerID, cityID)
 	AttachCityFunctions(city)
@@ -576,7 +577,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Initialize City Functions
 -----------------------------------------------------------------------------------------
-
 function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToMap in initialize()
 	-- Note that those functions are limited to this file context
 	local city = CityManager.GetCity(playerID, cityID)
@@ -609,8 +609,6 @@ end
 ----------------------------------------------
 -- Share functions for other contexts
 ----------------------------------------------
-ExposedMembers.CityScript_Initialized 	= false
-
 function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.GetCity 				= GetCity

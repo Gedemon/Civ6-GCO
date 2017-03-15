@@ -21,7 +21,6 @@
 ----------------------------------------------
 -- Initialize
 ----------------------------------------------
-
 local GCO = ExposedMembers.GCO -- Initialize with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded
 function InitializeUtilityFunctions()
 	GCO = ExposedMembers.GCO -- Reinitialize with what may have been added with other UI contexts
@@ -33,7 +32,6 @@ LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 ----------------------------------------------
 -- Cities functions
 ----------------------------------------------
-
 function GetCityCultureYield(plot)
 	local contextCity = Cities.GetCityInPlot(plot:GetX(), plot:GetY())  -- We can't use an object comming from a script context to call a function exposed only to the UI context...
 	if not contextCity then return 0 end
@@ -58,7 +56,6 @@ end
 ----------------------------------------------
 -- Players functions
 ----------------------------------------------
-
 function HasPlayerOpenBordersFrom(Player, otherPlayerID)
 	local contextPlayer = Players[Player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
 	return contextPlayer:GetDiplomacy():HasOpenBordersFrom( otherPlayerID )
@@ -68,7 +65,6 @@ end
 ----------------------------------------------
 -- Plots functions
 ----------------------------------------------
-
 function IsImprovementPillaged(plot)
 	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY())
 	return contextPlot:IsImprovementPillaged()
@@ -87,9 +83,6 @@ end
 ----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------
-
-ExposedMembers.ContextFunctions_Initialized = false
-
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end	
 	

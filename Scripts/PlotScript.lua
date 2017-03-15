@@ -8,7 +8,6 @@ print ("Loading PlotScript.lua...")
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
-
 local SEPARATIST_PLAYER 			= "64" -- use string for table keys for correct serialisation/deserialisation
 local NO_IMPROVEMENT 				= -1
 local NO_FEATURE	 				= -1
@@ -22,13 +21,10 @@ local iCrossingRiverMax 			= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_R
 local iCrossingRiverPenalty			= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_RIVER_PENALTY"].Value)
 local iCrossingRiverThreshold		= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_RIVER_THRESHOLD"].Value)
 local iBaseThreshold 				= tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value)
---ExposedMembers.CultureMap 			= {}
---ExposedMembers.PreviousCultureMap 	= {}
 
 -----------------------------------------------------------------------------------------
 -- Initialize
 -----------------------------------------------------------------------------------------
-
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO = ExposedMembers.GCO
@@ -54,14 +50,13 @@ end
 -----------------------------------------------------------------------------------------
 -- Plots Functions
 -----------------------------------------------------------------------------------------
-
 function GetKey ( self )
 	return tostring(self:GetIndex())
 end
 
------------------------------------------------------------------------------------------
--- C++ converted Functions
------------------------------------------------------------------------------------------
+function GetPlotFromKey( key )
+	return Map.GetPlotByIndex(tonumber(key))
+end
 
 local conquestCountdown = {}
 function DoConquestCountDown( self )
@@ -77,8 +72,13 @@ function SetConquestCountDown( self, value )
 	conquestCountdown[self:GetKey()] = value
 end
 
+function GetCultureTable( self )
+	if ExposedMembers.CultureMap and ExposedMembers.CultureMap[self:GetKey()] then
+		return ExposedMembers.CultureMap[self:GetKey()]
+	end
+end
 function GetCulture( self, playerID )
-	local plotCulture = ExposedMembers.CultureMap[self:GetKey()]
+	local plotCulture = self:GetCultureTable()
 	if plotCulture then 
 		return plotCulture[tostring(playerID)] or 0
 	end
@@ -128,7 +128,7 @@ end
 
 function GetTotalCulture( self )
 	local totalCulture = 0
-	local plotCulture = ExposedMembers.CultureMap[self:GetKey()]
+	local plotCulture = self:GetCultureTable()
 	if  plotCulture then
 		for playerID, value in pairs (plotCulture) do
 			totalCulture = totalCulture + value			
@@ -140,7 +140,7 @@ function GetCulturePercentTable( self )
 	-- return a table with civs culture % for a plot in cultureMap and the total culture
 	local plotCulturePercent = {}
 	local totalCulture = self:GetTotalCulture()
-	local plotCulture = ExposedMembers.CultureMap[self:GetKey()]
+	local plotCulture = self:GetCultureTable()
 	if  plotCulture and totalCulture > 0 then
 		for playerID, value in pairs (plotCulture) do
 			plotCulturePercent[playerID] = (value / totalCulture * 100)
@@ -161,7 +161,7 @@ end
 function GetHighestCulturePlayer( self )
 	local topPlayer
 	local topValue = 0
-	local plotCulture = ExposedMembers.CultureMap[self:GetKey()]
+	local plotCulture = self:GetCultureTable()
 	if  plotCulture then
 		for playerID, value in pairs (plotCulture) do
 			if value > topValue then
@@ -242,7 +242,7 @@ end
 function GetPotentialOwner( self )
 	local bestPlayer = NO_OWNER
 	local topValue = 0
-	local plotCulture = ExposedMembers.CultureMap[self:GetKey()]
+	local plotCulture = self:GetCultureTable()
 	if plotCulture then
 		for playerID, value in pairs (plotCulture) do
 			local player = Players[tonumber(playerID)]
@@ -273,7 +273,7 @@ function UpdateCulture( self )
 	end
 	
 	-- Decay
-	local plotCulture = ExposedMembers.CultureMap[self:GetKey()]
+	local plotCulture = self:GetCultureTable()
 	if plotCulture then
 		--table.insert(debugTable, "----- Decay -----")
 		for playerID, value in pairs (plotCulture) do
@@ -348,7 +348,8 @@ function UpdateCulture( self )
 								cultureAdded = GCO.Round(city:GetPopulation() * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
 							else
 								cultureAdded = GCO.Round(city:GetPopulation() * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
-							end						
+							end
+							self:ChangeCulture(playerID, cultureAdded)
 						end					
 					end				
 				end
@@ -545,7 +546,7 @@ function DiffuseCulture( self )
 				--table.insert(debugTable, " - iPlotMax = math.min(iPlotMax[" .. iPlotMax.."], iCultureValue[" .. iCultureValue.."] * CULTURE_ABSOLUTE_MAX_PERCENT[" .. tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value).."] / 100) = " ..math.min(iPlotMax, iCultureValue * tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value) / 100))
 				iPlotMax = math.min(iPlotMax, iCultureValue * tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value) / 100)
 				-- Apply Culture diffusion to all culture groups
-				local plotCulture = ExposedMembers.CultureMap[self:GetKey()] -- this should never be nil at this point
+				local plotCulture = self:GetCultureTable() -- this should never be nil at this point
 				for playerID, value in pairs (plotCulture) do
 				
 					local iPlayerPlotMax = iPlotMax * self:GetCulturePercent(playerID) / 100
@@ -574,7 +575,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Other Functions
 -----------------------------------------------------------------------------------------
-
 function GetCultureMinimumForAcquisition( playerID )
 	-- to do : change by era / policies
 	return tonumber(GameInfo.GlobalParameters["CULTURE_MINIMUM_FOR_ACQUISITION"].Value)
@@ -593,10 +593,33 @@ function ShowDebug()
 	end
 end
 
+function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY )
+	local city 		= GCO.GetCity(newOwnerID, newCityID)
+	local cityPlots = GCO.GetCityPlots(city)
+	for _, plotID in ipairs(cityPlots) do
+		local plot	= Map.GetPlotByIndex(plotID)
+		local totalCultureLoss = 0
+		for playerID, value in pairs (plotCulture) do
+			local cultureLoss = GCO.Round(plot:GetCulture(playerID) * tonumber(GameInfo.GlobalParameters["CULTURE_LOST_CITY_CONQUEST"].Value) / 100)
+			if cultureLoss > 0 then
+				totalCultureLoss = totalCultureLoss + cultureLoss
+				plot:ChangeCulture(playerID, -cultureLoss)
+			end
+		end
+		local cultureGained = GCO.Round(totalCultureLoss * tonumber(GameInfo.GlobalParameters["CULTURE_GAIN_CITY_CONQUEST"].Value) / 100)
+		plot:ChangeCulture(newOwnerID, cultureGained)
+		local distance = Map.GetPlotDistance(iX, iY, plot:GetX(), plot:GetY())
+		local bRemoveOwnership = (tonumber(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value == 1 and distance > tonumber(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value))
+		if bRemoveOwnership then
+			WorldBuilder.CityManager():SetPlotOwner( plot:GetX(), plot:GetY(), false )
+		end
+	end
+end
+LuaEvents.CapturedCityInitialized( UpdateCultureOnCityCapture )
+
 -----------------------------------------------------------------------------------------
 -- Initialize Culture Functions
 -----------------------------------------------------------------------------------------
-
 function SetCultureDiffusionRatePer1000()
 	local iSettingFactor 	= 1
 	local iStandardTurns 	= 500
@@ -624,7 +647,7 @@ function OnNewTurn()
 	-- set previous culture first
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
-		local plotCulture = ExposedMembers.CultureMap[plot:GetKey()]
+		local plotCulture = plot:GetCultureTable()
 		if  plotCulture then
 			for playerID, value in pairs (plotCulture) do
 				plot:SetPreviousCulture( playerID, value )			
@@ -710,7 +733,6 @@ Events.CityInitialized.Add(RemoveCityCultureOnWater)
 -----------------------------------------------------------------------------------------
 -- Shared Functions
 -----------------------------------------------------------------------------------------
-
 function GetPlotByIndex(index) -- return a plot with PlotScript functions for another context
 	local plot = Map.GetPlotByIndex(index)
 	InitializePlotFunctions(plot)
@@ -721,7 +743,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Initialize Plot Functions
 -----------------------------------------------------------------------------------------
-
 function InitializePlotFunctions(plot) -- Note that those functions are limited to this file context
 
 	if not plot then plot = Map.GetPlot(1,1) end
@@ -757,10 +778,13 @@ end
 ----------------------------------------------
 -- Share functions for other contexts
 ----------------------------------------------
-
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
-	ExposedMembers.GCO.GetPlotByIndex 		= GetPlotByIndex
-	ExposedMembers.PlotScript_Initialized 	= true
+	ExposedMembers.GCO.GetPlotByIndex 			= GetPlotByIndex
+	ExposedMembers.GCO.InitializePlotFunctions 	= InitializePlotFunctions
+	--
+	ExposedMembers.GCO.GetPlotFromKey 			= GetPlotFromKey
+	--
+	ExposedMembers.PlotScript_Initialized 		= true
 end
 Initialize()
