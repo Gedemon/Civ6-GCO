@@ -28,10 +28,12 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_RATI
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_OUTPUT_USE_LOG', 0);		-- if true use logarithmic progression (slower), else use sqrt (faster)
 ------------------------------------------------------------------------------------------------------------------------
 --
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_CAPED_FACTOR',		2000);	-- maxCulture on a city plot = (population + cityCultureProduction) * CULTURE_CITY_CAPED_FACTOR
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_CONVERSION_RATE',	50);	-- per10000 rate of foreign culture groups converted in your cities each turn
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_LOST_CITY_CONQUEST',		55);	-- percentage of culture lost by each civs on a city plot on conquest
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_GAIN_CITY_CONQUEST',		75);	-- percentage of the total lost culture gained by the conqueror
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_CAPED_FACTOR',				2000);	-- maxCulture on a city plot = (population + cityCultureProduction) * CULTURE_CITY_CAPED_FACTOR
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CITY_CONVERSION_RATE',			50);	-- per10000 rate of foreign culture groups converted in your cities each turn
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_LOST_CITY_CONQUEST',				55);	-- percentage of culture lost by each civs on a city plot on conquest
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_GAIN_CITY_CONQUEST',				75);	-- percentage of the total lost culture gained by the conqueror
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_REMOVE_PLOT_CITY_CONQUEST',		1);		-- remove ownership of plots away from city center around a captured city
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST',2);		-- max distance plots around a captured city that still belong to the city
 
 ------------------------------------------------------------------------------------------------------------------------
 --
