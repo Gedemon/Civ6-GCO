@@ -609,13 +609,13 @@ function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID
 		local cultureGained = GCO.Round(totalCultureLoss * tonumber(GameInfo.GlobalParameters["CULTURE_GAIN_CITY_CONQUEST"].Value) / 100)
 		plot:ChangeCulture(newOwnerID, cultureGained)
 		local distance = Map.GetPlotDistance(iX, iY, plot:GetX(), plot:GetY())
-		local bRemoveOwnership = (tonumber(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value == 1 and distance > tonumber(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value))
+		local bRemoveOwnership = (tonumber(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value == 1 and distance > tonumber(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value)))
 		if bRemoveOwnership then
 			WorldBuilder.CityManager():SetPlotOwner( plot:GetX(), plot:GetY(), false )
 		end
 	end
 end
-LuaEvents.CapturedCityInitialized( UpdateCultureOnCityCapture )
+LuaEvents.CapturedCityInitialized.Add( UpdateCultureOnCityCapture )
 
 -----------------------------------------------------------------------------------------
 -- Initialize Culture Functions
@@ -757,6 +757,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.DoConquestCountDown 			= DoConquestCountDown
 	p.GetConquestCountDown 			= GetConquestCountDown
 	p.SetConquestCountDown 			= SetConquestCountDown
+	p.GetCultureTable				= GetCultureTable
 	p.GetCulture 					= GetCulture
 	p.SetCulture 					= SetCulture
 	p.ChangeCulture 				= ChangeCulture

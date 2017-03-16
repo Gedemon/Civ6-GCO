@@ -1738,7 +1738,6 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetUnitFoodConsumption 		= GetUnitFoodConsumption
 	ExposedMembers.GCO.GetFuelConsumption 			= GetFuelConsumption
 	-- flag strings
-	ExposedMembers.GCO.GetPrisonnersStringByCiv 	= GetPrisonnersStringByCiv
 	ExposedMembers.GCO.GetUnitFoodConsumptionString = GetUnitFoodConsumptionString
 	ExposedMembers.GCO.GetUnitFoodStockString 		= GetUnitFoodStockString
 	ExposedMembers.GCO.GetFuelStockString 			= GetFuelStockString

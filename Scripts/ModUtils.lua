@@ -209,6 +209,7 @@ end
 -- City Capture Events
 local cityCaptureTest = {}
 function CityCaptureDistrictRemoved(playerID, districtID, cityID, iX, iY)
+print("Calling CityCaptureDistrictRemoved (", playerID, districtID, cityID, iX, iY,")")
 	local key = iX..","..iY
 	cityCaptureTest[key]			= {}
 	cityCaptureTest[key].Turn 		= Game.GetCurrentGameTurn()
@@ -217,6 +218,7 @@ function CityCaptureDistrictRemoved(playerID, districtID, cityID, iX, iY)
 end
 Events.DistrictRemovedFromMap.Add(CityCaptureDistrictRemoved)
 function CityCaptureCityAddedToMap(playerID, cityID, iX, iY)
+print("Calling CityCaptureCityAddedToMap (", playerID, cityID, iX, iY,")")
 	local key = iX..","..iY
 	if (	cityCaptureTest[key]
 		and cityCaptureTest[key].Turn 	== Game.GetCurrentGameTurn()
@@ -236,6 +238,7 @@ function CityCaptureCityAddedToMap(playerID, cityID, iX, iY)
 end
 Events.CityAddedToMap.Add(CityCaptureCityAddedToMap)
 function CityCaptureCityInitialized(playerID, cityID, iX, iY)
+print("Calling CityCaptureCityInitialized (", playerID, cityID, iX, iY,")")
 	local key = iX..","..iY
 	if (	cityCaptureTest[key]
 		and cityCaptureTest[key].Turn 	== Game.GetCurrentGameTurn() )
@@ -247,6 +250,7 @@ function CityCaptureCityInitialized(playerID, cityID, iX, iY)
 		local newOwnerID 		= playerID
 		local newCityID			= cityID
 		if cityCaptureTest[key].PlayerID == originalOwnerID then
+			print("Calling LuaEvents.CapturedCityInitialized (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
 			LuaEvents.CapturedCityInitialized(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
 			cityCaptureTest[key] = {}
 		end
@@ -331,6 +335,8 @@ function Initialize()
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
 	-- common
 	ExposedMembers.GCO.GetTotalPrisonners 			= GetTotalPrisonners
+	-- flag strings
+	ExposedMembers.GCO.GetPrisonnersStringByCiv 	= GetPrisonnersStringByCiv
 	-- map
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
 	-- player
