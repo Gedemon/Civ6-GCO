@@ -86,7 +86,7 @@ function RegisterNewCity(playerID, city)
 
 	local cityKey 			= city:GetKey()
 	local personnel 		= city:GetMaxPersonnel()
-	local totalPopulation 	= GetPopulationPerSize(city:GetSize()) + StartingPopulationBonus
+	local totalPopulation 	= GCO.Round(GetPopulationPerSize(city:GetSize()) + StartingPopulationBonus)
 	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID) / 100)
 	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID) / 100)
 	local StartingFood		= GCO.Round(tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value) / 2)

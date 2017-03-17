@@ -1722,8 +1722,10 @@ function InitializeUnitFunctions(playerID, unitID) -- Note that those are limite
 end
 
 function AttachUnitFunctions(unit)
-	local u = getmetatable(unit).__index	
-	u.GetKey		= GetKey
+	if unit then -- unit could have been killed during initialization by other scripts (removing CS, TSL enforcement, ...)
+		local u = getmetatable(unit).__index	
+		u.GetKey		= GetKey
+	end
 end
 
 
