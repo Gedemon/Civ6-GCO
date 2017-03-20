@@ -9,7 +9,6 @@ print ("Loading UnitScript.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 local UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
-local EverAliveZeroTable = {} -- cached table to initialize an empty table with civID as keys and 0 as initial values
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
@@ -32,7 +31,6 @@ LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	LoadUnitTable()
-	EverAliveZeroTable = GCO.CreateEverAliveTableWithDefaultValue(0)
 end
 
 function Initialize() -- Everything that can be initialized immediatly after loading this file(cached tables)
