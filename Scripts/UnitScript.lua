@@ -411,6 +411,7 @@ function GetFuelConsumption(unitData, fixedRatio)
 		return 0
 	end
 	local fuelConsumption1000 = 0
+	if not unitData.FuelConsumptionPerVehicle then unitData.FuelConsumptionPerVehicle = GameInfo.Units[unitData.unitType].FuelConsumptionPerVehicle end
 	local ratio = fixedRatio or GetFuelConsumptionRatio(unitData) -- to prevent an infinite loop between GetBaseFuelStock & GetFuelConsumptionRatio
 	fuelConsumption1000 = fuelConsumption1000 + unitData.Vehicles * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) * ratio
 	
@@ -1105,7 +1106,9 @@ function OnCombat( combatResult )
 		attacker = AddCombatInfoTo(attacker)
 		--
 		attacker.CanTakePrisonners = attacker.IsLandUnit and combatType == CombatTypes.MELEE and not attacker.IsDead
-		print("-- Attacker data initialized : "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()) .. ", IsDead = ".. tostring(attacker.IsDead) .. ", CanTakePrisonners = ".. tostring(attacker.CanTakePrisonners))
+		if attacker.unit then 
+			print("-- Attacker data initialized : "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()) .. ", IsDead = ".. tostring(attacker.IsDead) .. ", CanTakePrisonners = ".. tostring(attacker.CanTakePrisonners))
+		end
 	end
 	if defender.IsUnit then
 		defender.IsDefender = true
@@ -1119,7 +1122,9 @@ function OnCombat( combatResult )
 		defender = AddCombatInfoTo(defender)
 		--
 		defender.CanTakePrisonners = defender.IsLandUnit and combatType == CombatTypes.MELEE and not defender.IsDead
-		print("-- Defender data initialized : "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()) .. ", IsDead = ".. tostring(defender.IsDead) .. ", CanTakePrisonners = ".. tostring(defender.CanTakePrisonners))
+		if defender.unit then
+			print("-- Defender data initialized : "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()) .. ", IsDead = ".. tostring(defender.IsDead) .. ", CanTakePrisonners = ".. tostring(defender.CanTakePrisonners))
+		end
 	end
 
 	-- Error control
@@ -1717,8 +1722,10 @@ LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
 -----------------------------------------------------------------------------------------
 function InitializeUnitFunctions(playerID, unitID) -- Note that those are limited to this file context
 	local unit = UnitManager.GetUnit(playerID, unitID)
-	AttachUnitFunctions(unit)
-	Events.UnitAddedToMap.Remove(InitializeUnitFunctions)
+	if unit then
+		AttachUnitFunctions(unit)
+		Events.UnitAddedToMap.Remove(InitializeUnitFunctions)
+	end
 end
 
 function AttachUnitFunctions(unit)
