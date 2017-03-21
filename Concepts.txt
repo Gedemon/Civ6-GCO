@@ -310,6 +310,8 @@ MIN_PERCENT_LEFT_TO_TRANSFERT	-- Transfered to other cities
 MAX_PERCENT_LEFT_TO_BUY			-- Buying from another civ 
 MAX_PERCENT_LEFT_TO_REQUEST		-- Transfered from other cities
 
+Proceed on new turns for all civs at once...
+
 1st loop on units
 	build linked units table
 	
@@ -327,6 +329,8 @@ MAX_PERCENT_LEFT_TO_REQUEST		-- Transfered from other cities
 3rd loop on cities
 	calculate transfert ratio between Sell, Convertion, Supply, Transfert
 	do transferts
+	
+on beginning of each player turn, after DoUnits()
 	remove excedent
 
 ====================
