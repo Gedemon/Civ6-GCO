@@ -166,7 +166,7 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 		print("ERROR: no data for original City on capture, cityID #", originalCityID, "playerID #", originalOwnerID)
 	end
 end
-LuaEvents.CapturedCityInitialized( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
+LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
 
 -- for debugging
 function ShowCityData()
@@ -286,6 +286,12 @@ function SetCityRationing(self)
 	local cityData = ExposedMembers.CityData[cityKey]	
 	local ratio 				= cityData.FoodRatio
 	local foodStock 			= cityData.Stock[foodResourceKey]
+	if foodStock == 0 then
+		ratio = heavyRationing
+		ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
+		ExposedMembers.CityData[cityKey].FoodRatio = ratio
+		return
+	end
 	local foodVariation 		= foodStock - cityData.PreviousStock[foodResourceKey] 
 	if foodVariation < 0 then
 		local turnBeforeFamine		= -(foodStock / foodVariation)
@@ -400,14 +406,16 @@ function ChangeResourceStock(self, resourceID, value)
 	local resourceID = tostring(resourceID)
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
-	print("ChangeResourceStock : ", resourceID, value)
-	print("previous value =", ExposedMembers.CityData[cityKey].Stock[resourceID])
+	--print("ChangeResourceStock : ", resourceID, value)
+	--print("previous value =", ExposedMembers.CityData[cityKey].Stock[resourceID])
 	if not ExposedMembers.CityData[cityKey].Stock[resourceID] then
 		ExposedMembers.CityData[cityKey].Stock[resourceID] = value
 	else
 		ExposedMembers.CityData[cityKey].Stock[resourceID] = cityData.Stock[resourceID] + value
-	end	
-	print("new value =", ExposedMembers.CityData[cityKey].Stock[resourceID])
+	end
+	
+	ExposedMembers.CityData[cityKey].Stock[resourceID] = math.max(0 , ExposedMembers.CityData[cityKey].Stock[resourceID])
+	--print("new value =", ExposedMembers.CityData[cityKey].Stock[resourceID])
 end
 
 function GetFoodConsumption(self)
@@ -441,11 +449,11 @@ end
 ----------------------------------------------
 function GetResourcesStockString(data)
 	local str = ""
-	for resourceID, value in pairs(data.Stock) do
-		if value > 0 then
+	for resourceKey, value in pairs(data.Stock) do
+		if value > 0 or resourceKey == foodResourceKey then
 			local stockVariation = 0
-			if  data.PreviousStock[resourceID] then stockVariation = value - data.PreviousStock[resourceID] end
-			local resourceID = tonumber(resourceID)
+			if  data.PreviousStock[resourceKey] then stockVariation = value - data.PreviousStock[resourceKey] end
+			local resourceID = tonumber(resourceKey)
 			local resRow = GameInfo.Resources[resourceID]
 			if resourceID == foodResourceID then
 				str = str .. "[NEWLINE]" .. GetFoodStockString(data) --Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", value) 

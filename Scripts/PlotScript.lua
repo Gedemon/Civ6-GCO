@@ -594,22 +594,29 @@ function ShowDebug()
 end
 
 function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY )
+	print("-----------------------------------------------------------------------------------------")
+	print("Update Culture On City Capture")
 	local city 		= GCO.GetCity(newOwnerID, newCityID)
 	local cityPlots = GCO.GetCityPlots(city)
 	for _, plotID in ipairs(cityPlots) do
 		local plot	= Map.GetPlotByIndex(plotID)
+		print(" - Plot at :", plot:GetX(), plot:GetY())
 		local totalCultureLoss = 0
+		local plotCulture = plot:GetCultureTable()
 		for playerID, value in pairs (plotCulture) do
 			local cultureLoss = GCO.Round(plot:GetCulture(playerID) * tonumber(GameInfo.GlobalParameters["CULTURE_LOST_CITY_CONQUEST"].Value) / 100)
+			print("   - player#"..tostring(playerID).." lost culture = ", cultureLoss)
 			if cultureLoss > 0 then
 				totalCultureLoss = totalCultureLoss + cultureLoss
 				plot:ChangeCulture(playerID, -cultureLoss)
 			end
 		end
 		local cultureGained = GCO.Round(totalCultureLoss * tonumber(GameInfo.GlobalParameters["CULTURE_GAIN_CITY_CONQUEST"].Value) / 100)
+		print("   - player#"..tostring(newOwnerID).." gain culture = ", cultureGained)
 		plot:ChangeCulture(newOwnerID, cultureGained)
 		local distance = Map.GetPlotDistance(iX, iY, plot:GetX(), plot:GetY())
 		local bRemoveOwnership = (tonumber(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value == 1 and distance > tonumber(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value)))
+		print("   - check for changing owner: CULTURE_REMOVE_PLOT_CITY_CONQUEST ="..tostring(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value)..", distance["..tostring(distance).."] >  CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST["..tostring(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value).."]")
 		if bRemoveOwnership then
 			WorldBuilder.CityManager():SetPlotOwner( plot:GetX(), plot:GetY(), false )
 		end

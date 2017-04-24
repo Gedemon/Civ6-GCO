@@ -11,3 +11,10 @@
 /* Remove GoodyHuts bonuses */
 UPDATE GoodyHuts 			SET Weight = 0 WHERE GoodyHutType 		<> 'GOODYHUT_GOLD';
 UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMALL_GOLD';
+
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_TRADE";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_GOVERNMENTS";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_RELIGION";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY_DEALS";

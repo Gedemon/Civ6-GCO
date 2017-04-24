@@ -109,11 +109,15 @@ function getDistance(pPlot1, pPlot2)
   return distanceBetween(pPlot1, pPlot2)
 end
 
+function getPathPlots()
+  return pathPlots
+end
 
 ----- PRIVATE DATA AND METHODS -----
 
 lastRouteLength = 0
-g_FEATURE_ICE = GameInfo.Features["FEATURE_ICE"].Index
+pathPlots 		= {}
+g_FEATURE_ICE 	= GameInfo.Features["FEATURE_ICE"].Index
 
 --
 -- Check if pStartPlot is connected to pTargetPlot
@@ -203,8 +207,10 @@ function plotToPlotShortestRoute(pPlayer, pStartPlot, pTargetPlot, sRoute, highl
     bNoRoute = (rings[iRing] == nil)
   until (bFound or bNoRoute)
 
-  if (bFound and highlight ~= nil) then
+  if (bFound) then-- and highlight ~= nil) then
     --Events.SerialEventHexHighlight(PlotToHex(pStartPlot), true, highlight)
+	pathPlots = {}
+	table.insert(pathPlots, pStartPlot:GetIndex())
 
     local pLastPlot = pStartPlot
 
@@ -217,6 +223,7 @@ function plotToPlotShortestRoute(pPlayer, pStartPlot, pTargetPlot, sRoute, highl
       end
 
       --Events.SerialEventHexHighlight(PlotToHex(pNextPlot), true, highlight)
+	  table.insert(pathPlots, pNextPlot:GetIndex())
 
       pLastPlot = pNextPlot
     end
@@ -479,6 +486,7 @@ function Initialize()
 	ExposedMembers.GCO.IsCityConnected 				= isCityConnected
 	ExposedMembers.GCO.IsPlotConnected 				= isPlotConnected
 	ExposedMembers.GCO.GetRouteLength 				= getRouteLength
+	ExposedMembers.GCO.GetRoutePlots 				= getPathPlots
 	ExposedMembers.RouteConnections_Initialized		= true
 end
 Initialize()

@@ -124,6 +124,7 @@ local unitTableEnum = {
 	HP 						= 38,
 	testHP					= 39,
 	TurnCreated				= 40,
+	Stock					= 41,
 	
 	EndOfEnum				= 99
 }                           
@@ -214,7 +215,8 @@ function RegisterNewUnit(playerID, unit)
 		FoodStock 				= GetUnitBaseFoodStock(unitType),
 		PreviousFoodStock		= 0,
 		FuelStock 				= GetBaseFuelStock(unitType),
-		PreviousFuelStock		= 0,		
+		PreviousFuelStock		= 0,
+		Stock					= {},
 		-- Statistics
 		TotalDeath				= 0,
 		TotalVehiclesLost		= 0,
@@ -439,6 +441,26 @@ function GetMaxTransfertTable(unit)
 	maxTranfert.Materiel = GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_FROM_RESERVE"].Value
 	return maxTranfert
 end
+
+function ChangeResourceStock(self, resourceID, value)
+	local resourceID = tostring(resourceID)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]
+	--print("ChangeResourceStock : ", resourceID, value)
+	--print("previous value =", ExposedMembers.UnitData[unitKey].Stock[resourceID])
+	if not ExposedMembers.UnitData[unitKey].Stock[resourceID] then
+		ExposedMembers.UnitData[unitKey].Stock[resourceID] = value
+	else
+		ExposedMembers.UnitData[unitKey].Stock[resourceID] = unitData.Stock[resourceID] + value
+	end
+	ExposedMembers.UnitData[unitKey].Stock[resourceID] = math.max(0 , ExposedMembers.UnitData[unitKey].Stock[resourceID])
+	--print("new value =", ExposedMembers.UnitData[unitKey].Stock[resourceID])
+end
+
+
+----------------------------------------------
+-- Morale function
+----------------------------------------------
 
 function GetMoraleFromFood(unitData)	
 	local moralefromFood 	= tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WELL_FED"].Value)
@@ -1130,7 +1152,7 @@ function OnCombat( combatResult )
 	if attacker.unit then
 		local testHP = attacker.unit:GetMaxDamage() - attacker.unit:GetDamage()
 		if testHP ~= attacker.FinalHP or ExposedMembers.UnitData[attacker.unitKey].HP ~= attacker.InitialHP then
-			print("ERROR: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()))
+			print("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()))
 			print("attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO] = ")
 			print(attacker.FinalHP, "=", attacker[CombatResultParameters.MAX_HIT_POINTS], "-", attacker[CombatResultParameters.FINAL_DAMAGE_TO])
 			print("real HP =", testHP)
@@ -1145,7 +1167,7 @@ function OnCombat( combatResult )
 	if defender.unit then
 		local testHP = defender.unit:GetMaxDamage() - defender.unit:GetDamage()
 		if testHP ~= defender.FinalHP or ExposedMembers.UnitData[defender.unitKey].HP ~= defender.InitialHP then
-			print("ERROR: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()))
+			print("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()))
 			print("defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO] = ")
 			print(defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
 			print("real HP =", testHP)
@@ -1488,6 +1510,22 @@ function SupplyPathBlocked(pPlot, pPlayer)
 	return true -- return true if the path is blocked...
 end
 
+function GetUnitSupplyPathPlots(unit)
+	local unitKey 	= unit:GetKey()
+	local unitData 	= ExposedMembers.UnitData[unitKey]
+	if unitData.SupplyLineCityKey then
+		local city = GCO.GetCityFromKey( unitData.SupplyLineCityKey )
+		if city then
+			local cityPlot = Map.GetPlot(city:GetX(), city:GetY())
+			local bShortestRoute = true
+			local bIsPlotConnected = GCO.IsPlotConnected(Players[unit:GetOwner()], Map.GetPlot(unit:GetX(), unit:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
+			if bIsPlotConnected then
+				return GCO.GetRoutePlots()
+			end
+		end
+	end
+end 
+
 function SetUnitsupplyLine(unit)
 	local key = unit:GetKey()
 	local NoLinkToCity = true
@@ -1535,6 +1573,15 @@ function SetUnitsupplyLine(unit)
 		ExposedMembers.UnitData[key].SupplyLineEfficiency = 0
 	end
 end
+
+function OnUnitMoveComplete(playerID, unitID, iX, iY)
+	local unit = UnitManager.GetUnit(playerID, unitID)
+	if unit then
+		SetUnitsupplyLine(unit)
+		LuaEvents.UnitsCompositionUpdated(playerID, unitID)
+	end
+end
+Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 
 
 -----------------------------------------------------------------------------------------
@@ -1729,7 +1776,8 @@ end
 function AttachUnitFunctions(unit)
 	if unit then -- unit could have been killed during initialization by other scripts (removing CS, TSL enforcement, ...)
 		local u = getmetatable(unit).__index	
-		u.GetKey		= GetKey
+		u.GetKey					= GetKey
+		u.ChangeResourceStock		= ChangeResourceStock
 	end
 end
 
@@ -1744,6 +1792,8 @@ function ShareFunctions()
 	--
 	ExposedMembers.GCO.GetUnitFoodConsumption 		= GetUnitFoodConsumption
 	ExposedMembers.GCO.GetFuelConsumption 			= GetFuelConsumption
+	--
+	ExposedMembers.GCO.GetUnitSupplyPathPlots 		= GetUnitSupplyPathPlots
 	-- flag strings
 	ExposedMembers.GCO.GetUnitFoodConsumptionString = GetUnitFoodConsumptionString
 	ExposedMembers.GCO.GetUnitFoodStockString 		= GetUnitFoodStockString

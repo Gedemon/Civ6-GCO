@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Mod id="cf31281d-783b-47dd-bc58-992ed862bb74">
-  <Properties>
-    <Name>LOC_GCO_TITLE</Name>
-    <Teaser>LOC_GCO_TEASER</Teaser>
-    <Description>LOC_GCO_DESCRIPTION</Description>
-    <Authors>Gedemon</Authors>
-  </Properties>
+	<Properties>
+		<Name>LOC_GCO_TITLE</Name>
+		<Teaser>LOC_GCO_TEASER</Teaser>
+		<Description>LOC_GCO_DESCRIPTION</Description>
+		<Authors>Gedemon</Authors>
+	</Properties>
 
 	<LocalizedText>
 		<Text id="LOC_GCO_TITLE">
@@ -73,6 +73,11 @@
         <GameplayScripts>
             <Items>
                 <File>Scripts/PlotIterators.lua</File>
+            </Items>
+        </GameplayScripts>
+        <GameplayScripts>
+            <Items>
+                <File>Scripts/AIUnitScript.lua</File>
             </Items>
         </GameplayScripts>
         <UserInterface>
@@ -145,6 +150,7 @@
 		<File>Scripts/Serialize.lua</File>
 		<File>Scripts/RouteConnections.lua</File>
 		<File>Scripts/PlotIterators.lua</File>
+		<File>Scripts/AIUnitScript.lua</File>
 		<File>InGame/ModInGame.lua</File>
 		<File>InGame/ModInGame.xml</File>
 		<File>UI/UnitFlagManager.lua</File>

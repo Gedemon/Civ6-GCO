@@ -18,6 +18,9 @@ function InitializeUtilityFunctions()
 	print ("Exposed Functions from other contexts initialized...")
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+
+local bShownSupplyLine = false
+
 -- GCO >>>>>
 
 -- ===========================================================================
@@ -933,7 +936,26 @@ function UnitFlag.UpdateName( self )
 				
 			end
 		end
-			
+		
+		function ShowSupplyLine()
+			if not unitData.SupplyLineCityKey then return end
+			if bShownSupplyLine then return end
+			UILens.SetActive("TradeRoute")
+			UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )
+			local pathPlots = GCO.GetUnitSupplyPathPlots(pUnit)
+			if pathPlots then
+				local kVariations:table = {}
+				local lastElement : number = table.count(pathPlots)
+				local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
+				local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
+				if localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY()) then
+					table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
+					UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
+					bShownSupplyLine = true
+				end
+			end
+		end		
+		self.m_Instance.UnitIcon:RegisterMouseOverCallback( ShowSupplyLine )		
 		-- GCO >>>>>
 		
 		self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) );
@@ -1986,4 +2008,26 @@ function OnUnitsCompositionUpdated(playerID, unitID)
 	end
 end
 LuaEvents.UnitsCompositionUpdated.Add(OnUnitsCompositionUpdated)
+
+function OnMouseOut()
+	bShownSupplyLine = false
+	if UILens.IsLensActive("TradeRoute") then
+		-- Make sure to switch back to default lens
+		UILens.SetActive("Default");
+	end
+end
+LuaEvents.UnitFlagManager_PointerExited.Add( OnMouseOut )
+
+--[[
+	UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE );
+
+	local pathPlots		: table = {};
+	for index, city in ipairs(m_filteredDestinations) do
+		pathPlots = tradeManager:GetTradeRoutePath(m_originCity:GetOwner(), m_originCity:GetID(), city:GetOwner(), city:GetID() );
+		local kVariations:table = {};
+		local lastElement : number = table.count(pathPlots);
+		table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} );
+		UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations );	
+	end
+--]]
 -- GCO >>>>>
