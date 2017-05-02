@@ -1,16 +1,17 @@
-====================
-=      UNITS       =
-====================
+--===============================--
+--[[ UNITS
+--===============================--
 
 + Creation
 
 - use dummy building for each unit, edit city screen to hide them (add column in building table)
 - Lua check for required resources for an unit in city at the start of a player turn to create or remove the dummy building
 
+--]]
 
-====================
-=      COMBAT      =
-====================
+--===============================--
+--[[ COMBAT
+--===============================--
 
 when destroying an unit in melee attack:
 - capture % of wounded left
@@ -36,10 +37,11 @@ example:
 - mechanical failure in case of low reliability: remove the HP corresponding to the Vehicles damaged and put the personnel corresponding to the HP lost in reserve.
 - chance of ejection/escape of the crew of an aircraft/vehicule destroyed in combat situation : when removing each Vehicles corresponding to the HP lost in combat do a check and put unarmed crew in reserve (or wounded)
 
+--]]
 
-====================
-=      Ration      =
-====================
+--===============================--
+--[[ RATIONS
+--===============================--
 
 - food reserve
 - get food from unit plot (or nearby plot at lower ratio)
@@ -62,9 +64,11 @@ example:
 			% of horses (min of 1) removed from reserve -> food
 			if no horses in reserve and more than 50 hp left in unit, remove 1hp (equivalent hp of horses removed -> food, other components transfered to reserve)
 
-====================
-=      Moral      =
-====================
+--]]
+
+--===============================--
+--[[ MORAL
+--===============================--
 
 ++ victory
 ++++ large victory
@@ -90,9 +94,11 @@ each turn
 	- morale- if defeat in the last combat (5 turns max)
 	- morale-- if large defeat in the last combat (5 turns max)
 
-====================
-=     Healing      =
-====================
+--]]
+	
+--===============================--
+--[[ HEALING
+--===============================--
 
 - Unit "heal" from reserve first then receive supply in reserve : "Rear" (Reinforcement / Healed / Repaired) -> Reserve -> Frontline 
 - Retreating: lose all damaged Vehicles & wounded -> prisoners
@@ -134,10 +140,11 @@ each turn
 			- reserve -> materiel to repair each damaged vehicule (up to 5 equivalent vehicule HP)
 			if no materiel in reserve, "bleed" unit
 		
+--]]
 
-====================
-=     Supply       =
-====================
+--===============================--
+--[[ SUPPLY
+--===============================--
 
 Supply line efficiency by distance
 % efficiency for example at 50%
@@ -151,39 +158,46 @@ Supply line efficiency by distance
 vehicles requires materiel and resources to be build
 table for resources required per vehicle
 	- wood
+	- iron
 	- steel
 	- aluminum
 	
 forts (with stockage) linked to city, units linked to fort
 
-====================
-=   Promotions     =
-====================
+--]]
+
+--===============================--
+--[[ PROMOTIONS
+--===============================--
 
 - berserk/totenkopf : +25% chance of causing retreat, more dead, less prisonners, less wounded 
 
+--]]
 
-====================
-=     Loyalty      =
-====================
+--===============================--
+--[[ LOYALTY
+--===============================--
 
 - units loyalty is following the stability of the city it's linked to
 - variation speed is dependant of moral
 - loyalty lower when not linked to a city
 
+--]]
 
-====================
-=Tribes/Barbarians =
-====================
+--===============================--
+--[[ TRIBES/BARBARIANS
+--===============================--
 
 grouped tribal village
 can spawn barbarians camps if pillaged
 visiting with scout, civilian = friendly but less goodies / military units = unfriendly but more goodies ?
 popup to allow choice (pay for reinforcements or pillage or no action for example ?) 
 
-====================
-=  Technologies    =
-====================
+--]]
+
+--===============================--
+--[[ TECHNOLOGIES
+--===============================--
 
 + Ancien
 	Herbalism: Herborist (+health) - Less deads from wounds
@@ -202,11 +216,12 @@ popup to allow choice (pay for reinforcements or pillage or no action for exampl
 	
 + Modern
 	Antibiotics: Modern Hospital (replace Hospitals), Minimal deads from wounds
-	
 
-====================
-=    Buildings     =
-====================
+--]]
+
+--===============================--
+--[[ BUILDINGS
+--===============================--
 
 + Resources creation
 
@@ -222,10 +237,11 @@ popup to allow choice (pay for reinforcements or pillage or no action for exampl
 	- bonus in prod when previous building in city
 	- lua script to replace the old building on completion
 
+--]]
 	
-====================
-=      Budget      =
-====================
+--===============================--
+--[[ BUDGET
+--===============================--
 
 calculate need (ie maintenance cost, then bonus if superior, malus if inferior)
 
@@ -254,10 +270,11 @@ infrastructure :
 	- if not enough budget, roads, buildings, improvements can be damaged (decay rate)
 	- lower auto-repair time
 
+--]]
 
-====================
-= Resources stock  =
-====================
+--===============================--
+--[[ RESSOURCE STOCK
+--===============================--
 
 how to find which resources can be sold & which can be bought
 
@@ -298,9 +315,11 @@ UI :
        - button to reset value of general slider for city to general slider for nation
        - button to reset values of all sliders of this city to general slider for nation
 
-====================
-= Resources stock  = (REVISED)
-====================
+--]]
+	   
+--===============================--
+--[[ RESSOURCE STOCK (REVISED)
+--===============================--
 
 MIN_PERCENT_LEFT_TO_SELL 		-- Selling to another Civ
 MIN_PERCENT_LEFT_TO_CONVERT		-- Converted in local industry
@@ -334,9 +353,13 @@ Proceed on new turns for all civs at once ?
 on beginning of each player turn, after DoUnits()
 	remove excedent
 
-====================
-=Resource Transfert=
-====================
+--]]
+
+--===============================--
+--[[ RESOURCE TRANSFERT
+--===============================--
+
+Gold gained on import and export (taxes), more trade = more money, but less local bonuses
 
 How much resources are transfered using trade routes
 
@@ -357,9 +380,11 @@ UI :
        - button to reset values of all resources values to this trader general values
        - button to reset values of all this traders values to general values for nation
 
-====================
-=      Economy     =
-====================
+--]]
+
+--===============================--
+--[[ ECONOMIE
+--===============================--
 
 4 classes: upper, middle, lower, slave (prisonners of war, policy dependant)
 
@@ -395,11 +420,11 @@ Corruption lower incomes (maybe only if the budget is positif ?)
 
 some entertainement buildings raise banditism (taverns, whorehouses, nightclubs, ...)
 banditism raise corruption
-	   
+--]]	   
 
-====================
-=    City Growth   =
-====================
+--===============================--
+--[[ CITY GROWTH
+--===============================--
 
 BirthRate = total number of live births per 1,000 of a population in a year = 22.5 in 2000, 37.2 in 1950 (50 max, 6 min in 2000)
 MortalityRate = units of deaths per 1,000 individuals per year = 8.8 in 2000, 19.1 in 1950 (17 max, 1 min in 2000)
@@ -417,10 +442,11 @@ City values
 	health, food (mortality rate)
 	housing (birth rate)
 
+--]]
 
-====================
-=      Health      =
-====================
+--===============================--
+--[[ HEALTH
+--===============================--
 
 raise
 	food variation
@@ -433,17 +459,20 @@ lower
 	swamp
 	pollution buildings
 
-====================
-=     Housing      =
-====================
+--]]
+
+--===============================--
+--[[ HOUSING
+--===============================--
 
 can we represent housing with 3D models ?
 	build houses with ethnicity
 	keep ethnicity/ancient house model until upgraded
-	   
-====================
-=    Stability     =
-====================
+--]]
+
+--===============================--
+--[[ STABILITY
+--===============================--
 
 local
 	lower
@@ -472,10 +501,11 @@ global
 		high % of rich population
 		bigger empire size compared of other known civs
 		
+--]]
 	
-====================
-= Culture Relation =
-====================
+--===============================--
+--[[ CULTURE RELATION
+--===============================--
 
 relation with other culture groups
 
@@ -489,10 +519,11 @@ raise
 	being allied
 	same governement
 
+--]]
 	
-====================
-=    Diplomacy     =
-====================
+--===============================--
+--[[ DIPLOMACY
+--===============================--
 
 diplomacy action require envoys
 	need X envoys for a meeting with X civs (but the envoys are removed only if a decision is made)
@@ -575,10 +606,11 @@ casus belly
 	non-respect of a treaty (peace, commerce, military)
 	spy actions
 
+--]]
 
-====================
-=   Civ Relation   =
-====================
+--===============================--
+--[[ CIVS RELATIONS
+--===============================--
 
 table
 [CivID1]
@@ -642,10 +674,11 @@ relation modifiers
 	spy actions
 	opposing governments
 
+--]]
 	
-====================
-=    Suzerainty    =
-====================
+--===============================--
+--[[ SUZERAINTY
+--===============================--
 
 Permanent agreement between 2 nations, 1 being considered less powerful (client score <65% of suzerain score ?)
 Agreement can be revoked anytime by any party (with relation/thrust modifiers affected, may cause war), or by the client (without penalty) if its score became >85% of suzerain  
@@ -727,18 +760,23 @@ Client states types:
 
 Hegemony as a possible victory condition ?
 
-====================
-=     Policies     =
-====================
+--]]
+
+--===============================--
+--[[ POLICIES
+--===============================--
 
 Military cards policies:
 	- Foreign Legion : can draft foreign citizens in the army
-	
 
-====================
-=  Programmation   =
-====================
+--]]	
+
+--===============================--
+--[[ PROGRAMMATION
+--===============================--
 	   
 - Create a configuration table set in one SQL file with the new mechanisms and values for units, buildings, etc...
 - A copy of this table will be created in each database context (config, gameplay, text)
 - Update each database with a separate specific SQL file
+
+--]]
