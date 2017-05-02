@@ -371,13 +371,49 @@ end
 -- Resources functions
 -----------------------------------------------------------------------------------------
 function UpdateLinkedUnits(self)
-	LinkedUnits[self] 		= {}
-	UnitsSupplyDemand[self] = {}
+
+	LinkedUnits[self] 						= {}
+	UnitsSupplyDemand[self] 				= {}
+	UnitsSupplyDemand[self].Resources 		= {}
+	UnitsSupplyDemand[self].NeedResources 	= {} -- Number of units requesting a resource type
+	
 	for unitKey, data in pairs(ExposedMembers.UnitData) do
 		if data.SupplyLineCityKey == self:GetKey() then
-			local unit = UnitManager.GetUnit(data.playerID, data.unitID)
+			local unit = GCO.GetUnit(data.playerID, data.unitID)
 			if unit then
-				table.insert(LinkedUnits[self], unit)
+				LinkedUnits[self][unit] = {}
+				local requirements 	= unit:GetRequirements()
+				if requirements.Personnel > 0 then
+					UnitsSupplyDemand[self].Personnel 		= ( UnitsSupplyDemand[self].Personnel 		or 0 ) + requirements.Personnel 
+					UnitsSupplyDemand[self].NeedPersonnel 	= ( UnitsSupplyDemand[self].NeedPersonnel 	or 0 ) + 1
+					LinkedUnits[self][unit].NeedPersonnel	= true
+				end
+				if requirements.Horses > 0 then
+					UnitsSupplyDemand[self].Horses 		= ( UnitsSupplyDemand[self].Horses 		or 0 ) + requirements.Horses
+					UnitsSupplyDemand[self].NeedHorses 	= ( UnitsSupplyDemand[self].NeedHorses 	or 0 ) + 1
+					LinkedUnits[self][unit].NeedHorses	= true
+				end
+				if requirements.Materiel > 0 then
+					UnitsSupplyDemand[self].Materiel 		= ( UnitsSupplyDemand[self].Materiel 		or 0 ) + requirements.Materiel
+					UnitsSupplyDemand[self].NeedMateriel 	= ( UnitsSupplyDemand[self].NeedMateriel 	or 0 ) + 1
+					LinkedUnits[self][unit].NeedMateriel	= true
+				end
+				if requirements.Vehicles > 0 then
+					UnitsSupplyDemand[self].Vehicles 		= ( UnitsSupplyDemand[self].Vehicles 		or 0 ) + requirements.Vehicles
+					UnitsSupplyDemand[self].NeedVehicles 	= ( UnitsSupplyDemand[self].NeedVehicles 	or 0 ) + 1
+					LinkedUnits[self][unit].NeedVehicles	= true
+				end
+				if requirements.Food > 0 then
+					UnitsSupplyDemand[self].Food 		= ( UnitsSupplyDemand[self].Food 		or 0 ) + requirements.Food
+					UnitsSupplyDemand[self].NeedFood 	= ( UnitsSupplyDemand[self].NeedFood 	or 0 ) + 1
+					LinkedUnits[self][unit].NeedFood	= true
+				end
+				
+				for resourceID, value in pairs(requirements.Resources) do
+					UnitsSupplyDemand[self].Resources[resourceID] 		= ( UnitsSupplyDemand[self].Resources[resourceID] 		or 0 ) + requirements.Resources[resourceID]
+					UnitsSupplyDemand[self].NeedResources[resourceID] 	= ( UnitsSupplyDemand[self].NeedResources[resourceID] 	or 0 ) + 1
+					LinkedUnits[self][unit].NeedResources[resourceID] 	= true
+				end
 			end
 		end
 	end	
@@ -386,6 +422,12 @@ end
 function UpdateLinkedCities(self)
 	CitiesForTransfer[self] = {}
 	CitiesForTrade[self] 	= {}
+end
+
+function ReinforceUnits(self)
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+
 end
 
 function CollectResources(self)
@@ -551,6 +593,9 @@ function CityDoTurn(city)
 	city:DoFood()
 	
 	-- diffuse to other cities, sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
+	--city:Export()
+	city:ReinforceUnits()
+	--city:DoIndustries()
 	
 	-- remove excedents left
 	
@@ -602,6 +647,7 @@ function AttachCityFunctions(city)
 	c.GetMaxPersonnel				= GetMaxPersonnel
 	c.UpdateLinkedUnits				= UpdateLinkedUnits
 	c.UpdateLinkedCities			= UpdateLinkedCities
+	c.ReinforceUnits				= ReinforceUnits
 	c.DoGrowth						= DoGrowth
 	c.GetBirthRate					= GetBirthRate
 	c.GetDeathRate					= GetDeathRate

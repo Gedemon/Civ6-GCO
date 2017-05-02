@@ -457,6 +457,31 @@ function ChangeResourceStock(self, resourceID, value)
 	--print("new value =", ExposedMembers.UnitData[unitKey].Stock[resourceID])
 end
 
+function GetRequirements(self)
+	local unitKey 		= self:GetKey()
+	local unitData 		= ExposedMembers.UnitData[unitKey]
+	local requirements 	= {}
+	
+	requirements.Personnel 	= math.max(0, GetPersonnelReserve(unitData.unitType) - unitData.PersonnelReserve)
+	requirements.Horses 	= math.max(0, GetHorsesReserve(unitData.unitType) - unitData.HorsesReserve)
+	requirements.Materiel 	= math.max(0, GetMaterielReserve(unitData.unitType) - unitData.MaterielReserve)
+	requirements.Vehicles 	= math.max(0, GetVehiclesReserve(unitData.unitType) - unitData.VehiclesReserve)
+	requirements.Food 		= math.max(0, GetUnitBaseFoodStock(unitData.unitType) - unitData.FoodStock)
+	
+	-- Resources for all vehicles
+	requirements.Resources = {}
+	--[[
+	local unitTypeName = GameInfo.Units[unitData.unitType].UnitType
+	for row in GameInfo.ResourcesPerVehicles() do -- todo : cache this per unit type ?
+		if row.UnitType == unitTypeName then
+			local resourceID = GameInfo.Resources[row.ResourceType].Index
+			requirements.Resources[resourceID] = row.Value * requirements.Vehicles
+		end
+	end	
+	--]]
+
+	return requirements
+end
 
 ----------------------------------------------
 -- Morale function
@@ -1763,6 +1788,16 @@ LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
 
 
 -----------------------------------------------------------------------------------------
+-- Shared Functions
+-----------------------------------------------------------------------------------------
+function GetUnit(playerID, unitID) -- return an unit with unitScript functions for another context
+	local unit = UnitManager.GetUnit(playerID, unitID)
+	AttachUnitFunctions(unit)
+	return unit
+end
+
+
+-----------------------------------------------------------------------------------------
 -- Initialize Unit Functions
 -----------------------------------------------------------------------------------------
 function InitializeUnitFunctions(playerID, unitID) -- Note that those are limited to this file context
@@ -1778,6 +1813,7 @@ function AttachUnitFunctions(unit)
 		local u = getmetatable(unit).__index	
 		u.GetKey					= GetKey
 		u.ChangeResourceStock		= ChangeResourceStock
+		u.GetRequirements			= GetRequirements
 	end
 end
 
@@ -1788,6 +1824,7 @@ end
 function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	--
+	ExposedMembers.GCO.GetUnit 						= GetUnit
 	ExposedMembers.GCO.AttachUnitFunctions 			= AttachUnitFunctions
 	--
 	ExposedMembers.GCO.GetUnitFoodConsumption 		= GetUnitFoodConsumption
