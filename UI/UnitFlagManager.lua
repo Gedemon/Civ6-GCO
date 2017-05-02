@@ -2000,7 +2000,7 @@ function OnUnitsCompositionUpdated(playerID, unitID)
 	if (pPlayer ~= nil) then	
 		local pUnit = pPlayer:GetUnits():FindID(unitID)
 		if (pUnit ~= nil) then
-			local flag = GetUnitFlag(playerID, pUnit:GetID())
+			local flag = GetUnitFlag(playerID, unitID)
 			if (flag ~= nil) then
 				flag:UpdateName()
 			end
