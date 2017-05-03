@@ -49,6 +49,10 @@ function DoPlayerTurn( playerID )
 end
 --LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
 
+-- can't use those, they makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager, and some other unidentified parts of the code...
+--GameEvents.PlayerTurnStarted.Add(DoPlayerTurn)
+--GameEvents.PlayerTurnStartComplete.Add(DoPlayerTurn)
+
 function DoTurnForLocal()
 	local playerID = Game.GetLocalPlayer()
 	DoPlayerTurn(playerID)
@@ -60,6 +64,8 @@ function DoTurnForRemote( playerID )
 	DoPlayerTurn(playerID)
 end
 Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
+
+
 
 -----------------------------------------------------------------------------------------
 -- Shared Functions
@@ -81,7 +87,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	if not player then player = Players[0] end
 	local p = getmetatable(player).__index
 	
-	--p.function			= function
+	--p.UpdateUnitsFlags			= UpdateUnitsFlags
 	
 end
 

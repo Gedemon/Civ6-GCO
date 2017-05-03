@@ -4,9 +4,11 @@
 		<Row Type="RESOURCE_MATERIEL" Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_STEEL" Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_FOOD" Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_PERSONNEL" Kind="KIND_RESOURCE"/>
 	</Types>
 	<Resources>
 		<Row ResourceType="RESOURCE_MATERIEL" Name="LOC_RESOURCE_MATERIEL_NAME" ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_PERSONNEL" Name="LOC_RESOURCE_PERSONNEL_NAME" ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_STEEL" Name="LOC_RESOURCE_STEEL_NAME" ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_FOOD" Name="LOC_RESOURCE_FOOD_NAME" ResourceClassType="RESOURCECLASS_BONUS" Frequency="0"/>
 	</Resources>

@@ -936,7 +936,7 @@ function UnitFlag.UpdateName( self )
 				
 			end
 		end
-		
+
 		function ShowSupplyLine()
 			if not unitData.SupplyLineCityKey then return end
 			if bShownSupplyLine then return end
@@ -946,7 +946,7 @@ function UnitFlag.UpdateName( self )
 			if pathPlots then
 				local kVariations:table = {}
 				local lastElement : number = table.count(pathPlots)
-				local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
+				local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()] or PlayersVisibility[Game.GetLocalObserver()]
 				local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
 				if localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY()) then
 					table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
@@ -955,7 +955,7 @@ function UnitFlag.UpdateName( self )
 				end
 			end
 		end		
-		self.m_Instance.UnitIcon:RegisterMouseOverCallback( ShowSupplyLine )		
+		self.m_Instance.UnitIcon:RegisterMouseOverCallback( ShowSupplyLine )
 		-- GCO >>>>>
 		
 		self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) );

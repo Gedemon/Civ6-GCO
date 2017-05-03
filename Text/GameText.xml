@@ -391,6 +391,7 @@
     <Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 	Text="Materiel" 	Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_STEEL_NAME" 		Text="Steel" 		Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_FOOD_NAME" 		Text="Food" 		Language="en_US" /> 
+    <Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"	Text="Personnel"	Language="en_US" /> 
 	
   </LocalizedText>
 </GameData>

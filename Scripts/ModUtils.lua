@@ -420,7 +420,7 @@ function FindActivePlayer()
 		end
 	end
 end
-Events.GameCoreEventPublishComplete.Add( FindActivePlayer )
+--Events.GameCoreEventPublishComplete.Add( FindActivePlayer ) -- first to fire, but not early enough
 --Events.UnitMovementPointsChanged.Add(OnUnitMovementPointsChanged)
 --Events.OnAiAdvisorUpdated.Add(OnAiAdvisorUpdated)
 
@@ -450,4 +450,8 @@ end
 --Events.LoadComplete.Add(TestA)
 --Events.RequestSave.Add(TestB)
 --Events.RequestLoad.Add(TestC)
---EndGameView
+--Events.EndGameView.Add(TestC)
+--GameEvents.PlayerTurnStarted.Add(TestA)
+--GameEvents.PlayerTurnStartComplete.Add(TestB)
+--Events.LocalPlayerTurnBegin.Add( TestC )
+--Events.RemotePlayerTurnBegin.Add( TestD )

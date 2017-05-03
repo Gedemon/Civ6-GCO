@@ -16,6 +16,22 @@ local lightRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGH
 local mediumRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 local heavyRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
 
+local foodResourceID 		= GameInfo.Resources["RESOURCE_FOOD"].Index
+local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
+local horsesResourceID 		= GameInfo.Resources["RESOURCE_HORSES"].Index
+local personnelResourceID	= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
+
+local foodResourceKey		= tostring(foodResourceID)
+local materielResourceKey	= tostring(materielResourceID)
+local horsesResourceKey		= tostring(horsesResourceID)
+local personnelResourceKey	= tostring(personnelResourceID)
+
+-- Floating Texts LOD
+local FLOATING_TEXT_NONE 	= 0
+local FLOATING_TEXT_SHORT 	= 1
+local FLOATING_TEXT_LONG 	= 2
+local floatingTextLevel 	= FLOATING_TEXT_SHORT
+
 -----------------------------------------------------------------------------------------
 -- Initialize 
 -----------------------------------------------------------------------------------------
@@ -204,10 +220,10 @@ function RegisterNewUnit(playerID, unit)
 		Horses 					= UnitHitPointsTable[unitType][hp].Horses,
 		Materiel 				= UnitHitPointsTable[unitType][hp].Materiel,
 		-- "Tactical Reserve" : ready to reinforce frontline, that's where reinforcements from cities, healed personnel and repaired Vehicles are affected first
-		PersonnelReserve		= GetPersonnelReserve(unitType),
-		VehiclesReserve			= GetVehiclesReserve(unitType),
-		HorsesReserve			= GetHorsesReserve(unitType),
-		MaterielReserve			= GetMaterielReserve(unitType),
+		PersonnelReserve		= GetMaxPersonnelReserve(unitType),
+		VehiclesReserve			= GetMaxVehiclesReserve(unitType),
+		HorsesReserve			= GetMaxHorsesReserve(unitType),
+		MaterielReserve			= GetMaxMaterielReserve(unitType),
 		-- "Rear"
 		WoundedPersonnel		= 0,
 		DamagedVehicles			= 0,
@@ -335,19 +351,19 @@ end
 -----------------------------------------------------------------------------------------
 -- Resources functions
 -----------------------------------------------------------------------------------------
-function GetPersonnelReserve(unitType)
+function GetMaxPersonnelReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
-function GetVehiclesReserve(unitType)
+function GetMaxVehiclesReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Vehicles * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
-function GetHorsesReserve(unitType)
+function GetMaxHorsesReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
-function GetMaterielReserve(unitType)
+function GetMaxMaterielReserve(unitType)
 	return GameInfo.Units[unitType].Materiel -- 100% stock for materiel reserve
 end
 
@@ -384,8 +400,8 @@ function GetUnitBaseFoodStock(unitType)
 	unitData.unitType 			= unitType
 	unitData.Personnel 			= GameInfo.Units[unitType].Personnel
 	unitData.Horses 			= GameInfo.Units[unitType].Horses
-	unitData.PersonnelReserve	= GetPersonnelReserve(unitType)
-	unitData.HorsesReserve 		= GetHorsesReserve(unitType)
+	unitData.PersonnelReserve	= GetMaxPersonnelReserve(unitType)
+	unitData.HorsesReserve 		= GetMaxHorsesReserve(unitType)
 	local fixedRatio = 1
 	return GetUnitFoodConsumption(unitData, fixedRatio)*5 -- set enough stock for 5 turns
 end
@@ -442,34 +458,69 @@ function GetMaxTransfertTable(unit)
 	return maxTranfert
 end
 
-function ChangeResourceStock(self, resourceID, value)
-	local resourceID = tostring(resourceID)
+function ChangeStock(self, resourceID, value)
+	local resourceKey = tostring(resourceID)
 	local unitKey = self:GetKey()
 	local unitData = ExposedMembers.UnitData[unitKey]
-	--print("ChangeResourceStock : ", resourceID, value)
-	--print("previous value =", ExposedMembers.UnitData[unitKey].Stock[resourceID])
-	if not ExposedMembers.UnitData[unitKey].Stock[resourceID] then
-		ExposedMembers.UnitData[unitKey].Stock[resourceID] = value
+	
+	if resourceKey == personnelResourceKey then
+		ExposedMembers.UnitData[unitKey].PersonnelReserve = math.max(0, unitData.PersonnelReserve + value)
+		
+	elseif resourceKey == materielResourceKey then
+		ExposedMembers.UnitData[unitKey].MaterielReserve = math.max(0, unitData.MaterielReserve + value)
+		
+	elseif resourceKey == horsesResourceKey then
+		ExposedMembers.UnitData[unitKey].HorsesReserve = math.max(0, unitData.HorsesReserve + value)
+		
+	elseif resourceKey == foodResourceKey then
+		ExposedMembers.UnitData[unitKey].FoodStock = math.max(0, unitData.FoodStock + value)
+		
+	elseif not ExposedMembers.UnitData[unitKey].Stock[resourceKey] then
+		ExposedMembers.UnitData[unitKey].Stock[resourceKey] = math.max(0, value)
+		
 	else
-		ExposedMembers.UnitData[unitKey].Stock[resourceID] = unitData.Stock[resourceID] + value
+		ExposedMembers.UnitData[unitKey].Stock[resourceKey] = math.max(0, unitData.Stock[resourceKey] + value)
 	end
-	ExposedMembers.UnitData[unitKey].Stock[resourceID] = math.max(0 , ExposedMembers.UnitData[unitKey].Stock[resourceID])
-	--print("new value =", ExposedMembers.UnitData[unitKey].Stock[resourceID])
+end
+
+function GetNumResourceNeeded(self, resourceID)
+	local resourceKey = tostring(resourceID)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]
+	
+	if resourceKey == personnelResourceKey then
+		return math.max(0, GetMaxPersonnelReserve(unitData.unitType) - unitData.PersonnelReserve)
+		
+	elseif resourceKey == materielResourceKey then
+		return math.max(0, GetMaxMaterielReserve(unitData.unitType) - unitData.MaterielReserve)
+		
+	elseif resourceKey == horsesResourceKey then
+		return math.max(0, GetMaxHorsesReserve(unitData.unitType) - unitData.HorsesReserve)
+		
+	elseif resourceKey == foodResourceKey then
+		return math.max(0, GetUnitBaseFoodStock(unitData.unitType) - unitData.FoodStock)
+	end
+	
+	return 0
 end
 
 function GetRequirements(self)
-	local unitKey 		= self:GetKey()
-	local unitData 		= ExposedMembers.UnitData[unitKey]
-	local requirements 	= {}
+	local unitKey 			= self:GetKey()
+	local unitData 			= ExposedMembers.UnitData[unitKey]
+	local list 				= {personnelResourceID, horsesResourceID, materielResourceID, foodResourceID}
+	local requirements 		= {}
+	requirements.Resources 	= {}
 	
-	requirements.Personnel 	= math.max(0, GetPersonnelReserve(unitData.unitType) - unitData.PersonnelReserve)
-	requirements.Horses 	= math.max(0, GetHorsesReserve(unitData.unitType) - unitData.HorsesReserve)
-	requirements.Materiel 	= math.max(0, GetMaterielReserve(unitData.unitType) - unitData.MaterielReserve)
-	requirements.Vehicles 	= math.max(0, GetVehiclesReserve(unitData.unitType) - unitData.VehiclesReserve)
-	requirements.Food 		= math.max(0, GetUnitBaseFoodStock(unitData.unitType) - unitData.FoodStock)
+	print("GetRequirements for unit ".. tostring(unitKey))
+	
+	requirements.Vehicles = math.max(0, GetMaxVehiclesReserve(unitData.unitType) - unitData.VehiclesReserve)
+	
+	for _, resourceID in ipairs(list) do
+		requirements.Resources[resourceID] = self:GetNumResourceNeeded(resourceID)
+		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID]))
+	end
 	
 	-- Resources for all vehicles
-	requirements.Resources = {}
 	--[[
 	local unitTypeName = GameInfo.Units[unitData.unitType].UnitType
 	for row in GameInfo.ResourcesPerVehicles() do -- todo : cache this per unit type ?
@@ -1470,9 +1521,11 @@ function HealingUnits(playerID)
 			local key = unit:GetKey()
 			if key then
 				if ExposedMembers.UnitData[key] then
+
 					-- wounded soldiers may die...
 					local deads = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
 					ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - deads
+
 					-- wounded soldiers may heal...
 					local healed = math.ceil(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support (not rounded to heal last wounded)
 					ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - healed
@@ -1482,6 +1535,7 @@ function HealingUnits(playerID)
 					local materielAvailable = maxTransfert[unit].Materiel - alreadyUsed[unit].Materiel
 					local maxRepairedVehicles = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerVehicles* GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
 					local repairedVehicules = 0
+
 					if maxRepairedVehicles > 0 then
 						repairedVehicules = math.min(maxRepairedVehicles, ExposedMembers.UnitData[key].DamagedVehicles)
 						ExposedMembers.UnitData[key].DamagedVehicles = ExposedMembers.UnitData[key].DamagedVehicles - repairedVehicules
@@ -1492,7 +1546,9 @@ function HealingUnits(playerID)
 					local healingData = {deads = deads, healed = healed, repairedVehicules = repairedVehicules, X = unit:GetX(), Y = unit:GetY() }
 					ShowReserveHealingFloatingText(healingData)
 
+					-- when called from GameEvents.PlayerTurnStarted() it makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager
 					LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
+
 				else
 					print ("- WARNING : no entry in ExposedMembers.UnitData for unit ".. tostring(unit:GetName()) .." (key = ".. tostring(key) ..") in HealingUnits()")
 				end
@@ -1688,7 +1744,7 @@ function DoUnitMorale(unit)
 	if desertionRate > 0 then
 		local HP = unit:GetMaxDamage() - unit:GetDamage()
 		local unitType = unit:GetType()
-		local personnelReservePercent = GCO.Round( ExposedMembers.UnitData[key].PersonnelReserve / GetPersonnelReserve(unitType) * 100)
+		local personnelReservePercent = GCO.Round( ExposedMembers.UnitData[key].PersonnelReserve / GetMaxPersonnelReserve(unitType) * 100)
 		local desertionData = {Personnel = 0, Vehicles = 0, Horses = 0, Materiel = 0, GiveDamage = false, Show = false, X = unit:GetX(), Y = unit:GetY() }
 		local lostHP = 0
 		local finalHP = HP
@@ -1812,8 +1868,9 @@ function AttachUnitFunctions(unit)
 	if unit then -- unit could have been killed during initialization by other scripts (removing CS, TSL enforcement, ...)
 		local u = getmetatable(unit).__index	
 		u.GetKey					= GetKey
-		u.ChangeResourceStock		= ChangeResourceStock
+		u.ChangeStock				= ChangeStock
 		u.GetRequirements			= GetRequirements
+		u.GetNumResourceNeeded		= GetNumResourceNeeded
 	end
 end
 
