@@ -858,7 +858,7 @@ function UnitFlag.UpdateName( self )
 		
 			-- Condition
 			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE")
-			nameString = nameString .. "[NEWLINE]" .. GCO.GetMoraleString(unitData)
+			nameString = nameString .. "[NEWLINE]" .. pUnit:GetMoraleString()
 		
 			local bHasComponents = (unitInfo.Personnel + unitInfo.Vehicles + unitInfo.Horses + unitInfo.Materiel > 0)			
 			if bHasComponents then				
@@ -887,7 +887,7 @@ function UnitFlag.UpdateName( self )
 				if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) end
 				if unitData.DamagedVehicles 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_VEHICLES", unitData.DamagedVehicles) end
 				if totalPrisonners	 			> 0 then nameString = nameString .. GCO.GetPrisonnersStringByCiv(unitData) end	-- "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS", totalPrisonners) .. GCO.GetPrisonnersStringByCiv(unitData) end
-				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetUnitFoodStockString(unitData) end
+				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. pUnit:GetFoodStockString() end
 				if unitData.FuelStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetFuelStockString(unitData) end
 			end
 				
@@ -904,14 +904,14 @@ function UnitFlag.UpdateName( self )
 			end
 				
 			-- Unit Consumption
-			local foodConsumption = GCO.GetUnitFoodConsumption(unitData)
-			local fuelConsumption = GCO.GetFuelConsumption(unitData)
+			local foodConsumption = pUnit:GetFoodConsumption()
+			local fuelConsumption = pUnit:GetFuelConsumption()
 			local bHasConsumption = ( foodConsumption + fuelConsumption > 0)				
 			if bHasConsumption then
 			
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_CONSUMPTION_TITLE")
-				if foodConsumption 				> 0 then nameString = nameString .. GCO.GetUnitFoodConsumptionString(unitData) end
-				if fuelConsumption 				> 0 then nameString = nameString .. GCO.GetFuelConsumptionString(unitData) end
+				if foodConsumption 				> 0 then nameString = nameString .. pUnit:GetFoodConsumptionString() end
+				if fuelConsumption 				> 0 then nameString = nameString .. pUnit:GetFuelConsumptionString() end
 				
 			end	
 
@@ -942,7 +942,7 @@ function UnitFlag.UpdateName( self )
 			if bShownSupplyLine then return end
 			UILens.SetActive("TradeRoute")
 			UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )
-			local pathPlots = GCO.GetUnitSupplyPathPlots(pUnit)
+			local pathPlots = pUnit:GetSupplyPathPlots()
 			if pathPlots then
 				local kVariations:table = {}
 				local lastElement : number = table.count(pathPlots)
