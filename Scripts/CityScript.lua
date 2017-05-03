@@ -338,9 +338,11 @@ function UpdateLinkedUnits(self)
 				end
 				
 				for resourceID, value in pairs(requirements.Resources) do
-					UnitsSupplyDemand[self].Resources[resourceID] 		= ( UnitsSupplyDemand[self].Resources[resourceID] 		or 0 ) + requirements.Resources[resourceID]
-					UnitsSupplyDemand[self].NeedResources[resourceID] 	= ( UnitsSupplyDemand[self].NeedResources[resourceID] 	or 0 ) + 1
-					LinkedUnits[self][unit].NeedResources[resourceID] 	= true
+					if value > 0 then
+						UnitsSupplyDemand[self].Resources[resourceID] 		= ( UnitsSupplyDemand[self].Resources[resourceID] 		or 0 ) + requirements.Resources[resourceID]
+						UnitsSupplyDemand[self].NeedResources[resourceID] 	= ( UnitsSupplyDemand[self].NeedResources[resourceID] 	or 0 ) + 1
+						LinkedUnits[self][unit].NeedResources[resourceID] 	= true
+					end
 				end
 			end
 		end
