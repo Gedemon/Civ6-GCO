@@ -141,6 +141,7 @@ local unitTableEnum = {
 	testHP					= 39,
 	TurnCreated				= 40,
 	Stock					= 41,
+	BaseFoodStock			= 42,
 	
 	EndOfEnum				= 99
 }                           
@@ -205,6 +206,7 @@ function RegisterNewUnit(playerID, unit)
 	local unitID = unit:GetID()
 	local unitKey = unit:GetKey()
 	local hp = unit:GetMaxDamage() - unit:GetDamage()
+	local food = SetBaseFoodStock(unitType)
 
 	ExposedMembers.UnitData[unitKey] = {
 		TurnCreated				= Game.GetCurrentGameTurn(),
@@ -220,15 +222,16 @@ function RegisterNewUnit(playerID, unit)
 		Horses 					= UnitHitPointsTable[unitType][hp].Horses,
 		Materiel 				= UnitHitPointsTable[unitType][hp].Materiel,
 		-- "Tactical Reserve" : ready to reinforce frontline, that's where reinforcements from cities, healed personnel and repaired Vehicles are affected first
-		PersonnelReserve		= GetMaxPersonnelReserve(unitType),
-		VehiclesReserve			= GetMaxVehiclesReserve(unitType),
-		HorsesReserve			= GetMaxHorsesReserve(unitType),
-		MaterielReserve			= GetMaxMaterielReserve(unitType),
+		PersonnelReserve		= GetBasePersonnelReserve(unitType),
+		VehiclesReserve			= GetBaseVehiclesReserve(unitType),
+		HorsesReserve			= GetBaseHorsesReserve(unitType),
+		MaterielReserve			= GetBaseMaterielReserve(unitType),
 		-- "Rear"
 		WoundedPersonnel		= 0,
 		DamagedVehicles			= 0,
 		Prisonners				= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisonners by nationality
-		FoodStock 				= GetUnitBaseFoodStock(unitType),
+		FoodStock 				= food,
+		BaseFoodStock			= food,
 		PreviousFoodStock		= 0,
 		FuelStock 				= GetBaseFuelStock(unitType),
 		PreviousFuelStock		= 0,
@@ -254,7 +257,7 @@ function RegisterNewUnit(playerID, unit)
 		SupplyLineCityKey		= nil,
 		SupplyLineEfficiency 	= 0,
 	}
-	SetUnitsupplyLine(unit)
+	unit:SetSupplyLine()
 	LuaEvents.NewUnitCreated()
 end
 
@@ -351,25 +354,53 @@ end
 -----------------------------------------------------------------------------------------
 -- Resources functions
 -----------------------------------------------------------------------------------------
-function GetMaxPersonnelReserve(unitType)
+function GetBasePersonnelReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
-function GetMaxVehiclesReserve(unitType)
+function GetBaseVehiclesReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Vehicles * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
-function GetMaxHorsesReserve(unitType)
+function GetBaseHorsesReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
-function GetMaxMaterielReserve(unitType)
+function GetBaseMaterielReserve(unitType)
 	return GameInfo.Units[unitType].Materiel -- 100% stock for materiel reserve
 end
 
-function GetUnitFoodConsumptionRatio(unitData) -- local
+function GetMaxPersonnelReserve(self)
+	return GCO.Round((GameInfo.Units[self:GetType()].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
+end
+
+function GetMaxVehiclesReserve(self)
+	return GCO.Round((GameInfo.Units[self:GetType()].Vehicles * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
+end
+
+function GetMaxHorsesReserve(self)
+	return GCO.Round((GameInfo.Units[self:GetType()].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
+end
+
+function GetMaxMaterielReserve(self)
+	return GameInfo.Units[self:GetType()].Materiel -- 100% stock for materiel reserve
+end
+
+function GetBaseFoodStock(self)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey] or {}
+	return unitData.BaseFoodStock or 0
+end
+
+function GetMaxFoodStock(self)
+	return GetBaseFoodStock(self)
+end
+
+function GetFoodConsumptionRatio(self)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]
 	local ratio = 1
-	local baseFoodStock = GetUnitBaseFoodStock(unitData.unitType)
+	local baseFoodStock = self:GetBaseFoodStock()
 	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
 		ratio = heavyRationing
 	elseif unitData.FoodStock < (baseFoodStock * mediumRationing) then
@@ -380,9 +411,9 @@ function GetUnitFoodConsumptionRatio(unitData) -- local
 	return ratio
 end
 
-function GetUnitFoodConsumption(unitData, fixedRatio)
+function GetFoodConsumption(self)
 	local foodConsumption1000 = 0
-	local ratio = fixedRatio or GetUnitFoodConsumptionRatio(unitData) -- to prevent an infinite loop between GetUnitBaseFoodStock & GetUnitFoodConsumptionRatio
+	local ratio = self:GetFoodConsumptionRatio()
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) * ratio)
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value) * ratio)
 	-- value belows may be nil
@@ -395,15 +426,21 @@ function GetUnitFoodConsumption(unitData, fixedRatio)
 	return math.max(1, GCO.Round( foodConsumption1000 / 1000 ))
 end
 
-function GetUnitBaseFoodStock(unitType)
+function GetUnitTypeFoodConsumption(unitData) -- local
+	local foodConsumption1000 = 0
+	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) * ratio)
+	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value) * ratio)
+	return math.max(1, GCO.Round( foodConsumption1000 / 1000 ))
+end
+
+function SetBaseFoodStock(unitType) -- local
 	local unitData = {}
 	unitData.unitType 			= unitType
 	unitData.Personnel 			= GameInfo.Units[unitType].Personnel
 	unitData.Horses 			= GameInfo.Units[unitType].Horses
-	unitData.PersonnelReserve	= GetMaxPersonnelReserve(unitType)
-	unitData.HorsesReserve 		= GetMaxHorsesReserve(unitType)
-	local fixedRatio = 1
-	return GetUnitFoodConsumption(unitData, fixedRatio)*5 -- set enough stock for 5 turns
+	unitData.PersonnelReserve	= GetBasePersonnelReserve(unitType)
+	unitData.HorsesReserve 		= GetBaseHorsesReserve(unitType)
+	return GetUnitTypeFoodConsumption(unitData)*5 -- set enough stock for 5 turns
 end
 
 function GetFuelConsumptionRatio(unitData) -- local
@@ -422,29 +459,39 @@ function GetFuelConsumptionRatio(unitData) -- local
 	return ratio
 end
 
-function GetFuelConsumption(unitData, fixedRatio)
+function GetFuelConsumption(self)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]
 	if (not unitData.Vehicles) or (unitData.Vehicles == 0) then
 		return 0
 	end
 	local fuelConsumption1000 = 0
 	if not unitData.FuelConsumptionPerVehicle then unitData.FuelConsumptionPerVehicle = GameInfo.Units[unitData.unitType].FuelConsumptionPerVehicle end
-	local ratio = fixedRatio or GetFuelConsumptionRatio(unitData) -- to prevent an infinite loop between GetBaseFuelStock & GetFuelConsumptionRatio
-	fuelConsumption1000 = fuelConsumption1000 + unitData.Vehicles * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) * ratio
+	local ratio = GetFuelConsumptionRatio(unitData)
+	
+	fuelConsumption1000 = fuelConsumption1000 + GetBaseFuelConsumption1000(unitData) * ratio
 	
 	if unitData.DamagedVehicles then	
-		foodConsumption1000 = foodConsumption1000 + (unitData.DamagedVehicles * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_DAMAGED_FACTOR"].Value) * ratio )
+		fuelConsumption1000 = fuelConsumption1000 + (unitData.DamagedVehicles * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_DAMAGED_FACTOR"].Value) * ratio )
 	end	
 	return math.max(1, GCO.Round( fuelConsumption1000 / 1000))
 end
 
-function GetBaseFuelStock(unitType)
+function GetBaseFuelConsumption1000(unitData) -- local
+	return  unitData.Vehicles * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value)
+end
+
+function GetBaseFuelConsumption(unitData) -- local
+	return math.max(1, GCO.Round( GetBaseFuelConsumption1000(unitData) / 1000))
+end
+
+function GetBaseFuelStock(unitType) -- local
 	local unitData = {}
 	unitData.unitType 					= unitType
 	unitData.Vehicles 					= GameInfo.Units[unitType].Vehicles
 	unitData.FuelConsumptionPerVehicle 	= GameInfo.Units[unitType].FuelConsumptionPerVehicle	
-	local fixedRatio = 1
 	if unitData.Vehicles > 0 and unitData.FuelConsumptionPerVehicle > 0 then
-		return GetFuelConsumption(unitData, fixedRatio) * 5 -- set enough stock for 5 turns
+		return GetBaseFuelConsumption(unitData) * 5 -- set enough stock for 5 turns
 	end
 	return 0
 end
@@ -458,7 +505,7 @@ function GetMaxTransfertTable(unit)
 	return maxTranfert
 end
 
-function ChangeStock(self, resourceID, value)
+function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rear" for units
 	local resourceKey = tostring(resourceID)
 	local unitKey = self:GetKey()
 	local unitData = ExposedMembers.UnitData[unitKey]
@@ -483,22 +530,44 @@ function ChangeStock(self, resourceID, value)
 	end
 end
 
+function GetStock(self, resourceID) -- "stock" means "reserve" or "rear" for units
+	local resourceKey = tostring(resourceID)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]
+	
+	if resourceKey == personnelResourceKey then
+		return unitData.PersonnelReserve or 0
+		
+	elseif resourceKey == materielResourceKey then
+		return unitData.MaterielReserve or 0
+		
+	elseif resourceKey == horsesResourceKey then
+		return unitData.HorsesReserve or 0
+		
+	elseif resourceKey == foodResourceKey then
+		return unitData.FoodStock or 0
+		
+	else
+		return unitData.Stock[resourceKey] or 0
+	end
+end
+
 function GetNumResourceNeeded(self, resourceID)
 	local resourceKey = tostring(resourceID)
 	local unitKey = self:GetKey()
 	local unitData = ExposedMembers.UnitData[unitKey]
 	
 	if resourceKey == personnelResourceKey then
-		return math.max(0, GetMaxPersonnelReserve(unitData.unitType) - unitData.PersonnelReserve)
+		return math.max(0, self:GetMaxPersonnelReserve() - unitData.PersonnelReserve)
 		
 	elseif resourceKey == materielResourceKey then
-		return math.max(0, GetMaxMaterielReserve(unitData.unitType) - unitData.MaterielReserve)
+		return math.max(0, self:GetMaxMaterielReserve() - unitData.MaterielReserve)
 		
 	elseif resourceKey == horsesResourceKey then
-		return math.max(0, GetMaxHorsesReserve(unitData.unitType) - unitData.HorsesReserve)
+		return math.max(0, self:GetMaxHorsesReserve() - unitData.HorsesReserve)
 		
 	elseif resourceKey == foodResourceKey then
-		return math.max(0, GetUnitBaseFoodStock(unitData.unitType) - unitData.FoodStock)
+		return math.max(0, self:GetUnitMaxFoodStock() - unitData.FoodStock)
 	end
 	
 	return 0
@@ -513,7 +582,7 @@ function GetRequirements(self)
 	
 	print("GetRequirements for unit ".. tostring(unitKey))
 	
-	requirements.Vehicles = math.max(0, GetMaxVehiclesReserve(unitData.unitType) - unitData.VehiclesReserve)
+	requirements.Vehicles = math.max(0, self:GetMaxVehiclesReserve() - unitData.VehiclesReserve)
 	
 	for _, resourceID in ipairs(list) do
 		requirements.Resources[resourceID] = self:GetNumResourceNeeded(resourceID)
@@ -538,12 +607,14 @@ end
 -- Morale function
 ----------------------------------------------
 
-function GetMoraleFromFood(unitData)	
+function GetMoraleFromFood(self)
+	local unitKey 			= self:GetKey()
+	local unitData 			= ExposedMembers.UnitData[unitKey]
 	local moralefromFood 	= tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WELL_FED"].Value)
 	local lightRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 	local mediumRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 	local heavyRationing 	= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
-	local baseFoodStock 	= GetUnitBaseFoodStock(unitData.unitType)
+	local baseFoodStock 	= self:GetBaseFoodStock()
 	
 	if unitData.FoodStock < (baseFoodStock * heavyRationing) then
 		moralefromFood = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FOOD_RATIONING_HEAVY"].Value)
@@ -611,10 +682,12 @@ end
 -- Texts function
 ----------------------------------------------
 -- Flag
-function GetUnitFoodConsumptionString(unitData)
-	local str = ""
-	local ratio = GetUnitFoodConsumptionRatio(unitData)
-	local totalPersonnel = unitData.Personnel + unitData.PersonnelReserve
+function GetFoodConsumptionString(self)
+	local unitKey 			= self:GetKey()
+	local unitData 			= ExposedMembers.UnitData[unitKey]
+	local str 				= ""
+	local ratio 			= self:GetFoodConsumptionRatio()
+	local totalPersonnel 	= unitData.Personnel + unitData.PersonnelReserve
 	if totalPersonnel > 0 then 
 		local personnelFood = ( totalPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )/1000
 		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL", GCO.ToDecimals(personnelFood * ratio), totalPersonnel) 
@@ -640,7 +713,9 @@ function GetUnitFoodConsumptionString(unitData)
 	return str
 end
 
-function GetMoraleString(unitData) 
+function GetMoraleString(self) 
+	local unitKey 			= self:GetKey()
+	local unitData 			= ExposedMembers.UnitData[unitKey]
 	local baseMorale 		= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)
 	local lowMorale 		= GCO.Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) / 100)
 	local badMorale 		= GCO.Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) / 100)
@@ -665,7 +740,7 @@ function GetMoraleString(unitData)
 	end
 	
 	-- details, multiple lines
-	local moraleFromFood = GetMoraleFromFood(unitData)
+	local moraleFromFood = self:GetMoraleFromFood()
 	if moraleFromFood > 0 then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WELL_FED", moraleFromFood)
 	elseif moraleFromFood < 0 then
@@ -697,7 +772,9 @@ function GetMoraleString(unitData)
 	return str
 end
 
-function GetFuelStockString(unitData) 
+function GetFuelStockString(self) 
+	local unitKey 			= self:GetKey()
+	local unitData 			= ExposedMembers.UnitData[unitKey]
 	local lightRationing = 	tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_LIGHT_RATIO"].Value)
 	local mediumRationing = tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_MEDIUM_RATIO"].Value)
 	local heavyRationing = 	tonumber(GameInfo.GlobalParameters["FUEL_RATIONING_HEAVY_RATIO"].Value)
@@ -723,7 +800,9 @@ function GetFuelStockString(unitData)
 	return str
 end
 
-function GetFuelConsumptionString(unitData)
+function GetFuelConsumptionString(self)
+	local unitKey 			= self:GetKey()
+	local unitData 			= ExposedMembers.UnitData[unitKey]
 	local str = ""
 	local ratio = GetFuelConsumptionRatio(unitData)
 	if unitData.Vehicles > 0 then 
@@ -737,9 +816,11 @@ function GetFuelConsumptionString(unitData)
 	return str
 end
 
-function GetUnitFoodStockString(data) 
-	local baseFoodStock = GetUnitBaseFoodStock(data.unitType)
-	local foodStockVariation = data.FoodStock - data.PreviousFoodStock
+function GetFoodStockString(self) 
+	local unitKey 				= self:GetKey()
+	local data 					= ExposedMembers.UnitData[unitKey]
+	local baseFoodStock 		= self:GetBaseFoodStock()
+	local foodStockVariation 	= data.FoodStock - data.PreviousFoodStock
 	local str = ""
 	if data.FoodStock < (baseFoodStock * heavyRationing) then
 		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", data.FoodStock, baseFoodStock)
@@ -1330,7 +1411,7 @@ function OnCombat( combatResult )
 			attacker.MaterielGained = GetMaterielFromKillOfBy(defender, attacker)
 			attacker.LiberatedPrisonners = GCO.GetTotalPrisonners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
 			attacker.FoodGained = GCO.Round(ExposedMembers.UnitData[defender.unitKey].FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) /100)
-			attacker.FoodGained = math.max(0, math.min(GetUnitBaseFoodStock(attacker.unit:GetType()) - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
+			attacker.FoodGained = math.max(0, math.min(attacker.unit:GetBaseFoodStock() - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
 
 			-- Update composition
 			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel 	= 0 -- Just to keep things clean...
@@ -1591,15 +1672,15 @@ function SupplyPathBlocked(pPlot, pPlayer)
 	return true -- return true if the path is blocked...
 end
 
-function GetUnitSupplyPathPlots(unit)
-	local unitKey 	= unit:GetKey()
+function GetSupplyPathPlots(self)
+	local unitKey 	= self:GetKey()
 	local unitData 	= ExposedMembers.UnitData[unitKey]
 	if unitData.SupplyLineCityKey then
 		local city = GCO.GetCityFromKey( unitData.SupplyLineCityKey )
 		if city then
 			local cityPlot = Map.GetPlot(city:GetX(), city:GetY())
 			local bShortestRoute = true
-			local bIsPlotConnected = GCO.IsPlotConnected(Players[unit:GetOwner()], Map.GetPlot(unit:GetX(), unit:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
+			local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
 			if bIsPlotConnected then
 				return GCO.GetRoutePlots()
 			end
@@ -1607,11 +1688,11 @@ function GetUnitSupplyPathPlots(unit)
 	end
 end 
 
-function SetUnitsupplyLine(unit)
-	local key = unit:GetKey()
+function SetSupplyLine(self)
+	local key = self:GetKey()
 	local NoLinkToCity = true
 	--local unitData = ExposedMembers.UnitData[key]
-	local closestCity, distance = GCO.FindNearestPlayerCity( unit:GetOwner(), unit:GetX(), unit:GetY() )
+	local closestCity, distance = GCO.FindNearestPlayerCity( self:GetOwner(), self:GetX(), self:GetY() )
 	if closestCity then
 		GCO.AttachCityFunctions(closestCity)
 		local cityPlot = Map.GetPlot(closestCity:GetX(), closestCity:GetY())
@@ -1628,7 +1709,7 @@ function SetUnitsupplyLine(unit)
 			end
 		--]]
 		local bShortestRoute = true
-		local bIsPlotConnected = GCO.IsPlotConnected(Players[unit:GetOwner()], Map.GetPlot(unit:GetX(), unit:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
+		local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
 		local routeLength = GCO.GetRouteLength()
 		if bIsPlotConnected then
 			local efficiency = GCO.Round( 100 - math.pow(routeLength*0.85,2) )
@@ -1658,7 +1739,7 @@ end
 function OnUnitMoveComplete(playerID, unitID, iX, iY)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
-		SetUnitsupplyLine(unit)
+		unit:SetSupplyLine()
 		LuaEvents.UnitsCompositionUpdated(playerID, unitID)
 	end
 end
@@ -1668,23 +1749,23 @@ Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 -----------------------------------------------------------------------------------------
 -- Do Turn for Units
 -----------------------------------------------------------------------------------------
-function DoUnitFood(unit)
+function DoFood(self)
 
-	local key = unit:GetKey()
+	local key = self:GetKey()
 	local unitData = ExposedMembers.UnitData[key]
 	
 	if unitData.TurnCreated == Game.GetCurrentGameTurn() then return end -- don't eat on first turn
 
 	-- Eat Food
-	local foodEat = math.min(GetUnitFoodConsumption(unitData), unitData.FoodStock)
+	local foodEat = math.min(self:GetFoodConsumption(), unitData.FoodStock)
 
 	-- Get Food
 	local foodGet = 0
-	local iX = unit:GetX()
-	local iY = unit:GetY()
+	local iX = self:GetX()
+	local iY = self:GetY()
 	local adjacentRatio = tonumber(GameInfo.GlobalParameters["FOOD_COLLECTING_ADJACENT_PLOT_RATIO"].Value)
 	local yieldFood = GameInfo.Yields["YIELD_FOOD"].Index
-	local maxFoodStock = GetUnitBaseFoodStock(unitData.unitType)
+	local maxFoodStock = self:GetMaxFoodStock()
 	-- Get food from the plot
 	local plot = Map.GetPlot(iX, iY)
 	if plot then
@@ -1693,7 +1774,7 @@ function DoUnitFood(unit)
 	-- Get food from adjacent plots
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		adjacentPlot = Map.GetAdjacentPlot(iX, iY, direction);
-		if (adjacentPlot ~= nil) and ((not adjacentPlot:IsOwned()) or adjacentPlot:GetOwner() == unit:GetOwner() ) then
+		if (adjacentPlot ~= nil) and ((not adjacentPlot:IsOwned()) or adjacentPlot:GetOwner() == self:GetOwner() ) then
 			foodGet = foodGet + ((adjacentPlot:GetYield(yieldFood) / (1 + Units.GetUnitCountInPlot(adjacentPlot))) * adjacentRatio)
 		end
 	end
@@ -1706,21 +1787,21 @@ function DoUnitFood(unit)
 	ExposedMembers.UnitData[key].FoodStock = unitData.FoodStock + foodVariation
 
 	-- Visualize
-	local foodData = { foodEat = foodEat, foodGet = foodGet, X = unit:GetX(), Y = unit:GetY() }
+	local foodData = { foodEat = foodEat, foodGet = foodGet, X = self:GetX(), Y = self:GetY() }
 	ShowFoodFloatingText(foodData)
 end
 
-function DoUnitMorale(unit)
+function DoMorale(self)
 
-	if not CheckComponentsHP(unit, "bypassing DoUnitMorale()") then
+	if not CheckComponentsHP(self, "bypassing DoMorale()") then
 		return
 	end
 	
-	local key = unit:GetKey()
+	local key = self:GetKey()
 	local unitData = ExposedMembers.UnitData[key]
 	local moraleVariation = 0
 	
-	moraleVariation = moraleVariation + GetMoraleFromFood(unitData)
+	moraleVariation = moraleVariation + self:GetMoraleFromFood()
 	moraleVariation = moraleVariation + GetMoraleFromLastCombat(unitData)
 	moraleVariation = moraleVariation + GetMoraleFromWounded(unitData)
 	moraleVariation = moraleVariation + GetMoraleFromHP(unitData)
@@ -1740,12 +1821,12 @@ function DoUnitMorale(unit)
 		minPercentReserve 	= tonumber(GameInfo.GlobalParameters["MORALE_LOW_MIN_PERCENT_RESERVE"].Value) --50
 	end
 	
-	CheckComponentsHP(unit, "In DoUnitMorale(), desertion Rate = " .. tostring(desertionRate))
+	CheckComponentsHP(self, "In DoMorale(), desertion Rate = " .. tostring(desertionRate))
 	if desertionRate > 0 then
-		local HP = unit:GetMaxDamage() - unit:GetDamage()
-		local unitType = unit:GetType()
-		local personnelReservePercent = GCO.Round( ExposedMembers.UnitData[key].PersonnelReserve / GetMaxPersonnelReserve(unitType) * 100)
-		local desertionData = {Personnel = 0, Vehicles = 0, Horses = 0, Materiel = 0, GiveDamage = false, Show = false, X = unit:GetX(), Y = unit:GetY() }
+		local HP = self:GetMaxDamage() - self:GetDamage()
+		local unitType = self:GetType()
+		local personnelReservePercent = GCO.Round( ExposedMembers.UnitData[key].PersonnelReserve / self:GetMaxPersonnelReserve() * 100)
+		local desertionData = {Personnel = 0, Vehicles = 0, Horses = 0, Materiel = 0, GiveDamage = false, Show = false, X = self:GetX(), Y = self:GetY() }
 		local lostHP = 0
 		local finalHP = HP
 		if HP > minPercentHP then
@@ -1792,40 +1873,40 @@ function DoUnitMorale(unit)
 
 		-- Set Damage
 		if desertionData.GiveDamage then
-			unit:SetDamage(unit:GetDamage() + lostHP)
+			self:SetDamage(self:GetDamage() + lostHP)
 			ExposedMembers.UnitData[key].HP = finalHP
 		end
 	end
-	CheckComponentsHP(unit, "after DoUnitMorale()")	
+	CheckComponentsHP(self, "after DoMorale()")	
 end
 
-function DoUnitFuel(unit)
+function DoFuel(self)
 
-	local key = unit:GetKey()
+	local key = self:GetKey()
 	local unitData = ExposedMembers.UnitData[key]
-	local fuelConsumption = math.min(GetFuelConsumption(unitData), unitData.FuelStock)
+	local fuelConsumption = math.min(self:GetFuelConsumption(), unitData.FuelStock)
 	if fuelConsumption > 0 then
 		-- Update variation
 		ExposedMembers.UnitData[key].PreviousFuelStock = unitData.FuelStock
 		ExposedMembers.UnitData[key].FuelStock = unitData.FuelStock - fuelConsumption
 		-- Visualize
-		local fuelData = { fuelConsumption = fuelConsumption, X = unit:GetX(), Y = unit:GetY() }
+		local fuelData = { fuelConsumption = fuelConsumption, X = self:GetX(), Y = self:GetY() }
 		ShowFuelConsumptionFloatingText(fuelData)
 	end
 end
 
-function UnitDoTurn(unit)
-	local key = unit:GetKey()
+function DoTurn(self)
+	local key = self:GetKey()
 	if not ExposedMembers.UnitData[key] then
 		return
 	end
-	local playerID = unit:GetOwner()
+	local playerID = self:GetOwner()
 	
-	DoUnitFood(unit)
-	DoUnitMorale(unit)
-	DoUnitFuel(unit)
-	SetUnitsupplyLine(unit)
-	LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID())
+	self:DoFood()
+	self:DoMorale()
+	self:DoFuel()
+	self:SetSupplyLine()
+	LuaEvents.UnitsCompositionUpdated(playerID, self:GetID())
 end
 
 function DoUnitsTurn( playerID )
@@ -1836,7 +1917,7 @@ function DoUnitsTurn( playerID )
 	local playerUnits = player:GetUnits()
 	if playerUnits then
 		for i, unit in playerUnits:Members() do
-			UnitDoTurn(unit)
+			unit:DoTurn()
 		end
 	end
 end
@@ -1866,11 +1947,32 @@ end
 
 function AttachUnitFunctions(unit)
 	if unit then -- unit could have been killed during initialization by other scripts (removing CS, TSL enforcement, ...)
-		local u = getmetatable(unit).__index	
+		local u = getmetatable(unit).__index
+		
 		u.GetKey					= GetKey
 		u.ChangeStock				= ChangeStock
+		u.GetStock					= GetStock
 		u.GetRequirements			= GetRequirements
 		u.GetNumResourceNeeded		= GetNumResourceNeeded
+		u.GetFoodConsumptionRatio	= GetFoodConsumptionRatio
+		u.GetMoraleFromFood			= GetMoraleFromFood
+		u.GetFoodConsumption 		= GetFoodConsumption
+		u.GetSupplyPathPlots 		= GetSupplyPathPlots
+		u.SetSupplyLine				= SetSupplyLine
+		--
+		u.DoFood 					= DoFood
+		u.DoMorale 					= DoMorale
+		u.DoFuel 					= DoFuel
+		u.DoTurn 					= DoTurn
+		--
+		u.GetFuelConsumption 		= GetFuelConsumption
+		
+		-- flag strings
+		u.GetFoodStockString		= GetFoodStockString
+		u.GetFoodConsumptionString	= GetFoodConsumptionString
+		u.GetMoraleString			= GetMoraleString
+		u.GetFuelStockString 		= GetFuelStockString
+		u.GetFuelConsumptionString 	= GetFuelConsumptionString
 	end
 end
 
@@ -1883,17 +1985,6 @@ function ShareFunctions()
 	--
 	ExposedMembers.GCO.GetUnit 						= GetUnit
 	ExposedMembers.GCO.AttachUnitFunctions 			= AttachUnitFunctions
-	--
-	ExposedMembers.GCO.GetUnitFoodConsumption 		= GetUnitFoodConsumption
-	ExposedMembers.GCO.GetFuelConsumption 			= GetFuelConsumption
-	--
-	ExposedMembers.GCO.GetUnitSupplyPathPlots 		= GetUnitSupplyPathPlots
-	-- flag strings
-	ExposedMembers.GCO.GetUnitFoodConsumptionString = GetUnitFoodConsumptionString
-	ExposedMembers.GCO.GetUnitFoodStockString 		= GetUnitFoodStockString
-	ExposedMembers.GCO.GetFuelStockString 			= GetFuelStockString
-	ExposedMembers.GCO.GetFuelConsumptionString 	= GetFuelConsumptionString
-	ExposedMembers.GCO.GetMoraleString 				= GetMoraleString
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end

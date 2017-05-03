@@ -421,6 +421,7 @@ function ChangeStock(self, resourceID, value)
 end
 
 function GetMaxStock(self, resourceID)
+	if resourceID == personnelResourceID then return self:GetMaxPersonnel() end
 	local maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
 	if resourceID == foodResourceID then maxStock = maxStock + baseFoodStock end
 	return maxStock
@@ -431,12 +432,11 @@ function GetStock(self, resourceID)
 	local resourceKey = tostring(resourceID)	
 
 	if resourceKey == personnelResourceKey then
-		return ExposedMembers.CityData[cityKey].Personnel
+		return ExposedMembers.CityData[cityKey].Personnel or 0
 		
-	elseif ExposedMembers.CityData[cityKey].Stock[resourceKey] then
-		return ExposedMembers.CityData[cityKey].Stock[resourceKey]
+	else
+		return ExposedMembers.CityData[cityKey].Stock[resourceKey] or 0
 	end
-	return 0
 end
 
 function GetMaxPersonnel(self)
@@ -445,7 +445,7 @@ function GetMaxPersonnel(self)
 	return maxPersonnel
 end
 
-function GetPersonnel(self) 
+function GetPersonnel(self) -- equivalent to GetStock(self, personnelResourceID)
 	local key = self:GetKey()
 	if ExposedMembers.CityData[key] then
 		return ExposedMembers.CityData[key].Personnel or 0
@@ -453,7 +453,7 @@ function GetPersonnel(self)
 	return 0
 end
 
-function ChangePersonnel(self, value)
+function ChangePersonnel(self, value) -- equivalent to ChangeStock(self, personnelResourceID, value)
 	local cityKey = self:GetKey()	
 	ExposedMembers.CityData[cityKey].Personnel = math.max(0 , ExposedMembers.CityData[cityKey].Personnel + value)
 end
