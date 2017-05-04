@@ -46,6 +46,15 @@ function UpdateUnitsFlags(self)
 	end
 end
 
+function UpdateCitiesBanners(self)
+	local playerCities = self:GetCitiess()
+	if playerCities then
+		for i, city in playerCities:Members() do			
+			LuaEvents.CityCompositionUpdated(self:GetID(), city:GetID())
+		end
+	end
+end
+
 function DoPlayerTurn( playerID )
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	local player = Players[playerID]
@@ -55,7 +64,9 @@ function DoPlayerTurn( playerID )
 	print("---============================================================================================================================================================================---")
 	LuaEvents.DoUnitsTurn( playerID )
 	LuaEvents.DoCitiesTurn( playerID )
+	-- update flags after resources transferts
 	player:UpdateUnitsFlags()
+	player:UpdateCitiesBanners()
 end
 --LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
 
@@ -98,6 +109,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	local p = getmetatable(player).__index
 	
 	p.UpdateUnitsFlags			= UpdateUnitsFlags
+	p.UpdateCitiesBanners		= UpdateCitiesBanners
 	
 end
 

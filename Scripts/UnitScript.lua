@@ -214,8 +214,8 @@ function RegisterNewUnit(playerID, unit)
 		playerID 				= playerID,
 		unitType 				= unitType,
 		MaterielPerVehicles 	= GameInfo.Units[unitType].MaterielPerVehicles,
-		HP	 					= unit:GetMaxDamage() - unit:GetDamage(),
-		testHP	 				= unit:GetMaxDamage() - unit:GetDamage(),
+		HP	 					= hp,
+		testHP	 				= hp,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 				= UnitHitPointsTable[unitType][hp].Personnel,
 		Vehicles 				= UnitHitPointsTable[unitType][hp].Vehicles,
@@ -1914,7 +1914,6 @@ function DoTurn(self)
 	self:DoMorale()
 	self:DoFuel()
 	self:SetSupplyLine()
-	--LuaEvents.UnitsCompositionUpdated(playerID, self:GetID())
 end
 
 function DoUnitsTurn( playerID )

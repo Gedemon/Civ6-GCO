@@ -25,6 +25,18 @@ local MiddleClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MID
 local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_DEATH_RATE_FACTOR"].Value)
 local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
 
+local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PRODUCTION_PER_SIZE"].Value)
+
+local UpperClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_TO_PERSONNEL_RATIO"].Value)	
+local MiddleClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_TO_PERSONNEL_RATIO"].Value)
+local lowerClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_TO_PERSONNEL_RATIO"].Value)
+
+local PersonnelHighRankRatio		= tonumber(GameInfo.GlobalParameters["ARMY_PERSONNEL_HIGH_RANK_RATIO"].Value)
+local PersonnelMiddleRankRatio		= tonumber(GameInfo.GlobalParameters["ARMY_PERSONNEL_MIDDLE_RANK_RATIO"].Value)
+
+local PersonnelToUpperClassRatio	= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_TO_UPPER_CLASS_RATIO"].Value)	 		
+local PersonnelToMiddleClassRatio	= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_TO_MIDDLE_CLASS_RATIO"].Value)	
+
 local foodResourceID 		= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local steelResourceID 		= GameInfo.Resources["RESOURCE_STEEL"].Index
@@ -232,6 +244,10 @@ function GetCityFromKey ( cityKey )
 	end
 end
 
+
+-----------------------------------------------------------------------------------------
+-- Population functions
+-----------------------------------------------------------------------------------------
 function GetRealPopulation(self) -- the original city:GetPopulation() returns city size
 	local key = self:GetKey()
 	if ExposedMembers.CityData[key] then
@@ -373,13 +389,13 @@ function RecruitPersonnel(self)
 	print("Recruiting Personnel...")
 	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
 	
-	local generals			= GCO.Round(nedded*0.02)
-	local officers			= GCO.Round(nedded*0.10)
-	local soldiers			= math.max(0, nedded - generals - officers)
+	local generals			= GCO.Round(nedded*PersonnelHighRankRatio)
+	local officers			= GCO.Round(nedded*PersonnelMiddleRankRatio)
+	local soldiers			= math.max(0, nedded - (generals + officers))
 	
-	local maxUpper 			= GCO.Round(self:GetUpperClass()*0.01)
-	local maxMiddle			= GCO.Round(self:GetMiddleClass()*0.05)
-	local maxLower 			= GCO.Round(self:GetLowerClass()*0.1)
+	local maxUpper 			= GCO.Round(self:GetUpperClass()	* UpperClassToPersonnelRatio)
+	local maxMiddle			= GCO.Round(self:GetMiddleClass()	* MiddleClassToPersonnelRatio)
+	local maxLower 			= GCO.Round(self:GetLowerClass()	* LowerClassToPersonnelRatio)
 	local maxPotential		= maxUpper + maxMiddle + maxLower
 	
 	local recruitedGenerals = math.min(generals, maxUpper)
@@ -396,6 +412,7 @@ function RecruitPersonnel(self)
 	self:ChangeLowerClass(-recruitedSoldiers)	
 	self:ChangePersonnel(totalRecruits)
 end
+
 
 -----------------------------------------------------------------------------------------
 -- Resources functions
@@ -514,24 +531,19 @@ function GetMaxStock(self, resourceID)
 end
 
 function GetStock(self, resourceID)
+	if resourceID == personnelResourceID then return self:GetPersonnel() end
 	local cityKey = self:GetKey()
-	local resourceKey = tostring(resourceID)	
-
-	if resourceKey == personnelResourceKey then
-		return ExposedMembers.CityData[cityKey].Personnel or 0
-		
-	else
-		return ExposedMembers.CityData[cityKey].Stock[resourceKey] or 0
-	end
+	local resourceKey = tostring(resourceID)
+	return ExposedMembers.CityData[cityKey].Stock[resourceKey] or 0
 end
 
-function GetMaxPersonnel(self)
+function GetMaxPersonnel(self) -- called by GetMaxStock(self, personnelResourceID)
 	local maxPersonnel = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
 
 	return maxPersonnel
 end
 
-function GetPersonnel(self) -- equivalent to GetStock(self, personnelResourceID)
+function GetPersonnel(self) -- called by GetStock(self, personnelResourceID)
 	local key = self:GetKey()
 	if ExposedMembers.CityData[key] then
 		return ExposedMembers.CityData[key].Personnel or 0
@@ -615,6 +627,48 @@ function SetCityRationing(self)
 	ExposedMembers.CityData[cityKey].FoodRatio = ratio
 end
 
+function DoIndustries(self)
+
+	local size = self:GetSize()
+	
+	-- materiel
+	local materielprod	= MaterielProductionPerSize * size
+	self:ChangeStock(materielResourceID, materielprod)
+	
+end
+
+function DoExcedents(self)
+	
+	print("Handling excedent...")
+
+	local cityKey = city:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	
+	-- excedental resources are lost
+	for resourceID, value in pairs(cityData.Stock) do
+		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
+		if excedent > 0 then
+			print(" - Excedental ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." destroyed = ".. tostring(excedent))
+			self:ChangeStock(resourceID, -excedent)
+		end
+	end
+
+	-- excedental personnel is sent back to civil life... (to do : send them to another location if available)
+	local excedentalPersonnel = self:GetPersonnel() - self:GetMaxPersonnel()
+	if excedentalPersonnel > 0 then
+	
+		local toUpper 	= GCO.Round(excedentalPersonnel * PersonnelToUpperClassRatio)
+		local toMiddle 	= GCO.Round(excedentalPersonnel * PersonnelToMiddleClassRatio)
+		local toLower	= math.max(0, excedentalPersonnel - (toMiddle + toUpper))
+		
+		self:ChangeUpperClass(toUpper)
+		self:ChangeMiddleClass(toMiddle)
+		self:ChangeLowerClass(toLower)
+		
+		print(" - Demobilized personnel =", excedentalPersonnel, "upper class =", toUpper,"middle class =", toMiddle, "lower class =",toLower)
+		
+	end
+end
 
 ----------------------------------------------
 -- Texts function
@@ -724,9 +778,9 @@ function CityDoTurn(city)
 	city:DoFood()
 	
 	-- diffuse to other cities, sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
-	--city:Export()
+	city:DoIndustries()
 	city:ReinforceUnits()
-	--city:DoIndustries()
+	--city:Export()
 	
 	-- remove excedents left
 	
@@ -734,6 +788,9 @@ function CityDoTurn(city)
 	city:DoGrowth()
 	city:DoSocialClassStratification()
 	city:ChangeSize()
+	
+	-- last...
+	city:DoExcedents()
 	
 	LuaEvents.CityCompositionUpdated(city:GetOwner(), city:GetID())
 end
@@ -786,7 +843,9 @@ function AttachCityFunctions(city)
 	c.DoGrowth						= DoGrowth
 	c.GetBirthRate					= GetBirthRate
 	c.GetDeathRate					= GetDeathRate
+	c.DoExcedents					= DoExcedents
 	c.DoFood						= DoFood
+	c.DoIndustries					= DoIndustries
 	c.GetFoodConsumption 			= GetFoodConsumption
 	c.CollectResources				= CollectResources
 	c.ChangeStock 					= ChangeStock
