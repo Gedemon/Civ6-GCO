@@ -946,9 +946,9 @@ function UnitFlag.UpdateName( self )
 			if pathPlots then
 				local kVariations:table = {}
 				local lastElement : number = table.count(pathPlots)
-				local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()] or PlayersVisibility[Game.GetLocalObserver()]
+				local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
 				local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
-				if localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY()) then
+				if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
 					table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
 					UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
 					bShownSupplyLine = true

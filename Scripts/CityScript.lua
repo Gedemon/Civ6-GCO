@@ -36,6 +36,13 @@ local materielResourceKey	= tostring(materielResourceID)
 local steelResourceKey		= tostring(steelResourceID)
 local personnelResourceKey	= tostring(personnelResourceID)
 
+local directReinforcement = {} 				-- cached table with "resources" directly transfered to units
+directReinforcement[foodResourceID] 		= true
+directReinforcement[materielResourceID] 	= true
+directReinforcement[horsesResourceID] 		= true
+directReinforcement[personnelResourceID] 	= true
+
+
 local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 
 local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
@@ -279,6 +286,7 @@ function DoSocialClassStratification(self)
 	local minMiddle = GCO.Round(totalPopultation * 25 / 100)
 	local actualUpper = cityData.UpperClass
 	local actualMiddle = cityData.MiddleClass
+	--[[
 	print("Social Stratification: totalPopultation = ", totalPopultation)
 	print("Social Stratification: maxUpper = ", maxUpper)
 	print("Social Stratification: minUpper = ", minUpper)
@@ -286,36 +294,108 @@ function DoSocialClassStratification(self)
 	print("Social Stratification: minMiddle = ", minMiddle)
 	print("Social Stratification: actualUpper = ", actualUpper)
 	print("Social Stratification: actualMiddle = ", actualMiddle)
+	--]]
 	-- Move Upper to Middle
 	if actualUpper > maxUpper then
 		toMove = actualUpper - maxUpper
 		print("Social Stratification: Upper to Middle = ", toMove)
-		ExposedMembers.CityData[cityKey].UpperClass		= cityData.UpperClass - toMove
-		ExposedMembers.CityData[cityKey].MiddleClass	= cityData.MiddleClass + toMove
+		self:ChangeUpperClass(- toMove)
+		self:ChangeMiddleClass( toMove)
 	end
 	-- Move Middle to Upper
 	if actualUpper < minUpper then
 		toMove = minUpper - actualUpper
 		print("Social Stratification: Middle to Upper = ", toMove)
-		ExposedMembers.CityData[cityKey].UpperClass		= cityData.UpperClass + toMove
-		ExposedMembers.CityData[cityKey].MiddleClass	= cityData.MiddleClass - toMove
+		self:ChangeUpperClass(toMove)
+		self:ChangeMiddleClass(-toMove)
 	end	
 	-- Move Middle to Lower
 	if actualMiddle > maxMiddle then
 		toMove = actualMiddle - maxMiddle
-		print("Social Stratification: Middle to Lower = ", toMove)
-		ExposedMembers.CityData[cityKey].MiddleClass	= cityData.MiddleClass - toMove
-		ExposedMembers.CityData[cityKey].LowerClass		= cityData.LowerClass + toMove
+		print("Social Stratification: Middle to Lower = ", toMove)		
+		self:ChangeMiddleClass(-toMove)
+		self:ChangeLowerClass(toMove)
 	end	
 	-- Move Lower to Middle
 	if actualMiddle < minMiddle then
 		toMove = minMiddle - actualMiddle
-		print("Social Stratification: Lower to Middle = ", toMove)
-		ExposedMembers.CityData[cityKey].MiddleClass	= cityData.MiddleClass + toMove
-		ExposedMembers.CityData[cityKey].LowerClass		= cityData.LowerClass - toMove
+		print("Social Stratification: Lower to Middle = ", toMove)		
+		self:ChangeMiddleClass(toMove)
+		self:ChangeLowerClass(-toMove)
 	end	
 end
 
+function ChangeUpperClass(self, value)
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	ExposedMembers.CityData[cityKey].UpperClass = math.max(0 , cityData.UpperClass + value)
+end
+
+function ChangeMiddleClass(self, value)
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	ExposedMembers.CityData[cityKey].MiddleClass = math.max(0 , cityData.MiddleClass + value)
+end
+
+function ChangeLowerClass(self, value)
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	ExposedMembers.CityData[cityKey].LowerClass = math.max(0 , cityData.LowerClass + value)
+end
+
+function ChangeSlaveClass(self, value)
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	ExposedMembers.CityData[cityKey].Slaves = math.max(0 , cityData.Slaves + value)
+end
+
+function GetUpperClass(self)
+	local cityKey = self:GetKey()
+	return ExposedMembers.CityData[cityKey].UpperClass
+end
+
+function GetMiddleClass(self)
+	local cityKey = self:GetKey()
+	return ExposedMembers.CityData[cityKey].MiddleClass
+end
+
+function GetLowerClass(self)
+	local cityKey = self:GetKey()
+	return ExposedMembers.CityData[cityKey].LowerClass
+end
+
+function GetSlaveClass(self)
+	local cityKey = self:GetKey()
+	return ExposedMembers.CityData[cityKey].Slaves
+end
+
+function RecruitPersonnel(self)
+	print("Recruiting Personnel...")
+	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
+	
+	local generals			= GCO.Round(nedded*0.02)
+	local officers			= GCO.Round(nedded*0.10)
+	local soldiers			= math.max(0, nedded - generals - officers)
+	
+	local maxUpper 			= GCO.Round(self:GetUpperClass()*0.01)
+	local maxMiddle			= GCO.Round(self:GetMiddleClass()*0.05)
+	local maxLower 			= GCO.Round(self:GetLowerClass()*0.1)
+	local maxPotential		= maxUpper + maxMiddle + maxLower
+	
+	local recruitedGenerals = math.min(generals, maxUpper)
+	local recruitedOfficers = math.min(officers, maxMiddle)
+	local recruitedSoldiers = math.min(soldiers, maxLower)	
+	local totalRecruits		= recruitedGenerals + recruitedOfficers + recruitedSoldiers
+	
+	print(" - total needed =", nedded, "generals =", generals,"officers =", officers, "soldiers =",soldiers)
+	print(" - max potential =", maxPotential ,"Upper = ", maxUpper, "Middle = ", maxMiddle, "Lower = ", maxLower )
+	print(" - total recruits =", totalRecruits, "Generals = ", recruitedGenerals, "Officers = ", recruitedOfficers, "Soldiers = ", recruitedSoldiers )	
+	
+	self:ChangeUpperClass(-recruitedGenerals)
+	self:ChangeMiddleClass(-recruitedOfficers)
+	self:ChangeLowerClass(-recruitedSoldiers)	
+	self:ChangePersonnel(totalRecruits)
+end
 
 -----------------------------------------------------------------------------------------
 -- Resources functions
@@ -326,7 +406,7 @@ function UpdateLinkedUnits(self)
 	UnitsSupplyDemand[self] 				= { Resources = {}, NeedResources = {}} -- NeedResources : Number of units requesting a resource type
 	
 	for unitKey, data in pairs(ExposedMembers.UnitData) do
-		if data.SupplyLineCityKey == self:GetKey() then
+		if data.SupplyLineCityKey == self:GetKey() and data.SupplyLineEfficiency > 0 then
 			local unit = GCO.GetUnit(data.playerID, data.unitID)
 			if unit then
 				LinkedUnits[self][unit] = {NeedResources = {}}
@@ -371,21 +451,27 @@ function ReinforceUnits(self)
 		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," units, available = " .. tostring(self:GetStock(resourceID))..", reinforcement = ".. tostring(reinforcements.Resources[resourceID]))
 	end
 	for resourceID, value in pairs(reinforcements.Resources) do
-		local resLeft = value
-		local maxLoop = 5
-		local loop = 0
-		while (resLeft > 0 and loop < maxLoop) do
-			for unit, data in pairs(LinkedUnits[self]) do
-				local reqValue = unit:GetNumResourceNeeded(resourceID)
-				if reqValue > 0 then
-					local transfert = math.min(reinforcements.ResPerUnit[resourceID], reqValue, resLeft)
-					resLeft = resLeft - transfert
-					unit:ChangeStock(resourceID, transfert)
-					self:ChangeStock(resourceID, -transfert)
-					print ("  - transfered " .. tostring(transfert) .. " ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." to unit#".. tostring(unit:GetID()))
+		if directReinforcement[resourceID]  then
+			local resLeft = value
+			local maxLoop = 5
+			local loop = 0
+			while (resLeft > 0 and loop < maxLoop) do
+				for unit, data in pairs(LinkedUnits[self]) do
+					local reqValue = unit:GetNumResourceNeeded(resourceID)
+					if reqValue > 0 then
+						local efficiency	= unit:GetSupplyLineEfficiency()
+						local send 			= math.min(reinforcements.ResPerUnit[resourceID], reqValue, resLeft)
+						local received		= GCO.Round(send * efficiency / 100)
+						resLeft = resLeft - send
+						unit:ChangeStock(resourceID, received)
+						self:ChangeStock(resourceID, -send)
+						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (received ".. tostring(received).. " @".. tostring(efficiency) .."% efficiency) to unit#".. tostring(unit:GetID()))
+					end
 				end
+				loop = loop + 1
 			end
-			loop = loop + 1
+		else
+			-- todo : make vehicles from resources
 		end
 	end
 	
@@ -632,6 +718,7 @@ function CityDoTurn(city)
 	
 	-- get Resources (allow excedents)
 	city:CollectResources()
+	city:RecruitPersonnel()
 	
 	-- feed population
 	city:DoFood()
@@ -702,9 +789,19 @@ function AttachCityFunctions(city)
 	c.DoFood						= DoFood
 	c.GetFoodConsumption 			= GetFoodConsumption
 	c.CollectResources				= CollectResources
-	c.ChangeStock 			= ChangeStock
+	c.ChangeStock 					= ChangeStock
 	c.SetCityRationing				= SetCityRationing
 	c.DoSocialClassStratification	= DoSocialClassStratification
+	c.ChangeUpperClass				= ChangeUpperClass
+	c.ChangeMiddleClass				= ChangeMiddleClass
+	c.ChangeLowerClass				= ChangeLowerClass
+	c.ChangeSlaveClass				= ChangeSlaveClass
+	c.GetUpperClass					= GetUpperClass
+	c.GetMiddleClass				= GetMiddleClass
+	c.GetLowerClass					= GetLowerClass
+	c.GetSlaveClass					= GetSlaveClass	
+	c.RecruitPersonnel				= RecruitPersonnel
+
 end
 
 

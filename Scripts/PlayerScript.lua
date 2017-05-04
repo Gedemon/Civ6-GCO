@@ -37,6 +37,15 @@ end
 -- Player functions
 -----------------------------------------------------------------------------------------
 
+function UpdateUnitsFlags(self)
+	local playerUnits = self:GetUnits()
+	if playerUnits then
+		for i, unit in playerUnits:Members() do			
+			LuaEvents.UnitsCompositionUpdated(self:GetID(), unit:GetID())
+		end
+	end
+end
+
 function DoPlayerTurn( playerID )
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	local player = Players[playerID]
@@ -46,6 +55,7 @@ function DoPlayerTurn( playerID )
 	print("---============================================================================================================================================================================---")
 	LuaEvents.DoUnitsTurn( playerID )
 	LuaEvents.DoCitiesTurn( playerID )
+	player:UpdateUnitsFlags()
 end
 --LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
 
@@ -87,7 +97,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	if not player then player = Players[0] end
 	local p = getmetatable(player).__index
 	
-	--p.UpdateUnitsFlags			= UpdateUnitsFlags
+	p.UpdateUnitsFlags			= UpdateUnitsFlags
 	
 end
 

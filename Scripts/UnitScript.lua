@@ -202,11 +202,11 @@ end
 -----------------------------------------------------------------------------------------
 function RegisterNewUnit(playerID, unit)
 
-	local unitType = unit:GetType()
-	local unitID = unit:GetID()
-	local unitKey = unit:GetKey()
-	local hp = unit:GetMaxDamage() - unit:GetDamage()
-	local food = SetBaseFoodStock(unitType)
+	local unitType 	= unit:GetType()
+	local unitID 	= unit:GetID()
+	local unitKey 	= unit:GetKey()
+	local hp 		= unit:GetMaxDamage() - unit:GetDamage()
+	local food 		= SetBaseFoodStock(unitType)
 
 	ExposedMembers.UnitData[unitKey] = {
 		TurnCreated				= Game.GetCurrentGameTurn(),
@@ -412,6 +412,8 @@ function GetFoodConsumptionRatio(self)
 end
 
 function GetFoodConsumption(self)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]
 	local foodConsumption1000 = 0
 	local ratio = self:GetFoodConsumptionRatio()
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) * ratio)
@@ -428,8 +430,8 @@ end
 
 function GetUnitTypeFoodConsumption(unitData) -- local
 	local foodConsumption1000 = 0
-	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) * ratio)
-	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value) * ratio)
+	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value))
+	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value))
 	return math.max(1, GCO.Round( foodConsumption1000 / 1000 ))
 end
 
@@ -567,7 +569,7 @@ function GetNumResourceNeeded(self, resourceID)
 		return math.max(0, self:GetMaxHorsesReserve() - unitData.HorsesReserve)
 		
 	elseif resourceKey == foodResourceKey then
-		return math.max(0, self:GetUnitMaxFoodStock() - unitData.FoodStock)
+		return math.max(0, self:GetMaxFoodStock() - unitData.FoodStock)
 	end
 	
 	return 0
@@ -583,7 +585,7 @@ function GetRequirements(self)
 	print("GetRequirements for unit ".. tostring(unitKey))
 	
 	requirements.Vehicles = math.max(0, self:GetMaxVehiclesReserve() - unitData.VehiclesReserve)
-	
+
 	for _, resourceID in ipairs(list) do
 		requirements.Resources[resourceID] = self:GetNumResourceNeeded(resourceID)
 		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID]))
@@ -602,6 +604,7 @@ function GetRequirements(self)
 
 	return requirements
 end
+
 
 ----------------------------------------------
 -- Morale function
@@ -1407,7 +1410,7 @@ function OnCombat( combatResult )
 
 		if defender.IsDead then
 
-			attacker.Prisonners = defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded (to do : add prisonners drom enemy nationality here)
+			attacker.Prisonners = defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded (to do : add prisonners from enemy nationality here)
 			attacker.MaterielGained = GetMaterielFromKillOfBy(defender, attacker)
 			attacker.LiberatedPrisonners = GCO.GetTotalPrisonners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
 			attacker.FoodGained = GCO.Round(ExposedMembers.UnitData[defender.unitKey].FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) /100)
@@ -1656,7 +1659,7 @@ function SupplyPathBlocked(pPlot, pPlayer)
 	local ownerID = pPlot:GetOwner()
 	local playerID = pPlayer:GetID()
 
-	local aUnits = Units.GetUnitsInPlot(plot);
+	local aUnits = Units.GetUnitsInPlot(pPlot);
 	for i, pUnit in ipairs(aUnits) do
 		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
 	end
@@ -1734,6 +1737,11 @@ function SetSupplyLine(self)
 		ExposedMembers.UnitData[key].SupplyLineCityKey = nil
 		ExposedMembers.UnitData[key].SupplyLineEfficiency = 0
 	end
+end
+
+function GetSupplyLineEfficiency(self)
+	local unitKey = self:GetKey()
+	return ExposedMembers.UnitData[unitKey].SupplyLineEfficiency or 0
 end
 
 function OnUnitMoveComplete(playerID, unitID, iX, iY)
@@ -1906,7 +1914,7 @@ function DoTurn(self)
 	self:DoMorale()
 	self:DoFuel()
 	self:SetSupplyLine()
-	LuaEvents.UnitsCompositionUpdated(playerID, self:GetID())
+	--LuaEvents.UnitsCompositionUpdated(playerID, self:GetID())
 end
 
 function DoUnitsTurn( playerID )
@@ -1951,21 +1959,28 @@ function AttachUnitFunctions(unit)
 		
 		u.GetKey					= GetKey
 		u.ChangeStock				= ChangeStock
-		u.GetStock					= GetStock
-		u.GetRequirements			= GetRequirements
-		u.GetNumResourceNeeded		= GetNumResourceNeeded
-		u.GetFoodConsumptionRatio	= GetFoodConsumptionRatio
-		u.GetMoraleFromFood			= GetMoraleFromFood
+		u.GetBaseFoodStock			= GetBaseFoodStock
 		u.GetFoodConsumption 		= GetFoodConsumption
+		u.GetFoodConsumptionRatio	= GetFoodConsumptionRatio
+		u.GetFuelConsumption 		= GetFuelConsumption
+		u.GetMaxFoodStock			= GetMaxFoodStock
+		u.GetMaxHorsesReserve		= GetMaxHorsesReserve
+		u.GetMaxMaterielReserve		= GetMaxMaterielReserve
+		u.GetMaxPersonnelReserve	= GetMaxPersonnelReserve
+		u.GetMaxVehiclesReserve		= GetMaxVehiclesReserve
+		u.GetMoraleFromFood			= GetMoraleFromFood
+		u.GetNumResourceNeeded		= GetNumResourceNeeded
+		u.GetRequirements			= GetRequirements
+		u.GetStock					= GetStock
 		u.GetSupplyPathPlots 		= GetSupplyPathPlots
 		u.SetSupplyLine				= SetSupplyLine
+		u.GetSupplyLineEfficiency	= GetSupplyLineEfficiency
 		--
 		u.DoFood 					= DoFood
 		u.DoMorale 					= DoMorale
 		u.DoFuel 					= DoFuel
 		u.DoTurn 					= DoTurn
 		--
-		u.GetFuelConsumption 		= GetFuelConsumption
 		
 		-- flag strings
 		u.GetFoodStockString		= GetFoodStockString
