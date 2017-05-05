@@ -29,7 +29,7 @@ local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATE
 
 local UpperClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_TO_PERSONNEL_RATIO"].Value)	
 local MiddleClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_TO_PERSONNEL_RATIO"].Value)
-local lowerClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_TO_PERSONNEL_RATIO"].Value)
+local LowerClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_TO_PERSONNEL_RATIO"].Value)
 
 local PersonnelHighRankRatio		= tonumber(GameInfo.GlobalParameters["ARMY_PERSONNEL_HIGH_RANK_RATIO"].Value)
 local PersonnelMiddleRankRatio		= tonumber(GameInfo.GlobalParameters["ARMY_PERSONNEL_MIDDLE_RANK_RATIO"].Value)
@@ -641,11 +641,12 @@ function DoExcedents(self)
 	
 	print("Handling excedent...")
 
-	local cityKey = city:GetKey()
+	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
 	
 	-- excedental resources are lost
-	for resourceID, value in pairs(cityData.Stock) do
+	for resourceKey, value in pairs(cityData.Stock) do
+		local resourceID = tonumber(resourceKey)
 		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
 		if excedent > 0 then
 			print(" - Excedental ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." destroyed = ".. tostring(excedent))
@@ -655,6 +656,7 @@ function DoExcedents(self)
 
 	-- excedental personnel is sent back to civil life... (to do : send them to another location if available)
 	local excedentalPersonnel = self:GetPersonnel() - self:GetMaxPersonnel()
+	
 	if excedentalPersonnel > 0 then
 	
 		local toUpper 	= GCO.Round(excedentalPersonnel * PersonnelToUpperClassRatio)

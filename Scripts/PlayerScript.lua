@@ -47,7 +47,7 @@ function UpdateUnitsFlags(self)
 end
 
 function UpdateCitiesBanners(self)
-	local playerCities = self:GetCitiess()
+	local playerCities = self:GetCities()
 	if playerCities then
 		for i, city in playerCities:Members() do			
 			LuaEvents.CityCompositionUpdated(self:GetID(), city:GetID())
