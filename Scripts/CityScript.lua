@@ -423,20 +423,21 @@ function UpdateLinkedUnits(self)
 	UnitsSupplyDemand[self] 				= { Resources = {}, NeedResources = {}} -- NeedResources : Number of units requesting a resource type
 	
 	for unitKey, data in pairs(ExposedMembers.UnitData) do
-		if data.SupplyLineCityKey == self:GetKey() and data.SupplyLineEfficiency > 0 then
+		local efficiency = data.SupplyLineEfficiency
+		if data.SupplyLineCityKey == self:GetKey() and efficiency > 0 then
 			local unit = GCO.GetUnit(data.playerID, data.unitID)
 			if unit then
 				LinkedUnits[self][unit] = {NeedResources = {}}
 				local requirements 	= unit:GetRequirements()
 				if requirements.Vehicles > 0 then
-					UnitsSupplyDemand[self].Vehicles 		= ( UnitsSupplyDemand[self].Vehicles 		or 0 ) + requirements.Vehicles
+					UnitsSupplyDemand[self].Vehicles 		= ( UnitsSupplyDemand[self].Vehicles 		or 0 ) + GCO.Round(requirements.Vehicles*efficiency/100)
 					UnitsSupplyDemand[self].NeedVehicles 	= ( UnitsSupplyDemand[self].NeedVehicles 	or 0 ) + 1
 					LinkedUnits[self][unit].NeedVehicles	= true
 				end
 				
 				for resourceID, value in pairs(requirements.Resources) do
 					if value > 0 then
-						UnitsSupplyDemand[self].Resources[resourceID] 		= ( UnitsSupplyDemand[self].Resources[resourceID] 		or 0 ) + requirements.Resources[resourceID]
+						UnitsSupplyDemand[self].Resources[resourceID] 		= ( UnitsSupplyDemand[self].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
 						UnitsSupplyDemand[self].NeedResources[resourceID] 	= ( UnitsSupplyDemand[self].NeedResources[resourceID] 	or 0 ) + 1
 						LinkedUnits[self][unit].NeedResources[resourceID] 	= true
 					end
@@ -478,11 +479,12 @@ function ReinforceUnits(self)
 					if reqValue > 0 then
 						local efficiency	= unit:GetSupplyLineEfficiency()
 						local send 			= math.min(reinforcements.ResPerUnit[resourceID], reqValue, resLeft)
-						local received		= GCO.Round(send * efficiency / 100)
+						--local received		= GCO.Round(send * efficiency / 100)
 						resLeft = resLeft - send
-						unit:ChangeStock(resourceID, received)
+						--unit:ChangeStock(resourceID, received)
+						unit:ChangeStock(resourceID, send)
 						self:ChangeStock(resourceID, -send)
-						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (received ".. tostring(received).. " @".. tostring(efficiency) .."% efficiency) to unit#".. tostring(unit:GetID()))
+						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) to unit#".. tostring(unit:GetID()))
 					end
 				end
 				loop = loop + 1

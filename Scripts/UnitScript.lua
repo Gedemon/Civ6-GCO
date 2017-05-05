@@ -12,9 +12,11 @@ local UnitHitPointsTable = {} -- cached table to store the required values of an
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
-local lightRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
-local mediumRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
-local heavyRationing 	=  tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
+local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
+local mediumRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
+local heavyRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
+
+local SupplyLineLengthFactor	= tonumber(GameInfo.GlobalParameters["UNIT_SUPPLY_LINE_LENGTH_FACTOR"].Value)
 
 local foodResourceID 		= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
@@ -1715,8 +1717,8 @@ function SetSupplyLine(self)
 		local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
 		local routeLength = GCO.GetRouteLength()
 		if bIsPlotConnected then
-			local efficiency = GCO.Round( 100 - math.pow(routeLength*0.85,2) )
-			if efficiency > 50 then -- to do : allow players to change this value
+			local efficiency = GCO.Round( 100 - math.pow(routeLength*SupplyLineLengthFactor,2) )
+			if efficiency > 0 then
 				ExposedMembers.UnitData[key].SupplyLineCityKey = closestCity:GetKey()
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
 				NoLinkToCity = false
