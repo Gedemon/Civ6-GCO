@@ -916,7 +916,7 @@ function UnitFlag.UpdateName( self )
 			end	
 
 			-- Supply Line
-			if bHasComponents then
+			--if bHasComponents then
 			
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TITLE")
 				if unitData.SupplyLineCityKey then
@@ -934,7 +934,7 @@ function UnitFlag.UpdateName( self )
 					nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_NO_SUPPLY_LINE")
 				end
 				
-			end
+			--end
 		end
 
 		function ShowSupplyLine()

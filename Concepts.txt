@@ -237,6 +237,9 @@ popup to allow choice (pay for reinforcements or pillage or no action for exampl
 	- bonus in prod when previous building in city
 	- lua script to replace the old building on completion
 
++ new buildings
+	- Rivers docks : allow resource trade/transfer following rivers
+	
 --]]
 	
 --===============================--
@@ -324,7 +327,7 @@ UI :
 MIN_PERCENT_LEFT_TO_SELL 		-- Selling to another Civ
 MIN_PERCENT_LEFT_TO_CONVERT		-- Converted in local industry
 MIN_PERCENT_LEFT_TO_SUPPLY		-- Used to reinforce units
-MIN_PERCENT_LEFT_TO_TRANSFERT	-- Transfered to other cities
+MIN_PERCENT_LEFT_TO_TRANSFER	-- Transfered to other cities
 
 MAX_PERCENT_LEFT_TO_BUY			-- Buying from another civ 
 MAX_PERCENT_LEFT_TO_REQUEST		-- Transfered from other cities
@@ -335,7 +338,7 @@ Proceed on new turns for all civs at once ?
 	build linked units table
 	
 1st loop on cities
-	build linked cities table	
+	build linked cities table (river, sea, road, trader, airport)
 	collect resources in city plots (allow excedent)
 	get supply demand (units linked to that city)
 	get industry demand (local buildings that convert resources)
@@ -347,8 +350,8 @@ Proceed on new turns for all civs at once ?
 	get cities requests (internal trade routes to/from that city)
 	
 3rd loop on cities
-	calculate transfert ratio between Sell, Convertion, Supply, Transfert
-	do transferts
+	calculate transfer ratio between Sell, Convertion, Supply, Transfer
+	do transfers
 	
 on beginning of each player turn, after DoUnits()
 	remove excedent
@@ -356,12 +359,19 @@ on beginning of each player turn, after DoUnits()
 --]]
 
 --===============================--
---[[ RESOURCE TRANSFERT
+--[[ RESOURCE TRANSFER
 --===============================--
 
 Gold gained on import and export (taxes), more trade = more money, but less local bonuses
 
 How much resources are transfered using trade routes
+
+types:
+	traders -> max efficiency
+	road	|
+	river	|} efficiency relative to distance
+	sea		|
+	air		-> smaller but fixed values not relative to distance
 
 default values:
 MAX_CARGO_PER_TRADER = 10 -- Max value for exported/imported resource per trader
@@ -449,7 +459,7 @@ City values
 --===============================--
 
 raise
-	food variation
+	food variety
 	health buildings
 	forest
 	
@@ -554,12 +564,14 @@ type of demand
 	ask for gold
 	
 type of treaty (things that will take effects for a specified duration)
+	fixed borders: no tile flipping from culture without trading them between those civilizations
 	territorial integrity: recognize borders, engagement to not make demand of territory based on culture %
 	defensive pact
 	non agression pact
 	open borders
 	declaration of friendship
-	open market: engagement to not start an embargo of any resource
+	open market: automatic trade alongs routes type without using a trader unit, like for internal routes
+	engagement to not start an embargo of any resource
 	information sharing against another civ (civA and civB share spy informations about civC)
 	garanteed access for trade to a % of specific resources (which means priority access for civ A to that resource over civ B own industry and units)
 	embargo of specific resources against another civ (civA and civB agree to not trade a resource with civC)

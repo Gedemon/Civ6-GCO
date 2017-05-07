@@ -44,13 +44,18 @@ function GetCityCultureYield(plot)
 end
 
 function GetCityPlots(city)
-	contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
 	return Map.GetCityPlots():GetPurchasedPlots(contextCity)
 end
 
 function GetCityYield(city, yieldType)
-	contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
 	return contextCity:GetYield(yieldType)
+end
+
+function GetCityTrade(city)
+	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	return contextCity:GetTrade()
 end
 
 ----------------------------------------------
@@ -61,6 +66,10 @@ function HasPlayerOpenBordersFrom(Player, otherPlayerID)
 	return contextPlayer:GetDiplomacy():HasOpenBordersFrom( otherPlayerID )
 end
 
+function IsResourceVisibleFor(Player, resourceID)
+	local contextPlayer = Players[Player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
+	return contextPlayer:GetResources():IsResourceVisible( resourceID )
+end
 
 ----------------------------------------------
 -- Plots functions
@@ -90,8 +99,10 @@ function Initialize()
 	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
 	ExposedMembers.GCO.GetCityPlots					= GetCityPlots
 	ExposedMembers.GCO.GetCityYield 				= GetCityYield
+	ExposedMembers.GCO.GetCityTrade 				= GetCityTrade
 	-- players
 	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
+	ExposedMembers.GCO.IsResourceVisibleFor 		= IsResourceVisibleFor
 	-- plots
 	--local p = getmetatable(Map.GetPlot(1,1)).__index
 	--ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged -- attaching this in script context doesn't work as the plot object from script miss other elements required for this by the plot object in UI context 

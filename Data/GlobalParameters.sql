@@ -40,6 +40,20 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LIGHT_RATION
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MEDIUM_RATIONING_DEATH_PERCENT', 	7);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAVY_RATIONING_DEATH_PERCENT', 	25);
 
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_SUPPLY', 		50);	-- stock above that percentage are available for reinforcing units
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_EXPORT', 		75);	-- stock above that percentage are available for trade with other civilizations cities
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_CONVERT', 		50);	-- stock above that percentage are available for use by local industries
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_TRANSFER', 	75);	-- stock above that percentage are available for transfer to other cities of the same civilization
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_IMPORT', 		75);	-- allow trade from other civilizations cities until that percentage is reached
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_REQUEST', 		100);	-- allow internal transfer from other cities of the same civilization until that percentage is reached
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_ROAD_LENGTH_FACTOR',			0.50);	-- When calculating supply line efficiency relatively to length (lower = better)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_RIVER_LENGTH_FACTOR',			0.40);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_SEA_LENGTH_FACTOR',			0.25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_TRADER_LENGTH_FACTOR',		0.00);	-- note : traders are always at max efficiency, they are limited by their own range
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_AIRPORT_LENGTH_FACTOR',		0.00);	-- note : Airport will use smaller but fixed values set differently
+
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_UPPER_CLASS_TO_PERSONNEL_RATIO', 	0.01);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIDDLE_CLASS_TO_PERSONNEL_RATIO', 	0.05);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LOWER_CLASS_TO_PERSONNEL_RATIO', 	0.10);
@@ -123,6 +137,12 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_HP_VERY_LO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_HP_FULL',					2);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_HP_LOW',					-1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_HP_VERY_LOW',				-3);
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CLOSE_TO_HOME_EFFICIENCY_VALUE',	85);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_FAR_FROM_HOME_EFFICIENCY_VALUE',	0);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_CLOSE_TO_HOME',			1);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_FAR_FROM_HOME',			-1);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_NO_WAY_HOME',				-3);
 
 -- UI
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UI_MAX_PRISONNERS_LINE_IN_TOOLTIP',		2);		-- Number of lines showing prisonners nationality in unit's flag 

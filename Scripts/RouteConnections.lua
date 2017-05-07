@@ -66,7 +66,7 @@ end
 ----- PUBLIC METHODS -----
 
 -- Array of route types - you can change the text, but NOT the order
-routes = {"Land", "Road", "Railroad", "Coastal", "Ocean", "Submarine"}
+routes = {"Land", "Road", "Railroad", "Coastal", "Ocean", "Submarine", "River"}
 
 -- Array of highlight colours
 highlights = { Red     = Vector4(1.0, 0.0, 0.0, 1.0), 
@@ -276,8 +276,7 @@ function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
 	  	if (pPlayerVis:IsRevealed(pDestPlot:GetX(), pDestPlot:GetY())) then -- IsVisible
 	  	  IsPlotRevealed = true
 	  	end
-	  end
-	
+	  end	
 	
       if (pPlayer == nil or IsPlotRevealed) then
         local bAdd = false
@@ -285,7 +284,7 @@ function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
         -- Be careful of order, must check for road before rail, and coastal before ocean
         if (sRoute == routes[1] and not( pDestPlot:IsImpassable() or pDestPlot:IsWater())) then
           bAdd = true
-        elseif (sRoute == routes[2] and pDestPlot:GetRouteType() >= 0) then
+        elseif (sRoute == routes[2] and pDestPlot:GetRouteType() ~= RouteTypes.NONE) then --and pDestPlot:GetRouteType() >= 0) then 		
           bAdd = true
         elseif (sRoute == routes[3] and pDestPlot:GetRouteType() >= 1) then
           bAdd = true
@@ -294,6 +293,8 @@ function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
         elseif (sRoute == routes[5] and pDestPlot:IsWater()) then
           bAdd = true
         elseif (sRoute == routes[6] and pDestPlot:IsWater()) then
+          bAdd = true
+        elseif (sRoute == routes[7] and pDestPlot:IsRiverConnection(direction) ) then
           bAdd = true
         end
 

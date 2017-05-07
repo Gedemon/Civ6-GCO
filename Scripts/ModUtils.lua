@@ -201,6 +201,9 @@ function FindNearestPlayerCity( eTargetPlayer, iX, iY )
     return pCity, iShortestDistance;
 end
 
+function GetRouteEfficiency(length)
+	return GCO.Round( 100 - math.pow(length,2) )
+end
 
 ----------------------------------------------
 -- Cities
@@ -267,6 +270,28 @@ function GetTotalPrisonners(data) -- works for cityData and unitData
 	return TableSummation(data.Prisonners)
 end
 
+
+function SupplyPathBlocked(pPlot, pPlayer)
+
+	local ownerID = pPlot:GetOwner()
+	local playerID = pPlayer:GetID()
+
+	local aUnits = Units.GetUnitsInPlot(pPlot);
+	for i, pUnit in ipairs(aUnits) do
+		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
+	end
+		
+	if ( ownerID == playerID or ownerID == -1 ) then
+		return false
+	end
+
+	if GCO.HasPlayerOpenBordersFrom(pPlayer, ownerID) then
+		return false
+	end	
+
+	return true -- return true if the path is blocked...
+end
+
 ----------------------------------------------
 -- Players
 ----------------------------------------------
@@ -312,6 +337,14 @@ function GetPrisonnersStringByCiv(data) -- works for unitData and cityData
 	return str
 end
 
+function GetVariationString(variation)
+	if variation > 0 then
+		return "[ICON_PressureUp][COLOR_Civ6Green] +".. tostring(variation).."[ENDCOLOR]"
+	elseif variation < 0 then
+		return " [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(variation).."[ENDCOLOR]"
+	end
+	return ""
+end
 ----------------------------------------------
 -- Share functions for other contexts
 ----------------------------------------------
@@ -335,13 +368,16 @@ function Initialize()
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
 	-- common
 	ExposedMembers.GCO.GetTotalPrisonners 			= GetTotalPrisonners
-	-- flag strings
-	ExposedMembers.GCO.GetPrisonnersStringByCiv 	= GetPrisonnersStringByCiv
+	ExposedMembers.GCO.SupplyPathBlocked 			= SupplyPathBlocked
 	-- map
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
+	ExposedMembers.GCO.GetRouteEfficiency 			= GetRouteEfficiency
 	-- player
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
+	-- texts
+	ExposedMembers.GCO.GetPrisonnersStringByCiv 	= GetPrisonnersStringByCiv
+	ExposedMembers.GCO.GetVariationString 			= GetVariationString
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true
 end

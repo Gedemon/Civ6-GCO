@@ -305,8 +305,7 @@ function GetUnitFromKey ( unitKey )
 		if unit then
 			return unit
 		else
-			print("- WARNING: unit is nil for GetUnitFromKey(".. tostring(unitKey).."), marking as dead")
-			print("--- UnitId = " .. ExposedMembers.UnitData[unitKey].UnitID ..", playerID = " .. ExposedMembers.UnitData[unitKey].playerID )
+			print("- WARNING: unit is nil for GetUnitFromKey(".. tostring(unitKey).."), marking as dead --- unit type = ".. tostring(GameInfo.Units[ExposedMembers.UnitData[unitKey].unitType].UnitType) )
 			ExposedMembers.UnitData[unitKey].Alive = false
 		end
 	else
@@ -500,7 +499,7 @@ function GetBaseFuelStock(unitType) -- local
 	return 0
 end
 
-function GetMaxTransfertTable(unit)
+function GetMaxTransferTable(unit)
 	local maxTranfert = {}
 	local unitType = unit:GetType()
 	local unitInfo = GameInfo.Units[unitType]
@@ -584,13 +583,13 @@ function GetRequirements(self)
 	local requirements 		= {}
 	requirements.Resources 	= {}
 	
-	print("GetRequirements for unit ".. tostring(unitKey))
+	print("Get Requirements for unit ".. tostring(unitKey), Locale.Lookup(UnitManager.GetTypeName(self)) )
 	
 	requirements.Vehicles = math.max(0, self:GetMaxVehiclesReserve() - unitData.VehiclesReserve)
 
 	for _, resourceID in ipairs(list) do
 		requirements.Resources[resourceID] = self:GetNumResourceNeeded(resourceID)
-		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID]))
+		print(" - ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).." = ".. tostring(requirements.Resources[resourceID]))
 	end
 	
 	-- Resources for all vehicles
@@ -680,6 +679,21 @@ function GetMoraleFromHP(unitData)
 		end
 	end
 	return moraleFromHP
+end
+
+function GetMoraleFromHome(unitData)
+	local moraleFromHome = 0
+	if unitData.SupplyLineCityKey then
+		local supplyEfficiency = unitData.SupplyLineEfficiency
+		if supplyEfficiency >= tonumber(GameInfo.GlobalParameters["MORALE_CLOSE_TO_HOME_EFFICIENCY_VALUE"].Value) then
+			moraleFromHome = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_CLOSE_TO_HOME"].Value)
+		elseif supplyEfficiency <= tonumber(GameInfo.GlobalParameters["MORALE_FAR_FROM_HOME_EFFICIENCY_VALUE"].Value) then
+			moraleFromHome = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FAR_FROM_HOME"].Value)
+		end	
+	else
+		moraleFromHome = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_NO_WAY_HOME"].Value)
+	end
+	return moraleFromHome
 end
 
 
@@ -772,6 +786,15 @@ function GetMoraleString(self)
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FULL_HP", moraleFromHP)
 	elseif moraleFromHP < 0 then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_LOW_HP", moraleFromHP)
+	end
+	
+	local moraleFromHome = GetMoraleFromHome(unitData)
+	if moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_NO_WAY_HOME"].Value) then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WAY_HOMEP", moraleFromHome)
+	elseif moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FAR_FROM_HOME"].Value) then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FAR_FROM_HOME", moraleFromHome)
+	elseif moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_CLOSE_TO_HOME"].Value) then
+		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_CLOSE_TO_HOME", moraleFromHome)
 	end
 	
 	return str
@@ -1007,12 +1030,12 @@ function ShowFrontLineHealingFloatingText(healingData)
 				-- Format text with newlines or separator as required
 				local bNeedNewLine, bNeedSeparator = false, false
 				if healingData.reqPersonnel + healingData.reqMateriel > 0 then
-					sText = sText .. Locale.Lookup("LOC_PERSONNEL_RESERVE_TRANSFERT", healingData.reqPersonnel)
+					sText = sText .. Locale.Lookup("LOC_PERSONNEL_RESERVE_TRANSFER", healingData.reqPersonnel)
 					bNeedNewLine, bNeedSeparator = true, true
 				end
 				if healingData.reqMateriel > 0 then
 					if bNeedSeparator then sText = sText .. "," end
-					sText = sText .. Locale.Lookup("LOC_MATERIEL_RESERVE_TRANSFERT", healingData.reqMateriel)
+					sText = sText .. Locale.Lookup("LOC_MATERIEL_RESERVE_TRANSFER", healingData.reqMateriel)
 					bNeedNewLine, bNeedSeparator = true, true
 				end
 				-- second line
@@ -1021,13 +1044,13 @@ function ShowFrontLineHealingFloatingText(healingData)
 				sText = ""
 				if healingData.reqVehicles > 0 then
 					--if bNeedNewLine then sText = sText .. "[NEWLINE]" end
-					sText = sText .. Locale.Lookup("LOC_VEHICLES_RESERVE_TRANSFERT", healingData.reqVehicles)					
+					sText = sText .. Locale.Lookup("LOC_VEHICLES_RESERVE_TRANSFER", healingData.reqVehicles)					
 					bNeedNewLine, bNeedSeparator = false, true
 				end
 				if healingData.reqHorses > 0 then
 					--if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 					if bNeedSeparator then sText = sText .. "," end
-					sText = sText .. Locale.Lookup("LOC_HORSES_RESERVE_TRANSFERT", healingData.reqHorses)
+					sText = sText .. Locale.Lookup("LOC_HORSES_RESERVE_TRANSFER", healingData.reqHorses)
 				end
 				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 			else
@@ -1102,19 +1125,19 @@ function ShowDesertionFloatingText(desertionData)
 			if desertionData.Vehicles > 0 then
 				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 				if bNeedSeparator then sText = sText .. "," end
-				sText = sText .. Locale.Lookup("LOC_VEHICLES_RESERVE_TRANSFERT", desertionData.Vehicles)
+				sText = sText .. Locale.Lookup("LOC_VEHICLES_RESERVE_TRANSFER", desertionData.Vehicles)
 				bNeedNewLine, bNeedSeparator = false, true
 			end
 			if desertionData.Horses > 0 then
 				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 				if bNeedSeparator then sText = sText .. "," end
-				sText = sText .. Locale.Lookup("LOC_HORSES_RESERVE_TRANSFERT", desertionData.Horses)
+				sText = sText .. Locale.Lookup("LOC_HORSES_RESERVE_TRANSFER", desertionData.Horses)
 				bNeedNewLine, bNeedSeparator = false, true
 			end
 			if desertionData.Materiel > 0 then
 				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 				if bNeedSeparator then sText = sText .. "," end
-				sText = sText .. Locale.Lookup("LOC_MATERIEL_RESERVE_TRANSFERT", desertionData.Materiel)
+				sText = sText .. Locale.Lookup("LOC_MATERIEL_RESERVE_TRANSFER", desertionData.Materiel)
 				bNeedNewLine, bNeedSeparator = false, true
 			end
 			Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, desertionData.X, desertionData.Y, 0)
@@ -1231,7 +1254,7 @@ function AddCasualtiesInfoByTo(OpponentA, OpponentB)
 	-- Materiel too is a full lost
 	OpponentB.MaterielLost = OpponentB.MaterielCasualties
 				
-	-- Apply Casualties	transfert
+	-- Apply Casualties	transfer
 	ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel = ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel 	+ OpponentB.Wounded
 	ExposedMembers.UnitData[OpponentB.unitKey].DamagedVehicles 	= ExposedMembers.UnitData[OpponentB.unitKey].DamagedVehicles 	+ OpponentB.DamagedVehicles
 	
@@ -1507,7 +1530,7 @@ function HealingUnits(playerID)
 			damaged[n] = {}
 		end
 
-		local maxTransfert = {}	-- maximum value of a component that can be used to heal in one turn
+		local maxTransfer = {}	-- maximum value of a component that can be used to heal in one turn
 		local alreadyUsed = {}	-- materiel is used both to heal the unit (reserve -> front) and repair vehicules in reserve, up to a limit
 		for i, unit in playerUnits:Members() do
 			-- todo : check if the unit can heal (has a supply line, is not on water, ...)
@@ -1516,7 +1539,7 @@ function HealingUnits(playerID)
 				table.insert(damaged[hp], unit)
 				healTable[unit] = 0
 			end
-			maxTransfert[unit] = GetMaxTransfertTable(unit)
+			maxTransfer[unit] = GetMaxTransferTable(unit)
 			alreadyUsed[unit] = {}
 			alreadyUsed[unit].Materiel = 0
 		end
@@ -1541,7 +1564,7 @@ function HealingUnits(playerID)
 								local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Materiel 	- UnitHitPointsTable[unitInfo.Index][hp].Materiel
 								if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tostring(unit:GetName()) .. " id#" .. tostring(unit:GetID())) end
 								-- unit limit (vehicles and horses are handled by personnel...)
-								if reqPersonnel > tonumber(maxTransfert[unit].Personnel) or reqMateriel > tonumber(maxTransfert[unit].Materiel) then
+								if reqPersonnel > tonumber(maxTransfer[unit].Personnel) or reqMateriel > tonumber(maxTransfer[unit].Materiel) then
 									hasReachedLimit[unit] = true
 									print("- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
 
@@ -1618,7 +1641,7 @@ function HealingUnits(playerID)
 					ExposedMembers.UnitData[key].PersonnelReserve = ExposedMembers.UnitData[key].PersonnelReserve + healed
 
 					-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
-					local materielAvailable = maxTransfert[unit].Materiel - alreadyUsed[unit].Materiel
+					local materielAvailable = maxTransfer[unit].Materiel - alreadyUsed[unit].Materiel
 					local maxRepairedVehicles = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerVehicles* GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
 					local repairedVehicules = 0
 
@@ -1656,27 +1679,6 @@ end
 -- cf Worldinput.lua
 --pathPlots, turnsList, obstacles = UnitManager.GetMoveToPath( kUnit, endPlotId )
 
-function SupplyPathBlocked(pPlot, pPlayer)
-
-	local ownerID = pPlot:GetOwner()
-	local playerID = pPlayer:GetID()
-
-	local aUnits = Units.GetUnitsInPlot(pPlot);
-	for i, pUnit in ipairs(aUnits) do
-		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
-	end
-		
-	if ( ownerID == playerID or ownerID == -1 ) then
-		return false
-	end
-
-	if GCO.HasPlayerOpenBordersFrom(pPlayer, ownerID) then
-		return false
-	end	
-
-	return true -- return true if the path is blocked...
-end
-
 function GetSupplyPathPlots(self)
 	local unitKey 	= self:GetKey()
 	local unitData 	= ExposedMembers.UnitData[unitKey]
@@ -1685,7 +1687,7 @@ function GetSupplyPathPlots(self)
 		if city then
 			local cityPlot = Map.GetPlot(city:GetX(), city:GetY())
 			local bShortestRoute = true
-			local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
+			local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
 			if bIsPlotConnected then
 				return GCO.GetRoutePlots()
 			end
@@ -1714,10 +1716,10 @@ function SetSupplyLine(self)
 			end
 		--]]
 		local bShortestRoute = true
-		local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, SupplyPathBlocked)
+		local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
 		local routeLength = GCO.GetRouteLength()
 		if bIsPlotConnected then
-			local efficiency = GCO.Round( 100 - math.pow(routeLength*SupplyLineLengthFactor,2) )
+			local efficiency = GCO.GetRouteEfficiency(routeLength*SupplyLineLengthFactor)
 			if efficiency > 0 then
 				ExposedMembers.UnitData[key].SupplyLineCityKey = closestCity:GetKey()
 				ExposedMembers.UnitData[key].SupplyLineEfficiency = efficiency
@@ -1815,6 +1817,7 @@ function DoMorale(self)
 	moraleVariation = moraleVariation + GetMoraleFromLastCombat(unitData)
 	moraleVariation = moraleVariation + GetMoraleFromWounded(unitData)
 	moraleVariation = moraleVariation + GetMoraleFromHP(unitData)
+	moraleVariation = moraleVariation + GetMoraleFromHome(unitData)
 	
 	local morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
 	ExposedMembers.UnitData[key].Morale = morale
@@ -1919,6 +1922,7 @@ function DoTurn(self)
 end
 
 function DoUnitsTurn( playerID )
+	
 	HealingUnits( playerID )
 
 	local player = Players[playerID]
@@ -1931,6 +1935,27 @@ function DoUnitsTurn( playerID )
 	end
 end
 LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
+
+
+-----------------------------------------------------------------------------------------
+-- 
+-----------------------------------------------------------------------------------------
+function CleanUnitData()
+	-- remove dead units from the table
+	print("-----------------------------------------------------------------------------------------")
+	print("Cleaning UnitData...")
+	local unitData = ExposedMembers.UnitData
+	for unitKey, data in pairs(unitData) do
+		local unit = GetUnitFromKey ( unitKey )
+		if (not unit) then		
+			--print("REMOVING unit ID#"..tostring(data.unitID).." from player ID#"..tostring(data.playerID), "unit type = ".. tostring(GameInfo.Units[data.unitType].UnitType))
+			ExposedMembers.UnitData[unitKey] = nil
+		else
+			--print("Keeping unit ID#"..unit:GetID(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
+		end
+	end
+end
+Events.TurnBegin.Add(CleanUnitData)
 
 
 -----------------------------------------------------------------------------------------

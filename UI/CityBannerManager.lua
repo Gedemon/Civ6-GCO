@@ -17,6 +17,8 @@ function InitializeUtilityFunctions()
 	print ("Exposed Functions from other contexts initialized...")
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+
+local bShownSupplyLine = false
 -- GCO >>>>>
 
 -- ===========================================================================
@@ -1227,16 +1229,24 @@ function CityBanner.UpdateName( self : CityBanner )
 				if population > 0 then
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE")
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_TOTAL_POPULATION", population)
-					if cityData.UpperClass 	> 0 then cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", cityData.UpperClass) end
-					if cityData.MiddleClass	> 0 then cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", cityData.MiddleClass) end
-					if cityData.LowerClass 	> 0 then cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", cityData.LowerClass) end
-					if cityData.Slaves	 	> 0 then cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", cityData.Slaves) end
+					if cityData.UpperClass + cityData.PreviousUpperClass > 0 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", cityData.UpperClass) .. GCO.GetVariationString(cityData.UpperClass - cityData.PreviousUpperClass)
+					end
+					if cityData.MiddleClass + cityData.PreviousMiddleClass > 0 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", cityData.MiddleClass) .. GCO.GetVariationString(cityData.MiddleClass - cityData.PreviousMiddleClass)
+					end
+					if cityData.LowerClass + cityData.PreviousLowerClass > 0 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", cityData.LowerClass) .. GCO.GetVariationString(cityData.LowerClass - cityData.PreviousLowerClass)
+					end
+					if cityData.Slaves + cityData.PreviousSlaves > 0 then 
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", cityData.Slaves) .. GCO.GetVariationString(cityData.Slaves - cityData.PreviousSlaves)
+					end
 				 end
 				
 				-- Personnel				
 				if cityData.Personnel > 0 then
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", cityData.Personnel, city:GetMaxPersonnel())
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", cityData.Personnel, city:GetMaxPersonnel()) .. GCO.GetVariationString(cityData.Personnel - cityData.PreviousPersonnel)
 				end
 				
 				-- Prisonners
@@ -1248,10 +1258,51 @@ function CityBanner.UpdateName( self : CityBanner )
 				
 				-- Stock
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STOCK_TITLE")
-				cityString = cityString .. GCO.GetResourcesStockString(cityData) 
+				cityString = cityString .. city:GetResourcesStockString() 
 				
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
+				
+				function ShowSupplyLine()
+					if bShownSupplyLine then return end
+					local linkedCities = city:GetLinkedCities()
+					if not linkedCities then return end
+					UILens.SetActive("TradeRoute")
+					UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )
+					
+					local IsAllowedRouteType = { -- route types used in RouteConnection.lua
+						["Land"] = true, ["Road"] = true, ["Railroad"] = true, ["Coastal"] = true, ["Ocean"] = true, ["Submarine"] = true, ["River"] = true
+					}					
+					for destCity, data in pairs(linkedCities) do
+						local sRouteType = GCO.GetSupplyRouteString(data.RouteType)
+						if sRouteType == "Trader" then sRouteType = "Road" end -- convert traders to road... to do : put all SupplyRouteType from CityScript in RouteConnection.lua
+						if IsAllowedRouteType[sRouteType] then
+							local bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
+							if bIsPlotConnected then
+								local pathPlots 	= GCO.GetRoutePlots()
+								local kVariations:table = {}
+								local lastElement : number = table.count(pathPlots)
+								local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
+								local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
+								if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
+									table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
+									UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
+									bShownSupplyLine = true
+								end
+							end
+						end
+					end
+				end		
+				self.m_Instance.CityName:RegisterMouseOverCallback( ShowSupplyLine )				
+				
+				function OnMouseOut()
+					bShownSupplyLine = false
+					if UILens.IsLensActive("TradeRoute") then
+						-- Make sure to switch back to default lens
+						UILens.SetActive("Default");
+					end
+				end
+				self.m_Instance.CityBannerButton:RegisterMouseExitCallback(OnMouseOut)				
 				
 				self.m_Instance.CityName:SetToolTipString(cityString);
 			end

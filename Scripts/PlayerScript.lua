@@ -37,6 +37,20 @@ end
 -- Player functions
 -----------------------------------------------------------------------------------------
 
+function IsResourceVisible(self, resourceID)
+	return GCO.IsResourceVisibleFor(self, resourceID)
+end
+	
+function SetCurrentTurn(self)
+	if not ExposedMembers.PlayerData[self:GetID()] then ExposedMembers.PlayerData[self:GetID()] = {} end
+	ExposedMembers.PlayerData[self:GetID()].CurrentTurn = Game.GetCurrentGameTurn()
+end
+
+function HasStartedTurn(self)
+	if not ExposedMembers.PlayerData[self:GetID()] then return false end
+	return (ExposedMembers.PlayerData[self:GetID()].CurrentTurn == Game.GetCurrentGameTurn())
+end
+
 function UpdateUnitsFlags(self)
 	local playerUnits = self:GetUnits()
 	if playerUnits then
@@ -64,7 +78,7 @@ function DoPlayerTurn( playerID )
 	print("---============================================================================================================================================================================---")
 	LuaEvents.DoUnitsTurn( playerID )
 	LuaEvents.DoCitiesTurn( playerID )
-	-- update flags after resources transferts
+	-- update flags after resources transfers
 	player:UpdateUnitsFlags()
 	player:UpdateCitiesBanners()
 end
@@ -76,8 +90,11 @@ end
 
 function DoTurnForLocal()
 	local playerID = Game.GetLocalPlayer()
-	DoPlayerTurn(playerID)
-	LuaEvents.SaveTables()
+	local player = Players[playerID]
+	if player and not player:HasStartedTurn() then
+		DoPlayerTurn(playerID)
+		LuaEvents.SaveTables()
+	end
 end
 Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
 
@@ -108,8 +125,11 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	if not player then player = Players[0] end
 	local p = getmetatable(player).__index
 	
+	p.IsResourceVisible			= IsResourceVisible
 	p.UpdateUnitsFlags			= UpdateUnitsFlags
 	p.UpdateCitiesBanners		= UpdateCitiesBanners
+	p.SetCurrentTurn			= SetCurrentTurn
+	p.HasStartedTurn			= HasStartedTurn
 	
 end
 
