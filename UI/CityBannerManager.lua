@@ -1265,7 +1265,21 @@ function CityBanner.UpdateName( self : CityBanner )
 				
 				function ShowSupplyLine()
 					if bShownSupplyLine then return end
-					local linkedCities = city:GetLinkedCities()
+					local linkedCities = city:GetTransferCities()
+					
+					---[[
+					local exportCities = city:GetExportCities()
+					if exportCities then
+						if not linkedCities then
+							linkedCities = exportCities
+						else
+							for city, data in pairs(exportCities) do
+								linkedCities[city] = data
+							end
+						end
+					end
+					--]]
+					
 					if not linkedCities then return end
 					UILens.SetActive("TradeRoute")
 					UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )

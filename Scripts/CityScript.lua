@@ -12,7 +12,8 @@ local LinkedUnits 			= {}	-- temporary table to list all units linked to a city 
 local UnitsSupplyDemand		= {}	-- temporary table to list all resources required by units
 local CitiesForTransfer 	= {}	-- temporary table to list all cities connected via (internal) trade routes to a city
 local CitiesForTrade		= {}	-- temporary table to list all cities connected via (external) trade routes to a city
-local CitiesSupplyDemand	= {}	-- temporary table to list all resources required by units
+local CitiesTransferDemand	= {}	-- temporary table to list all resources required by own cities
+local CitiesTradeDemand		= {}	-- temporary table to list all resources required by other civilizations cities
 
 local SupplyRouteType	= {		-- ENUM for resource trade/transfer route types
 		Trader 	= 1,
@@ -29,6 +30,15 @@ local SupplyRouteLengthFactor = {		-- When calculating supply line efficiency re
 		[SupplyRouteType.Sea]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
 		[SupplyRouteType.Airport]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_AIRPORT_LENGTH_FACTOR"].Value)
 }
+	
+local ResourceValue 		= {
+		["RESOURCECLASS_LUXURY"] 	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_LUXURY"].Value),
+		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
+		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
+}
+
+local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
+local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)	
 
 local StartingPopulationBonus		= tonumber(GameInfo.GlobalParameters["CITY_STARTING_POPULATION_BONUS"].Value)
 local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
@@ -46,6 +56,8 @@ local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATE
 
 local MinPercentLeftToSupply 		= tonumber(GameInfo.GlobalParameters["CITY_MIN_PERCENT_LEFT_TO_SUPPLY"].Value)
 local MinPercentLeftToTransfer		= tonumber(GameInfo.GlobalParameters["CITY_MIN_PERCENT_LEFT_TO_TRANSFER"].Value)
+local MinPercentLeftToExport		= tonumber(GameInfo.GlobalParameters["CITY_MIN_PERCENT_LEFT_TO_EXPORT"].Value)
+local MinPercentLeftToConvert		= tonumber(GameInfo.GlobalParameters["CITY_MIN_PERCENT_LEFT_TO_CONVERT"].Value)
 
 local MaxPercentLeftToRequest		= tonumber(GameInfo.GlobalParameters["CITY_MAX_PERCENT_LEFT_TO_REQUEST"].Value)
 
@@ -472,35 +484,48 @@ function UpdateLinkedUnits(self)
 	end
 end
 
-function UpdateTransferConnection(self, transferCity, sRouteType)
+function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 	local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), Map.GetPlot(transferCity:GetX(), transferCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
 	if bIsPlotConnected then
 		local routeLength 	= GCO.GetRouteLength()
 		local efficiency 	= GCO.GetRouteEfficiency( routeLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
 		print("Found "..tostring(sRouteType).." route to ".. Locale.Lookup(transferCity:GetName()) .." at " .. tostring(efficiency).."% efficiency")
-		if (not CitiesForTransfer[self][transferCity]) or (CitiesForTransfer[self][transferCity].Efficiency < efficiency) then
-			CitiesForTransfer[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+		if bInternalRoute then
+			if (not CitiesForTransfer[self][transferCity]) or (CitiesForTransfer[self][transferCity].Efficiency < efficiency) then
+				CitiesForTransfer[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+			end
+		else	
+			if (not CitiesForTrade[self][transferCity]) or (CitiesForTrade[self][transferCity].Efficiency < efficiency) then
+				CitiesForTrade[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+			end
 		end
 	end	
 end
 
-function GetLinkedCities(self)
+function GetTransferCities(self)
 	if not CitiesForTransfer[self] then
-		self:UpdateLinkedCities()
+		self:UpdateTransferCities()
 	end
 	return CitiesForTransfer[self]
 end
 
-function UpdateLinkedCities(self)
+function GetExportCities(self)
+	if not CitiesForTrade[self] then
+		self:UpdateExportCities()
+	end
+	return CitiesForTrade[self]
+end
+
+function UpdateTransferCities(self)
 	print("Update Linked Cities for ".. Locale.Lookup(self:GetName()))
 	-- reset entries for that city
-	CitiesForTransfer[self] 	= {}
-	CitiesSupplyDemand[self] 	= { Resources = {}, NeedResources = {}} -- NeedResources : Number of cities requesting a resource type
+	CitiesForTransfer[self] 	= {}	-- Internal transfert to own cities
+	CitiesTransferDemand[self] 	= { Resources = {}, NeedResources = {}} -- NeedResources : Number of cities requesting a resource type
+	
+	local hasRouteTo 	= {}
 	local ownerID 		= self:GetOwner()
 	local player 		= GCO.GetPlayer(ownerID)
 	local playerCities 	= player:GetCities()
-	-- Internal trade routes
-	local hasRouteTo = {}
 	for i, transferCity in playerCities:Members() do
 		if transferCity ~= self then
 			-- search for trader routes first
@@ -509,7 +534,7 @@ function UpdateLinkedCities(self)
 			for j,route in ipairs(outgoingRoutes) do
 				if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
 					print(" - Found trader from ".. Locale.Lookup(transferCity:GetName()))
-					CitiesForTransfer[self][transferCity] = { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
+					CitiesForTransfer[self][transferCity] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 					hasRouteTo[transferCity] = true
 				end
 			end
@@ -518,18 +543,19 @@ function UpdateLinkedCities(self)
 				for j,route in ipairs(trade:GetIncomingRoutes()) do	
 					if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
 						print(" - Found trader to ".. Locale.Lookup(transferCity:GetName()))
-						CitiesForTransfer[self][transferCity] = { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
+						CitiesForTransfer[self][transferCity] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 						hasRouteTo[transferCity] = true
 					end
 				end
 			end
 
 			-- search for other types or routes
+			local bInternalRoute = true
 			if not hasRouteTo[transferCity] then
 				
-				self:UpdateTransferConnection(transferCity, "Road")
-				self:UpdateTransferConnection(transferCity, "River")
-				self:UpdateTransferConnection(transferCity, "Sea")
+				self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
+				self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
+				self:UpdateCitiesConnection(transferCity, "Sea", bInternalRoute)
 
 			end
 			
@@ -540,8 +566,8 @@ function UpdateLinkedCities(self)
 
 				for resourceID, value in pairs(requirements.Resources) do
 					if value > 0 then 
-						CitiesSupplyDemand[self].Resources[resourceID] 		= ( CitiesSupplyDemand[self].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
-						CitiesSupplyDemand[self].NeedResources[resourceID] 	= ( CitiesSupplyDemand[self].NeedResources[resourceID] 	or 0 ) + 1
+						CitiesTransferDemand[self].Resources[resourceID] 		= ( CitiesTransferDemand[self].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+						CitiesTransferDemand[self].NeedResources[resourceID] 	= ( CitiesTransferDemand[self].NeedResources[resourceID] 	or 0 ) + 1
 					end
 				end
 			end	
@@ -565,6 +591,7 @@ function ReinforceUnits(self)
 		reinforcements.ResPerUnit[resourceID] = math.floor(reinforcements.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
 		print("- Max transferable ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).. " = ".. tostring(value) .. " for " .. tostring(supplyDemand.NeedResources[resourceID]) .." units, available = " .. tostring(self:GetAvailableStockForUnits(resourceID))..", send = ".. tostring(reinforcements.Resources[resourceID]))
 	end
+	reqValue = {}
 	for resourceID, value in pairs(reinforcements.Resources) do
 		if directReinforcement[resourceID]  then
 			local resLeft = value
@@ -572,13 +599,16 @@ function ReinforceUnits(self)
 			local loop = 0
 			while (resLeft > 0 and loop < maxLoop) do
 				for unit, data in pairs(LinkedUnits[self]) do
-					local reqValue = unit:GetNumResourceNeeded(resourceID)
-					if reqValue > 0 then
+					local efficiency = unit:GetSupplyLineEfficiency()
+					if not reqValue[unit] then reqValue[unit] = {} end
+					if not reqValue[unit][resourceID] then reqValue[unit][resourceID] = GCO.Round(unit:GetNumResourceNeeded(resourceID)*efficiency/100) end
+					if reqValue[unit][resourceID] > 0 then
 						local efficiency	= unit:GetSupplyLineEfficiency()
-						local send 			= math.min(reinforcements.ResPerUnit[resourceID], reqValue, resLeft)
-						--local received		= GCO.Round(send * efficiency / 100)
+						local send 			= math.min(reinforcements.ResPerUnit[resourceID], reqValue[unit][resourceID], resLeft)
+						
 						resLeft = resLeft - send
-						--unit:ChangeStock(resourceID, received)
+						reqValue[unit][resourceID] = reqValue[unit][resourceID] - send
+						
 						unit:ChangeStock(resourceID, send)
 						self:ChangeStock(resourceID, -send)
 						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (@ ".. tostring(efficiency) .."% efficiency) to unit ID#".. tostring(unit:GetID()), Locale.Lookup(UnitManager.GetTypeName(unit)))
@@ -596,8 +626,7 @@ end
 function TransferToCities(self)
 	print("Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local cityKey 			= self:GetKey()
-	local cityData 			= ExposedMembers.CityData[cityKey]
-	local supplyDemand 		= CitiesSupplyDemand[self]
+	local supplyDemand 		= CitiesTransferDemand[self]
 	local transfers 		= {Resources = {}, ResPerCity = {}}	
 	local cityToSupply 		= CitiesForTransfer[self]
 	
@@ -630,9 +659,136 @@ function TransferToCities(self)
 	end
 end
 
+function UpdateExportCities(self)
+	print("Update Export list to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
+	
+	CitiesForTrade[self] 		= {}	-- Export to other civilizations cities
+	CitiesTradeDemand[self] 	= { Resources = {}, NeedResources = {}}
+	
+	local ownerID 		= self:GetOwner()	
+	local hasRouteTo 	= {}
+	
+	for iPlayer = 0, PlayerManager.GetWasEverAliveCount() - 1 do
+		local player 	= GCO.GetPlayer(iPlayer)
+		local pDiplo 	= player:GetDiplomacy()
+		if iPlayer ~= ownerID and pDiplo and pDiplo:HasMet( ownerID ) and (not pDiplo:IsAtWarWith( ownerID )) then
+			local playerConfig = PlayerConfigurations[iPlayer]
+			print("- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+			local playerCities 	= player:GetCities()
+			for i, transferCity in playerCities:Members() do
+				if transferCity ~= self then
+					-- search for trader routes first
+					local trade = GCO.GetCityTrade(transferCity)
+					local outgoingRoutes = trade:GetOutgoingRoutes()
+					for j,route in ipairs(outgoingRoutes) do
+						if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
+							print(" - Found trader from ".. Locale.Lookup(transferCity:GetName()))
+							CitiesForTrade[self][transferCity] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
+							hasRouteTo[transferCity] = true
+						end
+					end
+
+					if not hasRouteTo[transferCity] then
+						for j,route in ipairs(trade:GetIncomingRoutes()) do	
+							if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
+								print(" - Found trader to ".. Locale.Lookup(transferCity:GetName()))
+								CitiesForTrade[self][transferCity] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
+								hasRouteTo[transferCity] = true
+							end
+						end
+					end
+
+					-- search for other types or routes
+					local bHasOpenMarket = GCO.HasPlayerOpenBordersFrom(player, ownerID) -- to do : real diplomatic deal for international trade over normal routes
+					local bInternalRoute = false
+					if bHasOpenMarket then 
+						if not hasRouteTo[transferCity] then
+							
+							self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
+							self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
+							self:UpdateCitiesConnection(transferCity, "Sea", bInternalRoute)
+
+						end
+					end
+					
+					if CitiesForTrade[self][transferCity] and CitiesForTrade[self][transferCity].Efficiency > 0 then
+					
+						local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
+						local efficiency	= CitiesForTrade[self][transferCity].Efficiency
+
+						for resourceID, value in pairs(requirements.Resources) do
+							if value > 0 then 
+								CitiesTradeDemand[self].Resources[resourceID] 		= ( CitiesTradeDemand[self].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+								CitiesTradeDemand[self].NeedResources[resourceID] 	= ( CitiesTradeDemand[self].NeedResources[resourceID] 	or 0 ) + 1
+							end
+						end
+					end	
+				end
+			end		
+		end
+	end	
+end
+
 function ExportToForeignCities(self)
-	--print("Export to Cities for ".. Locale.Lookup(self:GetName()))
-	CitiesForTrade[self] 		= {}
+	print("Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
+	
+	local cityKey 			= self:GetKey()
+	local supplyDemand 		= CitiesTradeDemand[self]
+	local transfers 		= {Resources = {}, ResPerCity = {}}	
+	local cityToSupply 		= CitiesForTrade[self]
+	
+	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
+
+	for resourceID, value in pairs(supplyDemand.Resources) do
+		transfers.Resources[resourceID] = math.min(value, self:GetAvailableStockForExport(resourceID))
+		transfers.ResPerCity[resourceID] = math.floor(transfers.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
+		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(self:GetAvailableStockForExport(resourceID))..", transfer = ".. tostring(transfers.Resources[resourceID]))
+	end
+	
+	local importIncome = {}
+	local exportIncome = 0
+	for resourceID, value in pairs(transfers.Resources) do
+		local resLeft = value
+		local maxLoop = 5
+		local loop = 0
+		while (resLeft > 0 and loop < maxLoop) do
+			for city, data in pairs(cityToSupply) do
+				local reqValue = city:GetNumResourceNeeded(resourceID)
+				if reqValue > 0 then
+					local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
+					local efficiency		= data.Efficiency
+					local send 				= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
+					local transactionIncome = send * ResourceValue[resourceClassType]
+					resLeft = resLeft - send
+					city:ChangeStock(resourceID, send)					
+					self:ChangeStock(resourceID, -send)
+					importIncome[city] = (importIncome[city:GetOwner()] or 0) + transactionIncome
+					exportIncome = exportIncome + transactionIncome
+					print ("  - Generating "..tostring(transactionIncome).." golds for " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) send to ".. Locale.Lookup(city:GetName()))
+				end
+			end
+			loop = loop + 1
+		end
+	end
+	
+	-- Get gold from trade
+	exportIncome = GCO.Round(exportIncome * IncomeExportPercent / 100)
+	if exportIncome > 0 then
+		print("Total gold from Export income = " .. exportIncome .." gold for ".. Locale.Lookup(self:GetName()))
+		local sText = Locale.Lookup("LOC_GOLD_FROM_EXPORT", exportIncome)
+		if Game.GetLocalPlayer() == self:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, self:GetX(), self:GetY(), 0) end
+		Players[self:GetOwner()]:GetTreasury():ChangeGoldBalance(exportIncome)
+	end
+	
+	for city, income in pairs(importIncome) do
+		income = GCO.Round(income * IncomeImportPercent / 100)
+		if income > 0 then
+			print("Total gold from Import income = " .. income .." gold for ".. Locale.Lookup(city:GetName()))
+			local sText = Locale.Lookup("LOC_GOLD_FROM_IMPORT", income)
+			if Game.GetLocalPlayer() == city:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, city:GetX(), city:GetY(), 0) end	
+			Players[city:GetOwner()]:GetTreasury():ChangeGoldBalance(exportIncome)
+		end
+	end	
 end
 
 function GetNumResourceNeeded(self, resourceID)	
@@ -728,6 +884,16 @@ end
 
 function GetAvailableStockForCities(self, resourceID)
 	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*MinPercentLeftToTransfer/100)
+	return math.max(0, self:GetStock(resourceID)-minStockLeft)
+end
+
+function GetAvailableStockForExport(self, resourceID)
+	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*MinPercentLeftToExport/100)
+	return math.max(0, self:GetStock(resourceID)-minStockLeft)
+end
+
+function GetAvailableStockForIndustries(self, resourceID)
+	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*MinPercentLeftToConvert/100)
 	return math.max(0, self:GetStock(resourceID)-minStockLeft)
 end
 
@@ -981,21 +1147,20 @@ function DoTurnFirstPass(self)
 	-- sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
 	self:DoIndustries()
 	self:ReinforceUnits()
+	self:UpdateExportCities()
 	self:ExportToForeignCities()
 end
 
 function DoTurnSecondPass(self)
 	print("-------------------------------------")
 	-- get linked cities and supply demand
-	self:UpdateLinkedCities()
-
+	self:UpdateTransferCities()	
 end
 
 function DoTurnThirdPass(self)
 	print("-------------------------------------")
-	-- diffuse to other cities
+	-- diffuse to other cities, now that all of them have made their request after servicing industries, units and export
 	self:TransferToCities()
-
 end
 
 function DoTurnFourthPass(self)
@@ -1069,14 +1234,17 @@ function AttachCityFunctions(city)
 	c.GetStock 						= GetStock
 	c.GetAvailableStockForUnits		= GetAvailableStockForUnits
 	c.GetAvailableStockForCities	= GetAvailableStockForCities
+	c.GetAvailableStockForExport	= GetAvailableStockForExport
 	c.GetMaxPersonnel				= GetMaxPersonnel
 	c.GetPersonnel					= GetPersonnel
 	c.ChangePersonnel				= ChangePersonnel
 	c.UpdateLinkedUnits				= UpdateLinkedUnits
-	c.UpdateLinkedCities			= UpdateLinkedCities
-	c.UpdateTransferConnection		= UpdateTransferConnection
+	c.UpdateTransferCities			= UpdateTransferCities
+	c.UpdateExportCities			= UpdateExportCities
+	c.UpdateCitiesConnection		= UpdateCitiesConnection
 	c.ReinforceUnits				= ReinforceUnits
-	c.GetLinkedCities				= GetLinkedCities
+	c.GetTransferCities				= GetTransferCities
+	c.GetExportCities				= GetExportCities
 	c.TransferToCities				= TransferToCities
 	c.ExportToForeignCities			= ExportToForeignCities
 	c.GetNumResourceNeeded			= GetNumResourceNeeded

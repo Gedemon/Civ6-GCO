@@ -1512,7 +1512,7 @@ Events.Combat.Add( OnCombat )
 -----------------------------------------------------------------------------------------
 -- Healing
 -----------------------------------------------------------------------------------------
-function HealingUnits(playerID)
+function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" statistic ?
 
 	local player = Players[playerID]
 	local playerConfig = PlayerConfigurations[playerID]
@@ -1633,7 +1633,8 @@ function HealingUnits(playerID)
 
 					-- wounded soldiers may die...
 					local deads = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
-					ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - deads
+					ExposedMembers.UnitData[key].WoundedPersonnel 	= ExposedMembers.UnitData[key].WoundedPersonnel - deads
+					--ExposedMembers.UnitData[key].TotalDeath			= ExposedMembers.UnitData[key].TotalDeath 		+ deads	-- Update Stats
 
 					-- wounded soldiers may heal...
 					local healed = math.ceil(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support (not rounded to heal last wounded)

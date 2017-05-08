@@ -205,6 +205,28 @@ function GetRouteEfficiency(length)
 	return GCO.Round( 100 - math.pow(length,2) )
 end
 
+function SupplyPathBlocked(pPlot, pPlayer)
+
+	local ownerID = pPlot:GetOwner()
+	local playerID = pPlayer:GetID()
+
+	local aUnits = Units.GetUnitsInPlot(pPlot);
+	for i, pUnit in ipairs(aUnits) do
+		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
+	end
+		
+	if ( ownerID == playerID or ownerID == -1 ) then
+		return false
+	end
+
+	if GCO.HasPlayerOpenBordersFrom(pPlayer, ownerID) then
+		return false
+	end	
+
+	return true -- return true if the path is blocked...
+end
+
+
 ----------------------------------------------
 -- Cities
 ----------------------------------------------
@@ -271,27 +293,6 @@ function GetTotalPrisonners(data) -- works for cityData and unitData
 end
 
 
-function SupplyPathBlocked(pPlot, pPlayer)
-
-	local ownerID = pPlot:GetOwner()
-	local playerID = pPlayer:GetID()
-
-	local aUnits = Units.GetUnitsInPlot(pPlot);
-	for i, pUnit in ipairs(aUnits) do
-		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
-	end
-		
-	if ( ownerID == playerID or ownerID == -1 ) then
-		return false
-	end
-
-	if GCO.HasPlayerOpenBordersFrom(pPlayer, ownerID) then
-		return false
-	end	
-
-	return true -- return true if the path is blocked...
-end
-
 ----------------------------------------------
 -- Players
 ----------------------------------------------
@@ -345,6 +346,8 @@ function GetVariationString(variation)
 	end
 	return ""
 end
+
+
 ----------------------------------------------
 -- Share functions for other contexts
 ----------------------------------------------
@@ -368,10 +371,10 @@ function Initialize()
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
 	-- common
 	ExposedMembers.GCO.GetTotalPrisonners 			= GetTotalPrisonners
-	ExposedMembers.GCO.SupplyPathBlocked 			= SupplyPathBlocked
 	-- map
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
 	ExposedMembers.GCO.GetRouteEfficiency 			= GetRouteEfficiency
+	ExposedMembers.GCO.SupplyPathBlocked 			= SupplyPathBlocked
 	-- player
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent

@@ -142,9 +142,16 @@
     <Replace Tag="LOC_UNIT_PERSONNEL_DESERTION" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Position] deserters</Text>
     </Replace>
-	<!-- Food -->
+	<!-- Fuel -->
     <Replace Tag="LOC_FUEL_CONSUMPTION" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR][ICON_RESOURCE_OIL] used</Text>
+    </Replace>
+	<!-- Trade -->
+    <Replace Tag="LOC_GOLD_FROM_IMPORT" Language="en_US">
+      <Text>[COLOR_FLOAT_GOLD]+{1_Num} [ICON_Gold][ENDCOLOR] from Import</Text>
+    </Replace>
+    <Replace Tag="LOC_GOLD_FROM_EXPORT" Language="en_US">
+      <Text>[COLOR_FLOAT_GOLD]+{1_Num} [ICON_Gold][ENDCOLOR] from Export</Text>
     </Replace>
 	
   </LocalizedText>
