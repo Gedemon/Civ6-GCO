@@ -118,6 +118,7 @@ end
 lastRouteLength = 0
 pathPlots 		= {}
 g_FEATURE_ICE 	= GameInfo.Features["FEATURE_ICE"].Index
+g_TERRAIN_COAST = GameInfo.Terrains["TERRAIN_COAST"].Index
 
 --
 -- Check if pStartPlot is connected to pTargetPlot
@@ -288,7 +289,7 @@ function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
           bAdd = true
         elseif (sRoute == routes[3] and pDestPlot:GetRouteType() >= 1) then
           bAdd = true
-        elseif (sRoute == routes[4] and pDestPlot:GetTerrainType() == TerrainTypes.TERRAIN_COAST) then
+        elseif (sRoute == routes[4] and pDestPlot:GetTerrainType() == g_TERRAIN_COAST) then
           bAdd = true
         elseif (sRoute == routes[5] and pDestPlot:IsWater()) then
           bAdd = true

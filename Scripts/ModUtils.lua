@@ -288,8 +288,8 @@ Events.CityInitialized.Add(CityCaptureCityInitialized)
 -- Common
 ----------------------------------------------
 
-function GetTotalPrisonners(data) -- works for cityData and unitData
-	return TableSummation(data.Prisonners)
+function GetTotalPrisoners(data) -- works for cityData and unitData
+	return TableSummation(data.Prisoners)
 end
 
 
@@ -314,27 +314,27 @@ end
 -- Texts function
 ----------------------------------------------
 
-function GetPrisonnersStringByCiv(data) -- works for unitData and cityData
-	local sortedPrisonners = {}
-	for playerID, number in pairs(data.Prisonners) do
-		table.insert(sortedPrisonners, {playerID = tonumber(playerID), Number = number})
+function GetPrisonersStringByCiv(data) -- works for unitData and cityData
+	local sortedPrisoners = {}
+	for playerID, number in pairs(data.Prisoners) do
+		table.insert(sortedPrisoners, {playerID = tonumber(playerID), Number = number})
 	end	
-	table.sort(sortedPrisonners, function(a,b) return a.Number>b.Number end)
-	local numLines = tonumber(GameInfo.GlobalParameters["UI_MAX_PRISONNERS_LINE_IN_TOOLTIP"].Value)
+	table.sort(sortedPrisoners, function(a,b) return a.Number>b.Number end)
+	local numLines = tonumber(GameInfo.GlobalParameters["UI_MAX_PRISONERS_LINE_IN_TOOLTIP"].Value)
 	local str = ""
 	local other = 0
 	local iter = 1
-	for i, t in ipairs(sortedPrisonners) do
-		if (iter <= numLines) or (#sortedPrisonners == numLines + 1) then
+	for i, t in ipairs(sortedPrisoners) do
+		if (iter <= numLines) or (#sortedPrisoners == numLines + 1) then
 			local playerConfig = PlayerConfigurations[t.playerID]
 			local civAdjective = Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
-			if t.Number > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS_NATIONALITY", t.Number, civAdjective) end
+			if t.Number > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONERS_NATIONALITY", t.Number, civAdjective) end
 		else
 			other = other + t.Number
 		end
 		iter = iter + 1
 	end
-	if other > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONNERS_OTHER_NATIONALITY", other) end
+	if other > 0 then str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONERS_OTHER_NATIONALITY", other) end
 	return str
 end
 
@@ -370,7 +370,7 @@ function Initialize()
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
 	-- common
-	ExposedMembers.GCO.GetTotalPrisonners 			= GetTotalPrisonners
+	ExposedMembers.GCO.GetTotalPrisoners 			= GetTotalPrisoners
 	-- map
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
 	ExposedMembers.GCO.GetRouteEfficiency 			= GetRouteEfficiency
@@ -379,7 +379,7 @@ function Initialize()
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
 	-- texts
-	ExposedMembers.GCO.GetPrisonnersStringByCiv 	= GetPrisonnersStringByCiv
+	ExposedMembers.GCO.GetPrisonersStringByCiv 	= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 			= GetVariationString
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true

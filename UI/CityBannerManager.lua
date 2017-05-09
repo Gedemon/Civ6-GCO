@@ -1249,11 +1249,11 @@ function CityBanner.UpdateName( self : CityBanner )
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", cityData.Personnel, city:GetMaxPersonnel()) .. GCO.GetVariationString(cityData.Personnel - cityData.PreviousPersonnel)
 				end
 				
-				-- Prisonners
-				local totalPrisonners = GCO.GetTotalPrisonners(cityData)
-				if totalPrisonners > 0 then
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PRISONNERS_TITLE")
-					cityString = cityString .. GCO.GetPrisonnersStringByCiv(cityData)
+				-- Prisoners
+				local totalPrisoners = GCO.GetTotalPrisoners(cityData)
+				if totalPrisoners > 0 then
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PRISONERS_TITLE")
+					cityString = cityString .. GCO.GetPrisonersStringByCiv(cityData)
 				end
 				
 				-- Stock
@@ -1267,7 +1267,6 @@ function CityBanner.UpdateName( self : CityBanner )
 					if bShownSupplyLine then return end
 					local linkedCities = city:GetTransferCities()
 					
-					---[[
 					local exportCities = city:GetExportCities()
 					if exportCities then
 						if not linkedCities then
@@ -1278,7 +1277,6 @@ function CityBanner.UpdateName( self : CityBanner )
 							end
 						end
 					end
-					--]]
 					
 					if not linkedCities then return end
 					UILens.SetActive("TradeRoute")

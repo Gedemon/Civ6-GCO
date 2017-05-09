@@ -83,7 +83,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_CAPTURE_FR
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_CAPTURED_PERSONNEL_PERCENT',		45);	-- To calculate the captured personnel from an unit casualties
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT',	50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_MATERIEL_KILL_PERCENT',	75);	-- Percentage of the opponent's materiel gained when killing it
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_VEHICLES_KILL_PERCENT',	15);	-- Percentage of the opponent's converted vehicules to materiel gained when killing it
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_EQUIPMENT_KILL_PERCENT',	15);	-- Percentage of the opponent's equipment converted to gained materiel when killing it
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_FOOD_KILL_PERCENT',		75);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_DEFENDER_MATERIEL_GAIN_PERCENT',	25);
 
@@ -99,7 +99,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_TU
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_PERSONNEL_FACTOR',		1.25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_HORSES_FACTOR',			3.50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_WOUNDED_FACTOR',		0.75);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_PRISONNERS_FACTOR',		0.50);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_PRISONERS_FACTOR',		0.50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_LIGHT_RATIO',				0.50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_MEDIUM_RATIO',			0.25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_HEAVY_RATIO',				0.10);
@@ -151,8 +151,13 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_CLO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_FAR_FROM_HOME',			-1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_NO_WAY_HOME',				-3);
 
+-- Resources
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_WOOD_PER_FOREST',			2);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_WOOD_PER_JUNGLE',			1);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_IMPROVEMENT_MULTIPLIER',	5);
+
 -- UI
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UI_MAX_PRISONNERS_LINE_IN_TOOLTIP',		2);		-- Number of lines showing prisonners nationality in unit's flag 
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UI_MAX_PRISONERS_LINE_IN_TOOLTIP',		2);		-- Number of lines showing prisonners nationality in unit's flag 
 
 -- units
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MIN_COMPONENT_LEFT_FACTOR', 		5);

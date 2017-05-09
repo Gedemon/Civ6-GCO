@@ -37,6 +37,17 @@ local ResourceValue 		= {
 		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
 }
 
+local IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resouce
+local IsImprovementForFeature		= {} -- cached table to check if an improvement is meant for a feature
+
+for row in GameInfo.Improvement_ValidResources() do
+	local improvementID = GameInfo.Improvements[row.ImprovementType].Index
+	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+	if not IsImprovementForResource[improvementID] then IsImprovementForResource[improvementID] = {} end
+	IsImprovementForResource[improvementID][resourceID] = true
+end
+IsImprovementForFeature[GameInfo.Improvements["IMPROVEMENT_LUMBER_MILL"].Index] = {[GameInfo.Features["FEATURE_FOREST"].Index] = true}
+
 local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)	
 
@@ -69,22 +80,35 @@ local PersonnelMiddleRankRatio		= tonumber(GameInfo.GlobalParameters["ARMY_PERSO
 local PersonnelToUpperClassRatio	= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_TO_UPPER_CLASS_RATIO"].Value)
 local PersonnelToMiddleClassRatio	= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_TO_MIDDLE_CLASS_RATIO"].Value)
 
-local foodResourceID 		= GameInfo.Resources["RESOURCE_FOOD"].Index
-local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
-local steelResourceID 		= GameInfo.Resources["RESOURCE_STEEL"].Index
-local horsesResourceID 		= GameInfo.Resources["RESOURCE_HORSES"].Index
-local personnelResourceID	= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
+local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
+local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
+local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
+local horsesResourceID 			= GameInfo.Resources["RESOURCE_HORSES"].Index
+local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
+local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
 
-local foodResourceKey		= tostring(foodResourceID)
-local materielResourceKey	= tostring(materielResourceID)
-local steelResourceKey		= tostring(steelResourceID)
-local personnelResourceKey	= tostring(personnelResourceID)
+local foodResourceKey			= tostring(foodResourceID)
+local materielResourceKey		= tostring(materielResourceID)
+local steelResourceKey			= tostring(steelResourceID)
+local personnelResourceKey		= tostring(personnelResourceID)
 
-local directReinforcement = {} 				-- cached table with "resources" directly transfered to units
+local forestFeatureID			= GameInfo.Features["FEATURE_FOREST"].Index
+local jungleFeatureID			= GameInfo.Features["FEATURE_JUNGLE"].Index
+
+local baseWoodPerForest			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_FOREST"].Value)
+local baseWoodPerJungle			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_JUNGLE"].Value)
+
+local BaseImprovementMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
+
+local directReinforcement = {} 				-- cached table with "resources" that are directly transfered to units
 directReinforcement[foodResourceID] 		= true
 directReinforcement[materielResourceID] 	= true
 directReinforcement[horsesResourceID] 		= true
 directReinforcement[personnelResourceID] 	= true
+
+
+local notAvailableToExport = {} 			-- cached table with "resources" that can't be exported to other Civilizations
+notAvailableToExport[personnelResourceID] 	= true
 
 
 local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
@@ -157,7 +181,7 @@ function RegisterNewCity(playerID, city)
 		Personnel 				= personnel,
 		WoundedPersonnel 		= 0,
 		PreviousPersonnel		= personnel,
-		Prisonners				= GCO.CreateEverAliveTableWithDefaultValue(0),
+		Prisoners				= GCO.CreateEverAliveTableWithDefaultValue(0),
 		Stock					= { [foodResourceKey] = startingFood, [personnelResourceKey] = personnel },
 		PreviousStock			= { [foodResourceKey] = startingFood, [personnelResourceKey] = personnel },
 		UpperClass				= upperClass,
@@ -209,10 +233,10 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 			ExposedMembers.CityData[newCityKey].Personnel 			= 0
 			ExposedMembers.CityData[newCityKey].WoundedPersonnel 	= 0
 			ExposedMembers.CityData[newCityKey].PreviousPersonnel 	= 0
-			for civID, value in pairs(originalData.Prisonners) do
-				ExposedMembers.CityData[newCityKey].Prisonners[civID] = value
+			for civID, value in pairs(originalData.Prisoners) do
+				ExposedMembers.CityData[newCityKey].Prisoners[civID] = value
 			end
-			ExposedMembers.CityData[newCityKey].Prisonners[tostring(originalOwnerID)] = originalData.Personnel + originalData.WoundedPersonnel
+			ExposedMembers.CityData[newCityKey].Prisoners[tostring(originalOwnerID)] = originalData.Personnel + originalData.WoundedPersonnel
 			for resourceID, value in pairs(originalData.Stock) do
 				ExposedMembers.CityData[newCityKey].Stock[resourceID] = value
 			end
@@ -238,7 +262,7 @@ function ShowCityData()
 		print (cityKey, data)
 		for k, v in pairs (data) do
 			print ("-", k, v)
-			if k == "Prisonners" then
+			if k == "Prisoners" then
 				for id, num in pairs (v) do
 					print ("-", "-", id, num)
 				end
@@ -466,10 +490,10 @@ function UpdateLinkedUnits(self)
 			if unit then
 				LinkedUnits[self][unit] = {NeedResources = {}}
 				local requirements 	= unit:GetRequirements()
-				if requirements.Vehicles > 0 then
-					UnitsSupplyDemand[self].Vehicles 		= ( UnitsSupplyDemand[self].Vehicles 		or 0 ) + GCO.Round(requirements.Vehicles*efficiency/100)
-					UnitsSupplyDemand[self].NeedVehicles 	= ( UnitsSupplyDemand[self].NeedVehicles 	or 0 ) + 1
-					LinkedUnits[self][unit].NeedVehicles	= true
+				if requirements.Equipment > 0 then
+					UnitsSupplyDemand[self].Equipment 		= ( UnitsSupplyDemand[self].Equipment 		or 0 ) + GCO.Round(requirements.Equipment*efficiency/100)
+					UnitsSupplyDemand[self].NeedEquipment 	= ( UnitsSupplyDemand[self].NeedEquipment 	or 0 ) + 1
+					LinkedUnits[self][unit].NeedEquipment	= true
 				end
 
 				for resourceID, value in pairs(requirements.Resources) do
@@ -485,6 +509,16 @@ function UpdateLinkedUnits(self)
 end
 
 function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
+	-- Convert "Coastal" to "Ocean" with required tech for navigation on Ocean
+	-- to do check for docks to allow transfert by sea/rivers
+	-- add new building for connection by river (river docks)
+	if sRouteType == "Coastal" then
+		local pTech = Players[self:GetOwner()]:GetTechs()
+		if pTech and pTech:HasTech(GameInfo.Technologies["TECH_CARTOGRAPHY"].Index) then
+			sRouteType = "Ocean"
+		end
+	end
+	
 	local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), Map.GetPlot(transferCity:GetX(), transferCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
 	if bIsPlotConnected then
 		local routeLength 	= GCO.GetRouteLength()
@@ -555,7 +589,7 @@ function UpdateTransferCities(self)
 				
 				self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
 				self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
-				self:UpdateCitiesConnection(transferCity, "Sea", bInternalRoute)
+				self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
 
 			end
 			
@@ -582,8 +616,8 @@ function ReinforceUnits(self)
 	local supplyDemand 			= UnitsSupplyDemand[self]
 	local reinforcements 		= {Resources = {}, ResPerUnit = {}}
 
-	if supplyDemand.Vehicles and supplyDemand.Vehicles > 0 then
-		print("- Required Vehicles = ", tostring(supplyDemand.Vehicles), " for " , tostring(supplyDemand.NeedVehicles) ," units")
+	if supplyDemand.Equipment and supplyDemand.Equipment > 0 then
+		print("- Required Equipment = ", tostring(supplyDemand.Equipment), " for " , tostring(supplyDemand.NeedEquipment) ," units")
 	end
 
 	for resourceID, value in pairs(supplyDemand.Resources) do
@@ -706,7 +740,7 @@ function UpdateExportCities(self)
 							
 							self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
 							self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
-							self:UpdateCitiesConnection(transferCity, "Sea", bInternalRoute)
+							self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
 
 						end
 					end
@@ -717,7 +751,7 @@ function UpdateExportCities(self)
 						local efficiency	= CitiesForTrade[self][transferCity].Efficiency
 
 						for resourceID, value in pairs(requirements.Resources) do
-							if value > 0 then 
+							if value > 0 and not (notAvailableToExport[resourceID]) then 
 								CitiesTradeDemand[self].Resources[resourceID] 		= ( CitiesTradeDemand[self].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
 								CitiesTradeDemand[self].NeedResources[resourceID] 	= ( CitiesTradeDemand[self].NeedResources[resourceID] 	or 0 ) + 1
 							end
@@ -838,11 +872,33 @@ function CollectResources(self)
 	local cityPlots	= GCO.GetCityPlots(self)
 	for _, plotID in ipairs(cityPlots) do
 		local plot	= Map.GetPlotByIndex(plotID)
-		if plot:GetWorkerCount() > 0 and plot:GetResourceCount() > 0 then
-			local resourceID = plot:GetResourceType()
-			if player:IsResourceVisible(resourceID) then
-				print("-- Collecting " .. Locale.Lookup(GameInfo.Resources[resourceID].Name ))
-				self:ChangeStock(plot:GetResourceType(), plot:GetResourceCount())
+		if plot:GetWorkerCount() > 0 then
+			local improvementID = plot:GetImprovementType()
+			if plot:GetResourceCount() > 0 then		
+				local resourceID = plot:GetResourceType()
+				if player:IsResourceVisible(resourceID) then
+					local collected = plot:GetResourceCount()
+					if IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID] then
+						collected = collected * BaseImprovementMultiplier
+					end
+					print("-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name ))
+					self:ChangeStock(resourceID, collected)
+				end
+			end
+			local featureID = plot:GetFeatureType()
+			local woodCollected = 0
+			if featureID == forestFeatureID then
+				woodCollected = baseWoodPerForest
+			end
+			if featureID == jungleFeatureID then
+				woodCollected = baseWoodPerJungle
+			end
+			if woodCollected > 0 then
+				if IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID] then
+					woodCollected = woodCollected * BaseImprovementMultiplier
+				end
+				print("-- Collecting " .. tostring(woodCollected) .. " " ..Locale.Lookup(GameInfo.Resources[woodResourceID].Name ))
+				self:ChangeStock(woodResourceID, woodCollected)
 			end
 		end
 	end
@@ -930,8 +986,8 @@ function GetFoodConsumption(self)
 	if data.WoundedPersonnel then
 		foodConsumption1000 = foodConsumption1000 + (data.WoundedPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )
 	end
-	if data.Prisonners then
-		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisonners(data) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONNERS_FACTOR"].Value) )
+	if data.Prisoners then
+		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisoners(data) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) )
 	end
 	return math.max(1, GCO.Round( foodConsumption1000 * ratio / 1000 ))
 end
@@ -989,12 +1045,30 @@ end
 
 function DoIndustries(self)
 
+	print("Creating resources in Industries...")
+	
 	local size = self:GetSize()
 
 	-- materiel
 	local materielprod	= MaterielProductionPerSize * size
+	print(" - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name))
 	self:ChangeStock(materielResourceID, materielprod)
-
+	
+	for row in GameInfo.BuildingResourcesConverted() do
+		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
+		if self:GetBuildings():HasBuilding(buildingID) then 
+			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+			local available 	= self:GetAvailableStockForIndustries(resourceID)
+			if available > 0 then
+				local ResourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+				local AmountUsed		= math.min(available, row.MaxConverted) 
+				local AmountCreated		= GCO.Round(AmountUsed * row.Ratio)
+				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(AmountCreated) .." ".. Locale.Lookup(GameInfo.Resources[ResourceCreatedID].Name).. " using ".. tostring(AmountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
+				self:ChangeStock(resourceID, - AmountUsed)
+				self:ChangeStock(ResourceCreatedID, AmountCreated)
+			end
+		end
+	end
 end
 
 function DoExcedents(self)
@@ -1046,6 +1120,8 @@ function GetResourcesStockString(self)
 			local resRow = GameInfo.Resources[resourceID]
 			if resourceID == foodResourceID then
 				str = str .. "[NEWLINE]" .. self:GetFoodStockString()
+			elseif resourceID == woodResourceID then
+				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_WOOD_STOCK", value, self:GetMaxStock(resourceID))
 			elseif resourceID == materielResourceID then
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MATERIEL_STOCK", value, self:GetMaxStock(resourceID))
 			else
@@ -1226,56 +1302,57 @@ end
 
 function AttachCityFunctions(city)
 	local c = getmetatable(city).__index
-	c.ChangeSize					= ChangeSize
-	c.GetSize						= GetSize
-	c.GetRealPopulation				= GetRealPopulation
-	c.GetKey						= GetKey
-	c.GetMaxStock					= GetMaxStock
-	c.GetStock 						= GetStock
-	c.GetAvailableStockForUnits		= GetAvailableStockForUnits
-	c.GetAvailableStockForCities	= GetAvailableStockForCities
-	c.GetAvailableStockForExport	= GetAvailableStockForExport
-	c.GetMaxPersonnel				= GetMaxPersonnel
-	c.GetPersonnel					= GetPersonnel
-	c.ChangePersonnel				= ChangePersonnel
-	c.UpdateLinkedUnits				= UpdateLinkedUnits
-	c.UpdateTransferCities			= UpdateTransferCities
-	c.UpdateExportCities			= UpdateExportCities
-	c.UpdateCitiesConnection		= UpdateCitiesConnection
-	c.ReinforceUnits				= ReinforceUnits
-	c.GetTransferCities				= GetTransferCities
-	c.GetExportCities				= GetExportCities
-	c.TransferToCities				= TransferToCities
-	c.ExportToForeignCities			= ExportToForeignCities
-	c.GetNumResourceNeeded			= GetNumResourceNeeded
-	c.GetRequirements				= GetRequirements
-	c.DoGrowth						= DoGrowth
-	c.GetBirthRate					= GetBirthRate
-	c.GetDeathRate					= GetDeathRate
-	c.DoExcedents					= DoExcedents
-	c.DoFood						= DoFood
-	c.DoIndustries					= DoIndustries
-	c.DoTurnFirstPass				= DoTurnFirstPass
-	c.DoTurnSecondPass				= DoTurnSecondPass
-	c.DoTurnThirdPass				= DoTurnThirdPass
-	c.DoTurnFourthPass				= DoTurnFourthPass
-	c.GetFoodConsumption 			= GetFoodConsumption
-	c.CollectResources				= CollectResources
-	c.ChangeStock 					= ChangeStock
-	c.SetCityRationing				= SetCityRationing
-	c.DoSocialClassStratification	= DoSocialClassStratification
-	c.ChangeUpperClass				= ChangeUpperClass
-	c.ChangeMiddleClass				= ChangeMiddleClass
-	c.ChangeLowerClass				= ChangeLowerClass
-	c.ChangeSlaveClass				= ChangeSlaveClass
-	c.GetUpperClass					= GetUpperClass
-	c.GetMiddleClass				= GetMiddleClass
-	c.GetLowerClass					= GetLowerClass
-	c.GetSlaveClass					= GetSlaveClass
-	c.RecruitPersonnel				= RecruitPersonnel
+	c.ChangeSize						= ChangeSize
+	c.GetSize							= GetSize
+	c.GetRealPopulation					= GetRealPopulation
+	c.GetKey							= GetKey
+	c.GetMaxStock						= GetMaxStock
+	c.GetStock 							= GetStock
+	c.GetAvailableStockForUnits			= GetAvailableStockForUnits
+	c.GetAvailableStockForCities		= GetAvailableStockForCities
+	c.GetAvailableStockForExport		= GetAvailableStockForExport
+	c.GetAvailableStockForIndustries 	= GetAvailableStockForIndustries
+	c.GetMaxPersonnel					= GetMaxPersonnel
+	c.GetPersonnel						= GetPersonnel
+	c.ChangePersonnel					= ChangePersonnel
+	c.UpdateLinkedUnits					= UpdateLinkedUnits
+	c.UpdateTransferCities				= UpdateTransferCities
+	c.UpdateExportCities				= UpdateExportCities
+	c.UpdateCitiesConnection			= UpdateCitiesConnection
+	c.ReinforceUnits					= ReinforceUnits
+	c.GetTransferCities					= GetTransferCities
+	c.GetExportCities					= GetExportCities
+	c.TransferToCities					= TransferToCities
+	c.ExportToForeignCities				= ExportToForeignCities
+	c.GetNumResourceNeeded				= GetNumResourceNeeded
+	c.GetRequirements					= GetRequirements
+	c.DoGrowth							= DoGrowth
+	c.GetBirthRate						= GetBirthRate
+	c.GetDeathRate						= GetDeathRate
+	c.DoExcedents						= DoExcedents
+	c.DoFood							= DoFood
+	c.DoIndustries						= DoIndustries
+	c.DoTurnFirstPass					= DoTurnFirstPass
+	c.DoTurnSecondPass					= DoTurnSecondPass
+	c.DoTurnThirdPass					= DoTurnThirdPass
+	c.DoTurnFourthPass					= DoTurnFourthPass
+	c.GetFoodConsumption 				= GetFoodConsumption
+	c.CollectResources					= CollectResources
+	c.ChangeStock 						= ChangeStock
+	c.SetCityRationing					= SetCityRationing
+	c.DoSocialClassStratification		= DoSocialClassStratification
+	c.ChangeUpperClass					= ChangeUpperClass
+	c.ChangeMiddleClass					= ChangeMiddleClass
+	c.ChangeLowerClass					= ChangeLowerClass
+	c.ChangeSlaveClass					= ChangeSlaveClass
+	c.GetUpperClass						= GetUpperClass
+	c.GetMiddleClass					= GetMiddleClass
+	c.GetLowerClass						= GetLowerClass
+	c.GetSlaveClass						= GetSlaveClass
+	c.RecruitPersonnel					= RecruitPersonnel
 	-- text
-	c.GetResourcesStockString		= GetResourcesStockString
-	c.GetFoodStockString 			= GetFoodStockString
+	c.GetResourcesStockString			= GetResourcesStockString
+	c.GetFoodStockString 				= GetFoodStockString
 
 end
 

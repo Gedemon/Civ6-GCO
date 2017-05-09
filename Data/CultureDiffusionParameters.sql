@@ -67,7 +67,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CROSS_FOR
 ------------------------------------------------------------------------------------------------------------------------
 --
 -- Rate of diffusion
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_RATE',  250); --	percentage*10 : if CULTURE_DIFFUSION_RATE = 1000 then diffusion is 100% of diffusing plot value.
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_RATE',  150); --	percentage*10 : if CULTURE_DIFFUSION_RATE = 1000 then diffusion is 100% of diffusing plot value.
 --							Defaut is 55',  5,5% diffusion
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -114,8 +114,8 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CROSS_MAR
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CROSS_MOUNTAIN_PENALTY',	75); -- percentage
 --
 -- Bonus, 100',  double the diffusion rate
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_FOLLOW_RIVER_BONUS',  65); -- percentage
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_FOLLOW_ROAD_BONUS',  100); -- percentage
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_FOLLOW_RIVER_BONUS', 130); -- percentage
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_FOLLOW_ROAD_BONUS',  200); -- percentage
 
 ------------------------------------------------------------------------------------------------------------------------
 --

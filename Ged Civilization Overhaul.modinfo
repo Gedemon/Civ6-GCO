@@ -90,9 +90,16 @@
 				<File>InGame/ModInGame.xml</File>
             </Items>
         </UserInterface>
-		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
+		<UpdateDatabase id="GCO_PRE_COMPONENT">
+		    <Properties>
+				<LoadOrder>-100</LoadOrder>
+		    </Properties>
 			<Items>
 				<File>Data/Tables.sql</File>
+			</Items>
+		</UpdateDatabase>
+		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
+			<Items>
 				<File>Data/GlobalParameters.sql</File>
 				<File>Data/CultureDiffusionParameters.sql</File>
 				<File>Data/CombatRules.sql</File>

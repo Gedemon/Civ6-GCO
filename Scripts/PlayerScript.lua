@@ -92,6 +92,7 @@ function DoTurnForLocal()
 	local playerID = Game.GetLocalPlayer()
 	local player = Players[playerID]
 	if player and not player:HasStartedTurn() then
+		player:SetCurrentTurn()
 		DoPlayerTurn(playerID)
 		LuaEvents.SaveTables()
 	end

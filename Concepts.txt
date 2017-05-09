@@ -33,9 +33,9 @@ when destroying an unit in ranged attack:
 - if excedent > max active then the component is lost (that situation shouldn't happen)
 
 example:
-- desertion in a mechanized units: remove the HP corresponding to the deserting personnel and put the Vehicles corresponding to the HP lost in reserve.
-- mechanical failure in case of low reliability: remove the HP corresponding to the Vehicles damaged and put the personnel corresponding to the HP lost in reserve.
-- chance of ejection/escape of the crew of an aircraft/vehicule destroyed in combat situation : when removing each Vehicles corresponding to the HP lost in combat do a check and put unarmed crew in reserve (or wounded)
+- desertion in a mechanized units: remove the HP corresponding to the deserting personnel and put the Equipment corresponding to the HP lost in reserve.
+- mechanical failure in case of low reliability: remove the HP corresponding to the Equipment damaged and put the personnel corresponding to the HP lost in reserve.
+- chance of ejection/escape of the crew of an aircraft/vehicule destroyed in combat situation : when removing each Equipment corresponding to the HP lost in combat do a check and put unarmed crew in reserve (or wounded)
 
 --]]
 
@@ -101,9 +101,9 @@ each turn
 --===============================--
 
 - Unit "heal" from reserve first then receive supply in reserve : "Rear" (Reinforcement / Healed / Repaired) -> Reserve -> Frontline 
-- Retreating: lose all damaged Vehicles & wounded -> prisoners
+- Retreating: lose all damaged Equipment & wounded -> prisoners
 - Need personnel to resuply #personnel in reserve
-- Need materiel to resuply #Vehicles in reserve
+- Need materiel to resuply #Equipment in reserve
 - Tribal Villages (Barbarian outpost ?) should provide enough Personnel / Materiel to refill at least a Scout/Ranger reserve.
 
 + each turn:
