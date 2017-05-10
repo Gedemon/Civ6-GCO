@@ -618,6 +618,7 @@ peace treaty
 casus belly
 	territory (refuse to give plots with a majority of culture)
 	non-respect of a treaty (peace, commerce, military)
+	refuse a "fair" demand (like removing embargo, third party civ asking the strong side to accept a compensated peace in an asymetric war they've started)
 	spy actions
 
 --]]
