@@ -39,6 +39,14 @@ local ResourceValue 		= {			-- cached table with value of resources type
 		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
 }
 
+-- Error checking
+for row in GameInfo.BuildingResourcesConverted() do
+	print(row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
+	if row.MultiResRequired and  row.MultiResCreated then
+		print ("ERROR : BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
+	end
+end
+
 local BuildingStock			= {}		-- cached table with stock value of a building for a specific resource
 local ResourceStockage		= {}		-- cached table with all the buildings that can stock a specific resource
 for row in GameInfo.BuildingStock() do
@@ -1131,21 +1139,70 @@ function DoIndustries(self)
 	print(" - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name))
 	self:ChangeStock(materielResourceID, materielprod)
 	
+	local MultiRes = {}
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
-		if self:GetBuildings():HasBuilding(buildingID) then 
-			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
-			local available 	= self:GetAvailableStockForIndustries(resourceID)
-			if available > 0 then
-				local ResourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
-				local AmountUsed		= math.min(available, row.MaxConverted) 
-				local AmountCreated		= GCO.Round(AmountUsed * row.Ratio)
-				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(AmountCreated) .." ".. Locale.Lookup(GameInfo.Resources[ResourceCreatedID].Name).. " using ".. tostring(AmountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
-				self:ChangeStock(resourceID, - AmountUsed)
-				self:ChangeStock(ResourceCreatedID, AmountCreated)
+		if self:GetBuildings():HasBuilding(buildingID) then		
+			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
+			if row.MultiResRequired then
+				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+				if not MultiRes[resourceCreatedID] then	MultiRes[resourceCreatedID] = {} end
+				table.insert(MultiRes[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+			else		
+				local available = self:GetAvailableStockForIndustries(resourceRequiredID)
+				if available > 0 then
+					if row.MultiResCreated then
+					
+					else
+						local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+						local amountUsed		= math.min(available, row.MaxConverted) 
+						local amountCreated		= math.floor(amountUsed * row.Ratio)
+						if amountCreated > 0 then
+							print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[ResourceCreatedID].Name).. " using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+							self:ChangeStock(resourceRequiredID, - amountUsed)
+							self:ChangeStock(resourceCreatedID, amountCreated)
+						end
+					
+					end
+				end
 			end
 		end
 	end
+	
+	for resourceCreatedID, data1 in pairs(MultiRes) do
+		for buildingID, data2 in pairs (data1) do
+			local bCanCreate				= true
+			local requiredResourcesRatio 	= {}
+			local amountCreated				= nil
+			for _, row in ipairs(data2) do
+				if bCanCreate then
+					local available = self:GetAvailableStockForIndustries(row.ResourceRequired)
+					if available > 0 then						
+						local maxAmountUsed			= math.min(available, row.MaxConverted) 
+						local maxResourceCreated	= maxAmountUsed * row.Ratio -- no rounding here, we'll use this number to recalculate the amount used
+						if not amountCreated then amountCreated = maxResourceCreated end
+						if math.floor(maxResourceCreated) > 0 then
+							requiredResourcesRatio[row.ResourceRequired] = row.Ratio
+							amountCreated = math.min(amountCreated, maxResourceCreated)
+						else
+							bCanCreate = false
+						end
+					else
+						bCanCreate = false
+					end
+				end
+			end			
+			if bCanCreate then
+				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[ResourceCreatedID].Name).. " using multiple resource")
+				self:ChangeStock(ResourceCreatedID, amountCreated)
+				for resourceRequiredID, ratio in pairs(requiredResourcesRatio) do
+					local amountUsed = GCO.Round(amountCreated / ratio) -- we shouldn't be here if ratio = 0, and the rounded value should be < maxAmountUsed
+					print("    - ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) .." used")
+					self:ChangeStock(resourceRequiredID, - amountUsed)
+				end
+			end			
+		end
+	end	
 end
 
 function DoExcedents(self)
