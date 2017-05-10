@@ -239,6 +239,8 @@ popup to allow choice (pay for reinforcements or pillage or no action for exampl
 
 + new buildings
 	- Rivers docks : allow resource trade/transfer following rivers
+	- Assembly : raise stability, raise separatism
+	- Treadmills : convert wheat/rice to food
 	
 --]]
 	

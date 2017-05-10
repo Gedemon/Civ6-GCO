@@ -163,7 +163,7 @@ end
 
 function LoadUnitTable()
 
-	print("--------------------------- UnitData: Load w/Enum ---------------------------")
+	--print("--------------------------- UnitData: Load w/Enum ---------------------------")
 	local unitData = {}
 	local loadedTable = GCO.LoadTableFromSlot("UnitData")
 	if loadedTable then

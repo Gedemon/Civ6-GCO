@@ -42,8 +42,10 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAVY_RATION
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_SUPPLY', 		50);	-- stock above that percentage are available for reinforcing units
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_EXPORT', 		75);	-- stock above that percentage are available for trade with other civilizations cities
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_CONVERT', 		50);	-- stock above that percentage are available for use by local industries
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_CONVERT', 		0);		-- stock above that percentage are available for use by local industries
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_TRANSFER', 		75);	-- stock above that percentage are available for transfer to other cities of the same civilization
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_IMPORT', 		75);	-- until that percentage is reached, allow trade from other civilizations cities 
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_REQUEST', 		100);	-- until that percentage is reached, allow internal transfer from other cities of the same civilization 
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_LUXURY', 		3);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_STRATEGIC', 	2);
@@ -51,9 +53,6 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_EXPORT_PERCENT', 		100);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_IMPORT_PERCENT', 		25);
-
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_IMPORT', 		75);	-- allow trade from other civilizations cities until that percentage is reached
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_REQUEST', 		100);	-- allow internal transfer from other cities of the same civilization until that percentage is reached
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_ROAD_LENGTH_FACTOR',			0.50);	-- When calculating supply line efficiency relatively to length (lower = better)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_RIVER_LENGTH_FACTOR',			0.40);

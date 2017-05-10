@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GameInfo>	
+<GameInfo>
 	<Types>
 		<Row Type="RESOURCE_FOOD" 		Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_MATERIEL" 	Kind="KIND_RESOURCE"/>
@@ -14,9 +14,22 @@
 		<Row ResourceType="RESOURCE_STEEL" 		Name="LOC_RESOURCE_STEEL_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_WOOD" 		Name="LOC_RESOURCE_WOOD_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 	</Resources>
-	
+
 	<BuildingResourcesConverted>
-		<Row BuildingType="BUILDING_GRANARY" ResourceType="RESOURCE_RICE" 	MaxConverted="5" ResourceCreated="RESOURCE_FOOD" Ratio="2"/>
-		<Row BuildingType="BUILDING_GRANARY" ResourceType="RESOURCE_WHEAT" 	MaxConverted="5" ResourceCreated="RESOURCE_FOOD" Ratio="2"/>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	MaxConverted="4" ResourceCreated="RESOURCE_FOOD" Ratio="2"/>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="4" ResourceCreated="RESOURCE_FOOD" Ratio="2"/>
+		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="6" ResourceCreated="RESOURCE_FOOD" Ratio="3"/>
+		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="6" ResourceCreated="RESOURCE_FOOD" Ratio="3"/>
 	</BuildingResourcesConverted>
+
+	<BuildingStock>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	Stock="100"/>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	Stock="100"/>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_FOOD" 	Stock="100"/>
+	</BuildingStock>
+
+	<ResourceStockUsage>
+		<!-- The example belows means :	only surplus send to unit, need stock > 150% to send to another city, never request transfert, export at stock > 75%, import at stock < 50%, convert all  -->
+		<Row ResourceType="RESOURCE_WOOD" 	MinPercentLeftToSupply="100"	MinPercentLeftToTransfer="150"	MaxPercentLeftToRequest="0"	MinPercentLeftToExport="75"	MaxPercentLeftToImport="50"	MinPercentLeftToConvert="0"	/>
+	</ResourceStockUsage>
 </GameInfo>

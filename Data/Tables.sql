@@ -54,7 +54,32 @@ CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
 		ResourceCreated TEXT NOT NULL,
 		MaxConverted INTEGER NOT NULL DEFAULT 0,
 		Ratio REAL NOT NULL DEFAULT 0,
-		PRIMARY KEY(BuildingType, ResourceType)
+		PRIMARY KEY(BuildingType, ResourceType),
+		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
+CREATE TABLE IF NOT EXISTS BuildingStock
+	(
+		BuildingType TEXT NOT NULL,
+		ResourceType TEXT NOT NULL,
+		Stock INTEGER NOT NULL DEFAULT 0,
+		PRIMARY KEY(BuildingType, ResourceType),
+		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
+CREATE TABLE IF NOT EXISTS ResourceStockUsage
+	(
+		ResourceType TEXT NOT NULL,
+		MinPercentLeftToSupply INTEGER NOT NULL DEFAULT 50,		-- stock above that percentage are available for reinforcing units
+		MinPercentLeftToTransfer INTEGER NOT NULL DEFAULT 75,	-- stock above that percentage are available for transfer to other cities of the same civilization
+		MinPercentLeftToExport INTEGER NOT NULL DEFAULT 75,		-- stock above that percentage are available for trade with other civilizations cities
+		MinPercentLeftToConvert INTEGER NOT NULL DEFAULT 0,		-- stock above that percentage are available for use by local industries
+		MaxPercentLeftToRequest INTEGER NOT NULL DEFAULT 100,	-- until that percentage is reached, allow trade from other civilizations cities 
+		MaxPercentLeftToImport INTEGER NOT NULL DEFAULT 75,		-- until that percentage is reached, allow internal transfer from other cities of the same civilization (must be <= MinPercentLeftToExport)
+		PRIMARY KEY(ResourceType),
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
 CREATE TABLE IF NOT EXISTS UnitEquipmentResourcesPrereqs
@@ -62,7 +87,8 @@ CREATE TABLE IF NOT EXISTS UnitEquipmentResourcesPrereqs
 		EquipmentType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,
 		Amount INTEGER NOT NULL DEFAULT 0,
-		PRIMARY KEY(EquipmentType, ResourceType)
+		PRIMARY KEY(EquipmentType, ResourceType),
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 		
 CREATE TABLE IF NOT EXISTS UnitEquipments 

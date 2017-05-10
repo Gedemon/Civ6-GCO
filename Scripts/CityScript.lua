@@ -19,23 +19,49 @@ local SupplyRouteType	= {		-- ENUM for resource trade/transfer route types
 		Trader 	= 1,
 		Road	= 2,
 		River	= 3,
-		Sea		= 4,
-		Airport	= 5
+		Coastal	= 4,
+		Ocean	= 5,
+		Airport	= 6
 }
 
 local SupplyRouteLengthFactor = {		-- When calculating supply line efficiency relatively to length
 		[SupplyRouteType.Trader]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_TRADER_LENGTH_FACTOR"].Value),
 		[SupplyRouteType.Road]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_ROAD_LENGTH_FACTOR"].Value),
 		[SupplyRouteType.River]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_RIVER_LENGTH_FACTOR"].Value),
-		[SupplyRouteType.Sea]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
+		[SupplyRouteType.Coastal]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
+		[SupplyRouteType.Ocean]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
 		[SupplyRouteType.Airport]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_AIRPORT_LENGTH_FACTOR"].Value)
 }
 	
-local ResourceValue 		= {
+local ResourceValue 		= {			-- cached table with value of resources type
 		["RESOURCECLASS_LUXURY"] 	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_LUXURY"].Value),
 		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
 		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
 }
+
+local BuildingStock			= {}		-- cached table with stock value of a building for a specific resource
+local ResourceStockage		= {}		-- cached table with all the buildings that can stock a specific resource
+for row in GameInfo.BuildingStock() do
+	local buildingID = GameInfo.Buildings[row.BuildingType].Index
+	local resourceID = GameInfo.Resources[row.ResourceType].Index
+	if not BuildingStock[buildingID] then BuildingStock[buildingID] = {} end
+	BuildingStock[buildingID][resourceID] = row.Stock
+	if not ResourceStockage[resourceID] then ResourceStockage[resourceID] = {} end
+	table.insert (ResourceStockage[resourceID], buildingID)
+end
+
+local ResourceUsage			= {}		-- cached table with minimum percentage of stock in a city before supply (units), transfer (cities), export (foreign cities) or convert (local industries) a specific resource
+for row in GameInfo.ResourceStockUsage() do
+	local resourceID = GameInfo.Resources[row.ResourceType].Index
+	ResourceUsage[resourceID] = {
+		MinPercentLeftToSupply 		= row.MinPercentLeftToSupply,
+		MinPercentLeftToTransfer 	= row.MinPercentLeftToTransfer,
+		MinPercentLeftToExport 		= row.MinPercentLeftToExport,
+		MinPercentLeftToConvert 	= row.MinPercentLeftToConvert,
+		MaxPercentLeftToRequest		= row.MaxPercentLeftToRequest,
+		MaxPercentLeftToImport		= row.MaxPercentLeftToImport
+	}
+end
 
 local IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resouce
 local IsImprovementForFeature		= {} -- cached table to check if an improvement is meant for a feature
@@ -71,6 +97,7 @@ local MinPercentLeftToExport		= tonumber(GameInfo.GlobalParameters["CITY_MIN_PER
 local MinPercentLeftToConvert		= tonumber(GameInfo.GlobalParameters["CITY_MIN_PERCENT_LEFT_TO_CONVERT"].Value)
 
 local MaxPercentLeftToRequest		= tonumber(GameInfo.GlobalParameters["CITY_MAX_PERCENT_LEFT_TO_REQUEST"].Value)
+local MaxPercentLeftToImport		= tonumber(GameInfo.GlobalParameters["CITY_MAX_PERCENT_LEFT_TO_IMPORT"].Value)
 
 local UpperClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_TO_PERSONNEL_RATIO"].Value)
 local MiddleClassToPersonnelRatio	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_TO_PERSONNEL_RATIO"].Value)
@@ -106,10 +133,8 @@ directReinforcement[materielResourceID] 	= true
 directReinforcement[horsesResourceID] 		= true
 directReinforcement[personnelResourceID] 	= true
 
-
 local notAvailableToExport = {} 			-- cached table with "resources" that can't be exported to other Civilizations
 notAvailableToExport[personnelResourceID] 	= true
-
 
 local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 
@@ -770,6 +795,7 @@ function ExportToForeignCities(self)
 	local supplyDemand 		= CitiesTradeDemand[self]
 	local transfers 		= {Resources = {}, ResPerCity = {}}	
 	local cityToSupply 		= CitiesForTrade[self]
+	local bExternalRoute 	= true
 	
 	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
 
@@ -787,7 +813,7 @@ function ExportToForeignCities(self)
 		local loop = 0
 		while (resLeft > 0 and loop < maxLoop) do
 			for city, data in pairs(cityToSupply) do
-				local reqValue = city:GetNumResourceNeeded(resourceID)
+				local reqValue = city:GetNumResourceNeeded(resourceID, bExternalRoute)
 				if reqValue > 0 then
 					local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
 					local efficiency		= data.Efficiency
@@ -796,7 +822,7 @@ function ExportToForeignCities(self)
 					resLeft = resLeft - send
 					city:ChangeStock(resourceID, send)					
 					self:ChangeStock(resourceID, -send)
-					importIncome[city] = (importIncome[city:GetOwner()] or 0) + transactionIncome
+					importIncome[city] = (importIncome[city] or 0) + transactionIncome
 					exportIncome = exportIncome + transactionIncome
 					print ("  - Generating "..tostring(transactionIncome).." golds for " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) send to ".. Locale.Lookup(city:GetName()))
 				end
@@ -825,8 +851,30 @@ function ExportToForeignCities(self)
 	end	
 end
 
-function GetNumResourceNeeded(self, resourceID)	
-	local maxStockLeft = GCO.Round(self:GetMaxStock(resourceID)*MaxPercentLeftToRequest/100)
+function GetMaxPercentLeftToRequest(self, resourceID)
+	local maxPercentLeft = MaxPercentLeftToRequest
+	if ResourceUsage[resourceID] then
+		maxPercentLeft = ResourceUsage[resourceID].MaxPercentLeftToRequest
+	end
+	return maxPercentLeft
+end
+
+function GetMaxPercentLeftToImport(self, resourceID)
+	local maxPercentLeft = MaxPercentLeftToImport
+	if ResourceUsage[resourceID] then
+		maxPercentLeft = ResourceUsage[resourceID].MaxPercentLeftToImport
+	end
+	return maxPercentLeft
+end
+
+function GetNumResourceNeeded(self, resourceID, bExternalRoute)	
+	local maxPercent = 0
+	if bExternalRoute then
+		maxPercent = math.min(self:GetMinPercentLeftToExport(resourceID), self:GetMaxPercentLeftToImport(resourceID))  -- make sure that we can't export a resource then import it, generating money both way
+	else
+		maxPercent = MaxPercentLeftToRequest
+	end
+	local maxStockLeft = GCO.Round(self:GetMaxStock(resourceID)*maxPercent/100)
 	return math.max(0, maxStockLeft - self:GetStock(resourceID))
 end
 
@@ -835,6 +883,7 @@ function GetRequirements(self, fromCity)
 	local cityKey 			= self:GetKey()
 	local cityData 			= ExposedMembers.CityData[cityKey]	
 	local player 			= GCO.GetPlayer(self:GetOwner())
+	local bExternalRoute 	= (self:GetOwner() ~= fromCity:GetOwner())
 	local requirements 		= {}
 	requirements.Resources 	= {}
 	
@@ -844,7 +893,7 @@ function GetRequirements(self, fromCity)
 		local resourceID = row.Index
 		local bCanRequest = false
 		if player:IsResourceVisible(resourceID) then
-			local numResourceNeeded = self:GetNumResourceNeeded(resourceID)
+			local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
 			if numResourceNeeded > 0 then
 				if fromCity then -- function was called to only request resources available in "fromCity"
 					if fromCity:GetStock(resourceID) > self:GetStock(resourceID) then
@@ -923,6 +972,13 @@ function GetMaxStock(self, resourceID)
 	if resourceID == personnelResourceID then return self:GetMaxPersonnel() end
 	local maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
 	if resourceID == foodResourceID then maxStock = maxStock + baseFoodStock end
+	if ResourceStockage[resourceID] then
+		for _, buildingID in ipairs(ResourceStockage[resourceID]) do
+			if self:GetBuildings():HasBuilding(buildingID) then
+				maxStock = maxStock + BuildingStock[buildingID][resourceID]
+			end
+		end
+	end
 	return maxStock
 end
 
@@ -934,22 +990,43 @@ function GetStock(self, resourceID)
 end
 
 function GetAvailableStockForUnits(self, resourceID)
-	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*MinPercentLeftToSupply/100)
+	local minPercentLeft = MinPercentLeftToSupply
+	if ResourceUsage[resourceID] then
+		minPercentLeft = ResourceUsage[resourceID].MinPercentLeftToSupply
+	end
+	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
 	return math.max(0, self:GetStock(resourceID)-minStockLeft)
 end
 
 function GetAvailableStockForCities(self, resourceID)
-	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*MinPercentLeftToTransfer/100)
+	local minPercentLeft = MinPercentLeftToTransfer
+	if ResourceUsage[resourceID] then
+		minPercentLeft = ResourceUsage[resourceID].MinPercentLeftToTransfer
+	end
+	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
 	return math.max(0, self:GetStock(resourceID)-minStockLeft)
 end
 
+function GetMinPercentLeftToExport(self, resourceID)
+	local minPercentLeft = MinPercentLeftToExport
+	if ResourceUsage[resourceID] then
+		minPercentLeft = ResourceUsage[resourceID].MinPercentLeftToExport
+	end
+	return minPercentLeft
+end
+
 function GetAvailableStockForExport(self, resourceID)
-	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*MinPercentLeftToExport/100)
+	local minPercentLeft = self:GetMinPercentLeftToExport(resourceID)
+	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
 	return math.max(0, self:GetStock(resourceID)-minStockLeft)
 end
 
 function GetAvailableStockForIndustries(self, resourceID)
-	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*MinPercentLeftToConvert/100)
+	local minPercentLeft = MinPercentLeftToConvert
+	if ResourceUsage[resourceID] then
+		minPercentLeft = ResourceUsage[resourceID].MinPercentLeftToConvert
+	end
+	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
 	return math.max(0, self:GetStock(resourceID)-minStockLeft)
 end
 
@@ -1308,6 +1385,9 @@ function AttachCityFunctions(city)
 	c.GetKey							= GetKey
 	c.GetMaxStock						= GetMaxStock
 	c.GetStock 							= GetStock
+	c.GetMaxPercentLeftToRequest		= GetMaxPercentLeftToRequest
+	c.GetMaxPercentLeftToImport			= GetMaxPercentLeftToImport
+	c.GetMinPercentLeftToExport			= GetMinPercentLeftToExport
 	c.GetAvailableStockForUnits			= GetAvailableStockForUnits
 	c.GetAvailableStockForCities		= GetAvailableStockForCities
 	c.GetAvailableStockForExport		= GetAvailableStockForExport

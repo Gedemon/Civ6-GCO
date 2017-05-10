@@ -1287,11 +1287,20 @@ function CityBanner.UpdateName( self : CityBanner )
 					}					
 					for destCity, data in pairs(linkedCities) do
 						local sRouteType = GCO.GetSupplyRouteString(data.RouteType)
-						if sRouteType == "Trader" then sRouteType = "Road" end -- convert traders to road... to do : put all SupplyRouteType from CityScript in RouteConnection.lua
-						if IsAllowedRouteType[sRouteType] then
-							local bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
-							if bIsPlotConnected then
-								local pathPlots 	= GCO.GetRoutePlots()
+						local bIsTraderRoute = (sRouteType == "Trader") -- active traders means connection
+						if IsAllowedRouteType[sRouteType] or bIsTraderRoute then
+							local bIsPlotConnected = false
+							if not bIsPlotConnected then
+								bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
+							end
+							if bIsPlotConnected or bIsTraderRoute then
+								local pathPlots = {}
+								if bIsTraderRoute then
+									local tradeManager:table = Game.GetTradeManager()
+									pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
+								else
+									pathPlots = GCO.GetRoutePlots()
+								end
 								local kVariations:table = {}
 								local lastElement : number = table.count(pathPlots)
 								local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
