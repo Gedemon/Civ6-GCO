@@ -1139,21 +1139,24 @@ function DoIndustries(self)
 	print(" - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name))
 	self:ChangeStock(materielResourceID, materielprod)
 	
-	local MultiRes = {}
+	local MultiResRequired 	= {}
+	local MultiResCreated 	= {}
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
 		if self:GetBuildings():HasBuilding(buildingID) then		
 			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
-			if row.MultiResRequired then
+			if row.MultiResRequiredRequired then
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
-				if not MultiRes[resourceCreatedID] then	MultiRes[resourceCreatedID] = {[buildingID] = {}} end
-				table.insert(MultiRes[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+				if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {[buildingID] = {}} end
+				table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
 				
 			else		
 				local available = self:GetAvailableStockForIndustries(resourceRequiredID)
 				if available > 0 then
-					if row.MultiResCreated then
-					
+					if row.MultiResRequiredCreated then
+						local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+						if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {[buildingID] = {}} end
+						table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})					
 					else
 						local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 						local amountUsed		= math.min(available, row.MaxConverted) 
@@ -1162,15 +1165,40 @@ function DoIndustries(self)
 							print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
 							self:ChangeStock(resourceRequiredID, - amountUsed)
 							self:ChangeStock(resourceCreatedID, amountCreated)
-						end
-					
+						end					
 					end
 				end
 			end
 		end
+	end	
+	
+	for resourceRequiredID, data1 in pairs(MultiResCreated) do
+		for buildingID, data2 in pairs (data1) do
+			local bUsed			= false
+			local available 	= self:GetAvailableStockForIndustries(resourceRequiredID)
+			local amountUsed	= nil
+			if available > 0 then				
+				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production of multiple resources using ".. tostring(available) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+				for _, row in ipairs(data2) do
+					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+					if not amountUsed then amountUsed = math.min(available, row.MaxConverted) end -- define once, row.MaxConverted is supposed to be the same for each resource created using this resource
+					local amountCreated		= GCO.Round(amountUsed * row.Ratio)
+					if amountCreated > 0 then
+						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name) .." created, ratio = " .. tostring(row.Ratio))
+						self:ChangeStock(resourceCreatedID, amountCreated)
+						bUsed = true
+					else					
+						print("    - not enough resources available to create ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name) ..", ratio = " .. tostring(row.Ratio))
+					end
+				end
+				if bUsed then
+					self:ChangeStock(resourceRequiredID, - amountUsed)
+				end
+			end		
+		end
 	end
 	
-	for resourceCreatedID, data1 in pairs(MultiRes) do
+	for resourceCreatedID, data1 in pairs(MultiResRequired) do
 		for buildingID, data2 in pairs (data1) do
 			local bCanCreate				= true
 			local requiredResourcesRatio 	= {}
