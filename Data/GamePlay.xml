@@ -21,7 +21,7 @@
 		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" Ratio="3"/>
 		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" Ratio="3"/>
 		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_COAL" 	MaxConverted="10" 	ResourceCreated="RESOURCE_STEEL" Ratio="1"		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" Ratio="0.5"	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" Ratio="0.5"	MultiResRequired="1"/>		
 	</BuildingResourcesConverted>
 
 	<BuildingStock>
