@@ -31,24 +31,46 @@ LuaEvents.SaveTables.Add(SaveTables)
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.PlayerData = GCO.LoadTableFromSlot("PlayerData") or {}
 	InitializePlayerFunctions()
+	InitializePlayerData() -- after InitializePlayerFunctions
 end
+
+function InitializePlayerData()
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		local player = Players[playerID]
+		if player and not ExposedMembers.PlayerData[player:GetKey()] then
+			player:InitializeData()
+		end	
+	end
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Player functions
 -----------------------------------------------------------------------------------------
+
+function InitializeData(self)
+	local playerKey = self:GetKey()
+	ExposedMembers.PlayerData[playerKey] = {
+		CurrentTurn = Game.GetCurrentGameTurn(),
+	}
+end
+
+function GetKey(self)
+	return tostring(self:GetID())
+end
 
 function IsResourceVisible(self, resourceID)
 	return GCO.IsResourceVisibleFor(self, resourceID)
 end
 	
 function SetCurrentTurn(self)
-	if not ExposedMembers.PlayerData[self:GetID()] then ExposedMembers.PlayerData[self:GetID()] = {} end
-	ExposedMembers.PlayerData[self:GetID()].CurrentTurn = Game.GetCurrentGameTurn()
+	local playerKey = self:GetKey()
+	ExposedMembers.PlayerData[playerKey].CurrentTurn = Game.GetCurrentGameTurn()
 end
 
 function HasStartedTurn(self)
-	if not ExposedMembers.PlayerData[self:GetID()] then return false end
-	return (ExposedMembers.PlayerData[self:GetID()].CurrentTurn == Game.GetCurrentGameTurn())
+	local playerKey = self:GetKey()
+	return (ExposedMembers.PlayerData[playerKey].CurrentTurn == Game.GetCurrentGameTurn())
 end
 
 function UpdateUnitsFlags(self)
@@ -81,6 +103,7 @@ function DoPlayerTurn( playerID )
 	-- update flags after resources transfers
 	player:UpdateUnitsFlags()
 	player:UpdateCitiesBanners()
+	player:SetCurrentTurn()
 end
 --LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
 
@@ -92,7 +115,6 @@ function DoTurnForLocal()
 	local playerID = Game.GetLocalPlayer()
 	local player = Players[playerID]
 	if player and not player:HasStartedTurn() then
-		player:SetCurrentTurn()
 		DoPlayerTurn(playerID)
 		LuaEvents.SaveTables()
 	end
@@ -126,6 +148,8 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	if not player then player = Players[0] end
 	local p = getmetatable(player).__index
 	
+	p.GetKey					= GetKey
+	p.InitializeData			= InitializeData
 	p.IsResourceVisible			= IsResourceVisible
 	p.UpdateUnitsFlags			= UpdateUnitsFlags
 	p.UpdateCitiesBanners		= UpdateCitiesBanners

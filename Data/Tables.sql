@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
 		MultiResCreated BOOLEAN NOT NULL CHECK (MultiResCreated IN (0,1)) DEFAULT 0,	-- 1 unit of ResourceType creates multiple ResourceCreated (multi rows definition)
 		MaxConverted INTEGER NOT NULL DEFAULT 0,
 		Ratio REAL NOT NULL DEFAULT 0,
-		PRIMARY KEY(BuildingType, ResourceType),
+		PRIMARY KEY(BuildingType, ResourceType, ResourceCreated),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);

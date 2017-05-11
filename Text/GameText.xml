@@ -390,6 +390,13 @@
       <Text>[ICON_RESOURCE_CLOVES] {1_Num} / {2_Num} Wood</Text>
     </Replace>
 	
+    <Replace Tag="LOC_CITYBANNER_LEATHER_STOCK" Language="en_US">
+      <Text>[ICON_New] {1_Num} / {2_Num} Leather</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_MEAT_STOCK" Language="en_US">
+      <Text>[ICON_New] {1_Num} / {2_Num} Meat</Text>
+    </Replace>
+	
 	
   </LocalizedText>
     
@@ -414,6 +421,14 @@
     <Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"	Text="Personnel"	Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_STEEL_NAME" 		Text="Steel" 		Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_WOOD_NAME" 		Text="Wood" 		Language="en_US" /> 
+    <Replace Tag="LOC_RESOURCE_LEATHER_NAME" 	Text="Leather" 		Language="en_US" /> 
+    <Replace Tag="LOC_RESOURCE_MEAT_NAME" 		Text="Meat" 		Language="en_US" /> 
+	
+  </LocalizedText>
+  
+  <LocalizedText> <!-- Buildings -->
+	
+    <Replace Tag="LOC_BUILDING_BUTCHERY_NAME" 		Text="Butchery" 		Language="en_US" /> 
 	
   </LocalizedText>
 </GameData>

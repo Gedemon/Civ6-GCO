@@ -121,6 +121,8 @@ local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
 local horsesResourceID 			= GameInfo.Resources["RESOURCE_HORSES"].Index
 local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
+local meatResourceID			= GameInfo.Resources["RESOURCE_MEAT"].Index
+local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
 
 local foodResourceKey			= tostring(foodResourceID)
 local materielResourceKey		= tostring(materielResourceID)
@@ -512,7 +514,7 @@ end
 -- Resources functions
 -----------------------------------------------------------------------------------------
 function UpdateLinkedUnits(self)
-	print("Update Linked Units for ".. Locale.Lookup(self:GetName()))
+	print("Updating Linked Units...")
 	LinkedUnits[self] 						= {}
 	UnitsSupplyDemand[self] 				= { Resources = {}, NeedResources = {}} -- NeedResources : Number of units requesting a resource type
 
@@ -556,15 +558,19 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 	if bIsPlotConnected then
 		local routeLength 	= GCO.GetRouteLength()
 		local efficiency 	= GCO.GetRouteEfficiency( routeLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
-		print("Found "..tostring(sRouteType).." route to ".. Locale.Lookup(transferCity:GetName()) .." at " .. tostring(efficiency).."% efficiency")
-		if bInternalRoute then
-			if (not CitiesForTransfer[self][transferCity]) or (CitiesForTransfer[self][transferCity].Efficiency < efficiency) then
-				CitiesForTransfer[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+		if efficiency > 0 then
+			print("Found "..tostring(sRouteType).." route to ".. Locale.Lookup(transferCity:GetName()) .." at " .. tostring(efficiency).."% efficiency")
+			if bInternalRoute then
+				if (not CitiesForTransfer[self][transferCity]) or (CitiesForTransfer[self][transferCity].Efficiency < efficiency) then
+					CitiesForTransfer[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+				end
+			else	
+				if (not CitiesForTrade[self][transferCity]) or (CitiesForTrade[self][transferCity].Efficiency < efficiency) then
+					CitiesForTrade[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+				end
 			end
-		else	
-			if (not CitiesForTrade[self][transferCity]) or (CitiesForTrade[self][transferCity].Efficiency < efficiency) then
-				CitiesForTrade[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
-			end
+		else
+			print("Can't register "..tostring(sRouteType).." route to ".. Locale.Lookup(transferCity:GetName()) ..", too far away " .. tostring(efficiency).."% efficiency")
 		end
 	end	
 end
@@ -584,7 +590,7 @@ function GetExportCities(self)
 end
 
 function UpdateTransferCities(self)
-	print("Update Linked Cities for ".. Locale.Lookup(self:GetName()))
+	print("Updating Routes to same Civilization Cities for ".. Locale.Lookup(self:GetName()))
 	-- reset entries for that city
 	CitiesForTransfer[self] 	= {}	-- Internal transfert to own cities
 	CitiesTransferDemand[self] 	= { Resources = {}, NeedResources = {}} -- NeedResources : Number of cities requesting a resource type
@@ -643,7 +649,7 @@ function UpdateTransferCities(self)
 end
 
 function ReinforceUnits(self)
-	print("Reinforcing units for ".. tostring(self:GetName()))
+	print("Reinforcing units...")
 	local cityKey 				= self:GetKey()
 	local cityData 				= ExposedMembers.CityData[cityKey]
 	local supplyDemand 			= UnitsSupplyDemand[self]
@@ -727,7 +733,7 @@ function TransferToCities(self)
 end
 
 function UpdateExportCities(self)
-	print("Update Export list to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
+	print("Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 	
 	CitiesForTrade[self] 		= {}	-- Export to other civilizations cities
 	CitiesTradeDemand[self] 	= { Resources = {}, NeedResources = {}}
@@ -1145,28 +1151,26 @@ function DoIndustries(self)
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
 		if self:GetBuildings():HasBuilding(buildingID) then		
 			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
-			if row.MultiResRequiredRequired then
+			if row.MultiResRequired then
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 				if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {[buildingID] = {}} end
 				table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
 				
-			else		
+			elseif row.MultiResCreated then
+				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+				if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {[buildingID] = {}} end
+				table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+			else
 				local available = self:GetAvailableStockForIndustries(resourceRequiredID)
 				if available > 0 then
-					if row.MultiResRequiredCreated then
-						local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
-						if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {[buildingID] = {}} end
-						table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})					
-					else
-						local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
-						local amountUsed		= math.min(available, row.MaxConverted) 
-						local amountCreated		= math.floor(amountUsed * row.Ratio)
-						if amountCreated > 0 then
-							print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
-							self:ChangeStock(resourceRequiredID, - amountUsed)
-							self:ChangeStock(resourceCreatedID, amountCreated)
-						end					
-					end
+					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+					local amountUsed		= math.min(available, row.MaxConverted) 
+					local amountCreated		= math.floor(amountUsed * row.Ratio)
+					if amountCreated > 0 then
+						print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+						self:ChangeStock(resourceRequiredID, - amountUsed)
+						self:ChangeStock(resourceCreatedID, amountCreated)
+					end	
 				end
 			end
 		end
@@ -1178,17 +1182,19 @@ function DoIndustries(self)
 			local available 	= self:GetAvailableStockForIndustries(resourceRequiredID)
 			local amountUsed	= nil
 			if available > 0 then				
-				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production of multiple resources using ".. tostring(available) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production of multiple resources using ".. tostring(available) .." available ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
 				for _, row in ipairs(data2) do
-					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
-					if not amountUsed then amountUsed = math.min(available, row.MaxConverted) end -- define once, row.MaxConverted is supposed to be the same for each resource created using this resource
+					if not amountUsed then -- define once, row.MaxConverted is supposed to be the same for each resource created using this resource
+						amountUsed = math.min(available, row.MaxConverted)
+						print("    - used ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+					end 
 					local amountCreated		= GCO.Round(amountUsed * row.Ratio)
 					if amountCreated > 0 then
-						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name) .." created, ratio = " .. tostring(row.Ratio))
-						self:ChangeStock(resourceCreatedID, amountCreated)
+						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) .." created, ratio = " .. tostring(row.Ratio))
+						self:ChangeStock(row.ResourceCreated, amountCreated)
 						bUsed = true
 					else					
-						print("    - not enough resources available to create ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name) ..", ratio = " .. tostring(row.Ratio))
+						print("    - not enough resources available to create ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) ..", ratio = " .. tostring(row.Ratio))
 					end
 				end
 				if bUsed then
@@ -1288,6 +1294,10 @@ function GetResourcesStockString(self)
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_WOOD_STOCK", value, self:GetMaxStock(resourceID))
 			elseif resourceID == materielResourceID then
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MATERIEL_STOCK", value, self:GetMaxStock(resourceID))
+			elseif resourceID == meatResourceID then
+				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MEAT_STOCK", value, self:GetMaxStock(resourceID))
+			elseif resourceID == leatherResourceID then
+				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_LEATHER_STOCK", value, self:GetMaxStock(resourceID))
 			else
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, resRow.ResourceType)
 			end
@@ -1357,7 +1367,8 @@ function DoGrowth(self)
 end
 
 function DoTurnFirstPass(self)
-	print("-------------------------------------")
+	print("-------------------------------------")	
+	print("First Pass on ".. Locale.Lookup(self:GetName()))
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
 
@@ -1387,24 +1398,30 @@ function DoTurnFirstPass(self)
 	-- sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
 	self:DoIndustries()
 	self:ReinforceUnits()
-	self:UpdateExportCities()
-	self:ExportToForeignCities()
+	--self:UpdateExportCities()
+	--self:ExportToForeignCities()
 end
 
 function DoTurnSecondPass(self)
 	print("-------------------------------------")
+	print("Second Pass on ".. Locale.Lookup(self:GetName()))
 	-- get linked cities and supply demand
 	self:UpdateTransferCities()	
 end
 
 function DoTurnThirdPass(self)
 	print("-------------------------------------")
+	print("Third Pass on ".. Locale.Lookup(self:GetName()))
 	-- diffuse to other cities, now that all of them have made their request after servicing industries, units and export
 	self:TransferToCities()
+	
+	self:UpdateExportCities()
+	self:ExportToForeignCities()
 end
 
 function DoTurnFourthPass(self)
 	print("-------------------------------------")
+	print("Fourth Pass on ".. Locale.Lookup(self:GetName()))
 	-- Update City Size
 	self:DoGrowth()
 	self:DoSocialClassStratification()

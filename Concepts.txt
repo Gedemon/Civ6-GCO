@@ -191,7 +191,7 @@ forts (with stockage) linked to city, units linked to fort
 grouped tribal village
 can spawn barbarians camps if pillaged
 visiting with scout, civilian = friendly but less goodies / military units = unfriendly but more goodies ?
-popup to allow choice (pay for reinforcements or pillage or no action for example ?) 
+popup to allow choice (pay for reinforcements or pillage or no action for example ?) <- have to find a way to propagate choice on network first
 
 --]]
 

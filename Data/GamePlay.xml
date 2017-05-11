@@ -1,27 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
-	<Types>
+	<Types> <!-- Resources -->
 		<Row Type="RESOURCE_FOOD" 		Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_MATERIEL" 	Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_PERSONNEL" 	Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_STEEL" 		Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_WOOD" 		Kind="KIND_RESOURCE"/>
+		
+		<Row Type="RESOURCE_MEAT" 		Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_LEATHER" 	Kind="KIND_RESOURCE"/>
+	</Types>	
+	
+	<Types> <!-- Buildings -->
+		<Row Type="BUILDING_BUTCHERY" 	Kind="KIND_BUILDING"/>
 	</Types>
+	
 	<Resources>
 		<Row ResourceType="RESOURCE_FOOD" 		Name="LOC_RESOURCE_FOOD_NAME" 		ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<Row ResourceType="RESOURCE_MATERIEL" 	Name="LOC_RESOURCE_MATERIEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_PERSONNEL" 	Name="LOC_RESOURCE_PERSONNEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_STEEL" 		Name="LOC_RESOURCE_STEEL_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_WOOD" 		Name="LOC_RESOURCE_WOOD_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		
+		<Row ResourceType="RESOURCE_MEAT" 		Name="LOC_RESOURCE_MEAT_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_LEATHER" 	Name="LOC_RESOURCE_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 	</Resources>
 
+	<Buildings>
+		<Row BuildingType="BUILDING_BUTCHERY" Name="LOC_BUILDING_BUTCHERY_NAME" Description="LOC_BUILDING_BUTCHERY_DESCRIPTION" PrereqTech="TECH_THE_WHEEL" PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+	</Buildings>
+	
 	<BuildingResourcesConverted>
 		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" Ratio="2"/>
 		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" Ratio="2"/>
 		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" Ratio="3"/>
 		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" Ratio="3"/>
 		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_COAL" 	MaxConverted="10" 	ResourceCreated="RESOURCE_STEEL" Ratio="1"		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" Ratio="0.5"	MultiResRequired="1"/>		
+		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" Ratio="0.5"	MultiResRequired="1"/>
+		
+		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="3"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
+		
+		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_DEER" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_DEER" 		MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="3"	MultiResCreated="1"/>
+		
+		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
+		
+		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_MEAT" 		MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 	</BuildingResourcesConverted>
 
 	<BuildingStock>
