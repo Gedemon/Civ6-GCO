@@ -470,6 +470,28 @@ lower
 	jungle
 	swamp
 	pollution buildings
+	
+each turn:
+health = health + (raise - lower) and -100 < health < 100
+
+if health = 100 	:  0% deseases in population |
+if health = 0		:  2% deseaces in population } should those values should change with era/tech/buildings ?
+if health = -100 	: 25% deseases in population |
+
+% deseaced generate need of medecine
+% deseaced raise Mortality rate
+plants -> heborist/apothicary -> medecines
+
+if health < -50 : add value = rnd(1, abs(health-50)) to each possible epidemic disease buckets
+if health > 0 : remove (% ? all ?) health value each turn to all buckets
+when an epidemic desease reach its declaration treshold, create it and restore its value to 0 while it last in the city
+
+the epidemy may spread to each city linked to this one, depending on their own health (maybe raise their own bucket faster for that epidemy ?)
+
+Epidemy[cityKey][diseaseID] = { startDate, initialcityPop, deaths, strength }
+
+lower strength each turn (with bonus for health > 0)
+stop when strengh = 0 or % of initialCityPop killed
 
 --]]
 
