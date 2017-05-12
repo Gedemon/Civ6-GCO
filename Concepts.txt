@@ -1,11 +1,160 @@
 --===============================--
---[[ UNITS
+--[[ BUDGET
 --===============================--
 
-+ Creation
+calculate need (ie maintenance cost, then bonus if superior, malus if inferior)
 
-- use dummy building for each unit, edit city screen to hide them (add column in building table)
-- Lua check for required resources for an unit in city at the start of a player turn to create or remove the dummy building
+military :
+	- moral (combat: retreat)
+	- reliability (mechanized need less materiel to repair, vehicule can become damaged each turn)
+	- loyalty (desertion, rebellion, linked to moral and empire stability)
+	- suply line efficiency
+
+culture
+
+diplomacy
+	- less envoys
+	- faster decay of positives modifiers
+	- slower decay of negative modifiers
+
+intelligence
+
+entertainement
+	- low budget lower the benefits of entertainement budget or policies
+	- no over budget
+
+science
+
+infrastructure : 
+	- if not enough budget, roads, buildings, improvements can be damaged (decay rate)
+	- lower auto-repair time
+
+--]]
+
+--===============================--
+--[[ BUILDERS
+--===============================--
+
+
+- Recharge each turn with materiel
+- Give a charge if materiel > 200 (or another value)
+- Use materiel on action
+- Do not kill on use
+
+--]]
+
+--===============================--
+--[[ BUILDINGS
+--===============================--
+
++ Resources creation
+
+	- Iron stock in city -> Iron Smith -> produce Materiel
+	- Iron & coal stock in city -> Steel Factory -> produce Steel
+
++ Resource stock
+
+	- New table 'BuildingStock' ('BuildingType', 'ResourceType', 'Value')
+	- Granary -> can stock 15 units of Rice, Wheat
+
++ replacing building
+	- bonus in prod when previous building in city
+	- lua script to replace the old building on completion
+
++ new buildings
+	- Rivers docks : allow resource trade/transfer following rivers
+	- Assembly : raise stability, raise separatism
+	- Treadmills : convert wheat/rice to food
+	
+--]]
+	
+--===============================--
+--[[ CITY GROWTH
+--===============================--
+
+BirthRate = total number of live births per 1,000 of a population in a year = 22.5 in 2000, 37.2 in 1950 (50 max, 6 min in 2000)
+MortalityRate = units of deaths per 1,000 individuals per year = 8.8 in 2000, 19.1 in 1950 (17 max, 1 min in 2000)
+GrowthRate = BirthRate - MortalityRate
+
+UpperClassBirthRate 	= 5
+MiddleClassBirthRate 	= 15
+LowerClassBirthRate		= 50
+SlaveBirthRate			= 20
+
+National values
+	policies, techs
+	
+City values
+	health, food (mortality rate)
+	housing (birth rate)
+
+--]]
+
+--===============================--
+--[[ CIVS RELATIONS
+--===============================--
+
+table
+[CivID1]
+	[CivID2] = { Thrust = { [ModifierID] = value, ...}, Relation  = { [ModifierID] = value, ...}}
+	[CivID3] = ...
+	
+thrust modifiers
+	Break Treaty with an enemy civ = -10 (decay +1/turn) (maybe use % rate of decay instead of fixed value)
+	Break Treaty with another civ = -25 (decay +1/turn)
+	Break Treaty with a friend civ = -50  (decay +1/turn)
+	Break Treaty with us = -100 (decay +2/turn)
+	declare a surprise war with an enemy civ = -5 (decay +1/turn)
+	declare a surprise war with another civ = -25 (decay +1/turn)
+	declare a surprise war with a friend civ = -100  (decay +2/turn)
+	declare a surprise war with us = -200 (decay +3/turn)
+	Respect Treaty with us = +1/turn with treaty (reset to 0 when breaking a treaty with us)
+	Respect delayed deal = +2/deal (reset to 0 when breaking a delayed deal with us)
+	Respect other civ delayed deal = +1/deal (reset to 0 when breaking a delayed deal with another civ)
+	spy actions
+	
+relation modifiers
+	send delegation				= +5
+	ambassy						= +10 when active
+	open border					= +5 when active
+	open market					= +15 when active
+	defensive pact				= +25 when active
+	non agression pact			= +10 when active
+	common friend				= +5 per friend (declaration of friendship)
+	common enemy				= +10 per enemy (enemy = at war or denounced)
+	friend of an enemy			= -15 per friend
+	territory (give)			= +5 per tile (decay -1/turn) } when it's part of a demand or peace treaty, it won't count when part of a deal.
+	territory (taken)			= -5 per tile (decay +1/turn) } 
+	occupy territory 			= -2 per tile (occupied territory = tile captured with still a majority of the previous owner culture)
+	occupy territory of a friend= -1 per tile
+	occupy city 				= -20 per city (occupied city = city captured with still a majority of the previous owner culture)
+	occupy city of a friend		= -10 per city
+	territorial integrity		= +10 when active
+	research agreement			= +10 when active
+	same side in war			= +50 when active
+	declaration of friendship	= +50 when active
+	information from spy		= +25 (decay -1/turn)
+	information sharing			= +10 when active
+	garanteed access for trade	= +1 (bonus), +2 (strategic), +5 (luxuries) per resource type when active
+	embargo						= -2 (bonus), -5 (strategic), -10 (luxuries) per resource type when active
+	denounciation				= -100 when active
+	at war						= -200 when active
+	break delayed deal			= -25 (decay +1/turn)
+	break territorial integrity = -20 (decay +1/turn)
+	break defensive pact		= -100 (decay +2/turn)
+	break non agression pact	= -200 (decay +3/turn)
+	break embargo				= -20 (decay +1/turn)
+	break open border			= -20 (decay +1/turn)
+	break DOF					= -50 (decay +2/turn)
+	refuse to denounce			= -10 (decay +1/turn)
+	refuse to remove embargo	= -25 (decay +1/turn)
+	refuse to stop DOF			= -15 (decay +1/turn)
+	refuse to stop def. pact	= -10 (decay +1/turn)
+	refuse to stop open borders	= -10 (decay +1/turn)
+	refuse to stop open market	= -10 (decay +1/turn)
+	refuse to give gold			= -10 (decay +1/turn)
+	spy actions
+	opposing governments
 
 --]]
 
@@ -40,504 +189,6 @@ example:
 --]]
 
 --===============================--
---[[ RATIONS
---===============================--
-
-- food reserve
-- get food from unit plot (or nearby plot at lower ratio)
-- food requirement = ( (personnel x2) + (wounded *1.5) + (prisonners*0.5) + (horses*3) ) / 1000
-- no food from owned plots
-- pillaging can give food (farm, ...), materiel (mines, ...), prisonners (district, ...)
-
-+ rationing
-	if less than 50% MaxFoodStock left
-		moral-, 50% food consumption, wounded mortality rate+
-	if less than 25% MaxFoodStock left
-		moral--, 25% food consumption, wounded mortality rate++
-	if less than 10% MaxFoodStock left
-		moral---, 10% food consumption, wounded mortality rate+++
-		if unit has horses
-			% of horses (min of 1) removed from reserve -> food 
-	if no food stock
-		moral----, wounded mortality rate++++
-		if unit has horses
-			% of horses (min of 1) removed from reserve -> food
-			if no horses in reserve and more than 50 hp left in unit, remove 1hp (equivalent hp of horses removed -> food, other components transfered to reserve)
-
---]]
-
---===============================--
---[[ MORAL
---===============================--
-
-++ victory
-++++ large victory
-+++++ kill unit
-- defeat
--- large defeat
-- rationing
-+++ friendly tribe
-
-each turn @low morale (default = 50%) : desertion (modifiers to default: promotions, policies, ...)
-	- remove 1 equivalent hp on personnel in reserve per turn until 50% MaxPersonnelReserve is reached
-	- if less than 50% MaxPersonnelReserve remove 1 hp per turn until hp = 50% max (equivalent hp of personnel removed, other components transfered to reserve)
-	- morale++
-	
-each turn
-	- morale+ if enough food
-	- morale+ if less than 25% of total personnel wounded
-	- morale++ if victory in the last combat (5 turns max)
-	- morale+++ if large victory in the last combat (5 turns max)
-	- morale+++++ if killing enemy unit in the last combat (5 turns max)
-	- morale- if more than 5% of total personnel wounded
-	- morale- if more than 50% of total personnel wounded
-	- morale- if defeat in the last combat (5 turns max)
-	- morale-- if large defeat in the last combat (5 turns max)
-
---]]
-	
---===============================--
---[[ HEALING
---===============================--
-
-- Unit "heal" from reserve first then receive supply in reserve : "Rear" (Reinforcement / Healed / Repaired) -> Reserve -> Frontline 
-- Retreating: lose all damaged Equipment & wounded -> prisoners
-- Need personnel to resuply #personnel in reserve
-- Need materiel to resuply #Equipment in reserve
-- Tribal Villages (Barbarian outpost ?) should provide enough Personnel / Materiel to refill at least a Scout/Ranger reserve.
-
-+ each turn:
-
-	- if linked to city: 
-		all wounded, prisonners (and other captured components like horses, vehicule ?) -> city (if it can handle it)
-		all excedent from other components -> city (if it can handle it)
-		healing 10 "equivalent HP" max / turn from reserve, reserve receive 5 "equivalent HP" max / turn from cities
-
-		infantry
-			- reserve -> personnel/materiel to frontline troops (up to 10 equivalent hp) (reserve personnel + wounded can't be superior to max frontline personnel)
-			- linked city - > component (personnel, horses, materiel) to refill reserve (up to 5 equivalent hp)
-
-		mechanized unit
-			- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
-			- linked city -> component (personnel, materiel) to refill reserve (up to 5 equivalent hp or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
-			- linked city -> materiel to repair each damaged vehicule in reserve (max 5 hp of equivalent vehicule or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
-			- linked city -> materiel ("vehicule production" here) to reserve (if not reached the 5 hp/turn limit or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
-
-		note: materiel in reserve is only used to repair, not to make a new vehicule "on the field"
-
-	- if not linked to city: 
-
-		wounded -> % healed to reserve personnel (if medic/field hospital promotion)
-		wounded -> % dead (more important without medic/field hospital promotion, lowered at higher eras)
-
-		healing 10 "equivalent HP" max / turn from reserve
-
-		infantry
-			- reserve -> personnel/materiel to frontline troops (up to 10 equivalent HP)
-
-		mechanized unit
-			- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
-			- reserve -> materiel to repair each damaged vehicule (up to 5 equivalent vehicule HP)
-			if no materiel in reserve, "bleed" unit
-		
---]]
-
---===============================--
---[[ SUPPLY
---===============================--
-
-Supply line efficiency by distance
-% efficiency for example at 50%
-	- 50% of max personnel transfered (the other 50% stay in the city/camp)
-	- 50% of max food, materiel, resources for vehicule transfered, 50% lost on the way
-	- make min % efficiency a player choice
-		- unit slider (with a "restore to global" button)
-		- global slider (with an "apply to all units" button)
-	
-
-vehicles requires materiel and resources to be build
-table for resources required per vehicle
-	- wood
-	- iron
-	- steel
-	- aluminum
-	
-forts (with stockage) linked to city, units linked to fort
-
---]]
-
---===============================--
---[[ PROMOTIONS
---===============================--
-
-- berserk/totenkopf : +25% chance of causing retreat, more dead, less prisonners, less wounded 
-
---]]
-
---===============================--
---[[ LOYALTY
---===============================--
-
-- units loyalty is following the stability of the city it's linked to
-- variation speed is dependant of moral
-- loyalty lower when not linked to a city
-
---]]
-
---===============================--
---[[ TRIBES/BARBARIANS
---===============================--
-
-grouped tribal village
-can spawn barbarians camps if pillaged
-visiting with scout, civilian = friendly but less goodies / military units = unfriendly but more goodies ?
-popup to allow choice (pay for reinforcements or pillage or no action for example ?) <- have to find a way to propagate choice on network first
-
---]]
-
---===============================--
---[[ TECHNOLOGIES
---===============================--
-
-+ Ancien
-	Herbalism: Herborist (+health) - Less deads from wounds
-	
-+ Classical
-	Surgery : Less deads from wounds
-	
-+ Medieval
-	Medecine: Medieval Hospitals (+healths, heal wounded in city), Apothecary (replace Herborist), Less deads from wounds
-	
-+ Rennaissance
-	Microbiologie: Hospital (replace Medieval Hospitals), Less deads from wounds
-	
-+ Industrial
-	Vaccine: Pharmacy (replace Apothecary)
-	
-+ Modern
-	Antibiotics: Modern Hospital (replace Hospitals), Minimal deads from wounds
-
---]]
-
---===============================--
---[[ BUILDINGS
---===============================--
-
-+ Resources creation
-
-	- Iron stock in city -> Iron Smith -> produce Materiel
-	- Iron & coal stock in city -> Steel Factory -> produce Steel
-
-+ Resource stock
-
-	- New table 'BuildingStock' ('BuildingType', 'ResourceType', 'Value')
-	- Granary -> can stock 15 units of Rice, Wheat
-
-+ replacing building
-	- bonus in prod when previous building in city
-	- lua script to replace the old building on completion
-
-+ new buildings
-	- Rivers docks : allow resource trade/transfer following rivers
-	- Assembly : raise stability, raise separatism
-	- Treadmills : convert wheat/rice to food
-	
---]]
-	
---===============================--
---[[ BUDGET
---===============================--
-
-calculate need (ie maintenance cost, then bonus if superior, malus if inferior)
-
-military :
-	- moral (combat: retreat)
-	- reliability (mechanized need less materiel to repair, vehicule can become damaged each turn)
-	- loyalty (desertion, rebellion, linked to moral and empire stability)
-	- suply line efficiency
-
-culture
-
-diplomacy
-	- less envoys
-	- faster decay of positives modifiers
-	- slower decay of negative modifiers
-
-intelligence
-
-entertainement
-	- low budget lower the benefits of entertainement budget or policies
-	- no over budget
-
-science
-
-infrastructure : 
-	- if not enough budget, roads, buildings, improvements can be damaged (decay rate)
-	- lower auto-repair time
-
---]]
-
---===============================--
---[[ RESSOURCE STOCK
---===============================--
-
-how to find which resources can be sold & which can be bought
-
-- slider to sell until X % of stock left 
-- slider to buy until Y % of stock filled
-- slider to convert to another resource until Z % of stock left
-
-converting a resource (in buildings like steel factory using coal and iron) has priority, so to always have a stock to sell, set Z > X, but the number of converted / buyed resources is limited per turn
-
-for example a market could allows 10 units of each resources / turn or a stock exchange 100 units of each resources / turn
-
-
-if X > Y 
-    - will buy until Y % of stock filled
-    - will sell until X % of stock left
-    - and means will not buy if it's selling
-if X < Y 
-    - will always buy until Y % of stock filled
-    - will sell until X % of stock left
-    - can buy and sell at the same time
-
-so maybe force X >= Y every time (if X = Y = % stock left -> no buying nor selling)
-
-default values:
-PERCENTAGE_STOCK_REQUIRED_TO_SELL = 50
-PERCENTAGE_STOCK_REQUIRED_TO_CONVERT = 40
-PERCENTAGE_STOCK_REQUIRED_TO_STOP_BUYING = 50
-
-UI :
-    - national stock (main menu on new screen)
-       - general slider for nation (ie default for all resources)
-       - sliders for all resources (when used not updated by general slider)
-       - button to reset values of all resources slider to general slider
-    - city stock (list and button to unfold at bottom of new screen)
-       - general slider for city (ie default for all resources in city - override general slider for nation at the city level)
-       - sliders for all resources (when used they are not updated by general slider)
-       - button to reset values of all resources slider to general slider for city
-       - button to reset value of general slider for city to general slider for nation
-       - button to reset values of all sliders of this city to general slider for nation
-
---]]
-	   
---===============================--
---[[ RESSOURCE STOCK (REVISED)
---===============================--
-
-MIN_PERCENT_LEFT_TO_SELL 		-- Selling to another Civ
-MIN_PERCENT_LEFT_TO_CONVERT		-- Converted in local industry
-MIN_PERCENT_LEFT_TO_SUPPLY		-- Used to reinforce units
-MIN_PERCENT_LEFT_TO_TRANSFER	-- Transfered to other cities
-
-MAX_PERCENT_LEFT_TO_BUY			-- Buying from another civ 
-MAX_PERCENT_LEFT_TO_REQUEST		-- Transfered from other cities
-
-Proceed on new turns for all civs at once ?
-
-1st loop on units
-	build linked units table
-	
-1st loop on cities
-	build linked cities table (river, sea, road, trader, airport)
-	collect resources in city plots (allow excedent)
-	get supply demand (units linked to that city)
-	get industry demand (local buildings that convert resources)
-	create requests/buy values (based on current stocks minus supply/industry demands)
-		keep request in cache for whole turn, reserve a part for each traders ?
-	
-2nd loop on cities	
-	get trade demand (external trade routes)
-	get cities requests (internal trade routes to/from that city)
-	
-3rd loop on cities
-	calculate transfer ratio between Sell, Convertion, Supply, Transfer
-	do transfers
-	
-on beginning of each player turn, after DoUnits()
-	remove excedent
-
---]]
-
---===============================--
---[[ RESOURCE TRANSFER
---===============================--
-
-Gold gained on import and export (taxes), more trade = more money, but less local bonuses
-
-How much resources are transfered using trade routes
-
-types:
-	traders -> max efficiency
-	road	|
-	river	|} efficiency relative to distance
-	sea		|
-	air		-> smaller but fixed values not relative to distance
-
-default values:
-MAX_CARGO_PER_TRADER = 10 -- Max value for exported/imported resource per trader
-EXPORTED_CARGO_PER_TRADER = 10 -- default exported units of each resources
-IMPORTED_CARGO_PER_TRADER = 5 -- default imported units of each resources
-
-UI :
-    - national trading (main menu on new screen)
-       - 2 general values for max quantity to export/import (ie default for all resources)
-       - 2 values (max to export/import) for all resources
-        - button to reset values of all resources values to general values
-
-    - trader (list and button to unfold at bottom of new screen, button to unfold on trader screen)
-       - 2 general values for max quantity to export/import (ie default for all resources)
-       - 2 values (max to export/import) for each resources that this trader can access
-       - button to reset values of all resources values to this trader general values
-       - button to reset values of all this traders values to general values for nation
-
---]]
-
---===============================--
---[[ ECONOMIE
---===============================--
-
-4 classes: upper, middle, lower, slave (prisonners of war, policy dependant)
-
-rich (max % from middle+poor), middle (default), poor
-rich give more gold from tax
-poor, slave give no gold from tax
-building / luxury resources / tax : change rate (per turn) of convertion from middle to rich/poor
-poor give unrest/unhappiness
-slaves give extra production, raise unrest
-
-Taxe rate used to determine gold the change rate
-
-default value
-BASE_GOLD_PER_RICH_CITIZEN = 100
-BASE_TAXE_RICH_CLASS = 10
-
-BASE_GOLD_PER_MIDDLE_CLASS_CITIZEN = 10
-BASE_TAXE_RICH_CLASS = 10
-
-UI :
-    - national taxe rate
-       - 2 values for rich/middle class taxe rate
-    - city taxe rate
-       - 2 values for rich/middle class taxe rate
-       - 1 button to reset city values to national values
-	   
-+ Corruption
-
-Large empire raise corruption
-Corruption lower incomes (maybe only if the budget is positif ?)	   
-
-+ Banditism
-
-some entertainement buildings raise banditism (taverns, whorehouses, nightclubs, ...)
-banditism raise corruption
---]]	   
-
---===============================--
---[[ CITY GROWTH
---===============================--
-
-BirthRate = total number of live births per 1,000 of a population in a year = 22.5 in 2000, 37.2 in 1950 (50 max, 6 min in 2000)
-MortalityRate = units of deaths per 1,000 individuals per year = 8.8 in 2000, 19.1 in 1950 (17 max, 1 min in 2000)
-GrowthRate = BirthRate - MortalityRate
-
-UpperClassBirthRate 	= 5
-MiddleClassBirthRate 	= 15
-LowerClassBirthRate		= 50
-SlaveBirthRate			= 20
-
-National values
-	policies, techs
-	
-City values
-	health, food (mortality rate)
-	housing (birth rate)
-
---]]
-
---===============================--
---[[ HEALTH
---===============================--
-
-raise
-	food variety
-	health buildings
-	forest
-	
-lower
-	surpopulation
-	jungle
-	swamp
-	pollution buildings
-	
-each turn:
-health = health + (raise - lower) and -100 < health < 100
-
-if health = 100 	:  0% deseases in population |
-if health = 0		:  2% deseaces in population } should those values should change with era/tech/buildings ?
-if health = -100 	: 25% deseases in population |
-
-% deseaced generate need of medecine
-% deseaced raise Mortality rate
-plants -> heborist/apothicary -> medecines
-
-if health < -50 : add value = rnd(1, abs(health-50)) to each possible epidemic disease buckets
-if health > 0 : remove (% ? all ?) health value each turn to all buckets
-when an epidemic desease reach its declaration treshold, create it and restore its value to 0 while it last in the city
-
-the epidemy may spread to each city linked to this one, depending on their own health (maybe raise their own bucket faster for that epidemy ?)
-
-Epidemy[cityKey][diseaseID] = { startDate, initialcityPop, deaths, strength }
-
-lower strength each turn (with bonus for health > 0)
-stop when strengh = 0 or % of initialCityPop killed
-
---]]
-
---===============================--
---[[ HOUSING
---===============================--
-
-can we represent housing with 3D models ?
-	build houses with ethnicity
-	keep ethnicity/ancient house model until upgraded
---]]
-
---===============================--
---[[ STABILITY
---===============================--
-
-local
-	lower
-		risk of being attacked (enemy units near the city)
-		supplying personnel in time of war
-		lack of food
-		lack of justice (absence of related buildings)
-		high taxes
-		low health
-		
-	raise
-		food variety
-		luxury products variety
-		low taxes
-		entertainement (presence of related buildings)
-		military presence (martial law)
-		policies
-		
-global
-	lower		
-		below tech level of known civs
-		high % of poor population
-		War-weariness: % deaths from combats, % material loss from combats, asymetric war (more war weariness when attacking a smaller nation)
-	raise
-		above tech level of known civs
-		high % of rich population
-		bigger empire size compared of other known civs
-		
---]]
-	
---===============================--
 --[[ CULTURE RELATION
 --===============================--
 
@@ -554,7 +205,7 @@ raise
 	same governement
 
 --]]
-	
+
 --===============================--
 --[[ DIPLOMACY
 --===============================--
@@ -646,73 +297,418 @@ casus belly
 --]]
 
 --===============================--
---[[ CIVS RELATIONS
+--[[ DISTRICTS
 --===============================--
 
-table
-[CivID1]
-	[CivID2] = { Thrust = { [ModifierID] = value, ...}, Relation  = { [ModifierID] = value, ...}}
-	[CivID3] = ...
-	
-thrust modifiers
-	Break Treaty with an enemy civ = -10 (decay +1/turn) (maybe use % rate of decay instead of fixed value)
-	Break Treaty with another civ = -25 (decay +1/turn)
-	Break Treaty with a friend civ = -50  (decay +1/turn)
-	Break Treaty with us = -100 (decay +2/turn)
-	declare a surprise war with an enemy civ = -5 (decay +1/turn)
-	declare a surprise war with another civ = -25 (decay +1/turn)
-	declare a surprise war with a friend civ = -100  (decay +2/turn)
-	declare a surprise war with us = -200 (decay +3/turn)
-	Respect Treaty with us = +1/turn with treaty (reset to 0 when breaking a treaty with us)
-	Respect delayed deal = +2/deal (reset to 0 when breaking a delayed deal with us)
-	Respect other civ delayed deal = +1/deal (reset to 0 when breaking a delayed deal with another civ)
-	spy actions
-	
-relation modifiers
-	send delegation				= +5
-	ambassy						= +10 when active
-	open border					= +5 when active
-	open market					= +15 when active
-	defensive pact				= +25 when active
-	non agression pact			= +10 when active
-	common friend				= +5 per friend (declaration of friendship)
-	common enemy				= +10 per enemy (enemy = at war or denounced)
-	friend of an enemy			= -15 per friend
-	territory (give)			= +5 per tile (decay -1/turn) } when it's part of a demand or peace treaty, it won't count when part of a deal.
-	territory (taken)			= -5 per tile (decay +1/turn) } 
-	occupy territory 			= -2 per tile (occupied territory = tile captured with still a majority of the previous owner culture)
-	occupy territory of a friend= -1 per tile
-	occupy city 				= -20 per city (occupied city = city captured with still a majority of the previous owner culture)
-	occupy city of a friend		= -10 per city
-	territorial integrity		= +10 when active
-	research agreement			= +10 when active
-	same side in war			= +50 when active
-	declaration of friendship	= +50 when active
-	information from spy		= +25 (decay -1/turn)
-	information sharing			= +10 when active
-	garanteed access for trade	= +1 (bonus), +2 (strategic), +5 (luxuries) per resource type when active
-	embargo						= -2 (bonus), -5 (strategic), -10 (luxuries) per resource type when active
-	denounciation				= -100 when active
-	at war						= -200 when active
-	break delayed deal			= -25 (decay +1/turn)
-	break territorial integrity = -20 (decay +1/turn)
-	break defensive pact		= -100 (decay +2/turn)
-	break non agression pact	= -200 (decay +3/turn)
-	break embargo				= -20 (decay +1/turn)
-	break open border			= -20 (decay +1/turn)
-	break DOF					= -50 (decay +2/turn)
-	refuse to denounce			= -10 (decay +1/turn)
-	refuse to remove embargo	= -25 (decay +1/turn)
-	refuse to stop DOF			= -15 (decay +1/turn)
-	refuse to stop def. pact	= -10 (decay +1/turn)
-	refuse to stop open borders	= -10 (decay +1/turn)
-	refuse to stop open market	= -10 (decay +1/turn)
-	refuse to give gold			= -10 (decay +1/turn)
-	spy actions
-	opposing governments
+- remove Culture, Faith, Entairtainment districts
+- add internal city districts concept with limited slots 
+- "City expansion" improvement to unlock most districts (build adjacent to city center or another district)
+- Airport, Space, Encampement must be build > 1 tile from city center / expansion
 
 --]]
+
+--===============================--
+--[[ ECONOMIE
+--===============================--
+
+4 classes: upper, middle, lower, slave (prisonners of war, policy dependant)
+
+rich (max % from middle+poor), middle (default), poor
+rich give more gold from tax
+poor, slave give no gold from tax
+building / luxury resources / tax : change rate (per turn) of convertion from middle to rich/poor
+poor give unrest/unhappiness
+slaves give extra production, raise unrest
+
+Taxe rate used to determine gold the change rate
+
+default value
+BASE_GOLD_PER_RICH_CITIZEN = 100
+BASE_TAXE_RICH_CLASS = 10
+
+BASE_GOLD_PER_MIDDLE_CLASS_CITIZEN = 10
+BASE_TAXE_RICH_CLASS = 10
+
+UI :
+    - national taxe rate
+       - 2 values for rich/middle class taxe rate
+    - city taxe rate
+       - 2 values for rich/middle class taxe rate
+       - 1 button to reset city values to national values
+	   
++ Corruption
+
+Large empire raise corruption
+Corruption lower incomes (maybe only if the budget is positif ?)	   
+
++ Banditism
+
+some entertainement buildings raise banditism (taverns, whorehouses, nightclubs, ...)
+banditism raise corruption
+--]]	   
+
+--===============================--
+--[[ HEALING
+--===============================--
+
+- Unit "heal" from reserve first then receive supply in reserve : "Rear" (Reinforcement / Healed / Repaired) -> Reserve -> Frontline 
+- Retreating: lose all damaged Equipment & wounded -> prisoners
+- Need personnel to resuply #personnel in reserve
+- Need materiel to resuply #Equipment in reserve
+- Tribal Villages (Barbarian outpost ?) should provide enough Personnel / Materiel to refill at least a Scout/Ranger reserve.
+
++ each turn:
+
+	- if linked to city: 
+		all wounded, prisonners (and other captured components like horses, vehicule ?) -> city (if it can handle it)
+		all excedent from other components -> city (if it can handle it)
+		healing 10 "equivalent HP" max / turn from reserve, reserve receive 5 "equivalent HP" max / turn from cities
+
+		infantry
+			- reserve -> personnel/materiel to frontline troops (up to 10 equivalent hp) (reserve personnel + wounded can't be superior to max frontline personnel)
+			- linked city - > component (personnel, horses, materiel) to refill reserve (up to 5 equivalent hp)
+
+		mechanized unit
+			- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
+			- linked city -> component (personnel, materiel) to refill reserve (up to 5 equivalent hp or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+			- linked city -> materiel to repair each damaged vehicule in reserve (max 5 hp of equivalent vehicule or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+			- linked city -> materiel ("vehicule production" here) to reserve (if not reached the 5 hp/turn limit or until MAX_MATERIEL_SUPPLIED is reached, whatever come first)
+
+		note: materiel in reserve is only used to repair, not to make a new vehicule "on the field"
+
+	- if not linked to city: 
+
+		wounded -> % healed to reserve personnel (if medic/field hospital promotion)
+		wounded -> % dead (more important without medic/field hospital promotion, lowered at higher eras)
+
+		healing 10 "equivalent HP" max / turn from reserve
+
+		infantry
+			- reserve -> personnel/materiel to frontline troops (up to 10 equivalent HP)
+
+		mechanized unit
+			- reserve -> personnel/materiel/vehicule to frontline troops (up to 10 equivalent hp)
+			- reserve -> materiel to repair each damaged vehicule (up to 5 equivalent vehicule HP)
+			if no materiel in reserve, "bleed" unit
+		
+--]]
+
+--===============================--
+--[[ HEALTH
+--===============================--
+
+raise
+	food variety
+	health buildings
+	forest
 	
+lower
+	surpopulation
+	jungle
+	swamp
+	pollution buildings
+	
+each turn:
+health = health + (raise - lower) and -100 < health < 100
+
+if health = 100 	:  0% deseases in population |
+if health = 0		:  2% deseaces in population } should those values should change with era/tech/buildings ?
+if health = -100 	: 25% deseases in population |
+
+% deseaced generate need of medecine
+% deseaced raise Mortality rate
+plants -> heborist/apothicary -> medecines
+
+if health < -50 : add value = rnd(1, abs(health-50)) to each possible epidemic disease buckets
+if health > 0 : remove (% ? all ?) health value each turn to all buckets
+when an epidemic desease reach its declaration treshold, create it and restore its value to 0 while it last in the city
+
+the epidemy may spread to each city linked to this one, depending on their own health (maybe raise their own bucket faster for that epidemy ?)
+
+Epidemy[cityKey][diseaseID] = { startDate, initialcityPop, deaths, strength }
+
+lower strength each turn (with bonus for health > 0)
+stop when strengh = 0 or % of initialCityPop killed
+
+--]]
+
+--===============================--
+--[[ HOUSING
+--===============================--
+
+can we represent housing with 3D models ?
+	build houses with ethnicity
+	keep ethnicity/ancient house model until upgraded
+--]]
+
+--===============================--
+--[[ LOYALTY
+--===============================--
+
+- units loyalty is following the stability of the city it's linked to
+- variation speed is dependant of moral
+- loyalty lower when not linked to a city
+
+--]]
+
+--===============================--
+--[[ MORAL
+--===============================--
+
+++ victory
+++++ large victory
++++++ kill unit
+- defeat
+-- large defeat
+- rationing
++++ friendly tribe
+
+each turn @low morale (default = 50%) : desertion (modifiers to default: promotions, policies, ...)
+	- remove 1 equivalent hp on personnel in reserve per turn until 50% MaxPersonnelReserve is reached
+	- if less than 50% MaxPersonnelReserve remove 1 hp per turn until hp = 50% max (equivalent hp of personnel removed, other components transfered to reserve)
+	- morale++
+	
+each turn
+	- morale+ if enough food
+	- morale+ if less than 25% of total personnel wounded
+	- morale++ if victory in the last combat (5 turns max)
+	- morale+++ if large victory in the last combat (5 turns max)
+	- morale+++++ if killing enemy unit in the last combat (5 turns max)
+	- morale- if more than 5% of total personnel wounded
+	- morale- if more than 50% of total personnel wounded
+	- morale- if defeat in the last combat (5 turns max)
+	- morale-- if large defeat in the last combat (5 turns max)
+
+--]]
+
+--===============================--
+--[[ POLICIES
+--===============================--
+
+Military cards policies:
+	- Foreign Legion : can draft foreign citizens in the army
+
+--]]	
+
+--===============================--
+--[[ PROGRAMMATION
+--===============================--
+	   
+- Create a configuration table set in one SQL file with the new mechanisms and values for units, buildings, etc...
+- A copy of this table will be created in each database context (config, gameplay, text)
+- Update each database with a separate specific SQL file
+
+--]]
+
+--===============================--
+--[[ PROMOTIONS
+--===============================--
+
+- berserk/totenkopf : +25% chance of causing retreat, more dead, less prisonners, less wounded 
+
+--]]
+
+--===============================--
+--[[ RATIONS
+--===============================--
+
+- food reserve
+- get food from unit plot (or nearby plot at lower ratio)
+- food requirement = ( (personnel x2) + (wounded *1.5) + (prisonners*0.5) + (horses*3) ) / 1000
+- no food from owned plots
+- pillaging can give food (farm, ...), materiel (mines, ...), prisonners (district, ...)
+
++ rationing
+	if less than 50% MaxFoodStock left
+		moral-, 50% food consumption, wounded mortality rate+
+	if less than 25% MaxFoodStock left
+		moral--, 25% food consumption, wounded mortality rate++
+	if less than 10% MaxFoodStock left
+		moral---, 10% food consumption, wounded mortality rate+++
+		if unit has horses
+			% of horses (min of 1) removed from reserve -> food 
+	if no food stock
+		moral----, wounded mortality rate++++
+		if unit has horses
+			% of horses (min of 1) removed from reserve -> food
+			if no horses in reserve and more than 50 hp left in unit, remove 1hp (equivalent hp of horses removed -> food, other components transfered to reserve)
+
+--]]
+
+--===============================--
+--[[ RESOURCE STOCK
+--===============================--
+
+how to find which resources can be sold & which can be bought
+
+- slider to sell until X % of stock left 
+- slider to buy until Y % of stock filled
+- slider to convert to another resource until Z % of stock left
+
+converting a resource (in buildings like steel factory using coal and iron) has priority, so to always have a stock to sell, set Z > X, but the number of converted / buyed resources is limited per turn
+
+for example a market could allows 10 units of each resources / turn or a stock exchange 100 units of each resources / turn
+
+
+if X > Y 
+    - will buy until Y % of stock filled
+    - will sell until X % of stock left
+    - and means will not buy if it's selling
+if X < Y 
+    - will always buy until Y % of stock filled
+    - will sell until X % of stock left
+    - can buy and sell at the same time
+
+so maybe force X >= Y every time (if X = Y = % stock left -> no buying nor selling)
+
+default values:
+PERCENTAGE_STOCK_REQUIRED_TO_SELL = 50
+PERCENTAGE_STOCK_REQUIRED_TO_CONVERT = 40
+PERCENTAGE_STOCK_REQUIRED_TO_STOP_BUYING = 50
+
+UI :
+    - national stock (main menu on new screen)
+       - general slider for nation (ie default for all resources)
+       - sliders for all resources (when used not updated by general slider)
+       - button to reset values of all resources slider to general slider
+    - city stock (list and button to unfold at bottom of new screen)
+       - general slider for city (ie default for all resources in city - override general slider for nation at the city level)
+       - sliders for all resources (when used they are not updated by general slider)
+       - button to reset values of all resources slider to general slider for city
+       - button to reset value of general slider for city to general slider for nation
+       - button to reset values of all sliders of this city to general slider for nation
+
+--]]
+	   
+--===============================--
+--[[ RESOURCE STOCK (REVISED)
+--===============================--
+
+MIN_PERCENT_LEFT_TO_SELL 		-- Selling to another Civ
+MIN_PERCENT_LEFT_TO_CONVERT		-- Converted in local industry
+MIN_PERCENT_LEFT_TO_SUPPLY		-- Used to reinforce units
+MIN_PERCENT_LEFT_TO_TRANSFER	-- Transfered to other cities
+
+MAX_PERCENT_LEFT_TO_BUY			-- Buying from another civ 
+MAX_PERCENT_LEFT_TO_REQUEST		-- Transfered from other cities
+
+Proceed on new turns for all civs at once ?
+
+1st loop on units
+	build linked units table
+	
+1st loop on cities
+	build linked cities table (river, sea, road, trader, airport)
+	collect resources in city plots (allow excedent)
+	get supply demand (units linked to that city)
+	get industry demand (local buildings that convert resources)
+	create requests/buy values (based on current stocks minus supply/industry demands)
+		keep request in cache for whole turn, reserve a part for each traders ?
+	
+2nd loop on cities	
+	get trade demand (external trade routes)
+	get cities requests (internal trade routes to/from that city)
+	
+3rd loop on cities
+	calculate transfer ratio between Sell, Convertion, Supply, Transfer
+	do transfers
+	
+on beginning of each player turn, after DoUnits()
+	remove excedent
+
+--]]
+
+--===============================--
+--[[ RESOURCE TRANSFER
+--===============================--
+
+Gold gained on import and export (taxes), more trade = more money, but less local bonuses
+
+How much resources are transfered using trade routes
+
+types:
+	traders -> max efficiency
+	road	|
+	river	|} efficiency relative to distance
+	sea		|
+	air		-> smaller but fixed values not relative to distance
+
+default values:
+MAX_CARGO_PER_TRADER = 10 -- Max value for exported/imported resource per trader
+EXPORTED_CARGO_PER_TRADER = 10 -- default exported units of each resources
+IMPORTED_CARGO_PER_TRADER = 5 -- default imported units of each resources
+
+UI :
+    - national trading (main menu on new screen)
+       - 2 general values for max quantity to export/import (ie default for all resources)
+       - 2 values (max to export/import) for all resources
+        - button to reset values of all resources values to general values
+
+    - trader (list and button to unfold at bottom of new screen, button to unfold on trader screen)
+       - 2 general values for max quantity to export/import (ie default for all resources)
+       - 2 values (max to export/import) for each resources that this trader can access
+       - button to reset values of all resources values to this trader general values
+       - button to reset values of all this traders values to general values for nation
+
+--]]
+
+--===============================--
+--[[ STABILITY
+--===============================--
+
+local
+	lower
+		risk of being attacked (enemy units near the city)
+		supplying personnel in time of war
+		lack of food
+		lack of justice (absence of related buildings)
+		high taxes
+		low health
+		
+	raise
+		food variety
+		luxury products variety
+		low taxes
+		entertainement (presence of related buildings)
+		military presence (martial law)
+		policies
+		
+global
+	lower		
+		below tech level of known civs
+		high % of poor population
+		War-weariness: % deaths from combats, % material loss from combats, asymetric war (more war weariness when attacking a smaller nation)
+	raise
+		above tech level of known civs
+		high % of rich population
+		bigger empire size compared of other known civs
+		
+--]]
+
+--===============================--
+--[[ SUPPLY
+--===============================--
+
+Supply line efficiency by distance
+% efficiency for example at 50%
+	- 50% of max personnel transfered (the other 50% stay in the city/camp)
+	- 50% of max food, materiel, resources for vehicule transfered, 50% lost on the way
+	- make min % efficiency a player choice
+		- unit slider (with a "restore to global" button)
+		- global slider (with an "apply to all units" button)
+	
+
+vehicles requires materiel and resources to be build
+table for resources required per vehicle
+	- wood
+	- iron
+	- steel
+	- aluminum
+	
+forts (with stockage) linked to city, units linked to fort
+
+--]]
+
 --===============================--
 --[[ SUZERAINTY
 --===============================--
@@ -800,20 +796,56 @@ Hegemony as a possible victory condition ?
 --]]
 
 --===============================--
---[[ POLICIES
+--[[ TECHNOLOGIES
 --===============================--
 
-Military cards policies:
-	- Foreign Legion : can draft foreign citizens in the army
++ Ancien
+	Herbalism: Herborist (+health) - Less deads from wounds
+	
++ Classical
+	Surgery : Less deads from wounds
+	
++ Medieval
+	Medecine: Medieval Hospitals (+healths, heal wounded in city), Apothecary (replace Herborist), Less deads from wounds
+	
++ Rennaissance
+	Microbiologie: Hospital (replace Medieval Hospitals), Less deads from wounds
+	
++ Industrial
+	Vaccine: Pharmacy (replace Apothecary)
+	
++ Modern
+	Antibiotics: Modern Hospital (replace Hospitals), Minimal deads from wounds
 
---]]	
+--]]
 
 --===============================--
---[[ PROGRAMMATION
+--[[ TERRITORY
 --===============================--
 	   
-- Create a configuration table set in one SQL file with the new mechanisms and values for units, buildings, etc...
-- A copy of this table will be created in each database context (config, gameplay, text)
-- Update each database with a separate specific SQL file
+- First unit debarking on a small island (<4 tiles) can claim it
+- Maximum distance form own cities depending on tech/civic (allow illimited range after specific tech/civic for example)
+
+--]]
+
+--===============================--
+--[[ TRIBES/BARBARIANS
+--===============================--
+
+grouped tribal village
+can spawn barbarians camps if pillaged
+visiting with scout, civilian = friendly but less goodies / military units = unfriendly but more goodies ?
+popup to allow choice (pay for reinforcements or pillage or no action for example ?) <- have to find a way to propagate choice on network first
+
+--]]
+
+--===============================--
+--[[ UNITS
+--===============================--
+
++ Creation
+
+- use dummy building for each unit, edit city screen to hide them (add column in building table)
+- Lua check for required resources for an unit in city at the start of a player turn to create or remove the dummy building
 
 --]]
