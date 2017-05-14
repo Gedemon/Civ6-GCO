@@ -269,7 +269,7 @@
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_FOOD_RATION" Language="en_US">
-      <Text>[ICON_Food] {1_Num} / {2_Num} Rations</Text>
+      <Text>[ICON_Food] {1_Num} / {2_Num} Food</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING" Language="en_US">
       <Text>[ICON_FoodDeficit] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Yellow]Light Rationing[ENDCOLOR]</Text>
@@ -294,7 +294,7 @@
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_FUEL_STOCK" Language="en_US">
-      <Text>[ICON_RESOURCE_OIL] {1_Num} / {2_Num} Rations</Text>
+      <Text>[ICON_RESOURCE_OIL] {1_Num} / {2_Num} Fuel</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_FUEL_STOCK_LIGHT_RATIONING" Language="en_US">
       <Text>[ICON_RESOURCE_OIL] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Yellow]Light Rationing[ENDCOLOR]</Text>
@@ -397,6 +397,22 @@
       <Text>[ICON_New] {1_Num} / {2_Num} Meat</Text>
     </Replace>
 	
+    <Replace Tag="LOC_CITYBANNER_FOOD_RATION" Language="en_US">
+      <Text>[ICON_Food] {1_Num} / {2_Num} Food</Text>
+    </Replace>	
+    <Replace Tag="LOC_CITYBANNER_FOOD_RATION_LIGHT_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Yellow]Light Rationing[ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_CITYBANNER_FOOD_RATION_MEDIUM_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6Red]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Red]Medium Rationing[ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6DarkRed]Heavy Rationing[ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_CITYBANNER_RESOURCE_COST" Language="en_US">
+      <Text>[COLOR_GoldDark]{1_Num}[ICON_Gold][ENDCOLOR]</Text>
+    </Replace>
 	
   </LocalizedText>
     

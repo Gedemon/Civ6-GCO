@@ -67,6 +67,25 @@ infrastructure :
 	- Treadmills : convert wheat/rice to food
 	
 --]]
+
+--===============================--
+--[[ CITIZEN NEEDS
+--===============================--
+
+- Citizen have consumers need for resources depending on their social class and the era
+    + food (upper, middle, lower, slaves)
+    + medecine for those who have a disease (upper, middle, lower, slaves)
+    + basic clothes (middle, lower, slave) = linen (plants from forest/jungle/swamp) or leather or wool
+    + clothes (upper, middle) = use leather + (wool or linen)
+    + exotic food (upper, middle) = food not available in the city area
+    + rare food (upper)
+    + luxury clothes (upper) = use leather + (wool or linen) + (dyes or furs or coton) | or simply just clothes + (dyes or furs)
+    + luxury products (upper) = jewelry (silver, diamonds), decorations (silver, marble)
+   
+- when all needs of a class are meet, give a bonus to birth rate
+- if a basic need (food, medecine, basic clothes - and more with eras) can't be satisfied (high cost or shortage), lower local stability
+
+--]]
 	
 --===============================--
 --[[ CITY GROWTH
@@ -311,14 +330,26 @@ casus belly
 --[[ ECONOMIE
 --===============================--
 
-4 classes: upper, middle, lower, slave (prisonners of war, policy dependant)
++ Give a local "consumer cost" to resources in a city (deduct a national cost = average from all cities ?)
 
-rich (max % from middle+poor), middle (default), poor
-rich give more gold from tax
-poor, slave give no gold from tax
-building / luxury resources / tax : change rate (per turn) of convertion from middle to rich/poor
-poor give unrest/unhappiness
-slaves give extra production, raise unrest
+	Cost goes up when high demand (+++) and source is transfer (+) or import (++)
+	Cost goes down when low demand (---) and source is local (-)
+	Production cost = (ΣCostRequiredResources or resourceBaseCost) * cityWealth
+	transport cost = +% of production cost (% = 100 - route efficiency)
+	possible use : 
+		Some resources (like iron) could be exctracted in any mines even if the resource is not on the plot but at a lower rate and much higher cost
+		Producing an unit require resources (at least materiel), cost of construction per turn is related to the required resources cost and city wealth
+
+
++ 4 classes: upper, middle, lower, slave (prisonners of war, policy dependant)
+
+	rich (max % from middle+poor), middle (default), poor
+	rich give more gold from tax
+	poor, slave give no gold from tax
+	building / luxury resources / tax : change rate (per turn) of convertion from middle to rich/poor
+	poor give unrest/unhappiness
+	slaves give extra production, raise unrest
+	wealth level of a city = ((2x upper) + (1x middle) + (0.5x lower) + (0.1x slaves)) / totalPopulation
 
 Taxe rate used to determine gold the change rate
 
@@ -411,24 +442,25 @@ lower
 each turn:
 health = health + (raise - lower) and -100 < health < 100
 
-if health = 100 	:  0% deseases in population |
-if health = 0		:  2% deseaces in population } should those values should change with era/tech/buildings ?
-if health = -100 	: 25% deseases in population |
+if health = 100 	:  0% disease in population |
+if health = 0		:  2% disease in population } should those values should change with era/tech/buildings ?
+if health = -100 	: 25% disease in population |
 
-% deseaced generate need of medecine
-% deseaced raise Mortality rate
+% disease generate need of medecine
+% disease raise Mortality rate
 plants -> heborist/apothicary -> medecines
 
-if health < -50 : add value = rnd(1, abs(health-50)) to each possible epidemic disease buckets
+if health < -50 : add value = rnd(1, abs(health)-50) to each possible epidemic disease buckets
 if health > 0 : remove (% ? all ?) health value each turn to all buckets
-when an epidemic desease reach its declaration treshold, create it and restore its value to 0 while it last in the city
+when an epidemic disease reach its declaration treshold, create it and restore its value to 0 while it last in the city
 
 the epidemy may spread to each city linked to this one, depending on their own health (maybe raise their own bucket faster for that epidemy ?)
 
-Epidemy[cityKey][diseaseID] = { startDate, initialcityPop, deaths, strength }
+Epidemy[cityKey][diseaseID] = { startDate, initialcityPop, deaths, strength, endDate }
 
 lower strength each turn (with bonus for health > 0)
 stop when strengh = 0 or % of initialCityPop killed
+use endDate for buffer or filling a new bucket enough ?
 
 --]]
 
@@ -439,6 +471,8 @@ stop when strengh = 0 or % of initialCityPop killed
 can we represent housing with 3D models ?
 	build houses with ethnicity
 	keep ethnicity/ancient house model until upgraded
+	
+over population lower birth rate (unless already < to death rate) until it equals death rate
 --]]
 
 --===============================--
@@ -691,19 +725,17 @@ global
 
 Supply line efficiency by distance
 % efficiency for example at 50%
-	- 50% of max personnel transfered (the other 50% stay in the city/camp)
-	- 50% of max food, materiel, resources for vehicule transfered, 50% lost on the way
-	- make min % efficiency a player choice
-		- unit slider (with a "restore to global" button)
-		- global slider (with an "apply to all units" button)
+	- 50% of max personnel transfered 
+	- 50% of max food, materiel, resources for vehicule transfered
 	
-
+allow diplomacy option to provide supply to foreign units, at a lesser efficiency than own units, or up to same efficiency, depending of the diplomatic option 
+	
 vehicles requires materiel and resources to be build
 table for resources required per vehicle
 	- wood
 	- iron
 	- steel
-	- aluminum
+	- aluminum...
 	
 forts (with stockage) linked to city, units linked to fort
 

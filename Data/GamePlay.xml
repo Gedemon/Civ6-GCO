@@ -18,7 +18,7 @@
 	<Resources>
 		<Row ResourceType="RESOURCE_FOOD" 		Name="LOC_RESOURCE_FOOD_NAME" 		ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<Row ResourceType="RESOURCE_MATERIEL" 	Name="LOC_RESOURCE_MATERIEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="RESOURCE_PERSONNEL" 	Name="LOC_RESOURCE_PERSONNEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_PERSONNEL" 	Name="LOC_RESOURCE_PERSONNEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
 		<Row ResourceType="RESOURCE_STEEL" 		Name="LOC_RESOURCE_STEEL_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_WOOD" 		Name="LOC_RESOURCE_WOOD_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		
@@ -27,7 +27,7 @@
 	</Resources>
 
 	<Buildings>
-		<Row BuildingType="BUILDING_BUTCHERY" Name="LOC_BUILDING_BUTCHERY_NAME" Description="LOC_BUILDING_BUTCHERY_DESCRIPTION" PrereqTech="TECH_THE_WHEEL" PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_BUTCHERY" Name="LOC_BUILDING_BUTCHERY_NAME" Description="LOC_BUILDING_BUTCHERY_DESCRIPTION" PrereqTech="TECH_ANIMAL_HUSBANDRY" PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
 	</Buildings>
 	
 	<BuildingResourcesConverted>

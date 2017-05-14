@@ -292,6 +292,13 @@ function GetTotalPrisoners(data) -- works for cityData and unitData
 	return TableSummation(data.Prisoners)
 end
 
+function GetTurnKey()
+	return tostring(Game.GetCurrentGameTurn())
+end
+
+function GetPreviousTurnKey()
+	return tostring(math.max(0, Game.GetCurrentGameTurn()-1))
+end
 
 ----------------------------------------------
 -- Players
@@ -371,6 +378,8 @@ function Initialize()
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
 	-- common
 	ExposedMembers.GCO.GetTotalPrisoners 			= GetTotalPrisoners
+	ExposedMembers.GCO.GetTurnKey 					= GetTurnKey
+	ExposedMembers.GCO.GetPreviousTurnKey			= GetPreviousTurnKey
 	-- map
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
 	ExposedMembers.GCO.GetRouteEfficiency 			= GetRouteEfficiency

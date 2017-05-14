@@ -42,6 +42,9 @@ ALTER TABLE Terrains ADD COLUMN CultureThreshold integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CulturePenalty integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CultureMaxPercent integer DEFAULT '0';
 
+-- Resources trading
+ALTER TABLE Resources ADD COLUMN NoExport 	BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0; -- Not allowed on international trade routes
+ALTER TABLE Resources ADD COLUMN NoTransfer BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; -- Not allowed on internal trade routes
 
 -----------------------------------------------
 -- New Tables
@@ -58,7 +61,8 @@ CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
 		Ratio REAL NOT NULL DEFAULT 0,
 		PRIMARY KEY(BuildingType, ResourceType, ResourceCreated),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,		
+		FOREIGN KEY (ResourceCreated) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
 CREATE TABLE IF NOT EXISTS BuildingStock

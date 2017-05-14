@@ -1222,7 +1222,7 @@ function CityBanner.UpdateName( self : CityBanner )
 			local city = GCO.GetCity(pCity:GetOwner(), pCity:GetID())  -- to get a CityScript context city
 			local cityKey = city:GetKey()
 			local cityData = ExposedMembers.CityData[cityKey]
-			local cityString = cityName
+			local cityString = cityName .." (wealth = ".. tostring(city:GetWealth()) ..")"
 			if cityData then
 				-- Population
 				local population = city:GetRealPopulation()
@@ -1244,9 +1244,9 @@ function CityBanner.UpdateName( self : CityBanner )
 				 end
 				
 				-- Personnel				
-				if cityData.Personnel > 0 then
+				if city:GetPersonnel() > 0 then
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", cityData.Personnel, city:GetMaxPersonnel()) .. GCO.GetVariationString(cityData.Personnel - cityData.PreviousPersonnel)
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
 				end
 				
 				-- Prisoners

@@ -91,6 +91,17 @@ function UpdateCitiesBanners(self)
 	end
 end
 
+function UpdateDataOnNewTurn(self)
+	local playerCities = self:GetCities()
+	if playerCities then
+		for i, city in playerCities:Members() do
+			GCO.AttachCityFunctions(city)
+			city:UpdateDataOnNewTurn()
+		end
+	end
+end
+
+
 function DoPlayerTurn( playerID )
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	local player = Players[playerID]
@@ -155,6 +166,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.UpdateCitiesBanners		= UpdateCitiesBanners
 	p.SetCurrentTurn			= SetCurrentTurn
 	p.HasStartedTurn			= HasStartedTurn
+	p.UpdateDataOnNewTurn		= UpdateDataOnNewTurn
 	
 end
 

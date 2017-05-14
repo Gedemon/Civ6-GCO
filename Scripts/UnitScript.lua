@@ -225,7 +225,7 @@ function RegisterNewUnit(playerID, unit)
 		Materiel 				= UnitHitPointsTable[unitType][hp].Materiel,
 		-- "Tactical Reserve" : ready to reinforce frontline, that's where reinforcements from cities, healed personnel and repaired Equipment are affected first
 		PersonnelReserve		= GetBasePersonnelReserve(unitType),
-		EquipmentReserve			= GetBaseEquipmentReserve(unitType),
+		EquipmentReserve		= GetBaseEquipmentReserve(unitType),
 		HorsesReserve			= GetBaseHorsesReserve(unitType),
 		MaterielReserve			= GetBaseMaterielReserve(unitType),
 		-- "Rear"
@@ -1686,7 +1686,7 @@ GameEvents.OnPillage.Add(MarkUnitOnPillage)
 
 function DamageChanged (playerID, unitID, newDamage, prevDamage)
 	local unit = UnitManager.GetUnit(playerID, unitID)
-	if unit == PillagingUnit then
+	if unit and unit == PillagingUnit then
 		PillagingUnit = nil
 		local testHP = unit:GetMaxDamage() - unit:GetDamage()
 		local unitKey = unit:GetKey()

@@ -57,7 +57,7 @@
         </GameplayScripts>
         <GameplayScripts>
             <Items>
-                <File>Scripts/ModScript.lua</File>
+                <File>Scripts/GameScript.lua</File>
             </Items>
         </GameplayScripts>
         <GameplayScripts>
@@ -149,7 +149,7 @@
 		<File>Scripts/CityScript.lua</File>
 		<File>Scripts/UnitScript.lua</File>
 		<File>Scripts/PlotScript.lua</File>
-		<File>Scripts/ModScript.lua</File>
+		<File>Scripts/GameScript.lua</File>
 		<File>Scripts/SaveLoad.lua</File>
 		<File>Scripts/SaveLoad.xml</File>
 		<File>Scripts/ContextFunctions.lua</File>

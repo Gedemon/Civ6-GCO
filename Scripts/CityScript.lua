@@ -8,6 +8,9 @@ print ("Loading CityScript.lua...")
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
+
+local _cached				= {}	-- cached table to reduce calculations
+
 local LinkedUnits 			= {}	-- temporary table to list all units linked to a city for supply
 local UnitsSupplyDemand		= {}	-- temporary table to list all resources required by units
 local CitiesForTransfer 	= {}	-- temporary table to list all cities connected via (internal) trade routes to a city
@@ -37,6 +40,22 @@ local ResourceValue 		= {			-- cached table with value of resources type
 		["RESOURCECLASS_LUXURY"] 	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_LUXURY"].Value),
 		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
 		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
+}
+
+
+local ResourceUseType	= {		-- ENUM for resource trade/transfer route types (string as it it used as a key for saved table)
+		Collect 	= "1",	-- Resources from map
+		Consume		= "2",	-- Used by population or local industries
+		Product		= "3",	-- Produced by buildings (industrie)
+		Import		= "4",	-- Received from foreign cities
+		Export		= "5",	-- Send to foreign cities
+		TransferIn	= "6",	-- Reveived from own cities
+		TransferOut	= "7",	-- Send to own cities
+		Supply		= "8",	-- Send to units
+		Pillage		= "9",	-- Received from units
+		OtherIn		= "10",	-- Received from undetermined source
+		OtherOut	= "11",	-- Send to undetermined source
+		Waste		= "12",	-- Destroyed (excedent, ...)
 }
 
 -- Error checking
@@ -86,16 +105,23 @@ local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INC
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)	
 
 local StartingPopulationBonus		= tonumber(GameInfo.GlobalParameters["CITY_STARTING_POPULATION_BONUS"].Value)
+
 local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
 local UpperClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_BIRTH_RATE_FACTOR"].Value)
 local MiddleClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_BIRTH_RATE_FACTOR"].Value)
 local LowerClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_BIRTH_RATE_FACTOR"].Value)
 local SlaveClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_BIRTH_RATE_FACTOR"].Value)
+
 local BaseDeathRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_DEATH_RATE"].Value)
 local UpperClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_DEATH_RATE_FACTOR"].Value)
 local MiddleClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_DEATH_RATE_FACTOR"].Value)
 local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_DEATH_RATE_FACTOR"].Value)
 local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
+
+local WealthUpperRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_UPPER_CLASS_RATIO"].Value)
+local WealthMiddleRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_MIDDLE_CLASS_RATIO"].Value)
+local WealthLowerRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_LOWER_CLASS_RATIO"].Value)
+local WealthSlaveRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_SLAVE_CLASS_RATIO"].Value)
 
 local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PRODUCTION_PER_SIZE"].Value)
 
@@ -136,6 +162,12 @@ local baseWoodPerForest			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WO
 local baseWoodPerJungle			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_JUNGLE"].Value)
 
 local BaseImprovementMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
+local BaseCollectCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_COLLECT_COST_MULTIPLIER"].Value)
+local ImprovementCostRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_IMPROVEMENT_COST_RATIO"].Value)
+
+local MaxCostVariationPercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_VARIATION_PERCENT"].Value)
+
+local ResourceTransportMaxCost	= tonumber(GameInfo.GlobalParameters["RESOURCE_TRANSPORT_MAX_COST"].Value)
 
 local directReinforcement = {} 				-- cached table with "resources" that are directly transfered to units
 directReinforcement[foodResourceID] 		= true
@@ -209,16 +241,17 @@ function RegisterNewCity(playerID, city)
 	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID) / 100)
 	local lowerClass		= totalPopulation - (upperClass + middleClass)
 	local startingFood		= GCO.Round(tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value) / 2)
+	local baseFoodCost 		= 1 --self:GetBaseResourceCost(foodResourceID)
+	local turnKey 			= GCO.GetTurnKey()
 
 	ExposedMembers.CityData[cityKey] = {
 		cityID 					= city:GetID(),
 		playerID 				= playerID,
-		Personnel 				= personnel,
 		WoundedPersonnel 		= 0,
-		PreviousPersonnel		= personnel,
 		Prisoners				= GCO.CreateEverAliveTableWithDefaultValue(0),
-		Stock					= { [foodResourceKey] = startingFood, [personnelResourceKey] = personnel },
-		PreviousStock			= { [foodResourceKey] = startingFood, [personnelResourceKey] = personnel },
+		Stock					= { [turnKey] = {[foodResourceKey] = startingFood, [personnelResourceKey] = personnel} },
+		ResourceCost			= { [turnKey] = {[foodResourceKey] = baseFoodCost, } },
+		ResourceUse				= { [turnKey] = { } }, -- [ResourceID] = { ResourceUseType.Collected = 0, ResourceUseType.Consummed = 0, ResourceUseType.Imported = 0, ResourceUseType.Exported = 0) -- Import/Export include transfert in this context
 		UpperClass				= upperClass,
 		MiddleClass				= middleClass,
 		LowerClass				= lowerClass,
@@ -227,6 +260,7 @@ function RegisterNewCity(playerID, city)
 		PreviousLowerClass		= lowerClass,
 		Slaves					= 0,
 		PreviousSlaves			= 0,
+		--Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
 		FoodRatio				= 1,
 		FoodRatioTurn			= Game.GetCurrentGameTurn(),
 	}
@@ -265,18 +299,26 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 			print("Updating captured city (".. city:GetName() ..") for player #".. tostring(newOwnerID).. " id#" .. tostring(city:GetID()))
 			print("-------------------------------------")
 
-			ExposedMembers.CityData[newCityKey].Personnel 			= 0
 			ExposedMembers.CityData[newCityKey].WoundedPersonnel 	= 0
-			ExposedMembers.CityData[newCityKey].PreviousPersonnel 	= 0
 			for civID, value in pairs(originalData.Prisoners) do
 				ExposedMembers.CityData[newCityKey].Prisoners[civID] = value
 			end
-			ExposedMembers.CityData[newCityKey].Prisoners[tostring(originalOwnerID)] = originalData.Personnel + originalData.WoundedPersonnel
-			for resourceID, value in pairs(originalData.Stock) do
-				ExposedMembers.CityData[newCityKey].Stock[resourceID] = value
+			ExposedMembers.CityData[newCityKey].Prisoners[tostring(originalOwnerID)] = originalData.WoundedPersonnel
+			for turnKey, data in pairs(originalData.Stock) do
+				ExposedMembers.CityData[newCityKey].Stock[turnKey] = {}
+				for resourceKey, value in pairs(data) do
+					if turnKey == GCO.GetTurnKey() and resourceKey == personnelResourceKey then
+						ExposedMembers.CityData[newCityKey].Prisoners[tostring(originalOwnerID)] = ExposedMembers.CityData[newCityKey].Prisoners[tostring(originalOwnerID)] + originalData.Stock[turnKey][personnelResourceKey]
+					else
+						ExposedMembers.CityData[newCityKey].Stock[turnKey][resourceKey] = value
+					end
+				end
 			end
-			for resourceID, value in pairs(originalData.PreviousStock) do
-				ExposedMembers.CityData[newCityKey].PreviousStock[resourceID] = value
+			for turnKey, data in pairs(originalData.ResourceCost) do
+				ExposedMembers.CityData[newCityKey].ResourceCost[turnKey] = {}
+				for resourceKey, value in pairs(data) do
+					ExposedMembers.CityData[newCityKey].ResourceCost[turnKey][resourceKey] = value
+				end
 			end
 			ExposedMembers.CityData[newCityKey].UpperClass 			= originalData.UpperClass
 			ExposedMembers.CityData[newCityKey].MiddleClass 		= originalData.MiddleClass
@@ -340,16 +382,28 @@ function GetCityFromKey ( cityKey )
 	end
 end
 
+function GetWealth(self)
+	if not _cached[self] then
+		self:SetWealth()
+	elseif not _cached[self].Wealth then 
+		self:SetWealth()
+	end
+	return _cached[self].Wealth
+end
+
+function SetWealth(self)
+	if not _cached[self] then _cached[self] = {} end
+	local wealth = (self:GetUpperClass()*WealthUpperRatio + self:GetMiddleClass()*WealthMiddleRatio + self:GetLowerClass()*WealthLowerRatio + self:GetSlaveClass()*WealthSlaveRatio) / self:GetRealPopulation()
+	_cached[self].Wealth = GCO.ToDecimals(wealth)
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Population functions
 -----------------------------------------------------------------------------------------
-function GetRealPopulation(self) -- the original city:GetPopulation() returns city size
-	local key = self:GetKey()
-	if ExposedMembers.CityData[key] then
-		return ExposedMembers.CityData[key].UpperClass + ExposedMembers.CityData[key].MiddleClass + ExposedMembers.CityData[key].LowerClass + ExposedMembers.CityData[key].Slaves
-	end
-	return 0
+function GetRealPopulation(self) -- the original city:GetPopulation() returns city size (to do : cache value)
+	local totalPopulation = self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+	return totalPopulation
 end
 
 function GetSize(self) -- for code consistency
@@ -683,7 +737,7 @@ function ReinforceUnits(self)
 						reqValue[unit][resourceID] = reqValue[unit][resourceID] - send
 						
 						unit:ChangeStock(resourceID, send)
-						self:ChangeStock(resourceID, -send)
+						self:ChangeStock(resourceID, -send, ResourceUseType.Supply)
 						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (@ ".. tostring(efficiency) .."% efficiency) to unit ID#".. tostring(unit:GetID()), Locale.Lookup(UnitManager.GetTypeName(unit)))
 					end
 				end
@@ -712,18 +766,20 @@ function TransferToCities(self)
 	end
 	
 	for resourceID, value in pairs(transfers.Resources) do
-		local resLeft = value
-		local maxLoop = 5
-		local loop = 0
+		local resLeft 		= value
+		local maxLoop 		= 5
+		local loop 			= 0
+		local resourceCost 	= self:GetResourceCost(resourceID)
 		while (resLeft > 0 and loop < maxLoop) do
 			for city, data in pairs(cityToSupply) do
 				local reqValue = city:GetNumResourceNeeded(resourceID)
 				if reqValue > 0 then
 					local efficiency	= data.Efficiency
 					local send 			= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
+					local costPerUnit	= self:GetTransportCostTo(city) + resourceCost -- to do : cache transport cost
 					resLeft = resLeft - send
-					city:ChangeStock(resourceID, send)
-					self:ChangeStock(resourceID, -send)
+					city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, costPerUnit)
+					self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut)
 					print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) to ".. Locale.Lookup(city:GetName()))
 				end
 			end
@@ -832,10 +888,11 @@ function ExportToForeignCities(self)
 					local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
 					local efficiency		= data.Efficiency
 					local send 				= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
-					local transactionIncome = send * ResourceValue[resourceClassType]
+					local costPerUnit		= self:GetTransportCostTo(city) + self:GetResourceCost(resourceID)
+					local transactionIncome = send * costPerUnit
 					resLeft = resLeft - send
-					city:ChangeStock(resourceID, send)					
-					self:ChangeStock(resourceID, -send)
+					city:ChangeStock(resourceID, send, ResourceUseType.Import, costPerUnit)					
+					self:ChangeStock(resourceID, -send, ResourceUseType.Export)
 					importIncome[city] = (importIncome[city] or 0) + transactionIncome
 					exportIncome = exportIncome + transactionIncome
 					print ("  - Generating "..tostring(transactionIncome).." golds for " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) send to ".. Locale.Lookup(city:GetName()))
@@ -846,7 +903,7 @@ function ExportToForeignCities(self)
 	end
 	
 	-- Get gold from trade
-	exportIncome = GCO.Round(exportIncome * IncomeExportPercent / 100)
+	exportIncome = GCO.ToDecimals(exportIncome * IncomeExportPercent / 100)
 	if exportIncome > 0 then
 		print("Total gold from Export income = " .. exportIncome .." gold for ".. Locale.Lookup(self:GetName()))
 		local sText = Locale.Lookup("LOC_GOLD_FROM_EXPORT", exportIncome)
@@ -855,7 +912,7 @@ function ExportToForeignCities(self)
 	end
 	
 	for city, income in pairs(importIncome) do
-		income = GCO.Round(income * IncomeImportPercent / 100)
+		income = GCO.ToDecimals(income * IncomeImportPercent / 100)
 		if income > 0 then
 			print("Total gold from Import income = " .. income .." gold for ".. Locale.Lookup(city:GetName()))
 			local sText = Locale.Lookup("LOC_GOLD_FROM_IMPORT", income)
@@ -892,6 +949,21 @@ function GetNumResourceNeeded(self, resourceID, bExternalRoute)
 	return math.max(0, maxStockLeft - self:GetStock(resourceID))
 end
 
+function GetRouteEfficiencyTo(self, city)
+
+	if CitiesForTrade[self] and CitiesForTrade[self][city] then
+		return CitiesForTrade[self][city].Efficiency or 0
+	elseif CitiesForTransfer[self] and CitiesForTransfer[self][city] then
+		return CitiesForTransfer[self][city].Efficiency or 0
+	end
+
+	return 0
+end
+
+function GetTransportCostTo(self, city)
+	return GCO.ToDecimals(ResourceTransportMaxCost * (100 - self:GetRouteEfficiencyTo(city)) / 100)
+end
+
 function GetRequirements(self, fromCity)
 	local resourceKey 		= tostring(resourceID)
 	local cityKey 			= self:GetKey()
@@ -904,16 +976,23 @@ function GetRequirements(self, fromCity)
 	print("GetRequirements for ".. Locale.Lookup(self:GetName()) )
 
 	for row in GameInfo.Resources() do
-		local resourceID = row.Index
-		local bCanRequest = false
-		if player:IsResourceVisible(resourceID) then
+		local resourceID 			= row.Index
+		local bCanRequest 			= false
+		local bCanTradeResource 	= not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute)))
+		--print("can trade = ", bCanTradeResource,"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
+		if player:IsResourceVisible(resourceID) and bCanTradeResource then
 			local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
 			if numResourceNeeded > 0 then
 				if fromCity then -- function was called to only request resources available in "fromCity"
-					if fromCity:GetStock(resourceID) > self:GetStock(resourceID) then
+					local efficiency 	= fromCity:GetRouteEfficiencyTo(self)
+					local transportCost = fromCity:GetTransportCostTo(self) --ResourceTransportMaxCost * (100 - efficiency) / 100
+					if fromCity:GetStock(resourceID) > 0 then
+						print ("    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " from stock", fromCity:GetStock(resourceID) ," own stock", self:GetStock(resourceID) ," from cost", fromCity:GetResourceCost(resourceID)," transport cost", transportCost, " own cost", self:GetResourceCost(resourceID))
+					end	
+					if (fromCity:GetStock(resourceID) > self:GetStock(resourceID)) and (fromCity:GetResourceCost(resourceID) + transportCost < self:GetResourceCost(resourceID)) then
 						bCanRequest = true
-					end			
-				else
+					end
+				else					
 					bCanRequest = true
 				end
 				if bCanRequest then
@@ -938,14 +1017,17 @@ function CollectResources(self)
 		if plot:GetWorkerCount() > 0 then
 			local improvementID = plot:GetImprovementType()
 			if plot:GetResourceCount() > 0 then		
-				local resourceID = plot:GetResourceType()
+				local resourceID 	= plot:GetResourceType()
+				local resourceCost 	= self:GetBaseResourceCost(resourceID) 
 				if player:IsResourceVisible(resourceID) then
 					local collected = plot:GetResourceCount()
 					if IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID] then
-						collected = collected * BaseImprovementMultiplier
+						collected 		= collected * BaseImprovementMultiplier
+						resourceCost 	= resourceCost * ImprovementCostRatio
 					end
-					print("-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name ))
-					self:ChangeStock(resourceID, collected)
+					resourceCost = resourceCost * self:GetWealth()
+					print("-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
+					self:ChangeStock(resourceID, collected, ResourceUseType.Collect, resourceCost)
 				end
 			end
 			local featureID = plot:GetFeatureType()
@@ -957,28 +1039,71 @@ function CollectResources(self)
 				woodCollected = baseWoodPerJungle
 			end
 			if woodCollected > 0 then
+				local resourceCost 	= self:GetBaseResourceCost(woodResourceID) 
 				if IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID] then
 					woodCollected = woodCollected * BaseImprovementMultiplier
+					resourceCost 	= resourceCost * ImprovementCostRatio
 				end
-				print("-- Collecting " .. tostring(woodCollected) .. " " ..Locale.Lookup(GameInfo.Resources[woodResourceID].Name ))
-				self:ChangeStock(woodResourceID, woodCollected)
+				resourceCost = resourceCost * self:GetWealth()
+				print("-- Collecting " .. tostring(woodCollected) .. " " ..Locale.Lookup(GameInfo.Resources[woodResourceID].Name ).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
+				self:ChangeStock(woodResourceID, woodCollected, ResourceUseType.Collect, resourceCost)
 			end
 		end
 	end
 end
 
-function ChangeStock(self, resourceID, value)
-	local resourceKey = tostring(resourceID)
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
-	if resourceKey == personnelResourceKey then
-		ExposedMembers.CityData[cityKey].Personnel = math.max(0, cityData.Personnel + value)
+function ChangeStock(self, resourceID, value, useType, unitCost)
+	
+	if value == 0 then return end
 
-	elseif not ExposedMembers.CityData[cityKey].Stock[resourceKey] then
-		ExposedMembers.CityData[cityKey].Stock[resourceKey] = math.max(0 , value)
+	local resourceKey 	= tostring(resourceID)
+	local cityKey 		= self:GetKey()
+	local turnKey 		= GCO.GetTurnKey()
+	local cityData 		= ExposedMembers.CityData[cityKey]
+	
+	if value > 0 and resourceKey ~= personnelResourceKey then
+		if not useType then useType = ResourceUseType.OtherIn end
+		if not unitCost then unitCost = self:GetBaseResourceCost(resourceID) end
+		local actualStock	= self:GetStock(resourceID)
+		local actualCost	= self:GetResourceCost(resourceID)
+		local maxStock		= self:GetMaxStock(resourceID)
+		local surplus		= math.max(0, (actualStock + value) - maxStock)
+		local virtualStock 	= math.max(actualStock, (math.ceil(maxStock/2)))
+		local virtualValue 	= value - surplus
+		local newCost 		= GCO.ToDecimals((virtualValue*unitCost + virtualStock*actualCost ) / (virtualValue + virtualStock))		
+		
+		local surplusStr 	= ""
+		local halfStockStr	= ""
+		
+		newCost = math.min(newCost, self:GetMaximumResourceCost(resourceID))
+		newCost = math.max(newCost, self:GetMinimumResourceCost(resourceID))
+		
+		if surplus > 0 then surplusStr 	= "(surplus of "..tostring(surplus).." not effecting price)" end
+		if virtualStock > actualStock then halfStockStr 	= " (using virtual half stock of "..tostring(virtualStock).." for calculation) " end
+		
+		print("Update Unit Cost of ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." to "..tostring(newCost).." cost/unit, added "..tostring(value).." unit(s) at "..tostring(unitCost).." cost/unit "..surplusStr.." to stock of ".. tostring(actualStock).." unit(s) at ".. tostring(actualCost).." cost/unit " .. halfStockStr)
+		self:SetResourceCost(resourceID, newCost)
+	else
+		if not useType then useType = ResourceUseType.OtherOut  end
+	end	
+	
+	-- Update stock
+	if not ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] then
+		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , value)
 
 	else
-		ExposedMembers.CityData[cityKey].Stock[resourceKey] = math.max(0 , cityData.Stock[resourceKey] + value)
+		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , cityData.Stock[turnKey][resourceKey] + value)
+	end
+	
+	-- update stats
+	if not ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey] then
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey] = { [useType] = math.abs(value)}
+
+	elseif not ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] then
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] = math.abs(value)
+	
+	else
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] = ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] + math.abs(value)
 	end
 end
 
@@ -997,10 +1122,88 @@ function GetMaxStock(self, resourceID)
 end
 
 function GetStock(self, resourceID)
-	if resourceID == personnelResourceID then return self:GetPersonnel() end
-	local cityKey = self:GetKey()
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetTurnKey()
+	local resourceKey 	= tostring(resourceID)
+	return ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] or 0
+end
+
+function GetPreviousStock(self , resourceID)
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	local resourceKey 	= tostring(resourceID)
+	if ExposedMembers.CityData[cityKey].Stock[turnKey] then -- for new city this will be nil
+		return ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] or 0
+	else
+		return 0
+	end
+end
+
+function GetStockVariation(self, resourceID)
+	return self:GetStock(resourceID) - self:GetPreviousStock(resourceID)
+end
+
+function GetBaseResourceCost(self, resourceID)
+	local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
+	return ResourceValue[resourceClassType] or 0
+end
+
+function GetMinimumResourceCost(self, resourceID)
+	return self:GetBaseResourceCost(resourceID) / 4
+end
+
+function GetMaximumResourceCost(self, resourceID)
+	return self:GetBaseResourceCost(resourceID) * 4
+end
+
+function GetResourceCost(self, resourceID)
+	if resourceID == personnelResourceID then return 0 end
+	local cityKey 		= self:GetKey()
+	local turnKey 		= GCO.GetTurnKey()
+	local resourceKey 	= tostring(resourceID)
+	local resourceCost	= (ExposedMembers.CityData[cityKey].ResourceCost[turnKey][resourceKey] or self:GetBaseResourceCost(resourceID))
+	resourceCost		= GCO.ToDecimals(resourceCost)
+	return resourceCost
+end
+
+function SetResourceCost(self, resourceID, value)
 	local resourceKey = tostring(resourceID)
-	return ExposedMembers.CityData[cityKey].Stock[resourceKey] or 0
+	if resourceKey == personnelResourceKey then	return end
+	
+	local cityKey = self:GetKey()
+	local turnKey = GCO.GetTurnKey()
+	
+	ExposedMembers.CityData[cityKey].ResourceCost[turnKey][resourceKey] = math.max(0 , GCO.ToDecimals(value))
+end
+
+function ChangeResourceCost(self, resourceID, value)
+	local resourceKey = tostring(resourceID)
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	if resourceKey == personnelResourceKey then
+		return
+
+	elseif not ExposedMembers.CityData[cityKey].ResourceCost[resourceKey] then
+		ExposedMembers.CityData[cityKey].ResourceCost[resourceKey] = math.max(0 , value)
+
+	else
+		ExposedMembers.CityData[cityKey].ResourceCost[resourceKey] = math.max(0 , cityData.ResourceCost[resourceKey] + value)
+	end
+end
+
+function GetResourceCostVariation(self, resourceID)
+	return (self:GetResourceCost(resourceID) - self:GetPreviousResourceCost(resourceID))
+end
+
+function GetPreviousResourceCost(self , resourceID)
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	local resourceKey 	= tostring(resourceID)
+	if ExposedMembers.CityData[cityKey].ResourceCost[turnKey] then -- for new city this will be nil
+		return ExposedMembers.CityData[cityKey].ResourceCost[turnKey][resourceKey] or self:GetBaseResourceCost(resourceID)
+	else
+		return self:GetBaseResourceCost(resourceID)
+	end
 end
 
 function GetAvailableStockForUnits(self, resourceID)
@@ -1050,29 +1253,135 @@ function GetMaxPersonnel(self) -- called by GetMaxStock(self, personnelResourceI
 	return maxPersonnel
 end
 
-function GetPersonnel(self) -- called by GetStock(self, personnelResourceID)
-	local key = self:GetKey()
-	if ExposedMembers.CityData[key] then
-		return ExposedMembers.CityData[key].Personnel or 0
-	end
-	return 0
+function GetPersonnel(self) -- equivalent to GetStock(self, personnelResourceID)
+	return self:GetStock(personnelResourceID)
+end
+
+function GetPreviousPersonnel(self) -- equivalent to GetPreviousStock(self, personnelResourceID)
+	return self:GetPreviousStock(personnelResourceID)
 end
 
 function ChangePersonnel(self, value) -- equivalent to ChangeStock(self, personnelResourceID, value)
-	local cityKey = self:GetKey()
-	ExposedMembers.CityData[cityKey].Personnel = math.max(0 , ExposedMembers.CityData[cityKey].Personnel + value)
+	self:ChangeStock(personnelResourceID, value)
 end
 
-function GetFoodConsumption(self)
+function GetDemand(self, resourceID)
+	local demand = 0
+	
+	-- get food needed outside rationing (the rationed consumption is added in the call to GetExternalDemandAtTurn) -- to do : clean that code
+	if resourceID == foodResourceID then
+		local normalRatio = 1
+		demand = demand + (self:GetFoodConsumption(normalRatio)-self:GetFoodConsumption())
+	end
+	
+	-- Industries
+	--[[
+	local MultiResRequired 	= {}
+	local MultiResCreated 	= {}
+	for row in GameInfo.BuildingResourcesConverted() do
+		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
+		if self:GetBuildings():HasBuilding(buildingID) then		
+			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
+			if resourceRequiredID == resourceID then
+				if row.MultiResRequired then
+					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+					if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {[buildingID] = {}} end
+					table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+					
+				elseif row.MultiResCreated then
+					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+					if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {[buildingID] = {}} end
+					table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+				else
+					demand = demand + row.MaxConverted 
+				end
+			end
+		end
+	end	
+	
+	for resourceRequiredID, data1 in pairs(MultiResCreated) do
+		for buildingID, data2 in pairs (data1) do
+			demand = demand + data2[1].MaxConverted -- MaxConverted should be the same in all rows, no need to go through them, pick the first entry 
+		end
+	end
+	
+	for resourceCreatedID, data1 in pairs(MultiResRequired) do
+		for buildingID, data2 in pairs (data1) do
+			for _, row in ipairs(data2) do
+				if row.ResourceRequired == resourceID then
+					demand = demand + row.MaxConverted
+				end
+			end	
+		end
+	end
+	--]]
+	local previousTurn	= tonumber(GCO.GetPreviousTurnKey())
+	demand = demand + self:GetExternalDemandAtTurn(resourceID, previousTurn)
+	
+	return demand
+	
+end
+
+function GetSupplyAtTurn(self, resourceID, turn)
+	local resourceKey 	= tostring(resourceID)
+	local cityKey 		= self:GetKey()
+	local turnKey 		= tostring(turn)
+	local cityData 		= ExposedMembers.CityData[cityKey]
+	
+	if cityData.ResourceUse[turnKey] then
+		local useData = cityData.ResourceUse[turnKey][resourceKey]
+		if useData then
+		
+			local supply = 0
+			
+			supply = supply + ( useData[ResourceUseType.Collect] 	or 0)
+			supply = supply + ( useData[ResourceUseType.Product] 	or 0)
+			supply = supply + ( useData[ResourceUseType.Import] 	or 0)
+			supply = supply + ( useData[ResourceUseType.TransferIn] or 0)
+			--supply = supply + ( useData[ResourceUseType.Pillage] 	or 0)
+			--supply = supply + ( useData[ResourceUseType.OtherIn] 	or 0)
+			
+			return supply
+		end
+	end
+	
+	return 0
+end
+
+function GetExternalDemandAtTurn(self, resourceID, turn)
+	local resourceKey 	= tostring(resourceID)
+	local cityKey 		= self:GetKey()
+	local turnKey 		= tostring(turn)
+	local cityData 		= ExposedMembers.CityData[cityKey]
+	
+	if cityData.ResourceUse[turnKey] then
+		local useData = cityData.ResourceUse[turnKey][resourceKey]
+		if useData then
+		
+			local demand = 0
+			
+			demand = demand + ( useData[ResourceUseType.Consume] 	or 0)
+			demand = demand + ( useData[ResourceUseType.Export] 	or 0)
+			demand = demand + ( useData[ResourceUseType.TransferOut] or 0)
+			demand = demand + ( useData[ResourceUseType.Supply] 	or 0)
+			
+			return demand
+		end
+	end
+	
+	return 0	
+end
+
+function GetFoodConsumption(self, optionalRatio)
 	local cityKey = self:GetKey()
 	local data = ExposedMembers.CityData[cityKey]
 	local foodConsumption1000 = 0
-	local ratio = data.FoodRatio
+	local ratio = optionalRatio or data.FoodRatio
 	foodConsumption1000 = foodConsumption1000 + (data.UpperClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_UPPER_CLASS_FACTOR"].Value) )
 	foodConsumption1000 = foodConsumption1000 + (data.MiddleClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_MIDDLE_CLASS_FACTOR"].Value) )
 	foodConsumption1000 = foodConsumption1000 + (data.LowerClass 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_LOWER_CLASS_FACTOR"].Value) )
 	foodConsumption1000 = foodConsumption1000 + (data.Slaves 			* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SLAVE_CLASS_FACTOR"].Value) )
-	foodConsumption1000 = foodConsumption1000 + (data.Personnel 		* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (self:GetPersonnel()	* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )
 	-- value belows may be nil
 	if data.WoundedPersonnel then
 		foodConsumption1000 = foodConsumption1000 + (data.WoundedPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )
@@ -1091,23 +1400,31 @@ end
 function DoFood(self)
 	-- get city food yield
 	local food = GCO.GetCityYield( self, YieldTypes.FOOD )
+	local resourceCost = self:GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
+	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, resourceCost)
+	
 	-- food eaten
 	local eaten = self:GetFoodConsumption()
-	self:ChangeStock(foodResourceID, food - eaten)
+	self:ChangeStock(foodResourceID, - eaten, ResourceUseType.Consume)
 end
 
 function SetCityRationing(self)
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
-	local ratio 				= cityData.FoodRatio
-	local foodStock 			= cityData.Stock[foodResourceKey]
+	print("Set Rationing...")
+	local cityKey 	= self:GetKey()
+	local cityData 	= ExposedMembers.CityData[cityKey]
+	local ratio 	= cityData.FoodRatio
+	local foodStock = self:GetStock(foodResourceID)
 	if foodStock == 0 then
 		ratio = heavyRationing
 		ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
 		ExposedMembers.CityData[cityKey].FoodRatio = ratio
 		return
 	end
-	local foodVariation 		= foodStock - cityData.PreviousStock[foodResourceKey]
+	local previousTurn	= tonumber(GCO.GetPreviousTurnKey())
+	local previousTurnSupply = self:GetSupplyAtTurn(foodResourceID, previousTurn)
+	local foodVariation =  previousTurnSupply - self:GetFoodConsumption() -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
+	
+	print(" Food stock ", foodStock," Variation ",foodVariation, " Previous turn supply ", previousTurnSupply, " Consumption ", self:GetFoodConsumption())
 	if foodVariation < 0 then
 		local turnBeforeFamine		= -(foodStock / foodVariation)
 		if turnBeforeFamine < turnsToFamineHeavy then
@@ -1138,12 +1455,14 @@ function DoIndustries(self)
 
 	print("Creating resources in Industries...")
 	
-	local size = self:GetSize()
+	local size 		= self:GetSize()
+	local wealth 	= self:GetWealth()
 
 	-- materiel
 	local materielprod	= MaterielProductionPerSize * size
-	print(" - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name))
-	self:ChangeStock(materielResourceID, materielprod)
+	local materielCost 	= self:GetBaseResourceCost(materielResourceID) * wealth -- self:GetBaseResourceCost(materielResourceID)
+	print(" - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name).." at ".. tostring(GCO.ToDecimals(materielCost)) .. " cost/unit")
+	self:ChangeStock(materielResourceID, materielprod, ResourceUseType.Product, materielCost)
 	
 	local MultiResRequired 	= {}
 	local MultiResCreated 	= {}
@@ -1167,9 +1486,10 @@ function DoIndustries(self)
 					local amountUsed		= math.min(available, row.MaxConverted) 
 					local amountCreated		= math.floor(amountUsed * row.Ratio)
 					if amountCreated > 0 then
-						print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
-						self:ChangeStock(resourceRequiredID, - amountUsed)
-						self:ChangeStock(resourceCreatedID, amountCreated)
+						local resourceCost 	= (self:GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
+						print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+						self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume)
+						self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, resourceCost)
 					end	
 				end
 			end
@@ -1190,15 +1510,16 @@ function DoIndustries(self)
 					end 
 					local amountCreated		= GCO.Round(amountUsed * row.Ratio)
 					if amountCreated > 0 then
-						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) .." created, ratio = " .. tostring(row.Ratio))
-						self:ChangeStock(row.ResourceCreated, amountCreated)
+						local resourceCost 	= (self:GetBaseResourceCost(row.ResourceCreated) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
+						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio))
+						self:ChangeStock(row.ResourceCreated, amountCreated, ResourceUseType.Product, resourceCost)
 						bUsed = true
 					else					
 						print("    - not enough resources available to create ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) ..", ratio = " .. tostring(row.Ratio))
 					end
 				end
 				if bUsed then
-					self:ChangeStock(resourceRequiredID, - amountUsed)
+					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume)
 				end
 			end		
 		end
@@ -1230,12 +1551,21 @@ function DoIndustries(self)
 			
 			if bCanCreate then
 				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " using multiple resource")
-				self:ChangeStock(resourceCreatedID, amountCreated)
+				local requiredResourceCost = 0
+				local totalResourcesRequired = #requiredResourcesRatio
+				local totalRatio = 0
 				for resourceRequiredID, ratio in pairs(requiredResourcesRatio) do
 					local amountUsed = GCO.Round(amountCreated / ratio) -- we shouldn't be here if ratio = 0, and the rounded value should be < maxAmountUsed
-					print("    - ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) .." used, ratio = " .. tostring(ratio))
-					self:ChangeStock(resourceRequiredID, - amountUsed)
+					local resourceCost = (self:GetResourceCost(resourceRequiredID) / ratio)
+					requiredResourceCost = requiredResourceCost + resourceCost
+					totalRatio = totalRatio + ratio
+					print("    - ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) .." used at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(ratio))
+					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume)
 				end
+				local baseRatio = totalRatio / totalResourcesRequired
+				resourceCost = (self:GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth) + requiredResourceCost
+				print("    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost)	
+				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, resourceCost)
 			end			
 		end
 	end	
@@ -1245,16 +1575,17 @@ function DoExcedents(self)
 
 	print("Handling excedent...")
 
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
+	local cityKey 	= self:GetKey()
+	local cityData 	= ExposedMembers.CityData[cityKey]
+	local turnKey 	= GCO.GetTurnKey()
 
 	-- excedental resources are lost
-	for resourceKey, value in pairs(cityData.Stock) do
+	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
 		local resourceID = tonumber(resourceKey)
 		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
 		if excedent > 0 then
 			print(" - Excedental ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." destroyed = ".. tostring(excedent))
-			self:ChangeStock(resourceID, -excedent)
+			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
 		end
 	end
 
@@ -1280,14 +1611,18 @@ end
 -- Texts function
 ----------------------------------------------
 function GetResourcesStockString(self)
-	local cityKey = self:GetKey()
-	local data = ExposedMembers.CityData[cityKey]
-	local str = ""
-	for resourceKey, value in pairs(data.Stock) do
+	local cityKey 	= self:GetKey()
+	local turnKey 	= GCO.GetTurnKey()
+	local data 		= ExposedMembers.CityData[cityKey]
+	local str 		= ""
+	if not data.Stock[turnKey] then return end
+	for resourceKey, value in pairs(data.Stock[turnKey]) do
 		if (value > 0 or resourceKey == foodResourceKey) and (resourceKey ~= personnelResourceKey) then
-			local stockVariation = value - (data.PreviousStock[resourceKey] or 0)
-			local resourceID = tonumber(resourceKey)
-			local resRow = GameInfo.Resources[resourceID]
+			local resourceID 		= tonumber(resourceKey)
+			local stockVariation 	= self:GetStockVariation(resourceID)
+			local resourceCost 		= self:GetResourceCost(resourceID)
+			local costVariation 	= self:GetResourceCostVariation(resourceID)
+			local resRow 			= GameInfo.Resources[resourceID]
 			if resourceID == foodResourceID then
 				str = str .. "[NEWLINE]" .. self:GetFoodStockString()
 			elseif resourceID == woodResourceID then
@@ -1303,10 +1638,22 @@ function GetResourcesStockString(self)
 			end
 
 			if stockVariation > 0 then
-				str = str .. "[ICON_PressureUp][COLOR_Civ6Green] +".. tostring(stockVariation).."[ENDCOLOR]"
+				str = str .. "[ICON_PressureUp][COLOR_Civ6Green]+".. tostring(stockVariation).."[ENDCOLOR]"
 			elseif stockVariation < 0 then
-				str = str .." [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(stockVariation).."[ENDCOLOR]"
+				str = str .." [ICON_PressureDown][COLOR_Civ6Red]".. tostring(stockVariation).."[ENDCOLOR]"
 			end
+			
+			local costVarStr = ""
+			if costVariation > 0 then
+				costVarStr = costVarStr .. " [COLOR_Civ6Red]+".. tostring(costVariation).."[ENDCOLOR]"
+			elseif costVariation < 0 then
+				costVarStr = costVarStr .." [COLOR_Civ6Green]".. tostring(costVariation).."[ENDCOLOR]"
+			end
+			
+			if resourceCost > 0 then
+				str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
+			end
+			
 		end
 	end
 	return str
@@ -1317,18 +1664,18 @@ function GetFoodStockString(self)
 	local data = ExposedMembers.CityData[cityKey]
 	--local baseFoodStock 		= GetCityBaseFoodStock(data)
 	local maxFoodStock 			= self:GetMaxStock(foodResourceID)
-	local foodStock 			= data.Stock[foodResourceKey]
-	--local foodStockVariation 	= foodStock - data.PreviousStock[foodResourceKey]
+	local foodStock 			= self:GetStock(foodResourceID)
+	--local foodStockVariation 	= self:GetStockVariation(foodResourceID)
 	local cityRationning 		= data.FoodRatio
 	local str 					= ""
 	if cityRationning == heavyRationing then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
+		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
 	elseif cityRationning == mediumRationing then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_MEDIUM_RATIONING", foodStock, maxFoodStock)
+		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_MEDIUM_RATIONING", foodStock, maxFoodStock)
 	elseif cityRationning == lightRationing then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", foodStock, maxFoodStock)
+		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_LIGHT_RATIONING", foodStock, maxFoodStock)
 	else
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", foodStock, maxFoodStock)
+		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION", foodStock, maxFoodStock)
 	end
 	--[[
 	if foodStockVariation > 0 then
@@ -1345,6 +1692,83 @@ end
 -----------------------------------------------------------------------------------------
 -- Do Turn for Cities
 -----------------------------------------------------------------------------------------
+
+function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
+
+	print("-------------------------------------")	
+	print("Updating Data for ".. Locale.Lookup(self:GetName()))
+	local cityKey 			= self:GetKey()
+	local data 				= ExposedMembers.CityData[cityKey]
+	local turnKey 			= GCO.GetTurnKey()
+	local previousTurnKey 	= GCO.GetPreviousTurnKey()
+	if turnKey ~= previousTurnKey then
+		ExposedMembers.CityData[cityKey].Stock[turnKey] 		= {}
+		ExposedMembers.CityData[cityKey].ResourceCost[turnKey]	= {}
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey]	= {}
+		
+		local stockData = ExposedMembers.CityData[cityKey].Stock[previousTurnKey]
+		local costData 	= ExposedMembers.CityData[cityKey].ResourceCost[previousTurnKey]
+		
+		for resourceKey, value in pairs(stockData) do
+			ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = value
+		end
+		
+		for resourceKey, value in pairs(costData) do
+			ExposedMembers.CityData[cityKey].ResourceCost[turnKey][resourceKey] = value
+		end
+		
+		-- update local prices
+		local stockData = ExposedMembers.CityData[cityKey].Stock[turnKey]
+		for resourceKey, value in pairs(stockData) do
+			if resourceKey ~= personnelResourceKey then
+			
+				local resourceID 	= tonumber(resourceKey)
+				local previousTurn	= tonumber(previousTurnKey)
+				local demand 		= self:GetDemand(resourceID)
+				local supply		= self:GetSupplyAtTurn(resourceID, previousTurn)
+				
+				local varPercent	= 0
+				local stock 		= self:GetStock(resourceID)
+				local maxStock		= self:GetMaxStock(resourceID)
+				local actualCost	= self:GetResourceCost(resourceID)
+				local minCost		= self:GetMinimumResourceCost(resourceID)
+				local maxCost		= self:GetMaximumResourceCost(resourceID)
+				local newCost 		= actualCost
+				
+				print("- Actualising cost of "..Locale.Lookup(GameInfo.Resources[resourceID].Name)," actual cost",actualCost,"stock",stock,"maxStock",maxStock,"demand",demand,"supply",supply)
+				
+				if supply > demand then
+				
+					local turnUntilFull = (maxStock - stock) / (supply - demand)				
+					if turnUntilFull == 0 then
+						varPercent = MaxCostVariationPercent
+					else
+						varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilFull / (maxStock / 2)))
+					end				
+					local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)				
+					newCost = actualCost - variation
+					self:SetResourceCost(resourceID, newCost)
+					print("  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until full",turnUntilFull,"variation",variation)
+					
+				elseif demand > supply then
+				
+					local turnUntilEmpty = stock / (demand - supply)
+					if turnUntilEmpty == 0 then
+						varPercent = MaxCostVariationPercent
+					else
+						varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilEmpty / (maxStock / 2)))
+					end
+					local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)				
+					newCost = actualCost + variation
+					self:SetResourceCost(resourceID, newCost)
+					print("  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until empty",turnUntilEmpty,"variation",variation)
+				
+				end
+			end			
+		end
+	end
+end
+
 function DoGrowth(self)
 	if Game.GetCurrentGameTurn() < 2 then return end -- we need to know the previous year turn to calculate growth rate...
 	print("Calculate city growth for ".. Locale.Lookup(self:GetName()))
@@ -1376,14 +1800,16 @@ function DoTurnFirstPass(self)
 	self:SetCityRationing()
 
 	-- set previous values
+	--[[ -- now done at beginning of new turn
 	for resourceID, value in pairs(cityData.Stock) do
 		ExposedMembers.CityData[cityKey].PreviousStock[resourceID]	= cityData.Stock[resourceID]
-	end	
+	end
+	--]]
 	ExposedMembers.CityData[cityKey].PreviousUpperClass		= ExposedMembers.CityData[cityKey].UpperClass
 	ExposedMembers.CityData[cityKey].PreviousMiddleClass	= ExposedMembers.CityData[cityKey].MiddleClass
 	ExposedMembers.CityData[cityKey].PreviousLowerClass		= ExposedMembers.CityData[cityKey].LowerClass
 	ExposedMembers.CityData[cityKey].PreviousSlaves			= ExposedMembers.CityData[cityKey].Slaves
-	ExposedMembers.CityData[cityKey].PreviousPersonnel		= ExposedMembers.CityData[cityKey].Personnel
+	--ExposedMembers.CityData[cityKey].PreviousPersonnel		= ExposedMembers.CityData[cityKey].Personnel
 
 	-- get linked units and supply demand
 	self:UpdateLinkedUnits()
@@ -1398,7 +1824,7 @@ function DoTurnFirstPass(self)
 	-- sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
 	self:DoIndustries()
 	self:ReinforceUnits()
-	--self:UpdateExportCities()
+	--self:UpdateExportCities() -- better do it after transfer ?
 	--self:ExportToForeignCities()
 end
 
@@ -1422,9 +1848,10 @@ end
 function DoTurnFourthPass(self)
 	print("-------------------------------------")
 	print("Fourth Pass on ".. Locale.Lookup(self:GetName()))
-	-- Update City Size
+	-- Update City Size / social classes
 	self:DoGrowth()
 	self:DoSocialClassStratification()
+	self:SetWealth()
 	self:ChangeSize()
 
 	-- last...
@@ -1487,8 +1914,23 @@ function AttachCityFunctions(city)
 	c.GetSize							= GetSize
 	c.GetRealPopulation					= GetRealPopulation
 	c.GetKey							= GetKey
+	c.UpdateDataOnNewTurn				= UpdateDataOnNewTurn
+	c.GetWealth							= GetWealth
+	c.SetWealth							= SetWealth
+	-- resources
 	c.GetMaxStock						= GetMaxStock
 	c.GetStock 							= GetStock
+	c.GetPreviousStock					= GetPreviousStock
+	c.ChangeStock 						= ChangeStock
+	c.GetStockVariation					= GetStockVariation
+	c.GetBaseResourceCost				= GetBaseResourceCost
+	c.GetMinimumResourceCost			= GetMinimumResourceCost
+	c.GetMaximumResourceCost			= GetMaximumResourceCost
+	c.GetResourceCost					= GetResourceCost
+	c.SetResourceCost					= SetResourceCost
+	c.ChangeResourceCost				= ChangeResourceCost
+	c.GetPreviousResourceCost			= GetPreviousResourceCost
+	c.GetResourceCostVariation			= GetResourceCostVariation
 	c.GetMaxPercentLeftToRequest		= GetMaxPercentLeftToRequest
 	c.GetMaxPercentLeftToImport			= GetMaxPercentLeftToImport
 	c.GetMinPercentLeftToExport			= GetMinPercentLeftToExport
@@ -1496,9 +1938,12 @@ function AttachCityFunctions(city)
 	c.GetAvailableStockForCities		= GetAvailableStockForCities
 	c.GetAvailableStockForExport		= GetAvailableStockForExport
 	c.GetAvailableStockForIndustries 	= GetAvailableStockForIndustries
+	--
 	c.GetMaxPersonnel					= GetMaxPersonnel
 	c.GetPersonnel						= GetPersonnel
+	c.GetPreviousPersonnel				= GetPreviousPersonnel
 	c.ChangePersonnel					= ChangePersonnel
+	--
 	c.UpdateLinkedUnits					= UpdateLinkedUnits
 	c.UpdateTransferCities				= UpdateTransferCities
 	c.UpdateExportCities				= UpdateExportCities
@@ -1509,7 +1954,13 @@ function AttachCityFunctions(city)
 	c.TransferToCities					= TransferToCities
 	c.ExportToForeignCities				= ExportToForeignCities
 	c.GetNumResourceNeeded				= GetNumResourceNeeded
+	c.GetRouteEfficiencyTo				= GetRouteEfficiencyTo
+	c.GetTransportCostTo				= GetTransportCostTo
 	c.GetRequirements					= GetRequirements
+	c.GetDemand							= GetDemand
+	c.GetSupplyAtTurn					= GetSupplyAtTurn
+	c.GetExternalDemandAtTurn			= GetExternalDemandAtTurn
+	--
 	c.DoGrowth							= DoGrowth
 	c.GetBirthRate						= GetBirthRate
 	c.GetDeathRate						= GetDeathRate
@@ -1522,8 +1973,8 @@ function AttachCityFunctions(city)
 	c.DoTurnFourthPass					= DoTurnFourthPass
 	c.GetFoodConsumption 				= GetFoodConsumption
 	c.CollectResources					= CollectResources
-	c.ChangeStock 						= ChangeStock
 	c.SetCityRationing					= SetCityRationing
+	--
 	c.DoSocialClassStratification		= DoSocialClassStratification
 	c.ChangeUpperClass					= ChangeUpperClass
 	c.ChangeMiddleClass					= ChangeMiddleClass
