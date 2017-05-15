@@ -414,6 +414,11 @@
       <Text>[COLOR_GoldDark]{1_Num}[ICON_Gold][ENDCOLOR]</Text>
     </Replace>
 	
+	<Replace Tag="LOC_CITY_BANNER_TURNS_REDUCE" Language="en_US">
+      <Text>{1_Turns : plural 1?{1_Turns} turn; other?{1_Turns} turns;} before size reduction.</Text>
+    </Replace>
+	
+	
   </LocalizedText>
     
   <LocalizedText> <!-- Plot ToolTip Texts -->
