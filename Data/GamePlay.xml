@@ -31,12 +31,12 @@
 	</Buildings>
 	
 	<BuildingResourcesConverted>
-		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" Ratio="2"/>
-		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" Ratio="2"/>
-		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" Ratio="3"/>
-		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" Ratio="3"/>
-		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_COAL" 	MaxConverted="10" 	ResourceCreated="RESOURCE_STEEL" Ratio="1"		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" Ratio="0.5"	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
+		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
+		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_COAL" 	MaxConverted="5" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="2"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="0.5"		MultiResRequired="1"/>
 		
 		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="3"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
