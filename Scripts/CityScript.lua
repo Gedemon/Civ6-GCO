@@ -118,6 +118,11 @@ local MiddleClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MID
 local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_DEATH_RATE_FACTOR"].Value)
 local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
 
+local UpperClassMaxPercent		 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_MAX_PERCENT"].Value)
+local UpperClassMinPercent 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_MIN_PERCENT"].Value)
+local MiddleClassMaxPercent 		= tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_MAX_PERCENT"].Value)
+local MiddleClassMinPercent 		= tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_MIN_PERCENT"].Value)
+
 local WealthUpperRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_UPPER_CLASS_RATIO"].Value)
 local WealthMiddleRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_MIDDLE_CLASS_RATIO"].Value)
 local WealthLowerRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_LOWER_CLASS_RATIO"].Value)
@@ -237,7 +242,7 @@ function RegisterNewCity(playerID, city)
 	local cityKey 			= city:GetKey()
 	local personnel 		= city:GetMaxPersonnel()
 	local totalPopulation 	= GCO.Round(GetPopulationPerSize(city:GetSize()) + StartingPopulationBonus)
-	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID) / 100)
+	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID) / 100) -- can't use city:GetMaxUpperClass() before filling ExposedMembers.CityData[cityKey]
 	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID) / 100)
 	local lowerClass		= totalPopulation - (upperClass + middleClass)
 	local startingFood		= GCO.Round(tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value) / 2)
@@ -252,15 +257,7 @@ function RegisterNewCity(playerID, city)
 		Stock					= { [turnKey] = {[foodResourceKey] = startingFood, [personnelResourceKey] = personnel} },
 		ResourceCost			= { [turnKey] = {[foodResourceKey] = baseFoodCost, } },
 		ResourceUse				= { [turnKey] = { } }, -- [ResourceID] = { ResourceUseType.Collected = 0, ResourceUseType.Consummed = 0, ResourceUseType.Imported = 0, ResourceUseType.Exported = 0) -- Import/Export include transfert in this context
-		UpperClass				= upperClass,
-		MiddleClass				= middleClass,
-		LowerClass				= lowerClass,
-		PreviousUpperClass		= upperClass,
-		PreviousMiddleClass		= middleClass,
-		PreviousLowerClass		= lowerClass,
-		Slaves					= 0,
-		PreviousSlaves			= 0,
-		--Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
+		Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
 		FoodRatio				= 1,
 		FoodRatioTurn			= Game.GetCurrentGameTurn(),
 	}
@@ -281,7 +278,7 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 
 		print ("Initializing new city (".. city:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(city:GetID()))
 		RegisterNewCity(playerID, city)
-		print("-------------------------------------")
+		print("---------------------------------------------------------------------------")
 	else
 		print ("- WARNING : tried to initialize nil city for player #".. tostring(playerID))
 	end
@@ -297,7 +294,7 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 		if ExposedMembers.CityData[newCityKey] then
 			local city = CityManager.GetCity(newOwnerID, newCityID)
 			print("Updating captured city (".. city:GetName() ..") for player #".. tostring(newOwnerID).. " id#" .. tostring(city:GetID()))
-			print("-------------------------------------")
+			print("---------------------------------------------------------------------------")
 
 			ExposedMembers.CityData[newCityKey].WoundedPersonnel 	= 0
 			for civID, value in pairs(originalData.Prisoners) do
@@ -401,10 +398,27 @@ end
 -----------------------------------------------------------------------------------------
 -- Population functions
 -----------------------------------------------------------------------------------------
-function GetRealPopulation(self) -- the original city:GetPopulation() returns city size (to do : cache value)
-	local totalPopulation = self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
-	return totalPopulation
+function GetRealPopulation(self) -- the original city:GetPopulation() returns city size	
+	if not _cached[self] then
+		self:SetRealPopulation()
+	elseif not _cached[self].TotalPopulation then 
+		self:SetRealPopulation()
+	end
+	return _cached[self].TotalPopulation
 end
+
+function SetRealPopulation(self)
+	if not _cached[self] then _cached[self] = {} end
+	local totalPopulation = self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+	_cached[self].TotalPopulation = totalPopulation
+end
+
+function GetRealPopulationVariation(self)
+	local previousPop = self:GetPreviousUpperClass() + self:GetPreviousMiddleClass() + self:GetPreviousLowerClass() + self:GetPreviousSlaveClass()
+	return self:GetRealPopulation() - previousPop
+end
+
+
 
 function GetSize(self) -- for code consistency
 	return self:GetPopulation()
@@ -443,23 +457,26 @@ function ChangeSize(self)
 end
 
 function DoSocialClassStratification(self)
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
 	local totalPopultation = self:GetRealPopulation()
-	local maxUpper = GCO.Round(totalPopultation * 10 / 100)
-	local minUpper = GCO.Round(totalPopultation * 1 / 100)
-	local maxMiddle = GCO.Round(totalPopultation * 50 / 100)
-	local minMiddle = GCO.Round(totalPopultation * 25 / 100)
-	local actualUpper = cityData.UpperClass
-	local actualMiddle = cityData.MiddleClass
-	--[[
+	local maxUpper = self:GetMaxUpperClass()
+	local minUpper = self:GetMinUpperClass()
+	local maxMiddle = self:GetMaxMiddleClass()
+	local minMiddle = self:GetMinMiddleClass()
+	local actualUpper = self:GetUpperClass()
+	local actualMiddle = self:GetMiddleClass()
+	
+	---[[
+	print("---------------------------------------------------------------------------")
 	print("Social Stratification: totalPopultation = ", totalPopultation)
+	print("---------------------------------------------------------------------------")
 	print("Social Stratification: maxUpper = ", maxUpper)
-	print("Social Stratification: minUpper = ", minUpper)
-	print("Social Stratification: maxMiddle = ", maxMiddle)
-	print("Social Stratification: minMiddle = ", minMiddle)
 	print("Social Stratification: actualUpper = ", actualUpper)
+	print("Social Stratification: minUpper = ", minUpper)
+	print("---------------------------------------------------------------------------")
+	print("Social Stratification: maxMiddle = ", maxMiddle)
 	print("Social Stratification: actualMiddle = ", actualMiddle)
+	print("Social Stratification: minMiddle = ", minMiddle)
+	print("---------------------------------------------------------------------------")
 	--]]
 	-- Move Upper to Middle
 	if actualUpper > maxUpper then
@@ -491,48 +508,148 @@ function DoSocialClassStratification(self)
 	end
 end
 
+function GetMaxUpperClass(self)
+	local maxPercent = UpperClassMaxPercent
+	for row in GameInfo.BuildingPopulationEffect() do
+		if row.PopulationClassType == "CLASS_UPPER" and row.EffectType == "CLASS_MAX_PERCENT" then
+			local buildingID = GameInfo.Buildings[row.BuildingType].Index
+			if self:GetBuildings():HasBuilding(buildingID) then
+				maxPercent = maxPercent + row.EffectValue
+			end
+		end	
+	end
+	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
+end
+
+function GetMinUpperClass(self)
+	local minPercent = UpperClassMinPercent
+	for row in GameInfo.BuildingPopulationEffect() do
+		if row.PopulationClassType == "CLASS_UPPER" and row.EffectType == "CLASS_MIN_PERCENT" then
+			local buildingID = GameInfo.Buildings[row.BuildingType].Index
+			if self:GetBuildings():HasBuilding(buildingID) then
+				minPercent = minPercent + row.EffectValue
+			end
+		end	
+	end
+	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
+end
+
+function GetMaxMiddleClass(self)
+	local maxPercent = MiddleClassMaxPercent
+	for row in GameInfo.BuildingPopulationEffect() do
+		if row.PopulationClassType == "CLASS_MIDDLE" and row.EffectType == "CLASS_MAX_PERCENT" then
+			local buildingID = GameInfo.Buildings[row.BuildingType].Index
+			if self:GetBuildings():HasBuilding(buildingID) then
+				maxPercent = maxPercent + row.EffectValue
+			end
+		end	
+	end
+	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
+end
+
+function GetMinMiddleClass(self)
+	local minPercent = MiddleClassMinPercent
+	for row in GameInfo.BuildingPopulationEffect() do
+		if row.PopulationClassType == "CLASS_MIDDLE" and row.EffectType == "CLASS_MIN_PERCENT" then
+			local buildingID = GameInfo.Buildings[row.BuildingType].Index
+			if self:GetBuildings():HasBuilding(buildingID) then
+				minPercent = minPercent + row.EffectValue
+			end
+		end	
+	end
+	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
+end
+
 function ChangeUpperClass(self, value)
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
-	ExposedMembers.CityData[cityKey].UpperClass = math.max(0 , cityData.UpperClass + value)
+	local cityKey 	= self:GetKey()
+	local turnKey 	= GCO.GetTurnKey()
+	local previous 	= ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass
+	ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass = math.max(0 , previous + value)
 end
 
 function ChangeMiddleClass(self, value)
 	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
-	ExposedMembers.CityData[cityKey].MiddleClass = math.max(0 , cityData.MiddleClass + value)
+	local turnKey 	= GCO.GetTurnKey()
+	local previous 	= ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass
+	ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass = math.max(0 , previous + value)
 end
 
 function ChangeLowerClass(self, value)
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
-	ExposedMembers.CityData[cityKey].LowerClass = math.max(0 , cityData.LowerClass + value)
+	local cityKey = self:GetKey()	
+	local turnKey 	= GCO.GetTurnKey()
+	local previous 	= ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass
+	ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass = math.max(0 , previous + value)
 end
 
 function ChangeSlaveClass(self, value)
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
-	ExposedMembers.CityData[cityKey].Slaves = math.max(0 , cityData.Slaves + value)
+	local cityKey = self:GetKey()	
+	local turnKey 	= GCO.GetTurnKey()
+	local previous 	= ExposedMembers.CityData[cityKey].Population[turnKey].Slaves
+	ExposedMembers.CityData[cityKey].Population[turnKey].Slaves = math.max(0 , previous + value)
 end
 
 function GetUpperClass(self)
-	local cityKey = self:GetKey()
-	return ExposedMembers.CityData[cityKey].UpperClass
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetTurnKey()
+	return ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass or 0
 end
 
 function GetMiddleClass(self)
-	local cityKey = self:GetKey()
-	return ExposedMembers.CityData[cityKey].MiddleClass
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetTurnKey()
+	return ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass or 0
 end
 
 function GetLowerClass(self)
-	local cityKey = self:GetKey()
-	return ExposedMembers.CityData[cityKey].LowerClass
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetTurnKey()
+	return ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass or 0
 end
 
 function GetSlaveClass(self)
-	local cityKey = self:GetKey()
-	return ExposedMembers.CityData[cityKey].Slaves
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetTurnKey()
+	return ExposedMembers.CityData[cityKey].Population[turnKey].Slaves or 0
+end
+
+function GetPreviousUpperClass(self , resourceID)
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	if ExposedMembers.CityData[cityKey].Population[turnKey] then -- for new city this will be nil
+		return ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass or 0
+	else
+		return 0
+	end
+end
+
+function GetPreviousMiddleClass(self , resourceID)
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	if ExposedMembers.CityData[cityKey].Population[turnKey] then -- for new city this will be nil
+		return ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass or 0
+	else
+		return 0
+	end
+end
+
+function GetPreviousLowerClass(self , resourceID)
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	if ExposedMembers.CityData[cityKey].Population[turnKey] then -- for new city this will be nil
+		return ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass or 0
+	else
+		return 0
+	end
+end
+
+function GetPreviousSlaveClass(self , resourceID)
+	local cityKey 		= self:GetKey()	
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	if ExposedMembers.CityData[cityKey].Population[turnKey] then -- for new city this will be nil
+		return ExposedMembers.CityData[cityKey].Population[turnKey].Slaves or 0
+	else
+		return 0
+	end
 end
 
 function RecruitPersonnel(self)
@@ -1617,15 +1734,13 @@ function GetResourcesStockString(self)
 	local str 		= ""
 	if not data.Stock[turnKey] then return end
 	for resourceKey, value in pairs(data.Stock[turnKey]) do
-		if (value > 0 or resourceKey == foodResourceKey) and (resourceKey ~= personnelResourceKey) then
+		if (value > 0 and resourceKey ~= foodResourceKey and resourceKey ~= personnelResourceKey) then
 			local resourceID 		= tonumber(resourceKey)
 			local stockVariation 	= self:GetStockVariation(resourceID)
 			local resourceCost 		= self:GetResourceCost(resourceID)
 			local costVariation 	= self:GetResourceCostVariation(resourceID)
 			local resRow 			= GameInfo.Resources[resourceID]
-			if resourceID == foodResourceID then
-				str = str .. "[NEWLINE]" .. self:GetFoodStockString()
-			elseif resourceID == woodResourceID then
+			if resourceID == woodResourceID then
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_WOOD_STOCK", value, self:GetMaxStock(resourceID))
 			elseif resourceID == materielResourceID then
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MATERIEL_STOCK", value, self:GetMaxStock(resourceID))
@@ -1665,8 +1780,12 @@ function GetFoodStockString(self)
 	--local baseFoodStock 		= GetCityBaseFoodStock(data)
 	local maxFoodStock 			= self:GetMaxStock(foodResourceID)
 	local foodStock 			= self:GetStock(foodResourceID)
-	--local foodStockVariation 	= self:GetStockVariation(foodResourceID)
+	local foodStockVariation 	= self:GetStockVariation(foodResourceID)
 	local cityRationning 		= data.FoodRatio
+	
+	local resourceCost 			= self:GetResourceCost(foodResourceID)
+	local costVariation 		= self:GetResourceCostVariation(foodResourceID)
+	
 	local str 					= ""
 	if cityRationning == heavyRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
@@ -1677,12 +1796,25 @@ function GetFoodStockString(self)
 	else
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION", foodStock, maxFoodStock)
 	end
-	--[[
+	---[[
 	if foodStockVariation > 0 then
 		str = str .. "[ICON_PressureUp] +".. tostring(foodStockVariation).."[ENDCOLOR]"
 	elseif foodStockVariation < 0 then
 		str = str .." [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(foodStockVariation).."[ENDCOLOR]"
 	end
+	
+	local costVarStr = ""
+	if costVariation > 0 then
+		costVarStr = costVarStr .. " [COLOR_Civ6Red]+".. tostring(costVariation).."[ENDCOLOR]"
+	elseif costVariation < 0 then
+		costVarStr = costVarStr .." [COLOR_Civ6Green]".. tostring(costVariation).."[ENDCOLOR]"
+	end
+	
+	if resourceCost > 0 then
+		str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
+	end
+
+	
 	--]]
 
 	return str
@@ -1695,26 +1827,36 @@ end
 
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
-	print("-------------------------------------")	
+	print("---------------------------------------------------------------------------")	
 	print("Updating Data for ".. Locale.Lookup(self:GetName()))
 	local cityKey 			= self:GetKey()
 	local data 				= ExposedMembers.CityData[cityKey]
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey 	= GCO.GetPreviousTurnKey()
 	if turnKey ~= previousTurnKey then
+	
+		-- initialize empty tables for the new turn data
 		ExposedMembers.CityData[cityKey].Stock[turnKey] 		= {}
 		ExposedMembers.CityData[cityKey].ResourceCost[turnKey]	= {}
+		ExposedMembers.CityData[cityKey].Population[turnKey]	= {}
 		ExposedMembers.CityData[cityKey].ResourceUse[turnKey]	= {}
 		
+		-- get previous turn data
 		local stockData = ExposedMembers.CityData[cityKey].Stock[previousTurnKey]
 		local costData 	= ExposedMembers.CityData[cityKey].ResourceCost[previousTurnKey]
+		local popData 	= ExposedMembers.CityData[cityKey].Population[previousTurnKey]
 		
+		-- fill the new table with previous turn data
 		for resourceKey, value in pairs(stockData) do
 			ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = value
 		end
 		
 		for resourceKey, value in pairs(costData) do
 			ExposedMembers.CityData[cityKey].ResourceCost[turnKey][resourceKey] = value
+		end
+		
+		for key, value in pairs(popData) do
+			ExposedMembers.CityData[cityKey].Population[turnKey][key] = value
 		end
 		
 		-- update local prices
@@ -1791,7 +1933,7 @@ function DoGrowth(self)
 end
 
 function DoTurnFirstPass(self)
-	print("-------------------------------------")	
+	print("---------------------------------------------------------------------------")	
 	print("First Pass on ".. Locale.Lookup(self:GetName()))
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
@@ -1805,10 +1947,10 @@ function DoTurnFirstPass(self)
 		ExposedMembers.CityData[cityKey].PreviousStock[resourceID]	= cityData.Stock[resourceID]
 	end
 	--]]
-	ExposedMembers.CityData[cityKey].PreviousUpperClass		= ExposedMembers.CityData[cityKey].UpperClass
-	ExposedMembers.CityData[cityKey].PreviousMiddleClass	= ExposedMembers.CityData[cityKey].MiddleClass
-	ExposedMembers.CityData[cityKey].PreviousLowerClass		= ExposedMembers.CityData[cityKey].LowerClass
-	ExposedMembers.CityData[cityKey].PreviousSlaves			= ExposedMembers.CityData[cityKey].Slaves
+	--ExposedMembers.CityData[cityKey].PreviousUpperClass		= ExposedMembers.CityData[cityKey].UpperClass
+	--ExposedMembers.CityData[cityKey].PreviousMiddleClass	= ExposedMembers.CityData[cityKey].MiddleClass
+	--ExposedMembers.CityData[cityKey].PreviousLowerClass		= ExposedMembers.CityData[cityKey].LowerClass
+	--ExposedMembers.CityData[cityKey].PreviousSlaves			= ExposedMembers.CityData[cityKey].Slaves
 	--ExposedMembers.CityData[cityKey].PreviousPersonnel		= ExposedMembers.CityData[cityKey].Personnel
 
 	-- get linked units and supply demand
@@ -1829,14 +1971,14 @@ function DoTurnFirstPass(self)
 end
 
 function DoTurnSecondPass(self)
-	print("-------------------------------------")
+	print("---------------------------------------------------------------------------")
 	print("Second Pass on ".. Locale.Lookup(self:GetName()))
 	-- get linked cities and supply demand
 	self:UpdateTransferCities()	
 end
 
 function DoTurnThirdPass(self)
-	print("-------------------------------------")
+	print("---------------------------------------------------------------------------")
 	print("Third Pass on ".. Locale.Lookup(self:GetName()))
 	-- diffuse to other cities, now that all of them have made their request after servicing industries, units and export
 	self:TransferToCities()
@@ -1846,13 +1988,16 @@ function DoTurnThirdPass(self)
 end
 
 function DoTurnFourthPass(self)
-	print("-------------------------------------")
+	print("---------------------------------------------------------------------------")
 	print("Fourth Pass on ".. Locale.Lookup(self:GetName()))
 	-- Update City Size / social classes
 	self:DoGrowth()
 	self:DoSocialClassStratification()
-	self:SetWealth()
 	self:ChangeSize()
+	
+	-- Cache some values
+	self:SetWealth()
+	self:SetRealPopulation()
 
 	-- last...
 	self:DoExcedents()
@@ -1866,7 +2011,7 @@ function DoCitiesTurn( playerID )
 	local playerCities = player:GetCities()
 	if playerCities then
 		for pass = 1, 4 do
-			print("-------------------------------------")
+			print("---------------------------------------------------------------------------")
 			print("Cities Turn, pass #" .. tostring(pass))
 			for i, city in playerCities:Members() do
 				if 		pass == 1 then city:DoTurnFirstPass()
@@ -1913,6 +2058,8 @@ function AttachCityFunctions(city)
 	c.ChangeSize						= ChangeSize
 	c.GetSize							= GetSize
 	c.GetRealPopulation					= GetRealPopulation
+	c.SetRealPopulation					= SetRealPopulation
+	c.GetRealPopulationVariation		= GetRealPopulationVariation
 	c.GetKey							= GetKey
 	c.UpdateDataOnNewTurn				= UpdateDataOnNewTurn
 	c.GetWealth							= GetWealth
@@ -1984,6 +2131,10 @@ function AttachCityFunctions(city)
 	c.GetMiddleClass					= GetMiddleClass
 	c.GetLowerClass						= GetLowerClass
 	c.GetSlaveClass						= GetSlaveClass
+	c.GetPreviousUpperClass				= GetPreviousUpperClass
+	c.GetPreviousMiddleClass			= GetPreviousMiddleClass
+	c.GetPreviousLowerClass				= GetPreviousLowerClass
+	c.GetPreviousSlaveClass				= GetPreviousSlaveClass
 	c.RecruitPersonnel					= RecruitPersonnel
 	-- text
 	c.GetResourcesStockString			= GetResourcesStockString
@@ -1999,6 +2150,7 @@ function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.GetCity 				= GetCity
 	ExposedMembers.GCO.AttachCityFunctions 	= AttachCityFunctions
+	ExposedMembers.GCO.GetPopulationPerSize = GetPopulationPerSize
 	--
 	ExposedMembers.GCO.GetCityFromKey 		= GetCityFromKey
 	--

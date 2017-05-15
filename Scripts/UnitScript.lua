@@ -276,7 +276,7 @@ function InitializeUnit(playerID, unitID)
 
 		print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
 		RegisterNewUnit(playerID, unit)
-		--print("-------------------------------------")
+		--print("---------------------------------------------------------------------------")
 	else
 		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when launching a new game)")
 	end
