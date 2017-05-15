@@ -687,6 +687,26 @@ UI :
 --]]
 
 --===============================--
+--[[ RESOURCES TREE
+--===============================--
+
+FOREST 	-> 	WOOD(2) 	-> 	CARPENTER 	-> 	MATERIEL(5)
+JUNGLE 	-> 	WOOD(1)		->
+
+MARSH	-> 	PLANTS(3)	->	HERBORIST	-> 	MEDECINE(1)
+FOREST 	-> 	PLANTS(1)	-> 	APOTHECARY  -> 	MEDECINE(3)
+JUNGLE 	-> 	PLANTS(2)	->	PHARMACY	-> 	MEDECINE(10)
+
+DEER	->				->	WOOL		->
+SHEEP	->	BUTCHERY	->	FOOD
+CATTLE	->				->	LEATHER		->	CLOTHIER	->	CLOTHES
+							PLANTS		->
+
+
+
+--]]
+
+--===============================--
 --[[ STABILITY
 --===============================--
 
