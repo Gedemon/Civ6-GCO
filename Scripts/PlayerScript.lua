@@ -92,11 +92,21 @@ function UpdateCitiesBanners(self)
 end
 
 function UpdateDataOnNewTurn(self)
+	local playerConfig = PlayerConfigurations[self:GetID()]
+	print("---------------------------------------------------------------------------")
+	print("- Updating Data on new turn for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 	local playerCities = self:GetCities()
 	if playerCities then
 		for i, city in playerCities:Members() do
 			GCO.AttachCityFunctions(city)
 			city:UpdateDataOnNewTurn()
+		end
+	end
+	local playerUnits = self:GetUnits()
+	if playerUnits then
+		for j, unit in playerUnits:Members() do
+			GCO.AttachUnitFunctions(unit)
+			unit:UpdateDataOnNewTurn()
 		end
 	end
 end

@@ -901,7 +901,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 			local growthIndicator = ""
 			if popVariation > 0 then
 				growthIndicator = "[ICON_PressureUp]"
-			else
+			elseif popVariation < 0 then
 				growthIndicator = "[ICON_PressureDown]"
 			end
 			

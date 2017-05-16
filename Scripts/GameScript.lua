@@ -58,8 +58,8 @@ function InitializeNewTurn()
 	print("---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
 	print("---+                                                                    STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()))
 	print("---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
-	for iPlayer = 0, PlayerManager.GetWasEverAliveCount() - 1 do
-		local player = GCO.GetPlayer(iPlayer)
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		local player = GCO.GetPlayer(playerID)
 		if player then
 			player:UpdateDataOnNewTurn()
 		end

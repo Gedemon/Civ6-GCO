@@ -370,6 +370,32 @@ function GetVariationString(variation)
 	return ""
 end
 
+function GetNeutralVariationString(variation)
+	if variation > 0 then
+		return " [ICON_TradeRouteLarge][COLOR_Blue]+".. tostring(variation).."[ENDCOLOR]"
+	elseif variation < 0 then
+		return " [ICON_TradeRouteLarge][COLOR_Blue]".. tostring(variation).."[ENDCOLOR]"
+	end
+	return ""
+end
+
+function GetVariationStringGreenPositive(variation)
+	if variation > 0 then
+		return " [COLOR_Civ6Green]+".. tostring(variation).."[ENDCOLOR]"
+	elseif variation < 0 then
+		return " [COLOR_Civ6Red]".. tostring(variation).."[ENDCOLOR]"
+	end
+	return ""
+end
+
+function GetVariationStringRedPositive(variation)
+	if variation > 0 then
+		return " [COLOR_Civ6Red]+".. tostring(variation).."[ENDCOLOR]"
+	elseif variation < 0 then
+		return " [COLOR_Civ6Green]".. tostring(variation).."[ENDCOLOR]"
+	end
+	return ""
+end
 
 ----------------------------------------------
 -- Share functions for other contexts
@@ -406,8 +432,11 @@ function Initialize()
 	-- Resources
 	ExposedMembers.GCO.GetBaseResourceCost 			= GetBaseResourceCost
 	-- texts
-	ExposedMembers.GCO.GetPrisonersStringByCiv 		= GetPrisonersStringByCiv
-	ExposedMembers.GCO.GetVariationString 			= GetVariationString
+	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
+	ExposedMembers.GCO.GetVariationString 				= GetVariationString
+	ExposedMembers.GCO.GetNeutralVariationString		= GetNeutralVariationString
+	ExposedMembers.GCO.GetVariationStringGreenPositive 	= GetVariationStringGreenPositive
+	ExposedMembers.GCO.GetVariationStringRedPositive	= GetVariationStringRedPositive
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true
 end

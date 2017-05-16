@@ -128,7 +128,7 @@ local unitTableEnum = {
 	TotalTankDestroyed			= 24,
 	TotalAircraftKilled			= 25,
 	Morale						= 26,
-	MoraleVariation				= 27,
+	PreviousMorale				= 27,
 	LastCombatTurn				= 28,
 	LastCombatResult			= 29,
 	LastCombatType				= 30,
@@ -230,6 +230,9 @@ function RegisterNewUnit(playerID, unit)
 	local EquipmentReserve	= GetBaseEquipmentReserve(unitType)
 	local HorsesReserve		= GetBaseHorsesReserve(unitType)
 	local MaterielReserve	= GetBaseMaterielReserve(unitType)
+	
+	local Morale 			= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)
+	local FuelStock 		= GetBaseFuelStock(unitType)
 
 	ExposedMembers.UnitData[unitKey] = {
 		TurnCreated				= Game.GetCurrentGameTurn(),
@@ -266,9 +269,9 @@ function RegisterNewUnit(playerID, unit)
 		PreviousPrisoners		= GCO.CreateEverAliveTableWithDefaultValue(0),
 		FoodStock 				= food,
 		BaseFoodStock			= food,
-		PreviousFoodStock		= 0,
-		FuelStock 				= GetBaseFuelStock(unitType),
-		PreviousFuelStock		= 0,
+		PreviousFoodStock		= food,
+		FuelStock 				= FuelStock,
+		PreviousFuelStock		= FuelStock,
 		Stock					= {},
 		-- Statistics
 		TotalDeath				= 0,
@@ -280,8 +283,9 @@ function RegisterNewUnit(playerID, unit)
 		TotalTankDestroyed		= 0,
 		TotalAircraftKilled		= 0,
 		-- Others
-		Morale 					= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value), -- 100
-		MoraleVariation			= 0,
+		Morale 					= Morale, -- 100
+		--MoraleVariation			= 0,
+		PreviousMorale			= Morale,
 		LastCombatTurn			= 0,
 		LastCombatResult		= 0,
 		LastCombatType			= -1,
@@ -639,9 +643,26 @@ function GetRequirements(self)
 end
 
 function GetComponent(self, component)
-	local unitKey 			= self:GetKey()
+	local unitKey = self:GetKey()
 	return ExposedMembers.UnitData[unitKey][component]
 end
+
+function SetComponent(self, component, value)
+	local unitKey = self:GetKey()
+	ExposedMembers.UnitData[unitKey][component] = math.max(0,value)
+end
+
+function ChangeComponent(self, component, value)
+	local unitKey = self:GetKey()
+	ExposedMembers.UnitData[unitKey][component] = math.max(0, ExposedMembers.UnitData[unitKey][component] + value)
+end
+
+function GetComponentVariation(self, component)
+	local unitKey = self:GetKey()
+	local previousComponent = "Previous"..tostring(component)
+	return ExposedMembers.UnitData[unitKey][component] - ExposedMembers.UnitData[unitKey][previousComponent]
+end
+
 
 ----------------------------------------------
 -- Morale function
@@ -783,7 +804,7 @@ function GetMoraleString(self)
 	local lowMorale 		= GCO.Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_LOW_PERCENT"].Value) / 100)
 	local badMorale 		= GCO.Round(baseMorale * tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) / 100)
 	local unitMorale 		= unitData.Morale
-	local moraleVariation	= unitData.MoraleVariation
+	local moraleVariation	= self:GetComponentVariation("Morale")--unitData.MoraleVariation
 	
 	local str = ""
 	-- summary, one line
@@ -863,11 +884,7 @@ function GetFuelStockString(self)
 		str = Locale.Lookup("LOC_UNITFLAG_FUEL_STOCK", unitData.FuelStock, baseFuelStock)
 	end	
 	
-	if fuelStockVariation > 0 then
-		str = str .. "[ICON_PressureUp]"
-	elseif fuelStockVariation < 0 then
-		str = str .." [ICON_PressureDown]"
-	end
+	str =  str .. GCO.GetVariationString(self:GetComponentVariation("FuelStock"))
 	
 	return str
 end
@@ -902,13 +919,9 @@ function GetFoodStockString(self)
 		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", data.FoodStock, baseFoodStock)
 	else
 		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", data.FoodStock, baseFoodStock)
-	end	
-	
-	if foodStockVariation > 0 then
-		str = str .. "[ICON_PressureUp]"
-	elseif foodStockVariation < 0 then
-		str = str .." [ICON_PressureDown]"
 	end
+	
+	str =  str .. GCO.GetVariationString(self:GetComponentVariation("FoodStock")) 
 	
 	return str
 end
@@ -1509,17 +1522,18 @@ function OnCombat( combatResult )
 
 		end
 
-		-- Update unit's flag & visualize for attacker
-		if attacker.unit then
-			ShowCombatPlunderingFloatingText(attacker)
-			LuaEvents.UnitsCompositionUpdated(attacker.playerID, attacker.unitID)
-		end
+	end
+	
+	-- Update unit's flag & visualize for attacker
+	if attacker.unit then
+		ShowCombatPlunderingFloatingText(attacker)
+		LuaEvents.UnitsCompositionUpdated(attacker.playerID, attacker.unitID)
+	end
 
-		-- Update unit's flag & visualize for defender
-		if defender.unit then
-			ShowCombatPlunderingFloatingText(defender)
-			LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)
-		end
+	-- Update unit's flag & visualize for defender
+	if defender.unit then
+		ShowCombatPlunderingFloatingText(defender)
+		LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)
 	end
 	
 	---[[
@@ -1830,6 +1844,27 @@ Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 -----------------------------------------------------------------------------------------
 -- Do Turn for Units
 -----------------------------------------------------------------------------------------
+function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
+
+	--print("---------------------------------------------------------------------------")
+	local unitKey 			= self:GetKey()
+	--print("Updating Unit Data for ", Locale.Lookup(self:GetName())," key = ",unitKey)
+	
+	-- Update basic components
+	local componentsToUpdate = {"Personnel","Equipment","Horses","Materiel","PersonnelReserve","EquipmentReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","DamagedEquipment","FoodStock","FuelStock","Morale"}
+	for _, component in ipairs(componentsToUpdate) do
+		local previousComponent = "Previous"..tostring(component)
+		local currentValue		= self:GetComponent(component)
+		self:SetComponent(previousComponent, currentValue)
+	end
+	
+	-- Update prisoners table	
+	local unitData = ExposedMembers.UnitData[unitKey]
+	for playerKey, number in pairs(unitData.Prisoners) do
+		ExposedMembers.UnitData[unitKey].PreviousPrisoners[playerKey] = number
+	end
+end
+
 function DoFood(self)
 
 	local key = self:GetKey()
@@ -1864,7 +1899,7 @@ function DoFood(self)
 
 	-- Update variation
 	local foodVariation = foodGet - foodEat
-	ExposedMembers.UnitData[key].PreviousFoodStock = unitData.FoodStock
+	--ExposedMembers.UnitData[key].PreviousFoodStock = unitData.FoodStock
 	ExposedMembers.UnitData[key].FoodStock = unitData.FoodStock + foodVariation
 
 	-- Visualize
@@ -1890,7 +1925,7 @@ function DoMorale(self)
 	
 	local morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
 	ExposedMembers.UnitData[key].Morale = morale
-	ExposedMembers.UnitData[key].MoraleVariation = moraleVariation
+	--ExposedMembers.UnitData[key].MoraleVariation = moraleVariation
 
 	local desertionRate, minPercentHP, minPercentReserve = 0
 	if morale < tonumber(GameInfo.GlobalParameters["MORALE_BAD_PERCENT"].Value) then -- very low morale
@@ -1969,7 +2004,7 @@ function DoFuel(self)
 	local fuelConsumption = math.min(self:GetFuelConsumption(), unitData.FuelStock)
 	if fuelConsumption > 0 then
 		-- Update variation
-		ExposedMembers.UnitData[key].PreviousFuelStock = unitData.FuelStock
+		--ExposedMembers.UnitData[key].PreviousFuelStock = unitData.FuelStock
 		ExposedMembers.UnitData[key].FuelStock = unitData.FuelStock - fuelConsumption
 		-- Visualize
 		local fuelData = { fuelConsumption = fuelConsumption, X = self:GetX(), Y = self:GetY() }
@@ -2076,6 +2111,12 @@ function AttachUnitFunctions(unit)
 		u.SetSupplyLine				= SetSupplyLine
 		u.GetSupplyLineEfficiency	= GetSupplyLineEfficiency
 		--
+		u.GetComponent				= GetComponent
+		u.SetComponent				= SetComponent
+		u.ChangeComponent			= ChangeComponent
+		u.GetComponentVariation		= GetComponentVariation
+		--
+		u.UpdateDataOnNewTurn		= UpdateDataOnNewTurn
 		u.DoFood 					= DoFood
 		u.DoMorale 					= DoMorale
 		u.DoFuel 					= DoFuel
