@@ -21,6 +21,13 @@ ExposedMembers.CityScript_Initialized 		= nil
 ExposedMembers.UnitScript_Initialized		= nil
 ExposedMembers.PlayerScript_Initialized 	= nil
 
+	
+local ResourceValue 		= {			-- cached table with value of resources type
+		["RESOURCECLASS_LUXURY"] 	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_LUXURY"].Value),
+		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
+		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
+}
+
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
 local FLOATING_TEXT_SHORT 	= 1
@@ -312,6 +319,15 @@ function GetPlayerMiddleClassPercent( playerID )
 	return tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_PERCENT"].Value)
 end
 
+
+----------------------------------------------
+-- Resources
+----------------------------------------------
+function GetBaseResourceCost(resourceID)
+	local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
+	return ResourceValue[resourceClassType] or 0
+end
+
 ----------------------------------------------
 -- Units
 ----------------------------------------------
@@ -347,9 +363,9 @@ end
 
 function GetVariationString(variation)
 	if variation > 0 then
-		return "[ICON_PressureUp][COLOR_Civ6Green] +".. tostring(variation).."[ENDCOLOR]"
+		return " [ICON_PressureUp][COLOR_Civ6Green]+".. tostring(variation).."[ENDCOLOR]"
 	elseif variation < 0 then
-		return " [ICON_PressureDown][COLOR_Civ6Red] ".. tostring(variation).."[ENDCOLOR]"
+		return " [ICON_PressureDown][COLOR_Civ6Red]".. tostring(variation).."[ENDCOLOR]"
 	end
 	return ""
 end
@@ -387,8 +403,10 @@ function Initialize()
 	-- player
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
+	-- Resources
+	ExposedMembers.GCO.GetBaseResourceCost 			= GetBaseResourceCost
 	-- texts
-	ExposedMembers.GCO.GetPrisonersStringByCiv 	= GetPrisonersStringByCiv
+	ExposedMembers.GCO.GetPrisonersStringByCiv 		= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 			= GetVariationString
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true

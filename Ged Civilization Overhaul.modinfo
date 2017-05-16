@@ -9,13 +9,13 @@
 
 	<LocalizedText>
 		<Text id="LOC_GCO_TITLE">
-			<en_US>Gedemon's Civilization Overhaul</en_US>
+			<en_US>Gedemon's Civilization</en_US>
 		</Text>
 		<Text id="LOC_GCO_TEASER">
-			<en_US>Complete Overhaul</en_US>
+			<en_US>Complete modifications of many Civilization mechanisms</en_US>
 		</Text>
 		<Text id="LOC_GCO_DESCRIPTION">
-			<en_US>Civilization VI Overhaul</en_US>
+			<en_US>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, ...</en_US>
 		</Text>
 	</LocalizedText>
 

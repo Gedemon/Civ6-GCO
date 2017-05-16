@@ -340,23 +340,26 @@
   <LocalizedText> <!-- CityBannerManager Texts -->
 	
     <Replace Tag="LOC_CITYBANNER_POPULATION_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]--------------- Population --------------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]--------------------- Population --------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_PERSONNEL_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]--------------- Personnel --------------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]---------------------- Personnel ---------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_PRISONERS_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]--------------- Prisoners --------------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]-------------------- Prisoners -------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_STOCK_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]----------------- Stock ----------------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]------------------------- Stock -------------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_CONSUMPTION_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]------------ Consumption ---------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]------------------- Consumption -------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_FOOD_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------------------- Food -------------------------[ENDCOLOR]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_TOTAL_POPULATION" Language="en_US">
-      <Text>{1_Num} Total Population</Text>
+      <Text>[ICON_Housing] {1_Num} Total Population</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_UPPER_CLASS" Language="en_US">
       <Text>[ICON_GreatPerson] {1_Num} Upper Class</Text>
@@ -376,8 +379,18 @@
     </Replace>
 	
 	<Replace Tag="LOC_CITYBANNER_FOOD_STOCK" Language="en_US">
-      <Text>[ICON_Food] {1_Num} Food</Text>
+      <Text>[ICON_Food]-{1_Num} Food.</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_FOOD_STOCK_LIGHT_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit][COLOR_Civ6Yellow]-{1_Num} Light Rationing[ENDCOLOR] / [ICON_Food]{2_Num} Food required.</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_FOOD_STOCK_MEDIUM_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit][COLOR_Civ6Red]-{1_Num} Medium Rationing[ENDCOLOR] / [ICON_Food]{2_Num} Food required.</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_FOOD_STOCK_HEAVY_RATIONING" Language="en_US">
+      <Text>[ICON_FoodDeficit][COLOR_Civ6DarkRed]-{1_Num} Heavy Rationing[ENDCOLOR] / [ICON_Food]{2_Num} Food required.</Text>
     </Replace>	
+	
     <Replace Tag="LOC_CITYBANNER_MATERIEL_STOCK" Language="en_US">
       <Text>[ICON_Charges] {1_Num} / {2_Num} Materiel</Text>
     </Replace>
@@ -401,30 +414,41 @@
       <Text>[ICON_Food] {1_Num} / {2_Num} Food</Text>
     </Replace>	
     <Replace Tag="LOC_CITYBANNER_FOOD_RATION_LIGHT_RATIONING" Language="en_US">
-      <Text>[ICON_FoodDeficit] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Yellow]Light Rationing[ENDCOLOR]</Text>
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6Yellow]Food[ENDCOLOR]</Text>
     </Replace>	
     <Replace Tag="LOC_CITYBANNER_FOOD_RATION_MEDIUM_RATIONING" Language="en_US">
-      <Text>[ICON_FoodDeficit] [COLOR_Civ6Red]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6Red]Medium Rationing[ENDCOLOR]</Text>
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6Red]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6Red]Food[ENDCOLOR]</Text>
     </Replace>	
     <Replace Tag="LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING" Language="en_US">
-      <Text>[ICON_FoodDeficit] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6DarkRed]Heavy Rationing[ENDCOLOR]</Text>
+      <Text>[ICON_FoodDeficit] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6DarkRed]Food[ENDCOLOR]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_RESOURCE_COST" Language="en_US">
       <Text>[COLOR_GoldDark]{1_Num}[ICON_Gold][ENDCOLOR]</Text>
     </Replace>
 	
-	<Replace Tag="LOC_CITY_BANNER_TURNS_REDUCE" Language="en_US">
-      <Text>{1_Turns : plural 1?{1_Turns} turn; other?{1_Turns} turns;} before size reduction.</Text>
+	<Replace Tag="LOC_CITY_BANNER_POPULATION_TO_GROWTH" Language="en_US">
+      <Text>[ICON_Turn]+{1_Num} population until growth.</Text>
     </Replace>
 	
+	<Replace Tag="LOC_CITY_BANNER_POPULATION_TO_REDUCE" Language="en_US">
+      <Text>[ICON_Turn]-{1_Num} population before decline.</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITY_BANNER_SIZE" Language="en_US">
+      <Text>[ICON_GRANT_INFLUENCE_TOKEN] {1_Num}</Text>
+    </Replace>	
+	
+	<Replace Tag="LOC_CITY_BANNER_WEALTH" Language="en_US">
+      <Text>[COLOR_GoldDark]{1_Num} Wealth[ENDCOLOR] [ICON_TradingPostLarge]</Text>
+    </Replace>	
 	
   </LocalizedText>
     
   <LocalizedText> <!-- Plot ToolTip Texts -->
 	
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_TOTAL" Language="en_US">
-      <Text>Total Culture: {1_Num} [ICON_CultureLarge]</Text>
+      <Text>Total Culture: {1_Num} [ICON_Culture]</Text>
     </Replace>	
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE" Language="en_US">
       <Text>{1_Num} % {2_Name}</Text>
