@@ -912,10 +912,12 @@ function TransferToCities(self)
 					local efficiency	= data.Efficiency
 					local send 			= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
 					local costPerUnit	= self:GetTransportCostTo(city) + resourceCost -- to do : cache transport cost
-					resLeft = resLeft - send
-					city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, costPerUnit)
-					self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut)
-					print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) to ".. Locale.Lookup(city:GetName()))
+					if costPerUnit < city:GetResourceCost(resourceID) then -- this city may be in cityToSupply list for another resource, so check cost here again before sending the resource...
+						resLeft = resLeft - send
+						city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, costPerUnit)
+						self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut)
+						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) to ".. Locale.Lookup(city:GetName()))
+					end
 				end
 			end
 			loop = loop + 1
@@ -1836,11 +1838,11 @@ function GetFoodConsumptionString(self)
 	local cityRationing 		= self:GetFoodRationing()
 		
 	local str 					= ""
-	if cityRationing == heavyRationing then
+	if cityRationing <= heavyRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_HEAVY_RATIONING", foodConsumption, foodMaxConsumption)
-	elseif cityRationing == mediumRationing then
+	elseif cityRationing <= mediumRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_MEDIUM_RATIONING", foodConsumption, foodMaxConsumption)
-	elseif cityRationing == lightRationing then
+	elseif cityRationing <= lightRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_LIGHT_RATIONING", foodConsumption, foodMaxConsumption)
 	else
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", foodConsumption)
