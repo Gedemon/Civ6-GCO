@@ -102,48 +102,59 @@ end
 -- Use Enum for faster serialization
 local unitTableEnum = {
 
-	unitID					= 1,
-	playerID				= 2,
-	unitType				= 3,
+	unitID						= 1,
+	playerID					= 2,
+	unitType					= 3,
 	MaterielPerEquipment		= 4,
-	Personnel				= 5,
-	Equipment				= 6,
-	Horses					= 7,
-	Materiel				= 8,
-	PersonnelReserve		= 9,
+	Personnel					= 5,
+	Equipment					= 6,
+	Horses						= 7,
+	Materiel					= 8,
+	PersonnelReserve			= 9,
 	EquipmentReserve			= 10,
-	HorsesReserve			= 11,
-	MaterielReserve			= 12,
-	WoundedPersonnel		= 13,
+	HorsesReserve				= 11,
+	MaterielReserve				= 12,
+	WoundedPersonnel			= 13,
 	DamagedEquipment			= 14,
-	Prisoners				= 15,
-	FoodStock				= 16,
-	PreviousFoodStock		= 17,
-	TotalDeath				= 18,
-	TotalEquipmentLost		= 19,
-	TotalHorsesLost			= 20,
-	TotalKill				= 21,
-	TotalUnitsKilled		= 22,
-	TotalShipSunk			= 23,
-	TotalTankDestroyed		= 24,
-	TotalAircraftKilled		= 25,
-	Morale					= 26,
-	MoraleVariation			= 27,
-	LastCombatTurn			= 28,
-	LastCombatResult		= 29,
-	LastCombatType			= 30,
-	Alive					= 31,
-	TotalXP					= 32,
-	CombatXP				= 33,
-	SupplyLineCityKey		= 34,
-	SupplyLineEfficiency	= 35,
-	FuelStock				= 36,
-	PreviousFuelStock		= 37,
-	HP 						= 38,
-	testHP					= 39,
-	TurnCreated				= 40,
-	Stock					= 41,
-	BaseFoodStock			= 42,
+	Prisoners					= 15,
+	FoodStock					= 16,
+	PreviousFoodStock			= 17,
+	TotalDeath					= 18,
+	TotalEquipmentLost			= 19,
+	TotalHorsesLost				= 20,
+	TotalKill					= 21,
+	TotalUnitsKilled			= 22,
+	TotalShipSunk				= 23,
+	TotalTankDestroyed			= 24,
+	TotalAircraftKilled			= 25,
+	Morale						= 26,
+	MoraleVariation				= 27,
+	LastCombatTurn				= 28,
+	LastCombatResult			= 29,
+	LastCombatType				= 30,
+	Alive						= 31,
+	TotalXP						= 32,
+	CombatXP					= 33,
+	SupplyLineCityKey			= 34,
+	SupplyLineEfficiency		= 35,
+	FuelStock					= 36,
+	PreviousFuelStock			= 37,
+	HP 							= 38,
+	testHP						= 39,
+	TurnCreated					= 40,
+	Stock						= 41,
+	BaseFoodStock				= 42,
+	PreviousPersonnel			= 43,
+	PreviousEquipment			= 44,
+	PreviousHorses				= 45,
+	PreviousMateriel			= 46,
+	PreviousPersonnelReserve	= 47,
+	PreviousEquipmentReserve	= 48,
+	PreviousHorsesReserve		= 49,
+	PreviousMaterielReserve		= 50,
+	PreviousWoundedPersonnel	= 51,
+	PreviousDamagedEquipment	= 52,
+	PreviousPrisoners			= 53,
 	
 	EndOfEnum				= 99
 }                           
@@ -208,7 +219,17 @@ function RegisterNewUnit(playerID, unit)
 	local unitID 	= unit:GetID()
 	local unitKey 	= unit:GetKey()
 	local hp 		= unit:GetMaxDamage() - unit:GetDamage()
-	local food 		= SetBaseFoodStock(unitType)
+	local food 		= SetBaseFoodStock(unitType)	
+	
+	local personnel = UnitHitPointsTable[unitType][hp].Personnel
+	local equipment = UnitHitPointsTable[unitType][hp].Equipment
+	local horses 	= UnitHitPointsTable[unitType][hp].Horses
+	local materiel 	= UnitHitPointsTable[unitType][hp].Materiel
+	
+	local PersonnelReserve	= GetBasePersonnelReserve(unitType)
+	local EquipmentReserve	= GetBaseEquipmentReserve(unitType)
+	local HorsesReserve		= GetBaseHorsesReserve(unitType)
+	local MaterielReserve	= GetBaseMaterielReserve(unitType)
 
 	ExposedMembers.UnitData[unitKey] = {
 		TurnCreated				= Game.GetCurrentGameTurn(),
@@ -219,19 +240,30 @@ function RegisterNewUnit(playerID, unit)
 		HP	 					= hp,
 		testHP	 				= hp,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
-		Personnel 				= UnitHitPointsTable[unitType][hp].Personnel,
-		Equipment 				= UnitHitPointsTable[unitType][hp].Equipment,
-		Horses 					= UnitHitPointsTable[unitType][hp].Horses,
-		Materiel 				= UnitHitPointsTable[unitType][hp].Materiel,
+		Personnel 				= personnel,
+		Equipment 				= equipment,
+		Horses 					= horses,
+		Materiel 				= materiel,
+		PreviousPersonnel 		= personnel,
+		PreviousEquipment 		= equipment,
+		PreviousHorses 			= horses,
+		PreviousMateriel 		= materiel,
 		-- "Tactical Reserve" : ready to reinforce frontline, that's where reinforcements from cities, healed personnel and repaired Equipment are affected first
-		PersonnelReserve		= GetBasePersonnelReserve(unitType),
-		EquipmentReserve		= GetBaseEquipmentReserve(unitType),
-		HorsesReserve			= GetBaseHorsesReserve(unitType),
-		MaterielReserve			= GetBaseMaterielReserve(unitType),
+		PersonnelReserve		= PersonnelReserve,
+		EquipmentReserve		= EquipmentReserve,
+		HorsesReserve			= HorsesReserve,
+		MaterielReserve			= MaterielReserve,
+		PreviousPersonnelReserve= PersonnelReserve,
+		PreviousEquipmentReserve= EquipmentReserve,
+		PreviousHorsesReserve	= HorsesReserve,		
+		PreviousMaterielReserve	= MaterielReserve,
 		-- "Rear"
 		WoundedPersonnel		= 0,
-		DamagedEquipment			= 0,
+		DamagedEquipment		= 0,
 		Prisoners				= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisoners by nationality
+		PreviousWoundedPersonnel= 0,
+		PreviousDamagedEquipment= 0,
+		PreviousPrisoners		= GCO.CreateEverAliveTableWithDefaultValue(0),
 		FoodStock 				= food,
 		BaseFoodStock			= food,
 		PreviousFoodStock		= 0,
@@ -499,9 +531,9 @@ function GetBaseFuelStock(unitType) -- local
 	return 0
 end
 
-function GetMaxTransferTable(unit)
+function GetMaxTransferTable(self)
 	local maxTranfert = {}
-	local unitType = unit:GetType()
+	local unitType = self:GetType()
 	local unitInfo = GameInfo.Units[unitType]
 	maxTranfert.Personnel = GameInfo.GlobalParameters["UNIT_MAX_PERSONNEL_FROM_RESERVE"].Value
 	maxTranfert.Materiel = GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_FROM_RESERVE"].Value
@@ -606,6 +638,10 @@ function GetRequirements(self)
 	return requirements
 end
 
+function GetComponent(self, component)
+	local unitKey 			= self:GetKey()
+	return ExposedMembers.UnitData[unitKey][component]
+end
 
 ----------------------------------------------
 -- Morale function
@@ -630,7 +666,9 @@ function GetMoraleFromFood(self)
 	return moralefromFood	
 end
 
-function GetMoraleFromLastCombat(unitData)
+function GetMoraleFromLastCombat(self)
+	local unitKey 	= self:GetKey()
+	local unitData 	= ExposedMembers.UnitData[unitKey]
 	if (Game.GetCurrentGameTurn() - unitData.LastCombatTurn) > tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_EFFECT_NUM_TURNS"].Value) then
 		return 0
 	end
@@ -652,7 +690,9 @@ function GetMoraleFromLastCombat(unitData)
 	return moraleFromCombat	
 end
 
-function GetMoraleFromWounded(unitData)
+function GetMoraleFromWounded(self)
+	local unitKey 	= self:GetKey()
+	local unitData 	= ExposedMembers.UnitData[unitKey]
 	local moraleFromWounded = 0
 	if unitData.WoundedPersonnel > ( (unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["MORALE_WOUNDED_HIGH_PERCENT"].Value) / 100) then
 		moraleFromWounded = tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_WOUNDED_HIGH"].Value)
@@ -662,7 +702,9 @@ function GetMoraleFromWounded(unitData)
 	return moraleFromWounded	
 end
 
-function GetMoraleFromHP(unitData)
+function GetMoraleFromHP(self)
+	local unitKey 	= self:GetKey()
+	local unitData 	= ExposedMembers.UnitData[unitKey]
 	local moraleFromHP = 0
 	local unit = UnitManager.GetUnit(unitData.playerID, unitData.unitID)
 	if unit then
@@ -681,7 +723,9 @@ function GetMoraleFromHP(unitData)
 	return moraleFromHP
 end
 
-function GetMoraleFromHome(unitData)
+function GetMoraleFromHome(self)
+	local unitKey 	= self:GetKey()
+	local unitData 	= ExposedMembers.UnitData[unitKey]
 	local moraleFromHome = 0
 	if unitData.SupplyLineCityKey then
 		local supplyEfficiency = unitData.SupplyLineEfficiency
@@ -766,7 +810,7 @@ function GetMoraleString(self)
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FOOD_RATIONING", moraleFromFood)
 	end	
 	
-	local moraleFromCombat = GetMoraleFromLastCombat(unitData)
+	local moraleFromCombat = self:GetMoraleFromLastCombat()
 	local turnLeft = tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_EFFECT_NUM_TURNS"].Value) - (Game.GetCurrentGameTurn() - unitData.LastCombatTurn)
 	if moraleFromCombat > 0 then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_VICTORY", moraleFromCombat, turnLeft)
@@ -774,21 +818,21 @@ function GetMoraleString(self)
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_DEFEAT", moraleFromCombat, turnLeft)
 	end			
 	
-	local moraleFromWounded = GetMoraleFromWounded(unitData)
+	local moraleFromWounded = self:GetMoraleFromWounded()
 	if moraleFromWounded > 0 then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WOUNDED", moraleFromWounded)
 	elseif moraleFromWounded < 0 then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WOUNDED", moraleFromWounded)
 	end	
 	
-	local moraleFromHP = GetMoraleFromHP(unitData)
+	local moraleFromHP = self:GetMoraleFromHP()
 	if moraleFromHP > 0 then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FULL_HP", moraleFromHP)
 	elseif moraleFromHP < 0 then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_LOW_HP", moraleFromHP)
 	end
 	
-	local moraleFromHome = GetMoraleFromHome(unitData)
+	local moraleFromHome = self:GetMoraleFromHome()
 	if moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_NO_WAY_HOME"].Value) then
 		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WAY_HOMEP", moraleFromHome)
 	elseif moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FAR_FROM_HOME"].Value) then
@@ -1539,7 +1583,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 				table.insert(damaged[hp], unit)
 				healTable[unit] = 0
 			end
-			maxTransfer[unit] = GetMaxTransferTable(unit)
+			maxTransfer[unit] = unit:GetMaxTransferTable()
 			alreadyUsed[unit] = {}
 			alreadyUsed[unit].Materiel = 0
 		end
@@ -1839,10 +1883,10 @@ function DoMorale(self)
 	local moraleVariation = 0
 	
 	moraleVariation = moraleVariation + self:GetMoraleFromFood()
-	moraleVariation = moraleVariation + GetMoraleFromLastCombat(unitData)
-	moraleVariation = moraleVariation + GetMoraleFromWounded(unitData)
-	moraleVariation = moraleVariation + GetMoraleFromHP(unitData)
-	moraleVariation = moraleVariation + GetMoraleFromHome(unitData)
+	moraleVariation = moraleVariation + self:GetMoraleFromLastCombat()
+	moraleVariation = moraleVariation + self:GetMoraleFromWounded()
+	moraleVariation = moraleVariation + self:GetMoraleFromHP()
+	moraleVariation = moraleVariation + self:GetMoraleFromHome()
 	
 	local morale = math.max(0, math.min(ExposedMembers.UnitData[key].Morale + moraleVariation, tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)))
 	ExposedMembers.UnitData[key].Morale = morale
@@ -1963,7 +2007,7 @@ LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
 
 
 -----------------------------------------------------------------------------------------
--- 
+-- General Functions
 -----------------------------------------------------------------------------------------
 function CleanUnitData()
 	-- remove dead units from the table
@@ -2018,8 +2062,13 @@ function AttachUnitFunctions(unit)
 		u.GetMaxHorsesReserve		= GetMaxHorsesReserve
 		u.GetMaxMaterielReserve		= GetMaxMaterielReserve
 		u.GetMaxPersonnelReserve	= GetMaxPersonnelReserve
-		u.GetMaxEquipmentReserve		= GetMaxEquipmentReserve
+		u.GetMaxEquipmentReserve	= GetMaxEquipmentReserve
+		u.GetMaxTransferTable		= GetMaxTransferTable
 		u.GetMoraleFromFood			= GetMoraleFromFood
+		u.GetMoraleFromLastCombat	= GetMoraleFromLastCombat
+		u.GetMoraleFromWounded		= GetMoraleFromWounded
+		u.GetMoraleFromHP			= GetMoraleFromHP
+		u.GetMoraleFromHome			= GetMoraleFromHome
 		u.GetNumResourceNeeded		= GetNumResourceNeeded
 		u.GetRequirements			= GetRequirements
 		u.GetStock					= GetStock
