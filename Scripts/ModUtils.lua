@@ -118,6 +118,7 @@ function ToDecimals(num)
 end
 
 function TableSummation(data) -- return the Summation of all values in a table formatted like { key = value }
+	if not data then return 0 end
 	local total = 0
 	for _, number in pairs(data) do
 		total = total + number

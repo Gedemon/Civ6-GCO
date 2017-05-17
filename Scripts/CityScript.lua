@@ -106,14 +106,14 @@ end
 local IsImprovementForFeature		= {} -- cached table to check if an improvement is meant for a feature
 for row in GameInfo.Improvement_ValidFeatures() do
 	local improvementID = GameInfo.Improvements[row.ImprovementType].Index
-	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+	local featureID 	= GameInfo.Features[row.FeatureType].Index
 	if not IsImprovementForFeature[improvementID] then IsImprovementForFeature[improvementID] = {} end
-	IsImprovementForFeature[improvementID][resourceID] = true
+	IsImprovementForFeature[improvementID][featureID] = true
 end
 
 local FeatureResources				= {} -- cached table to list resources produced by a feature
 for row in GameInfo.FeatureResourcesProduced() do
-	local featureID 	= GameInfo.Features[row.FeatureType].Index
+	local featureID		= GameInfo.Features[row.FeatureType].Index
 	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
 	if not FeatureResources[featureID] then FeatureResources[featureID] = {} end
 	table.insert(FeatureResources[featureID], {[resourceID] = row.NumPerFeature})
@@ -1354,11 +1354,11 @@ function GetSupplyAtTurn(self, resourceID, turn)
 		
 			local supply = 0
 			
-			supply = supply + ( useData[ResourceUseType.Collect] 	or 0)
-			supply = supply + ( useData[ResourceUseType.Product] 	or 0)
-			supply = supply + ( useData[ResourceUseType.Import] 	or 0)
-			supply = supply + ( useData[ResourceUseType.TransferIn] or 0)
-			--supply = supply + ( useData[ResourceUseType.Pillage] 	or 0)
+			supply = supply + ( GCO.TableSummation(useData[ResourceUseType.Collect]) 	or 0)
+			supply = supply + ( GCO.TableSummation(useData[ResourceUseType.Product]) 	or 0)
+			supply = supply + ( GCO.TableSummation(useData[ResourceUseType.Import]) 	or 0)
+			supply = supply + ( GCO.TableSummation(useData[ResourceUseType.TransferIn]) or 0)
+			supply = supply + ( GCO.TableSummation(useData[ResourceUseType.Pillage]) 	or 0)
 			--supply = supply + ( useData[ResourceUseType.OtherIn] 	or 0)
 			
 			return supply
@@ -1380,10 +1380,10 @@ function GetExternalDemandAtTurn(self, resourceID, turn)
 		
 			local demand = 0
 			
-			demand = demand + ( useData[ResourceUseType.Consume] 	or 0)
-			demand = demand + ( useData[ResourceUseType.Export] 	or 0)
-			demand = demand + ( useData[ResourceUseType.TransferOut] or 0)
-			demand = demand + ( useData[ResourceUseType.Supply] 	or 0)
+			demand = demand + ( GCO.TableSummation(useData[ResourceUseType.Consume]) 		or 0)
+			demand = demand + ( GCO.TableSummation(useData[ResourceUseType.Export]) 		or 0)
+			demand = demand + ( GCO.TableSummation(useData[ResourceUseType.TransferOut]) 	or 0)
+			demand = demand + ( GCO.TableSummation(useData[ResourceUseType.Supply]) 		or 0)
 			
 			return demand
 		end
@@ -1542,7 +1542,7 @@ function GetResourcesStockString(self)
 
 			str = str .. GCO.GetVariationString(stockVariation)
 			
-			local costVarStr = GCO.GetVariationStringGreenPositive(costVariation)			
+			local costVarStr = GCO.GetVariationStringRedPositive(costVariation)			
 			if resourceCost > 0 then
 				str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
 			end
@@ -1575,13 +1575,7 @@ function GetFoodStockString(self)
 	end
 	str = str ..GCO.GetVariationString(foodStockVariation)
 	
-	local costVarStr = ""
-	if costVariation > 0 then
-		costVarStr = costVarStr .. " [COLOR_Civ6Red]+".. tostring(costVariation).."[ENDCOLOR]"
-	elseif costVariation < 0 then
-		costVarStr = costVarStr .." [COLOR_Civ6Green]".. tostring(costVariation).."[ENDCOLOR]"
-	end
-	
+	local costVarStr = GCO.GetVariationStringRedPositive(costVariation)	
 	if resourceCost > 0 then
 		str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
 	end
@@ -1818,12 +1812,14 @@ function CollectResources(self)
 			
 			local featureID = plot:GetFeatureType()
 			if FeatureResources[featureID] then
-				for resourceID, value in pairs(FeatureResources[featureID]) do
-					if player:IsResourceVisible(resourceID) then
-						local collected 	= value
-						local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
-						local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
-						Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
+				for _, data in pairs(FeatureResources[featureID]) do
+					for resourceID, value in pairs(data) do
+						if player:IsResourceVisible(resourceID) then
+							local collected 	= value
+							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
+							local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
+							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
+						end
 					end
 				end
 			end			
@@ -2030,7 +2026,10 @@ end
 
 function DoSocialClassStratification(self)
 
-	local totalPopultation = self:GetRealPopulation()
+	local totalPopultation = self:GetRealPopulation()	
+	
+	print("---------------------------------------------------------------------------")
+	print("Social Stratification: totalPopultation = ", totalPopultation)
 	
 	local maxUpper = self:GetMaxUpperClass()
 	local minUpper = self:GetMinUpperClass()
@@ -2045,9 +2044,6 @@ function DoSocialClassStratification(self)
 	local actualMiddle = self:GetMiddleClass()
 	local actualLower = self:GetLowerClass()
 	
-	---[[
-	print("---------------------------------------------------------------------------")
-	print("Social Stratification: totalPopultation = ", totalPopultation)
 	print("---------------------------------------------------------------------------")
 	print("Social Stratification: maxUpper = ", maxUpper)
 	print("Social Stratification: actualUpper = ", actualUpper)
@@ -2057,11 +2053,11 @@ function DoSocialClassStratification(self)
 	print("Social Stratification: actualMiddle = ", actualMiddle)
 	print("Social Stratification: minMiddle = ", minMiddle)
 	print("---------------------------------------------------------------------------")
-	print("Social Stratification: maxMiddle = ", maxLower)
+	print("Social Stratification: maxLower = ", maxLower)
 	print("Social Stratification: actualLower = ", actualLower)
-	print("Social Stratification: minMiddle = ", minLower)
+	print("Social Stratification: minLower = ", minLower)
 	print("---------------------------------------------------------------------------")
-	--]]
+	
 	-- Move Upper to Middle
 	if actualUpper > maxUpper then
 		toMove = actualUpper - maxUpper

@@ -66,6 +66,9 @@ infrastructure :
 	- Assembly : raise stability, raise separatism
 	- Treadmills : convert wheat/rice to food
 	
++ temporary buildings
+	- to stock special resources and reserve them for a defined number of turn (example: iron materiel stockage)
+	
 --]]
 
 --===============================--
