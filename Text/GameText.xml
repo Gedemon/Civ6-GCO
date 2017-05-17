@@ -389,25 +389,17 @@
     </Replace>
 	<Replace Tag="LOC_CITYBANNER_FOOD_STOCK_HEAVY_RATIONING" Language="en_US">
       <Text>[ICON_FoodDeficit][COLOR_Civ6DarkRed]-{1_Num} Heavy Rationing[ENDCOLOR] / [ICON_Food]{2_Num} Food required.</Text>
-    </Replace>	
-	
-    <Replace Tag="LOC_CITYBANNER_MATERIEL_STOCK" Language="en_US">
-      <Text>[ICON_Charges] {1_Num} / {2_Num} Materiel</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_FOOD_STOCK_STARVATION" Language="en_US">
+      <Text>[ICON_FoodDeficit][COLOR_Civ6DarkRed]-{1_Num} STARVATION[ENDCOLOR] / [ICON_Food]{2_Num} Food required.</Text>
     </Replace>
 	
 	<Replace Tag="LOC_CITYBANNER_RESOURCE_STOCK" Language="en_US">
       <Text>[ICON_{4_Name}] {1_Num} / {2_Num} {3_Name}</Text>
     </Replace>
 	
-    <Replace Tag="LOC_CITYBANNER_WOOD_STOCK" Language="en_US">
-      <Text>[ICON_RESOURCE_CLOVES] {1_Num} / {2_Num} Wood</Text>
-    </Replace>
-	
-    <Replace Tag="LOC_CITYBANNER_LEATHER_STOCK" Language="en_US">
-      <Text>[ICON_New] {1_Num} / {2_Num} Leather</Text>
-    </Replace>
-    <Replace Tag="LOC_CITYBANNER_MEAT_STOCK" Language="en_US">
-      <Text>[ICON_New] {1_Num} / {2_Num} Meat</Text>
+	<Replace Tag="LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK" Language="en_US">
+      <Text>{4_Name} {1_Num} / {2_Num} {3_Name}</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_FOOD_RATION" Language="en_US">
@@ -421,6 +413,9 @@
     </Replace>	
     <Replace Tag="LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING" Language="en_US">
       <Text>[ICON_FoodDeficit] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6DarkRed]Food[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_FOOD_RATION_STARVATION" Language="en_US">
+      <Text>[ICON_FoodDeficit] [COLOR_Error]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Error]Food[ENDCOLOR]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_RESOURCE_COST" Language="en_US">
@@ -466,14 +461,27 @@
     <Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"	Text="Personnel"	Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_STEEL_NAME" 		Text="Steel" 		Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_WOOD_NAME" 		Text="Wood" 		Language="en_US" /> 
+    <Replace Tag="LOC_RESOURCE_PLANTS_NAME" 	Text="Plants" 		Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_LEATHER_NAME" 	Text="Leather" 		Language="en_US" /> 
-    <Replace Tag="LOC_RESOURCE_MEAT_NAME" 		Text="Meat" 		Language="en_US" /> 
+    <Replace Tag="LOC_RESOURCE_MEDECINE_NAME" 	Text="Medecine" 	Language="en_US" /> 
 	
   </LocalizedText>
   
   <LocalizedText> <!-- Buildings -->
 	
     <Replace Tag="LOC_BUILDING_BUTCHERY_NAME" 		Text="Butchery" 		Language="en_US" /> 
+    <Replace Tag="LOC_BUILDING_HERBALIST_NAME" 		Text="Herbalist" 		Language="en_US" /> 
+    <Replace Tag="LOC_BUILDING_SLAVE_MARKET_NAME" 	Text="Slave Market"		Language="en_US" /> 
+	
+    <Replace Tag="LOC_BUILDING_BUTCHERY_DESCRIPTION" Language="en_US">
+      <Text>The Butchery will use animal resources to produce Food and Leather.</Text>
+    </Replace>
+    <Replace Tag="LOC_BUILDING_HERBALIST_DESCRIPTION" Language="en_US">
+      <Text>The Herbalist makes basic Medecine using Plants.</Text>
+    </Replace>
+    <Replace Tag="LOC_BUILDING_SLAVE_MARKET_DESCRIPTION" Language="en_US">
+      <Text>Production bonus based on percentage of slaves.</Text>
+    </Replace>
 	
   </LocalizedText>
 </GameData>
