@@ -7,47 +7,54 @@
 		<Row Type="RESOURCE_STEEL" 		Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_WOOD" 		Kind="KIND_RESOURCE"/>
 		
-		<Row Type="RESOURCE_MEAT" 		Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_MEDECINE" 	Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_LEATHER" 	Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_PLANTS" 	Kind="KIND_RESOURCE"/>
 	</Types>	
 	
 	<Types> <!-- Buildings -->
-		<Row Type="BUILDING_BUTCHERY" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_BUTCHERY" 		Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_HERBALIST" 		Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_SLAVE_MARKET" 	Kind="KIND_BUILDING"/>
 	</Types>
-	
-	<Resources>
-		<Row ResourceType="RESOURCE_FOOD" 		Name="LOC_RESOURCE_FOOD_NAME" 		ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
-		<Row ResourceType="RESOURCE_MATERIEL" 	Name="LOC_RESOURCE_MATERIEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="RESOURCE_PERSONNEL" 	Name="LOC_RESOURCE_PERSONNEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
-		<Row ResourceType="RESOURCE_STEEL" 		Name="LOC_RESOURCE_STEEL_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="RESOURCE_WOOD" 		Name="LOC_RESOURCE_WOOD_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		
-		<Row ResourceType="RESOURCE_MEAT" 		Name="LOC_RESOURCE_MEAT_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="RESOURCE_LEATHER" 	Name="LOC_RESOURCE_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-	</Resources>
 
 	<Buildings>
-		<Row BuildingType="BUILDING_BUTCHERY" Name="LOC_BUILDING_BUTCHERY_NAME" Description="LOC_BUILDING_BUTCHERY_DESCRIPTION" PrereqTech="TECH_ANIMAL_HUSBANDRY" PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 		Name="LOC_BUILDING_BUTCHERY_NAME" 		Description="LOC_BUILDING_BUTCHERY_DESCRIPTION" 	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_HERBALIST" 		Name="LOC_BUILDING_HERBALIST_NAME" 		Description="LOC_BUILDING_HERBALIST_DESCRIPTION" 	PrereqTech="TECH_POTTERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_SLAVE_MARKET" 	Name="LOC_BUILDING_SLAVE_MARKET_NAME" 	Description="LOC_BUILDING_SLAVE_MARKET_DESCRIPTION" 									PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
 	</Buildings>
+	
+	<BuildingPopulationEffect>
+		<Row BuildingType="BUILDING_PALACE" 		PopulationType="POPULATION_UPPER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="25"/>
+		<Row BuildingType="BUILDING_PALACE" 		PopulationType="POPULATION_UPPER" 	EffectType="CLASS_MIN_PERCENT"	EffectValue="9"/>
+		<Row BuildingType="BUILDING_PALACE" 		PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="10"/>
+		<Row BuildingType="BUILDING_PALACE" 		PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MIN_PERCENT"	EffectValue="5"/>
+		
+		<Row BuildingType="BUILDING_SLAVE_MARKET" 	PopulationType="POPULATION_UPPER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="-5"/>
+		<Row BuildingType="BUILDING_SLAVE_MARKET" 	PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="-25"/>
+		<Row BuildingType="BUILDING_SLAVE_MARKET" 	PopulationType="POPULATION_LOWER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="25"/>
+		<Row BuildingType="BUILDING_SLAVE_MARKET" 	PopulationType="POPULATION_LOWER" 	EffectType="CLASS_MIN_PERCENT"	EffectValue="10"/>
+	</BuildingPopulationEffect>
 	
 	<BuildingResourcesConverted>
 		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
 		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
-		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
-		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="6" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
-		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_COAL" 	MaxConverted="5" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="2"		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="0.5"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
+		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
+		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_COAL" 	MaxConverted="5" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="2"	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="0.5"	MultiResRequired="1"/>
 		
-		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="3"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_DEER" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_DEER" 		MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="3"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_DEER" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_DEER" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="3"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_BUTCHERY" ResourceType="RESOURCE_MEAT" 		MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEDECINE" Ratio="0.5"	MultiResCreated="1"/>
+		
 	</BuildingResourcesConverted>
 
 	<BuildingStock>
@@ -55,6 +62,34 @@
 		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	Stock="100"/>
 		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_FOOD" 	Stock="100"/>
 	</BuildingStock>
+	
+	<FeatureResourcesProduced>
+		<Row FeatureType="FEATURE_JUNGLE" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="1"/>
+		<Row FeatureType="FEATURE_FOREST" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="2"/>
+		<Row FeatureType="FEATURE_JUNGLE" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="3"/>
+		<Row FeatureType="FEATURE_FOREST" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="1"/>
+		<Row FeatureType="FEATURE_MARSH" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="5"/>
+	</FeatureResourcesProduced>
+	
+	<Populations>
+		<Row PopulationType="POPULATION_UPPER" 	Name="LOC_POPULATION_UPPER_NAME" 	Description="LOC_POPULATION_UPPER_DESCRIPTION"/>
+		<Row PopulationType="POPULATION_MIDDLE"	Name="LOC_POPULATION_MIDDLE_NAME" 	Description="LOC_POPULATION_MIDDLE_DESCRIPTION"/>
+		<Row PopulationType="POPULATION_LOWER" 	Name="LOC_POPULATION_LOWER_NAME" 	Description="LOC_POPULATION_LOWER_DESCRIPTION"/>
+		<Row PopulationType="POPULATION_SLAVE" 	Name="LOC_POPULATION_SLAVE_NAME" 	Description="LOC_POPULATION_SLAVE_DESCRIPTION"/>
+		<Row PopulationType="POPULATION_ALL" 	Name="LOC_POPULATION_ALL_NAME" 		Description="LOC_POPULATION_ALL_DESCRIPTION"/>
+	</Populations>
+		
+	<Resources>
+		<Row ResourceType="RESOURCE_FOOD" 		Name="LOC_RESOURCE_FOOD_NAME" 		ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_MATERIEL" 	Name="LOC_RESOURCE_MATERIEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_PERSONNEL" 	Name="LOC_RESOURCE_PERSONNEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
+		<Row ResourceType="RESOURCE_STEEL" 		Name="LOC_RESOURCE_STEEL_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_WOOD" 		Name="LOC_RESOURCE_WOOD_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_PLANTS" 	Name="LOC_RESOURCE_PLANTS_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		
+		<Row ResourceType="RESOURCE_MEDECINE" 	Name="LOC_RESOURCE_MEDECINE_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_LEATHER" 	Name="LOC_RESOURCE_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+	</Resources>
 
 	<ResourceStockUsage>
 		<!-- The example belows means :	only surplus send to unit, need stock > 150% to send to another city, never request transfert, export at stock > 75%, import at stock < 50%, convert all  -->
