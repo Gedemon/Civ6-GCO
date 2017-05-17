@@ -37,23 +37,33 @@ local SupplyRouteLengthFactor = {		-- When calculating supply line efficiency re
 }
 
 local ResourceUseType	= {		-- ENUM for resource trade/transfer route types (string as it it used as a key for saved table)
-		Collect 	= "1",	-- Resources from map
-		Consume		= "2",	-- Used by population or local industries
-		Product		= "3",	-- Produced by buildings (industrie)
-		Import		= "4",	-- Received from foreign cities
-		Export		= "5",	-- Send to foreign cities
-		TransferIn	= "6",	-- Reveived from own cities
-		TransferOut	= "7",	-- Send to own cities
-		Supply		= "8",	-- Send to units
-		Pillage		= "9",	-- Received from units
+		Collect 	= "1",	-- Resources from map (ref = PlotID)
+		Consume		= "2",	-- Used by population or local industries (ref = PopulationType or buildingID)
+		Product		= "3",	-- Produced by buildings (industrie) (ref = buildingID)
+		Import		= "4",	-- Received from foreign cities (ref = cityKey)
+		Export		= "5",	-- Send to foreign cities (ref = cityKey)
+		TransferIn	= "6",	-- Reveived from own cities (ref = cityKey)
+		TransferOut	= "7",	-- Send to own cities (ref = cityKey)
+		Supply		= "8",	-- Send to units (ref = unitKey)
+		Pillage		= "9",	-- Received from units (ref = unitKey)
 		OtherIn		= "10",	-- Received from undetermined source
 		OtherOut	= "11",	-- Send to undetermined source
 		Waste		= "12",	-- Destroyed (excedent, ...)
+		Recruit		= "13",	-- Recruit Personnel
+		Demobilize	= "14",	-- Personnel send back to civil life
 }
+
+-- Reference types for Resource usage
+local NoReference			= -1
+local RefPopulationUpper	= GameInfo.Populations["POPULATION_UPPER"].Type
+local RefPopulationMiddle	= GameInfo.Populations["POPULATION_MIDDLE"].Type
+local RefPopulationLower	= GameInfo.Populations["POPULATION_LOWER"].Type
+local RefPopulationSlave	= GameInfo.Populations["POPULATION_SLAVE"].Type
+local RefPopulationAll		= GameInfo.Populations["POPULATION_ALL"].Type
 
 -- Error checking
 for row in GameInfo.BuildingResourcesConverted() do
-	print(row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
+	--print(row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	if row.MultiResRequired and  row.MultiResCreated then
 		print ("ERROR : BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	end
@@ -83,16 +93,31 @@ for row in GameInfo.ResourceStockUsage() do
 	}
 end
 
-local IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resouce
-local IsImprovementForFeature		= {} -- cached table to check if an improvement is meant for a feature
+local NO_IMPROVEMENT = -1
 
+local IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resource
 for row in GameInfo.Improvement_ValidResources() do
 	local improvementID = GameInfo.Improvements[row.ImprovementType].Index
 	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
 	if not IsImprovementForResource[improvementID] then IsImprovementForResource[improvementID] = {} end
 	IsImprovementForResource[improvementID][resourceID] = true
 end
-IsImprovementForFeature[GameInfo.Improvements["IMPROVEMENT_LUMBER_MILL"].Index] = {[GameInfo.Features["FEATURE_FOREST"].Index] = true}
+
+local IsImprovementForFeature		= {} -- cached table to check if an improvement is meant for a feature
+for row in GameInfo.Improvement_ValidFeatures() do
+	local improvementID = GameInfo.Improvements[row.ImprovementType].Index
+	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+	if not IsImprovementForFeature[improvementID] then IsImprovementForFeature[improvementID] = {} end
+	IsImprovementForFeature[improvementID][resourceID] = true
+end
+
+local FeatureResources				= {} -- cached table to list resources produced by a feature
+for row in GameInfo.FeatureResourcesProduced() do
+	local featureID 	= GameInfo.Features[row.FeatureType].Index
+	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+	if not FeatureResources[featureID] then FeatureResources[featureID] = {} end
+	table.insert(FeatureResources[featureID], {[resourceID] = row.NumPerFeature})
+end
 
 local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)	
@@ -115,6 +140,8 @@ local UpperClassMaxPercent		 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_UP
 local UpperClassMinPercent 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_MIN_PERCENT"].Value)
 local MiddleClassMaxPercent 		= tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_MAX_PERCENT"].Value)
 local MiddleClassMinPercent 		= tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_MIN_PERCENT"].Value)
+local LowerClassMaxPercent 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_LOWER_CLASS_MAX_PERCENT"].Value)
+local LowerClassMinPercent 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_LOWER_CLASS_MIN_PERCENT"].Value)
 
 local WealthUpperRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_UPPER_CLASS_RATIO"].Value)
 local WealthMiddleRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_MIDDLE_CLASS_RATIO"].Value)
@@ -145,23 +172,25 @@ local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
 local horsesResourceID 			= GameInfo.Resources["RESOURCE_HORSES"].Index
 local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
-local meatResourceID			= GameInfo.Resources["RESOURCE_MEAT"].Index
+local medecineResourceID		= GameInfo.Resources["RESOURCE_MEDECINE"].Index
 local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
+local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 
 local foodResourceKey			= tostring(foodResourceID)
-local materielResourceKey		= tostring(materielResourceID)
-local steelResourceKey			= tostring(steelResourceID)
+--local materielResourceKey		= tostring(materielResourceID)
+--local steelResourceKey			= tostring(steelResourceID)
 local personnelResourceKey		= tostring(personnelResourceID)
 
-local forestFeatureID			= GameInfo.Features["FEATURE_FOREST"].Index
-local jungleFeatureID			= GameInfo.Features["FEATURE_JUNGLE"].Index
+--local forestFeatureID			= GameInfo.Features["FEATURE_FOREST"].Index
+--local jungleFeatureID			= GameInfo.Features["FEATURE_JUNGLE"].Index
 
-local baseWoodPerForest			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_FOREST"].Value)
-local baseWoodPerJungle			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_JUNGLE"].Value)
+--local baseWoodPerForest			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_FOREST"].Value)
+--local baseWoodPerJungle			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_JUNGLE"].Value)
 
 local BaseImprovementMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
 local BaseCollectCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_COLLECT_COST_MULTIPLIER"].Value)
 local ImprovementCostRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_IMPROVEMENT_COST_RATIO"].Value)
+local NotWorkedCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_NOT_WORKED_COST_MULTIPLIER"].Value)
 
 local MaxCostVariationPercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_VARIATION_PERCENT"].Value)
 
@@ -253,7 +282,7 @@ function RegisterNewCity(playerID, city)
 		Prisoners				= GCO.CreateEverAliveTableWithDefaultValue(0),
 		Stock					= { [turnKey] = {[foodResourceKey] = startingFood, [personnelResourceKey] = personnel} },
 		ResourceCost			= { [turnKey] = {[foodResourceKey] = baseFoodCost, } },
-		ResourceUse				= { [turnKey] = { } }, -- [ResourceID] = { ResourceUseType.Collected = 0, ResourceUseType.Consummed = 0, ResourceUseType.Imported = 0, ResourceUseType.Exported = 0) -- Import/Export include transfert in this context
+		ResourceUse				= { [turnKey] = { } }, -- [ResourceID] = { ResourceUseType.Collected = { [plotID] = 0, }, ResourceUseType.Consummed = { [buildingID] = 0, [PopulationType] = 0, }, ...) 
 		Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
 		FoodRatio				= 1,
 		FoodRatioTurn			= Game.GetCurrentGameTurn(),
@@ -474,107 +503,87 @@ function ChangeSize(self)
 	end
 end
 
-function DoSocialClassStratification(self)
-	local totalPopultation = self:GetRealPopulation()
-	local maxUpper = self:GetMaxUpperClass()
-	local minUpper = self:GetMinUpperClass()
-	local maxMiddle = self:GetMaxMiddleClass()
-	local minMiddle = self:GetMinMiddleClass()
-	local actualUpper = self:GetUpperClass()
-	local actualMiddle = self:GetMiddleClass()
-	
-	---[[
-	print("---------------------------------------------------------------------------")
-	print("Social Stratification: totalPopultation = ", totalPopultation)
-	print("---------------------------------------------------------------------------")
-	print("Social Stratification: maxUpper = ", maxUpper)
-	print("Social Stratification: actualUpper = ", actualUpper)
-	print("Social Stratification: minUpper = ", minUpper)
-	print("---------------------------------------------------------------------------")
-	print("Social Stratification: maxMiddle = ", maxMiddle)
-	print("Social Stratification: actualMiddle = ", actualMiddle)
-	print("Social Stratification: minMiddle = ", minMiddle)
-	print("---------------------------------------------------------------------------")
-	--]]
-	-- Move Upper to Middle
-	if actualUpper > maxUpper then
-		toMove = actualUpper - maxUpper
-		print("Social Stratification: Upper to Middle = ", toMove)
-		self:ChangeUpperClass(- toMove)
-		self:ChangeMiddleClass( toMove)
-	end
-	-- Move Middle to Upper
-	if actualUpper < minUpper then
-		toMove = minUpper - actualUpper
-		print("Social Stratification: Middle to Upper = ", toMove)
-		self:ChangeUpperClass(toMove)
-		self:ChangeMiddleClass(-toMove)
-	end
-	-- Move Middle to Lower
-	if actualMiddle > maxMiddle then
-		toMove = actualMiddle - maxMiddle
-		print("Social Stratification: Middle to Lower = ", toMove)
-		self:ChangeMiddleClass(-toMove)
-		self:ChangeLowerClass(toMove)
-	end
-	-- Move Lower to Middle
-	if actualMiddle < minMiddle then
-		toMove = minMiddle - actualMiddle
-		print("Social Stratification: Lower to Middle = ", toMove)
-		self:ChangeMiddleClass(toMove)
-		self:ChangeLowerClass(-toMove)
-	end
-end
-
 function GetMaxUpperClass(self)
 	local maxPercent = UpperClassMaxPercent
 	for row in GameInfo.BuildingPopulationEffect() do
-		if row.PopulationClassType == "CLASS_UPPER" and row.EffectType == "CLASS_MAX_PERCENT" then
+		if row.PopulationType == "POPULATION_UPPER" and row.EffectType == "CLASS_MAX_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				maxPercent = maxPercent + row.EffectValue
 			end
 		end	
 	end
+	print("Max Upper Class %", maxPercent)
 	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
 end
 
 function GetMinUpperClass(self)
 	local minPercent = UpperClassMinPercent
 	for row in GameInfo.BuildingPopulationEffect() do
-		if row.PopulationClassType == "CLASS_UPPER" and row.EffectType == "CLASS_MIN_PERCENT" then
+		if row.PopulationType == "POPULATION_UPPER" and row.EffectType == "CLASS_MIN_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				minPercent = minPercent + row.EffectValue
 			end
 		end	
 	end
+	print("Min Upper Class %", minPercent)
 	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
 end
 
 function GetMaxMiddleClass(self)
 	local maxPercent = MiddleClassMaxPercent
 	for row in GameInfo.BuildingPopulationEffect() do
-		if row.PopulationClassType == "CLASS_MIDDLE" and row.EffectType == "CLASS_MAX_PERCENT" then
+		if row.PopulationType == "POPULATION_MIDDLE" and row.EffectType == "CLASS_MAX_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				maxPercent = maxPercent + row.EffectValue
 			end
 		end	
 	end
+	print("Max Middle Class %", maxPercent)
 	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
 end
 
 function GetMinMiddleClass(self)
 	local minPercent = MiddleClassMinPercent
 	for row in GameInfo.BuildingPopulationEffect() do
-		if row.PopulationClassType == "CLASS_MIDDLE" and row.EffectType == "CLASS_MIN_PERCENT" then
+		if row.PopulationType == "POPULATION_MIDDLE" and row.EffectType == "CLASS_MIN_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				minPercent = minPercent + row.EffectValue
 			end
 		end	
 	end
+	print("Min Middle Class %", minPercent)
+	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
+end
+
+function GetMaxLowerClass(self)
+	local maxPercent = LowerClassMaxPercent
+	for row in GameInfo.BuildingPopulationEffect() do
+		if row.PopulationType == "POPULATION_LOWER" and row.EffectType == "CLASS_MAX_PERCENT" then
+			local buildingID = GameInfo.Buildings[row.BuildingType].Index
+			if self:GetBuildings():HasBuilding(buildingID) then
+				maxPercent = maxPercent + row.EffectValue
+			end
+		end	
+	end
+	print("Max Lower Class %", maxPercent)
+	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
+end
+
+function GetMinLowerClass(self)
+	local minPercent = LowerClassMinPercent
+	for row in GameInfo.BuildingPopulationEffect() do
+		if row.PopulationType == "POPULATION_LOWER" and row.EffectType == "CLASS_MIN_PERCENT" then
+			local buildingID = GameInfo.Buildings[row.BuildingType].Index
+			if self:GetBuildings():HasBuilding(buildingID) then
+				minPercent = minPercent + row.EffectValue
+			end
+		end	
+	end
+	print("Min Lower Class %", minPercent)
 	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
 end
 
@@ -811,7 +820,7 @@ end
 
 function TransferToCities(self)
 	print("Transfering to other cities for ".. Locale.Lookup(self:GetName()))
-	local cityKey 			= self:GetKey()
+	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTransferDemand[self]
 	local transfers 		= {Resources = {}, ResPerCity = {}}	
 	local cityToSupply 		= CitiesForTransfer[self]
@@ -838,8 +847,8 @@ function TransferToCities(self)
 					local costPerUnit	= self:GetTransportCostTo(city) + resourceCost -- to do : cache transport cost
 					if costPerUnit < city:GetResourceCost(resourceID) then -- this city may be in cityToSupply list for another resource, so check cost here again before sending the resource...
 						resLeft = resLeft - send
-						city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, costPerUnit)
-						self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut)
+						city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, selfKey, costPerUnit)
+						self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut, city:GetKey())
 						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) to ".. Locale.Lookup(city:GetName()))
 					end
 				end
@@ -922,7 +931,7 @@ end
 function ExportToForeignCities(self)
 	print("Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 	
-	local cityKey 			= self:GetKey()
+	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTradeDemand[self]
 	local transfers 		= {Resources = {}, ResPerCity = {}}	
 	local cityToSupply 		= CitiesForTrade[self]
@@ -953,8 +962,8 @@ function ExportToForeignCities(self)
 					if costPerUnit < city:GetResourceCost(resourceID) then -- this city may be in cityToSupply list for another resource, so check cost here again before sending the resource...
 						local transactionIncome = send * self:GetResourceCost(resourceID) -- * costPerUnit
 						resLeft = resLeft - send
-						city:ChangeStock(resourceID, send, ResourceUseType.Import, costPerUnit)					
-						self:ChangeStock(resourceID, -send, ResourceUseType.Export)
+						city:ChangeStock(resourceID, send, ResourceUseType.Import, selfKey, costPerUnit)					
+						self:ChangeStock(resourceID, -send, ResourceUseType.Export, city:GetKey())
 						importIncome[city] = (importIncome[city] or 0) + transactionIncome
 						exportIncome = exportIncome + transactionIncome
 						print ("  - Generating "..tostring(transactionIncome).." golds for " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) send to ".. Locale.Lookup(city:GetName()))
@@ -1110,7 +1119,7 @@ function GetAvailableStockForIndustries(self, resourceID)
 	return math.max(0, self:GetStock(resourceID)-minStockLeft)
 end
 
-function ChangeStock(self, resourceID, value, useType, unitCost)
+function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 	
 	if value == 0 then return end
 
@@ -1118,6 +1127,8 @@ function ChangeStock(self, resourceID, value, useType, unitCost)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
 	local cityData 		= ExposedMembers.CityData[cityKey]
+	
+	if not reference then reference = NoReference end
 	
 	if value > 0 and resourceKey ~= personnelResourceKey then
 		if not useType then useType = ResourceUseType.OtherIn end
@@ -1155,13 +1166,16 @@ function ChangeStock(self, resourceID, value, useType, unitCost)
 	
 	-- update stats
 	if not ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey] then
-		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey] = { [useType] = math.abs(value)}
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey] = { [useType] = {[reference] = math.abs(value)}}
 
 	elseif not ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] then
-		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] = math.abs(value)
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] = {[reference] = math.abs(value)}
+		
+	elseif not ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] then
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] = math.abs(value)	
 	
 	else
-		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] = ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType] + math.abs(value)
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] = ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] + math.abs(value)
 	end
 end
 
@@ -1396,8 +1410,14 @@ function GetPreviousPersonnel(self) -- equivalent to GetPreviousStock(self, pers
 	return self:GetPreviousStock(personnelResourceID)
 end
 
-function ChangePersonnel(self, value) -- equivalent to ChangeStock(self, personnelResourceID, value)
-	self:ChangeStock(personnelResourceID, value)
+function ChangePersonnel(self, value, useType, reference) -- equivalent to ChangeStock(self, personnelResourceID, value)
+
+	local useType = ResourceUseType.Supply
+	if not useType then
+		if value > 0 then useType = ResourceUseType.Recruit end
+		if value < 0 then useType = ResourceUseType.Supply end
+	end
+	self:ChangeStock(personnelResourceID, value, useType, reference)
 end
 
 
@@ -1438,11 +1458,11 @@ function DoFood(self)
 	-- get city food yield
 	local food = GCO.GetCityYield( self, YieldTypes.FOOD )
 	local resourceCost = GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
-	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, resourceCost)
+	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, self:GetKey(), resourceCost)
 	
 	-- food eaten
 	local eaten = self:GetFoodConsumption()
-	self:ChangeStock(foodResourceID, - eaten, ResourceUseType.Consume)
+	self:ChangeStock(foodResourceID, - eaten, ResourceUseType.Consume, RefPopulationAll)
 end
 
 function SetCityRationing(self)
@@ -1505,31 +1525,24 @@ function GetResourcesStockString(self)
 			local resourceCost 		= self:GetResourceCost(resourceID)
 			local costVariation 	= self:GetResourceCostVariation(resourceID)
 			local resRow 			= GameInfo.Resources[resourceID]
-			if resourceID == woodResourceID then
-				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_WOOD_STOCK", value, self:GetMaxStock(resourceID))
-			elseif resourceID == materielResourceID then
-				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MATERIEL_STOCK", value, self:GetMaxStock(resourceID))
-			elseif resourceID == meatResourceID then
-				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MEAT_STOCK", value, self:GetMaxStock(resourceID))
-			elseif resourceID == leatherResourceID then
-				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_LEATHER_STOCK", value, self:GetMaxStock(resourceID))
+			local tempIcons 		= { 
+					[woodResourceID] 		= "[ICON_RESOURCE_CLOVES]", 
+					[materielResourceID] 	= "[ICON_Charges]", 
+					[steelResourceID] 		= "[ICON_New]", 
+					[medecineResourceID] 	= "[ICON_New]", 
+					[leatherResourceID] 	= "[ICON_New]", 
+					[plantResourceID] 		= "[ICON_New]", 
+				}
+			
+			if tempIcons[resourceID] then
+				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, tempIcons[resourceID])
 			else
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, resRow.ResourceType)
 			end
 
-			if stockVariation > 0 then
-				str = str .. "[ICON_PressureUp][COLOR_Civ6Green]+".. tostring(stockVariation).."[ENDCOLOR]"
-			elseif stockVariation < 0 then
-				str = str .." [ICON_PressureDown][COLOR_Civ6Red]".. tostring(stockVariation).."[ENDCOLOR]"
-			end
+			str = str .. GCO.GetVariationString(stockVariation)
 			
-			local costVarStr = ""
-			if costVariation > 0 then
-				costVarStr = costVarStr .. " [COLOR_Civ6Red]+".. tostring(costVariation).."[ENDCOLOR]"
-			elseif costVariation < 0 then
-				costVarStr = costVarStr .." [COLOR_Civ6Green]".. tostring(costVariation).."[ENDCOLOR]"
-			end
-			
+			local costVarStr = GCO.GetVariationStringGreenPositive(costVariation)			
 			if resourceCost > 0 then
 				str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
 			end
@@ -1549,11 +1562,13 @@ function GetFoodStockString(self)
 	local costVariation 		= self:GetResourceCostVariation(foodResourceID)
 	
 	local str 					= ""
-	if cityRationning == heavyRationing then
+	if cityRationning <= Starvation then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
-	elseif cityRationning == mediumRationing then
+	elseif cityRationning <= heavyRationing then
+		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
+	elseif cityRationning <= mediumRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_MEDIUM_RATIONING", foodStock, maxFoodStock)
-	elseif cityRationning == lightRationing then
+	elseif cityRationning <= lightRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_LIGHT_RATIONING", foodStock, maxFoodStock)
 	else
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION", foodStock, maxFoodStock)
@@ -1581,7 +1596,9 @@ function GetFoodConsumptionString(self)
 	local cityRationing 		= self:GetFoodRationing()
 		
 	local str 					= ""
-	if cityRationing <= heavyRationing then
+	if cityRationing <= Starvation then
+		str = Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_STARVATION", foodConsumption, foodMaxConsumption)
+	elseif cityRationing <= heavyRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_HEAVY_RATIONING", foodConsumption, foodMaxConsumption)
 	elseif cityRationing <= mediumRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_MEDIUM_RATIONING", foodConsumption, foodMaxConsumption)
@@ -1709,7 +1726,9 @@ function RecruitPersonnel(self)
 	self:ChangeUpperClass(-recruitedGenerals)
 	self:ChangeMiddleClass(-recruitedOfficers)
 	self:ChangeLowerClass(-recruitedSoldiers)
-	self:ChangePersonnel(totalRecruits)
+	self:ChangePersonnel(recruitedGenerals, ResourceUseType.Recruit, RefPopulationUpper)
+	self:ChangePersonnel(recruitedOfficers, ResourceUseType.Recruit, RefPopulationMiddle)
+	self:ChangePersonnel(recruitedSoldiers, ResourceUseType.Recruit, RefPopulationLower)		
 end
 
 function ReinforceUnits(self)
@@ -1747,7 +1766,7 @@ function ReinforceUnits(self)
 						reqValue[unit][resourceID] = reqValue[unit][resourceID] - send
 						
 						unit:ChangeStock(resourceID, send)
-						self:ChangeStock(resourceID, -send, ResourceUseType.Supply)
+						self:ChangeStock(resourceID, -send, ResourceUseType.Supply, unit:GetKey())
 						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (@ ".. tostring(efficiency) .."% efficiency) to unit ID#".. tostring(unit:GetID()), Locale.Lookup(UnitManager.GetTypeName(unit)))
 					end
 				end
@@ -1761,47 +1780,53 @@ function ReinforceUnits(self)
 end
 
 function CollectResources(self)
-	local cityKey 	= self:GetKey()
-	local cityData 	= ExposedMembers.CityData[cityKey]
-	local player 	= GCO.GetPlayer(self:GetOwner())
-	-- get resources on worked tiles
+	local cityKey 		= self:GetKey()
+	local cityData 		= ExposedMembers.CityData[cityKey]
+	local cityWealth	= self:GetWealth()
+	local player 		= GCO.GetPlayer(self:GetOwner())
+	
+	-- private function
+	function Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
+		if bImprovedForResource then
+			collected 		= collected * BaseImprovementMultiplier
+			resourceCost 	= resourceCost * ImprovementCostRatio
+		end
+		resourceCost = resourceCost * cityWealth
+		if not bWorked then resourceCost = resourceCost * NotWorkedCostMultiplier end
+		print("-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
+		self:ChangeStock(resourceID, collected, ResourceUseType.Collect, plotID, resourceCost)			
+	end
+	
+	-- get resources on worked tiles	
 	local cityPlots	= GCO.GetCityPlots(self)
 	for _, plotID in ipairs(cityPlots) do
-		local plot	= Map.GetPlotByIndex(plotID)
-		if plot:GetWorkerCount() > 0 then
+		local plot		= Map.GetPlotByIndex(plotID)
+		local bWorked 	= (plot:GetWorkerCount() > 0)
+		local bImproved	= (plot:GetImprovementType() ~= NO_IMPROVEMENT)
+		if bWorked or bImproved then
+		
 			local improvementID = plot:GetImprovementType()
 			if plot:GetResourceCount() > 0 then		
 				local resourceID 	= plot:GetResourceType()
 				local resourceCost 	= GCO.GetBaseResourceCost(resourceID) 
 				if player:IsResourceVisible(resourceID) then
-					local collected = plot:GetResourceCount()
-					if IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID] then
-						collected 		= collected * BaseImprovementMultiplier
-						resourceCost 	= resourceCost * ImprovementCostRatio
-					end
-					resourceCost = resourceCost * self:GetWealth()
-					print("-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
-					self:ChangeStock(resourceID, collected, ResourceUseType.Collect, resourceCost)
+					local collected 			= plot:GetResourceCount()
+					local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+					Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 				end
 			end
+			
 			local featureID = plot:GetFeatureType()
-			local woodCollected = 0
-			if featureID == forestFeatureID then
-				woodCollected = baseWoodPerForest
-			end
-			if featureID == jungleFeatureID then
-				woodCollected = baseWoodPerJungle
-			end
-			if woodCollected > 0 then
-				local resourceCost 	= GCO.GetBaseResourceCost(woodResourceID) 
-				if IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID] then
-					woodCollected = woodCollected * BaseImprovementMultiplier
-					resourceCost 	= resourceCost * ImprovementCostRatio
+			if FeatureResources[featureID] then
+				for resourceID, value in pairs(FeatureResources[featureID]) do
+					if player:IsResourceVisible(resourceID) then
+						local collected 	= value
+						local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
+						local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
+						Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
+					end
 				end
-				resourceCost = resourceCost * self:GetWealth()
-				print("-- Collecting " .. tostring(woodCollected) .. " " ..Locale.Lookup(GameInfo.Resources[woodResourceID].Name ).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
-				self:ChangeStock(woodResourceID, woodCollected, ResourceUseType.Collect, resourceCost)
-			end
+			end			
 		end
 	end
 end
@@ -1817,7 +1842,7 @@ function DoIndustries(self)
 	local materielprod	= MaterielProductionPerSize * size
 	local materielCost 	= GCO.GetBaseResourceCost(materielResourceID) * wealth -- GCO.GetBaseResourceCost(materielResourceID)
 	print(" - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name).." at ".. tostring(GCO.ToDecimals(materielCost)) .. " cost/unit")
-	self:ChangeStock(materielResourceID, materielprod, ResourceUseType.Product, materielCost)
+	self:ChangeStock(materielResourceID, materielprod, ResourceUseType.Product, self:GetKey(), materielCost)
 	
 	local MultiResRequired 	= {}
 	local MultiResCreated 	= {}
@@ -1843,8 +1868,8 @@ function DoIndustries(self)
 					if amountCreated > 0 then
 						local resourceCost 	= (GCO.GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
 						print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
-						self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume)
-						self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, resourceCost)
+						self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
+						self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 					end	
 				end
 			end
@@ -1867,14 +1892,14 @@ function DoIndustries(self)
 					if amountCreated > 0 then
 						local resourceCost 	= (GCO.GetBaseResourceCost(row.ResourceCreated) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
 						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio))
-						self:ChangeStock(row.ResourceCreated, amountCreated, ResourceUseType.Product, resourceCost)
+						self:ChangeStock(row.ResourceCreated, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 						bUsed = true
 					else					
 						print("    - not enough resources available to create ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) ..", ratio = " .. tostring(row.Ratio))
 					end
 				end
 				if bUsed then
-					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume)
+					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
 				end
 			end		
 		end
@@ -1915,12 +1940,12 @@ function DoIndustries(self)
 					requiredResourceCost = requiredResourceCost + resourceCost
 					totalRatio = totalRatio + ratio
 					print("    - ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) .." used at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(ratio))
-					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume)
+					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
 				end
 				local baseRatio = totalRatio / totalResourcesRequired
 				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth) + requiredResourceCost
 				print("    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost)	
-				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, resourceCost)
+				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 			end			
 		end
 	end	
@@ -1933,17 +1958,7 @@ function DoExcedents(self)
 	local cityKey 	= self:GetKey()
 	local cityData 	= ExposedMembers.CityData[cityKey]
 	local turnKey 	= GCO.GetTurnKey()
-
-	-- excedental resources are lost
-	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
-		local resourceID = tonumber(resourceKey)
-		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
-		if excedent > 0 then
-			print(" - Excedental ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." destroyed = ".. tostring(excedent))
-			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
-		end
-	end
-
+	
 	-- excedental personnel is sent back to civil life... (to do : send them to another location if available)
 	local excedentalPersonnel = self:GetPersonnel() - self:GetMaxPersonnel()
 
@@ -1957,9 +1972,24 @@ function DoExcedents(self)
 		self:ChangeMiddleClass(toMiddle)
 		self:ChangeLowerClass(toLower)
 
+		self:ChangePersonnel(-toUpper, ResourceUseType.Demobilize, RefPopulationUpper)
+		self:ChangePersonnel(-toMiddle, ResourceUseType.Demobilize, RefPopulationMiddle)
+		self:ChangePersonnel(-toLower, ResourceUseType.Demobilize, RefPopulationLower)
+		
 		print(" - Demobilized personnel =", excedentalPersonnel, "upper class =", toUpper,"middle class =", toMiddle, "lower class =",toLower)
 
 	end
+
+	-- excedental resources are lost
+	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
+		local resourceID = tonumber(resourceKey)
+		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
+		if excedent > 0 then
+			print(" - Excedental ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." destroyed = ".. tostring(excedent))
+			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
+		end
+	end
+
 end
 
 function DoGrowth(self)
@@ -1996,6 +2026,84 @@ function DoGrowth(self)
 	self:ChangeLowerClass(lowerVar)	
 	self:ChangeSlaveClass(slaveVar)		
 	
+end
+
+function DoSocialClassStratification(self)
+
+	local totalPopultation = self:GetRealPopulation()
+	
+	local maxUpper = self:GetMaxUpperClass()
+	local minUpper = self:GetMinUpperClass()
+	
+	local maxMiddle = self:GetMaxMiddleClass()
+	local minMiddle = self:GetMinMiddleClass()
+	
+	local maxLower = self:GetMaxLowerClass()
+	local minLower = self:GetMinLowerClass()
+	
+	local actualUpper = self:GetUpperClass()
+	local actualMiddle = self:GetMiddleClass()
+	local actualLower = self:GetLowerClass()
+	
+	---[[
+	print("---------------------------------------------------------------------------")
+	print("Social Stratification: totalPopultation = ", totalPopultation)
+	print("---------------------------------------------------------------------------")
+	print("Social Stratification: maxUpper = ", maxUpper)
+	print("Social Stratification: actualUpper = ", actualUpper)
+	print("Social Stratification: minUpper = ", minUpper)
+	print("---------------------------------------------------------------------------")
+	print("Social Stratification: maxMiddle = ", maxMiddle)
+	print("Social Stratification: actualMiddle = ", actualMiddle)
+	print("Social Stratification: minMiddle = ", minMiddle)
+	print("---------------------------------------------------------------------------")
+	print("Social Stratification: maxMiddle = ", maxLower)
+	print("Social Stratification: actualLower = ", actualLower)
+	print("Social Stratification: minMiddle = ", minLower)
+	print("---------------------------------------------------------------------------")
+	--]]
+	-- Move Upper to Middle
+	if actualUpper > maxUpper then
+		toMove = actualUpper - maxUpper
+		print("Social Stratification: Upper to Middle (from actualUpper > maxUpper) = ", toMove)
+		self:ChangeUpperClass(- toMove)
+		self:ChangeMiddleClass( toMove)
+	end
+	-- Move Middle to Upper
+	if actualUpper < minUpper then
+		toMove = minUpper - actualUpper
+		print("Social Stratification: Middle to Upper (from actualUpper < minUpper)= ", toMove)
+		self:ChangeUpperClass(toMove)
+		self:ChangeMiddleClass(-toMove)
+	end
+	-- Move Middle to Lower
+	if actualMiddle > maxMiddle then
+		toMove = actualMiddle - maxMiddle
+		print("Social Stratification: Middle to Lower (from actualMiddle > maxMiddle)= ", toMove)
+		self:ChangeMiddleClass(-toMove)
+		self:ChangeLowerClass(toMove)
+	end
+	-- Move Lower to Middle
+	if actualMiddle < minMiddle then
+		toMove = minMiddle - actualMiddle
+		print("Social Stratification: Lower to Middle (from actualMiddle < minMiddle)= ", toMove)
+		self:ChangeMiddleClass(toMove)
+		self:ChangeLowerClass(-toMove)
+	end
+	-- Move Lower to Middle
+	if actualLower > maxLower then
+		toMove = actualLower - maxLower
+		print("Social Stratification: Lower to Middle (from actualLower > maxLower)= ", toMove)
+		self:ChangeMiddleClass(toMove)
+		self:ChangeLowerClass(-toMove)
+	end
+	-- Move Middle to Lower
+	if actualLower < minLower then
+		toMove = minLower - actualLower
+		print("Social Stratification: Middle to Lower (from actualLower < minLower)= ", toMove)
+		self:ChangeMiddleClass(-toMove)
+		self:ChangeLowerClass(toMove)
+	end
 end
 
 function DoTurnFirstPass(self)
@@ -2202,7 +2310,9 @@ function AttachCityFunctions(city)
 	c.GetMaxUpperClass					= GetMaxUpperClass
 	c.GetMinUpperClass					= GetMinUpperClass
 	c.GetMaxMiddleClass					= GetMaxMiddleClass
-	c.GetMinMiddleClass					= GetMinMiddleClass	
+	c.GetMinMiddleClass					= GetMinMiddleClass
+	c.GetMaxLowerClass					= GetMaxLowerClass
+	c.GetMinLowerClass					= GetMinLowerClass
 	--
 	c.RecruitPersonnel					= RecruitPersonnel
 	-- text
