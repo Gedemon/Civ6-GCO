@@ -62,12 +62,14 @@ infrastructure :
 	- lua script to replace the old building on completion
 
 + new buildings
-	- Rivers docks : allow resource trade/transfer following rivers
+	- River docks : allow resource trade/transfer following rivers
 	- Assembly : raise stability, raise separatism
-	- Treadmills : convert wheat/rice to food
+	- Treadmills : convert wheat/rice to food (mutually exclusive with Rivermills)
 	
-+ temporary buildings
-	- to stock special resources and reserve them for a defined number of turn (example: iron materiel stockage)
++ Special resources buildings
+	- to stock special resources (aka "Equipment", example: Iron Materiel)
+	- no stock for special resources outside production buildings and those buildings
+	- temporary buildings created when an unit required special resources is linked to a city ?
 	
 --]]
 
@@ -75,12 +77,12 @@ infrastructure :
 --[[ CITIZEN NEEDS
 --===============================--
 
-- Citizen have consumers need for resources depending on their social class and the era
+- Citizen have consumers need for resources depending on their social class, city size and the era
     + food (upper, middle, lower, slaves)
     + medecine for those who have a disease (upper, middle, lower, slaves)
     + basic clothes (middle, lower, slave) = linen (plants from forest/jungle/swamp) or leather or wool
     + clothes (upper, middle) = use leather + (wool or linen)
-    + exotic food (upper, middle) = food not available in the city area
+    + exotic food (upper, middle) = food not available on the civilization territory (and continent)
     + rare food (upper)
     + luxury clothes (upper) = use leather + (wool or linen) + (dyes or furs or coton) | or simply just clothes + (dyes or furs)
     + luxury products (upper) = jewelry (silver, diamonds), decorations (silver, marble)
