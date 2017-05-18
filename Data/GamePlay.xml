@@ -53,7 +53,7 @@
 		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEDECINE" Ratio="0.5"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEDECINE" Ratio="0.5"/>
 		
 	</BuildingResourcesConverted>
 

@@ -677,27 +677,28 @@ end
 -----------------------------------------------------------------------------------------
 function UpdateLinkedUnits(self)
 	print("Updating Linked Units...")
-	LinkedUnits[self] 						= {}
-	UnitsSupplyDemand[self] 				= { Resources = {}, NeedResources = {}} -- NeedResources : Number of units requesting a resource type
+	local selfKey 				= self:GetKey()
+	LinkedUnits[selfKey] 		= {}
+	UnitsSupplyDemand[selfKey] 	= { Resources = {}, NeedResources = {}} -- NeedResources : Number of units requesting a resource type
 
 	for unitKey, data in pairs(ExposedMembers.UnitData) do
 		local efficiency = data.SupplyLineEfficiency
 		if data.SupplyLineCityKey == self:GetKey() and efficiency > 0 then
 			local unit = GCO.GetUnit(data.playerID, data.unitID)
 			if unit then
-				LinkedUnits[self][unit] = {NeedResources = {}}
+				LinkedUnits[selfKey][unit] = {NeedResources = {}}
 				local requirements 	= unit:GetRequirements()
 				if requirements.Equipment > 0 then
-					UnitsSupplyDemand[self].Equipment 		= ( UnitsSupplyDemand[self].Equipment 		or 0 ) + GCO.Round(requirements.Equipment*efficiency/100)
-					UnitsSupplyDemand[self].NeedEquipment 	= ( UnitsSupplyDemand[self].NeedEquipment 	or 0 ) + 1
-					LinkedUnits[self][unit].NeedEquipment	= true
+					UnitsSupplyDemand[selfKey].Equipment 		= ( UnitsSupplyDemand[selfKey].Equipment 		or 0 ) + GCO.Round(requirements.Equipment*efficiency/100)
+					UnitsSupplyDemand[selfKey].NeedEquipment 	= ( UnitsSupplyDemand[selfKey].NeedEquipment 	or 0 ) + 1
+					LinkedUnits[selfKey][unit].NeedEquipment	= true
 				end
 
 				for resourceID, value in pairs(requirements.Resources) do
 					if value > 0 then
-						UnitsSupplyDemand[self].Resources[resourceID] 		= ( UnitsSupplyDemand[self].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
-						UnitsSupplyDemand[self].NeedResources[resourceID] 	= ( UnitsSupplyDemand[self].NeedResources[resourceID] 	or 0 ) + 1
-						LinkedUnits[self][unit].NeedResources[resourceID] 	= true
+						UnitsSupplyDemand[selfKey].Resources[resourceID] 		= ( UnitsSupplyDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+						UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	= ( UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
+						LinkedUnits[selfKey][unit].NeedResources[resourceID] 	= true
 					end
 				end
 			end
@@ -706,9 +707,11 @@ function UpdateLinkedUnits(self)
 end
 
 function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
+	local selfKey = self:GetKey()
+	
 	-- Convert "Coastal" to "Ocean" with required tech for navigation on Ocean
 	-- to do check for docks to allow transfert by sea/rivers
-	-- add new building for connection by river (river docks)
+	-- add new building for connection by river (river docks)	
 	if sRouteType == "Coastal" then
 		local pTech = Players[self:GetOwner()]:GetTechs()
 		if pTech and pTech:HasTech(GameInfo.Technologies["TECH_CARTOGRAPHY"].Index) then
@@ -716,46 +719,50 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 		end
 	end
 	
+	print("Testing "..tostring(sRouteType).." route from "..Locale.Lookup(self:GetName()).." to ".. Locale.Lookup(transferCity:GetName()))
 	local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), Map.GetPlot(transferCity:GetX(), transferCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
 	if bIsPlotConnected then
 		local routeLength 	= GCO.GetRouteLength()
 		local efficiency 	= GCO.GetRouteEfficiency( routeLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
 		if efficiency > 0 then
-			print("Found "..tostring(sRouteType).." route to ".. Locale.Lookup(transferCity:GetName()) .." at " .. tostring(efficiency).."% efficiency")
+			print(" - Found route at " .. tostring(efficiency).."% efficiency")
 			if bInternalRoute then
-				if (not CitiesForTransfer[self][transferCity]) or (CitiesForTransfer[self][transferCity].Efficiency < efficiency) then
-					CitiesForTransfer[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+				if (not CitiesForTransfer[selfKey][transferCity]) or (CitiesForTransfer[selfKey][transferCity].Efficiency < efficiency) then
+					CitiesForTransfer[selfKey][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
 				end
 			else	
-				if (not CitiesForTrade[self][transferCity]) or (CitiesForTrade[self][transferCity].Efficiency < efficiency) then
-					CitiesForTrade[self][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+				if (not CitiesForTrade[selfKey][transferCity]) or (CitiesForTrade[selfKey][transferCity].Efficiency < efficiency) then
+					CitiesForTrade[selfKey][transferCity] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
 				end
 			end
 		else
-			print("Can't register "..tostring(sRouteType).." route to ".. Locale.Lookup(transferCity:GetName()) ..", too far away " .. tostring(efficiency).."% efficiency")
+			print(" - Can't register route, too far away " .. tostring(efficiency).."% efficiency")
 		end
 	end	
 end
 
 function GetTransferCities(self)
-	if not CitiesForTransfer[self] then
+	local selfKey = self:GetKey()
+	if not CitiesForTransfer[selfKey] then
 		self:UpdateTransferCities()
 	end
-	return CitiesForTransfer[self]
+	return CitiesForTransfer[selfKey]
 end
 
 function GetExportCities(self)
-	if not CitiesForTrade[self] then
+	local selfKey = self:GetKey()
+	if not CitiesForTrade[selfKey] then
 		self:UpdateExportCities()
 	end
-	return CitiesForTrade[self]
+	return CitiesForTrade[selfKey]
 end
 
 function UpdateTransferCities(self)
+	local selfKey = self:GetKey()
 	print("Updating Routes to same Civilization Cities for ".. Locale.Lookup(self:GetName()))
 	-- reset entries for that city
-	CitiesForTransfer[self] 	= {}	-- Internal transfert to own cities
-	CitiesTransferDemand[self] 	= { Resources = {}, NeedResources = {}} -- NeedResources : Number of cities requesting a resource type
+	CitiesForTransfer[selfKey] 		= {}	-- Internal transfert to own cities
+	CitiesTransferDemand[selfKey] 	= { Resources = {}, NeedResources = {}} -- NeedResources : Number of cities requesting a resource type
 	
 	local hasRouteTo 	= {}
 	local ownerID 		= self:GetOwner()
@@ -769,7 +776,7 @@ function UpdateTransferCities(self)
 			for j,route in ipairs(outgoingRoutes) do
 				if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
 					print(" - Found trader from ".. Locale.Lookup(transferCity:GetName()))
-					CitiesForTransfer[self][transferCity] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
+					CitiesForTransfer[selfKey][transferCity] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 					hasRouteTo[transferCity] = true
 				end
 			end
@@ -778,7 +785,7 @@ function UpdateTransferCities(self)
 				for j,route in ipairs(trade:GetIncomingRoutes()) do	
 					if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
 						print(" - Found trader to ".. Locale.Lookup(transferCity:GetName()))
-						CitiesForTransfer[self][transferCity] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
+						CitiesForTransfer[selfKey][transferCity] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 						hasRouteTo[transferCity] = true
 					end
 				end
@@ -794,15 +801,15 @@ function UpdateTransferCities(self)
 
 			end
 			
-			if CitiesForTransfer[self][transferCity] and CitiesForTransfer[self][transferCity].Efficiency > 0 then
+			if CitiesForTransfer[selfKey][transferCity] and CitiesForTransfer[selfKey][transferCity].Efficiency > 0 then
 			
 				local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
-				local efficiency	= CitiesForTransfer[self][transferCity].Efficiency
+				local efficiency	= CitiesForTransfer[selfKey][transferCity].Efficiency
 
 				for resourceID, value in pairs(requirements.Resources) do
 					if value > 0 then 
-						CitiesTransferDemand[self].Resources[resourceID] 		= ( CitiesTransferDemand[self].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
-						CitiesTransferDemand[self].NeedResources[resourceID] 	= ( CitiesTransferDemand[self].NeedResources[resourceID] 	or 0 ) + 1
+						CitiesTransferDemand[selfKey].Resources[resourceID] 		= ( CitiesTransferDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+						CitiesTransferDemand[selfKey].NeedResources[resourceID] 	= ( CitiesTransferDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
 					end
 				end
 			end	
@@ -813,9 +820,9 @@ end
 function TransferToCities(self)
 	print("Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local selfKey 			= self:GetKey()
-	local supplyDemand 		= CitiesTransferDemand[self]
+	local supplyDemand 		= CitiesTransferDemand[selfKey]
 	local transfers 		= {Resources = {}, ResPerCity = {}}	
-	local cityToSupply 		= CitiesForTransfer[self]
+	local cityToSupply 		= CitiesForTransfer[selfKey]
 	
 	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
 
@@ -853,8 +860,9 @@ end
 function UpdateExportCities(self)
 	print("Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 	
-	CitiesForTrade[self] 		= {}	-- Export to other civilizations cities
-	CitiesTradeDemand[self] 	= { Resources = {}, NeedResources = {}}
+	local selfKey 				= self:GetKey()
+	CitiesForTrade[selfKey] 	= {}	-- Export to other civilizations cities
+	CitiesTradeDemand[selfKey] 	= { Resources = {}, NeedResources = {}}
 	
 	local ownerID 		= self:GetOwner()	
 	local hasRouteTo 	= {}
@@ -874,7 +882,7 @@ function UpdateExportCities(self)
 					for j,route in ipairs(outgoingRoutes) do
 						if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
 							print(" - Found trader from ".. Locale.Lookup(transferCity:GetName()))
-							CitiesForTrade[self][transferCity] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
+							CitiesForTrade[selfKey][transferCity] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 							hasRouteTo[transferCity] = true
 						end
 					end
@@ -883,7 +891,7 @@ function UpdateExportCities(self)
 						for j,route in ipairs(trade:GetIncomingRoutes()) do	
 							if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
 								print(" - Found trader to ".. Locale.Lookup(transferCity:GetName()))
-								CitiesForTrade[self][transferCity] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
+								CitiesForTrade[selfKey][transferCity] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 								hasRouteTo[transferCity] = true
 							end
 						end
@@ -902,15 +910,15 @@ function UpdateExportCities(self)
 						end
 					end
 					
-					if CitiesForTrade[self][transferCity] and CitiesForTrade[self][transferCity].Efficiency > 0 then
+					if CitiesForTrade[selfKey][transferCity] and CitiesForTrade[selfKey][transferCity].Efficiency > 0 then
 					
 						local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
-						local efficiency	= CitiesForTrade[self][transferCity].Efficiency
+						local efficiency	= CitiesForTrade[selfKey][transferCity].Efficiency
 
 						for resourceID, value in pairs(requirements.Resources) do
 							if value > 0 and not (notAvailableToExport[resourceID]) then 
-								CitiesTradeDemand[self].Resources[resourceID] 		= ( CitiesTradeDemand[self].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
-								CitiesTradeDemand[self].NeedResources[resourceID] 	= ( CitiesTradeDemand[self].NeedResources[resourceID] 	or 0 ) + 1
+								CitiesTradeDemand[selfKey].Resources[resourceID] 		= ( CitiesTradeDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+								CitiesTradeDemand[selfKey].NeedResources[resourceID] 	= ( CitiesTradeDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
 							end
 						end
 					end	
@@ -924,9 +932,9 @@ function ExportToForeignCities(self)
 	print("Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 	
 	local selfKey 			= self:GetKey()
-	local supplyDemand 		= CitiesTradeDemand[self]
+	local supplyDemand 		= CitiesTradeDemand[selfKey]
 	local transfers 		= {Resources = {}, ResPerCity = {}}	
-	local cityToSupply 		= CitiesForTrade[self]
+	local cityToSupply 		= CitiesForTrade[selfKey]
 	local bExternalRoute 	= true
 	
 	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
@@ -1028,11 +1036,12 @@ function GetNumResourceNeeded(self, resourceID, bExternalRoute)
 end
 
 function GetRouteEfficiencyTo(self, city)
-
-	if CitiesForTrade[self] and CitiesForTrade[self][city] then
-		return CitiesForTrade[self][city].Efficiency or 0
-	elseif CitiesForTransfer[self] and CitiesForTransfer[self][city] then
-		return CitiesForTransfer[self][city].Efficiency or 0
+	local selfKey = self:GetKey()
+	
+	if CitiesForTrade[selfKey] and CitiesForTrade[selfKey][city] then
+		return CitiesForTrade[selfKey][city].Efficiency or 0
+	elseif CitiesForTransfer[selfKey] and CitiesForTransfer[selfKey][city] then
+		return CitiesForTransfer[selfKey][city].Efficiency or 0
 	end
 
 	return 0
@@ -1601,6 +1610,63 @@ end
 -----------------------------------------------------------------------------------------
 -- Do Turn for Cities
 -----------------------------------------------------------------------------------------
+function UpdateCosts(self)
+	local cityKey 			= self:GetKey()
+	local turnKey 			= GCO.GetTurnKey()
+	local previousTurnKey 	= GCO.GetPreviousTurnKey()
+
+	-- update local prices
+	local stockData = ExposedMembers.CityData[cityKey].Stock[turnKey]
+	for resourceKey, value in pairs(stockData) do
+		if resourceKey ~= personnelResourceKey then
+		
+			local resourceID 	= tonumber(resourceKey)
+			local previousTurn	= tonumber(previousTurnKey)
+			local demand 		= self:GetDemand(resourceID)
+			local supply		= self:GetSupplyAtTurn(resourceID, previousTurn)
+			
+			local varPercent	= 0
+			local stock 		= self:GetStock(resourceID)
+			local maxStock		= self:GetMaxStock(resourceID)
+			local actualCost	= self:GetResourceCost(resourceID)
+			local minCost		= self:GetMinimumResourceCost(resourceID)
+			local maxCost		= self:GetMaximumResourceCost(resourceID)
+			local newCost 		= actualCost
+			
+			print("- Actualising cost of "..Locale.Lookup(GameInfo.Resources[resourceID].Name)," actual cost",actualCost,"stock",stock,"maxStock",maxStock,"demand",demand,"supply",supply)
+			
+			if supply > demand or stock == maxStock then
+			
+				local turnUntilFull = (maxStock - stock) / (supply - demand)				
+				if turnUntilFull == 0 then
+					varPercent = MaxCostVariationPercent
+				else
+					varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilFull / (maxStock / 2)))
+				end				
+				local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)				
+				newCost = actualCost - variation
+				self:SetResourceCost(resourceID, newCost)
+				print("  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until full",turnUntilFull,"variation",variation)
+				
+			elseif demand > supply then
+			
+				local turnUntilEmpty = stock / (demand - supply)
+				if turnUntilEmpty == 0 then
+					varPercent = MaxCostVariationPercent
+				else
+					varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilEmpty / (maxStock / 2)))
+				end
+				local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)				
+				newCost = actualCost + variation
+				self:SetResourceCost(resourceID, newCost)
+				print("  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until empty",turnUntilEmpty,"variation",variation)
+			
+			end
+		end			
+	end
+
+end
+
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
 	print("---------------------------------------------------------------------------")	
@@ -1635,55 +1701,7 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 			ExposedMembers.CityData[cityKey].Population[turnKey][key] = value
 		end
 		
-		-- update local prices
-		local stockData = ExposedMembers.CityData[cityKey].Stock[turnKey]
-		for resourceKey, value in pairs(stockData) do
-			if resourceKey ~= personnelResourceKey then
-			
-				local resourceID 	= tonumber(resourceKey)
-				local previousTurn	= tonumber(previousTurnKey)
-				local demand 		= self:GetDemand(resourceID)
-				local supply		= self:GetSupplyAtTurn(resourceID, previousTurn)
-				
-				local varPercent	= 0
-				local stock 		= self:GetStock(resourceID)
-				local maxStock		= self:GetMaxStock(resourceID)
-				local actualCost	= self:GetResourceCost(resourceID)
-				local minCost		= self:GetMinimumResourceCost(resourceID)
-				local maxCost		= self:GetMaximumResourceCost(resourceID)
-				local newCost 		= actualCost
-				
-				print("- Actualising cost of "..Locale.Lookup(GameInfo.Resources[resourceID].Name)," actual cost",actualCost,"stock",stock,"maxStock",maxStock,"demand",demand,"supply",supply)
-				
-				if supply > demand then
-				
-					local turnUntilFull = (maxStock - stock) / (supply - demand)				
-					if turnUntilFull == 0 then
-						varPercent = MaxCostVariationPercent
-					else
-						varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilFull / (maxStock / 2)))
-					end				
-					local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)				
-					newCost = actualCost - variation
-					self:SetResourceCost(resourceID, newCost)
-					print("  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until full",turnUntilFull,"variation",variation)
-					
-				elseif demand > supply then
-				
-					local turnUntilEmpty = stock / (demand - supply)
-					if turnUntilEmpty == 0 then
-						varPercent = MaxCostVariationPercent
-					else
-						varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilEmpty / (maxStock / 2)))
-					end
-					local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)				
-					newCost = actualCost + variation
-					self:SetResourceCost(resourceID, newCost)
-					print("  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until empty",turnUntilEmpty,"variation",variation)
-				
-				end
-			end			
-		end
+		self:UpdateCosts()
 	end
 end
 
@@ -1721,7 +1739,7 @@ function DoReinforceUnits(self)
 	print("Reinforcing units...")
 	local cityKey 				= self:GetKey()
 	local cityData 				= ExposedMembers.CityData[cityKey]
-	local supplyDemand 			= UnitsSupplyDemand[self]
+	local supplyDemand 			= UnitsSupplyDemand[cityKey]
 	local reinforcements 		= {Resources = {}, ResPerUnit = {}}
 
 	if supplyDemand.Equipment and supplyDemand.Equipment > 0 then
@@ -1740,7 +1758,7 @@ function DoReinforceUnits(self)
 			local maxLoop = 5
 			local loop = 0
 			while (resLeft > 0 and loop < maxLoop) do
-				for unit, data in pairs(LinkedUnits[self]) do
+				for unit, data in pairs(LinkedUnits[cityKey]) do
 					local efficiency = unit:GetSupplyLineEfficiency()
 					if not reqValue[unit] then reqValue[unit] = {} end
 					if not reqValue[unit][resourceID] then reqValue[unit][resourceID] = GCO.Round(unit:GetNumResourceNeeded(resourceID)*efficiency/100) end
@@ -1866,7 +1884,7 @@ function DoIndustries(self)
 					
 					if amountCreated > 0 then
 						local resourceCost 	= (GCO.GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
-						print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+						print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 						self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
 						self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 					end	
@@ -1885,13 +1903,12 @@ function DoIndustries(self)
 				local maxRequired			= 0
 				local bLimitedByExcedent	= false
 				for _, row in ipairs(data2) do
-				
 					amountUsed = math.min(available, row.MaxConverted)
 					local amountCreated		= math.floor(amountUsed * row.Ratio)
 					
 					-- don't allow excedent if there is no demand
 					local stockVariation 	= self:GetStockVariation(row.ResourceCreated)
-					if maxResourceCreated + self:GetStock(row.ResourceCreated) > self:GetMaxStock(row.ResourceCreated) and stockVariation >= 0 then
+					if amountCreated + self:GetStock(row.ResourceCreated) > self:GetMaxStock(row.ResourceCreated) and stockVariation >= 0 then
 						amountCreated 		= self:GetMaxStock(row.ResourceCreated) - self:GetStock(row.ResourceCreated)
 						amountUsed			= math.floor(amountCreated / row.Ratio)
 						bLimitedByExcedent	= true
@@ -1900,13 +1917,13 @@ function DoIndustries(self)
 					
 					if amountCreated > 0 then
 						local resourceCost 	= (GCO.GetBaseResourceCost(row.ResourceCreated) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
-						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio) .. ", used ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. bLimitedByExcedent)
+						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio) .. ", used ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 						self:ChangeStock(row.ResourceCreated, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 						bUsed = true
 					else					
 						print("    - not enough resources available to create ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) ..", ratio = " .. tostring(row.Ratio))
 					end
-				end
+				end	
 				if bUsed then
 					self:ChangeStock(resourceRequiredID, - maxRequired, ResourceUseType.Consume, buildingID)
 				end
@@ -1962,7 +1979,7 @@ function DoIndustries(self)
 				end
 				local baseRatio = totalRatio / totalResourcesRequired
 				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth) + requiredResourceCost
-				print("    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost ..", limited by excedent = ".. bLimitedByExcedent)	
+				print("    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost ..", limited by excedent = ".. tostring(bLimitedByExcedent))	
 				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 			end			
 		end
@@ -2245,6 +2262,7 @@ function AttachCityFunctions(city)
 	c.UpdateDataOnNewTurn				= UpdateDataOnNewTurn
 	c.GetWealth							= GetWealth
 	c.SetWealth							= SetWealth
+	c.UpdateCosts						= UpdateCosts
 	-- resources
 	c.GetMaxStock						= GetMaxStock
 	c.GetStock 							= GetStock
@@ -2300,7 +2318,7 @@ function AttachCityFunctions(city)
 	c.DoTurnFourthPass					= DoTurnFourthPass
 	c.GetFoodConsumption 				= GetFoodConsumption
 	c.GetFoodRationing					= GetFoodRationing
-	c.DoCollectResources					= DoCollectResources
+	c.DoCollectResources				= DoCollectResources
 	c.SetCityRationing					= SetCityRationing
 	--
 	c.DoSocialClassStratification		= DoSocialClassStratification
@@ -2323,7 +2341,7 @@ function AttachCityFunctions(city)
 	c.GetMaxLowerClass					= GetMaxLowerClass
 	c.GetMinLowerClass					= GetMinLowerClass
 	--
-	c.DoRecruitPersonnel					= DoRecruitPersonnel
+	c.DoRecruitPersonnel				= DoRecruitPersonnel
 	-- text
 	c.GetResourcesStockString			= GetResourcesStockString
 	c.GetFoodStockString 				= GetFoodStockString

@@ -260,7 +260,16 @@ end
 
 -- Array of directions, since changing to proximity based decision making, the order is not important
 directions = {DirectionTypes.DIRECTION_NORTHEAST, DirectionTypes.DIRECTION_EAST, DirectionTypes.DIRECTION_SOUTHEAST,
-              DirectionTypes.DIRECTION_SOUTHWEST, DirectionTypes.DIRECTION_WEST, DirectionTypes.DIRECTION_NORTHWEST}
+              DirectionTypes.DIRECTION_SOUTHWEST, DirectionTypes.DIRECTION_WEST, DirectionTypes.DIRECTION_NORTHWEST}			  
+			  
+opposed = {
+	[DirectionTypes.DIRECTION_NORTHEAST] 	= DirectionTypes.DIRECTION_SOUTHWEST,
+	[DirectionTypes.DIRECTION_EAST] 		= DirectionTypes.DIRECTION_WEST,
+	[DirectionTypes.DIRECTION_SOUTHEAST] 	= DirectionTypes.DIRECTION_NORTHWEST,
+    [DirectionTypes.DIRECTION_SOUTHWEST] 	= DirectionTypes.DIRECTION_NORTHEAST,
+	[DirectionTypes.DIRECTION_WEST] 		= DirectionTypes.DIRECTION_EAST,
+	[DirectionTypes.DIRECTION_NORTHWEST] 	= DirectionTypes.DIRECTION_SOUTHEAST
+	}
 
 -- Return a list of (up to 6) reachable plots from this one by route type
 function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
@@ -295,7 +304,7 @@ function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
           bAdd = true
         elseif (sRoute == routes[6] and pDestPlot:IsWater()) then
           bAdd = true
-        elseif (sRoute == routes[7] and pDestPlot:IsRiverConnection(direction) ) then
+        elseif (sRoute == routes[7] and (pDestPlot:IsRiverConnection(direction) or pDestPlot:IsRiverConnection(opposed[direction])) ) then -- to do allows only descending = IsRiverConnection(direction) until specific technologie...
           bAdd = true
         end
 

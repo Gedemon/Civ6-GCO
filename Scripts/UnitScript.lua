@@ -1010,11 +1010,11 @@ function ShowCombatPlunderingFloatingText(CombatData)
 				-- Format text with newlines or separator as required
 				local bNeedNewLine, bNeedSeparator = false, false
 				-- first line				
-				if CombatData.Prisoners > 0 then
+				if CombatData.Prisoners and CombatData.Prisoners > 0 then
 					sText = Locale.Lookup("LOC_FRONTLINE_PRISONERS_CAPTURED_SHORT", CombatData.Prisoners)
 					bNeedNewLine, bNeedSeparator = true, true
 				end
-				if CombatData.MaterielGained > 0 then
+				if CombatData.MaterielGained and CombatData.MaterielGained > 0 then
 					if bNeedSeparator then sText = sText .. "," end
 					sText = Locale.Lookup("LOC_FRONTLINE_MATERIEL_CAPTURED_SHORT", CombatData.MaterielGained)
 					bNeedNewLine, bNeedSeparator = true, false
