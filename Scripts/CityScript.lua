@@ -177,15 +177,7 @@ local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
 local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 
 local foodResourceKey			= tostring(foodResourceID)
---local materielResourceKey		= tostring(materielResourceID)
---local steelResourceKey			= tostring(steelResourceID)
 local personnelResourceKey		= tostring(personnelResourceID)
-
---local forestFeatureID			= GameInfo.Features["FEATURE_FOREST"].Index
---local jungleFeatureID			= GameInfo.Features["FEATURE_JUNGLE"].Index
-
---local baseWoodPerForest			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_FOREST"].Value)
---local baseWoodPerJungle			= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_WOOD_PER_JUNGLE"].Value)
 
 local BaseImprovementMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
 local BaseCollectCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_COLLECT_COST_MULTIPLIER"].Value)
@@ -1695,7 +1687,7 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	end
 end
 
-function RecruitPersonnel(self)
+function DoRecruitPersonnel(self)
 	print("Recruiting Personnel...")
 	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
 
@@ -1725,7 +1717,7 @@ function RecruitPersonnel(self)
 	self:ChangePersonnel(recruitedSoldiers, ResourceUseType.Recruit, RefPopulationLower)		
 end
 
-function ReinforceUnits(self)
+function DoReinforceUnits(self)
 	print("Reinforcing units...")
 	local cityKey 				= self:GetKey()
 	local cityData 				= ExposedMembers.CityData[cityKey]
@@ -1773,7 +1765,7 @@ function ReinforceUnits(self)
 
 end
 
-function CollectResources(self)
+function DoCollectResources(self)
 	local cityKey 		= self:GetKey()
 	local cityData 		= ExposedMembers.CityData[cityKey]
 	local cityWealth	= self:GetWealth()
@@ -1861,6 +1853,17 @@ function DoIndustries(self)
 					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 					local amountUsed		= math.min(available, row.MaxConverted) 
 					local amountCreated		= math.floor(amountUsed * row.Ratio)
+					
+					-- don't allow excedent if there is no demand
+					local bLimitedByExcedent	= false
+					local stockVariation 	= self:GetStockVariation(resourceID)
+					if amountCreated + self:GetStock(resourceID) > self:GetMaxStock(resourceID) and stockVariation >= 0 then
+						local maxCreated 	= self:GetMaxStock(resourceID) - self:GetStock(resourceID)
+						amountUsed 			= math.floor(maxCreated / row.Ratio)
+						amountCreated		= math.floor(amountUsed * row.Ratio)
+						bLimitedByExcedent	= true
+					end
+					
 					if amountCreated > 0 then
 						local resourceCost 	= (GCO.GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
 						print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
@@ -1876,18 +1879,28 @@ function DoIndustries(self)
 		for buildingID, data2 in pairs (data1) do
 			local bUsed			= false
 			local available 	= self:GetAvailableStockForIndustries(resourceRequiredID)
-			local amountUsed	= nil
 			if available > 0 then				
 				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production of multiple resources using ".. tostring(available) .." available ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+				local amountUsed 			= 0
+				local maxRequired			= 0
+				local bLimitedByExcedent	= false
 				for _, row in ipairs(data2) do
-					if not amountUsed then -- define once, row.MaxConverted is supposed to be the same for each resource created using this resource
-						amountUsed = math.min(available, row.MaxConverted)
-						print("    - used ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
-					end 
-					local amountCreated		= GCO.Round(amountUsed * row.Ratio)
+				
+					amountUsed = math.min(available, row.MaxConverted)
+					local amountCreated		= math.floor(amountUsed * row.Ratio)
+					
+					-- don't allow excedent if there is no demand
+					local stockVariation 	= self:GetStockVariation(row.ResourceCreated)
+					if maxResourceCreated + self:GetStock(row.ResourceCreated) > self:GetMaxStock(row.ResourceCreated) and stockVariation >= 0 then
+						amountCreated 		= self:GetMaxStock(row.ResourceCreated) - self:GetStock(row.ResourceCreated)
+						amountUsed			= math.floor(amountCreated / row.Ratio)
+						bLimitedByExcedent	= true
+					end
+					maxRequired	= math.max( maxRequired, amountUsed)
+					
 					if amountCreated > 0 then
 						local resourceCost 	= (GCO.GetBaseResourceCost(row.ResourceCreated) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
-						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio))
+						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio) .. ", used ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. bLimitedByExcedent)
 						self:ChangeStock(row.ResourceCreated, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 						bUsed = true
 					else					
@@ -1895,7 +1908,7 @@ function DoIndustries(self)
 					end
 				end
 				if bUsed then
-					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
+					self:ChangeStock(resourceRequiredID, - maxRequired, ResourceUseType.Consume, buildingID)
 				end
 			end		
 		end
@@ -1906,12 +1919,21 @@ function DoIndustries(self)
 			local bCanCreate				= true
 			local requiredResourcesRatio 	= {}
 			local amountCreated				= nil
+			local bLimitedByExcedent		= false
 			for _, row in ipairs(data2) do
 				if bCanCreate then
 					local available = self:GetAvailableStockForIndustries(row.ResourceRequired)
 					if available > 0 then						
 						local maxAmountUsed			= math.min(available, row.MaxConverted) 
 						local maxResourceCreated	= maxAmountUsed * row.Ratio -- no rounding here, we'll use this number to recalculate the amount used
+						
+						-- don't allow excedent if there is no demand
+						local stockVariation 	= self:GetStockVariation(resourceCreatedID)
+						if maxResourceCreated + self:GetStock(resourceCreatedID) > self:GetMaxStock(resourceCreatedID) and stockVariation >= 0 then
+							maxResourceCreated 	= self:GetMaxStock(resourceCreatedID) - self:GetStock(resourceCreatedID)
+							bLimitedByExcedent	= true
+						end							
+						
 						if not amountCreated then amountCreated = maxResourceCreated end
 						if math.floor(maxResourceCreated) > 0 then
 							requiredResourcesRatio[row.ResourceRequired] = row.Ratio
@@ -1940,7 +1962,7 @@ function DoIndustries(self)
 				end
 				local baseRatio = totalRatio / totalResourcesRequired
 				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth) + requiredResourceCost
-				print("    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost)	
+				print("    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost ..", limited by excedent = ".. bLimitedByExcedent)	
 				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 			end			
 		end
@@ -2111,38 +2133,25 @@ function DoTurnFirstPass(self)
 	-- set food rationing
 	self:SetCityRationing()
 
-	-- set previous values
-	--[[ -- now done at beginning of new turn
-	for resourceID, value in pairs(cityData.Stock) do
-		ExposedMembers.CityData[cityKey].PreviousStock[resourceID]	= cityData.Stock[resourceID]
-	end
-	--]]
-	--ExposedMembers.CityData[cityKey].PreviousUpperClass		= ExposedMembers.CityData[cityKey].UpperClass
-	--ExposedMembers.CityData[cityKey].PreviousMiddleClass	= ExposedMembers.CityData[cityKey].MiddleClass
-	--ExposedMembers.CityData[cityKey].PreviousLowerClass		= ExposedMembers.CityData[cityKey].LowerClass
-	--ExposedMembers.CityData[cityKey].PreviousSlaves			= ExposedMembers.CityData[cityKey].Slaves
-	--ExposedMembers.CityData[cityKey].PreviousPersonnel		= ExposedMembers.CityData[cityKey].Personnel
-
 	-- get linked units and supply demand
 	self:UpdateLinkedUnits()
 
 	-- get Resources (allow excedents)
-	self:CollectResources()
-	self:RecruitPersonnel()
+	self:DoCollectResources()
+	self:DoRecruitPersonnel()
 
 	-- feed population
 	self:DoFood()
 
 	-- sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
 	self:DoIndustries()
-	self:ReinforceUnits()
-	--self:UpdateExportCities() -- better do it after transfer ?
-	--self:ExportToForeignCities()
+	self:DoReinforceUnits()
 end
 
 function DoTurnSecondPass(self)
 	print("---------------------------------------------------------------------------")
 	print("Second Pass on ".. Locale.Lookup(self:GetName()))
+	
 	-- get linked cities and supply demand
 	self:UpdateTransferCities()	
 end
@@ -2150,9 +2159,11 @@ end
 function DoTurnThirdPass(self)
 	print("---------------------------------------------------------------------------")
 	print("Third Pass on ".. Locale.Lookup(self:GetName()))
-	-- diffuse to other cities, now that all of them have made their request after servicing industries, units and export
+	
+	-- diffuse to other cities, now that all of them have made their request after servicing industries and units
 	self:TransferToCities()
 	
+	-- now export what's still available
 	self:UpdateExportCities()
 	self:ExportToForeignCities()
 end
@@ -2160,6 +2171,7 @@ end
 function DoTurnFourthPass(self)
 	print("---------------------------------------------------------------------------")
 	print("Fourth Pass on ".. Locale.Lookup(self:GetName()))
+	
 	-- Update City Size / social classes
 	self:DoGrowth()
 	self:SetRealPopulation()
@@ -2210,6 +2222,7 @@ function GetSupplyRouteString(iType)
 		end
 	end
 end
+
 
 -----------------------------------------------------------------------------------------
 -- Initialize City Functions
@@ -2262,7 +2275,7 @@ function AttachCityFunctions(city)
 	c.UpdateTransferCities				= UpdateTransferCities
 	c.UpdateExportCities				= UpdateExportCities
 	c.UpdateCitiesConnection			= UpdateCitiesConnection
-	c.ReinforceUnits					= ReinforceUnits
+	c.DoReinforceUnits					= DoReinforceUnits
 	c.GetTransferCities					= GetTransferCities
 	c.GetExportCities					= GetExportCities
 	c.TransferToCities					= TransferToCities
@@ -2287,7 +2300,7 @@ function AttachCityFunctions(city)
 	c.DoTurnFourthPass					= DoTurnFourthPass
 	c.GetFoodConsumption 				= GetFoodConsumption
 	c.GetFoodRationing					= GetFoodRationing
-	c.CollectResources					= CollectResources
+	c.DoCollectResources					= DoCollectResources
 	c.SetCityRationing					= SetCityRationing
 	--
 	c.DoSocialClassStratification		= DoSocialClassStratification
@@ -2310,7 +2323,7 @@ function AttachCityFunctions(city)
 	c.GetMaxLowerClass					= GetMaxLowerClass
 	c.GetMinLowerClass					= GetMinLowerClass
 	--
-	c.RecruitPersonnel					= RecruitPersonnel
+	c.DoRecruitPersonnel					= DoRecruitPersonnel
 	-- text
 	c.GetResourcesStockString			= GetResourcesStockString
 	c.GetFoodStockString 				= GetFoodStockString
