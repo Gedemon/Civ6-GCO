@@ -679,7 +679,7 @@ function UpdateLinkedUnits(self)
 	print("Updating Linked Units...")
 	local selfKey 				= self:GetKey()
 	LinkedUnits[selfKey] 		= {}
-	UnitsSupplyDemand[selfKey] 	= { Resources = {}, NeedResources = {}} -- NeedResources : Number of units requesting a resource type
+	UnitsSupplyDemand[selfKey] 	= { Resources = {}, NeedResources = {}, PotentialResources = {}} -- NeedResources : Number of units requesting a resource type
 
 	for unitKey, data in pairs(ExposedMembers.UnitData) do
 		local efficiency = data.SupplyLineEfficiency
@@ -1048,6 +1048,7 @@ function GetRouteEfficiencyTo(self, city)
 end
 
 function GetRequirements(self, fromCity)
+	local selfKey 			= self:GetKey()
 	local resourceKey 		= tostring(resourceID)
 	local player 			= GCO.GetPlayer(self:GetOwner())
 	local cityName	 		= Locale.Lookup(self:GetName())
@@ -1063,16 +1064,25 @@ function GetRequirements(self, fromCity)
 		local bCanTradeResource 	= not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute)))
 		--print("can trade = ", bCanTradeResource,"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
 		if player:IsResourceVisible(resourceID) and bCanTradeResource then
-			local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
+			local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)			
 			if numResourceNeeded > 0 then
 				if fromCity then -- function was called to only request resources available in "fromCity"
 					local efficiency 	= fromCity:GetRouteEfficiencyTo(self)
-					local transportCost = fromCity:GetTransportCostTo(self) --ResourceTransportMaxCost * (100 - efficiency) / 100
+					local transportCost = fromCity:GetTransportCostTo(self)
 					if fromCity:GetStock(resourceID) > 0 then
 						local fromName	 		= Locale.Lookup(fromCity:GetName())
 						print ("    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
-					end	
-					if (fromCity:GetStock(resourceID) > self:GetStock(resourceID)) and (fromCity:GetResourceCost(resourceID) + transportCost < self:GetResourceCost(resourceID)) then
+					end
+					local bHasMoreStock 	= (fromCity:GetStock(resourceID) > self:GetStock(resourceID))
+					local bIsLowerCost 		= (fromCity:GetResourceCost(resourceID) + transportCost < self:GetResourceCost(resourceID))
+					local bPriorityRequest	= false
+					
+					if UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID] then -- Units have required this resource...
+						numResourceNeeded	= math.min(self:GetMaxStock(resourceID), numResourceNeeded + UnitsSupplyDemand[selfKey].Resources[resourceID])
+						bPriorityRequest	= true
+					end
+			
+					if bHasStock and (bIsLowerCost or bPriorityRequest) then
 						bCanRequest = true
 					end
 				else					
@@ -1289,7 +1299,7 @@ end
 function GetDemand(self, resourceID)
 	local demand = 0
 	
-	-- get food needed outside rationing (the rationed consumption is added in the call to GetExternalDemandAtTurn) -- to do : clean that code
+	-- get food needed outside rationing (the rationed consumption is added in the call to GetDemandAtTurn) -- to do : clean that code
 	if resourceID == foodResourceID then
 		local normalRatio = 1
 		demand = demand + (self:GetFoodConsumption(normalRatio)-self:GetFoodConsumption())
@@ -1337,7 +1347,7 @@ function GetDemand(self, resourceID)
 	end
 	--]]
 	local previousTurn	= tonumber(GCO.GetPreviousTurnKey())
-	demand = demand + self:GetExternalDemandAtTurn(resourceID, previousTurn)
+	demand = demand + self:GetDemandAtTurn(resourceID, previousTurn)
 	
 	return demand
 	
@@ -1369,7 +1379,7 @@ function GetSupplyAtTurn(self, resourceID, turn)
 	return 0
 end
 
-function GetExternalDemandAtTurn(self, resourceID, turn)
+function GetDemandAtTurn(self, resourceID, turn)
 	local resourceKey 	= tostring(resourceID)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= tostring(turn)
@@ -1381,10 +1391,10 @@ function GetExternalDemandAtTurn(self, resourceID, turn)
 		
 			local demand = 0
 			
-			demand = demand + ( GCO.TableSummation(useData[ResourceUseType.Consume]) 		or 0)
-			demand = demand + ( GCO.TableSummation(useData[ResourceUseType.Export]) 		or 0)
-			demand = demand + ( GCO.TableSummation(useData[ResourceUseType.TransferOut]) 	or 0)
-			demand = demand + ( GCO.TableSummation(useData[ResourceUseType.Supply]) 		or 0)
+			demand = demand + GCO.TableSummation(useData[ResourceUseType.Consume])
+			demand = demand + GCO.TableSummation(useData[ResourceUseType.Export])
+			demand = demand + GCO.TableSummation(useData[ResourceUseType.TransferOut])
+			demand = demand + GCO.TableSummation(useData[ResourceUseType.Supply])
 			
 			return demand
 		end
@@ -1393,6 +1403,21 @@ function GetExternalDemandAtTurn(self, resourceID, turn)
 	return 0	
 end
 
+function GetUseTypeAtTurn(self, resourceID, useType turn)
+	local resourceKey 	= tostring(resourceID)
+	local cityKey 		= self:GetKey()
+	local turnKey 		= tostring(turn)
+	local cityData 		= ExposedMembers.CityData[cityKey]
+	
+	if cityData.ResourceUse[turnKey] then
+		local useData = cityData.ResourceUse[turnKey][resourceKey]
+		if useData then					
+			return GCO.TableSummation(useData[useType])
+		end
+	end
+	
+	return 0	
+end
 
 -----------------------------------------------------------------------------------------
 -- Personnel functions
@@ -1622,7 +1647,7 @@ function UpdateCosts(self)
 		
 			local resourceID 	= tonumber(resourceKey)
 			local previousTurn	= tonumber(previousTurnKey)
-			local demand 		= self:GetDemand(resourceID)
+			local demand 		= self:GetDemand(resourceID) -- include real demand for food (GetDemandAtTurn return the real use with rationing)
 			local supply		= self:GetSupplyAtTurn(resourceID, previousTurn)
 			
 			local varPercent	= 0
@@ -2304,7 +2329,8 @@ function AttachCityFunctions(city)
 	c.GetRequirements					= GetRequirements
 	c.GetDemand							= GetDemand
 	c.GetSupplyAtTurn					= GetSupplyAtTurn
-	c.GetExternalDemandAtTurn			= GetExternalDemandAtTurn
+	c.GetDemandAtTurn					= GetDemandAtTurn
+	c.GetUseTypeAtTurn					= GetUseTypeAtTurn
 	--
 	c.DoGrowth							= DoGrowth
 	c.GetBirthRate						= GetBirthRate
