@@ -619,13 +619,13 @@ function GetRequirements(self)
 	local requirements 		= {}
 	requirements.Resources 	= {}
 	
-	--print("Get Requirements for unit ".. tostring(unitKey), Locale.Lookup(UnitManager.GetTypeName(self)) )
+	print("Get Requirements for unit ".. tostring(unitKey), Locale.Lookup(UnitManager.GetTypeName(self)) )
 	
 	requirements.Equipment = math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
 
 	for _, resourceID in ipairs(list) do
 		requirements.Resources[resourceID] = self:GetNumResourceNeeded(resourceID)
-		--print(" - ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).." = ".. tostring(requirements.Resources[resourceID]))
+		print(" - ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).." = ".. tostring(requirements.Resources[resourceID]))
 	end
 	
 	-- Resources for all vehicles

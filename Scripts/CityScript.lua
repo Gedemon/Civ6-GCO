@@ -188,11 +188,12 @@ local MaxCostVariationPercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_CO
 
 local ResourceTransportMaxCost	= tonumber(GameInfo.GlobalParameters["RESOURCE_TRANSPORT_MAX_COST"].Value)
 
-local directReinforcement = {} 				-- cached table with "resources" that are directly transfered to units
-directReinforcement[foodResourceID] 		= true
-directReinforcement[materielResourceID] 	= true
-directReinforcement[horsesResourceID] 		= true
-directReinforcement[personnelResourceID] 	= true
+local directReinforcement = { 				-- cached table with "resources" that are directly transfered to units
+		[foodResourceID] 		= true,
+		[materielResourceID] 	= true,
+		[horsesResourceID] 		= true,
+		[personnelResourceID] 	= true,
+	}
 
 local notAvailableToExport = {} 			-- cached table with "resources" that can't be exported to other Civilizations
 notAvailableToExport[personnelResourceID] 	= true
@@ -762,7 +763,7 @@ function UpdateTransferCities(self)
 	print("Updating Routes to same Civilization Cities for ".. Locale.Lookup(self:GetName()))
 	-- reset entries for that city
 	CitiesForTransfer[selfKey] 		= {}	-- Internal transfert to own cities
-	CitiesTransferDemand[selfKey] 	= { Resources = {}, NeedResources = {}} -- NeedResources : Number of cities requesting a resource type
+	CitiesTransferDemand[selfKey] 	= { Resources = {}, NeedResources = {}, ReservedResources = {}, HasPrecedence = {} } -- NeedResources : Number of cities requesting a resource type
 	
 	local hasRouteTo 	= {}
 	local ownerID 		= self:GetOwner()
@@ -805,16 +806,26 @@ function UpdateTransferCities(self)
 			
 				local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
 				local efficiency	= CitiesForTransfer[selfKey][transferCity].Efficiency
-
+				
+				CitiesForTransfer[selfKey][transferCity].Resources 		= {}
+				CitiesForTransfer[selfKey][transferCity].HasPrecedence 	= {}
+	
 				for resourceID, value in pairs(requirements.Resources) do
-					if value > 0 then 
-						CitiesTransferDemand[selfKey].Resources[resourceID] 		= ( CitiesTransferDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
-						CitiesTransferDemand[selfKey].NeedResources[resourceID] 	= ( CitiesTransferDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
+					if value > 0 then
+						value = GCO.Round(value*efficiency/100)
+						CitiesForTransfer[selfKey][transferCity].Resources[resourceID] 	= ( CitiesForTransfer[selfKey][transferCity].Resources[resourceID]	or 0 ) + value
+						CitiesTransferDemand[selfKey].Resources[resourceID] 			= ( CitiesTransferDemand[selfKey].Resources[resourceID] 			or 0 ) + value
+						CitiesTransferDemand[selfKey].NeedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].NeedResources[resourceID] 		or 0 ) + 1
+						if requirements.HasPrecedence[resourceID] then
+							CitiesTransferDemand[selfKey].HasPrecedence[resourceID]				= true
+							CitiesForTransfer[selfKey][transferCity].HasPrecedence[resourceID]	= true
+							CitiesTransferDemand[selfKey].ReservedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].ReservedResources[resourceID] or 0 ) + value
+						end
 					end
 				end
 			end	
 		end
-	end
+	end			
 end
 
 function TransferToCities(self)
@@ -827,25 +838,44 @@ function TransferToCities(self)
 	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
 
 	for resourceID, value in pairs(supplyDemand.Resources) do
-		transfers.Resources[resourceID] = math.min(value, self:GetAvailableStockForCities(resourceID))
+		local availableStock = self:GetAvailableStockForCities(resourceID)
+		if supplyDemand.HasPrecedence[resourceID] then -- one city has made a prioritary request for that resource
+			local bHasLocalPrecedence = (UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID]) -- to do : a function to test all precedence, and another to return the number of unit of resource required
+			if bHasLocalPrecedence then
+				availableStock = math.max(availableStock, GCO.Round(self:GetStock(resourceID)/3))
+			else
+				availableStock = math.max(availableStock, GCO.Round(self:GetStock(resourceID)/2))
+			end
+		end
+		transfers.Resources[resourceID] = math.min(value, availableStock)
 		transfers.ResPerCity[resourceID] = math.floor(transfers.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
-		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(self:GetAvailableStockForCities(resourceID))..", transfer = ".. tostring(transfers.Resources[resourceID]))
+		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(availableStock)..", transfer = ".. tostring(transfers.Resources[resourceID]) .. ", transfer priority = " ..tostring(supplyDemand.HasPrecedence[resourceID]) .. ", local priority = " ..tostring(bHasLocalPrecedence) )
 	end
 	
 	for resourceID, value in pairs(transfers.Resources) do
-		local resLeft 		= value
-		local maxLoop 		= 5
-		local loop 			= 0
-		local resourceCost 	= self:GetResourceCost(resourceID)
-		while (resLeft > 0 and loop < maxLoop) do
+		local resourceLeft			= value
+		local maxLoop 				= 5
+		local loop 					= 0
+		local resourceCost 			= self:GetResourceCost(resourceID)
+		local PrecedenceLeft		= supplyDemand.ReservedResources[resourceID] or 0
+		local bResourcePrecedence	= supplyDemand.HasPrecedence[resourceID]
+		
+		while (resourceLeft > 0 and loop < maxLoop) do
 			for city, data in pairs(cityToSupply) do
-				local reqValue = city:GetNumResourceNeeded(resourceID)
-				if reqValue > 0 then
+				local requiredValue		= city:GetNumResourceNeeded(resourceID)
+				local bCityPrecedence	= cityToSupply[city].HasPrecedence[resourceID]
+				if PrecedenceLeft > 0 and bResourcePrecedence and not bCityPrecedence then
+					requiredValue = 0
+				end
+				if requiredValue > 0 then
 					local efficiency	= data.Efficiency
-					local send 			= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
+					local send 			= math.min(transfers.ResPerCity[resourceID], requiredValue, resourceLeft)
 					local costPerUnit	= self:GetTransportCostTo(city) + resourceCost -- to do : cache transport cost
-					if costPerUnit < city:GetResourceCost(resourceID) then -- this city may be in cityToSupply list for another resource, so check cost here again before sending the resource...
-						resLeft = resLeft - send
+					if (costPerUnit < city:GetResourceCost(resourceID)) or (bCityPrecedence and PrecedenceLeft > 0) then -- this city may be in cityToSupply list for another resource, so check cost here again before sending the resource...
+						resourceLeft = resourceLeft - send
+						if bCityPrecedence then
+							PrecedenceLeft = PrecedenceLeft - send
+						end
 						city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, selfKey, costPerUnit)
 						self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut, city:GetKey())
 						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .."% efficiency) to ".. Locale.Lookup(city:GetName()))
@@ -1048,13 +1078,14 @@ function GetRouteEfficiencyTo(self, city)
 end
 
 function GetRequirements(self, fromCity)
-	local selfKey 			= self:GetKey()
-	local resourceKey 		= tostring(resourceID)
-	local player 			= GCO.GetPlayer(self:GetOwner())
-	local cityName	 		= Locale.Lookup(self:GetName())
-	local bExternalRoute 	= (self:GetOwner() ~= fromCity:GetOwner())
-	local requirements 		= {}
-	requirements.Resources 	= {}
+	local selfKey 				= self:GetKey()
+	local resourceKey 			= tostring(resourceID)
+	local player 				= GCO.GetPlayer(self:GetOwner())
+	local cityName	 			= Locale.Lookup(self:GetName())
+	local bExternalRoute 		= (self:GetOwner() ~= fromCity:GetOwner())
+	local requirements 			= {}
+	requirements.Resources 		= {}
+	requirements.HasPrecedence 	= {}
 	
 	print("GetRequirements for ".. cityName )
 
@@ -1066,6 +1097,7 @@ function GetRequirements(self, fromCity)
 		if player:IsResourceVisible(resourceID) and bCanTradeResource then
 			local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)			
 			if numResourceNeeded > 0 then
+				local bPriorityRequest	= false
 				if fromCity then -- function was called to only request resources available in "fromCity"
 					local efficiency 	= fromCity:GetRouteEfficiencyTo(self)
 					local transportCost = fromCity:GetTransportCostTo(self)
@@ -1075,22 +1107,23 @@ function GetRequirements(self, fromCity)
 					end
 					local bHasMoreStock 	= (fromCity:GetStock(resourceID) > self:GetStock(resourceID))
 					local bIsLowerCost 		= (fromCity:GetResourceCost(resourceID) + transportCost < self:GetResourceCost(resourceID))
-					local bPriorityRequest	= false
+					bPriorityRequest		= false
 					
-					if UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID] then -- Units have required this resource...
+					if UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID] and resourceID ~= foodResourceID then -- Units have required this resource...
 						numResourceNeeded	= math.min(self:GetMaxStock(resourceID), numResourceNeeded + UnitsSupplyDemand[selfKey].Resources[resourceID])
 						bPriorityRequest	= true
 					end
 			
-					if bHasStock and (bIsLowerCost or bPriorityRequest) then
+					if bHasMoreStock and (bIsLowerCost or bPriorityRequest) then
 						bCanRequest = true
 					end
 				else					
 					bCanRequest = true
 				end
 				if bCanRequest then
-					requirements.Resources[resourceID] = numResourceNeeded
-					print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID]))
+					requirements.Resources[resourceID] 		= numResourceNeeded
+					requirements.HasPrecedence[resourceID] 	= bPriorityRequest
+					print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID])..", Priority = "..tostring(bPriorityRequest))
 				end
 			end
 		end
@@ -1104,6 +1137,9 @@ end
 -- Resources Stock
 -----------------------------------------------------------------------------------------
 function GetAvailableStockForUnits(self, resourceID)
+	if self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, GCO.GetTurnKey()) == 0 then -- temporary, assume industries are first called
+		return self:GetStock(resourceID)
+	end
 	local minPercentLeft = MinPercentLeftToSupply
 	if ResourceUsage[resourceID] then
 		minPercentLeft = ResourceUsage[resourceID].MinPercentLeftToSupply
@@ -1403,7 +1439,7 @@ function GetDemandAtTurn(self, resourceID, turn)
 	return 0	
 end
 
-function GetUseTypeAtTurn(self, resourceID, useType turn)
+function GetUseTypeAtTurn(self, resourceID, useType, turn)
 	local resourceKey 	= tostring(resourceID)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= tostring(turn)
@@ -1505,10 +1541,11 @@ function SetCityRationing(self)
 	end
 	local previousTurn	= tonumber(GCO.GetPreviousTurnKey())
 	local previousTurnSupply = self:GetSupplyAtTurn(foodResourceID, previousTurn)
-	local foodVariation =  previousTurnSupply - self:GetFoodConsumption() -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
+	local normalRatio = 1
+	local foodVariation =  previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
 	
 	print(" Food stock ", foodStock," Variation ",foodVariation, " Previous turn supply ", previousTurnSupply, " Consumption ", self:GetFoodConsumption(), " ratio ", ratio)
-	if foodVariation < 0 then
+	if foodVariation < 0 and foodStock < (self:GetMaxStock(foodResourceID) / 2) then
 		local turnBeforeFamine		= -(foodStock / foodVariation)
 		if turnBeforeFamine < turnsToFamineHeavy then
 			ratio = heavyRationing
