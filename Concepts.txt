@@ -901,8 +901,10 @@ popup to allow choice (pay for reinforcements or pillage or no action for exampl
 --===============================--
 
 + Creation
+	- use dummy building for each unit, edit city screen to hide them (add column in building table)
+	- Lua check for required resources for an unit in city at the start of a player turn to create or remove the dummy building
 
-- use dummy building for each unit, edit city screen to hide them (add column in building table)
-- Lua check for required resources for an unit in city at the start of a player turn to create or remove the dummy building
++ Components
+	- allow excedents, but decay each turn
 
 --]]
