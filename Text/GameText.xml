@@ -565,6 +565,11 @@
       <Text>Supply Line To</Text>
     </Replace>
 	
+	<Replace Tag="LOC_HUD_CITY_STOCK_TOOLTIP" Language="en_US">
+      <Text>{1_Num} available for own cities (minimal stock : {2_Num})[NEWLINE]{3_Num} available for industries (minimal stock : {4_Num})[NEWLINE]{5_Num} available for units (minimal stock : {6_Num})[NEWLINE]{7_Num} available for export (minimal stock : {8_Num})[NEWLINE]</Text>
+    </Replace>
+	
+	
   </LocalizedText>	
 	
   <LocalizedText> <!-- Plot ToolTip Texts -->
