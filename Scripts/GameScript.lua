@@ -43,6 +43,34 @@ function KillAllCS()
 	end
 end
 
+local ResClassCount = {
+		["RESOURCECLASS_LUXURY"] 	= 2,
+		["RESOURCECLASS_STRATEGIC"]	= 10,
+		["RESOURCECLASS_BONUS"]		= 5
+	}
+	
+	
+local ResTypeBonus = {
+		["RESOURCE_HORSES"] 	= 25,
+	}
+
+function SetResourcesCount()
+	local iPlotCount = Map.GetPlotCount()
+	for i = 0, iPlotCount - 1 do
+		local plot = Map.GetPlotByIndex(i)
+		local resCount = plot:GetResourceCount() 
+		if resCount > 0 then
+			local row 		= GameInfo.Resources[plot:GetResourceType()]
+			local baseNum 	= ResClassCount[row.ResourceClassType]
+			if ResTypeBonus[row.ResourceType] then 
+				baseNum = baseNum + ResTypeBonus[row.ResourceType]
+			end
+			local num		= Game.GetRandNum(baseNum+1)+baseNum
+			ResourceBuilder.SetResourceType(plot, row.Index, num)
+		end
+	end
+end
+
 
 -----------------------------------------------------------------------------------------
 -- initializing new turn
@@ -73,5 +101,6 @@ GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)
 -----------------------------------------------------------------------------------------
 function Initialize()
 	KillAllCS()
+	SetResourcesCount()
 end
 Initialize()

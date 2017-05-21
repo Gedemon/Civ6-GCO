@@ -25,6 +25,11 @@
 				<File>UI/UnitFlagManager.lua</File>
 				<File>UI/CityBannerManager.lua</File>
 				<File>UI/PlotToolTip.lua</File>
+				<File>UI/WorldViewIconsManager.lua</File>
+				<File>UI/CityPanelOverview.lua</File>
+				<File>UI/CityPanelOverview.xml</File>
+				<File>UI/CityPanel.lua</File>
+				<File>UI/CitySupport.lua</File>
 			</Items>
 		</ImportFiles>
         <GameplayScripts>
@@ -163,5 +168,10 @@
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/CityBannerManager.lua</File>
 		<File>UI/PlotToolTip.lua</File>
+		<File>UI/WorldViewIconsManager.lua</File>
+		<File>UI/CityPanelOverview.lua</File>
+		<File>UI/CityPanelOverview.xml</File>
+		<File>UI/CityPanel.lua</File>
+		<File>UI/CitySupport.lua</File>
 	</Files>
 </Mod>

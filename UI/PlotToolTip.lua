@@ -258,7 +258,10 @@ function View(data:table, bIsUpdate:boolean)
 		local resourceType = data.ResourceType;
 		local resource = GameInfo.Resources[resourceType];
 
-		local resourceString = Locale.Lookup(resource.Name);
+		-- GCO <<<<<
+		--local resourceString = Locale.Lookup(resource.Name);
+		local resourceString = Locale.Lookup(resource.Name) .. " ("..tostring(data.ResourceCount)..")"
+		-- GCO >>>>>
 		local resourceTechType;
 
 		local terrainType = data.TerrainType;

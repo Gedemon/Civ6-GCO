@@ -440,6 +440,133 @@
 	
   </LocalizedText>
     
+  <LocalizedText> <!-- CityPanels Texts -->	
+	
+	<Replace Tag="LOC_HUD_CITY_OVERVIEW_RESOURCES_TOOLTIP" Language="en_US">
+      <Text>Resources Stock, Supply, Transfer, Trade, Consumption, Production</Text>
+    </Replace>	
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_STOCK" Language="en_US">
+      <Text>Resources Stock</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_SUPPLY" Language="en_US">
+      <Text>Resources Supply</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_DEMAND" Language="en_US">
+      <Text>Resources Demand</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_FOREIGN_ROUTES" Language="en_US">
+      <Text>Import/Export Routes</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_TRANSFER_ROUTES" Language="en_US">
+      <Text>Internal Transfer Routes</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_LINKED_UNITS" Language="en_US">
+      <Text>Supply Lines to Units</Text>
+    </Replace>	
+	
+	
+	<Replace Tag="LOC_HUD_CITY_RESOURCES" Language="en_US">
+      <Text>Resources</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_CURRENT_STOCK" Language="en_US">
+      <Text>Stock</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_MAX_STOCK" Language="en_US">
+      <Text>Max</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_COST_HEADER" Language="en_US">
+      <Text>Cost</Text>
+    </Replace>
+	
+	
+	<Replace Tag="LOC_HUD_CITY_NO_COST" Language="en_US">
+      <Text>[COLOR_Gold]Free[ENDCOLOR]</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_COST" Language="en_US">
+      <Text>[COLOR_Gold]{1_Num}[ENDCOLOR]</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_COST_TOOLTIP" Language="en_US">
+      <Text>Cost per unit of resource</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_COST_VARIATION_TOOLTIP" Language="en_US">
+      <Text>Variation of cost per unit of resource</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_STOCK_VARIATION_TOOLTIP" Language="en_US">
+      <Text>Stock Variation</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_COLLECT_TOOLTIP" Language="en_US">
+      <Text>Resources collected on the city's surrounding terrain</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_PRODUCT_TOOLTIP" Language="en_US">
+      <Text>Resources produced by the city itself or specific buildings</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_IMPORT_TOOLTIP" Language="en_US">
+      <Text>Resources imported from other Civilizations</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TRANSFER_IN_TOOLTIP" Language="en_US">
+      <Text>Resources transfered from your other cities</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_PILLAGE_TOOLTIP" Language="en_US">
+      <Text>Resources gathered by your units</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_OTHER_IN_TOOLTIP" Language="en_US">
+      <Text>Resources coming from other sources</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TOTAL_SUPPLY_TOOLTIP" Language="en_US">
+      <Text>Total Supply from all sources</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_CONSUME_TOOLTIP" Language="en_US">
+      <Text>Resources consumed by the city's buildings or population</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_UNIT_SUPPLY_TOOLTIP" Language="en_US">
+      <Text>Resources used to reinforce units</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_EXPORT_TOOLTIP" Language="en_US">
+      <Text>Resources exported to other Civilizations</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TRANSFER_OUT_TOOLTIP" Language="en_US">
+      <Text>Resources transfered to your other cities</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_STOLEN_TOOLTIP" Language="en_US">
+      <Text>Resources stolen by ennemy units</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_OTHER_OUT_TOOLTIP" Language="en_US">
+      <Text>Resources used by other sources</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TOTAL_OUT_TOOLTIP" Language="en_US">
+      <Text>Total used from all sources</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_HUD_CITY_ROUTE_TYPE_TOOLTIP" Language="en_US">
+      <Text>Route Type</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_ROUTE_EFFICIENCY_TOOLTIP" Language="en_US">
+      <Text>Route Efficiency</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_TRANSPORT_COST_TOOLTIP" Language="en_US">
+      <Text>Transport Cost</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_HUD_CITY_ROUTE_TO" Language="en_US">
+      <Text>Route To</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_ROUTE_TYPE" Language="en_US">
+      <Text>Type</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_ROUTE_EFFICIENCY" Language="en_US">
+      <Text>%</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_TRANSPORT_COST" Language="en_US">
+      <Text>Cost</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_SUPPLY_LINE_TO" Language="en_US">
+      <Text>Supply Line To</Text>
+    </Replace>
+	
+  </LocalizedText>	
+	
   <LocalizedText> <!-- Plot ToolTip Texts -->
 	
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_TOTAL" Language="en_US">

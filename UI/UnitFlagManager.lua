@@ -2017,17 +2017,4 @@ function OnMouseOut()
 	end
 end
 LuaEvents.UnitFlagManager_PointerExited.Add( OnMouseOut )
-
---[[
-	UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE );
-
-	local pathPlots		: table = {};
-	for index, city in ipairs(m_filteredDestinations) do
-		pathPlots = tradeManager:GetTradeRoutePath(m_originCity:GetOwner(), m_originCity:GetID(), city:GetOwner(), city:GetID() );
-		local kVariations:table = {};
-		local lastElement : number = table.count(pathPlots);
-		table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} );
-		UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations );	
-	end
---]]
 -- GCO >>>>>
