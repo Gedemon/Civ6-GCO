@@ -61,7 +61,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARVATION_D
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_SUPPLY', 		50);	-- stock above that percentage are available for reinforcing units
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_EXPORT', 		75);	-- stock above that percentage are available for trade with other civilizations cities
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_CONVERT', 		0);		-- stock above that percentage are available for use by local industries
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_TRANSFER', 		75);	-- stock above that percentage are available for transfer to other cities of the same civilization
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_TRANSFER', 		60);	-- stock above that percentage are available for transfer to other cities of the same civilization
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_IMPORT', 		75);	-- until that percentage is reached, allow trade from other civilizations cities 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_REQUEST', 		100);	-- until that percentage is reached, allow internal transfer from other cities of the same civilization 
 
