@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS ResourceStockUsage
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
-CREATE TABLE IF NOT EXISTS UnitEquipmentResourcesPrereqs
+CREATE TABLE IF NOT EXISTS UnitEquipmentResources
 	(
 		EquipmentType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,

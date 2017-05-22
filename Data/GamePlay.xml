@@ -22,6 +22,7 @@
 		<Row BuildingType="BUILDING_BUTCHERY" 		Name="LOC_BUILDING_BUTCHERY_NAME" 		Description="LOC_BUILDING_BUTCHERY_DESCRIPTION" 	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_HERBALIST" 		Name="LOC_BUILDING_HERBALIST_NAME" 		Description="LOC_BUILDING_HERBALIST_DESCRIPTION" 	PrereqTech="TECH_POTTERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_SLAVE_MARKET" 	Name="LOC_BUILDING_SLAVE_MARKET_NAME" 	Description="LOC_BUILDING_SLAVE_MARKET_DESCRIPTION" 									PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE"	Name="LOC_BUILDING_SMALL_STABLE_NAME" 	Description="LOC_BUILDING_SMALL_STABLE_DESCRIPTION" 	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
 	</Buildings>
 	
 	<BuildingPopulationEffect>
@@ -55,12 +56,17 @@
 		
 		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_MEDECINE" Ratio="0.5"/>
 		
+		<Row BuildingType="BUILDING_SMALL_STABLE" ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPEMENT_CHARIOT" Ratio="5"/>
+		
 	</BuildingResourcesConverted>
 
 	<BuildingStock>
-		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	Stock="100"/>
-		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	Stock="100"/>
-		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_FOOD" 	Stock="100"/>
+		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_RICE" 		Stock="100"/>
+		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_WHEAT" 		Stock="100"/>
+		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_FOOD" 		Stock="100"/>
+		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		Stock="1000"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		Stock="200"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPEMENT_CHARIOT" 	Stock="20"/>
 	</BuildingStock>
 	
 	<FeatureResourcesProduced>
@@ -85,14 +91,18 @@
 		<Row ResourceType="RESOURCE_PERSONNEL" 	Name="LOC_RESOURCE_PERSONNEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
 		<Row ResourceType="RESOURCE_STEEL" 		Name="LOC_RESOURCE_STEEL_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_WOOD" 		Name="LOC_RESOURCE_WOOD_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="RESOURCE_PLANTS" 	Name="LOC_RESOURCE_PLANTS_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
-		
+		<Row ResourceType="RESOURCE_PLANTS" 	Name="LOC_RESOURCE_PLANTS_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>		
 		<Row ResourceType="RESOURCE_MEDECINE" 	Name="LOC_RESOURCE_MEDECINE_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<Row ResourceType="RESOURCE_LEATHER" 	Name="LOC_RESOURCE_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		
+		<Row ResourceType="EQUIPMENT_LEATHER" 	Name="LOC_EQUIPMENT_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="EQUIPMENT_IRON" 		Name="LOC_EQUIPMENT_IRON_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="EQUIPMENT_CHARIOT"	Name="LOC_EQUIPMENT_CHARIOT_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 	</Resources>
 
 	<ResourceStockUsage>
 		<!-- The example belows means :	only surplus send to unit, need stock > 150% to send to another city, never request transfert, export at stock > 75%, import at stock < 50%, convert all  -->
 		<Row ResourceType="RESOURCE_WOOD" 	MinPercentLeftToSupply="100"	MinPercentLeftToTransfer="150"	MaxPercentLeftToRequest="0"	MinPercentLeftToExport="75"	MaxPercentLeftToImport="50"	MinPercentLeftToConvert="0"	/>
 	</ResourceStockUsage>
+
 </GameInfo>
