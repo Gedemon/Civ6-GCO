@@ -120,6 +120,25 @@ for row in GameInfo.FeatureResourcesProduced() do
 	table.insert(FeatureResources[featureID], {[resourceID] = row.NumPerFeature})
 end
 
+--[[
+local EquipmentResources	= {}
+for row in GameInfo.UnitEquipmentResources() do
+	local equipmentID 	= GameInfo.UnitEquipments[row.EquipmentType].Index
+	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+	if not EquipmentResources[equipmentID] then EquipmentResources[equipmentID] = {} end
+	table.insert (EquipmentResources[equipmentID], resourceID)
+end
+--]]
+local IsEquipment	= {}
+for row in GameInfo.Resources() do
+	local resourceType	= row.ResourceType
+	local strStart, strEnd 	= string.find(resourceType, "EQUIPMENT_")
+	if strStart and strStart == 1 and strEnd == 10 then
+		IsEquipment[row.Index] = true
+	end
+end
+
+
 local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)
 
@@ -150,6 +169,8 @@ local WealthLowerRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_LOWE
 local WealthSlaveRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_SLAVE_CLASS_RATIO"].Value)
 
 local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PRODUCTION_PER_SIZE"].Value)
+local ResourceStockPerSize 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
+local EquipmentBaseStock 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUIPMENT"].Value)
 
 local MinPercentLeftToSupply 		= tonumber(GameInfo.GlobalParameters["CITY_MIN_PERCENT_LEFT_TO_SUPPLY"].Value)
 local MinPercentLeftToTransfer		= tonumber(GameInfo.GlobalParameters["CITY_MIN_PERCENT_LEFT_TO_TRANSFER"].Value)
@@ -1291,8 +1312,9 @@ end
 
 function GetMaxStock(self, resourceID)
 	if resourceID == personnelResourceID then return self:GetMaxPersonnel() end
-	local maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
+	local maxStock = self:GetSize() * ResourceStockPerSize
 	if resourceID == foodResourceID then maxStock = maxStock + baseFoodStock end
+	if IsEquipment[resourceID] 		then maxStock = EquipmentBaseStock end	-- Equipment stock does not depend of city size, just buildings
 	if ResourceStockage[resourceID] then
 		for _, buildingID in ipairs(ResourceStockage[resourceID]) do
 			if self:GetBuildings():HasBuilding(buildingID) then
@@ -1532,6 +1554,7 @@ function GetAverageUseTypeOnTurns(self, resourceID, useType, numTurn)
 	end
 	return 0
 end
+
 
 -----------------------------------------------------------------------------------------
 -- City Panel Stats

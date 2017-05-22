@@ -22,11 +22,23 @@ local foodResourceID 		= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local horsesResourceID 		= GameInfo.Resources["RESOURCE_HORSES"].Index
 local personnelResourceID	= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
+local medecineResourceID	= GameInfo.Resources["RESOURCE_MEDECINE"].Index
+
+local unitEquipment			= {}
+for row in GameInfo.Units() do
+	local unitType = row.Index
+	if row.EquipmentType then
+		local equipmentID 	= GameInfo.Resources[row.EquipmentType].Index	-- equipment are special resources
+		if not unitEquipment[unitType] then unitEquipment[unitType] = {} end
+		unitEquipment[unitType] = equipmentID
+	end
+end
 
 local foodResourceKey		= tostring(foodResourceID)
 local materielResourceKey	= tostring(materielResourceID)
 local horsesResourceKey		= tostring(horsesResourceID)
 local personnelResourceKey	= tostring(personnelResourceID)
+local medecineResourceKey	= tostring(medecineResourceID)
 
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
@@ -155,6 +167,8 @@ local unitTableEnum = {
 	PreviousWoundedPersonnel	= 51,
 	PreviousDamagedEquipment	= 52,
 	PreviousPrisoners			= 53,
+	MedecineStock				= 54,
+	PreviousMedecineStock		= 55,
 	
 	EndOfEnum				= 99
 }                           
@@ -272,6 +286,8 @@ function RegisterNewUnit(playerID, unit)
 		PreviousFoodStock		= food,
 		FuelStock 				= FuelStock,
 		PreviousFuelStock		= FuelStock,
+		MedecineStock			= 0,
+		PreviousMedecineStock	= 0,
 		Stock					= {},
 		-- Statistics
 		TotalDeath				= 0,
@@ -433,6 +449,10 @@ function GetMaxFoodStock(self)
 	return GetBaseFoodStock(self)
 end
 
+function GetMaxMedecineStock(self)
+	return GCO.Round(GetMaxPersonnelReserve(self)/10)
+end
+
 function GetFoodConsumptionRatio(self)
 	local unitKey = self:GetKey()
 	local unitData = ExposedMembers.UnitData[unitKey]
@@ -592,9 +612,10 @@ function GetStock(self, resourceID) -- "stock" means "reserve" or "rear" for uni
 end
 
 function GetNumResourceNeeded(self, resourceID)
-	local resourceKey = tostring(resourceID)
-	local unitKey = self:GetKey()
-	local unitData = ExposedMembers.UnitData[unitKey]
+	local resourceKey 	= tostring(resourceID)
+	local unitKey 		= self:GetKey()
+	local unitData 		= ExposedMembers.UnitData[unitKey]
+	local unitType 		= self:GetType()
 	
 	if resourceKey == personnelResourceKey then
 		return math.max(0, self:GetMaxPersonnelReserve() - unitData.PersonnelReserve)
@@ -607,6 +628,13 @@ function GetNumResourceNeeded(self, resourceID)
 		
 	elseif resourceKey == foodResourceKey then
 		return math.max(0, self:GetMaxFoodStock() - unitData.FoodStock)
+		
+	elseif resourceKey == medecineResourceKey then
+		return math.max(0, self:GetMaxMedecineStock() - unitData.MedecineStock)
+		
+	elseif unitEquipment[unitType] and unitEquipment[unitType] == resourceID
+		return math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
+		
 	end
 	
 	return 0
@@ -615,13 +643,19 @@ end
 function GetRequirements(self)
 	local unitKey 			= self:GetKey()
 	local unitData 			= ExposedMembers.UnitData[unitKey]
-	local list 				= {personnelResourceID, horsesResourceID, materielResourceID, foodResourceID}
+	local unitType 			= self:GetType()
+	local list 				= {personnelResourceID, horsesResourceID, materielResourceID, foodResourceID, medecineResourceID}
 	local requirements 		= {}
-	requirements.Resources 	= {}
+	requirements.Resources 	= {}	
+
 	
 	print("Get Requirements for unit ".. tostring(unitKey), Locale.Lookup(UnitManager.GetTypeName(self)) )
 	
-	requirements.Equipment = math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
+	-- add equipment to requirement...
+	if unitEquipment[unitType] then
+		table.insert(list, unitEquipment[unitType])
+	end
+	--requirements.Equipment = math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
 
 	for _, resourceID in ipairs(list) do
 		requirements.Resources[resourceID] = self:GetNumResourceNeeded(resourceID)
@@ -1150,9 +1184,9 @@ function ShowReserveHealingFloatingText(healingData)
 				if bNeedNewLine then Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0) end
 				sText = ""
 				bNeedSeparator = false
-				if healingData.repairedVehicules > 0 then
+				if healingData.repairedEquipment > 0 then
 					--if bNeedNewLine then sText = sText .. "[NEWLINE]" end
-					sText = sText .. Locale.Lookup("LOC_REPAIRING_EQUIPMENT", healingData.repairedVehicules)
+					sText = sText .. Locale.Lookup("LOC_REPAIRING_EQUIPMENT", healingData.repairedEquipment)
 				end
 				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 			else			
@@ -1161,8 +1195,8 @@ function ShowReserveHealingFloatingText(healingData)
 					sText = Locale.Lookup("LOC_HEALING_WOUNDED", healingData.deads, healingData.healed)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 				end
-				if healingData.repairedVehicules > 0 then
-					sText = Locale.Lookup("LOC_REPAIRING_EQUIPMENT", healingData.repairedVehicules)
+				if healingData.repairedEquipment > 0 then
+					sText = Locale.Lookup("LOC_REPAIRING_EQUIPMENT", healingData.repairedEquipment)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 				end
 			end
@@ -1589,7 +1623,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 		end
 
 		local maxTransfer = {}	-- maximum value of a component that can be used to heal in one turn
-		local alreadyUsed = {}	-- materiel is used both to heal the unit (reserve -> front) and repair vehicules in reserve, up to a limit
+		local alreadyUsed = {}	-- materiel is used both to heal the unit (reserve -> front) and repair Equipment in reserve, up to a limit
 		for i, unit in playerUnits:Members() do
 			-- todo : check if the unit can heal (has a supply line, is not on water, ...)
 			local hp = unit:GetMaxDamage() - unit:GetDamage()
@@ -1617,7 +1651,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 								local unitInfo = GameInfo.Units[unit:GetType()] -- GetType in script, GetUnitType in UI context...
 								-- check here if the unit has enough reserves to get +1HP
 								local reqPersonnel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Personnel - UnitHitPointsTable[unitInfo.Index][hp].Personnel
-								local reqEquipment 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Equipment 	- UnitHitPointsTable[unitInfo.Index][hp].Equipment
+								local reqEquipment 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Equipment - UnitHitPointsTable[unitInfo.Index][hp].Equipment
 								local reqHorses 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Horses 	- UnitHitPointsTable[unitInfo.Index][hp].Horses
 								local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Materiel 	- UnitHitPointsTable[unitInfo.Index][hp].Materiel
 								if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tostring(unit:GetName()) .. " id#" .. tostring(unit:GetID())) end
@@ -1661,7 +1695,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 				local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][finalHP].Materiel 	- UnitHitPointsTable[unitInfo.Index][initialHP].Materiel
 
 				ExposedMembers.UnitData[key].PersonnelReserve 	= ExposedMembers.UnitData[key].PersonnelReserve - reqPersonnel
-				ExposedMembers.UnitData[key].EquipmentReserve 	= ExposedMembers.UnitData[key].EquipmentReserve 	- reqEquipment
+				ExposedMembers.UnitData[key].EquipmentReserve 	= ExposedMembers.UnitData[key].EquipmentReserve - reqEquipment
 				ExposedMembers.UnitData[key].HorsesReserve 		= ExposedMembers.UnitData[key].HorsesReserve 	- reqHorses
 				ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	- reqMateriel
 
@@ -1702,16 +1736,16 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 					-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
 					local materielAvailable = maxTransfer[unit].Materiel - alreadyUsed[unit].Materiel
 					local maxRepairedEquipment = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerEquipment* GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
-					local repairedVehicules = 0
+					local repairedEquipment = 0
 
 					if maxRepairedEquipment > 0 then
-						repairedVehicules = math.min(maxRepairedEquipment, ExposedMembers.UnitData[key].DamagedEquipment)
-						ExposedMembers.UnitData[key].DamagedEquipment = ExposedMembers.UnitData[key].DamagedEquipment - repairedVehicules
-						ExposedMembers.UnitData[key].EquipmentReserve = ExposedMembers.UnitData[key].EquipmentReserve + repairedVehicules
+						repairedEquipment = math.min(maxRepairedEquipment, ExposedMembers.UnitData[key].DamagedEquipment)
+						ExposedMembers.UnitData[key].DamagedEquipment = ExposedMembers.UnitData[key].DamagedEquipment - repairedEquipment
+						ExposedMembers.UnitData[key].EquipmentReserve = ExposedMembers.UnitData[key].EquipmentReserve + repairedEquipment
 					end
 
 					-- Visualize healing
-					local healingData = {deads = deads, healed = healed, repairedVehicules = repairedVehicules, X = unit:GetX(), Y = unit:GetY() }
+					local healingData = {deads = deads, healed = healed, repairedEquipment = repairedEquipment, X = unit:GetX(), Y = unit:GetY() }
 					ShowReserveHealingFloatingText(healingData)
 
 					-- when called from GameEvents.PlayerTurnStarted() it makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager

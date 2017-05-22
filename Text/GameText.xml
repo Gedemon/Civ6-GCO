@@ -601,18 +601,21 @@
   
   <LocalizedText> <!-- Buildings -->
 	
-    <Replace Tag="LOC_BUILDING_BUTCHERY_NAME" 		Text="Butchery" 		Language="en_US" /> 
-    <Replace Tag="LOC_BUILDING_HERBALIST_NAME" 		Text="Herbalist" 		Language="en_US" /> 
-    <Replace Tag="LOC_BUILDING_SLAVE_MARKET_NAME" 	Text="Slave Market"		Language="en_US" /> 
-	
+    <Replace Tag="LOC_BUILDING_BUTCHERY_NAME" 		Text="Butchery" 		Language="en_US" /> 	
     <Replace Tag="LOC_BUILDING_BUTCHERY_DESCRIPTION" Language="en_US">
       <Text>The Butchery will use animal resources to produce Food and Leather.</Text>
     </Replace>
+    <Replace Tag="LOC_BUILDING_HERBALIST_NAME" 		Text="Herbalist" 		Language="en_US" /> 
     <Replace Tag="LOC_BUILDING_HERBALIST_DESCRIPTION" Language="en_US">
       <Text>The Herbalist makes basic Medecine using Plants.</Text>
     </Replace>
+    <Replace Tag="LOC_BUILDING_SLAVE_MARKET_NAME" 	Text="Slave Market"		Language="en_US" />
     <Replace Tag="LOC_BUILDING_SLAVE_MARKET_DESCRIPTION" Language="en_US">
-      <Text>Production bonus based on percentage of slaves.</Text>
+      <Text>Convert prisoners to slaves.</Text>
+    </Replace>
+    <Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 	Text="Small Stable"		Language="en_US" /> 
+    <Replace Tag="LOC_BUILDING_SMALL_STABLE_DESCRIPTION" Language="en_US">
+      <Text>Convert Wood to Chariot.</Text>
     </Replace>
 	
   </LocalizedText>

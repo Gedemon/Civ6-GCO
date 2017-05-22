@@ -384,6 +384,15 @@ banditism raise corruption
 --]]	   
 
 --===============================--
+--[[ EQUIPMENT
+--===============================--
+
+- add check for unit obsolecence, only build equipment if unit type available (ie tech ready and not obsolete) or still active unit in army
+- equipment are special resources
+
+--]]
+
+--===============================--
 --[[ HEALING
 --===============================--
 
