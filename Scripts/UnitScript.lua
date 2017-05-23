@@ -526,6 +526,8 @@ function GetFuelConsumption(self)
 	end
 	local fuelConsumption1000 = 0
 	if not unitData.FuelConsumptionPerVehicle then unitData.FuelConsumptionPerVehicle = GameInfo.Units[unitData.unitType].FuelConsumptionPerVehicle end
+	if unitData.FuelConsumptionPerVehicle == 0 then return 0 end
+	
 	local ratio = GetFuelConsumptionRatio(unitData)
 	
 	fuelConsumption1000 = fuelConsumption1000 + GetBaseFuelConsumption1000(unitData) * ratio
@@ -581,6 +583,12 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 	elseif resourceKey == foodResourceKey then
 		ExposedMembers.UnitData[unitKey].FoodStock = math.max(0, unitData.FoodStock + value)
 		
+	elseif resourceKey == medecineResourceKey then
+		ExposedMembers.UnitData[unitKey].MedecineStock = math.max(0, unitData.MedecineStock + value)
+		
+	elseif GCO.IsResourceEquipment(resourceID) then
+		ExposedMembers.UnitData[unitKey].EquipmentReserve = math.max(0, unitData.EquipmentReserve + value)
+		
 	elseif not ExposedMembers.UnitData[unitKey].Stock[resourceKey] then
 		ExposedMembers.UnitData[unitKey].Stock[resourceKey] = math.max(0, value)
 		
@@ -632,7 +640,7 @@ function GetNumResourceNeeded(self, resourceID)
 	elseif resourceKey == medecineResourceKey then
 		return math.max(0, self:GetMaxMedecineStock() - unitData.MedecineStock)
 		
-	elseif unitEquipment[unitType] and unitEquipment[unitType] == resourceID
+	elseif unitEquipment[unitType] and unitEquipment[unitType] == resourceID then
 		return math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
 		
 	end
@@ -924,6 +932,7 @@ function GetFuelStockString(self)
 end
 
 function GetFuelConsumptionString(self)
+	if self:GetFuelConsumption() == 0 then return "" end
 	local unitKey 			= self:GetKey()
 	local unitData 			= ExposedMembers.UnitData[unitKey]
 	local str = ""
@@ -1722,16 +1731,40 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 			local key = unit:GetKey()
 			if key then
 				if ExposedMembers.UnitData[key] then
-
+				
+					-- hardcoding and magic numbers everywhere, to do : era, promotions, support					
+					-- check available medecine...
+					local availableMedecine = ExposedMembers.UnitData[key].MedecineStock
+					-- get the number of wounded that may heal or die this turn
+					local woundedToHandle	= GCO.Round(math.min(ExposedMembers.UnitData[key].WoundedPersonnel, math.max(20,ExposedMembers.UnitData[key].WoundedPersonnel * 50/100)))
 					-- wounded soldiers may die...
-					local deads = GCO.Round(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support
+					local potentialDeads 	= GCO.Round(woundedToHandle / 2)
+					local savedWithMadecine	= math.min(availableMedecine*10, GCO.Round(potentialDeads/2))
+					local medecineUsed		= math.ceil(savedWithMadecine/10)
+					
+					local deads				= potentialDeads - savedWithMadecine
+					availableMedecine		= availableMedecine - medecineUsed
+					
 					ExposedMembers.UnitData[key].WoundedPersonnel 	= ExposedMembers.UnitData[key].WoundedPersonnel - deads
 					--ExposedMembers.UnitData[key].TotalDeath			= ExposedMembers.UnitData[key].TotalDeath 		+ deads	-- Update Stats
 
 					-- wounded soldiers may heal...
-					local healed = math.ceil(ExposedMembers.UnitData[key].WoundedPersonnel * 25/100) -- hardcoded, to do : era, promotions, support (not rounded to heal last wounded)
+					local potentialHealed 		= woundedToHandle - potentialDeads
+					local healedDirectly		= GCO.Round(potentialHealed/2)
+					local healedWithMedecine	= math.min(availableMedecine*10, potentialHealed - healedDirectly )
+					medecineUsed				= medecineUsed + math.ceil(healedWithMedecine/10)
+					
+					local healed 				= healedDirectly + healedWithMedecine
+					
 					ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - healed
 					ExposedMembers.UnitData[key].PersonnelReserve = ExposedMembers.UnitData[key].PersonnelReserve + healed
+					
+					-- remove used medecine
+					if ExposedMembers.UnitData[key].MedecineStock - medecineUsed < 0 then
+						print("WARNING : used more medecine than available, initial stock = ".. tostring(ExposedMembers.UnitData[key].MedecineStock) ..", used =".. tostring(medecineUsed)..", wounded to treat = ".. tostring(woundedToHandle))
+						print("deads = ", deads, " healed = ", healed, " potentialDeads = ", potentialDeads, " savedWithMadecine = ", savedWithMadecine, " potentialHealed = ", potentialHealed, " healedDirectly = ", healedDirectly, " requiredMedecine = ", requiredMedecine)
+					end
+					ExposedMembers.UnitData[key].MedecineStock = math.max(0, ExposedMembers.UnitData[key].MedecineStock - medecineUsed)
 
 					-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
 					local materielAvailable = maxTransfer[unit].Materiel - alreadyUsed[unit].Materiel
@@ -1885,7 +1918,7 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	--print("Updating Unit Data for ", Locale.Lookup(self:GetName())," key = ",unitKey)
 	
 	-- Update basic components
-	local componentsToUpdate = {"Personnel","Equipment","Horses","Materiel","PersonnelReserve","EquipmentReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","DamagedEquipment","FoodStock","FuelStock","Morale"}
+	local componentsToUpdate = {"Personnel","Equipment","Horses","Materiel","PersonnelReserve","EquipmentReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","DamagedEquipment","FoodStock","FuelStock","Morale","MedecineStock"}
 	for _, component in ipairs(componentsToUpdate) do
 		local previousComponent = "Previous"..tostring(component)
 		local currentValue		= self:GetComponent(component)
@@ -2128,6 +2161,7 @@ function AttachUnitFunctions(unit)
 		u.GetFoodConsumptionRatio	= GetFoodConsumptionRatio
 		u.GetFuelConsumption 		= GetFuelConsumption
 		u.GetMaxFoodStock			= GetMaxFoodStock
+		u.GetMaxMedecineStock		= GetMaxMedecineStock		
 		u.GetMaxHorsesReserve		= GetMaxHorsesReserve
 		u.GetMaxMaterielReserve		= GetMaxMaterielReserve
 		u.GetMaxPersonnelReserve	= GetMaxPersonnelReserve

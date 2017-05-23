@@ -171,16 +171,16 @@ UPDATE Units SET Personnel = 100, 	Materiel = 300  Where UnitType = "UNIT_ARTILL
 /* Land infantry */
 UPDATE Units SET Personnel = 2000,	Materiel = 30 	Where UnitType = "UNIT_WARRIOR" OR UnitType = "UNIT_AZTEC_EAGLE_WARRIOR";
 UPDATE Units SET Personnel = 2500,	Materiel = 40 	Where UnitType = "UNIT_SPEARMAN" OR UnitType = "UNIT_GREEK_HOPLITE";
-UPDATE Units SET Personnel = 3000,	Materiel = 75 	Where UnitType = "UNIT_SWORDSMAN" OR UnitType= "UNIT_ROMAN_LEGION" OR UnitType= "UNIT_KONGO_SHIELD_BEARER";
+UPDATE Units SET Personnel = 3000,	Materiel = 75,	Equipment = 50,	EquipmentType = "EQUIPMENT_IRON", 	MaterielPerEquipment = 2 	Where UnitType = "UNIT_SWORDSMAN" OR UnitType= "UNIT_ROMAN_LEGION" OR UnitType= "UNIT_KONGO_SHIELD_BEARER";
 UPDATE Units SET Personnel = 4500,	Materiel = 60 	Where UnitType = "UNIT_PIKEMAN";
 UPDATE Units SET Personnel = 6000,	Materiel = 60 	Where UnitType = "UNIT_MUSKETMAN" OR UnitType = "UNIT_SPANISH_CONQUISTADOR";
 UPDATE Units SET Personnel = 10000,	Materiel = 60 	Where UnitType = "UNIT_INFANTRY";
 
 /* Cavalry */
-UPDATE Units SET Personnel = 400,	Materiel = 75, 	Horses = 200, 	Equipment = 100,	EquipmentType = "EQUIPEMENT_CHARIOT", 	MaterielPerEquipment = 1	Where UnitType = "UNIT_HEAVY_CHARIOT" or UnitType = "UNIT_EGYPTIAN_CHARIOT_ARCHER";
+UPDATE Units SET Personnel = 400,	Materiel = 75, 	Horses = 200, 	Equipment = 100,	EquipmentType = "EQUIPMENT_CHARIOT", 	MaterielPerEquipment = 1	Where UnitType = "UNIT_HEAVY_CHARIOT" or UnitType = "UNIT_EGYPTIAN_CHARIOT_ARCHER";
 UPDATE Units SET Personnel = 300,	Materiel = 40, 	Horses = 300 	Where UnitType = "UNIT_BARBARIAN_HORSE_ARCHER";
 UPDATE Units SET Personnel = 300,	Materiel = 50, 	Horses = 300 	Where UnitType = "UNIT_HORSEMAN" OR UnitType = "UNIT_BARBARIAN_HORSEMAN";
-UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300 	Where UnitType = "UNIT_KNIGHT" OR UnitType = "UNIT_ARABIAN_MAMLUK";
+UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300 	Where UnitType = "UNIT_KNIGHT" OR UnitType = "UNIT_ARABIAN_MAMLUK" OR UnitType = "UNIT_POLISH_HUSSAR";
 UPDATE Units SET Personnel = 300,	Materiel = 75, 	Horses = 300 	Where UnitType = "UNIT_CAVALRY" OR UnitType = "UNIT_RUSSIAN_COSSACK";
 
 /* Mechanized */
@@ -197,4 +197,6 @@ UPDATE Units SET Personnel = 400, 	Equipment = 2, 		Materiel = 100,  	MaterielPe
 UPDATE Units SET Personnel = 150, 	Equipment = 1, 		Materiel = 250,  	MaterielPerEquipment = 300 Where UnitType = "UNIT_IRONCLAD";
 UPDATE Units SET Personnel = 2000, 	Equipment = 1, 		Materiel = 5000,  	MaterielPerEquipment = 7500 Where UnitType = "UNIT_BATTLESHIP" or UnitType = "UNIT_BRAZILIAN_MINAS_GERAES";
 UPDATE Units SET Personnel = 150, 	Equipment = 3, 		Materiel = 750,  	MaterielPerEquipment = 300 Where UnitType = "UNIT_SUBMARINE" or UnitType = "UNIT_GERMAN_UBOAT";
-UPDATE Units SET Personnel = 2000, 	Equipment = 1, 		Materiel = 5000,  	MaterielPerEquipment = 7500 Where UnitType = "UNIT_AIRCRAFT_CARRIER";
+UPDATE Units SET Personnel = 2500, 	Equipment = 1, 		Materiel = 7500,  	MaterielPerEquipment = 9000 Where UnitType = "UNIT_AIRCRAFT_CARRIER";
+UPDATE Units SET Personnel = 250, 	Equipment = 1, 		Materiel = 900,  	MaterielPerEquipment = 1200 Where UnitType = "UNIT_DESTROYER";
+UPDATE Units SET Personnel = 400, 	Equipment = 1, 		Materiel = 2000,  	MaterielPerEquipment = 3000 Where UnitType = "UNIT_MISSILE_CRUISER";

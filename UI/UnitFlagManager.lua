@@ -881,13 +881,14 @@ function UnitFlag.UpdateName( self )
 			
 			-- "Rear"
 			local totalPrisoners = GCO.GetTotalPrisoners(unitData)
-			local bHasExtra = (unitData.WoundedPersonnel + unitData.DamagedEquipment + totalPrisoners + unitData.FoodStock > 0)
+			local bHasExtra = (unitData.WoundedPersonnel + unitData.DamagedEquipment + totalPrisoners + unitData.FoodStock + unitData.FoodStock > 0)
 			if bHasExtra then				
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_REAR_TITLE")					
 				if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) .. GCO.GetNeutralVariationString(pUnit:GetComponentVariation("WoundedPersonnel")) end
 				if unitData.DamagedEquipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_EQUIPMENT", unitData.DamagedEquipment)  .. GCO.GetNeutralVariationString(pUnit:GetComponentVariation("DamagedEquipment"))end
 				if totalPrisoners	 			> 0 then nameString = nameString .. GCO.GetPrisonersStringByCiv(unitData) end	-- "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONERS", totalPrisoners) .. GCO.GetPrisonersStringByCiv(unitData) end
 				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. pUnit:GetFoodStockString() end
+				if unitData.MedecineStock 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MEDECINE_STOCK", unitData.MedecineStock)  .. GCO.GetVariationString(pUnit:GetComponentVariation("MedecineStock"))end
 				if unitData.FuelStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetFuelStockString(unitData) end
 			end
 				

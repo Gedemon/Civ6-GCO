@@ -16,15 +16,15 @@ UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_POP_PER_AMENITY';			
 /* Defines */
 
 -- city
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					20);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					5);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		5);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PER_SIZE', 				250);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		0);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_STOCK', 					100);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					20);	-- base stock for resource 		= CITY_STOCK_PER_SIZE * CitySize
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					5);		-- base stock for equipment 	(not related to city size)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		5);		-- unit of materiel produced 	= CITY_MATERIEL_PRODUCTION_PER_SIZE * CitySize
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PER_SIZE', 				250);	-- base housing for personnel 	= CITY_PERSONNEL_PER_SIZE + CitySize
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		0);		-- value added to the starting population of a new city (to do : Settlers with different size for late game)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_STOCK', 					100);	-- bonus food stock added to base resource stock
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_UPPER_CLASS_PERCENT', 			5);		-- Used during city creation, before there is a base populatin to refer to.
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_MIDDLE_CLASS_PERCENT', 		30);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_MIDDLE_CLASS_PERCENT', 		30);	--
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_UPPER_CLASS_MAX_PERCENT', 		10);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_UPPER_CLASS_MIN_PERCENT', 		1);
@@ -50,20 +50,20 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIDDLE_CLASS
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LOWER_CLASS_DEATH_RATE_FACTOR',		2.25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_SLAVE_CLASS_DEATH_RATE_FACTOR',		2.50);
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LIGHT_RATIONING_BIRTH_PERCENT', 	1);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LIGHT_RATIONING_BIRTH_PERCENT', 	1);		-- percentage of actual birth rate variation from food rationing
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MEDIUM_RATIONING_BIRTH_PERCENT', 	5);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAVY_RATIONING_BIRTH_PERCENT', 	10);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARVATION_BIRTH_PERCENT', 			15);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LIGHT_RATIONING_DEATH_PERCENT', 	1);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MEDIUM_RATIONING_DEATH_PERCENT', 	7);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAVY_RATIONING_DEATH_PERCENT', 	25);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARVATION_DEATH_PERCENT', 			35);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LIGHT_RATIONING_DEATH_PERCENT', 	5);		-- percentage of actual death rate variation from food rationing
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MEDIUM_RATIONING_DEATH_PERCENT', 	15);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAVY_RATIONING_DEATH_PERCENT', 	30);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARVATION_DEATH_PERCENT', 			50);
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_SUPPLY', 		50);	-- stock above that percentage are available for reinforcing units
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_SUPPLY', 		30);	-- stock above that percentage are available for reinforcing units
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_EXPORT', 		75);	-- stock above that percentage are available for trade with other civilizations cities
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_CONVERT', 		0);		-- stock above that percentage are available for use by local industries
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_PERCENT_LEFT_TO_TRANSFER', 		60);	-- stock above that percentage are available for transfer to other cities of the same civilization
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_IMPORT', 		75);	-- until that percentage is reached, allow trade from other civilizations cities 
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_IMPORT', 		75);	-- until that percentage is reached, allow trade from other civilizations cities (must be < to CITY_MIN_PERCENT_LEFT_TO_EXPORT from every city to prevent exploit)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_PERCENT_LEFT_TO_REQUEST', 		100);	-- until that percentage is reached, allow internal transfer from other cities of the same civilization 
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_LUXURY', 		3);
@@ -76,7 +76,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_ROAD_LENGTH_FACTOR',			0.50);	-- When calculating supply line efficiency relatively to length (lower = better)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_RIVER_LENGTH_FACTOR',			0.40);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_SEA_LENGTH_FACTOR',			0.25);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_TRADER_LENGTH_FACTOR',		0.00);	-- note : traders are always at max efficiency, they are limited by their own range
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_TRADER_LENGTH_FACTOR',		0.00);	-- note : traders are always at max efficiency, they are only limited by their own range
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_ROUTE_AIRPORT_LENGTH_FACTOR',		0.00);	-- note : Airport will use smaller but fixed values set differently
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_UPPER_CLASS_TO_PERSONNEL_RATIO', 	0.01);
@@ -171,10 +171,8 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_FAR
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_NO_WAY_HOME',				-3);
 
 -- Resources
---INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_WOOD_PER_FOREST',			2);
---INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_WOOD_PER_JUNGLE',			1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_IMPROVEMENT_MULTIPLIER',	5);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_COLLECT_COST_MULTIPLIER',	2);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_COLLECT_COST_MULTIPLIER',	2);		--
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_NOT_WORKED_COST_MULTIPLIER',	1.5);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_IMPROVEMENT_COST_RATIO',		0.5);
 

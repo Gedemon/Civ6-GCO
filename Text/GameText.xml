@@ -28,7 +28,7 @@
 		<Text>[ICON_GreatWork_Portrait_Themed]ICON_GreatWork_Portrait_Themed[NEWLINE][ICON_ThemeBonus_Active]ICON_ThemeBonus_Active[NEWLINE][ICON_GreatWork_Writing_Themed]ICON_GreatWork_Writing_Themed[NEWLINE][ICON_GreatWork_Landscape_Themed]ICON_GreatWork_Landscape_Themed[NEWLINE][ICON_GreatWork_Religious_Themed]ICON_GreatWork_Religious_Themed[NEWLINE][ICON_GreatWork_Sculpture_Themed]ICON_GreatWork_Sculpture_Themed[NEWLINE][ICON_GreatWork_Music_Themed]ICON_GreatWork_Music_Themed[NEWLINE][ICON_GreatWork_Relic_Themed]ICON_GreatWork_Relic_Themed[NEWLINE][ICON_GreatWork_Artifact_Ancient_Themed]ICON_GreatWork_Artifact_Ancient_Themed[NEWLINE][ICON_GreatWork_Artifact_Classical_Themed]ICON_GreatWork_Artifact_Classical_Themed[NEWLINE][ICON_GreatWork_Artifact_Medieval_Themed]ICON_GreatWork_Artifact_Medieval_Themed[NEWLINE][ICON_GreatWork_Artifact_Renaissance_Themed]ICON_GreatWork_Artifact_Renaissance_Themed[NEWLINE][ICON_GreatWork_Artifact_Industrial_Themed]ICON_GreatWork_Artifact_Industrial_Themed[NEWLINE][ICON_GreatWork_Portrait]ICON_GreatWork_Portrait[NEWLINE][ICON_GreatWork_Writing]ICON_GreatWork_Writing[NEWLINE][ICON_GreatWork_Landscape]ICON_GreatWork_Landscape[NEWLINE][ICON_GreatWork_Religious]ICON_GreatWork_Religious[NEWLINE][ICON_GreatWork_Sculpture]ICON_GreatWork_Sculpture[NEWLINE][ICON_GreatWork_Music]ICON_GreatWork_Music[NEWLINE][ICON_GreatWork_Relic]ICON_GreatWork_Relic[NEWLINE][ICON_GreatWork_Artifact]ICON_GreatWork_Artifact[NEWLINE][ICON_GreatWork_Artifact_Ancient]ICON_GreatWork_Artifact_Ancient[NEWLINE][ICON_GreatWork_Artifact_Classical]ICON_GreatWork_Artifact_Classical[NEWLINE][ICON_GreatWork_Artifact_Medieval]ICON_GreatWork_Artifact_Medieval[NEWLINE][ICON_GreatWork_Artifact_Renaissance]ICON_GreatWork_Artifact_Renaissance[NEWLINE][ICON_GreatWork_Artifact_Industrial]ICON_GreatWork_Artifact_Industrial[NEWLINE][ICON_ThemeBonus]ICON_ThemeBonus[NEWLINE][ICON_GreatWork_Portrait_Theming]ICON_GreatWork_Portrait_Theming[NEWLINE][ICON_GreatWork_Writing_Theming]ICON_GreatWork_Writing_Theming[NEWLINE][ICON_GreatWork_Landscape_Theming]ICON_GreatWork_Landscape_Theming[NEWLINE][ICON_GreatWork_Religious_Theming]ICON_GreatWork_Religious_Theming[NEWLINE][ICON_GreatWork_Sculpture_Theming]ICON_GreatWork_Sculpture_Theming[NEWLINE][ICON_GreatWork_Music_Theming]ICON_GreatWork_Music_Theming[NEWLINE][ICON_GreatWork_Relic_Theming]ICON_GreatWork_Relic_Theming[NEWLINE][ICON_GreatWork_Artifact_Anc_Theming]ICON_GreatWork_Artifact_Anc_Theming[NEWLINE][ICON_GreatWork_Artifact_Cla_Theming]ICON_GreatWork_Artifact_Cla_Theming[NEWLINE][ICON_GreatWork_Artifact_Med_Theming]ICON_GreatWork_Artifact_Med_Theming[NEWLINE][ICON_GreatWork_Artifact_Ren_Theming]ICON_GreatWork_Artifact_Ren_Theming[NEWLINE][ICON_GreatWork_Artifact_Ind_Theming]ICON_GreatWork_Artifact_Ind_Theming[NEWLINE][ICON_GreatAdmiral]ICON_GreatAdmiral[NEWLINE][ICON_GreatArtist]ICON_GreatArtist[NEWLINE][ICON_GreatEngineer]ICON_GreatEngineer[NEWLINE][ICON_GreatGeneral]ICON_GreatGeneral[NEWLINE][ICON_GreatMerchant]ICON_GreatMerchant[NEWLINE][ICON_GreatMusician]ICON_GreatMusician[NEWLINE][ICON_GreatProphet]ICON_GreatProphet[NEWLINE][ICON_GreatScientist]ICON_GreatScientist[NEWLINE][ICON_GreatWriter]ICON_GreatWriter[NEWLINE]</Text>
 	</Replace>
 	<Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_INTRO_CHAPTER_INTRO_PARA_5" Language="en_US">
-		<Text>[ICON_OnlinePip]ICON_OnlinePip[NEWLINE][ICON_Host]ICON_Host[NEWLINE][ICON_You]ICON_You[NEWLINE][ICON_Ready]ICON_Ready[NEWLINE][ICON_BulletGlow]ICON_BulletGlow[NEWLINE][ICON_Revert]ICON_Revert[NEWLINE][ICON_Team]ICON_Team[NEWLINE][ICON_Whisper]ICON_Whisper[NEWLINE][ICON_Global]ICON_Global[NEWLINE][ICON_DISTRICT_CITYCENTER]ICON_DISTRICT_CITYCENTER[NEWLINE][ICON_DISTRICT_CAMPUS]ICON_DISTRICT_CAMPUS[NEWLINE][ICON_DISTRICT_COMMERCIAL_HUB]ICON_DISTRICT_COMMERCIAL_HUB[NEWLINE][ICON_DISTRICT_ENCAMPMENT]ICON_DISTRICT_ENCAMPMENT[NEWLINE][ICON_DISTRICT_HOLYSITE]ICON_DISTRICT_HOLYSITE[NEWLINE][ICON_DISTRICT_LAVRA]ICON_DISTRICT_LAVRA[NEWLINE][ICON_DISTRICT_NEIGHBORHOOD]ICON_DISTRICT_NEIGHBORHOOD[NEWLINE][ICON_DISTRICT_MBANZA]ICON_DISTRICT_MBANZA[NEWLINE][ICON_DISTRICT_THEATER]ICON_DISTRICT_THEATER[NEWLINE][ICON_DISTRICT_ACROPOLIS]ICON_DISTRICT_ACROPOLIS[NEWLINE][ICON_DISTRICT_AQUEDUCT]ICON_DISTRICT_AQUEDUCT[NEWLINE][ICON_DISTRICT_BATH]ICON_DISTRICT_BATH[NEWLINE][ICON_DISTRICT_HARBOR]ICON_DISTRICT_HARBOR[NEWLINE][ICON_DISTRICT_ROYAL_NAVY_DOCKYARD]ICON_DISTRICT_ROYAL_NAVY_DOCKYARD[NEWLINE][ICON_DISTRICT_INDUSTRIAL_ZONE]ICON_DISTRICT_INDUSTRIAL_ZONE[NEWLINE][ICON_DISTRICT_HANSA]ICON_DISTRICT_HANSA[NEWLINE][ICON_DISTRICT_SPACEPORT]ICON_DISTRICT_SPACEPORT[NEWLINE][ICON_DISTRICT_WONDER]ICON_DISTRICT_WONDER[NEWLINE][ICON_DISTRICT_ENTERTAINMENT]ICON_DISTRICT_ENTERTAINMENT[NEWLINE][ICON_Corps]ICON_Corps[NEWLINE][ICON_Army]ICON_Army[NEWLINE][ICON_Exclamation]ICON_Exclamation[NEWLINE][ICON_TradingPostLarge]ICON_TradingPostLarge[NEWLINE][ICON_CapitalLarge]ICON_CapitalLarge[NEWLINE][ICON_PressureDown]ICON_PressureDown[NEWLINE][ICON_PressureUp]ICON_PressureUp[NEWLINE][ICON_PressureDownLarge]ICON_PressureDownLarge[NEWLINE][ICON_PressureUpLarge]ICON_PressureUpLarge[NEWLINE][ICON_CivicBoosted]ICON_CivicBoosted[NEWLINE][ICON_TechBoosted]ICON_TechBoosted[NEWLINE][ICON_Capital]ICON_Capital[NEWLINE][ICON_New]ICON_New[NEWLINE][ICON_Bolt]ICON_Bolt[NEWLINE][ICON_Bullet]ICON_Bullet[NEWLINE][ICON_TradeRouteLarge]ICON_TradeRouteLarge[NEWLINE][ICON_LocationPip]ICON_LocationPip[NEWLINE][ICON_ShowMe]ICON_ShowMe[NEWLINE][ICON_Not]ICON_Not[NEWLINE][ICON_Checkmark]ICON_Checkmark[NEWLINE][ICON_CheckSuccess]ICON_CheckSuccess[NEWLINE][ICON_CheckFail]ICON_CheckFail[NEWLINE][ICON_CheckmarkBlue]ICON_CheckmarkBlue[NEWLINE]</Text>
+		<Text>[ICON_OnlinePip]ICON_OnlinePip[NEWLINE][ICON_Host]ICON_Host[NEWLINE][ICON_You]ICON_You[NEWLINE][ICON_Ready]ICON_Ready[NEWLINE][ICON_BulletGlow]ICON_BulletGlow[NEWLINE][ICON_Revert]ICON_Revert[NEWLINE][ICON_Team]ICON_Team[NEWLINE][ICON_Whisper]ICON_Whisper[NEWLINE][ICON_Global]ICON_Global[NEWLINE][ICON_DISTRICT_CITYCENTER]ICON_DISTRICT_CITYCENTER[NEWLINE][ICON_DISTRICT_CAMPUS]ICON_DISTRICT_CAMPUS[NEWLINE][ICON_DISTRICT_COMMERCIAL_HUB]ICON_DISTRICT_COMMERCIAL_HUB[NEWLINE][ICON_DISTRICT_ENCAMPMENT]ICON_DISTRICT_ENCAMPMENT[NEWLINE][ICON_DISTRICT_HOLYSITE]ICON_DISTRICT_HOLYSITE[NEWLINE][ICON_DISTRICT_LAVRA]ICON_DISTRICT_LAVRA[NEWLINE][ICON_DISTRICT_NEIGHBORHOOD]ICON_DISTRICT_NEIGHBORHOOD[NEWLINE][ICON_DISTRICT_MBANZA]ICON_DISTRICT_MBANZA[NEWLINE][ICON_DISTRICT_THEATER]ICON_DISTRICT_THEATER[NEWLINE][ICON_DISTRICT_ACROPOLIS]ICON_DISTRICT_ACROPOLIS[NEWLINE][ICON_DISTRICT_AQUEDUCT]ICON_DISTRICT_AQUEDUCT[NEWLINE][ICON_DISTRICT_BATH]ICON_DISTRICT_BATH[NEWLINE][ICON_DISTRICT_HARBOR]ICON_DISTRICT_HARBOR[NEWLINE][ICON_DISTRICT_ROYAL_NAVY_DOCKYARD]ICON_DISTRICT_ROYAL_NAVY_DOCKYARD[NEWLINE][ICON_DISTRICT_INDUSTRIAL_ZONE]ICON_DISTRICT_INDUSTRIAL_ZONE[NEWLINE][ICON_Production]ICON_Production[NEWLINE][ICON_DISTRICT_SPACEPORT]ICON_DISTRICT_SPACEPORT[NEWLINE][ICON_DISTRICT_WONDER]ICON_DISTRICT_WONDER[NEWLINE][ICON_DISTRICT_ENTERTAINMENT]ICON_DISTRICT_ENTERTAINMENT[NEWLINE][ICON_Corps]ICON_Corps[NEWLINE][ICON_Army]ICON_Army[NEWLINE][ICON_Exclamation]ICON_Exclamation[NEWLINE][ICON_TradingPostLarge]ICON_TradingPostLarge[NEWLINE][ICON_CapitalLarge]ICON_CapitalLarge[NEWLINE][ICON_PressureDown]ICON_PressureDown[NEWLINE][ICON_PressureUp]ICON_PressureUp[NEWLINE][ICON_PressureDownLarge]ICON_PressureDownLarge[NEWLINE][ICON_PressureUpLarge]ICON_PressureUpLarge[NEWLINE][ICON_CivicBoosted]ICON_CivicBoosted[NEWLINE][ICON_TechBoosted]ICON_TechBoosted[NEWLINE][ICON_Capital]ICON_Capital[NEWLINE][ICON_New]ICON_New[NEWLINE][ICON_Bolt]ICON_Bolt[NEWLINE][ICON_Bullet]ICON_Bullet[NEWLINE][ICON_TradeRouteLarge]ICON_TradeRouteLarge[NEWLINE][ICON_LocationPip]ICON_LocationPip[NEWLINE][ICON_ShowMe]ICON_ShowMe[NEWLINE][ICON_Not]ICON_Not[NEWLINE][ICON_Checkmark]ICON_Checkmark[NEWLINE][ICON_CheckSuccess]ICON_CheckSuccess[NEWLINE][ICON_CheckFail]ICON_CheckFail[NEWLINE][ICON_CheckmarkBlue]ICON_CheckmarkBlue[NEWLINE]</Text>
 	</Replace>
 	<Replace Tag="LOC_PEDIA_CONCEPTS_PAGE_INTRO_CHAPTER_INTRO_PARA_6" Language="en_US">
 		<Text>[ICON_CityStateQuest]ICON_CityStateQuest[NEWLINE][ICON_List]ICON_List[NEWLINE][ICON_Plus]ICON_Plus[NEWLINE][ICON_PressureHigh]ICON_PressureHigh[NEWLINE][ICON_PressureMedium]ICON_PressureMedium[NEWLINE][ICON_PressureLow]ICON_PressureLow[NEWLINE][ICON_GoingTo]ICON_GoingTo[NEWLINE][ICON_Therefore]ICON_Therefore[NEWLINE][ICON_Bombard_Large]ICON_Bombard_Large[NEWLINE][ICON_Charges_Large]ICON_Charges_Large[NEWLINE][ICON_Movement_Large]ICON_Movement_Large[NEWLINE][ICON_Range_Large]ICON_Range_Large[NEWLINE][ICON_RangedStrength_Large]ICON_RangedStrength_Large[NEWLINE][ICON_ReligionStat_Large]ICON_ReligionStat_Large[NEWLINE][ICON_Strength_Large]ICON_Strength_Large[NEWLINE][ICON_AntiAir_Large]ICON_AntiAir_Large[NEWLINE][ICON_Pillaged]ICON_Pillaged[NEWLINE][ICON_Razed]ICON_Razed[NEWLINE][ICON_UnderSiege]ICON_UnderSiege[NEWLINE][ICON_Occupied]ICON_Occupied[NEWLINE][ICON_HousingInsufficient]ICON_HousingInsufficient[NEWLINE][ICON_AmenitiesInsufficient]ICON_AmenitiesInsufficient[NEWLINE][ICON_OPEN_BORDERS]ICON_OPEN_BORDERS[NEWLINE][ICON_DEFENSIVE_PACT]ICON_DEFENSIVE_PACT[NEWLINE][ICON_MILITARY_REQUEST]ICON_MILITARY_REQUEST[NEWLINE][ICON_JOINT_WAR]ICON_JOINT_WAR[NEWLINE][ICON_RESEARCH_AGREEMENT]ICON_RESEARCH_AGREEMENT[NEWLINE][ICON_ALLIANCE]ICON_ALLIANCE[NEWLINE][ICON_GIFT_UNIT]ICON_GIFT_UNIT[NEWLINE][ICON_DENOUNCE]ICON_DENOUNCE[NEWLINE][ICON_DEMAND_TRIBUTE]ICON_DEMAND_TRIBUTE[NEWLINE][ICON_VIEW_DEMAND_TRIBUTE]ICON_VIEW_DEMAND_TRIBUTE[NEWLINE][ICON_MAKE_PEACE]ICON_MAKE_PEACE[NEWLINE][ICON_DECLARE_SURPRISE_WAR]ICON_DECLARE_SURPRISE_WAR[NEWLINE][ICON_DECLARE_FORMAL_WAR]ICON_DECLARE_FORMAL_WAR[NEWLINE][ICON_DECLARE_HOLY_WAR]ICON_DECLARE_HOLY_WAR[NEWLINE][ICON_DECLARE_LIBERATION_WAR]ICON_DECLARE_LIBERATION_WAR[NEWLINE][ICON_DECLARE_RECONQUEST_WAR]ICON_DECLARE_RECONQUEST_WAR[NEWLINE][ICON_DECLARE_PROTECTORATE_WAR]ICON_DECLARE_PROTECTORATE_WAR[NEWLINE][ICON_DECLARE_COLONIAL_WAR]ICON_DECLARE_COLONIAL_WAR[NEWLINE][ICON_DECLARE_TERRITORIAL_WAR]ICON_DECLARE_TERRITORIAL_WAR[NEWLINE][ICON_DECLARE_WAR_MINOR_CIV]ICON_DECLARE_WAR_MINOR_CIV[NEWLINE][ICON_PROPOSE_TRADE]ICON_PROPOSE_TRADE[NEWLINE][ICON_VIEW_TRADE]ICON_VIEW_TRADE[NEWLINE][ICON_USE_NUCLEAR_WEAPON]ICON_USE_NUCLEAR_WEAPON[NEWLINE][ICON_DECLARE_FRIENDSHIP]ICON_DECLARE_FRIENDSHIP[NEWLINE][ICON_GRANT_INFLUENCE_TOKEN]ICON_GRANT_INFLUENCE_TOKEN[NEWLINE][ICON_DIPLOMATIC_DELEGATION]ICON_DIPLOMATIC_DELEGATION[NEWLINE][ICON_RESIDENT_EMBASSY]ICON_RESIDENT_EMBASSY[NEWLINE][ICON_REQUEST_ASSISTANCE]ICON_REQUEST_ASSISTANCE[NEWLINE]</Text>
@@ -49,7 +49,7 @@
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit],[ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Occupied],[ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege]</Text>
     </Replace>	
     <Replace Tag="LOC_FRONTLINE_EQUIPMENT_CASUALTIES" Language="en_US">
-      <Text>[COLOR_Civ6Red]-{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA] vehicles</Text>
+      <Text>[COLOR_Civ6Red]-{1_Num} [ENDCOLOR][ICON_Production] equipment</Text>
     </Replace>
     <Replace Tag="LOC_FRONTLINE_EQUIPMENT_CASUALTIES_DETAILS" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Razed] destroyed[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Yellow]{2_Num} [ENDCOLOR][ICON_Pillaged] damaged</Text>
@@ -101,7 +101,7 @@
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Position] personnel[NEWLINE][ICON_TradeRouteLarge]{2_Num} [ICON_Charges] materiel</Text>
     </Replace>
     <Replace Tag="LOC_HEALING_EQUIPMENT" Language="en_US">
-      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_DISTRICT_HANSA] vehicles</Text>
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Production] equipment</Text>
     </Replace>
     <Replace Tag="LOC_HEALING_HORSES" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_RESOURCE_HORSES] horses</Text>
@@ -110,7 +110,7 @@
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Position]</Text>
     </Replace>
     <Replace Tag="LOC_EQUIPMENT_RESERVE_TRANSFER" Language="en_US">
-      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_DISTRICT_HANSA]</Text>
+      <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_Production]</Text>
     </Replace>
     <Replace Tag="LOC_HORSES_RESERVE_TRANSFER" Language="en_US">
       <Text>[ICON_TradeRouteLarge]{1_Num} [ICON_RESOURCE_HORSES]</Text>
@@ -126,10 +126,10 @@
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_UnderSiege],[ICON_TradeRouteLarge][COLOR_Civ6Green]{2_Num} [ENDCOLOR][ICON_UnderSiege]</Text>
     </Replace>
     <Replace Tag="LOC_REPAIRING_EQUIPMENT" Language="en_US">
-      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA] vehicles repaired</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Production] equipment repaired</Text>
     </Replace>
     <Replace Tag="LOC_REPAIRING_EQUIPMENT_SHORT" Language="en_US">
-      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_DISTRICT_HANSA]</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Production]</Text>
     </Replace>
 	<!-- Food -->
     <Replace Tag="LOC_UNIT_EATING" Language="en_US">
@@ -230,7 +230,7 @@
       <Text>[ICON_Position] {1_Num} / {2_Num} Personnel</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_EQUIPMENT" Language="en_US">
-      <Text>[ICON_DISTRICT_HANSA] {1_Num} / {2_Num} Equipment</Text>
+      <Text>[ICON_Production] {1_Num} / {2_Num} Equipment</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_HORSES" Language="en_US">
       <Text>[ICON_RESOURCE_HORSES] {1_Num} / {2_Num} Horses</Text>
@@ -243,7 +243,7 @@
       <Text>[ICON_Position] {1_Num} Personnel Reserve</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_EQUIPMENT_RESERVE" Language="en_US">
-      <Text>[ICON_DISTRICT_HANSA] {1_Num} Equipment Reserve</Text>
+      <Text>[ICON_Production] {1_Num} Equipment Reserve</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_HORSES_RESERVE" Language="en_US">
       <Text>[ICON_RESOURCE_HORSES] {1_Num} Horses Reserve</Text>
@@ -266,6 +266,9 @@
     </Replace>
     <Replace Tag="LOC_UNITFLAG_PRISONERS_OTHER_NATIONALITY" Language="en_US">
       <Text>[ICON_Occupied] {1_Num} others Prisoners</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_MEDECINE_STOCK" Language="en_US">
+      <Text>[ICON_Damaged] {1_Num} Medecine</Text>
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_FOOD_RATION" Language="en_US">
@@ -306,10 +309,10 @@
       <Text>[ICON_RESOURCE_OIL] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} - [COLOR_Civ6DarkRed]Heavy Rationing[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_FUEL_CONSUMPTION_ACTIVE" Language="en_US">
-      <Text>[ICON_RESOURCE_OIL] {1_Num} fuel by [ICON_DISTRICT_HANSA] {2_Num} active vehicles</Text>
+      <Text>[ICON_RESOURCE_OIL] {1_Num} fuel by [ICON_Production] {2_Num} active equipment</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_FUEL_CONSUMPTION_DAMAGED" Language="en_US">
-      <Text>[ICON_RESOURCE_OIL] {1_Num} fuel by [ICON_DISTRICT_HANSA] {2_Num} damaged vehicles</Text>
+      <Text>[ICON_RESOURCE_OIL] {1_Num} fuel by [ICON_Production] {2_Num} damaged equipment</Text>
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_TOTAL_DEATH" Language="en_US">
@@ -597,6 +600,10 @@
     <Replace Tag="LOC_RESOURCE_LEATHER_NAME" 	Text="Leather" 		Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_MEDECINE_NAME" 	Text="Medecine" 	Language="en_US" /> 
 	
+    <Replace Tag="LOC_EQUIPMENT_LEATHER_NAME" 	Text="Leather Equipment" 	Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_IRON_NAME" 		Text="Iron Equipment" 		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 	Text="Chariot" 				Language="en_US" /> 
+	
   </LocalizedText>
   
   <LocalizedText> <!-- Buildings -->
@@ -616,6 +623,10 @@
     <Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 	Text="Small Stable"		Language="en_US" /> 
     <Replace Tag="LOC_BUILDING_SMALL_STABLE_DESCRIPTION" Language="en_US">
       <Text>Convert Wood to Chariot.</Text>
+    </Replace>
+    <Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 	Text="Blacksmith"		Language="en_US" /> 
+    <Replace Tag="LOC_BUILDING_BLACKSMITH_DESCRIPTION" Language="en_US">
+      <Text>Convert Iron to Iron Materiel and Materiel.</Text>
     </Replace>
 	
   </LocalizedText>

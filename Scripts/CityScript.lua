@@ -129,15 +129,6 @@ for row in GameInfo.UnitEquipmentResources() do
 	table.insert (EquipmentResources[equipmentID], resourceID)
 end
 --]]
-local IsEquipment	= {}
-for row in GameInfo.Resources() do
-	local resourceType	= row.ResourceType
-	local strStart, strEnd 	= string.find(resourceType, "EQUIPMENT_")
-	if strStart and strStart == 1 and strEnd == 10 then
-		IsEquipment[row.Index] = true
-	end
-end
-
 
 local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)
@@ -201,17 +192,6 @@ local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 local foodResourceKey			= tostring(foodResourceID)
 local personnelResourceKey		= tostring(personnelResourceID)
 
-local ResourceTempIcons = {		-- Table to store temporary icons for resources until new FontIcons could be added...
-		[woodResourceID] 		= "[ICON_RESOURCE_CLOVES]",
-		[materielResourceID] 	= "[ICON_Charges]",
-		[steelResourceID] 		= "[ICON_New]",
-		[medecineResourceID] 	= "[ICON_Damaged]",
-		[leatherResourceID] 	= "[ICON_New]",
-		[plantResourceID] 		= "[ICON_RESOURCE_CINNAMON]",
-		[foodResourceID] 		= "[ICON_Food]",
-		[personnelResourceID]	= "[ICON_Position]",
-	}
-
 local BaseImprovementMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
 local BaseCollectCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_COLLECT_COST_MULTIPLIER"].Value)
 local ImprovementCostRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_IMPROVEMENT_COST_RATIO"].Value)
@@ -226,6 +206,7 @@ local directReinforcement = { 				-- cached table with "resources" that are dire
 		[materielResourceID] 	= true,
 		[horsesResourceID] 		= true,
 		[personnelResourceID] 	= true,
+		[medecineResourceID] 	= true,
 	}
 
 local notAvailableToExport = {} 			-- cached table with "resources" that can't be exported to other Civilizations
@@ -722,11 +703,13 @@ function UpdateLinkedUnits(self)
 			if unit then
 				LinkedUnits[selfKey][unit] = {NeedResources = {}}
 				local requirements 	= unit:GetRequirements()
+				--[[
 				if requirements.Equipment > 0 then
 					UnitsSupplyDemand[selfKey].Equipment 		= ( UnitsSupplyDemand[selfKey].Equipment 		or 0 ) + GCO.Round(requirements.Equipment*efficiency/100)
 					UnitsSupplyDemand[selfKey].NeedEquipment 	= ( UnitsSupplyDemand[selfKey].NeedEquipment 	or 0 ) + 1
 					LinkedUnits[selfKey][unit].NeedEquipment	= true
 				end
+				--]]
 
 				for resourceID, value in pairs(requirements.Resources) do
 					if value > 0 then
@@ -807,10 +790,13 @@ function UpdateTransferCities(self)
 
 	local hasRouteTo 	= {}
 	local ownerID 		= self:GetOwner()
-	local player 		= GCO.GetPlayer(ownerID)
+	local player 		= Players[ownerID] --GCO.GetPlayer(ownerID) --<-- player:GetCities() sometime don't give the city objects from this script context
 	local playerCities 	= player:GetCities()
 	for i, transferCity in playerCities:Members() do
 		if transferCity ~= self then
+		print(transferCity)
+		print(transferCity:GetName())
+		print(transferCity:GetKey())
 			local transferKey = transferCity:GetKey()
 			-- search for trader routes first
 			local trade = GCO.GetCityTrade(transferCity)
@@ -883,7 +869,7 @@ function TransferToCities(self)
 		if supplyDemand.HasPrecedence[resourceID] then -- one city has made a prioritary request for that resource
 			local bHasLocalPrecedence = (UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID]) -- to do : a function to test all precedence, and another to return the number of unit of resource required
 			if bHasLocalPrecedence then
-				availableStock = math.max(availableStock, GCO.Round(self:GetStock(resourceID)/3))
+				availableStock = math.max(availableStock, GCO.Round(self:GetAvailableStockForUnits(resourceID)/2)) -- sharing unit stock when both city
 			else
 				availableStock = math.max(availableStock, GCO.Round(self:GetStock(resourceID)/2))
 			end
@@ -940,7 +926,7 @@ function UpdateExportCities(self)
 	local hasRouteTo 	= {}
 
 	for iPlayer = 0, PlayerManager.GetWasEverAliveCount() - 1 do
-		local player 	= GCO.GetPlayer(iPlayer)
+		local player 	= Players[iPlayer] --GCO.GetPlayer(iPlayer) --<-- player:GetCities() sometime don't give the city object from this script context
 		local pDiplo 	= player:GetDiplomacy()
 		if iPlayer ~= ownerID and pDiplo and pDiplo:HasMet( ownerID ) and (not pDiplo:IsAtWarWith( ownerID )) then
 			local playerConfig = PlayerConfigurations[iPlayer]
@@ -948,6 +934,9 @@ function UpdateExportCities(self)
 			local playerCities 	= player:GetCities()
 			for i, transferCity in playerCities:Members() do
 				if transferCity ~= self then
+		print(transferCity)
+		print(transferCity:GetName())
+		print(transferCity:GetKey())
 					local transferKey = transferCity:GetKey()
 					-- search for trader routes first
 					local trade = GCO.GetCityTrade(transferCity)
@@ -1314,7 +1303,7 @@ function GetMaxStock(self, resourceID)
 	if resourceID == personnelResourceID then return self:GetMaxPersonnel() end
 	local maxStock = self:GetSize() * ResourceStockPerSize
 	if resourceID == foodResourceID then maxStock = maxStock + baseFoodStock end
-	if IsEquipment[resourceID] 		then maxStock = EquipmentBaseStock end	-- Equipment stock does not depend of city size, just buildings
+	if GCO.IsResourceEquipment(resourceID) 		then maxStock = EquipmentBaseStock end	-- Equipment stock does not depend of city size, just buildings
 	if ResourceStockage[resourceID] then
 		for _, buildingID in ipairs(ResourceStockage[resourceID]) do
 			if self:GetBuildings():HasBuilding(buildingID) then
@@ -1573,13 +1562,8 @@ function GetResourcesStockTable(self)
 			local resourceCost 		= self:GetResourceCost(resourceID)
 			local costVariation 	= self:GetResourceCostVariation(resourceID)
 			local resRow 			= GameInfo.Resources[resourceID]
-
-			if ResourceTempIcons[resourceID] then
-				rowTable.Icon = ResourceTempIcons[resourceID]
-			else
-				rowTable.Icon = "[ICON_"..tostring(resRow.ResourceType) .. "]"
-			end
 			
+			rowTable.Icon 			= GCO.GetResourceIcon(resourceID)			
 			rowTable.Name 			= Locale.Lookup(resRow.Name)			
 			local toolTipHeader		= rowTable.Icon .. " " .. rowTable.Name .. "[NEWLINE][COLOR_Grey]------------------------------------------[ENDCOLOR][NEWLINE]"			
 			rowTable.Stock 			= value
@@ -1637,12 +1621,12 @@ function GetResourcesSupplyTable(self)
 		local resourceID 	= resRow.Index
 	--for resourceKey, useData in pairs(data.ResourceUse[turnKey]) do
 
-		local Collect 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Collect, 2) 	--GCO.TableSummation(useData[ResourceUseType.Collect])
-		local Product 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Product, 2) 	--GCO.TableSummation(useData[ResourceUseType.Product])
-		local Import 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Import, 2) 		--GCO.TableSummation(useData[ResourceUseType.Import])
-		local TransferIn 	= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.TransferIn, 2)	--GCO.TableSummation(useData[ResourceUseType.TransferIn])
-		local Pillage 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Pillage, 2) 	--GCO.TableSummation(useData[ResourceUseType.Pillage])
-		local OtherIn 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.OtherIn, 2) 	--GCO.TableSummation(useData[ResourceUseType.OtherIn])
+		local Collect 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey)
+		local Product 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey)
+		local Import 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
+		local TransferIn 	= self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey)
+		local Pillage 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey)
+		local OtherIn 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey)
 		local TotalIn		= Collect + Product + Import + TransferIn + Pillage + OtherIn
 
 		if (TotalIn > 0) then
@@ -1650,12 +1634,7 @@ function GetResourcesSupplyTable(self)
 			--local resourceID 		= tonumber(resourceKey)
 			--local resRow 			= GameInfo.Resources[resourceID]
 
-			if ResourceTempIcons[resourceID] then
-				rowTable.Icon = ResourceTempIcons[resourceID]
-			else
-				rowTable.Icon = "[ICON_"..tostring(resRow.ResourceType) .. "]"
-			end
-			
+			rowTable.Icon 		= GCO.GetResourceIcon(resourceID)			
 			rowTable.Name 		= Locale.Lookup(resRow.Name)
 
 			if Collect 		== 0 then  Collect		= "-" end
@@ -1684,22 +1663,23 @@ function GetResourcesSupplyTable(self)
 end
 
 function GetResourcesDemandTable(self)
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetTurnKey()
-	local data 			= ExposedMembers.CityData[cityKey]
-	local demandTable	= {}
+	local cityKey 			= self:GetKey()
+	local turnKey 			= GCO.GetTurnKey()
+	local previousTurnKey	= GCO.GetPreviousTurnKey()
+	local data 				= ExposedMembers.CityData[cityKey]
+	local demandTable		= {}
 	if not data.ResourceUse[turnKey] then return {} end
 	--for resourceKey, useData in pairs(data.ResourceUse[turnKey]) do
 	
 	for resRow in GameInfo.Resources() do
 		local resourceID 	= resRow.Index
 
-		local Consume 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Consume, 2) 	--GCO.TableSummation(useData[ResourceUseType.Consume])
-		local Export 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Export, 2) 		--GCO.TableSummation(useData[ResourceUseType.Export])
-		local TransferOut 	= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.TransferOut, 2) --GCO.TableSummation(useData[ResourceUseType.TransferOut])
-		local Supply 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Supply, 2)		--GCO.TableSummation(useData[ResourceUseType.Supply])
-		local Stolen 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Stolen, 2) 		--GCO.TableSummation(useData[ResourceUseType.Stolen])
-		local OtherOut 		= self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.OtherOut, 2) 	--GCO.TableSummation(useData[ResourceUseType.OtherOut])
+		local Consume 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, turnKey)
+		local Export 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Export, turnKey)
+		local TransferOut 	= self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferOut, turnKey)
+		local Supply 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Supply, turnKey)
+		local Stolen 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey) -- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
+		local OtherOut 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherOut, turnKey)
 		local TotalOut		= Consume + Export + TransferOut + Supply + Stolen + OtherOut
 
 		if (TotalOut > 0) then
@@ -1707,12 +1687,7 @@ function GetResourcesDemandTable(self)
 			--local resourceID 		= tonumber(resourceKey)
 			--local resRow 			= GameInfo.Resources[resourceID]
 
-			if ResourceTempIcons[resourceID] then
-				rowTable.Icon = ResourceTempIcons[resourceID]
-			else
-				rowTable.Icon = "[ICON_"..tostring(resRow.ResourceType) .. "]"
-			end
-			
+			rowTable.Icon 		= GCO.GetResourceIcon(resourceID)			
 			rowTable.Name 		= Locale.Lookup(resRow.Name)
 			
 			if Consume 		== 0 then  Consume		= "-" end
@@ -1802,7 +1777,6 @@ function GetTransferCitiesTable(self)
 	table.sort(citiesTable, function(a, b) return a.Efficiency > b.Efficiency; end)
 	return citiesTable
 end
-
 
 function GetSupplyLinesTable(self)
 	local cityKey 		= self:GetKey()
@@ -1977,11 +1951,14 @@ function GetResourcesStockString(self)
 			local costVariation 	= self:GetResourceCostVariation(resourceID)
 			local resRow 			= GameInfo.Resources[resourceID]
 
+			--[[
 			if ResourceTempIcons[resourceID] then
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, ResourceTempIcons[resourceID])
 			else
 				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, resRow.ResourceType)
 			end
+			--]]
+			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))			
 
 			str = str .. GCO.GetVariationString(stockVariation)
 
@@ -2195,7 +2172,7 @@ function DoReinforceUnits(self)
 	end
 	reqValue = {}
 	for resourceID, value in pairs(reinforcements.Resources) do
-		if directReinforcement[resourceID]  then
+		--if directReinforcement[resourceID]  then
 			local resLeft = value
 			local maxLoop = 5
 			local loop = 0
@@ -2218,9 +2195,9 @@ function DoReinforceUnits(self)
 				end
 				loop = loop + 1
 			end
-		else
+		--else
 			-- todo : make vehicles from resources
-		end
+		--end
 	end
 
 end

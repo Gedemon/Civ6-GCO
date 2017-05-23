@@ -28,6 +28,35 @@ local ResourceValue 		= {			-- cached table with value of resources type
 		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
 }
 
+local IsEquipment	= {}
+for row in GameInfo.Resources() do
+	local resourceType	= row.ResourceType
+	local strStart, strEnd 	= string.find(resourceType, "EQUIPMENT_")
+	if strStart and strStart == 1 and strEnd == 10 then
+		IsEquipment[row.Index] = true
+	end
+end
+
+local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
+local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
+local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
+local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
+local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
+local medecineResourceID		= GameInfo.Resources["RESOURCE_MEDECINE"].Index
+local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
+local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
+
+local ResourceTempIcons = {		-- Table to store temporary icons for resources until new FontIcons could be added...
+		[woodResourceID] 		= "[ICON_RESOURCE_CLOVES]",
+		[materielResourceID] 	= "[ICON_Charges]",
+		[steelResourceID] 		= "[ICON_New]",
+		[medecineResourceID] 	= "[ICON_Damaged]",
+		[leatherResourceID] 	= "[ICON_New]",
+		[plantResourceID] 		= "[ICON_RESOURCE_CINNAMON]",
+		[foodResourceID] 		= "[ICON_Food]",
+		[personnelResourceID]	= "[ICON_Position]",
+	}
+
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
 local FLOATING_TEXT_SHORT 	= 1
@@ -329,6 +358,23 @@ function GetBaseResourceCost(resourceID)
 	return ResourceValue[resourceClassType] or 0
 end
 
+function IsResourceEquipment(resourceID)
+	return IsEquipment[resourceID]
+end
+
+function GetResourceIcon(resourceID)
+	local iconStr = ""
+	if ResourceTempIcons[resourceID] then
+		iconStr = ResourceTempIcons[resourceID]
+	elseif IsEquipment[resourceID] then
+		iconStr = "[ICON_Production]"
+	else
+		local resRow = GameInfo.Resources[resourceID]
+		iconStr = "[ICON_"..tostring(resRow.ResourceType) .. "]"
+	end		
+	return iconStr
+end
+
 ----------------------------------------------
 -- Units
 ----------------------------------------------
@@ -432,6 +478,8 @@ function Initialize()
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
 	-- Resources
 	ExposedMembers.GCO.GetBaseResourceCost 			= GetBaseResourceCost
+	ExposedMembers.GCO.IsResourceEquipment			= IsResourceEquipment
+	ExposedMembers.GCO.GetResourceIcon				= GetResourceIcon
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 				= GetVariationString

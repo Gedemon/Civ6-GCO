@@ -10,12 +10,18 @@
 		<Row Type="RESOURCE_MEDECINE" 	Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_LEATHER" 	Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_PLANTS" 	Kind="KIND_RESOURCE"/>
+		
+		<Row Type="EQUIPMENT_LEATHER" 	Kind="KIND_RESOURCE"/>
+		<Row Type="EQUIPMENT_IRON" 		Kind="KIND_RESOURCE"/>
+		<Row Type="EQUIPMENT_CHARIOT" 	Kind="KIND_RESOURCE"/>
 	</Types>	
 	
 	<Types> <!-- Buildings -->
 		<Row Type="BUILDING_BUTCHERY" 		Kind="KIND_BUILDING"/>
 		<Row Type="BUILDING_HERBALIST" 		Kind="KIND_BUILDING"/>
 		<Row Type="BUILDING_SLAVE_MARKET" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_SMALL_STABLE" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_BLACKSMITH" 	Kind="KIND_BUILDING"/>
 	</Types>
 
 	<Buildings>
@@ -23,6 +29,7 @@
 		<Row BuildingType="BUILDING_HERBALIST" 		Name="LOC_BUILDING_HERBALIST_NAME" 		Description="LOC_BUILDING_HERBALIST_DESCRIPTION" 	PrereqTech="TECH_POTTERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_SLAVE_MARKET" 	Name="LOC_BUILDING_SLAVE_MARKET_NAME" 	Description="LOC_BUILDING_SLAVE_MARKET_DESCRIPTION" 									PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE"	Name="LOC_BUILDING_SMALL_STABLE_NAME" 	Description="LOC_BUILDING_SMALL_STABLE_DESCRIPTION" 	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		Name="LOC_BUILDING_BLACKSMITH_NAME" 	Description="LOC_BUILDING_BLACKSMITH_DESCRIPTION" 		PrereqTech="TECH_BRONZE_WORKING" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
 	</Buildings>
 	
 	<BuildingPopulationEffect>
@@ -56,7 +63,12 @@
 		
 		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MEDECINE" Ratio="0.5"/>
 		
-		<Row BuildingType="BUILDING_SMALL_STABLE" ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPEMENT_CHARIOT" Ratio="5"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2"/>
+		
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON" 		Ratio="0.8" MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2" 	MultiResCreated="1"/>
+		
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2" 	/>
 		
 	</BuildingResourcesConverted>
 
@@ -66,7 +78,8 @@
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_FOOD" 		Stock="100"/>
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		Stock="1000"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		Stock="200"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPEMENT_CHARIOT" 	Stock="20"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_CHARIOT" 	Stock="50"/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="EQUIPMENT_IRON" 		Stock="100"/>
 	</BuildingStock>
 	
 	<FeatureResourcesProduced>

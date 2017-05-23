@@ -14,6 +14,7 @@ UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMAL
 
 /* Units*/
 UPDATE Units SET PopulationCost ='0';
+UPDATE Units SET StrategicResource = NULL;
 
 /* Game Capabilities */
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_TRADE";
