@@ -90,7 +90,7 @@ infrastructure :
 - when all needs of a class are meet, give a bonus to birth rate
 - if a basic need (food, medecine, basic clothes - and more with eras) can't be satisfied (high cost or shortage), lower local stability
 
-- table
+- table1
 	NeedType
 	ResourceType
 	PopulationType
@@ -99,13 +99,19 @@ infrastructure :
 	NeededCalculType		-> SQUARE_ROOT, FACTOR, MINIMAL(SQUARE_ROOT, FACTOR), MAXIMAL(SQUARE_ROOT, FACTOR)
 	OnlyBonus				-> only apply effect if stock > needed
 	OnlyPenalty				-> only apply effect if stock < needed
+	EffectType				-> HUNGER, ...
+Key(NeedType, ResourceType, PopulationType)
+	
+table2
+	EffectType				-> Same as table 1
+	PopulationType			-> Same as table 1
+	AffectedType			-> DEATH_RATE, BIRTH_RATE, STABILITY, ...
 	EffectCalculType		-> DIFF (max(0,needed-stock)) | PERCENT (MaxEffectValue*(100-stock/needed*100))	  or needed/stock if stock > needed
 	MaxEffectValue			-> max value for the result of EffectCalculType
 	Treshold				-> don't apply value under that Treshold
-	EffectType 				-> ADD, MINUS, ADD_PRECENT, MINUS_PERCENT
-	DeathRateEffectRatio	-> value applied to Death Rate = (result of EffectCalculType) * DeathRateEffectRatio
-	BirthRateEffectRatio
-	StabilityEffectRatio
+	EffectAppliedType		-> ADD, MINUS, ADD_PRECENT, MINUS_PERCENT
+	Ratio					-> Value * ratio applied to AffectedType using EffectAppliedType
+Key(EffectType, PopulationType, AffectedType)
 	
 	NEED_FOOD	RESOURCE_FOOD	POPULATION_ALL	0.5	0.0005	MINIMAL	ADD	PERCENT	25
 	
