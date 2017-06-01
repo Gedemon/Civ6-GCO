@@ -38,17 +38,23 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_WEALTH_MIDDL
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_WEALTH_LOWER_CLASS_RATIO', 			0.50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_WEALTH_SLAVE_CLASS_RATIO', 			0.10);
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_BIRTH_RATE',					25);	-- per 1000 per year
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_USE_REAL_YEARS_FOR_GROWTH_RATE', 	0);		-- 1 = use real number of years between turns to calculate City Growth Rate (much slower in late game)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_GROWTH_RATE_BASE_YEARS', 			10);	-- use this fixed value to calculate City Growth Rate when CITY_USE_REAL_YEARS_FOR_GROWTH_RATE = 0
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_CLASS_MINIMAL_GROWTH_RATE',			-3.5);	-- Minimal value for a population class growth rate, per 1000 per "year"
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_CLASS_MAXIMAL_GROWTH_RATE',			3.5);	-- Maximal value for a population class growth rate, per 1000 per "year"
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_BIRTH_RATE',					25);	-- per 1000 per "year"
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_UPPER_CLASS_BIRTH_RATE_FACTOR', 	0.45);		
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIDDLE_CLASS_BIRTH_RATE_FACTOR', 	1.00);	
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LOWER_CLASS_BIRTH_RATE_FACTOR', 	2.00);	
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_SLAVE_CLASS_BIRTH_RATE_FACTOR', 	2.00);
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_DEATH_RATE',					17);	-- per 1000 per year
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_DEATH_RATE',					17);	-- per 1000 per "year"
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_UPPER_CLASS_DEATH_RATE_FACTOR',		0.40);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIDDLE_CLASS_DEATH_RATE_FACTOR',	1.00);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LOWER_CLASS_DEATH_RATE_FACTOR',		2.25);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_SLAVE_CLASS_DEATH_RATE_FACTOR',		2.50);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_SLAVE_CLASS_DEATH_RATE_FACTOR',		3.00);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LIGHT_RATIONING_BIRTH_PERCENT', 	1);		-- percentage of actual birth rate variation from food rationing
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MEDIUM_RATIONING_BIRTH_PERCENT', 	5);

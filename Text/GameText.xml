@@ -15,6 +15,13 @@
 		<!-- +       New entries      + -->
 		<!-- ++++++++++++++++++++++++++ -->
 	
+  <LocalizedText> <!-- Common -->
+	
+    <Replace Tag="LOC_TOOLTIP_SEPARATOR"	Text="[NEWLINE][COLOR_Grey]------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" /> 
+	
+  </LocalizedText>	
+	
+	
   <LocalizedText> <!-- To show FontIcons on Pedia front page... -->
 	
 	<!-- To show FontIcons on Pedia front page... -->
@@ -501,23 +508,44 @@
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_COLLECT_TOOLTIP" Language="en_US">
       <Text>Resources collected on the city's surrounding terrain</Text>
     </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_COLLECT_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} collected on the city's surrounding terrain</Text>
+    </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_PRODUCT_TOOLTIP" Language="en_US">
       <Text>Resources produced by the city itself or specific buildings</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_PRODUCT_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} produced by the city itself or specific buildings</Text>
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_IMPORT_TOOLTIP" Language="en_US">
       <Text>Resources imported from other Civilizations</Text>
     </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_IMPORT_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} imported from other Civilizations</Text>
+    </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_TRANSFER_IN_TOOLTIP" Language="en_US">
       <Text>Resources transfered from your other cities</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TRANSFER_IN_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} transfered from your other cities</Text>
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_PILLAGE_TOOLTIP" Language="en_US">
       <Text>Resources gathered by your units</Text>
     </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_PILLAGE_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} gathered by your units</Text>
+    </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_OTHER_IN_TOOLTIP" Language="en_US">
       <Text>Resources coming from other sources</Text>
     </Replace>
-	<Replace Tag="LOC_HUD_CITY_RESOURCES_TOTAL_SUPPLY_TOOLTIP" Language="en_US">
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_OTHER_IN_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} coming from other sources</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TOTAL_IN_TOOLTIP" Language="en_US">
       <Text>Total Supply from all sources</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TOTAL_IN_DETAILS_TOOLTIP" Language="en_US">
+      <Text>Total Supply of {1_Name} from all sources</Text>
     </Replace>
 	
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_CONSUME_TOOLTIP" Language="en_US">
@@ -536,10 +564,32 @@
       <Text>Resources stolen by ennemy units</Text>
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_OTHER_OUT_TOOLTIP" Language="en_US">
-      <Text>Resources used by other sources</Text>
+      <Text>Resources used by other demands</Text>
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_TOTAL_OUT_TOOLTIP" Language="en_US">
-      <Text>Total used from all sources</Text>
+      <Text>Total used from all demands</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_CONSUME_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} consumed by the city's buildings or population</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_UNIT_SUPPLY_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} used to reinforce units</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_EXPORT_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} exported to other Civilizations</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TRANSFER_OUT_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} transfered to your other cities</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_STOLEN_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} stolen by ennemy units</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_OTHER_OUT_DETAILS_TOOLTIP" Language="en_US">
+      <Text>{1_Name} used by other demands</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_TOTAL_OUT_DETAILS_TOOLTIP" Language="en_US">
+      <Text>Total usage of {1_Name} from all demands</Text>
     </Replace>
 	
 	<Replace Tag="LOC_HUD_CITY_ROUTE_TYPE_TOOLTIP" Language="en_US">
@@ -569,7 +619,7 @@
     </Replace>
 	
 	<Replace Tag="LOC_HUD_CITY_STOCK_TOOLTIP" Language="en_US">
-      <Text>{1_Num} available for own cities (minimal stock : {2_Num})[NEWLINE]{3_Num} available for industries (minimal stock : {4_Num})[NEWLINE]{5_Num} available for units (minimal stock : {6_Num})[NEWLINE]{7_Num} available for export (minimal stock : {8_Num})[NEWLINE]</Text>
+      <Text>{1_Num} available for your other cities (minimal stock : {2_Num})[NEWLINE]{3_Num} available for industries (minimal stock : {4_Num})[NEWLINE]{5_Num} available for units (minimal stock : {6_Num})[NEWLINE]{7_Num} available for export (minimal stock : {8_Num})[NEWLINE]</Text>
     </Replace>
 	
 	

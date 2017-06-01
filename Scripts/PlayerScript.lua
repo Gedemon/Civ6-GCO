@@ -9,6 +9,8 @@ print ("Loading PlayerScript.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
+local _cached				= {}	-- cached table to reduce calculations
+
 
 -----------------------------------------------------------------------------------------
 -- Initialize
@@ -47,6 +49,35 @@ end
 -----------------------------------------------------------------------------------------
 -- Player functions
 -----------------------------------------------------------------------------------------
+
+function UpdatePopulationNeeds(self)
+	local era = self:GetEra()
+	for row in GameInfo.PopulationNeeds() do
+		local startEra 	= GameInfo.Eras[row.StartEra].Index
+		local EndEra	= GameInfo.Eras[row.EndEra].Index
+		if (not startEra or (startEra and startEra >= era)) and (not EndEra or (EndEra and EndEra < era)) then
+			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+			local populationID 	= GameInfo.Populations[row.PopulationType].Index
+			if not _cached.PopulationNeeds then _cached.PopulationNeeds = {} end
+			if not _cached.PopulationNeeds[populationID] then _cached.PopulationNeeds[populationID] = {} end
+			if not _cached.PopulationNeeds[populationID][resourceID] then _cached.PopulationNeeds[populationID][resourceID] = {} end
+			if not _cached.PopulationNeeds[populationID][resourceID][row.AffectedType] then _cached.PopulationNeeds[populationID][resourceID][row.AffectedType] = {} end
+			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].NeededCalculFunction 	= loadstring(row.NeededCalculFunction)
+			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].EffectCalculFunction 	= loadstring(row.EffectCalculFunction)
+			--_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].StartEra 				= GameInfo.Eras[row.StartEra].Index
+			--_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].EndEra 				= GameInfo.Eras[row.EndEra].Index
+			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].OnlyBonus 				= row.OnlyBonus
+			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].OnlyPenalty 			= row.OnlyPenalty
+			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].MaxEffectValue 			= row.MaxEffectValue
+			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].Treshold 				= row.Treshold
+		end		 
+	end
+end
+
+function GetPopulationNeeds(self, populationID)
+	if not _cached.PopulationNeeds then self:UpdatePopulationNeeds() end
+	return _cached.PopulationNeeds[populationID]
+end
 
 function InitializeData(self)
 	local playerKey = self:GetKey()
@@ -119,6 +150,7 @@ function DoPlayerTurn( playerID )
 	print("---============================================================================================================================================================================---")
 	print("--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
 	print("---============================================================================================================================================================================---")
+	player:UpdatePopulationNeeds()
 	LuaEvents.DoUnitsTurn( playerID )
 	LuaEvents.DoCitiesTurn( playerID )
 	-- update flags after resources transfers
@@ -177,6 +209,8 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.SetCurrentTurn			= SetCurrentTurn
 	p.HasStartedTurn			= HasStartedTurn
 	p.UpdateDataOnNewTurn		= UpdateDataOnNewTurn
+	p.UpdatePopulationNeeds		= UpdatePopulationNeeds
+	p.GetPopulationNeeds		= GetPopulationNeeds
 	
 end
 

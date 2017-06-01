@@ -68,7 +68,14 @@
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON" 		Ratio="0.8" MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2" 	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2" 	/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2" 	/>		
+		
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_RICE" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_DEER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_BANANAS" MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
 		
 	</BuildingResourcesConverted>
 
@@ -97,6 +104,11 @@
 		<Row PopulationType="POPULATION_SLAVE" 	Name="LOC_POPULATION_SLAVE_NAME" 	Description="LOC_POPULATION_SLAVE_DESCRIPTION"/>
 		<Row PopulationType="POPULATION_ALL" 	Name="LOC_POPULATION_ALL_NAME" 		Description="LOC_POPULATION_ALL_DESCRIPTION"/>
 	</Populations>
+	
+	<PopulationNeeds>
+		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_MIDDLE" 	AffectedType="DEATH_RATE"	OnlyPenalty="1"	NeededCalculFunction="local pop, stock = ...; return(math.min(pop*0.001,math.sqrt(pop)*0.25));"	EffectCalculFunction="local pop, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
+		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_UPPER" 	AffectedType="DEATH_RATE"	OnlyPenalty="1"	NeededCalculFunction="local pop, stock = ...; return(math.min(pop*0.001,math.sqrt(pop)*0.25));"	EffectCalculFunction="local pop, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
+	</PopulationNeeds>
 		
 	<Resources>
 		<Row ResourceType="RESOURCE_FOOD" 		Name="LOC_RESOURCE_FOOD_NAME" 		ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>

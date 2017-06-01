@@ -94,6 +94,8 @@ infrastructure :
 	NeedType
 	ResourceType
 	PopulationType
+	StartEra
+	EndEra
 	SquareRatio 			-> √(pop) * ratio 
 	FactorRatio				-> (pop * ratio)
 	NeededCalculType		-> SQUARE_ROOT, FACTOR, MINIMAL(SQUARE_ROOT, FACTOR), MAXIMAL(SQUARE_ROOT, FACTOR)
@@ -119,6 +121,12 @@ Key(EffectType, PopulationType, AffectedType)
 	needed = ARRONDI(MIN(B4*$A$5;(RACINE(B4)*$A$4)))
 	needed with FactorRatio = ARRONDI(B4*$A$5)
 	needed with SquareRatio = ARRONDI(RACINE(B4)*$A$4)
+
+chunk = loadstring("local a, b, c = ...;") -- In 5.1, chunks are compiled as vararg functions, not as functions of no arguments.
+	
+or	
+
+chunk = loadstring("return function(a, b, c) " .. chunkstring .. " end")() -- "double call" mechanism
 	
 --]]
 	
@@ -565,6 +573,7 @@ each turn
 
 Military cards policies:
 	- Foreign Legion : can draft foreign citizens in the army
+	- Both sex in the army : can draft more citizen, lower birth rate
 
 --]]	
 
@@ -661,6 +670,8 @@ UI :
 --===============================--
 --[[ RESOURCE STOCK (REVISED)
 --===============================--
+
+to do: always transfer excedents
 
 MIN_PERCENT_LEFT_TO_SELL 		-- Selling to another Civ
 MIN_PERCENT_LEFT_TO_CONVERT		-- Converted in local industry

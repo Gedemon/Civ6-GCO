@@ -12,9 +12,56 @@
 UPDATE GoodyHuts 			SET Weight = 0 WHERE GoodyHutType 		<> 'GOODYHUT_GOLD';
 UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMALL_GOLD';
 
-/* Units*/
+/* Units */
 UPDATE Units SET PopulationCost ='0';
 UPDATE Units SET StrategicResource = NULL;
+
+/* Districts */
+--UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_HARBOR';
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_CAMPUS';
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_THEATER';
+
+--DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_CAMPUS';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_COMMERCIAL_HUB';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_ENTERTAINMENT_COMPLEX';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_THEATER';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_HOLY_SITE';
+
+
+/* Start */
+UPDATE StartEras SET Tiles = '0';
+
+/* Remove Faith */
+--DELETE FROM Districts WHERE YieldType='YIELD_FAITH';
+DELETE FROM Buildings WHERE PurchaseYield='YIELD_FAITH';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_TEMPLE';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_STAVE_CHURCH';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
+DELETE FROM Units WHERE PurchaseYield='YIELD_FAITH';
+
+DELETE FROM Feature_YieldChanges WHERE YieldType ='YIELD_FAITH';
+UPDATE GreatWork_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
+DELETE FROM Improvement_YieldChanges WHERE YieldType ='YIELD_FAITH';
+UPDATE Improvement_BonusYieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
+UPDATE Adjacency_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
+UPDATE ModifierArguments SET Value = 'YIELD_CULTURE' WHERE Value ='YIELD_FAITH';
+UPDATE Resource_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
+DELETE FROM Map_GreatPersonClasses WHERE GreatPersonClassType ='GREAT_PERSON_CLASS_PROPHET';
+DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
+
+--UPDATE Resource_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
+--UPDATE Resource_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
+--UPDATE Resource_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
+--UPDATE Resource_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
+
+
 
 /* Game Capabilities */
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_TRADE";

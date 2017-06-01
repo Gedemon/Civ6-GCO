@@ -134,5 +134,24 @@ CREATE TABLE IF NOT EXISTS UnitEquipments
 		CanBeRepaired BOOLEAN NOT NULL CHECK (CanBeRepaired IN (0,1)) DEFAULT 1,	-- Can this equipment be repaired on the fiel, or does it need a complete replacement
 		UseInStats BOOLEAN NOT NULL CHECK (UseInStats IN (0,1)) DEFAULT 1,			-- Should we track losses in unit's statistic
 		PRIMARY KEY(EquipmentType)
+	);	
+	
+CREATE TABLE IF NOT EXISTS PopulationNeeds
+	(
+		ResourceType TEXT NOT NULL,
+		PopulationType TEXT NOT NULL,
+		--EffectType TEXT NOT NULL,		-- HUNGER, ... (allow same resource and same population type to have different effect
+		AffectedType TEXT NOT NULL,		-- DEATH_RATE, BIRTH_RATE, STABILITY, ... (same resource, same population and same effect can affect multiple point)
+		StartEra TEXT,
+		EndEra TEXT,
+		NeededCalculFunction TEXT NOT NULL,	-- function to get the value of the need from Population number
+		OnlyBonus BOOLEAN NOT NULL CHECK (OnlyBonus IN (0,1)) DEFAULT 0,	-- only apply effect if stock > needed
+		OnlyPenalty BOOLEAN NOT NULL CHECK (OnlyPenalty IN (0,1)) DEFAULT 1,	-- only apply effect if stock < needed		
+		EffectCalculFunction TEXT NOT NULL,	-- DIFF (max(0,needed-stock)) | PERCENT (MaxEffectValue*(100-stock/needed*100))	  or needed/stock if stock > needed
+		MaxEffectValue INTEGER,			-- max value for the result of EffectCalculType
+		Treshold INTEGER,				-- don't apply value under that Treshold
+		PRIMARY KEY(ResourceType, PopulationType, AffectedType),
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (PopulationType) REFERENCES Populations(PopulationType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 

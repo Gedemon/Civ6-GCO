@@ -47,6 +47,7 @@ function PostInitialize() -- everything that may require other context to be loa
 	SetCultureDiffusionRatePer1000()
 end
 
+
 -----------------------------------------------------------------------------------------
 -- Plots Functions
 -----------------------------------------------------------------------------------------
@@ -571,6 +572,7 @@ function DiffuseCulture( self )
 	end
 	--table.insert(debugTable, "----- ----- -----")
 end
+
 
 -----------------------------------------------------------------------------------------
 -- Other Functions

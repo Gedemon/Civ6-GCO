@@ -640,7 +640,7 @@
 				<Label		ID="OtherIn"	Anchor="R,C"	Style="CityPanelTextSmall"	String=""	ToolTip="LOC_HUD_CITY_RESOURCES_OTHER_IN_TOOLTIP" />
 			</Container>			
 			<Container																										Size="30,12">
-				<Label		ID="TotalIn"	Anchor="R,C"	Style="CityPanelTextSmall"	String=""	ToolTip="LOC_HUD_CITY_RESOURCES_TOTAL_SUPPLY_TOOLTIP" />
+				<Label		ID="TotalIn"	Anchor="R,C"	Style="CityPanelTextSmall"	String=""	ToolTip="LOC_HUD_CITY_RESOURCES_TOTAL_IN_TOOLTIP" />
 			</Container>
 		</Stack>
     </Grid>

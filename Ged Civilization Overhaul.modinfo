@@ -104,6 +104,9 @@
 			</Items>
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
+           	<Properties>
+				<LoadOrder>100050</LoadOrder>
+           	</Properties>
 			<Items>
 				<File>Data/GlobalParameters.sql</File>
 				<File>Data/CultureDiffusionParameters.sql</File>

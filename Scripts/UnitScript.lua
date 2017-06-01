@@ -2208,6 +2208,7 @@ function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	--
 	ExposedMembers.GCO.GetUnit 						= GetUnit
+	ExposedMembers.GCO.GetUnitFromKey 				= GetUnitFromKey
 	ExposedMembers.GCO.AttachUnitFunctions 			= AttachUnitFunctions
 	--
 	ExposedMembers.UnitScript_Initialized 	= true

@@ -1341,16 +1341,10 @@ function CityBanner.UpdateName( self : CityBanner )
 				function ShowSupplyLine()
 					if bShownSupplyLine then return end
 					local cityList = {}
-					local linkedCities = city:GetTransferCities() or {}
 					
+					local linkedCities = city:GetTransferCities() or {}					
 					local exportCities = city:GetExportCities() or {}
-					--[[
-					if exportCities then
-						for cityKey, data in pairs(exportCities) do
-							linkedCities[cityKey] = data -- we can't do that, linkedCities is now the same object as CitiesForTransfer[selfKey], if we add export cities to it, it's also added in CityScript context
-						end
-					end
-					--]]
+					
 					if not (linkedCities or exportCities) then return end
 					UILens.SetActive("TradeRoute")
 					UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )

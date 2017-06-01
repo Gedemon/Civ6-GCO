@@ -9,9 +9,22 @@
 -- on the condition that this comment block is preserved in its entirity
 --
 
--- Partially converted to civ6 by Gedemon (don't use "Road" or "Railroad")
+-- Partially converted to civ6 by Gedemon
 
 print("Loading RouteConnections.lua.")
+
+-- GCO <<<<<
+-----------------------------------------------------------------------------------------
+-- Initialize Functions
+-----------------------------------------------------------------------------------------
+
+local GCO = {}
+function InitializeUtilityFunctions()
+	GCO = ExposedMembers.GCO		-- contains functions from other contexts
+	print ("Exposed Functions from other contexts initialized...")
+end
+LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+-- GCO >>>>>
 
 -------------------------------------------------------------------------------------------
 -- FLuaVector
@@ -92,6 +105,10 @@ function isCityConnected(pPlayer, pStartCity, pTargetCity, sRoute, bShortestRout
 end
 
 function isPlotConnected(pPlayer, pStartPlot, pTargetPlot, sRoute, bShortestRoute, sHighlight, fBlockaded)
+
+  local pStartPlot 	= GCO.GetPlotByIndex(pStartPlot:GetIndex()) 	-- Make sure we are working with script context plots...
+  local pTargetPlot = GCO.GetPlotByIndex(pTargetPlot:GetIndex()) 	-- 
+  
   if (bShortestRoute) then
     lastRouteLength = plotToPlotShortestRoute(pPlayer, pStartPlot, pTargetPlot, sRoute, highlights[sHighlight], fBlockaded)
   else
@@ -274,6 +291,7 @@ opposed = {
 -- Return a list of (up to 6) reachable plots from this one by route type
 function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
   local list = nil
+  GCO.InitializePlotFunctions(pPlot)
 
   for loop, direction in ipairs(directions) do
     local pDestPlot = Map.GetAdjacentPlot(pPlot:GetX(), pPlot:GetY(), direction)
@@ -304,7 +322,7 @@ function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
           bAdd = true
         elseif (sRoute == routes[6] and pDestPlot:IsWater()) then
           bAdd = true
-        elseif (sRoute == routes[7] and (pDestPlot:IsRiverConnection(direction) or pDestPlot:IsRiverConnection(opposed[direction])) ) then -- to do allows only descending = IsRiverConnection(direction) until specific technologie...
+        elseif (sRoute == routes[7] and (pDestPlot:IsRiverConnection(direction) or pPlot:IsRiverConnection(opposed[direction])) ) then -- to do allows only descending = IsRiverConnection(direction) until specific technologie...
           bAdd = true
         end
 

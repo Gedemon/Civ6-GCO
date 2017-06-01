@@ -316,12 +316,19 @@ function ViewPanelResourcesSupply( data:table )
 		kInstance.Name:SetText		( row.Icon )
 		kInstance.Name:SetToolTipString( row.Name )
 		kInstance.Collect:SetText	( row.Collect )
+		kInstance.Collect:SetToolTipString	( row.CollectToolTip )
 		kInstance.Product:SetText	( row.Product )
+		kInstance.Product:SetToolTipString	( row.ProductToolTip )
 		kInstance.Import:SetText	( row.Import )
+		kInstance.Import:SetToolTipString	( row.ImportToolTip )
 		kInstance.TransferIn:SetText( row.TransferIn )
+		kInstance.TransferIn:SetToolTipString	( row.TransferInToolTip )
 		kInstance.Pillage:SetText	( row.Pillage )
+		kInstance.Pillage:SetToolTipString	( row.PillageToolTip )
 		kInstance.OtherIn:SetText	( row.OtherIn )
+		kInstance.OtherIn:SetToolTipString	( row.OtherInToolTip )
 		kInstance.TotalIn:SetText	( row.TotalIn )
+		kInstance.TotalIn:SetToolTipString	( row.TotalInToolTip )
 	end
 	
 	if #data.ResourcesSupply == 0 then
@@ -367,6 +374,14 @@ function ViewPanelResourcesDemand( data:table )
 		kInstance.Stolen:SetText	( row.Stolen 		)
 		kInstance.OtherOut:SetText	( row.OtherOut 		)
 		kInstance.TotalOut:SetText	( row.TotalOut		)
+		
+		kInstance.Consume:SetToolTipString	( row.ConsumeToolTip 		)
+		kInstance.Export:SetToolTipString	( row.ExportToolTip 		)
+		kInstance.TransferOut:SetToolTipString( row.TransferOutToolTip	)
+		kInstance.Supply:SetToolTipString	( row.SupplyToolTip 		)
+		kInstance.Stolen:SetToolTipString	( row.StolenToolTip 		)
+		kInstance.OtherOut:SetToolTipString	( row.OtherOutToolTip 		)
+		kInstance.TotalOut:SetToolTipString	( row.TotalOutToolTip		)
 	end
 	
 	if #data.ResourcesDemand == 0 then
