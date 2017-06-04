@@ -58,7 +58,8 @@ CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
 		MultiResRequired BOOLEAN NOT NULL CHECK (MultiResRequired IN (0,1)) DEFAULT 0,	-- ResourceCreated requires multiple ResourceType (multi rows definition)
 		MultiResCreated BOOLEAN NOT NULL CHECK (MultiResCreated IN (0,1)) DEFAULT 0,	-- 1 unit of ResourceType creates multiple ResourceCreated (multi rows definition)
 		MaxConverted INTEGER NOT NULL DEFAULT 0,
-		Ratio REAL NOT NULL DEFAULT 0,
+		Ratio REAL NOT NULL DEFAULT 1,
+		Priority INTEGER NOT NULL DEFAULT 0, -- higher value means higher priority when consuming resources
 		PRIMARY KEY(BuildingType, ResourceType, ResourceCreated),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,		
@@ -144,6 +145,8 @@ CREATE TABLE IF NOT EXISTS PopulationNeeds
 		AffectedType TEXT NOT NULL,		-- DEATH_RATE, BIRTH_RATE, STABILITY, ... (same resource, same population and same effect can affect multiple point)
 		StartEra TEXT,
 		EndEra TEXT,
+		Priority INTEGER NOT NULL DEFAULT 0, -- higher value means higher priority when consuming resources
+		Ratio REAL NOT NULL DEFAULT 0,	-- consumption ratio
 		NeededCalculFunction TEXT NOT NULL,	-- function to get the value of the need from Population number
 		OnlyBonus BOOLEAN NOT NULL CHECK (OnlyBonus IN (0,1)) DEFAULT 0,	-- only apply effect if stock > needed
 		OnlyPenalty BOOLEAN NOT NULL CHECK (OnlyPenalty IN (0,1)) DEFAULT 1,	-- only apply effect if stock < needed		

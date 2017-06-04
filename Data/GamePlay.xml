@@ -45,21 +45,21 @@
 	</BuildingPopulationEffect>
 	
 	<BuildingResourcesConverted>
-		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
-		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
-		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
-		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_RICE" 	MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_WATER_MILL" ResourceType="RESOURCE_WHEAT" 	MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_COAL" 	MaxConverted="5" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="2"	MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_FACTORY" 	ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="0.5"	MultiResRequired="1"/>
 		
-		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="15" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_DEER" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_DEER" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="3"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_DEER" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_DEER" 	MaxConverted="15" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="2"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="5" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="15" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
 		
 		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MEDECINE" Ratio="0.5"/>
 		
@@ -70,12 +70,12 @@
 		
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2" 	/>		
 		
-		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_RICE" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
-		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
-		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
-		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_DEER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
-		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
-		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_BANANAS" MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_RICE" 	MaxConverted="50" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="50" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="50" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_DEER" 	MaxConverted="50" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="50" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_BANANAS" MaxConverted="50" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 		
 	</BuildingResourcesConverted>
 
@@ -106,8 +106,10 @@
 	</Populations>
 	
 	<PopulationNeeds>
-		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_MIDDLE" 	AffectedType="DEATH_RATE"	OnlyPenalty="1"	NeededCalculFunction="local pop, stock = ...; return(math.min(pop*0.001,math.sqrt(pop)*0.25));"	EffectCalculFunction="local pop, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
-		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_UPPER" 	AffectedType="DEATH_RATE"	OnlyPenalty="1"	NeededCalculFunction="local pop, stock = ...; return(math.min(pop*0.001,math.sqrt(pop)*0.25));"	EffectCalculFunction="local pop, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
+		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_UPPER" 	AffectedType="DEATH_RATE"	Ratio="1.25"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
+		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_MIDDLE" 	AffectedType="DEATH_RATE"	Ratio="0.75"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
+		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_LOWER" 	AffectedType="DEATH_RATE"	Ratio="0.65"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
+		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_SLAVE" 	AffectedType="DEATH_RATE"	Ratio="0.50"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
 	</PopulationNeeds>
 		
 	<Resources>
