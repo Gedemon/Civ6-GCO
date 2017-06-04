@@ -53,30 +53,55 @@ end
 function UpdatePopulationNeeds(self)
 	local era = self:GetEra()
 	for row in GameInfo.PopulationNeeds() do
-		local startEra 	= GameInfo.Eras[row.StartEra].Index
-		local EndEra	= GameInfo.Eras[row.EndEra].Index
-		if (not startEra or (startEra and startEra >= era)) and (not EndEra or (EndEra and EndEra < era)) then
+		if (not row.StartEra or (row.StartEra and GameInfo.Eras[row.StartEra].Index >= era)) and (not row.EndEra or (row.EndEra and GameInfo.Eras[row.EndEra].Index < era)) then
 			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
 			local populationID 	= GameInfo.Populations[row.PopulationType].Index
+			-- Needs by population
 			if not _cached.PopulationNeeds then _cached.PopulationNeeds = {} end
 			if not _cached.PopulationNeeds[populationID] then _cached.PopulationNeeds[populationID] = {} end
 			if not _cached.PopulationNeeds[populationID][resourceID] then _cached.PopulationNeeds[populationID][resourceID] = {} end
 			if not _cached.PopulationNeeds[populationID][resourceID][row.AffectedType] then _cached.PopulationNeeds[populationID][resourceID][row.AffectedType] = {} end
 			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].NeededCalculFunction 	= loadstring(row.NeededCalculFunction)
 			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].EffectCalculFunction 	= loadstring(row.EffectCalculFunction)
-			--_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].StartEra 				= GameInfo.Eras[row.StartEra].Index
-			--_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].EndEra 				= GameInfo.Eras[row.EndEra].Index
 			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].OnlyBonus 				= row.OnlyBonus
 			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].OnlyPenalty 			= row.OnlyPenalty
 			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].MaxEffectValue 			= row.MaxEffectValue
 			_cached.PopulationNeeds[populationID][resourceID][row.AffectedType].Treshold 				= row.Treshold
+			
+			-- Needs by resources
+			if not _cached.ResourcesNeeded then _cached.ResourcesNeeded = {} end
+			if not _cached.ResourcesNeeded[resourceID] then _cached.ResourcesNeeded[resourceID] = {} end
+			if not _cached.ResourcesNeeded[resourceID][populationID] then _cached.ResourcesNeeded[resourceID][populationID] = {} end
+			if not _cached.ResourcesNeeded[resourceID][populationID][row.AffectedType] then _cached.ResourcesNeeded[resourceID][populationID][row.AffectedType] = {} end
+			if not _cached.ResourcesNeeded[resourceID][populationID].Priority then -- use the higher priority value for the couple [resourceID][populationID]
+				_cached.ResourcesNeeded[resourceID][populationID].Priority = row.Priority
+			elseif row.Priority > _cached.ResourcesNeeded[resourceID][populationID].Priority then
+				_cached.ResourcesNeeded[resourceID][populationID].Priority = row.Priority
+			end
+			if not _cached.ResourcesNeeded[resourceID][populationID].Ratio then -- use the higher Ratio value for the couple [resourceID][populationID]
+				_cached.ResourcesNeeded[resourceID][populationID].Ratio = row.Ratio
+			elseif row.Ratio > _cached.ResourcesNeeded[resourceID][populationID].Ratio then
+				_cached.ResourcesNeeded[resourceID][populationID].Ratio = row.Ratio
+			end
 		end		 
 	end
 end
 
 function GetPopulationNeeds(self, populationID)
 	if not _cached.PopulationNeeds then self:UpdatePopulationNeeds() end
-	return _cached.PopulationNeeds[populationID]
+	return _cached.PopulationNeeds[populationID] or {}
+end
+
+function GetResourcesNeededForPopulations(self, resourceID)
+	if not _cached.ResourcesNeeded then self:UpdatePopulationNeeds() end
+	return _cached.ResourcesNeeded[resourceID] or {}
+end
+
+function GetResourcesConsumptionRatioForPopulation(self, resourceID, populationID)
+	if not _cached.ResourcesNeeded then self:UpdatePopulationNeeds() end
+	if not _cached.ResourcesNeeded[resourceID] then return 0 end
+	if not _cached.ResourcesNeeded[resourceID][populationID] then return 0 end
+	return _cached.ResourcesNeeded[resourceID][populationID].Ratio or 0
 end
 
 function InitializeData(self)
@@ -201,16 +226,18 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	if not player then player = Players[0] end
 	local p = getmetatable(player).__index
 	
-	p.GetKey					= GetKey
-	p.InitializeData			= InitializeData
-	p.IsResourceVisible			= IsResourceVisible
-	p.UpdateUnitsFlags			= UpdateUnitsFlags
-	p.UpdateCitiesBanners		= UpdateCitiesBanners
-	p.SetCurrentTurn			= SetCurrentTurn
-	p.HasStartedTurn			= HasStartedTurn
-	p.UpdateDataOnNewTurn		= UpdateDataOnNewTurn
-	p.UpdatePopulationNeeds		= UpdatePopulationNeeds
-	p.GetPopulationNeeds		= GetPopulationNeeds
+	p.GetKey									= GetKey
+	p.InitializeData							= InitializeData
+	p.IsResourceVisible							= IsResourceVisible
+	p.UpdateUnitsFlags							= UpdateUnitsFlags
+	p.UpdateCitiesBanners						= UpdateCitiesBanners
+	p.SetCurrentTurn							= SetCurrentTurn
+	p.HasStartedTurn							= HasStartedTurn
+	p.UpdateDataOnNewTurn						= UpdateDataOnNewTurn
+	p.UpdatePopulationNeeds						= UpdatePopulationNeeds
+	p.GetPopulationNeeds						= GetPopulationNeeds
+	p.GetResourcesNeededForPopulations			= GetResourcesNeededForPopulations
+	p.GetResourcesConsumptionRatioForPopulation = GetResourcesConsumptionRatioForPopulation
 	
 end
 

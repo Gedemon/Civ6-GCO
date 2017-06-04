@@ -1817,7 +1817,7 @@ function DamageChanged (playerID, unitID, newDamage, prevDamage)
 		local unitKey = unit:GetKey()
 		print ("Handling Damage Changed for pillaging unit : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP, newDamage, prevDamage)
 		unit:SetDamage(prevDamage)
-		Print ("Damage restored to ", unit:GetDamage() )
+		print ("Damage restored to ", unit:GetDamage() )
 	end
 end
 
