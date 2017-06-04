@@ -680,4 +680,15 @@
     </Replace>
 	
   </LocalizedText>
+
+    
+  <LocalizedText> <!-- Populations -->
+	
+    <Replace Tag="LOC_POPULATION_UPPER_NAME" 	Text="Upper Class" 		Language="en_US" /> 
+    <Replace Tag="LOC_POPULATION_MIDDLE_NAME" 	Text="Middle Class" 	Language="en_US" /> 
+    <Replace Tag="LOC_POPULATION_LOWER_NAME" 	Text="Lower Class"		Language="en_US" /> 
+    <Replace Tag="LOC_POPULATION_SLAVE_NAME" 	Text="Slave Class" 		Language="en_US" /> 
+    <Replace Tag="LOC_POPULATION_ALL_NAME" 		Text="All Classes" 		Language="en_US" /> 
+  </LocalizedText>
+  
 </GameData>
