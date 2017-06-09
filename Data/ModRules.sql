@@ -16,12 +16,20 @@ UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMAL
 UPDATE Units SET PopulationCost ='0';
 UPDATE Units SET StrategicResource = NULL;
 
-/* Districts */
+/* Districts & Buildings */
 --UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_HARBOR';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_THEATER';
+
+-- Update projects before removing the distric themselves because of the cascade update...
+--DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
+DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_CAMPUS';
+DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
+DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
+DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_THEATER';
+DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HOLY_SITE';
 
 --DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_CAMPUS';
@@ -30,13 +38,6 @@ DELETE FROM Districts WHERE DistrictType ='DISTRICT_ENTERTAINMENT_COMPLEX';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_THEATER';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_HOLY_SITE';
 
---DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
-DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_CAMPUS';
-DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
-DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
-DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_THEATER';
-DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HOLY_SITE';
-
 
 /* Start */
 UPDATE StartEras SET Tiles = '0';
@@ -44,9 +45,9 @@ UPDATE StartEras SET Tiles = '0';
 /* Remove Faith */
 --DELETE FROM Districts WHERE YieldType='YIELD_FAITH';
 DELETE FROM Buildings WHERE PurchaseYield='YIELD_FAITH';
---DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
---DELETE FROM Buildings WHERE BuildingType='BUILDING_TEMPLE';
---DELETE FROM Buildings WHERE BuildingType='BUILDING_STAVE_CHURCH';
+DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
+DELETE FROM Buildings WHERE BuildingType='BUILDING_TEMPLE';
+DELETE FROM Buildings WHERE BuildingType='BUILDING_STAVE_CHURCH';
 --DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
 --DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
 --DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
@@ -77,9 +78,9 @@ DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_CHOOSER";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_TREE";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_GOVERNMENTS";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_RELIGION";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_PANTHEONS";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_RELIGIONS";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_RELIGION";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_PANTHEONS";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_RELIGIONS";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY_DEALS";
 

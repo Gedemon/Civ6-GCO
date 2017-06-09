@@ -462,6 +462,8 @@ function Initialize()
 	-- debug
 	ExposedMembers.GCO.ToggleOutput 	= ToggleOutput
 	ExposedMembers.GCO.Dprint			= Dprint
+	-- "globals"
+	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable

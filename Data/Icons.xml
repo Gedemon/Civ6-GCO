@@ -1,17 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
-  <IconTextureAtlases>	<!-- Flags Icons -->
-    <Row Name="ICON_ATLAS_GCO_FLAGS" IconSize="32"  IconsPerRow="8" IconsPerColumn="8" Filename="FlagsAtlas32.dds"/>
-    <Row Name="ICON_ATLAS_GCO_FLAGS" IconSize="45"  IconsPerRow="8" IconsPerColumn="8" Filename="FlagsAtlas45.dds"/>
-    <Row Name="ICON_ATLAS_GCO_FLAGS" IconSize="48"  IconsPerRow="8" IconsPerColumn="8" Filename="FlagsAtlas48.dds"/>
-    <Row Name="ICON_ATLAS_GCO_FLAGS" IconSize="50"  IconsPerRow="8" IconsPerColumn="8" Filename="FlagsAtlas50.dds"/>
-	<Row Name="ICON_ATLAS_GCO_FLAGS" IconSize="55"  IconsPerRow="8" IconsPerColumn="8" Filename="FlagsAtlas55.dds"/>
-    <Row Name="ICON_ATLAS_GCO_FLAGS" IconSize="64"  IconsPerRow="8" IconsPerColumn="8" Filename="FlagsAtlas64.dds"/>
-    <Row Name="ICON_ATLAS_GCO_FLAGS" IconSize="80"  IconsPerRow="8" IconsPerColumn="8" Filename="FlagsAtlas80.dds"/>
-	<Row Name="ICON_ATLAS_GCO_FLAGS" IconSize="256" IconsPerRow="8" IconsPerColumn="8" Filename="FlagsAtlas256.dds"/>
-  </IconTextureAtlases>
+
+   <IconTextureAtlases>
+       <!-- Atlas A (Old 64 Icons) -->
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_A" 		IconSize="32" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_32.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_A" 		IconSize="38" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_38.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_A" 		IconSize="50" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_50.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_A" 		IconSize="80" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_80.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_A" 		IconSize="128" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_128.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_A" 		IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_256.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_256_FoW.dds"/>
+       <!-- Atlas B (Modern 24 Icons) -->
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_B" 		IconSize="32" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_B_32.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_B" 		IconSize="38" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_B_38.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_B" 		IconSize="50" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_B_50.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_B" 		IconSize="80" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_B_80.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_B" 		IconSize="128" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_B_128.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_B" 		IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_B_256.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_B_FOW" 	IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_B_256_FoW.dds"/>
+       <!-- Atlas C (Modern 64 Icons) -->
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_C" 		IconSize="32" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_32.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_C" 		IconSize="38" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_38.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_C" 		IconSize="50" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_50.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_C" 		IconSize="80" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_80.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_C" 		IconSize="128" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_128.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_C" 		IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_256.dds"/>
+       <Row Name="ICON_ToT_ATLAS_BUILDINGS_C_FOW" 	IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_256_FoW.dds"/>
+   </IconTextureAtlases>
+   
+   <IconDefinitions> <!-- BUILDINGS -->
+       <Row Name="ICON_BUILDING_HERBALIST"			Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="47"/>
+       <Row Name="ICON_BUILDING_BUTCHERY"			Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="10"/>
+       <Row Name="ICON_BUILDING_BLACKSMITH"			Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="1"/>
+	   
+       <Row Name="ICON_BUILDING_HERBALIST_FOW"		Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="47"/>
+       <Row Name="ICON_BUILDING_BUTCHERY_FOW"		Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="10"/>
+       <Row Name="ICON_BUILDING_BLACKSMITH_FOW"		Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="1"/>
+	   
+       <!--National Wonders End-->
+       <!-- HMP -->
+       <Row Name="ICON_BUILDING_KEEP"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="19"/>
+       <Row Name="ICON_BUILDING_ECO_CENTER"           Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="45"/>
+       <Row Name="ICON_BUILDING_TELEGRAPH_STATION"    Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="35"/>
+       <Row Name="ICON_BUILDING_INTERNET_CAFE"        Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="19"/>
+       <Row Name="ICON_BUILDING_TELEVISION_STUDIO"    Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="56"/>
+       <Row Name="ICON_BUILDING_HADRON_COLLIDER"      Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="47"/>
+       <Row Name="ICON_BUILDING_WATCHTOWER"           Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="55"/>
+       <Row Name="ICON_BUILDING_PAPERMILL"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="36"/>
+       <Row Name="ICON_BUILDING_COLLEGE"              Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="41"/>
+       <Row Name="ICON_BUILDING_FARMSTEAD"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="44"/>
+       <Row Name="ICON_BUILDING_STATUE"              Atlas="ICON_ToT_ATLAS_BUILDINGS_B" Index="57"/>
+       <Row Name="ICON_BUILDING_TRAPPERS_HUT"         Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="50"/>
+       <Row Name="ICON_BUILDING_TAVERN"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="39"/>
+       <Row Name="ICON_BUILDING_SCRIBES_SHOP"         Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="7"/>
+       <Row Name="ICON_BUILDING_STONE_MASON"          Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="49"/>
+       <Row Name="ICON_BUILDING_PLAZA"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="15"/>
+       <Row Name="ICON_BUILDING_INN"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="63"/>
+       <Row Name="ICON_BUILDING_APOCATHERY"           Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="6"/>
+       <Row Name="ICON_BUILDING_TAILOR"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="35"/>
+       <Row Name="ICON_BUILDING_DUNGEON"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="16"/>
+       <Row Name="ICON_BUILDING_HEALERS_HUT"          Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="31"/>
+       <Row Name="ICON_BUILDING_MONASTERY"            Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="28"/>
+       <Row Name="ICON_BUILDING_MANOR"                Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="59"/>
+       <Row Name="ICON_BUILDING_LODGE"                Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="63"/>
+       <Row Name="ICON_BUILDING_COOK_SHOP"            Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="3"/>
+       <Row Name="ICON_BUILDING_TRAINING_GROUND"      Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="18"/>
+       <Row Name="ICON_BUILDING_TRAINING_CAMP"        Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="17"/>
+       <Row Name="ICON_BUILDING_TOURNAMENT_GROUND"    Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="17"/>
+       <Row Name="ICON_BUILDING_FORGE"                Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="42"/>
+       <Row Name="ICON_BUILDING_FISH_MARKET"          Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="25"/>
+       <Row Name="ICON_BUILDING_TINKER"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="30"/>
+       <Row Name="ICON_BUILDING_SMITHY"               Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="1"/>
+       <Row Name="ICON_BUILDING_RESTAURANT"           Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="57"/>
+       <Row Name="ICON_BUILDING_FARMERS_MARKET"       Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="5"/>
+       <Row Name="ICON_BUILDING_JAIL"                 Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="16"/>
+       <Row Name="ICON_BUILDING_COUNTRY_ESTATE"       Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="23"/>
+       <Row Name="ICON_BUILDING_BEER_HOUSE"           Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="62"/>
+       <Row Name="ICON_BUILDING_FISHMONGER"           Atlas="ICON_ToT_ATLAS_BUILDINGS_B" Index="20"/>
+       <Row Name="ICON_BUILDING_COFFEEHOUSE"          Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="40"/>
+       <Row Name="ICON_BUILDING_FIREHOUSE"            Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="26"/>
+       <Row Name="ICON_BUILDING_JEWELLER"             Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="40"/>
+       <Row Name="ICON_BUILDING_FOUNDRY"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="54"/>
+       <Row Name="ICON_BUILDING_DOCTORSHOUSE"         Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="38"/>
+       <Row Name="ICON_BUILDING_PRISON"               Atlas="ICON_ToT_ATLAS_BUILDINGS_B" Index="22"/>
+       <Row Name="ICON_BUILDING_POLICE_STATION"       Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="42"/>
+       <Row Name="ICON_BUILDING_FIRE_STATION"         Atlas="ICON_ToT_ATLAS_BUILDINGS_B" Index="19"/>
+       <Row Name="ICON_BUILDING_MEDICAL_CLINIC"       Atlas="ICON_ToT_ATLAS_BUILDINGS_B" Index="8"/>
+       <Row Name="ICON_BUILDING_PUB"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_B" Index="5"/>
+       <Row Name="ICON_BUILDING_HOTEL"                Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="34"/>
+       <Row Name="ICON_BUILDING_SUPERMARKET"          Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="21"/>
+       <Row Name="ICON_BUILDING_HOSPITAL"             Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="22"/>
+       <Row Name="ICON_BUILDING_CASINO"               Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="31"/>
+       <Row Name="ICON_BUILDING_DINER"                Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="11"/>
+       <Row Name="ICON_BUILDING_CLUB"                 Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="12"/>
+       <!-- HMP -->
+       <Row Name="ICON_BUILDING_KEEP_FOW"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="19"/>
+       <Row Name="ICON_BUILDING_ECO_CENTER_FOW"           Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="45"/>
+       <Row Name="ICON_BUILDING_TELEGRAPH_STATION_FOW"    Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="35"/>
+       <Row Name="ICON_BUILDING_INTERNET_CAFE_FOW"        Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="19"/>
+       <Row Name="ICON_BUILDING_TELEVISION_STUDIO_FOW"    Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="56"/>
+       <Row Name="ICON_BUILDING_HADRON_COLLIDER_FOW"      Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="47"/>
+       <Row Name="ICON_BUILDING_WATCHTOWER_FOW"           Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="55"/>
+       <Row Name="ICON_BUILDING_PAPERMILL_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="36"/>
+       <Row Name="ICON_BUILDING_COLLEGE_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="41"/>
+       <Row Name="ICON_BUILDING_FARMSTEAD_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="44"/>
+       <Row Name="ICON_BUILDING_STATUE_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" Index="57"/>
+       <Row Name="ICON_BUILDING_TRAPPERS_HUT_FOW"         Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="50"/>
+       <Row Name="ICON_BUILDING_TAVERN_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="39"/>
+       <Row Name="ICON_BUILDING_HERBALIST_FOW"            Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="47"/>
+       <Row Name="ICON_BUILDING_SCRIBES_SHOP_FOW"         Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="7"/>
+       <Row Name="ICON_BUILDING_STONE_MASON_FOW"          Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="49"/>
+       <Row Name="ICON_BUILDING_PLAZA_FOW"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="15"/>
+       <Row Name="ICON_BUILDING_INN_FOW"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="63"/>
+       <Row Name="ICON_BUILDING_APOCATHERY_FOW"           Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="6"/>
+       <Row Name="ICON_BUILDING_TAILOR_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="35"/>
+       <Row Name="ICON_BUILDING_BUTCHER_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="10"/>
+       <Row Name="ICON_BUILDING_DUNGEON_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="16"/>
+       <Row Name="ICON_BUILDING_HEALERS_HUT_FOW"          Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="31"/>
+       <Row Name="ICON_BUILDING_MONASTERY_FOW"            Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="28"/>
+       <Row Name="ICON_BUILDING_MANOR_FOW"                Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="59"/>
+       <Row Name="ICON_BUILDING_LODGE_FOW"                Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="63"/>
+       <Row Name="ICON_BUILDING_COOK_SHOP_FOW"            Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="3"/>
+       <Row Name="ICON_BUILDING_TRAINING_GROUND_FOW"      Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="18"/>
+       <Row Name="ICON_BUILDING_TRAINING_CAMP_FOW"        Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="17"/>
+       <Row Name="ICON_BUILDING_TOURNAMENT_GROUND_FOW"    Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="17"/>
+       <Row Name="ICON_BUILDING_FORGE_FOW"                Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="42"/>
+       <Row Name="ICON_BUILDING_FISH_MARKET_FOW"          Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="25"/>
+       <Row Name="ICON_BUILDING_TINKER_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="30"/>
+       <Row Name="ICON_BUILDING_SMITHY_FOW"               Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="1"/>
+       <Row Name="ICON_BUILDING_RESTAURANT_FOW"           Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="57"/>
+       <Row Name="ICON_BUILDING_FARMERS_MARKET_FOW"       Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="5"/>
+       <Row Name="ICON_BUILDING_JAIL_FOW"                 Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="16"/>
+       <Row Name="ICON_BUILDING_COUNTRY_ESTATE_FOW"       Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="23"/>
+       <Row Name="ICON_BUILDING_BEER_HOUSE_FOW"           Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="62"/>
+       <Row Name="ICON_BUILDING_FISHMONGER_FOW"           Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" Index="20"/>
+       <Row Name="ICON_BUILDING_COFFEEHOUSE_FOW"          Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="40"/>
+       <Row Name="ICON_BUILDING_FIREHOUSE_FOW"            Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="26"/>
+       <Row Name="ICON_BUILDING_JEWELLER_FOW"             Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="40"/>
+       <Row Name="ICON_BUILDING_FOUNDRY_FOW"              Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="54"/>
+       <Row Name="ICON_BUILDING_DOCTORSHOUSE_FOW"         Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="38"/>
+       <Row Name="ICON_BUILDING_PRISON_FOW"               Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" Index="22"/>
+       <Row Name="ICON_BUILDING_POLICE_STATION_FOW"       Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="42"/>
+       <Row Name="ICON_BUILDING_FIRE_STATION_FOW"         Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" Index="19"/>
+       <Row Name="ICON_BUILDING_MEDICAL_CLINIC_FOW"       Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" Index="8"/>
+       <Row Name="ICON_BUILDING_PUB_FOW"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" Index="5"/>
+       <Row Name="ICON_BUILDING_HOTEL_FOW"                Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="34"/>
+       <Row Name="ICON_BUILDING_SUPERMARKET_FOW"          Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="21"/>
+       <Row Name="ICON_BUILDING_HOSPITAL_FOW"             Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="22"/>
+       <Row Name="ICON_BUILDING_CASINO_FOW"               Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="31"/>
+       <Row Name="ICON_BUILDING_DINER_FOW"                Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="11"/>
+       <Row Name="ICON_BUILDING_CLUB_FOW"                 Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="12"/>
+       <Row Name="ICON_BUILDING_NATIONAL_FACTORY_FOW"     Atlas="ICON_ATLAS_TECH_FOW" Index="35"/>
+   </IconDefinitions>
   
-  <IconDefinitions>
+  <IconDefinitions>	<!-- RESOURCES -->
 	<Row Name="RESOURCE_MATERIEL"        Atlas="ICON_ATLAS_STATS" Index="4"/>	<!-- Charges Icons -->
   </IconDefinitions>
 

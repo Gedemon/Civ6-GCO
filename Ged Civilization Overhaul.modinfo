@@ -19,133 +19,95 @@
 		</Text>
 	</LocalizedText>
 
-	<Components>
+	<InGameActions>
+		<UpdateArt id="GCO_ConfigArt">
+			<File>GCO.dep</File>
+		</UpdateArt>
+		<UpdateIcons id="GCO_ICONS">
+			<File>Data/Icons.xml</File>
+		</UpdateIcons>
 		<ImportFiles id="GCO_IMPORT">
-			<Items>
-				<File>UI/UnitFlagManager.lua</File>
-				<File>UI/CityBannerManager.lua</File>
-				<File>UI/PlotToolTip.lua</File>
-				<File>UI/WorldViewIconsManager.lua</File>
-				<File>UI/CityPanelOverview.lua</File>
-				<File>UI/CityPanelOverview.xml</File>
-				<File>UI/CityPanel.lua</File>
-				<File>UI/CitySupport.lua</File>
-			</Items>
+			<File>UI/UnitFlagManager.lua</File>
+			<File>UI/CityBannerManager.lua</File>
+			<File>UI/PlotToolTip.lua</File>
+			<File>UI/ToolTipHelper.lua</File>
+			<File>UI/WorldViewIconsManager.lua</File>
+			<File>UI/CityPanelOverview.lua</File>
+			<File>UI/CityPanelOverview.xml</File>
+			<File>UI/CityPanel.lua</File>
+			<File>UI/CitySupport.lua</File>
 		</ImportFiles>
-        <GameplayScripts>
+		
+        <AddGameplayScripts>
 		    <Properties>
 				<LoadOrder>-100</LoadOrder>
 		    </Properties>
-            <Items>
-                <File>Scripts/ModUtils.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/PlayerScript.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/CityScript.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/UnitScript.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/PlotScript.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/GameScript.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/Serialize.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/RouteConnections.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/PlotIterators.lua</File>
-            </Items>
-        </GameplayScripts>
-        <GameplayScripts>
-            <Items>
-                <File>Scripts/AIUnitScript.lua</File>
-            </Items>
-        </GameplayScripts>
-        <UserInterface>
+            <File>Scripts/ModUtils.lua</File>
+        </AddGameplayScripts>
+        <AddGameplayScripts>
+            <File>Scripts/PlayerScript.lua</File>
+            <File>Scripts/CityScript.lua</File>
+            <File>Scripts/UnitScript.lua</File>
+            <File>Scripts/PlotScript.lua</File>
+            <File>Scripts/GameScript.lua</File>
+            <File>Scripts/Serialize.lua</File>
+            <File>Scripts/RouteConnections.lua</File>
+            <File>Scripts/PlotIterators.lua</File>
+            <File>Scripts/AIUnitScript.lua</File>
+        </AddGameplayScripts>
+		
+        <AddUserInterfaces>
 			<Properties>
 				<Context>InGame</Context>
 			</Properties>
-            <Items>
                 <File>Scripts/SaveLoad.xml</File>
                 <File>Scripts/ContextFunctions.xml</File>
 				<File>InGame/ModInGame.xml</File>
-            </Items>
-        </UserInterface>
+        </AddUserInterfaces>
+		
 		<UpdateDatabase id="GCO_PRE_COMPONENT">
 		    <Properties>
 				<LoadOrder>-100</LoadOrder>
 		    </Properties>
-			<Items>
 				<File>Data/Tables.sql</File>
-			</Items>
 		</UpdateDatabase>
+		
 		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
            	<Properties>
 				<LoadOrder>100050</LoadOrder>
            	</Properties>
-			<Items>
 				<File>Data/GlobalParameters.sql</File>
 				<File>Data/CultureDiffusionParameters.sql</File>
 				<File>Data/CombatRules.sql</File>
 				<File>Data/ModRules.sql</File>
 				<File>Data/GamePlay.xml</File>
-			</Items>
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
            	<Properties>
 				<LoadOrder>100600</LoadOrder>
            	</Properties>
-			<Items>
 				<File>custom.sql</File>
 				<File>custom.xml</File>
-			</Items>
 		</UpdateDatabase>
-		<LocalizedText id="GCO_DEFAULT_LOC">
+		<UpdateText id="GCO_DEFAULT_LOC">
            	<Properties>
 				<LoadOrder>100700</LoadOrder>
            	</Properties>
-			<Items>
 				<File>Text/GameText.xml</File>
-			</Items>
-		</LocalizedText>
-	</Components>
+		</UpdateText>
+	</InGameActions>
 
-	<Settings>
-		<Custom id="GCO_SETTING">
-			<Items>
-				<File>Config/Config.xml</File>
-			</Items>
-		</Custom>
-	</Settings>
+	<FrontEndActions>
+		<UpdateDatabase id="GCO_SETTING">
+			<File>Config/Config.xml</File>
+		</UpdateDatabase>
+	</FrontEndActions>
 
 	<Files>
 		<File>Data/Tables.sql</File>
 		<File>Data/GamePlay.xml</File>
 		<File>Data/GlobalParameters.sql</File>
+		<File>Data/Icons.xml</File>
 		<File>Data/CultureDiffusionParameters.sql</File>
 		<File>Data/CombatRules.sql</File>
 		<File>Data/ModRules.sql</File>
@@ -171,10 +133,12 @@
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/CityBannerManager.lua</File>
 		<File>UI/PlotToolTip.lua</File>
+		<File>UI/ToolTipHelper.lua</File>
 		<File>UI/WorldViewIconsManager.lua</File>
 		<File>UI/CityPanelOverview.lua</File>
 		<File>UI/CityPanelOverview.xml</File>
 		<File>UI/CityPanel.lua</File>
 		<File>UI/CitySupport.lua</File>
+		<File>GCO.dep</File>
 	</Files>
 </Mod>

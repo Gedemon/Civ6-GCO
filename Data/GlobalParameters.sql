@@ -17,10 +17,11 @@ UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_POP_PER_AMENITY';			
 
 -- city
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					20);	-- base stock for resource 		= CITY_STOCK_PER_SIZE * CitySize
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 		= CITY_FOOD_STOCK_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					5);		-- base stock for equipment 	(not related to city size)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		5);		-- unit of materiel produced 	= CITY_MATERIEL_PRODUCTION_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PER_SIZE', 				250);	-- base housing for personnel 	= CITY_PERSONNEL_PER_SIZE + CitySize
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		2500);		-- value added to the starting population of a new city (to do : Settlers with different size for late game)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		2500);	-- value added to the starting population of a new city (to do : Settlers with different size for late game)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_STOCK', 					100);	-- bonus food stock added to base resource stock
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_UPPER_CLASS_PERCENT', 			5);		-- Used during city creation, before there is a base populatin to refer to.
@@ -171,10 +172,12 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_HP_
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_HP_VERY_LOW',				-3);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CLOSE_TO_HOME_EFFICIENCY_VALUE',	85);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_LINKED_TO_HOME_EFFICIENCY_VALUE',	1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_FAR_FROM_HOME_EFFICIENCY_VALUE',	0);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_CLOSE_TO_HOME',			1);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_CLOSE_TO_HOME',			2);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_LINKED_TO_HOME',			1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_FAR_FROM_HOME',			-1);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_NO_WAY_HOME',				-3);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_NO_WAY_HOME',				-2);
 
 -- Resources
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_IMPROVEMENT_MULTIPLIER',	5);

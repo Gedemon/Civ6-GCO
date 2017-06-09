@@ -675,7 +675,9 @@ end
 Events.TurnBegin.Add(OnNewTurn)
 
 
-function RemoveCityCultureOnWater(playerID, cityID, iX, iY)
+function InitializeCityPlots(playerID, cityID, iX, iY)
+	print(GCO.Separator)
+	print("Initializing New City Plots...")
 	local city 		= CityManager.GetCity(playerID, cityID)
 	local cityPlot 	= Map.GetPlot(iX, iY)
 	local cityPlots	= GCO.GetCityPlots(city)
@@ -691,13 +693,13 @@ function RemoveCityCultureOnWater(playerID, cityID, iX, iY)
 			counter = counter + 1
 		end
 	end
-	print("plots to replace = ", counter)
+	print("- plots to replace = ", counter)
 	function ReplacePlots()
 		local plotList = {}
 		if counter > 0 then
 			for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
 				if not ((pEdgePlot:IsWater() or ( pEdgePlot:GetArea():GetID() ~= cityPlot:GetArea():GetID() ))) and (pEdgePlot:GetOwner() == NO_OWNER) and pEdgePlot:IsAdjacentPlayer(playerID) then
-					print("adding to list :", pEdgePlot:GetX(), pEdgePlot:GetY(), "on ring :", ring)
+					print("   adding to list :", pEdgePlot:GetX(), pEdgePlot:GetY(), "on ring :", ring)
 					local totalYield = 0
 					for row in GameInfo.Yields() do
 						local yield = pEdgePlot:GetYield(row.Index);
@@ -711,7 +713,7 @@ function RemoveCityCultureOnWater(playerID, cityID, iX, iY)
 		end
 		table.sort(plotList, function(a, b) return a.yield > b.yield; end)
 		for _, data in ipairs(plotList) do
-			print("replacing at : ", data.plot:GetX(), data.plot:GetY())
+			print("   replacing at : ", data.plot:GetX(), data.plot:GetY())
 			WorldBuilder.CityManager():SetPlotOwner( data.plot:GetX(), data.plot:GetY(), playerID, cityID )
 			counter = counter - 1
 			if counter == 0 then
@@ -721,7 +723,7 @@ function RemoveCityCultureOnWater(playerID, cityID, iX, iY)
 	end
 	local loop = 0
 	while (counter > 0 and loop < 4) do
-		print("loop =", loop, "plots to replace left =", counter )
+		print(" - loop =", loop, "plots to replace left =", counter )
 		ReplacePlots()
 		ring = ring + 1
 		ReplacePlots()
@@ -730,8 +732,28 @@ function RemoveCityCultureOnWater(playerID, cityID, iX, iY)
 		ring = ring + 1
 		loop = loop + 1
 	end
+	
+	print("- check city ownership")	
+	for ring = 1, 3 do
+		for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
+			local OwnerCity	= Cities.GetPlotPurchaseCity(pEdgePlot)
+			if OwnerCity and pEdgePlot:GetOwner() == playerID and OwnerCity:GetID() ~= city:GetID() then
+				local cityDistance 		= Map.GetPlotDistance(pEdgePlot:GetX(), pEdgePlot:GetY(), city:GetX(), city:GetY())
+				local ownerCityDistance = Map.GetPlotDistance(pEdgePlot:GetX(), pEdgePlot:GetY(), OwnerCity:GetX(), OwnerCity:GetY())
+				if (cityDistance < ownerCityDistance) and (pEdgePlot:GetWorkerCount() == 0 or cityDistance == 1) then
+					print("   change city ownership at : ", pEdgePlot:GetX(), pEdgePlot:GetY(), " city distance = ", cityDistance, " previous city = ", Locale.Lookup(OwnerCity:GetName()), " previous city distance = ", ownerCityDistance)
+					WorldBuilder.CityManager():SetPlotOwner( pEdgePlot, false ) -- must remove previous city ownership first, else the UI context doesn't update
+					WorldBuilder.CityManager():SetPlotOwner( pEdgePlot, city, true )
+					--LuaEvents.UpdatePlotTooltip(  pEdgePlot:GetIndex() )
+					--print(Cities.GetPlotPurchaseCity(pEdgePlot):GetName())
+					--Events.CityWorkerChanged(playerID, city:GetID())
+					--pEdgePlot:SetOwner(city)
+				end
+			end
+		end
+	end
 end
-Events.CityInitialized.Add(RemoveCityCultureOnWater)
+Events.CityInitialized.Add(InitializeCityPlots)
 
 -----------------------------------------------------------------------------------------
 -- UI Functions
