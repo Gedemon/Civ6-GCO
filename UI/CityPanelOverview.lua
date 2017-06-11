@@ -488,7 +488,7 @@ function ViewPanelSupplyLines( data:table )
 	kInstance.Materiel:SetText		( " [ICON_Charges]" )
 	kInstance.Horses:SetText		( " [ICON_RESOURCE_HORSES]" )
 	kInstance.Food:SetText			( " [ICON_Food]" )
-	kInstance.Medecine:SetText		( " [ICON_Damaged]" )
+	kInstance.Medicine:SetText		( " [ICON_Damaged]" )
 	
 	for _, row in ipairs(data.SupplyLines) do
 		kInstance = m_kSupplyLinesIM:GetInstance()
@@ -498,7 +498,7 @@ function ViewPanelSupplyLines( data:table )
 		kInstance.Materiel:SetText		( row.Materiel	)
 		kInstance.Horses:SetText		( row.Horses	)
 		kInstance.Food:SetText			( row.Food	)
-		kInstance.Medecine:SetText		( row.Medecine	)
+		kInstance.Medicine:SetText		( row.Medicine	)
 	end
 	
 	if #data.SupplyLines == 0 then
@@ -509,7 +509,7 @@ function ViewPanelSupplyLines( data:table )
 		kInstance.Materiel:SetText		( "-" )
 		kInstance.Horses:SetText		( "-" )
 		kInstance.Food:SetText			( "-" )
-		kInstance.Medecine:SetText		( "-" )
+		kInstance.Medicine:SetText		( "-" )
 	end
 	--]]
 

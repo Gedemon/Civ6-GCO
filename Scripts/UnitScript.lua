@@ -3,7 +3,18 @@
 --  Gedemon (2017)
 --=====================================================================================--
 
-print ("Loading UnitScript.lua...")
+print("Loading UnitScript.lua...")
+
+-----------------------------------------------------------------------------------------
+-- Debug
+-----------------------------------------------------------------------------------------
+
+DEBUG_UNIT_SCRIPT			= false
+
+function ToggleUnitDebug()
+	DEBUG_UNIT_SCRIPT = not DEBUG_UNIT_SCRIPT
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Defines
@@ -22,7 +33,7 @@ local foodResourceID 		= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local horsesResourceID 		= GameInfo.Resources["RESOURCE_HORSES"].Index
 local personnelResourceID	= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
-local medecineResourceID	= GameInfo.Resources["RESOURCE_MEDECINE"].Index
+local medicineResourceID	= GameInfo.Resources["RESOURCE_MEDICINE"].Index
 
 local unitEquipment			= {}
 for row in GameInfo.Units() do
@@ -38,7 +49,7 @@ local foodResourceKey		= tostring(foodResourceID)
 local materielResourceKey	= tostring(materielResourceID)
 local horsesResourceKey		= tostring(horsesResourceID)
 local personnelResourceKey	= tostring(personnelResourceID)
-local medecineResourceKey	= tostring(medecineResourceID)
+local medicineResourceKey	= tostring(medicineResourceID)
 
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
@@ -54,7 +65,8 @@ local CombatTypes = {}
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO			-- contains functions from other contexts
 	CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
-	print ("Exposed Functions from other contexts initialized...")
+	Dprint 		= GCO.Dprint
+	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
@@ -144,7 +156,7 @@ local unitTableEnum = {
 	LastCombatTurn				= 28,
 	LastCombatResult			= 29,
 	LastCombatType				= 30,
-	Alive						= 31,
+	FuelConsumptionPerVehicle	= 31,
 	TotalXP						= 32,
 	CombatXP					= 33,
 	SupplyLineCityKey			= 34,
@@ -167,8 +179,8 @@ local unitTableEnum = {
 	PreviousWoundedPersonnel	= 51,
 	PreviousDamagedEquipment	= 52,
 	PreviousPrisoners			= 53,
-	MedecineStock				= 54,
-	PreviousMedecineStock		= 55,
+	MedicineStock				= 54,
+	PreviousMedicineStock		= 55,
 	
 	EndOfEnum				= 99
 }                           
@@ -209,19 +221,71 @@ function SaveTables()
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
+function CheckSave()
+	print("Checking Saved Table...")
+	local unitData = {}
+	local loadedTable = GCO.LoadTableFromSlot("UnitData")
+	if loadedTable then
+		for key, data in pairs(loadedTable) do
+			unitData[key] = {}
+			for name, enum in pairs(unitTableEnum) do
+				unitData[key][name] = data[enum]
+			end			
+		end
+	end
+	if GCO.AreSameTables(ExposedMembers.UnitData, unitData) then
+		print("- Tables are identical")
+	else
+		print ("ERROR: reloading saved table show differences with actual table !")
+		LuaEvents.StopAuToPlay()
+		CompareData(ExposedMembers.UnitData, unitData)
+	end
+end
+LuaEvents.SaveTables.Add(CheckSave)
+
 -- for debugging load/save
 function ShowUnitData()
 	for unitKey, data in pairs(ExposedMembers.UnitData) do
-		print (unitKey, data)
+		print(unitKey, data)
 		for k, v in pairs (data) do
-			print ("-", k, v)
+			print("-", k, v)
 			if k == "Prisoners" then
 				for id, num in pairs (v) do
-					print ("-", "-", id, num)
+					print("-", "-", id, num)
 				end			
 			end
 		end
 	end
+end
+
+function ShowUnitDataFromTable(UnitData)
+	for unitKey, data in pairs(UnitData) do
+		print(unitKey, data)
+		for k, v in pairs (data) do
+			print("-", k, v)
+			if k == "Prisoners" then
+				for id, num in pairs (v) do
+					print("-", "-", id, num)
+				end			
+			end
+		end
+	end
+end
+
+function CompareData(data1, data2)
+	print("comparing...")
+	for key, data in pairs(data1) do
+		for k, v in pairs (data) do
+			if not data2[key] then
+				print("- reloaded table is nil for key = ", key)
+			elseif data2[key] and not data2[key][k] then			
+				print("- no value for key = ", key, " entry =", k)
+			elseif data2[key] and type(v) ~= "table" and v ~= data2[key][k] then
+				print("- different value for key = ", key, " entry =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]) )
+			end
+		end
+	end
+	print("no more data to compare...")
 end
 
 -----------------------------------------------------------------------------------------
@@ -286,8 +350,9 @@ function RegisterNewUnit(playerID, unit)
 		PreviousFoodStock		= food,
 		FuelStock 				= FuelStock,
 		PreviousFuelStock		= FuelStock,
-		MedecineStock			= 0,
-		PreviousMedecineStock	= 0,
+		FuelConsumptionPerVehicle = GameInfo.Units[unitType].FuelConsumptionPerVehicle,
+		MedicineStock			= 0,
+		PreviousMedicineStock	= 0,
 		Stock					= {},
 		-- Statistics
 		TotalDeath				= 0,
@@ -305,7 +370,7 @@ function RegisterNewUnit(playerID, unit)
 		LastCombatTurn			= 0,
 		LastCombatResult		= 0,
 		LastCombatType			= -1,
-		Alive 					= true,
+		--Alive 					= true,
 		TotalXP 				= unit:GetExperience():GetExperiencePoints(),
 		CombatXP 				= 0,
 		SupplyLineCityKey		= nil,
@@ -319,16 +384,15 @@ function InitializeUnit(playerID, unitID)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
 		local unitKey = unit:GetKey()
-
 		if ExposedMembers.UnitData[unitKey] then
 			-- unit already registered, don't add it again...
-			print("  - ".. unit:GetName() .." is already registered")
+			Dprint( DEBUG_UNIT_SCRIPT, "  - ".. unit:GetName() .." is already registered")
 			return
 		end
 
-		print ("Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
+		Dprint( DEBUG_UNIT_SCRIPT, "Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
 		RegisterNewUnit(playerID, unit)
-		--print("---------------------------------------------------------------------------")
+		--Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
 	else
 		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when launching a new game)")
 	end
@@ -357,17 +421,17 @@ function GetUnitFromKey ( unitKey )
 		if unit then
 			return unit
 		else
-			print("- WARNING: unit is nil for GetUnitFromKey(".. tostring(unitKey).."), marking as dead --- unit type = ".. tostring(GameInfo.Units[ExposedMembers.UnitData[unitKey].unitType].UnitType) )
-			ExposedMembers.UnitData[unitKey].Alive = false
+			print ("- WARNING: unit is nil for GetUnitFromKey(".. tostring(unitKey).."), unit type = ".. tostring(GameInfo.Units[ExposedMembers.UnitData[unitKey].unitType].UnitType) )
+			--ExposedMembers.UnitData[unitKey].Alive = false
 		end
 	else
-		print("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey(".. tostring(unitKey)..")")
+		print ("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey(".. tostring(unitKey)..")")
 	end
 end
 
 function CheckComponentsHP(unit, str, bNoWarning)
 	if not unit then
-		print("WARNING : unit is nil in CheckComponentsHP() for " .. tostring(str))
+		print ("WARNING : unit is nil in CheckComponentsHP() for " .. tostring(str))
 		return
 	end
 	local HP = unit:GetMaxDamage() - unit:GetDamage()
@@ -375,22 +439,22 @@ function CheckComponentsHP(unit, str, bNoWarning)
 	local key = unit:GetKey()
 	--if HP < 0 then
 	function debug()
-		print("---------------------------------------------------------------------------")
-		print("in CheckComponentsHP() for " .. tostring(str))
+		Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
+		Dprint( DEBUG_UNIT_SCRIPT, "in CheckComponentsHP() for " .. tostring(str))
 		if bNoWarning then
-			print("SHOWING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
+			Dprint( DEBUG_UNIT_SCRIPT, "SHOWING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
 		else
-			print("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
+			print ("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
 		end
-		--print("WARNING : HP < 0 in CheckComponentsHP() for " .. tostring(str))
-		print("key =", key, "unitType =", unitType, "HP =", HP)	
-		--print(ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
-		--print(ExposedMembers.UnitData[key], ExposedMembers.UnitHitPointsTable[unitType])
-		print("UnitData[key].Personnel =", ExposedMembers.UnitData[key].Personnel, "UnitHitPointsTable[unitType][HP].Personnel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
-		print("UnitData[key].Equipment =", ExposedMembers.UnitData[key].Equipment, "UnitHitPointsTable[unitType][HP].Equipment =", ExposedMembers.UnitHitPointsTable[unitType][HP].Equipment)
-		print("UnitData[key].Horses =", ExposedMembers.UnitData[key].Horses, "UnitHitPointsTable[unitType][HP].Horses =", ExposedMembers.UnitHitPointsTable[unitType][HP].Horses)
-		print("UnitData[key].Materiel =", ExposedMembers.UnitData[key].Materiel, "UnitHitPointsTable[unitType][HP].Materiel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel)
-		print("---------------------------------------------------------------------------")
+		--print ("WARNING : HP < 0 in CheckComponentsHP() for " .. tostring(str))
+		Dprint( DEBUG_UNIT_SCRIPT, "key =", key, "unitType =", unitType, "HP =", HP)	
+		--Dprint( DEBUG_UNIT_SCRIPT, ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
+		--Dprint( DEBUG_UNIT_SCRIPT, ExposedMembers.UnitData[key], ExposedMembers.UnitHitPointsTable[unitType])
+		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Personnel =", ExposedMembers.UnitData[key].Personnel, "UnitHitPointsTable[unitType][HP].Personnel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
+		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Equipment =", ExposedMembers.UnitData[key].Equipment, "UnitHitPointsTable[unitType][HP].Equipment =", ExposedMembers.UnitHitPointsTable[unitType][HP].Equipment)
+		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Horses =", ExposedMembers.UnitData[key].Horses, "UnitHitPointsTable[unitType][HP].Horses =", ExposedMembers.UnitHitPointsTable[unitType][HP].Horses)
+		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Materiel =", ExposedMembers.UnitData[key].Materiel, "UnitHitPointsTable[unitType][HP].Materiel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel)
+		Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
 	end
 	if 		ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel 
 		or 	ExposedMembers.UnitData[key].Equipment  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Equipment  
@@ -407,6 +471,13 @@ end
 -----------------------------------------------------------------------------------------
 -- Resources functions
 -----------------------------------------------------------------------------------------
+function GetMaxFrontLinePersonnel(self)
+	return GameInfo.Units[self:GetType()].Personnel
+end
+function GetMaxFrontLineMateriel(self)
+	return GameInfo.Units[self:GetType()].Materiel
+end
+
 function GetBasePersonnelReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
@@ -449,8 +520,12 @@ function GetMaxFoodStock(self)
 	return GetBaseFoodStock(self)
 end
 
-function GetMaxMedecineStock(self)
-	return GCO.Round(GetMaxPersonnelReserve(self)/10)
+function GetMaxMedicineStock(self)
+	if GameInfo.Units[self:GetType()].Combat > 0 then
+		return GCO.Round(GetMaxPersonnelReserve(self)/10)
+	else		
+		return 0
+	end
 end
 
 function GetFoodConsumptionRatio(self)
@@ -561,8 +636,8 @@ function GetMaxTransferTable(self)
 	local maxTranfert = {}
 	local unitType = self:GetType()
 	local unitInfo = GameInfo.Units[unitType]
-	maxTranfert.Personnel = GameInfo.GlobalParameters["UNIT_MAX_PERSONNEL_FROM_RESERVE"].Value
-	maxTranfert.Materiel = GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_FROM_RESERVE"].Value
+	maxTranfert.Personnel 	= GCO.Round(GetMaxFrontLinePersonnel(self)*GameInfo.GlobalParameters["UNIT_MAX_PERSONNEL_PERCENT_FROM_RESERVE"].Value/100)
+	maxTranfert.Materiel 	= GCO.Round(GetMaxFrontLineMateriel(self)*GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_PERCENT_FROM_RESERVE"].Value/100)
 	return maxTranfert
 end
 
@@ -583,8 +658,8 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 	elseif resourceKey == foodResourceKey then
 		ExposedMembers.UnitData[unitKey].FoodStock = math.max(0, unitData.FoodStock + value)
 		
-	elseif resourceKey == medecineResourceKey then
-		ExposedMembers.UnitData[unitKey].MedecineStock = math.max(0, unitData.MedecineStock + value)
+	elseif resourceKey == medicineResourceKey then
+		ExposedMembers.UnitData[unitKey].MedicineStock = math.max(0, unitData.MedicineStock + value)
 		
 	elseif GCO.IsResourceEquipment(resourceID) then
 		ExposedMembers.UnitData[unitKey].EquipmentReserve = math.max(0, unitData.EquipmentReserve + value)
@@ -637,8 +712,8 @@ function GetNumResourceNeeded(self, resourceID)
 	elseif resourceKey == foodResourceKey then
 		return math.max(0, self:GetMaxFoodStock() - unitData.FoodStock)
 		
-	elseif resourceKey == medecineResourceKey then
-		return math.max(0, self:GetMaxMedecineStock() - unitData.MedecineStock)
+	elseif resourceKey == medicineResourceKey then
+		return math.max(0, self:GetMaxMedicineStock() - unitData.MedicineStock)
 		
 	elseif unitEquipment[unitType] and unitEquipment[unitType] == resourceID then
 		return math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
@@ -652,12 +727,12 @@ function GetRequirements(self)
 	local unitKey 			= self:GetKey()
 	local unitData 			= ExposedMembers.UnitData[unitKey]
 	local unitType 			= self:GetType()
-	local list 				= {personnelResourceID, horsesResourceID, materielResourceID, foodResourceID, medecineResourceID}
+	local list 				= {personnelResourceID, horsesResourceID, materielResourceID, foodResourceID, medicineResourceID}
 	local requirements 		= {}
 	requirements.Resources 	= {}	
 
 	
-	print("Get Requirements for unit ".. tostring(unitKey), Locale.Lookup(UnitManager.GetTypeName(self)) )
+	Dprint( DEBUG_UNIT_SCRIPT, "Get Requirements for unit ".. tostring(unitKey), Locale.Lookup(UnitManager.GetTypeName(self)) )
 	
 	-- add equipment to requirement...
 	if unitEquipment[unitType] then
@@ -667,7 +742,7 @@ function GetRequirements(self)
 
 	for _, resourceID in ipairs(list) do
 		requirements.Resources[resourceID] = self:GetNumResourceNeeded(resourceID)
-		print(" - ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).." = ".. tostring(requirements.Resources[resourceID]))
+		Dprint( DEBUG_UNIT_SCRIPT, " - ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).." = ".. tostring(requirements.Resources[resourceID]))
 	end
 	
 	-- Resources for all vehicles
@@ -1308,7 +1383,7 @@ function AddFrontLineCasualtiesInfoTo(Opponent)
 		ExposedMembers.UnitData[Opponent.unitKey].Horses	= 0
 		ExposedMembers.UnitData[Opponent.unitKey].Materiel 	= 0
 		--]]
-		ExposedMembers.UnitData[Opponent.unitKey].Alive 	= false
+		--ExposedMembers.UnitData[Opponent.unitKey].Alive 	= false
 	end
 	--else
 		Opponent.PersonnelCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Personnel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Personnel
@@ -1351,7 +1426,6 @@ function AddCasualtiesInfoByTo(OpponentA, OpponentB)
 	-- Salvage Equipment
 	OpponentB.EquipmentLost = GCO.Round(OpponentB.EquipmentCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
 	OpponentB.DamagedEquipment = OpponentB.EquipmentCasualties - OpponentB.EquipmentLost
-	
 	-- They Shoot Horses, Don't They?
 	OpponentB.HorsesLost = OpponentB.HorsesCasualties -- some of those may be captured by the opponent ?
 	
@@ -1386,9 +1460,9 @@ function OnCombat( combatResult )
 	ExposedMembers.lastCombat = combatResult
 	
 	combatCount = combatCount + 1
-	print("--============================================--")
-	print("-- Starting Combat #"..tostring(combatCount))
-	print("--============================================--")
+	Dprint( DEBUG_UNIT_SCRIPT, "--============================================--")
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Starting Combat #"..tostring(combatCount))
+	Dprint( DEBUG_UNIT_SCRIPT, "--============================================--")
 
 	local attacker = combatResult[CombatResultParameters.ATTACKER]
 	local defender = combatResult[CombatResultParameters.DEFENDER]
@@ -1399,8 +1473,8 @@ function OnCombat( combatResult )
 	defender.IsUnit = defender[CombatResultParameters.ID].type == ComponentType.UNIT
 
 	local componentString = { [ComponentType.UNIT] = "UNIT", [ComponentType.CITY] = "CITY", [ComponentType.DISTRICT] = "DISTRICT"}
-	print("-- Attacker is " .. tostring(componentString[attacker[CombatResultParameters.ID].type]) ..", Damage = " .. attacker[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]))
-	print("-- Defender is " .. tostring(componentString[defender[CombatResultParameters.ID].type]) ..", Damage = " .. defender[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]))
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Attacker is " .. tostring(componentString[attacker[CombatResultParameters.ID].type]) ..", Damage = " .. attacker[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]))
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Defender is " .. tostring(componentString[defender[CombatResultParameters.ID].type]) ..", Damage = " .. defender[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]))
 
 	-- We need to set some info before handling the change in the units composition
 	if attacker.IsUnit then
@@ -1416,7 +1490,7 @@ function OnCombat( combatResult )
 		--
 		attacker.CanTakePrisoners = attacker.IsLandUnit and combatType == CombatTypes.MELEE and not attacker.IsDead
 		if attacker.unit then 
-			print("-- Attacker data initialized : "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()) .. ", IsDead = ".. tostring(attacker.IsDead) .. ", CanTakePrisoners = ".. tostring(attacker.CanTakePrisoners))
+			Dprint( DEBUG_UNIT_SCRIPT, "-- Attacker data initialized : "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()) .. ", IsDead = ".. tostring(attacker.IsDead) .. ", CanTakePrisoners = ".. tostring(attacker.CanTakePrisoners))
 		end
 	end
 	if defender.IsUnit then
@@ -1432,7 +1506,7 @@ function OnCombat( combatResult )
 		--
 		defender.CanTakePrisoners = defender.IsLandUnit and combatType == CombatTypes.MELEE and not defender.IsDead
 		if defender.unit then
-			print("-- Defender data initialized : "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()) .. ", IsDead = ".. tostring(defender.IsDead) .. ", CanTakePrisoners = ".. tostring(defender.CanTakePrisoners))
+			Dprint( DEBUG_UNIT_SCRIPT, "-- Defender data initialized : "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()) .. ", IsDead = ".. tostring(defender.IsDead) .. ", CanTakePrisoners = ".. tostring(defender.CanTakePrisoners))
 		end
 	end
 
@@ -1441,13 +1515,13 @@ function OnCombat( combatResult )
 	if attacker.unit then
 		local testHP = attacker.unit:GetMaxDamage() - attacker.unit:GetDamage()
 		if testHP ~= attacker.FinalHP or ExposedMembers.UnitData[attacker.unitKey].HP ~= attacker.InitialHP then
-			print("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()))
-			print("attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO] = ")
-			print(attacker.FinalHP, "=", attacker[CombatResultParameters.MAX_HIT_POINTS], "-", attacker[CombatResultParameters.FINAL_DAMAGE_TO])
-			print("real HP =", testHP)
-			print("attacker.InitialHP = ", attacker.InitialHP)
-			print("previous HP = ", ExposedMembers.UnitData[attacker.unitKey].HP)
-			print("attacker[CombatResultParameters.DAMAGE_TO] = ", attacker[CombatResultParameters.DAMAGE_TO])
+			print ("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetID()).." player#"..tostring(attacker.unit:GetOwner()))
+			Dprint( DEBUG_UNIT_SCRIPT, "attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO] = ")
+			Dprint( DEBUG_UNIT_SCRIPT, attacker.FinalHP, "=", attacker[CombatResultParameters.MAX_HIT_POINTS], "-", attacker[CombatResultParameters.FINAL_DAMAGE_TO])
+			Dprint( DEBUG_UNIT_SCRIPT, "real HP =", testHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "attacker.InitialHP = ", attacker.InitialHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "previous HP = ", ExposedMembers.UnitData[attacker.unitKey].HP)
+			Dprint( DEBUG_UNIT_SCRIPT, "attacker[CombatResultParameters.DAMAGE_TO] = ", attacker[CombatResultParameters.DAMAGE_TO])
 			--attacker.InitialHP = ExposedMembers.UnitData[attacker.unitKey].HP
 			--attacker.FinalHP = testHP			
 		end		
@@ -1456,13 +1530,13 @@ function OnCombat( combatResult )
 	if defender.unit then
 		local testHP = defender.unit:GetMaxDamage() - defender.unit:GetDamage()
 		if testHP ~= defender.FinalHP or ExposedMembers.UnitData[defender.unitKey].HP ~= defender.InitialHP then
-			print("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()))
-			print("defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO] = ")
-			print(defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
-			print("real HP =", testHP)
-			print("defender.InitialHP = ", defender.InitialHP)
-			print("previous HP = ", ExposedMembers.UnitData[defender.unitKey].HP)
-			print("defender[CombatResultParameters.DAMAGE_TO] = ", defender[CombatResultParameters.DAMAGE_TO])
+			print ("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetID()).." player#"..tostring(defender.unit:GetOwner()))
+			Dprint( DEBUG_UNIT_SCRIPT, "defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO] = ")
+			Dprint( DEBUG_UNIT_SCRIPT, defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
+			Dprint( DEBUG_UNIT_SCRIPT, "real HP =", testHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "defender.InitialHP = ", defender.InitialHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "previous HP = ", ExposedMembers.UnitData[defender.unitKey].HP)
+			Dprint( DEBUG_UNIT_SCRIPT, "defender[CombatResultParameters.DAMAGE_TO] = ", defender[CombatResultParameters.DAMAGE_TO])
 			--defender.InitialHP = ExposedMembers.UnitData[defender.unitKey].HP
 			--defender.FinalHP = testHP			
 		end		
@@ -1476,9 +1550,9 @@ function OnCombat( combatResult )
 		CheckComponentsHP(defender.unit, "defender before handling combat casualties", true)
 	end	
 
-	print("--++++++++++++++++++++++--")
-	print("-- Casualties in Combat #"..tostring(combatCount))
-	print("--++++++++++++++++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Casualties in Combat #"..tostring(combatCount))
+	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 	--]]
 
 	-- Handle casualties
@@ -1509,9 +1583,9 @@ function OnCombat( combatResult )
 	end
 	
 
-	--print("--++++++++++++++++++++++--")
-	--print("-- Stats in Combat #"..tostring(combatCount))
-	--print("--++++++++++++++++++++++--")
+	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
+	--Dprint( DEBUG_UNIT_SCRIPT, "-- Stats in Combat #"..tostring(combatCount))
+	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 
 	-- Update some stats
 	if attacker.IsUnit and defender.Dead then ExposedMembers.UnitData[attacker.unitKey].TotalKill = ExposedMembers.UnitData[attacker.unitKey].TotalKill + defender.Dead end
@@ -1530,9 +1604,9 @@ function OnCombat( combatResult )
 	end
 	
 
-	--print("--++++++++++++++++++++++--")
-	--print("-- Plundering in Combat #"..tostring(combatCount))
-	--print("--++++++++++++++++++++++--")
+	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
+	--Dprint( DEBUG_UNIT_SCRIPT, "-- Plundering in Combat #"..tostring(combatCount))
+	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 
 	-- Plundering (with some bonuses to attack)
 	if defender.IsLandUnit and combatType == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
@@ -1584,30 +1658,30 @@ function OnCombat( combatResult )
 	end
 	
 	---[[
-	print("--++++++++++++++++++++++--")
-	print("-- Control in Combat #"..tostring(combatCount))
-	print("--++++++++++++++++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Control in Combat #"..tostring(combatCount))
+	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 		
 	if attacker.IsUnit and not attacker.IsDead then CheckComponentsHP(attacker.unit, "attacker after combat") end
 	if defender.IsUnit and not defender.IsDead then CheckComponentsHP(defender.unit, "defender after combat") end		
 	
 	function p(table)
 		 for k, v in pairs(table) do
-			 if type(k) == "string" and type(v) ~= "table" then print(k,v); end
+			 if type(k) == "string" and type(v) ~= "table" then Dprint( DEBUG_UNIT_SCRIPT, k,v); end
 		end;
 	end
 --[[
-	print("--++++++++++++++++++++++--")
-	print("-- Ending Combat #"..tostring(combatCount))
-	print("--++++++++++++++++++++++--")
-	print("-  ATTACKER -")
-	print("--+++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Ending Combat #"..tostring(combatCount))
+	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "-  ATTACKER -")
+	Dprint( DEBUG_UNIT_SCRIPT, "--+++++++++--")
 	p(attacker)
-	print("--+++++++++--")
-	print("-  DEFENDER -")
-	print("--+++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "--+++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "-  DEFENDER -")
+	Dprint( DEBUG_UNIT_SCRIPT, "--+++++++++--")
 	p(defender)
-	print("-----------------------------------------------------------------------------------------")
+	Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
 	--]]
 	
 end
@@ -1623,8 +1697,8 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 	local playerConfig = PlayerConfigurations[playerID]
 	local playerUnits = player:GetUnits()
 	if playerUnits then
-		print("-----------------------------------------------------------------------------------------")
-		print("Healing units for " .. tostring(Locale.Lookup(playerConfig:GetCivilizationShortDescription())))
+		Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
+		Dprint( DEBUG_UNIT_SCRIPT, "Healing units for " .. tostring(Locale.Lookup(playerConfig:GetCivilizationShortDescription())))
 
 		local startTime = Automation.GetTime()
 
@@ -1671,7 +1745,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 								-- unit limit (vehicles and horses are handled by personnel...)
 								if reqPersonnel > tonumber(maxTransfer[unit].Personnel) or reqMateriel > tonumber(maxTransfer[unit].Materiel) then
 									hasReachedLimit[unit] = true
-									print("- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
+									Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
 
 								elseif  ExposedMembers.UnitData[key].PersonnelReserve >= reqPersonnel
 								and 	ExposedMembers.UnitData[key].EquipmentReserve >= reqEquipment
@@ -1697,7 +1771,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 				local damage = unit:GetDamage()
 				local initialHP = maxHP - damage
 				local finalHP = initialHP + hp
-				--print("initialHP:", initialHP , "finalHP:", finalHP, "hp from heal table:", hp)
+				--Dprint( DEBUG_UNIT_SCRIPT, "initialHP:", initialHP , "finalHP:", finalHP, "hp from heal table:", hp)
 				unit:SetDamage(damage-hp)
 				ExposedMembers.UnitData[key].HP = finalHP
 
@@ -1737,17 +1811,17 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 				if ExposedMembers.UnitData[key] then
 				
 					-- hardcoding and magic numbers everywhere, to do : era, promotions, support					
-					-- check available medecine...
-					local availableMedecine = ExposedMembers.UnitData[key].MedecineStock
+					-- check available medicine...
+					local availableMedicine = ExposedMembers.UnitData[key].MedicineStock
 					-- get the number of wounded that may heal or die this turn
 					local woundedToHandle	= GCO.Round(math.min(ExposedMembers.UnitData[key].WoundedPersonnel, math.max(20,ExposedMembers.UnitData[key].WoundedPersonnel * 50/100)))
 					-- wounded soldiers may die...
 					local potentialDeads 	= GCO.Round(woundedToHandle / 2)
-					local savedWithMadecine	= math.min(availableMedecine*10, GCO.Round(potentialDeads/2))
-					local medecineUsed		= math.ceil(savedWithMadecine/10)
+					local savedWithMedicine	= math.min(availableMedicine*10, GCO.Round(potentialDeads/2))
+					local medicineUsed		= math.ceil(savedWithMedicine/10)
 					
-					local deads				= potentialDeads - savedWithMadecine
-					availableMedecine		= availableMedecine - medecineUsed
+					local deads				= potentialDeads - savedWithMedicine
+					availableMedicine		= availableMedicine - medicineUsed
 					
 					ExposedMembers.UnitData[key].WoundedPersonnel 	= ExposedMembers.UnitData[key].WoundedPersonnel - deads
 					--ExposedMembers.UnitData[key].TotalDeath			= ExposedMembers.UnitData[key].TotalDeath 		+ deads	-- Update Stats
@@ -1755,30 +1829,32 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 					-- wounded soldiers may heal...
 					local potentialHealed 		= woundedToHandle - potentialDeads
 					local healedDirectly		= GCO.Round(potentialHealed/2)
-					local healedWithMedecine	= math.min(availableMedecine*10, potentialHealed - healedDirectly )
-					medecineUsed				= medecineUsed + math.ceil(healedWithMedecine/10)
+					local healedWithMedicine	= math.min(availableMedicine*10, potentialHealed - healedDirectly )
+					medicineUsed				= medicineUsed + math.ceil(healedWithMedicine/10)
 					
-					local healed 				= healedDirectly + healedWithMedecine
+					local healed 				= healedDirectly + healedWithMedicine
 					
 					ExposedMembers.UnitData[key].WoundedPersonnel = ExposedMembers.UnitData[key].WoundedPersonnel - healed
 					ExposedMembers.UnitData[key].PersonnelReserve = ExposedMembers.UnitData[key].PersonnelReserve + healed
 					
-					-- remove used medecine
-					if ExposedMembers.UnitData[key].MedecineStock - medecineUsed < 0 then
-						print("WARNING : used more medecine than available, initial stock = ".. tostring(ExposedMembers.UnitData[key].MedecineStock) ..", used =".. tostring(medecineUsed)..", wounded to treat = ".. tostring(woundedToHandle))
-						print("deads = ", deads, " healed = ", healed, " potentialDeads = ", potentialDeads, " savedWithMadecine = ", savedWithMadecine, " potentialHealed = ", potentialHealed, " healedDirectly = ", healedDirectly, " requiredMedecine = ", requiredMedecine)
+					-- remove used medicine
+					if ExposedMembers.UnitData[key].MedicineStock - medicineUsed < 0 then
+						print ("WARNING : used more medicine than available, initial stock = ".. tostring(ExposedMembers.UnitData[key].MedicineStock) ..", used =".. tostring(medicineUsed)..", wounded to treat = ".. tostring(woundedToHandle))
+						Dprint( DEBUG_UNIT_SCRIPT, "deads = ", deads, " healed = ", healed, " potentialDeads = ", potentialDeads, " savedWithMedicine = ", savedWithMedicine, " potentialHealed = ", potentialHealed, " healedDirectly = ", healedDirectly, " requiredMedicine = ", requiredMedicine)
 					end
-					ExposedMembers.UnitData[key].MedecineStock = math.max(0, ExposedMembers.UnitData[key].MedecineStock - medecineUsed)
+					ExposedMembers.UnitData[key].MedicineStock = math.max(0, ExposedMembers.UnitData[key].MedicineStock - medicineUsed)
 
 					-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
-					local materielAvailable = maxTransfer[unit].Materiel - alreadyUsed[unit].Materiel
-					local maxRepairedEquipment = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerEquipment* GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
 					local repairedEquipment = 0
-
-					if maxRepairedEquipment > 0 then
-						repairedEquipment = math.min(maxRepairedEquipment, ExposedMembers.UnitData[key].DamagedEquipment)
-						ExposedMembers.UnitData[key].DamagedEquipment = ExposedMembers.UnitData[key].DamagedEquipment - repairedEquipment
-						ExposedMembers.UnitData[key].EquipmentReserve = ExposedMembers.UnitData[key].EquipmentReserve + repairedEquipment
+					if ExposedMembers.UnitData[key].MaterielPerEquipment > 0 then
+						local materielAvailable = maxTransfer[unit].Materiel - alreadyUsed[unit].Materiel
+						local maxRepairedEquipment = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerEquipment* GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
+						local repairedEquipment = 0
+						if maxRepairedEquipment > 0 then
+							repairedEquipment = math.min(maxRepairedEquipment, ExposedMembers.UnitData[key].DamagedEquipment)
+							ExposedMembers.UnitData[key].DamagedEquipment = ExposedMembers.UnitData[key].DamagedEquipment - repairedEquipment
+							ExposedMembers.UnitData[key].EquipmentReserve = ExposedMembers.UnitData[key].EquipmentReserve + repairedEquipment
+						end
 					end
 
 					-- Visualize healing
@@ -1797,8 +1873,8 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 		end
 
 		local endTime = Automation.GetTime()
-		print("Healing units used " .. tostring(endTime-startTime) .. " seconds")
-		print("-----------------------------------------------------------------------------------------")
+		Dprint( DEBUG_UNIT_SCRIPT, "Healing units used " .. tostring(endTime-startTime) .. " seconds")
+		Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
 	end
 end
 
@@ -1808,7 +1884,7 @@ function MarkUnitOnPillage(playerID, unitID)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	local testHP = unit:GetMaxDamage() - unit:GetDamage()
 	local unitKey = unit:GetKey()
-	print ("Marking unit on pillage : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP)
+	Dprint( DEBUG_UNIT_SCRIPT, "Marking unit on pillage : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP)
 	PillagingUnit = unit
 end
 GameEvents.OnPillage.Add(MarkUnitOnPillage)
@@ -1819,9 +1895,9 @@ function DamageChanged (playerID, unitID, newDamage, prevDamage)
 		PillagingUnit = nil
 		local testHP = unit:GetMaxDamage() - unit:GetDamage()
 		local unitKey = unit:GetKey()
-		print ("Handling Damage Changed for pillaging unit : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP, newDamage, prevDamage)
+		Dprint( DEBUG_UNIT_SCRIPT, "Handling Damage Changed for pillaging unit : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP, newDamage, prevDamage)
 		unit:SetDamage(prevDamage)
-		print ("Damage restored to ", unit:GetDamage() )
+		Dprint( DEBUG_UNIT_SCRIPT, "Damage restored to ", unit:GetDamage() )
 	end
 end
 
@@ -1917,12 +1993,12 @@ Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 -----------------------------------------------------------------------------------------
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
-	--print("---------------------------------------------------------------------------")
+	Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
 	local unitKey 			= self:GetKey()
-	--print("Updating Unit Data for ", Locale.Lookup(self:GetName())," key = ",unitKey)
+	Dprint( DEBUG_UNIT_SCRIPT, "Updating Unit Data for ", Locale.Lookup(self:GetName())," key = ",unitKey)
 	
 	-- Update basic components
-	local componentsToUpdate = {"Personnel","Equipment","Horses","Materiel","PersonnelReserve","EquipmentReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","DamagedEquipment","FoodStock","FuelStock","Morale","MedecineStock"}
+	local componentsToUpdate = {"Personnel","Equipment","Horses","Materiel","PersonnelReserve","EquipmentReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","DamagedEquipment","FoodStock","FuelStock","Morale","MedicineStock"}
 	for _, component in ipairs(componentsToUpdate) do
 		local previousComponent = "Previous"..tostring(component)
 		local currentValue		= self:GetComponent(component)
@@ -2117,16 +2193,16 @@ LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
 -----------------------------------------------------------------------------------------
 function CleanUnitData()
 	-- remove dead units from the table
-	print("-----------------------------------------------------------------------------------------")
-	print("Cleaning UnitData...")
+	Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
+	Dprint( DEBUG_UNIT_SCRIPT, "Cleaning UnitData...")
 	local unitData = ExposedMembers.UnitData
 	for unitKey, data in pairs(unitData) do
 		local unit = GetUnitFromKey ( unitKey )
 		if (not unit) then		
-			--print("REMOVING unit ID#"..tostring(data.unitID).." from player ID#"..tostring(data.playerID), "unit type = ".. tostring(GameInfo.Units[data.unitType].UnitType))
+			--Dprint( DEBUG_UNIT_SCRIPT, "REMOVING unit ID#"..tostring(data.unitID).." from player ID#"..tostring(data.playerID), "unit type = ".. tostring(GameInfo.Units[data.unitType].UnitType))
 			ExposedMembers.UnitData[unitKey] = nil
 		else
-			--print("Keeping unit ID#"..unit:GetID(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
+			--Dprint( DEBUG_UNIT_SCRIPT, "Keeping unit ID#"..unit:GetID(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
 		end
 	end
 end
@@ -2164,8 +2240,10 @@ function AttachUnitFunctions(unit)
 		u.GetFoodConsumption 		= GetFoodConsumption
 		u.GetFoodConsumptionRatio	= GetFoodConsumptionRatio
 		u.GetFuelConsumption 		= GetFuelConsumption
+		u.GetMaxFrontLinePersonnel	= GetMaxFrontLinePersonnel
+		u.GetMaxFrontLineMateriel	= GetMaxFrontLineMateriel
 		u.GetMaxFoodStock			= GetMaxFoodStock
-		u.GetMaxMedecineStock		= GetMaxMedecineStock		
+		u.GetMaxMedicineStock		= GetMaxMedicineStock		
 		u.GetMaxHorsesReserve		= GetMaxHorsesReserve
 		u.GetMaxMaterielReserve		= GetMaxMaterielReserve
 		u.GetMaxPersonnelReserve	= GetMaxPersonnelReserve
@@ -2236,12 +2314,12 @@ function TestDamage()
 		if unit then
 			local testHP = unit:GetMaxDamage() - unit:GetDamage()
 			if testHP ~= data.testHP then
-				print("--------------------------------------- GameCoreEventPublishComplete ---------------------------------------")
-				print("changing HP of unit "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
-				print("previous HP =", data.testHP)
-				print("new HP =", testHP)
-				print("HP change =", testHP - data.testHP)
-				print("------------------------------------------------------------------------------")
+				Dprint( DEBUG_UNIT_SCRIPT, "--------------------------------------- GameCoreEventPublishComplete ---------------------------------------")
+				Dprint( DEBUG_UNIT_SCRIPT, "changing HP of unit "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
+				Dprint( DEBUG_UNIT_SCRIPT, "previous HP =", data.testHP)
+				Dprint( DEBUG_UNIT_SCRIPT, "new HP =", testHP)
+				Dprint( DEBUG_UNIT_SCRIPT, "HP change =", testHP - data.testHP)
+				Dprint( DEBUG_UNIT_SCRIPT, "------------------------------------------------------------------------------")
 				ExposedMembers.UnitData[unitKey].testHP = testHP
 			end
 		end
@@ -2255,13 +2333,13 @@ function DamageChanged (playerID, unitID, newDamage, prevDamage)
 		local unitKey = unit:GetKey()
 		local data = ExposedMembers.UnitData[unitKey]
 		local testHP = unit:GetMaxDamage() - unit:GetDamage()
-		print("--------------------------------------- UnitDamageChanged ---------------------------------------")
-		print("changing HP of unit "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
-		print("previous HP =", data.testHP)
-		print("new HP =", testHP)
-		print("HP change =", testHP - data.testHP)
-		print("newDamage, prevDamage =", newDamage, prevDamage)
-		print("------------------------------------------------------------------------------")
+		Dprint( DEBUG_UNIT_SCRIPT, "--------------------------------------- UnitDamageChanged ---------------------------------------")
+		Dprint( DEBUG_UNIT_SCRIPT, "changing HP of unit "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetID()).." player#"..tostring(unit:GetOwner()))
+		Dprint( DEBUG_UNIT_SCRIPT, "previous HP =", data.testHP)
+		Dprint( DEBUG_UNIT_SCRIPT, "new HP =", testHP)
+		Dprint( DEBUG_UNIT_SCRIPT, "HP change =", testHP - data.testHP)
+		Dprint( DEBUG_UNIT_SCRIPT, "newDamage, prevDamage =", newDamage, prevDamage)
+		Dprint( DEBUG_UNIT_SCRIPT, "------------------------------------------------------------------------------")
 		--ExposedMembers.UnitData[unitKey].testHP = testHP
 	end
 end

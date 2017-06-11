@@ -7,7 +7,6 @@
 /* New Parameters */
 --INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CSO_VERSION', 'Alpha .1');
 
-
 /* Remove GoodyHuts bonuses */
 UPDATE GoodyHuts 			SET Weight = 0 WHERE GoodyHutType 		<> 'GOODYHUT_GOLD';
 UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMALL_GOLD';
@@ -38,6 +37,13 @@ DELETE FROM Districts WHERE DistrictType ='DISTRICT_ENTERTAINMENT_COMPLEX';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_THEATER';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_HOLY_SITE';
 
+
+/* Remove Housing & Entertainment */
+UPDATE Buildings SET Housing = 0;
+UPDATE Buildings SET Entertainment = 0;
+UPDATE Districts SET Housing = 0;
+UPDATE Districts SET Entertainment = 0;
+UPDATE Improvements SET Housing = 0;
 
 /* Start */
 UPDATE StartEras SET Tiles = '0';
@@ -78,9 +84,9 @@ DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_CHOOSER";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_TREE";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_GOVERNMENTS";
-DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_RELIGION";
-DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_PANTHEONS";
-DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_RELIGIONS";
+--DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_RELIGION";
+--DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_PANTHEONS";
+--DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_RELIGIONS";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY_DEALS";
 

@@ -28,6 +28,7 @@ function OnEnterGame()
 	ContextPtr:LookUpControl("/InGame/CityPanel/ProduceWithFaithCheck"):SetHide(true)
 	ContextPtr:LookUpControl("/InGame/ProductionPanel/PurchaseFaithTab"):SetHide(true)
 	ContextPtr:LookUpControl("/InGame/TopPanel/FaithBacking"):SetHide(true)
+	ContextPtr:LookUpControl("/InGame/CityPanelOverview/ReligionButton"):SetHide(true)
 	
 end
 Events.LoadScreenClose.Add(OnEnterGame)

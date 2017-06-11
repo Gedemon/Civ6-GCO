@@ -51,7 +51,7 @@ local ResClassCount = {
 	
 	
 local ResTypeBonus = {
-		["RESOURCE_HORSES"] 	= 25,
+		["RESOURCE_HORSES"] 	= 10,
 	}
 
 function SetResourcesCount()

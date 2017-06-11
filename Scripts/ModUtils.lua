@@ -42,7 +42,7 @@ local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
 local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
-local medecineResourceID		= GameInfo.Resources["RESOURCE_MEDECINE"].Index
+local medicineResourceID		= GameInfo.Resources["RESOURCE_MEDICINE"].Index
 local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
 local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 
@@ -50,7 +50,7 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[woodResourceID] 		= "[ICON_RESOURCE_CLOVES]",
 		[materielResourceID] 	= "[ICON_Charges]",
 		[steelResourceID] 		= "[ICON_New]",
-		[medecineResourceID] 	= "[ICON_Damaged]",
+		[medicineResourceID] 	= "[ICON_Damaged]",
 		[leatherResourceID] 	= "[ICON_New]",
 		[plantResourceID] 		= "[ICON_RESOURCE_CINNAMON]",
 		[foodResourceID] 		= "[ICON_Food]",
@@ -165,11 +165,66 @@ function ToggleOutput()
 	print("Spam control = " .. tostring(bNoOutput))
 end
 
-function Dprint(str)
-	if bNoOutput then -- spam control
-		return
-	end
-	print(str)
+function Dprint(...)
+    local args = {...}
+	if args.n == 1 then print(args[1]) end 							-- if called with one argument only, print it
+	if args.n == 0 or bNoOutput or args[1] == false then return end	-- don't print if the first argument is false (= debug off)
+	print(select(2,...)) 											-- print everything else after the first argument
+end
+
+-- Compare tables
+local function internalProtectedEquals(o1, o2, ignore_mt, callList)
+    if o1 == o2 then return true end
+    local o1Type = type(o1)
+    local o2Type = type(o2)
+    if o1Type ~= o2Type then return false end
+    if o1Type ~= 'table' then return false end
+
+    -- add only when objects are tables, cache results
+    local oComparisons = callList[o1]
+    if not oComparisons then
+        oComparisons = {}
+        callList[o1] = oComparisons
+    end
+    -- false means that comparison is in progress
+    oComparisons[o2] = false
+
+    if not ignore_mt then
+        local mt1 = getmetatable(o1)
+        if mt1 and mt1.__eq then
+            --compare using built in method
+            return o1 == o2
+        end
+    end
+
+    local keySet = {}
+    for key1, value1 in pairs(o1) do
+        local value2 = o2[key1]
+        if value2 == nil then return false end
+
+        local vComparisons = callList[value1]
+        if not vComparisons or vComparisons[value2] == nil then
+            if not internalProtectedEquals(value1, value2, ignore_mt, callList) then
+                return false
+            end
+        end
+
+        keySet[key1] = true
+    end
+
+    for key2, _ in pairs(o2) do
+        if not keySet[key2] then
+            return false
+        end
+    end
+
+    -- comparison finished - objects are equal do not compare again
+    oComparisons[o2] = true
+    return true
+end
+
+function AreSameTables(o1, o2, ignore_mt)
+    return internalProtectedEquals(o1, o2, ignore_mt, {})
 end
 
 ----------------------------------------------
@@ -462,6 +517,7 @@ function Initialize()
 	-- debug
 	ExposedMembers.GCO.ToggleOutput 	= ToggleOutput
 	ExposedMembers.GCO.Dprint			= Dprint
+	ExposedMembers.GCO.AreSameTables	= AreSameTables
 	-- "globals"
 	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations

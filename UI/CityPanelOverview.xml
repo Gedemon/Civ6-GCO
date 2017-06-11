@@ -737,7 +737,7 @@
 				<Label		ID="Food"			Anchor="R,C"	Style="CityPanelTextSmall"	String=""	ToolTip="LOC_RESOURCE_FOOD_NAME" />
 			</Container>			
 			<Container																										Size="23,12">
-				<Label		ID="Medecine"		Anchor="R,C"	Style="CityPanelTextSmall"	String=""	ToolTip="LOC_RESOURCE_MEDECINE_NAME" />
+				<Label		ID="Medicine"		Anchor="R,C"	Style="CityPanelTextSmall"	String=""	ToolTip="LOC_RESOURCE_MEDICINE_NAME" />
 			</Container>
 		</Stack>
     </Grid>

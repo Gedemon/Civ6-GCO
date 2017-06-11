@@ -888,7 +888,7 @@ function UnitFlag.UpdateName( self )
 				if unitData.DamagedEquipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_EQUIPMENT", unitData.DamagedEquipment)  .. GCO.GetNeutralVariationString(pUnit:GetComponentVariation("DamagedEquipment"))end
 				if totalPrisoners	 			> 0 then nameString = nameString .. GCO.GetPrisonersStringByCiv(unitData) end	-- "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONERS", totalPrisoners) .. GCO.GetPrisonersStringByCiv(unitData) end
 				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. pUnit:GetFoodStockString() end
-				if unitData.MedecineStock 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MEDECINE_STOCK", unitData.MedecineStock)  .. GCO.GetVariationString(pUnit:GetComponentVariation("MedecineStock"))end
+				if unitData.MedicineStock 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MEDICINE_STOCK", unitData.MedicineStock)  .. GCO.GetVariationString(pUnit:GetComponentVariation("MedicineStock"))end
 				if unitData.FuelStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. GCO.GetFuelStockString(unitData) end
 			end
 				

@@ -5,10 +5,10 @@
 */
 
 /* Replaces */
-UPDATE GlobalParameters SET Value = 9999	WHERE Name = 'CITY_GROWTH_THRESHOLD';					-- default = 15
+UPDATE GlobalParameters SET Value = 65534	WHERE Name = 'CITY_GROWTH_THRESHOLD';					-- default = 15
 UPDATE GlobalParameters SET Value = 1		WHERE Name = 'CITY_GROWTH_MULTIPLIER';					-- default = 8
 UPDATE GlobalParameters SET Value = 1		WHERE Name = 'CITY_GROWTH_EXPONENT';					-- default = 1.5
-UPDATE GlobalParameters SET Value = 1		WHERE Name = 'CITY_FOOD_CONSUMPTION_PER_POPULATION';	-- default = 2
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_FOOD_CONSUMPTION_PER_POPULATION';	-- default = 2
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_CAPTURED_DAMAGE_PERCENTAGE';			-- default = 50
 UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_AMENITIES_FOR_FREE';					-- default = 1
 UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_POP_PER_AMENITY';					-- default = 2
@@ -197,7 +197,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_COMPONEN
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT',50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_RESERVE_RATIO', 					0.75);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_HP_HEALED_FROM_RESERVE',		25);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PERSONNEL_FROM_RESERVE',		250);	-- Max personnel transfered from reserve to front line
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_MATERIEL_FROM_RESERVE',			100);	-- Max materiel transfered from reserve to front line
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PERSONNEL_PERCENT_FROM_RESERVE',15);	-- Max percent of max personnel transfered from reserve to front line
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_MATERIEL_PERCENT_FROM_RESERVE',	15);	-- Max percent of max materiel transfered from reserve to front line
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PSEUDO_HP_FROM_REINFORCEMENT',	5);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_SUPPLY_LINE_LENGTH_FACTOR',			0.85);	-- When calculating supply line efficiency relatively to length

@@ -3,40 +3,23 @@
 --  Gedemon (2017)
 --=====================================================================================--
 
-print ("Loading CityScript.lua...")
+print("Loading CityScript.lua...")
 
 -----------------------------------------------------------------------------------------
--- Defines
+-- Debug
 -----------------------------------------------------------------------------------------
 
-local _cached				= {}	-- cached table to reduce calculations
+DEBUG_CITY_SCRIPT			= false
 
-local LinkedUnits 			= {}	-- temporary table to list all units linked to a city for supply
-local UnitsSupplyDemand		= {}	-- temporary table to list all resources required by units
-local CitiesForTransfer 	= {}	-- temporary table to list all cities connected via (internal) trade routes to a city
-local CitiesForTrade		= {}	-- temporary table to list all cities connected via (external) trade routes to a city
-local CitiesTransferDemand	= {}	-- temporary table to list all resources required by own cities
-local CitiesTradeDemand		= {}	-- temporary table to list all resources required by other civilizations cities
+function ToggleCityDebug()
+	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
+end
 
-local SupplyRouteType	= {		-- ENUM for resource trade/transfer route types
-		Trader 	= 1,
-		Road	= 2,
-		River	= 3,
-		Coastal	= 4,
-		Ocean	= 5,
-		Airport	= 6
-}
 
-local SupplyRouteLengthFactor = {		-- When calculating supply line efficiency relatively to length
-		[SupplyRouteType.Trader]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_TRADER_LENGTH_FACTOR"].Value),
-		[SupplyRouteType.Road]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_ROAD_LENGTH_FACTOR"].Value),
-		[SupplyRouteType.River]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_RIVER_LENGTH_FACTOR"].Value),
-		[SupplyRouteType.Coastal]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
-		[SupplyRouteType.Ocean]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
-		[SupplyRouteType.Airport]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_AIRPORT_LENGTH_FACTOR"].Value)
-}
-
-local ResourceUseType	= {	-- ENUM for resource trade/transfer route types (string as it it used as a key for saved table)
+-----------------------------------------------------------------------------------------
+-- ENUMS
+-----------------------------------------------------------------------------------------
+local ResourceUseType	= {	-- ENUM for resource use types (string as it it used as a key for saved table)
 		Collect 	= "1",	-- Resources from map (ref = PlotID)
 		Consume		= "2",	-- Used by population or local industries (ref = PopulationType or buildingID)
 		Product		= "3",	-- Produced by buildings (industrie) (ref = buildingID)
@@ -61,6 +44,51 @@ local ReferenceType = { 	-- ENUM for reference types used to determine resource 
 	Population		= 4,
 	Building		= 5,
 	PopOrBuilding	= 99,
+}
+
+local SupplyRouteType	= {	-- ENUM for resource trade/transfer route types
+		Trader 	= 1,
+		Road	= 2,
+		River	= 3,
+		Coastal	= 4,
+		Ocean	= 5,
+		Airport	= 6
+}
+
+local NO_IMPROVEMENT 	= -1
+local NO_FEATURE 		= -1
+
+YieldTypes.INTERNAL_MAX		= GameInfo.Yields["YIELD_FAITH"].Index -- last yield from base game
+YieldTypes.HEALTH			= GameInfo.Yields["YIELD_HEALTH"].Index
+YieldTypes.UPPER_HOUSING	= GameInfo.Yields["YIELD_UPPER_HOUSING"].Index
+YieldTypes.MIDDLE_HOUSING	= GameInfo.Yields["YIELD_MIDDLE_HOUSING"].Index
+YieldTypes.LOWER_HOUSING	= GameInfo.Yields["YIELD_LOWER_HOUSING"].Index
+
+local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
+	DeathRate	= 1,
+	BirthRate	= 2,
+	}
+
+-----------------------------------------------------------------------------------------
+-- Defines
+-----------------------------------------------------------------------------------------
+
+local _cached				= {}	-- cached table to reduce calculations
+
+local LinkedUnits 			= {}	-- temporary table to list all units linked to a city for supply
+local UnitsSupplyDemand		= {}	-- temporary table to list all resources required by units
+local CitiesForTransfer 	= {}	-- temporary table to list all cities connected via (internal) trade routes to a city
+local CitiesForTrade		= {}	-- temporary table to list all cities connected via (external) trade routes to a city
+local CitiesTransferDemand	= {}	-- temporary table to list all resources required by own cities
+local CitiesTradeDemand		= {}	-- temporary table to list all resources required by other civilizations cities
+
+local SupplyRouteLengthFactor = {		-- When calculating supply line efficiency relatively to length
+		[SupplyRouteType.Trader]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_TRADER_LENGTH_FACTOR"].Value),
+		[SupplyRouteType.Road]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_ROAD_LENGTH_FACTOR"].Value),
+		[SupplyRouteType.River]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_RIVER_LENGTH_FACTOR"].Value),
+		[SupplyRouteType.Coastal]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
+		[SupplyRouteType.Ocean]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
+		[SupplyRouteType.Airport]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_AIRPORT_LENGTH_FACTOR"].Value)
 }
 
 local ResourceUseTypeReference	= {	-- Helper to get the reference type for a specific UseType
@@ -89,9 +117,9 @@ local RefPopulationAll		= GameInfo.Populations["POPULATION_ALL"].Type
 
 -- Error checking
 for row in GameInfo.BuildingResourcesConverted() do
-	--print(row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
+	--print( DEBUG_CITY_SCRIPT, row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	if row.MultiResRequired and  row.MultiResCreated then
-		print ("ERROR : BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
+		print("ERROR : BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	end
 end
 
@@ -119,8 +147,16 @@ for row in GameInfo.ResourceStockUsage() do
 	}
 end
 
-local NO_IMPROVEMENT 	= -1
-local NO_FEATURE 		= -1
+local BuildingYields		= {}		-- cached table with all the buildings that yield Upper/Middle/Lower Housing or Health
+for row in GameInfo.Building_YieldChanges() do
+	local YieldID = GameInfo.Yields[row.YieldType].Index
+	if YieldID > YieldTypes.INTERNAL_MAX then
+		local buildingID = GameInfo.Buildings[row.BuildingType].Index
+		if not BuildingYields[buildingID] then BuildingYields[buildingID] = {} end
+		BuildingYields[buildingID][YieldID] = row.YieldChange
+	end
+end
+
 
 local IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resource
 for row in GameInfo.Improvement_ValidResources() do
@@ -179,11 +215,25 @@ local MiddleClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MID
 local LowerClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_BIRTH_RATE_FACTOR"].Value)
 local SlaveClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_BIRTH_RATE_FACTOR"].Value)
 
+local BirthRateFactor = {
+	[UpperClassID] 	= UpperClassBirthRateFactor,
+    [MiddleClassID] = MiddleClassBirthRateFactor,
+    [LowerClassID] 	= LowerClassBirthRateFactor,
+    [SlaveClassID] 	= SlaveClassBirthRateFactor,
+	}
+	
 local BaseDeathRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_DEATH_RATE"].Value)
 local UpperClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_DEATH_RATE_FACTOR"].Value)
 local MiddleClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_DEATH_RATE_FACTOR"].Value)
 local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_DEATH_RATE_FACTOR"].Value)
 local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
+
+local DeathRateFactor = {
+	[UpperClassID] 	= UpperClassDeathRateFactor,
+    [MiddleClassID] = MiddleClassDeathRateFactor,
+    [LowerClassID] 	= LowerClassDeathRateFactor,
+    [SlaveClassID] 	= SlaveClassDeathRateFactor,
+	}
 
 local UpperClassMaxPercent		 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_MAX_PERCENT"].Value)
 local UpperClassMinPercent 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_MIN_PERCENT"].Value)
@@ -224,7 +274,7 @@ local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
 local horsesResourceID 			= GameInfo.Resources["RESOURCE_HORSES"].Index
 local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
-local medecineResourceID		= GameInfo.Resources["RESOURCE_MEDECINE"].Index
+local medicineResourceID		= GameInfo.Resources["RESOURCE_MEDICINE"].Index
 local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
 local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 
@@ -246,11 +296,11 @@ local directReinforcement = { 				-- cached table with "resources" that are dire
 		[materielResourceID] 	= true,
 		[horsesResourceID] 		= true,
 		[personnelResourceID] 	= true,
-		[medecineResourceID] 	= true,
+		[medicineResourceID] 	= true,
 	}
 
-local notAvailableToExport = {} 			-- cached table with "resources" that can't be exported to other Civilizations
-notAvailableToExport[personnelResourceID] 	= true
+--local notAvailableToExport = {} 			-- cached table with "resources" that can't be exported to other Civilizations
+--notAvailableToExport[personnelResourceID] 	= true
 
 local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 
@@ -282,9 +332,10 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -----------------------------------------------------------------------------------------
 local GCO = {}
 function InitializeUtilityFunctions()
-	GCO = ExposedMembers.GCO		-- contains functions from other contexts
-	Calendar = ExposedMembers.Calendar
-	print ("Exposed Functions from other contexts initialized...")
+	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts
+	Calendar 	= ExposedMembers.Calendar
+	Dprint 		= GCO.Dprint
+	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
@@ -306,6 +357,33 @@ function SaveTables()
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
+function CheckSave()
+	print("Checking Saved Table...")
+	if GCO.AreSameTables(ExposedMembers.CityData, GCO.LoadTableFromSlot("CityData")) then
+		print("- Tables are identical")
+	else
+		print("ERROR: reloading saved table show differences with actual table !")
+		LuaEvents.StopAuToPlay()
+		CompareData(ExposedMembers.CityData, GCO.LoadTableFromSlot("CityData"))
+	end
+end
+LuaEvents.SaveTables.Add(CheckSave)
+
+function CompareData(data1, data2)
+	print("comparing...")
+	for key, data in pairs(data1) do
+		for k, v in pairs (data) do
+			if not data2[key] then
+				print("- reloaded table is nil for key = ", key)
+			elseif data2[key] and not data2[key][k] then			
+				print("- no value for key = ", key, " entry =", k)
+			elseif data2[key] and type(v) ~= "table" and v ~= data2[key][k] then
+				print("- different value for key = ", key, " entry =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]) )
+			end
+		end
+	end
+	print("no more data to compare...")
+end
 
 -----------------------------------------------------------------------------------------
 -- Initialize Cities
@@ -343,18 +421,21 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 	local city = CityManager.GetCity(playerID, cityID)
 	if city then
 		local cityKey = city:GetKey()
-
 		if ExposedMembers.CityData[cityKey] then
 			-- city already registered, don't add it again...
-			print("  - ".. city:GetName() .." is already registered")
+			Dprint( DEBUG_CITY_SCRIPT, "  - ".. city:GetName() .." is already registered")
 			return
 		end
 
-		print ("Initializing new city (".. city:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(city:GetID()))
-		RegisterNewCity(playerID, city)
-		print("---------------------------------------------------------------------------")
+		Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+		Dprint( DEBUG_CITY_SCRIPT, "Initializing new city (".. city:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(city:GetID()))
+		RegisterNewCity(playerID, city)		
+		
+		local pCityBuildQueue = city:GetBuildQueue();
+		pCityBuildQueue:CreateIncompleteBuilding(GameInfo.Buildings["BUILDING_CENTRAL_SQUARE"].Index, 100);
+		
 	else
-		print ("- WARNING : tried to initialize nil city for player #".. tostring(playerID))
+		Dprint( DEBUG_CITY_SCRIPT, "- WARNING : tried to initialize nil city for player #".. tostring(playerID))
 	end
 
 end
@@ -367,8 +448,8 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 
 		if ExposedMembers.CityData[newCityKey] then
 			local city = CityManager.GetCity(newOwnerID, newCityID)
-			print("Updating captured city (".. city:GetName() ..") for player #".. tostring(newOwnerID).. " id#" .. tostring(city:GetID()))
-			print("---------------------------------------------------------------------------")
+			Dprint( DEBUG_CITY_SCRIPT, "Updating captured city (".. city:GetName() ..") for player #".. tostring(newOwnerID).. " id#" .. tostring(city:GetID()))
+			Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 
 			ExposedMembers.CityData[newCityKey].WoundedPersonnel 	= 0
 			for civID, value in pairs(originalData.Prisoners) do
@@ -407,12 +488,12 @@ LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.
 -- for debugging
 function ShowCityData()
 	for cityKey, data in pairs(ExposedMembers.CityData) do
-		print (cityKey, data)
+		print(cityKey, data)
 		for k, v in pairs (data) do
-			print ("-", k, v)
+			print("-", k, v)
 			if k == "Prisoners" then
 				for id, num in pairs (v) do
-					print ("-", "-", id, num)
+					print("-", "-", id, num)
 				end
 			end
 		end
@@ -446,7 +527,7 @@ function GetCityFromKey ( cityKey )
 			return city
 		else
 			print("- WARNING: city is nil for GetCityFromKey(".. tostring(cityKey)..")")
-			print("--- UnitId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID )
+			print("--- UnitId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID)
 		end
 	else
 		print("- WARNING: ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")")
@@ -541,9 +622,69 @@ function GetDeathRate(self)
 	return deathRate
 end
 
+function GetBasePopulationDeathRate(self, populationID)
+	return self:GetDeathRate() * DeathRateFactor[populationID]
+end
+
+function GetPopulationDeathRate(self, populationID)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then
+		self:SetPopulationDeathRate(populationID)
+	elseif not _cached[cityKey].DeathRate then
+		self:SetPopulationDeathRate(populationID)
+	elseif not _cached[cityKey].DeathRate[populationID] then
+		self:SetPopulationDeathRate(populationID)
+	end
+	return _cached[cityKey].DeathRate[populationID]
+end
+
+function SetPopulationDeathRate(self, populationID)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then _cached[cityKey] = {} end
+	if not _cached[cityKey].DeathRate then _cached[cityKey].DeathRate = {} end
+	local popDeathRate = self:GetBasePopulationDeathRate(populationID)
+	
+	if _cached[cityKey].NeedsEffects and _cached[cityKey].NeedsEffects[populationID] then
+		local data = _cached[cityKey].NeedsEffects[populationID][NeedsEffectType.DeathRate]
+		popDeathRate = popDeathRate + GCO.TableSummation(data)
+	end
+	
+	_cached[cityKey].DeathRate[populationID] = popDeathRate
+end
+
+function GetBasePopulationBirthRate(self, populationID)
+	return self:GetBirthRate() * BirthRateFactor[populationID]
+end
+
+function GetPopulationBirthRate(self, populationID)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then
+		self:SetPopulationBirthRate(populationID)
+	elseif not _cached[cityKey].BirthRate then
+		self:SetPopulationBirthRate(populationID)
+	elseif not _cached[cityKey].BirthRate[populationID] then
+		self:SetPopulationBirthRate(populationID)
+	end
+	return _cached[cityKey].BirthRate[populationID]
+end
+
+function SetPopulationBirthRate(self, populationID)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then _cached[cityKey] = {} end
+	if not _cached[cityKey].BirthRate then _cached[cityKey].BirthRate = {} end
+	local popBirthRate = self:GetBasePopulationBirthRate(populationID)
+	
+	if _cached[cityKey].NeedsEffects and _cached[cityKey].NeedsEffects[populationID] then
+		local data = _cached[cityKey].NeedsEffects[populationID][NeedsEffectType.BirthRate]
+		popBirthRate = popBirthRate + GCO.TableSummation(data)
+	end
+	
+	_cached[cityKey].BirthRate[populationID] = popBirthRate
+end
+
 function ChangeSize(self)
-	print("check change size to ", self:GetSize()+1, "required =", GetPopulationPerSize(self:GetSize()+1), "current =", self:GetRealPopulation())
-	print("check change size to ", self:GetSize()-1, "required =", GetPopulationPerSize(self:GetSize()-1), "current =", self:GetRealPopulation())
+	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", self:GetSize()+1, "required =", GetPopulationPerSize(self:GetSize()+1), "current =", self:GetRealPopulation())
+	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", self:GetSize()-1, "required =", GetPopulationPerSize(self:GetSize()-1), "current =", self:GetRealPopulation())
 	if GetPopulationPerSize(self:GetSize()-1) > self:GetRealPopulation() then
 		self:ChangePopulation(-1) -- (-1, true) ?
 	elseif GetPopulationPerSize(self:GetSize()+1) < self:GetRealPopulation() then
@@ -561,7 +702,7 @@ function GetMaxUpperClass(self)
 			end
 		end
 	end
-	print("Max Upper Class %", maxPercent)
+	Dprint( DEBUG_CITY_SCRIPT, "Max Upper Class %", maxPercent)
 	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
 end
 
@@ -575,7 +716,7 @@ function GetMinUpperClass(self)
 			end
 		end
 	end
-	print("Min Upper Class %", minPercent)
+	Dprint( DEBUG_CITY_SCRIPT, "Min Upper Class %", minPercent)
 	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
 end
 
@@ -589,7 +730,7 @@ function GetMaxMiddleClass(self)
 			end
 		end
 	end
-	print("Max Middle Class %", maxPercent)
+	Dprint( DEBUG_CITY_SCRIPT, "Max Middle Class %", maxPercent)
 	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
 end
 
@@ -603,7 +744,7 @@ function GetMinMiddleClass(self)
 			end
 		end
 	end
-	print("Min Middle Class %", minPercent)
+	Dprint( DEBUG_CITY_SCRIPT, "Min Middle Class %", minPercent)
 	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
 end
 
@@ -617,7 +758,7 @@ function GetMaxLowerClass(self)
 			end
 		end
 	end
-	print("Max Lower Class %", maxPercent)
+	Dprint( DEBUG_CITY_SCRIPT, "Max Lower Class %", maxPercent)
 	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
 end
 
@@ -631,7 +772,7 @@ function GetMinLowerClass(self)
 			end
 		end
 	end
-	print("Min Lower Class %", minPercent)
+	Dprint( DEBUG_CITY_SCRIPT, "Min Lower Class %", minPercent)
 	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
 end
 
@@ -697,6 +838,14 @@ function GetPopulationClass(self, populationID)
 	return 0
 end
 
+function ChangePopulationClass(self, populationID, value)
+	if populationID == UpperClassID 	then return self:ChangeUpperClass(value) end
+	if populationID == MiddleClassID 	then return self:ChangeMiddleClass(value) end
+	if populationID == LowerClassID 	then return self:ChangeLowerClass(value) end
+	if populationID == SlaveClassID 	then return self:ChangeSlaveClass(value) end
+	print("ERROR : can't find population class for ID = ", populationID)
+end
+
 function GetPreviousUpperClass(self)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetPreviousTurnKey()
@@ -737,12 +886,11 @@ function GetPreviousSlaveClass(self)
 	end
 end
 
-
 -----------------------------------------------------------------------------------------
 -- Resources Transfers
 -----------------------------------------------------------------------------------------
 function UpdateLinkedUnits(self)
-	print("Updating Linked Units...")
+	Dprint( DEBUG_CITY_SCRIPT, "Updating Linked Units...")
 	local selfKey 				= self:GetKey()
 	LinkedUnits[selfKey] 		= {}
 	UnitsSupplyDemand[selfKey] 	= { Resources = {}, NeedResources = {}, PotentialResources = {}} -- NeedResources : Number of units requesting a resource type
@@ -798,7 +946,7 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 		end
 	end
 
-	print("Testing "..tostring(sRouteType).." route from "..Locale.Lookup(self:GetName()).." to ".. Locale.Lookup(transferCity:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Testing "..tostring(sRouteType).." route from "..Locale.Lookup(self:GetName()).." to ".. Locale.Lookup(transferCity:GetName()))
 	
 	-- check if the route is possible before trying to determine it...
 	if sRouteType == "Coastal" then
@@ -822,7 +970,7 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 		local routeLength 	= GCO.GetRouteLength()
 		local efficiency 	= GCO.GetRouteEfficiency( routeLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
 		if efficiency > 0 then
-			print(" - Found route at " .. tostring(efficiency).." % efficiency, bInternalRoute = ", tostring(bInternalRoute))
+			Dprint( DEBUG_CITY_SCRIPT, " - Found route at " .. tostring(efficiency).." % efficiency, bInternalRoute = ", tostring(bInternalRoute))
 			if bInternalRoute then
 				if (not CitiesForTransfer[selfKey][transferKey]) or (CitiesForTransfer[selfKey][transferKey].Efficiency < efficiency) then
 					CitiesForTransfer[selfKey][transferKey] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
@@ -833,7 +981,7 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 				end
 			end
 		else
-			print(" - Can't register route, too far away " .. tostring(efficiency).." % efficiency")
+			Dprint( DEBUG_CITY_SCRIPT, " - Can't register route, too far away " .. tostring(efficiency).." % efficiency")
 		end
 	end
 	--GCO.ShowTimer("UpdateCitiesConnection")
@@ -861,7 +1009,7 @@ function SetMaxRouteLength(self, sRouteType)
 		maxRouteLength 	= maxRouteLength + 1
 		efficiency 		= GCO.GetRouteEfficiency( maxRouteLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
 	end
-	print("Setting max route length for "..tostring(sRouteType).." = ".. tostring(maxRouteLength))
+	Dprint( DEBUG_CITY_SCRIPT, "Setting max route length for "..tostring(sRouteType).." = ".. tostring(maxRouteLength))
 	_cached[cityKey].MaxRouteLength[sRouteType] = maxRouteLength
 end
 
@@ -887,7 +1035,7 @@ end
 
 function UpdateTransferCities(self)
 	local selfKey = self:GetKey()
-	print("Updating Routes to same Civilization Cities for ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Updating Routes to same Civilization Cities for ".. Locale.Lookup(self:GetName()))
 	-- reset entries for that city
 	CitiesForTransfer[selfKey] 		= {}	-- Internal transfert to own cities
 	CitiesTransferDemand[selfKey] 	= { Resources = {}, NeedResources = {}, ReservedResources = {}, HasPrecedence = {} } -- NeedResources : Number of cities requesting a resource type
@@ -905,7 +1053,7 @@ function UpdateTransferCities(self)
 			local outgoingRoutes = trade:GetOutgoingRoutes()
 			for j,route in ipairs(outgoingRoutes) do
 				if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
-					print(" - Found trader for transfer from ".. Locale.Lookup(transferCity:GetName()))
+					Dprint( DEBUG_CITY_SCRIPT, " - Found trader for transfer from ".. Locale.Lookup(transferCity:GetName()))
 					CitiesForTransfer[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 					hasRouteTo[transferKey] = true
 				end
@@ -914,7 +1062,7 @@ function UpdateTransferCities(self)
 			if not hasRouteTo[transferKey] then
 				for j,route in ipairs(trade:GetIncomingRoutes()) do
 					if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
-						print(" - Found trader for transfer to ".. Locale.Lookup(transferCity:GetName()))
+						Dprint( DEBUG_CITY_SCRIPT, " - Found trader for transfer to ".. Locale.Lookup(transferCity:GetName()))
 						CitiesForTransfer[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 						hasRouteTo[transferKey] = true
 					end
@@ -958,7 +1106,7 @@ function UpdateTransferCities(self)
 end
 
 function TransferToCities(self)
-	print("Transfering to other cities for ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTransferDemand[selfKey]
 	local transfers 		= {Resources = {}, ResPerCity = {}}
@@ -978,7 +1126,7 @@ function TransferToCities(self)
 		end
 		transfers.Resources[resourceID] = math.min(value, availableStock)
 		transfers.ResPerCity[resourceID] = math.floor(transfers.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
-		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(availableStock)..", transfer = ".. tostring(transfers.Resources[resourceID]) .. ", transfer priority = " ..tostring(supplyDemand.HasPrecedence[resourceID]) .. ", local priority = " ..tostring(bHasLocalPrecedence) )
+		Dprint( DEBUG_CITY_SCRIPT, "- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(availableStock)..", transfer = ".. tostring(transfers.Resources[resourceID]) .. ", transfer priority = " ..tostring(supplyDemand.HasPrecedence[resourceID]) .. ", local priority = " ..tostring(bHasLocalPrecedence) )
 	end
 
 	for resourceID, value in pairs(transfers.Resources) do
@@ -1008,7 +1156,7 @@ function TransferToCities(self)
 						end
 						city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, selfKey, costPerUnit)
 						self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut, cityKey)
-						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .." % efficiency) to ".. Locale.Lookup(city:GetName()))
+						Dprint( DEBUG_CITY_SCRIPT, "  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .." % efficiency) to ".. Locale.Lookup(city:GetName()))
 					end
 				end
 			end
@@ -1018,7 +1166,7 @@ function TransferToCities(self)
 end
 
 function UpdateExportCities(self)
-	print("Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
 	local selfKey 				= self:GetKey()
 	CitiesForTrade[selfKey] 	= {}	-- Export to other civilizations cities
@@ -1032,7 +1180,7 @@ function UpdateExportCities(self)
 		local pDiplo 	= player:GetDiplomacy()
 		if iPlayer ~= ownerID and pDiplo and pDiplo:HasMet( ownerID ) and (not pDiplo:IsAtWarWith( ownerID )) then
 			local playerConfig = PlayerConfigurations[iPlayer]
-			print("- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+			Dprint( DEBUG_CITY_SCRIPT, "- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 			local playerCities 	= player:GetCities()
 			for i, transferCity in playerCities:Members() do
 				AttachCityFunctions(transferCity) -- because UpdateExportCities() can be called from an UI context
@@ -1043,7 +1191,7 @@ function UpdateExportCities(self)
 					local outgoingRoutes = trade:GetOutgoingRoutes()
 					for j,route in ipairs(outgoingRoutes) do
 						if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
-							print(" - Found trader for international trade from ".. Locale.Lookup(transferCity:GetName()))
+							Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade from ".. Locale.Lookup(transferCity:GetName()))
 							CitiesForTrade[selfKey][transferKey] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 							hasRouteTo[transferKey] = true
 						end
@@ -1052,7 +1200,7 @@ function UpdateExportCities(self)
 					if not hasRouteTo[transferKey] then
 						for j,route in ipairs(trade:GetIncomingRoutes()) do
 							if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
-								print(" - Found trader for international trade to ".. Locale.Lookup(transferCity:GetName()))
+								Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade to ".. Locale.Lookup(transferCity:GetName()))
 								CitiesForTrade[selfKey][transferKey] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
 								hasRouteTo[transferKey] = true
 							end
@@ -1078,7 +1226,7 @@ function UpdateExportCities(self)
 						local efficiency	= CitiesForTrade[selfKey][transferKey].Efficiency
 
 						for resourceID, value in pairs(requirements.Resources) do
-							if value > 0 and not (notAvailableToExport[resourceID]) then
+							if value > 0 then --and not (notAvailableToExport[resourceID]) then
 								CitiesTradeDemand[selfKey].Resources[resourceID] 		= ( CitiesTradeDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
 								CitiesTradeDemand[selfKey].NeedResources[resourceID] 	= ( CitiesTradeDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
 							end
@@ -1091,7 +1239,7 @@ function UpdateExportCities(self)
 end
 
 function ExportToForeignCities(self)
-	print("Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTradeDemand[selfKey]
@@ -1104,7 +1252,7 @@ function ExportToForeignCities(self)
 	for resourceID, value in pairs(supplyDemand.Resources) do
 		transfers.Resources[resourceID] = math.min(value, self:GetAvailableStockForExport(resourceID))
 		transfers.ResPerCity[resourceID] = math.floor(transfers.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
-		print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(self:GetAvailableStockForExport(resourceID))..", transfer = ".. tostring(transfers.Resources[resourceID]))
+		Dprint( DEBUG_CITY_SCRIPT, "- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(self:GetAvailableStockForExport(resourceID))..", transfer = ".. tostring(transfers.Resources[resourceID]))
 	end
 
 	local importIncome = {}
@@ -1130,7 +1278,7 @@ function ExportToForeignCities(self)
 						self:ChangeStock(resourceID, -send, ResourceUseType.Export, cityKey)
 						importIncome[city] = (importIncome[city] or 0) + transactionIncome
 						exportIncome = exportIncome + transactionIncome
-						print ("  - Generating "..tostring(transactionIncome).." golds for " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .." % efficiency) send to ".. Locale.Lookup(city:GetName()))
+						Dprint( DEBUG_CITY_SCRIPT, "  - Generating "..tostring(transactionIncome).." golds for " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .." % efficiency) send to ".. Locale.Lookup(city:GetName()))
 					end
 				end
 			end
@@ -1141,7 +1289,7 @@ function ExportToForeignCities(self)
 	-- Get gold from trade
 	exportIncome = GCO.ToDecimals(exportIncome * IncomeExportPercent / 100)
 	if exportIncome > 0 then
-		print("Total gold from Export income = " .. exportIncome .." gold for ".. Locale.Lookup(self:GetName()))
+		Dprint( DEBUG_CITY_SCRIPT, "Total gold from Export income = " .. exportIncome .." gold for ".. Locale.Lookup(self:GetName()))
 		local sText = Locale.Lookup("LOC_GOLD_FROM_EXPORT", exportIncome)
 		if Game.GetLocalPlayer() == self:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, self:GetX(), self:GetY(), 0) end
 		Players[self:GetOwner()]:GetTreasury():ChangeGoldBalance(exportIncome)
@@ -1150,7 +1298,7 @@ function ExportToForeignCities(self)
 	for city, income in pairs(importIncome) do
 		income = GCO.ToDecimals(income * IncomeImportPercent / 100)
 		if income > 0 then
-			print("Total gold from Import income = " .. income .." gold for ".. Locale.Lookup(city:GetName()))
+			Dprint( DEBUG_CITY_SCRIPT, "Total gold from Import income = " .. income .." gold for ".. Locale.Lookup(city:GetName()))
 			local sText = Locale.Lookup("LOC_GOLD_FROM_IMPORT", income)
 			if Game.GetLocalPlayer() == city:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, city:GetX(), city:GetY(), 0) end
 			Players[city:GetOwner()]:GetTreasury():ChangeGoldBalance(exportIncome)
@@ -1234,13 +1382,13 @@ function GetRequirements(self, fromCity)
 	requirements.Resources 		= {}
 	requirements.HasPrecedence 	= {}
 
-	print("GetRequirements for ".. cityName )
+	Dprint( DEBUG_CITY_SCRIPT, "GetRequirements for ".. cityName )
 
 	for row in GameInfo.Resources() do
 		local resourceID 			= row.Index
 		local bCanRequest 			= false
 		local bCanTradeResource 	= not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute)))
-		--print("can trade = ", bCanTradeResource,"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
+		--Dprint( DEBUG_CITY_SCRIPT, "can trade = ", bCanTradeResource,"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
 		if player:IsResourceVisible(resourceID) and bCanTradeResource then
 			local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
 			if numResourceNeeded > 0 then
@@ -1251,7 +1399,7 @@ function GetRequirements(self, fromCity)
 					local bHasStock		= fromCity:GetStock(resourceID) > 0 
 					if bHasStock then
 						local fromName	 		= Locale.Lookup(fromCity:GetName())
-						print ("    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
+						Dprint( DEBUG_CITY_SCRIPT, "    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
 					end
 					local bHasMoreStock 	= true -- (fromCity:GetStock(resourceID) > self:GetStock(resourceID)) --< must find another check, this one doesn't allow small city at full stock to transfer to big city at low stock (but still higher than small city max stock) use percentage stock instead ?
 					local bIsLowerCost 		= (fromCity:GetResourceCost(resourceID) + transportCost < self:GetResourceCost(resourceID))
@@ -1271,7 +1419,7 @@ function GetRequirements(self, fromCity)
 				if bCanRequest then
 					requirements.Resources[resourceID] 		= numResourceNeeded
 					requirements.HasPrecedence[resourceID] 	= bPriorityRequest
-					print("- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID])..", Priority = "..tostring(bPriorityRequest))
+					Dprint( DEBUG_CITY_SCRIPT, "- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID])..", Priority = "..tostring(bPriorityRequest))
 				end
 			end
 		end
@@ -1372,7 +1520,7 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 		if surplus > 0 then surplusStr 	= "(surplus of "..tostring(surplus).." not effecting price)" end
 		if virtualStock > actualStock then halfStockStr 	= " (using virtual half stock of "..tostring(virtualStock).." for calculation) " end
 
-		print("Update Unit Cost of ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." to "..tostring(newCost).." cost/unit, added "..tostring(value).." unit(s) at "..tostring(unitCost).." cost/unit "..surplusStr.." to stock of ".. tostring(actualStock).." unit(s) at ".. tostring(actualCost).." cost/unit " .. halfStockStr)
+		Dprint( DEBUG_CITY_SCRIPT, "Update Unit Cost of ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." to "..tostring(newCost).." cost/unit, added "..tostring(value).." unit(s) at "..tostring(unitCost).." cost/unit "..surplusStr.." to stock of ".. tostring(actualStock).." unit(s) at ".. tostring(actualCost).." cost/unit " .. halfStockStr)
 		self:SetResourceCost(resourceID, newCost)
 	else
 		if not useType then useType = ResourceUseType.OtherOut  end
@@ -1647,11 +1795,11 @@ function GetAverageUseTypeOnTurns(self, resourceID, useType, numTurn)
 end
 
 function GetResourceUseToolTipStringForTurn(self, resourceID, useTypeKey, turn)
-print(self)
-print(resourceID)
-print(useTypeKey)
-print(turn)
-print(ResourceUseTypeReference[useTypeKey])
+--Dprint( DEBUG_CITY_SCRIPT, self)
+--Dprint( DEBUG_CITY_SCRIPT, resourceID)
+--Dprint( DEBUG_CITY_SCRIPT, useTypeKey)
+--Dprint( DEBUG_CITY_SCRIPT, turn)
+--Dprint( DEBUG_CITY_SCRIPT, ResourceUseTypeReference[useTypeKey])
 	local resourceKey 	= tostring(resourceID)
 	local selfKey 		= self:GetKey()
 	local turnKey 		= tostring(turn)
@@ -1725,7 +1873,7 @@ print(ResourceUseTypeReference[useTypeKey])
 		local useData = cityData.ResourceUse[turnKey][resourceKey]
 		if useData and useData[useTypeKey] then		
 			for key, value in pairs(useData[useTypeKey]) do
-			print(key, value)
+			--Dprint( DEBUG_CITY_SCRIPT, key, value)
 				if (key == selfKey and bNotUnitUse) or key == NO_REFERENCE_KEY then
 					str = str..SelfString(value).."[NEWLINE]"
 				else
@@ -1735,8 +1883,8 @@ print(ResourceUseTypeReference[useTypeKey])
 		end
 	end
 	
-print(str)
-print("----------")
+--Dprint( DEBUG_CITY_SCRIPT, str)
+--Dprint( DEBUG_CITY_SCRIPT, "----------")
 	return str
 end
 
@@ -2003,8 +2151,8 @@ function GetTransferCitiesTable(self)
 		local city				= GCO.GetCityFromKey(routeCityKey)
 		
 		if city:GetOwner() ~= self:GetOwner() then
-			print ("WARNING : foreign city found in internal transfer list : " ..city:GetName())
-			print ("WARNING : key = " ..routeCityKey)
+			Dprint( DEBUG_CITY_SCRIPT, "WARNING : foreign city found in internal transfer list : " ..city:GetName())
+			Dprint( DEBUG_CITY_SCRIPT, "WARNING : key = " ..routeCityKey)
 		end
 		
 		rowTable.Name 			= Locale.Lookup(city:GetName())
@@ -2043,19 +2191,19 @@ function GetSupplyLinesTable(self)
 		local Materiel 			= unit:GetNumResourceNeeded(materielResourceID)
 		local Horses 			= unit:GetNumResourceNeeded(horsesResourceID)	
 		local Food 				= unit:GetNumResourceNeeded(foodResourceID)
-		local Medecine 			= unit:GetNumResourceNeeded(medecineResourceID)		
+		local Medicine 			= unit:GetNumResourceNeeded(medicineResourceID)		
 		
 		if Personnel	== 0 then  Personnel	= "-" end
 		if Materiel 	== 0 then  Materiel 	= "-" end
 		if Horses 		== 0 then  Horses 		= "-" end
 		if Food 		== 0 then  Food 		= "-" end
-		if Medecine 	== 0 then  Medecine 	= "-" end
+		if Medicine 	== 0 then  Medicine 	= "-" end
 		
 		rowTable.Personnel 		= Personnel
 		rowTable.Materiel 		= Materiel
 		rowTable.Horses 		= Horses
 		rowTable.Food 			= Food
-		rowTable.Medecine 		= Medecine
+		rowTable.Medicine 		= Medicine
 
 		table.insert(unitsTable, rowTable)
 	end
@@ -2063,7 +2211,6 @@ function GetSupplyLinesTable(self)
 	table.sort(unitsTable, function(a, b) return a.Efficiency > b.Efficiency; end)
 	return unitsTable
 end
-
 
 
 -----------------------------------------------------------------------------------------
@@ -2127,7 +2274,7 @@ function GetFoodRationing(self)
 end
 
 function SetCityRationing(self)
-	print("Set Rationing...")
+	Dprint( DEBUG_CITY_SCRIPT, "Set Rationing...")
 	local cityKey 	= self:GetKey()
 	local cityData 	= ExposedMembers.CityData[cityKey]
 	local ratio 	= cityData.FoodRatio
@@ -2143,7 +2290,7 @@ function SetCityRationing(self)
 	local normalRatio = 1
 	local foodVariation =  previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
 
-	print(" Food stock ", foodStock," Variation ",foodVariation, " Previous turn supply ", previousTurnSupply, " Consumption ", self:GetFoodConsumption(), " ratio ", ratio)
+	Dprint( DEBUG_CITY_SCRIPT, " Food stock ", foodStock," Variation ",foodVariation, " Previous turn supply ", previousTurnSupply, " Consumption ", self:GetFoodConsumption(), " ratio ", ratio)
 	if foodVariation < 0 and foodStock < (self:GetMaxStock(foodResourceID) / 2) then
 		local turnBeforeFamine		= -(foodStock / foodVariation)
 		if turnBeforeFamine < turnsToFamineHeavy then
@@ -2290,7 +2437,7 @@ function UpdateCosts(self)
 			local maxCost		= self:GetMaximumResourceCost(resourceID)
 			local newCost 		= actualCost
 
-			print("- Actualising cost of "..Locale.Lookup(GameInfo.Resources[resourceID].Name)," actual cost",actualCost,"stock",stock,"maxStock",maxStock,"demand",demand,"supply",supply)
+			Dprint( DEBUG_CITY_SCRIPT, "- Actualising cost of "..Locale.Lookup(GameInfo.Resources[resourceID].Name)," actual cost",actualCost,"stock",stock,"maxStock",maxStock,"demand",demand,"supply",supply)
 
 			if supply > demand or stock == maxStock then
 
@@ -2303,7 +2450,7 @@ function UpdateCosts(self)
 				local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
 				newCost = actualCost - variation
 				self:SetResourceCost(resourceID, newCost)
-				print("  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until full",turnUntilFull,"variation",variation)
+				Dprint( DEBUG_CITY_SCRIPT, "  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until full",turnUntilFull,"variation",variation)
 
 			elseif demand > supply then
 
@@ -2316,7 +2463,7 @@ function UpdateCosts(self)
 				local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)
 				newCost = actualCost + variation
 				self:SetResourceCost(resourceID, newCost)
-				print("  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until empty",turnUntilEmpty,"variation",variation)
+				Dprint( DEBUG_CITY_SCRIPT, "  New cost = ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until empty",turnUntilEmpty,"variation",variation)
 
 			end
 		end
@@ -2326,8 +2473,8 @@ end
 
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
-	print("---------------------------------------------------------------------------")
-	print("Updating Data for ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Updating Data for ".. Locale.Lookup(self:GetName()))
 	local cityKey 			= self:GetKey()
 	local data 				= ExposedMembers.CityData[cityKey]
 	local turnKey 			= GCO.GetTurnKey()
@@ -2363,7 +2510,7 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 end
 
 function DoRecruitPersonnel(self)
-	print("Recruiting Personnel...")
+	Dprint( DEBUG_CITY_SCRIPT, "Recruiting Personnel...")
 	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
 
 	local generals			= GCO.Round(nedded*PersonnelHighRankRatio)
@@ -2380,9 +2527,9 @@ function DoRecruitPersonnel(self)
 	local recruitedSoldiers = math.min(soldiers, maxLower)
 	local totalRecruits		= recruitedGenerals + recruitedOfficers + recruitedSoldiers
 
-	print(" - total needed =", nedded, "generals =", generals,"officers =", officers, "soldiers =",soldiers)
-	print(" - max potential =", maxPotential ,"Upper = ", maxUpper, "Middle = ", maxMiddle, "Lower = ", maxLower )
-	print(" - total recruits =", totalRecruits, "Generals = ", recruitedGenerals, "Officers = ", recruitedOfficers, "Soldiers = ", recruitedSoldiers )
+	Dprint( DEBUG_CITY_SCRIPT, " - total needed =", nedded, "generals =", generals,"officers =", officers, "soldiers =",soldiers)
+	Dprint( DEBUG_CITY_SCRIPT, " - max potential =", maxPotential ,"Upper = ", maxUpper, "Middle = ", maxMiddle, "Lower = ", maxLower )
+	Dprint( DEBUG_CITY_SCRIPT, " - total recruits =", totalRecruits, "Generals = ", recruitedGenerals, "Officers = ", recruitedOfficers, "Soldiers = ", recruitedSoldiers )
 
 	self:ChangeUpperClass(-recruitedGenerals)
 	self:ChangeMiddleClass(-recruitedOfficers)
@@ -2393,20 +2540,20 @@ function DoRecruitPersonnel(self)
 end
 
 function DoReinforceUnits(self)
-	print("Reinforcing units...")
+	Dprint( DEBUG_CITY_SCRIPT, "Reinforcing units...")
 	local cityKey 				= self:GetKey()
 	local cityData 				= ExposedMembers.CityData[cityKey]
 	local supplyDemand 			= UnitsSupplyDemand[cityKey]
 	local reinforcements 		= {Resources = {}, ResPerUnit = {}}
 
 	if supplyDemand.Equipment and supplyDemand.Equipment > 0 then
-		print("- Required Equipment = ", tostring(supplyDemand.Equipment), " for " , tostring(supplyDemand.NeedEquipment) ," units")
+		Dprint( DEBUG_CITY_SCRIPT, "- Required Equipment = ", tostring(supplyDemand.Equipment), " for " , tostring(supplyDemand.NeedEquipment) ," units")
 	end
 
 	for resourceID, value in pairs(supplyDemand.Resources) do
 		reinforcements.Resources[resourceID] = math.min(value, self:GetAvailableStockForUnits(resourceID))
 		reinforcements.ResPerUnit[resourceID] = math.floor(reinforcements.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
-		print("- Max transferable ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).. " = ".. tostring(value) .. " for " .. tostring(supplyDemand.NeedResources[resourceID]) .." units, available = " .. tostring(self:GetAvailableStockForUnits(resourceID))..", send = ".. tostring(reinforcements.Resources[resourceID]))
+		Dprint( DEBUG_CITY_SCRIPT, "- Max transferable ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).. " = ".. tostring(value) .. " for " .. tostring(supplyDemand.NeedResources[resourceID]) .." units, available = " .. tostring(self:GetAvailableStockForUnits(resourceID))..", send = ".. tostring(reinforcements.Resources[resourceID]))
 	end
 	reqValue = {}
 	for resourceID, value in pairs(reinforcements.Resources) do
@@ -2428,7 +2575,7 @@ function DoReinforceUnits(self)
 
 						unit:ChangeStock(resourceID, send)
 						self:ChangeStock(resourceID, -send, ResourceUseType.Supply, unit:GetKey())
-						print ("  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (@ ".. tostring(efficiency) .." % efficiency) to unit ID#".. tostring(unit:GetID()), Locale.Lookup(UnitManager.GetTypeName(unit)))
+						Dprint( DEBUG_CITY_SCRIPT, "  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (@ ".. tostring(efficiency) .." % efficiency) to unit ID#".. tostring(unit:GetID()), Locale.Lookup(UnitManager.GetTypeName(unit)))
 					end
 				end
 				loop = loop + 1
@@ -2454,7 +2601,7 @@ function DoCollectResources(self)
 		end
 		resourceCost = resourceCost * cityWealth
 		if not bWorked then resourceCost = resourceCost * NotWorkedCostMultiplier end
-		print("-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
+		Dprint( DEBUG_CITY_SCRIPT, "-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
 		self:ChangeStock(resourceID, collected, ResourceUseType.Collect, plotID, resourceCost)
 	end
 
@@ -2496,7 +2643,7 @@ end
 
 function DoIndustries(self)
 
-	print("Creating resources in Industries...")
+	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
 	local size 		= self:GetSize()
 	local wealth 	= self:GetWealth()
@@ -2504,7 +2651,7 @@ function DoIndustries(self)
 	-- materiel
 	local materielprod	= MaterielProductionPerSize * size
 	local materielCost 	= GCO.GetBaseResourceCost(materielResourceID) * wealth -- GCO.GetBaseResourceCost(materielResourceID)
-	print(" - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name).." at ".. tostring(GCO.ToDecimals(materielCost)) .. " cost/unit")
+	Dprint( DEBUG_CITY_SCRIPT, " - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name).." at ".. tostring(GCO.ToDecimals(materielCost)) .. " cost/unit")
 	self:ChangeStock(materielResourceID, materielprod, ResourceUseType.Product, self:GetKey(), materielCost)
 
 	local MultiResRequired 	= {}
@@ -2513,7 +2660,7 @@ function DoIndustries(self)
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
 		if self:GetBuildings():HasBuilding(buildingID) then
 			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
-			print(" - check " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production using ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+			--Dprint( DEBUG_CITY_SCRIPT, " - check " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production using ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
 			if row.MultiResRequired then
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 				if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {[buildingID] = {}} end
@@ -2525,19 +2672,19 @@ function DoIndustries(self)
 				table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
 			else
 				local available = self:GetAvailableStockForIndustries(resourceRequiredID)
-				print("			available = ", available)
+				--Dprint( DEBUG_CITY_SCRIPT, "			available = ", available)
 				if available > 0 then
 					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 					local amountUsed		= math.min(available, row.MaxConverted)
 					local amountCreated		= math.floor(amountUsed * row.Ratio)
-				print("			amountUsed = ", amountUsed)
-				print("			amountCreated = ", amountCreated)
+				--Dprint( DEBUG_CITY_SCRIPT, "			amountUsed = ", amountUsed)
+				--Dprint( DEBUG_CITY_SCRIPT, "			amountCreated = ", amountCreated)
 
 					-- don't allow excedent if there is no demand
 					local bLimitedByExcedent	= false
 					local stockVariation 	= self:GetStockVariation(resourceID)
-				print("			bLimitedByExcedent = ", bLimitedByExcedent)
-				print("			stockVariation = ", stockVariation)
+				--Dprint( DEBUG_CITY_SCRIPT, "			bLimitedByExcedent = ", bLimitedByExcedent)
+				--Dprint( DEBUG_CITY_SCRIPT, "			stockVariation = ", stockVariation)
 					if amountCreated + self:GetStock(resourceID) > self:GetMaxStock(resourceID) and stockVariation >= 0 then
 						local maxCreated 	= self:GetMaxStock(resourceID) - self:GetStock(resourceID)
 						amountUsed 			= math.floor(maxCreated / row.Ratio)
@@ -2547,7 +2694,7 @@ function DoIndustries(self)
 
 					if amountCreated > 0 then
 						local resourceCost 	= (GCO.GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
-						print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
+						Dprint( DEBUG_CITY_SCRIPT, " - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 						self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
 						self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 					end
@@ -2561,7 +2708,7 @@ function DoIndustries(self)
 			local bUsed			= false
 			local available 	= self:GetAvailableStockForIndustries(resourceRequiredID)
 			if available > 0 then
-				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production of multiple resources using ".. tostring(available) .." available ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+				Dprint( DEBUG_CITY_SCRIPT, " - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production of multiple resources using ".. tostring(available) .." available ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
 				local amountUsed 			= 0
 				local maxRequired			= 0
 				local bLimitedByExcedent	= true
@@ -2581,13 +2728,13 @@ function DoIndustries(self)
 
 					if amountCreated > 0 then
 						local resourceCost 	= (GCO.GetBaseResourceCost(row.ResourceCreated) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
-						print("    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio) .. ", used ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
+						Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio) .. ", used ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 						self:ChangeStock(row.ResourceCreated, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 						bUsed = true
 					elseif bLimitedByExcedent then
-						print("    - not producing ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) .." to prevent excedent without use.")
+						Dprint( DEBUG_CITY_SCRIPT, "    - not producing ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) .." to prevent excedent without use.")
 					else
-						print("    - not enough resources available to create ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) ..", ratio = " .. tostring(row.Ratio))
+						Dprint( DEBUG_CITY_SCRIPT, "    - not enough resources available to create ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name) ..", ratio = " .. tostring(row.Ratio))
 					end
 				end
 				if bUsed then
@@ -2631,7 +2778,7 @@ function DoIndustries(self)
 			end
 
 			if bCanCreate then
-				print(" - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " using multiple resource")
+				Dprint( DEBUG_CITY_SCRIPT, " - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " using multiple resource")
 				local requiredResourceCost = 0
 				local totalResourcesRequired = #requiredResourcesRatio
 				local totalRatio = 0
@@ -2640,12 +2787,12 @@ function DoIndustries(self)
 					local resourceCost = (self:GetResourceCost(resourceRequiredID) / ratio)
 					requiredResourceCost = requiredResourceCost + resourceCost
 					totalRatio = totalRatio + ratio
-					print("    - ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) .." used at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(ratio))
+					Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) .." used at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(ratio))
 					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
 				end
 				local baseRatio = totalRatio / totalResourcesRequired
 				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth) + requiredResourceCost
-				print("    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost ..", limited by excedent = ".. tostring(bLimitedByExcedent))
+				Dprint( DEBUG_CITY_SCRIPT, "    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 			end
 		end
@@ -2654,7 +2801,7 @@ end
 
 function DoExcedents(self)
 
-	print("Handling excedent...")
+	Dprint( DEBUG_CITY_SCRIPT, "Handling excedent...")
 
 	local cityKey 	= self:GetKey()
 	local cityData 	= ExposedMembers.CityData[cityKey]
@@ -2677,7 +2824,7 @@ function DoExcedents(self)
 		self:ChangePersonnel(-toMiddle, ResourceUseType.Demobilize, RefPopulationMiddle)
 		self:ChangePersonnel(-toLower, ResourceUseType.Demobilize, RefPopulationLower)
 
-		print(" - Demobilized personnel =", excedentalPersonnel, "upper class =", toUpper,"middle class =", toMiddle, "lower class =",toLower)
+		Dprint( DEBUG_CITY_SCRIPT, " - Demobilized personnel =", excedentalPersonnel, "upper class =", toUpper,"middle class =", toMiddle, "lower class =",toLower)
 
 	end
 
@@ -2686,7 +2833,7 @@ function DoExcedents(self)
 		local resourceID = tonumber(resourceKey)
 		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
 		if excedent > 0 then
-			print(" - Excedental ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." destroyed = ".. tostring(excedent))
+			Dprint( DEBUG_CITY_SCRIPT, " - Excedental ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." destroyed = ".. tostring(excedent))
 			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
 		end
 	end
@@ -2694,13 +2841,16 @@ function DoExcedents(self)
 end
 
 function DoGrowth(self)
-	if Game.GetCurrentGameTurn() < 2 then return end -- we need to know the previous year turn to calculate growth rate...
-	print("Calculate city growth for ".. Locale.Lookup(self:GetName()))
+
+	local DEBUG_CITY_SCRIPT = true
+	
+	if Game.GetCurrentGameTurn() < 2 and bUseRealYears then return end -- we need to know the previous year turn to calculate growth rate...
+	Dprint( DEBUG_CITY_SCRIPT, "Calculate city growth for ".. Locale.Lookup(self:GetName()))
 	local cityKey = self:GetKey()
 	--local cityData = ExposedMembers.CityData[cityKey]
 	local cityBirthRate = self:GetBirthRate()
 	local cityDeathRate = self:GetDeathRate()
-	print("Global : cityBirthRate =", cityBirthRate, "cityDeathRate =", cityDeathRate)
+	Dprint( DEBUG_CITY_SCRIPT, "Global :	BirthRate = ", cityBirthRate, " DeathRate = ", cityDeathRate)
 	local years = GrowthRateBaseYears
 	if bUseRealYears then
 		years = Calendar.GetTurnYearForGame(Game.GetCurrentGameTurn()) - Calendar.GetTurnYearForGame(Game.GetCurrentGameTurn()-1)
@@ -2715,13 +2865,19 @@ function DoGrowth(self)
 	local lowerPop	= self:GetLowerClass()
 	local slavePop 	= self:GetSlaveClass()
 
-	function CalculateVar(initialPopulation, populationBirthRateFactor, populationDeathRateFactor )
-		return GCO.Round( initialPopulation	* years * LimitRate(cityBirthRate * populationBirthRateFactor, cityDeathRate * populationDeathRateFactor) / 1000)
+	function CalculateVar(initialPopulation, populationBirthRate, populationDeathRate )
+		return GCO.Round( initialPopulation	* years * LimitRate(populationBirthRate, populationDeathRate) / 1000)
 	end
-	local upperVar	= CalculateVar( upperPop, UpperClassBirthRateFactor, UpperClassDeathRateFactor)
-	local middleVar = CalculateVar( middlePop, MiddleClassBirthRateFactor, MiddleClassDeathRateFactor)
-	local lowerVar	= CalculateVar( lowerPop, LowerClassBirthRateFactor, LowerClassDeathRateFactor)
-	local slaveVar 	= CalculateVar( slavePop, SlaveClassBirthRateFactor, SlaveClassDeathRateFactor)
+	local upperVar	= CalculateVar( upperPop, self:GetPopulationBirthRate(UpperClassID), self:GetPopulationDeathRate(UpperClassID))
+	local middleVar = CalculateVar( middlePop, self:GetPopulationBirthRate(MiddleClassID), self:GetPopulationDeathRate(MiddleClassID))
+	local lowerVar	= CalculateVar( lowerPop, self:GetPopulationBirthRate(LowerClassID), self:GetPopulationDeathRate(LowerClassID))
+	local slaveVar 	= CalculateVar( slavePop, self:GetPopulationBirthRate(SlaveClassID), self:GetPopulationDeathRate(SlaveClassID))
+	
+	
+	Dprint( DEBUG_CITY_SCRIPT, "Upper :		BirthRate = ", self:GetPopulationBirthRate(UpperClassID), " DeathRate = ", self:GetPopulationDeathRate(UpperClassID), " Initial Population = ", upperPop, " Variation = ", upperVar )
+	Dprint( DEBUG_CITY_SCRIPT, "Middle :	BirthRate = ", self:GetPopulationBirthRate(MiddleClassID), " DeathRate = ", self:GetPopulationDeathRate(MiddleClassID), " Initial Population = ", middlePop, " Variation = ", middleVar )
+	Dprint( DEBUG_CITY_SCRIPT, "Lower :		BirthRate = ", self:GetPopulationBirthRate(LowerClassID), " DeathRate = ", self:GetPopulationDeathRate(LowerClassID), " Initial Population = ", lowerPop, " Variation = ", lowerVar )
+	Dprint( DEBUG_CITY_SCRIPT, "Slave :		BirthRate = ", self:GetPopulationBirthRate(SlaveClassID), " DeathRate = ", self:GetPopulationDeathRate(SlaveClassID), " Initial Population = ", slavePop, " Variation = ", slaveVar )
 
 	self:ChangeUpperClass(upperVar)
 	self:ChangeMiddleClass(middleVar)
@@ -2732,7 +2888,7 @@ end
 
 function DoFood(self)
 	-- get city food yield
-	local food = GCO.GetCityYield( self, YieldTypes.FOOD )
+	local food = self:GetCityYield(YieldTypes.FOOD )
 	local resourceCost = GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
 	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, self:GetKey(), resourceCost)
 
@@ -2742,33 +2898,156 @@ function DoFood(self)
 end
 
 function DoNeeds(self)
-	print("handling Population needs...")
+
+	local DEBUG_CITY_SCRIPT = true
+	
+	Dprint( DEBUG_CITY_SCRIPT, "handling Population needs...")
+	
+	local cityKey = self:GetKey()
+	
+	-- (re)initialize cached table
+	if not _cached[cityKey] then _cached[cityKey] = {} end
+	_cached[cityKey].NeedsEffects = {
+		[UpperClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},},
+		[MiddleClassID] = { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},},
+		[LowerClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},},
+	}
+	
+	-- Upper Class
+	local upperHousingSize		= self:GetCityYield( YieldTypes.UPPER_HOUSING )
+	local upperHousing			= GetPopulationPerSize(upperHousingSize)
+	local upperPopulation		= self:GetPopulationClass(UpperClassID)
+	local upperHousingAvailable	= math.max( 0, upperHousing - upperPopulation)
+	local upperLookingForMiddle	= math.max( 0, upperPopulation - upperHousing)
+	Dprint( DEBUG_CITY_SCRIPT, "Upper Class Needs : Housing Size = ", upperHousingSize, " Housing Capacity = ", upperHousing, " Population = ", upperPopulation, " Available housing = ", upperHousingAvailable)
+	
+	-- Middle Class
+	local middleHousingSize			= self:GetCityYield( YieldTypes.MIDDLE_HOUSING )
+	local middleHousing				= GetPopulationPerSize(middleHousingSize)
+	local middlePopulation			= self:GetPopulationClass(MiddleClassID)
+	local middleHousingAvailable	= math.max( 0, middleHousing - middlePopulation - upperLookingForMiddle)
+	local middleLookingForLower		= math.max( 0, (middlePopulation + upperLookingForMiddle) - middleHousing)
+	Dprint( DEBUG_CITY_SCRIPT, "Middle Class Needs : Housing Size = ", middleHousingSize, " Housing Capacity = ", middleHousing, " Population = ", middlePopulation, " Available housing = ", middleHousingAvailable)
+	
+	-- Lower Class
+	local lowerHousingSize		= self:GetCityYield( YieldTypes.LOWER_HOUSING )
+	local lowerHousing			= GetPopulationPerSize(lowerHousingSize)
+	local lowerPopulation		= self:GetPopulationClass(LowerClassID)
+	local lowerHousingAvailable	= math.max( 0, lowerHousing - lowerPopulation - middleLookingForLower)
+	Dprint( DEBUG_CITY_SCRIPT, "Lower Class Needs : Housing Size = ", lowerHousingSize, " Housing Capacity = ", lowerHousing, " Population = ", lowerPopulation, " Available housing = ", lowerHousingAvailable)
+	
+	-- Private functions
+	function GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue) 	-- Return a higher value lowerValue is high
+		return maxEffectValue*(lowerValue/higherValue)
+	end	
+	function GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue)	-- Return a higher value if lowerValue is low
+		return maxEffectValue*(100-(lowerValue/higherValue*100))/100
+	end
+	function LimitEffect(maxEffectValue, effectValue)							-- Keep effectValue never equals to maxEffectValue
+		return GCO.ToDecimals(maxEffectValue*effectValue/(maxEffectValue+1))
+	end
+	
+	-- Housing Upper Class	
+	Dprint( DEBUG_CITY_SCRIPT, "Upper class Housing effect...")
+	local upperGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(UpperClassID) - self:GetBasePopulationDeathRate(UpperClassID))
+	if upperHousingAvailable > upperHousing / 2 then -- BirthRate bonus from housing available
+		local maxEffectValue 	= 5
+		local higherValue 		= (upperHousing / 2)
+		local lowerValue 		= upperHousingAvailable - (upperHousing / 2)
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
+		_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
+	elseif upperGrowthRateLeft > 0 and (upperHousingAvailable < upperHousing * 25 / 100) and (middleHousingAvailable < middleHousing * 25 / 100) then -- BirthRate malus from low housing left (upper class can use middle class housing if available)
+		local maxEffectValue 	= upperGrowthRateLeft
+		local higherValue 		= (upperHousing + middleHousing) * 25 / 100
+		local lowerValue 		= upperHousingAvailable + middleHousingAvailable
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
+		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
+		upperGrowthRateLeft = upperGrowthRateLeft - effectValue
+	end	
+	
+	-- Housing Middle Class	
+	Dprint( DEBUG_CITY_SCRIPT, "Middle class Housing effect...")
+	local middleGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(MiddleClassID) - self:GetBasePopulationDeathRate(MiddleClassID))
+	if middleHousingAvailable > middleHousing / 2 then -- BirthRate bonus from housing available
+		local maxEffectValue 	= 5
+		local higherValue 		= (middleHousing / 2)
+		local lowerValue 		= middleHousingAvailable - (middleHousing / 2)
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
+		_cached[cityKey].NeedsEffects[MiddleClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
+	elseif middleGrowthRateLeft > 0 and (middleHousingAvailable < middleHousing * 25 / 100) and (lowerHousingAvailable < lowerHousing * 25 / 100)  then -- BirthRate malus from low housing left (middle class can use lower class housing if available)
+		local maxEffectValue 	= middleGrowthRateLeft
+		local higherValue 		= (middleHousing + lowerHousing) * 25 / 100
+		local lowerValue 		= middleHousingAvailable + lowerHousingAvailable
+		local effectValue		= GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue)
+		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		_cached[cityKey].NeedsEffects[MiddleClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
+		middleGrowthRateLeft = middleGrowthRateLeft - effectValue
+	end	
+	
+	-- Housing Lower Class	
+	Dprint( DEBUG_CITY_SCRIPT, "Lower class Housing effect...")
+	local lowerGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(LowerClassID) - self:GetBasePopulationDeathRate(LowerClassID))
+	if lowerHousingAvailable > lowerHousing / 2 then -- BirthRate bonus from housing available
+		local maxEffectValue 	= 5
+		local higherValue 		= (lowerHousing / 2)
+		local lowerValue 		= lowerHousingAvailable - (lowerHousing / 2)
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
+		_cached[cityKey].NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
+	elseif lowerGrowthRateLeft > 0 and lowerHousingAvailable < lowerHousing * 25 / 100  then -- BirthRate malus from low housing left
+		local maxEffectValue 	= lowerGrowthRateLeft
+		local higherValue 		= lowerHousing * 25 / 100
+		local lowerValue 		= lowerHousingAvailable
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
+		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		_cached[cityKey].NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
+		lowerGrowthRateLeft = lowerGrowthRateLeft - effectValue
+	end	
+	
+	self:SetPopulationBirthRate(UpperClassID)
+	self:SetPopulationBirthRate(MiddleClassID)
+	self:SetPopulationBirthRate(LowerClassID)
+	self:SetPopulationBirthRate(SlaveClassID)
+	
+	self:SetPopulationDeathRate(UpperClassID)
+	self:SetPopulationDeathRate(MiddleClassID)
+	self:SetPopulationDeathRate(LowerClassID)
+	self:SetPopulationDeathRate(SlaveClassID)
+	
+	--[[
 	local player = GCO.GetPlayer(self:GetOwner())
 	for row in GameInfo.Populations() do
 		local populationID 		= row.Index
 		local population 		= self:GetPopulationClass(populationID)
 		local populationNeeds 	= player:GetPopulationNeeds(populationID)
 		local maxNeed = 0
-		print("- Needs for ".. Locale.Lookup(row.Name), " population of ", population)
+		Dprint( DEBUG_CITY_SCRIPT, "- Needs for ".. Locale.Lookup(row.Name), " population of ", population)
 		for resourceID, affectData in pairs(populationNeeds) do
 			local stock = self:GetStock(resourceID)
 			local ratio	= player:GetResourcesConsumptionRatioForPopulation(resourceID, populationID)
-			print(" - Resource : ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " Consumption ratio = ", ratio, " Stock = ", stock)			
+			Dprint( DEBUG_CITY_SCRIPT, " - Resource : ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " Consumption ratio = ", ratio, " Stock = ", stock)			
 			for affectType, data in pairs(affectData) do			
 				local need 			= data.NeededCalculFunction(population, ratio)
 				local effectValue 	= data.EffectCalculFunction(need, stock, data.MaxEffectValue)
-				print("  - Affect : ".. tostring(affectType), " Needed = ", need, " Effect Value = ", effectValue)		
+				Dprint( DEBUG_CITY_SCRIPT, "  - Affect : ".. tostring(affectType), " Needed = ", need, " Effect Value = ", effectValue)		
 			end	
 		end
 	end		
+	--]]
 end
 
 function DoSocialClassStratification(self)
 
 	local totalPopultation = self:GetRealPopulation()
 
-	print("---------------------------------------------------------------------------")
-	print("Social Stratification: totalPopultation = ", totalPopultation)
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: totalPopultation = ", totalPopultation)
 
 	local maxUpper = self:GetMaxUpperClass()
 	local minUpper = self:GetMinUpperClass()
@@ -2783,67 +3062,67 @@ function DoSocialClassStratification(self)
 	local actualMiddle = self:GetMiddleClass()
 	local actualLower = self:GetLowerClass()
 
-	print("---------------------------------------------------------------------------")
-	print("Social Stratification: maxUpper = ", maxUpper)
-	print("Social Stratification: actualUpper = ", actualUpper)
-	print("Social Stratification: minUpper = ", minUpper)
-	print("---------------------------------------------------------------------------")
-	print("Social Stratification: maxMiddle = ", maxMiddle)
-	print("Social Stratification: actualMiddle = ", actualMiddle)
-	print("Social Stratification: minMiddle = ", minMiddle)
-	print("---------------------------------------------------------------------------")
-	print("Social Stratification: maxLower = ", maxLower)
-	print("Social Stratification: actualLower = ", actualLower)
-	print("Social Stratification: minLower = ", minLower)
-	print("---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxUpper = ", maxUpper)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualUpper = ", actualUpper)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minUpper = ", minUpper)
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxMiddle = ", maxMiddle)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualMiddle = ", actualMiddle)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minMiddle = ", minMiddle)
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxLower = ", maxLower)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualLower = ", actualLower)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minLower = ", minLower)
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 
 	-- Move Upper to Middle
 	if actualUpper > maxUpper then
 		toMove = actualUpper - maxUpper
-		print("Social Stratification: Upper to Middle (from actualUpper > maxUpper) = ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Upper to Middle (from actualUpper > maxUpper) = ", toMove)
 		self:ChangeUpperClass(- toMove)
 		self:ChangeMiddleClass( toMove)
 	end
 	-- Move Middle to Upper
 	if actualUpper < minUpper then
 		toMove = minUpper - actualUpper
-		print("Social Stratification: Middle to Upper (from actualUpper < minUpper)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Upper (from actualUpper < minUpper)= ", toMove)
 		self:ChangeUpperClass(toMove)
 		self:ChangeMiddleClass(-toMove)
 	end
 	-- Move Middle to Lower
 	if actualMiddle > maxMiddle then
 		toMove = actualMiddle - maxMiddle
-		print("Social Stratification: Middle to Lower (from actualMiddle > maxMiddle)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Lower (from actualMiddle > maxMiddle)= ", toMove)
 		self:ChangeMiddleClass(-toMove)
 		self:ChangeLowerClass(toMove)
 	end
 	-- Move Lower to Middle
 	if actualMiddle < minMiddle then
 		toMove = minMiddle - actualMiddle
-		print("Social Stratification: Lower to Middle (from actualMiddle < minMiddle)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Lower to Middle (from actualMiddle < minMiddle)= ", toMove)
 		self:ChangeMiddleClass(toMove)
 		self:ChangeLowerClass(-toMove)
 	end
 	-- Move Lower to Middle
 	if actualLower > maxLower then
 		toMove = actualLower - maxLower
-		print("Social Stratification: Lower to Middle (from actualLower > maxLower)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Lower to Middle (from actualLower > maxLower)= ", toMove)
 		self:ChangeMiddleClass(toMove)
 		self:ChangeLowerClass(-toMove)
 	end
 	-- Move Middle to Lower
 	if actualLower < minLower then
 		toMove = minLower - actualLower
-		print("Social Stratification: Middle to Lower (from actualLower < minLower)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Lower (from actualLower < minLower)= ", toMove)
 		self:ChangeMiddleClass(-toMove)
 		self:ChangeLowerClass(toMove)
 	end
 end
 
 function DoTurnFirstPass(self)
-	print("---------------------------------------------------------------------------")
-	print("First Pass on ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "First Pass on ".. Locale.Lookup(self:GetName()))
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
 
@@ -2867,16 +3146,16 @@ function DoTurnFirstPass(self)
 end
 
 function DoTurnSecondPass(self)
-	print("---------------------------------------------------------------------------")
-	print("Second Pass on ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Second Pass on ".. Locale.Lookup(self:GetName()))
 
 	-- get linked cities and supply demand
 	self:UpdateTransferCities()
 end
 
 function DoTurnThirdPass(self)
-	print("---------------------------------------------------------------------------")
-	print("Third Pass on ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Third Pass on ".. Locale.Lookup(self:GetName()))
 
 	-- diffuse to other cities, now that all of them have made their request after servicing industries and units
 	self:TransferToCities()
@@ -2887,8 +3166,8 @@ function DoTurnThirdPass(self)
 end
 
 function DoTurnFourthPass(self)
-	print("---------------------------------------------------------------------------")
-	print("Fourth Pass on ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass on ".. Locale.Lookup(self:GetName()))
 
 	-- Update City Size / social classes
 	self:DoGrowth()
@@ -2900,7 +3179,7 @@ function DoTurnFourthPass(self)
 	-- last...
 	self:DoExcedents()
 
-	print("Fourth Pass done for ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass done for ".. Locale.Lookup(self:GetName()))
 	LuaEvents.CityCompositionUpdated(self:GetOwner(), self:GetID())
 end
 
@@ -2909,8 +3188,8 @@ function DoCitiesTurn( playerID )
 	local playerCities = player:GetCities()
 	if playerCities then
 		for pass = 1, 4 do
-			print("---------------------------------------------------------------------------")
-			print("Cities Turn, pass #" .. tostring(pass))
+			Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+			Dprint( DEBUG_CITY_SCRIPT, "Cities Turn, pass #" .. tostring(pass))
 			for i, city in playerCities:Members() do
 				if 		pass == 1 then city:DoTurnFirstPass()
 				elseif	pass == 2 then city:DoTurnSecondPass()
@@ -2923,6 +3202,23 @@ function DoCitiesTurn( playerID )
 end
 LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 
+
+-----------------------------------------------------------------------------------------
+-- Functions from UI Context
+-----------------------------------------------------------------------------------------
+function GetCityYield(self, yieldType)
+	if yieldType > YieldTypes.INTERNAL_MAX then
+		local yield = 0
+		for buildingID, Yields in pairs(BuildingYields) do
+			if self:GetBuildings():HasBuilding(buildingID) and Yields[yieldType] then
+				yield = yield + Yields[yieldType]
+			end
+		end
+		return yield
+	else
+		return GCO.GetCityYield( self, yieldType )
+	end
+end
 
 -----------------------------------------------------------------------------------------
 -- Shared Functions
@@ -3058,6 +3354,13 @@ function AttachCityFunctions(city)
 	c.GetMaxLowerClass					= GetMaxLowerClass
 	c.GetMinLowerClass					= GetMinLowerClass
 	c.GetPopulationClass				= GetPopulationClass
+	c.ChangePopulationClass				= ChangePopulationClass
+	c.GetPopulationDeathRate			= GetPopulationDeathRate
+	c.SetPopulationDeathRate			= SetPopulationDeathRate
+	c.GetBasePopulationDeathRate		= GetBasePopulationDeathRate
+	c.GetPopulationBirthRate			= GetPopulationBirthRate
+	c.SetPopulationBirthRate			= SetPopulationBirthRate
+	c.GetBasePopulationBirthRate		= GetBasePopulationBirthRate
 	--
 	c.DoRecruitPersonnel				= DoRecruitPersonnel
 	-- text
@@ -3065,8 +3368,11 @@ function AttachCityFunctions(city)
 	c.GetFoodStockString 				= GetFoodStockString
 	c.GetFoodConsumptionString			= GetFoodConsumptionString
 	c.GetResourceUseToolTipStringForTurn= GetResourceUseToolTipStringForTurn
+	
+	c.GetCityYield						= GetCityYield
 
 end
+
 
 ----------------------------------------------
 -- Share functions for other contexts
@@ -3098,8 +3404,8 @@ function debugList()
 			local ownCity			= GCO.GetCityFromKey(cityKey)
 			
 			if city:GetOwner() ~= ownCity:GetOwner() then
-				print ("WARNING : foreign city found in internal transfer list : " ..city:GetName())
-				print ("WARNING : key = " ..routeCityKey)
+				Dprint( DEBUG_CITY_SCRIPT, "WARNING : foreign city found in internal transfer list : " ..city:GetName())
+				Dprint( DEBUG_CITY_SCRIPT, "WARNING : key = " ..routeCityKey)
 				CitiesForTransfer[cityKey][routeCityKey] = nil
 			end
 		end

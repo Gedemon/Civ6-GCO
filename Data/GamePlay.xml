@@ -7,7 +7,7 @@
 		<Row Type="RESOURCE_STEEL" 		Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_WOOD" 		Kind="KIND_RESOURCE"/>
 		
-		<Row Type="RESOURCE_MEDECINE" 	Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_MEDICINE" 	Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_LEATHER" 	Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_PLANTS" 	Kind="KIND_RESOURCE"/>
 		
@@ -19,17 +19,48 @@
 	<Types> <!-- Buildings -->
 		<Row Type="BUILDING_BUTCHERY" 		Kind="KIND_BUILDING"/>
 		<Row Type="BUILDING_HERBALIST" 		Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_SLAVE_MARKET" 	Kind="KIND_BUILDING"/>
 		<Row Type="BUILDING_SMALL_STABLE" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_BLACKSMITH" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_BLACKSMITH" 	Kind="KIND_BUILDING"/>		
+		
+		<Row Type="BUILDING_ANCIENT_LOWER_HOUSING_1" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_ANCIENT_UPPER_HOUSING_1" 	Kind="KIND_BUILDING"/>
+		
+		<Row Type="BUILDING_ANCIENT_LOWER_HOUSING_2" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_ANCIENT_UPPER_HOUSING_2" 	Kind="KIND_BUILDING"/>	
+		<Row Type="BUILDING_ANCIENT_LOWER_HOUSING_3" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_ANCIENT_UPPER_HOUSING_3" 	Kind="KIND_BUILDING"/>	
+		
+		<Row Type="BUILDING_CENTRAL_SQUARE" 	Kind="KIND_BUILDING"/>
+	</Types>
+	
+	<Types> <!-- Yields -->
+		<Row Type="YIELD_HEALTH" 			Kind="KIND_YIELD"/>
+		<Row Type="YIELD_UPPER_HOUSING" 	Kind="KIND_YIELD"/>
+		<Row Type="YIELD_MIDDLE_HOUSING" 	Kind="KIND_YIELD"/>
+		<Row Type="YIELD_LOWER_HOUSING"		Kind="KIND_YIELD"/>
 	</Types>
 
 	<Buildings>
-		<Row BuildingType="BUILDING_BUTCHERY" 		Name="LOC_BUILDING_BUTCHERY_NAME" 		Description="LOC_BUILDING_BUTCHERY_DESCRIPTION" 	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_HERBALIST" 		Name="LOC_BUILDING_HERBALIST_NAME" 		Description="LOC_BUILDING_HERBALIST_DESCRIPTION" 	PrereqTech="TECH_POTTERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_SLAVE_MARKET" 	Name="LOC_BUILDING_SLAVE_MARKET_NAME" 	Description="LOC_BUILDING_SLAVE_MARKET_DESCRIPTION" 									PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE"	Name="LOC_BUILDING_SMALL_STABLE_NAME" 	Description="LOC_BUILDING_SMALL_STABLE_DESCRIPTION" 	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_BLACKSMITH"		Name="LOC_BUILDING_BLACKSMITH_NAME" 	Description="LOC_BUILDING_BLACKSMITH_DESCRIPTION" 		PrereqTech="TECH_BRONZE_WORKING" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 		Name="LOC_BUILDING_BUTCHERY_NAME" 		PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_HERBALIST" 		Name="LOC_BUILDING_HERBALIST_NAME" 		PrereqTech="TECH_POTTERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE"	Name="LOC_BUILDING_SMALL_STABLE_NAME" 	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		Name="LOC_BUILDING_BLACKSMITH_NAME" 	PrereqTech="TECH_BRONZE_WORKING" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
+
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" Name="LOC_BUILDING_CENTRAL_SQUARE_NAME" PrereqDistrict="DISTRICT_CITY_CENTER" ObsoleteEra="ERA_ANCIENT" Cost="1" NoPedia="1"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	Name="LOC_BUILDING_ANCIENT_LOWER_HOUSING_NAME" 		PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="30" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	Name="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_NAME" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	Name="LOC_BUILDING_ANCIENT_UPPER_HOUSING_NAME" 		PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="120" AdvisorType="ADVISOR_GENERIC"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	Name="LOC_BUILDING_ANCIENT_LOWER_HOUSING_NAME" 		PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="30" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	Name="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_NAME" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	Name="LOC_BUILDING_ANCIENT_UPPER_HOUSING_NAME" 		PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="120" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	Name="LOC_BUILDING_ANCIENT_LOWER_HOUSING_NAME" 		PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="30" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	Name="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_NAME" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	Name="LOC_BUILDING_ANCIENT_UPPER_HOUSING_NAME" 		PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="120" AdvisorType="ADVISOR_GENERIC"/>
 	</Buildings>
 
 	<BuildingModifiers>
@@ -44,11 +75,29 @@
 		<Row BuildingType="BUILDING_PALACE" 		PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="10"/>
 		<Row BuildingType="BUILDING_PALACE" 		PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MIN_PERCENT"	EffectValue="5"/>
 		
-		<Row BuildingType="BUILDING_SLAVE_MARKET" 	PopulationType="POPULATION_UPPER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="-5"/>
-		<Row BuildingType="BUILDING_SLAVE_MARKET" 	PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="-25"/>
-		<Row BuildingType="BUILDING_SLAVE_MARKET" 	PopulationType="POPULATION_LOWER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="25"/>
-		<Row BuildingType="BUILDING_SLAVE_MARKET" 	PopulationType="POPULATION_LOWER" 	EffectType="CLASS_MIN_PERCENT"	EffectValue="10"/>
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	PopulationType="POPULATION_LOWER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="5"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="3"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	PopulationType="POPULATION_UPPER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="1"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	PopulationType="POPULATION_LOWER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="5"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="3"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	PopulationType="POPULATION_UPPER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="1"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	PopulationType="POPULATION_LOWER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="5"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	PopulationType="POPULATION_MIDDLE" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="3"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	PopulationType="POPULATION_UPPER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="1"/>
 	</BuildingPopulationEffect>
+	
+	
+	<BuildingPrereqs>
+		<Row Building="BUILDING_ANCIENT_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_LOWER_HOUSING_1" 	/>
+		<Row Building="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	/>
+		<Row Building="BUILDING_ANCIENT_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_UPPER_HOUSING_1" 	/>
+		
+		<Row Building="BUILDING_ANCIENT_LOWER_HOUSING_3" 	PrereqBuilding="BUILDING_ANCIENT_LOWER_HOUSING_2" 	/>
+		<Row Building="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	PrereqBuilding="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	/>
+		<Row Building="BUILDING_ANCIENT_UPPER_HOUSING_3" 	PrereqBuilding="BUILDING_ANCIENT_UPPER_HOUSING_2" 	/>
+	</BuildingPrereqs>
 	
 	<BuildingResourcesConverted>
 		<Row BuildingType="BUILDING_GRANARY" 	ResourceType="RESOURCE_RICE" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
@@ -68,7 +117,7 @@
 		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BUTCHERY" 	ResourceType="RESOURCE_SHEEP" 	MaxConverted="15" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MEDECINE" Ratio="1"/>
+		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="1"/>
 		
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2"/>
 		
@@ -93,11 +142,37 @@
 		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_FOOD" 		Stock="200"/>
 		<Row BuildingType="BUILDING_MARKET" 		ResourceType="RESOURCE_FOOD" 		Stock="300"/>
 		
-		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		Stock="1000"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		Stock="200"/>
+		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		Stock="500"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		Stock="100"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_CHARIOT" 	Stock="50"/>
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="EQUIPMENT_IRON" 		Stock="100"/>
 	</BuildingStock>
+	
+	<Building_YieldChanges>
+		<Row BuildingType="BUILDING_HERBALIST" YieldType="YIELD_HEALTH" YieldChange="1"/>
+		
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_LOWER_HOUSING" 	YieldChange="2"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+	</Building_YieldChanges>
+
+	<CivilopediaPageQueries> <!-- previous entry deleted in Table.sql -->
+		<Row SectionId="BUILDINGS" PageGroupIdColumn="PageGroupId" TooltipColumn="Tooltip" SortIndex="10">
+			<SQL>SELECT BuildingType as PageId, PreReqDistrict as PageGroupId, "Building" as PageLayoutId, Name, null as Tooltip FROM Buildings Where IsWonder = 0 AND InternalOnly = 0 AND NoPedia = 0</SQL>
+		</Row>
+	</CivilopediaPageQueries>
 	
 	<FeatureResourcesProduced>
 		<Row FeatureType="FEATURE_JUNGLE" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="1"/>
@@ -129,7 +204,7 @@
 		<Row ResourceType="RESOURCE_STEEL" 		Name="LOC_RESOURCE_STEEL_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_WOOD" 		Name="LOC_RESOURCE_WOOD_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_PLANTS" 	Name="LOC_RESOURCE_PLANTS_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>		
-		<Row ResourceType="RESOURCE_MEDECINE" 	Name="LOC_RESOURCE_MEDECINE_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_MEDICINE" 	Name="LOC_RESOURCE_MEDICINE_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<Row ResourceType="RESOURCE_LEATHER" 	Name="LOC_RESOURCE_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		
 		<Row ResourceType="EQUIPMENT_LEATHER" 	Name="LOC_EQUIPMENT_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
@@ -144,4 +219,11 @@
 		
 	</ResourceStockUsage>
 
+	<Yields>
+		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_Damaged]" OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_UPPER_HOUSING"	Name="LOC_YIELD_UPPER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_MIDDLE_HOUSING"	Name="LOC_YIELD_MIDDLE_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
+	</Yields>
+	
 </GameInfo>

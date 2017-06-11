@@ -3,7 +3,17 @@
 --  Gedemon (2017)
 --=====================================================================================--
 
-print ("Loading PlayerScript.lua...")
+print("Loading PlayerScript.lua...")
+
+-----------------------------------------------------------------------------------------
+-- Debug
+-----------------------------------------------------------------------------------------
+
+DEBUG_PLAYER_SCRIPT			= false
+
+function TogglePlayerDebug()
+	DEBUG_PLAYER_SCRIPT = not DEBUG_PLAYER_SCRIPT
+end
 
 -----------------------------------------------------------------------------------------
 -- Defines
@@ -18,8 +28,9 @@ local _cached				= {}	-- cached table to reduce calculations
 
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	GCO = ExposedMembers.GCO
-	print ("Exposed Functions from other contexts initialized...")
+	GCO 	= ExposedMembers.GCO
+	Dprint 	= GCO.Dprint
+	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
@@ -49,7 +60,7 @@ end
 -----------------------------------------------------------------------------------------
 -- Player functions
 -----------------------------------------------------------------------------------------
-
+--[[
 function UpdatePopulationNeeds(self)
 	local era = self:GetEra()
 	for row in GameInfo.PopulationNeeds() do
@@ -103,6 +114,7 @@ function GetResourcesConsumptionRatioForPopulation(self, resourceID, populationI
 	if not _cached.ResourcesNeeded[resourceID][populationID] then return 0 end
 	return _cached.ResourcesNeeded[resourceID][populationID].Ratio or 0
 end
+--]]
 
 function InitializeData(self)
 	local playerKey = self:GetKey()
@@ -149,8 +161,8 @@ end
 
 function UpdateDataOnNewTurn(self)
 	local playerConfig = PlayerConfigurations[self:GetID()]
-	print("---------------------------------------------------------------------------")
-	print("- Updating Data on new turn for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+	Dprint( DEBUG_PLAYER_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on new turn for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 	local playerCities = self:GetCities()
 	if playerCities then
 		for i, city in playerCities:Members() do
@@ -175,7 +187,7 @@ function DoPlayerTurn( playerID )
 	print("---============================================================================================================================================================================---")
 	print("--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
 	print("---============================================================================================================================================================================---")
-	player:UpdatePopulationNeeds()
+	--player:UpdatePopulationNeeds()
 	LuaEvents.DoUnitsTurn( playerID )
 	LuaEvents.DoCitiesTurn( playerID )
 	-- update flags after resources transfers
@@ -189,7 +201,7 @@ end
 --GameEvents.PlayerTurnStarted.Add(DoPlayerTurn)
 --GameEvents.PlayerTurnStartComplete.Add(DoPlayerTurn)
 
-function DoTurnForLocal()
+function DoTurnForLocal() -- The Error reported on the line below is triggered by something else.
 	local playerID = Game.GetLocalPlayer()
 	local player = Players[playerID]
 	if player and not player:HasStartedTurn() then
@@ -234,7 +246,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.SetCurrentTurn							= SetCurrentTurn
 	p.HasStartedTurn							= HasStartedTurn
 	p.UpdateDataOnNewTurn						= UpdateDataOnNewTurn
-	p.UpdatePopulationNeeds						= UpdatePopulationNeeds
+	--p.UpdatePopulationNeeds						= UpdatePopulationNeeds
 	p.GetPopulationNeeds						= GetPopulationNeeds
 	p.GetResourcesNeededForPopulations			= GetResourcesNeededForPopulations
 	p.GetResourcesConsumptionRatioForPopulation = GetResourcesConsumptionRatioForPopulation

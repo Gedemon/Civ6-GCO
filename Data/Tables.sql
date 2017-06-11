@@ -46,6 +46,10 @@ ALTER TABLE Terrains ADD COLUMN CultureMaxPercent integer DEFAULT '0';
 ALTER TABLE Resources ADD COLUMN NoExport 	BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0; -- Not allowed on international trade routes
 ALTER TABLE Resources ADD COLUMN NoTransfer BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; -- Not allowed on internal trade routes
 
+-- Hidden Buildings
+ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; -- Do not show in Civilopedia
+ALTER TABLE Buildings ADD COLUMN NoCityScreen 	BOOLEAN NOT NULL CHECK (NoCityScreen IN (0,1)) DEFAULT 0; -- Do not show in City Screens
+
 -----------------------------------------------
 -- New Tables
 -----------------------------------------------
@@ -158,3 +162,10 @@ CREATE TABLE IF NOT EXISTS PopulationNeeds
 		FOREIGN KEY (PopulationType) REFERENCES Populations(PopulationType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 
+
+-----------------------------------------------
+-- Edit Tables
+-----------------------------------------------
+
+/* Civilopedia query */
+DELETE FROM CivilopediaPageQueries WHERE SectionId ='BUILDINGS'; -- recreated in GamePlay.xml

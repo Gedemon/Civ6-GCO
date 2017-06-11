@@ -79,7 +79,7 @@ infrastructure :
 
 - Citizen have consumers need for resources depending on their social class, city size and the era
     + food (upper, middle, lower, slaves)
-    + medecine for those who have a disease (upper, middle, lower, slaves)
+    + medicine for those who have a disease (upper, middle, lower, slaves)
     + basic clothes (middle, lower, slave) = linen (plants from forest/jungle/swamp) or leather or wool
     + clothes (upper, middle) = use leather + (wool or linen)
     + exotic food (upper, middle) = food not available on the civilization territory (and continent)
@@ -88,7 +88,7 @@ infrastructure :
     + luxury products (upper) = jewelry (silver, diamonds), decorations (silver, marble)
    
 - when all needs of a class are meet, give a bonus to birth rate
-- if a basic need (food, medecine, basic clothes - and more with eras) can't be satisfied (high cost or shortage), lower local stability
+- if a basic need (food, medicine, basic clothes - and more with eras) can't be satisfied (high cost or shortage), lower local stability
 
 - table1
 	NeedType
@@ -498,9 +498,9 @@ if health = 100 	:  0% disease in population |
 if health = 0		:  2% disease in population } should those values should change with era/tech/buildings ?
 if health = -100 	: 25% disease in population |
 
-% disease generate need of medecine
+% disease generate need of medicine
 % disease raise Mortality rate
-plants -> heborist/apothicary -> medecines
+plants -> heborist/apothicary -> medicines
 
 if health < -50 : add value = rnd(1, abs(health)-50) to each possible epidemic disease buckets
 if health > 0 : remove (% ? all ?) health value each turn to all buckets
@@ -748,9 +748,9 @@ UI :
 FOREST 	-> 	WOOD(2) 	-> 	CARPENTER 	-> 	MATERIEL(5)
 JUNGLE 	-> 	WOOD(1)		->
 
-MARSH	-> 	PLANTS(3)	->	HERBORIST	-> 	MEDECINE(1)
-FOREST 	-> 	PLANTS(1)	-> 	APOTHECARY  -> 	MEDECINE(3)
-JUNGLE 	-> 	PLANTS(2)	->	PHARMACY	-> 	MEDECINE(10)
+MARSH	-> 	PLANTS(3)	->	HERBORIST	-> 	MEDICINE(1)
+FOREST 	-> 	PLANTS(1)	-> 	APOTHECARY  -> 	MEDICINE(3)
+JUNGLE 	-> 	PLANTS(2)	->	PHARMACY	-> 	MEDICINE(10)
 
 DEER	->				->	WOOL		->
 SHEEP	->	BUTCHERY	->	FOOD
@@ -913,13 +913,13 @@ Hegemony as a possible victory condition ?
 	Surgery : Less deads from wounds
 	
 + Medieval
-	Medecine: Medieval Hospitals (+healths, heal wounded in city), Apothecary (replace Herborist), Less deads from wounds
+	Medicine: Medieval Hospitals (+healths, heal wounded + cure illness in city), Apothecary (replace Herborist), Less deads from wounds
 	
 + Rennaissance
 	Microbiologie: Hospital (replace Medieval Hospitals), Less deads from wounds
 	
 + Industrial
-	Vaccine: Pharmacy (replace Apothecary)
+	Vaccine: Pharmacy (replace Apothecary), limit Epidemy start
 	
 + Modern
 	Antibiotics: Modern Hospital (replace Hospitals), Minimal deads from wounds

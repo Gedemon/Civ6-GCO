@@ -188,7 +188,10 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 
 	local stats = {};
 
-	if city == nil then
+	
+	-- GCO <<<<<
+	--if city == nil then	
+	-- GCO >>>>>
 		for row in GameInfo.Building_YieldChanges() do
 			if(row.BuildingType == buildingType) then
 				local yield = GameInfo.Yields[row.YieldType];
@@ -197,6 +200,8 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 				end
 			end
 		end
+	-- GCO <<<<<
+	--[[
 	else
 		for yield in GameInfo.Yields() do
 			local yieldChange = city:GetBuildingPotentialYield(buildingHash, yield.YieldType);
@@ -205,6 +210,8 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 			end
 		end
 	end
+	--]]
+	-- GCO >>>>>
 
 	for row in GameInfo.Building_YieldDistrictCopies() do
 		if(row.BuildingType == buildingType) then

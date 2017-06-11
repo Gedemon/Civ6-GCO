@@ -40,6 +40,25 @@ function SaveTables()
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
+function CheckSave()
+	print("Checking Saved Table...")
+	if GCO.AreSameTables(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap")) then
+		print("- Tables are identical")
+	else
+		print("ERROR: reloading saved CultureMap table show differences with actual table !")
+		CompareData(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap"))
+	end
+	
+	if GCO.AreSameTables(ExposedMembers.PreviousCultureMap, GCO.LoadTableFromSlot("PreviousCultureMap")) then
+		print("- Tables are identical")
+	else
+		print("ERROR: reloading saved PreviousCultureMap table show differences with actual table !")
+		LuaEvents.StopAuToPlay()
+		CompareData(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap"))
+	end
+end
+LuaEvents.SaveTables.Add(CheckSave)
+
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.CultureMap 			= GCO.LoadTableFromSlot("CultureMap") or {}
 	ExposedMembers.PreviousCultureMap 	= GCO.LoadTableFromSlot("PreviousCultureMap") or {}
@@ -47,6 +66,31 @@ function PostInitialize() -- everything that may require other context to be loa
 	SetCultureDiffusionRatePer1000()
 end
 
+
+-- for debugging
+function ShowPlotData()
+	for key, data in pairs(ExposedMembers.CultureMap) do
+		print(key, data)
+		for k, v in pairs (data) do
+			print("-", k, v)
+		end
+	end
+end
+
+function CompareData(data1, data2)
+	for key, data in pairs(data1) do
+		--print(key, data)
+		for k, v in pairs (data) do
+			if not data2[key] then
+				print("- reloaded table is nil for key = ", key)
+			elseif not data2[key][k] then			
+				print("- no value for key = ", key, " CivID =", k)
+			elseif v ~= data2[key][k] then
+				print("- different value for key = ", key, " CivID =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]), v - data2[key][k] )
+			end
+		end
+	end
+end
 
 -----------------------------------------------------------------------------------------
 -- Plots Functions
@@ -97,6 +141,7 @@ function SetCulture( self, playerID, value )
 end
 function ChangeCulture( self, playerID, value )
 	local key = self:GetKey()
+	local value = GCO.Round(value)
 	--print("ChangeCulture",self:GetX(), self:GetY(), playerID, GCO.ToDecimals(value), GCO.ToDecimals(self:GetPreviousCulture(playerID )))
 	if ExposedMembers.CultureMap[key] then 
 		if ExposedMembers.CultureMap[key][tostring(playerID)] then
