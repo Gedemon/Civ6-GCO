@@ -247,6 +247,12 @@ local WealthMiddleRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_MID
 local WealthLowerRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_LOWER_CLASS_RATIO"].Value)
 local WealthSlaveRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_SLAVE_CLASS_RATIO"].Value)
 
+local UpperClassFoodConsumption 	= tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_UPPER_CLASS_FACTOR"].Value) 	
+local MiddleClassFoodConsumption 	= tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_MIDDLE_CLASS_FACTOR"].Value) 
+local LowerClassFoodConsumption 	= tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_LOWER_CLASS_FACTOR"].Value) 	
+local SlaveClassFoodConsumption 	= tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SLAVE_CLASS_FACTOR"].Value) 	
+local PersonnelFoodConsumption 		= tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) 	
+
 local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PRODUCTION_PER_SIZE"].Value)
 local ResourceStockPerSize 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
 local FoodStockPerSize 				= tonumber(GameInfo.GlobalParameters["CITY_FOOD_STOCK_PER_SIZE"].Value)
@@ -2273,11 +2279,11 @@ function GetFoodConsumption(self, optionalRatio)
 	local data = ExposedMembers.CityData[cityKey]
 	local foodConsumption1000 = 0
 	local ratio = optionalRatio or data.FoodRatio
-	foodConsumption1000 = foodConsumption1000 + (self:GetUpperClass()	* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_UPPER_CLASS_FACTOR"].Value) )
-	foodConsumption1000 = foodConsumption1000 + (self:GetMiddleClass()	* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_MIDDLE_CLASS_FACTOR"].Value) )
-	foodConsumption1000 = foodConsumption1000 + (self:GetLowerClass()	* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_LOWER_CLASS_FACTOR"].Value) )
-	foodConsumption1000 = foodConsumption1000 + (self:GetSlaveClass()	* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SLAVE_CLASS_FACTOR"].Value) )
-	foodConsumption1000 = foodConsumption1000 + (self:GetPersonnel()	* tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )
+	foodConsumption1000 = foodConsumption1000 + (self:GetUpperClass()	* UpperClassFoodConsumption 	)
+	foodConsumption1000 = foodConsumption1000 + (self:GetMiddleClass()	* MiddleClassFoodConsumption 	)
+	foodConsumption1000 = foodConsumption1000 + (self:GetLowerClass()	* LowerClassFoodConsumption 	)
+	foodConsumption1000 = foodConsumption1000 + (self:GetSlaveClass()	* SlaveClassFoodConsumption 	)
+	foodConsumption1000 = foodConsumption1000 + (self:GetPersonnel()	* PersonnelFoodConsumption 		)
 	-- value belows may be nil
 	if data.WoundedPersonnel then
 		foodConsumption1000 = foodConsumption1000 + (data.WoundedPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )
@@ -2304,39 +2310,38 @@ function SetCityRationing(self)
 	local cityData 	= ExposedMembers.CityData[cityKey]
 	local ratio 	= cityData.FoodRatio
 	local foodStock = self:GetStock(foodResourceID)
-	if foodStock == 0 then
-		ratio = Starvation
-		ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		ExposedMembers.CityData[cityKey].FoodRatio = ratio
-		return
-	end
-	local previousTurn	= tonumber(GCO.GetPreviousTurnKey())
-	local previousTurnSupply = self:GetSupplyAtTurn(foodResourceID, previousTurn)
-	local normalRatio = 1
-	local foodVariation =  previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
-
-	Dprint( DEBUG_CITY_SCRIPT, " Food stock ", foodStock," Variation ",foodVariation, " Previous turn supply ", previousTurnSupply, " Consumption ", self:GetFoodConsumption(), " ratio ", ratio)
-	if foodVariation < 0 and foodStock < (self:GetMaxStock(foodResourceID) / 2) then
+	local previousTurn			= tonumber(GCO.GetPreviousTurnKey())
+	local previousTurnSupply 	= self:GetSupplyAtTurn(foodResourceID, previousTurn)
+	local normalRatio 			= 1
+	local foodVariation 		=  previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
+	local consumptionRatio		= math.min(normalRatio, previousTurnSupply / self:GetFoodConsumption(normalRatio)) -- GetFoodConsumption returns a value >= 1
+	
+	Dprint( DEBUG_CITY_SCRIPT, " Food stock ", foodStock," Variation ",foodVariation, " Previous turn supply ", previousTurnSupply, " Consumption ", self:GetFoodConsumption(), " actual ratio ", ratio)
+	
+	if foodVariation < 0 then --and foodStock < (self:GetMaxStock(foodResourceID) / 2) then
 		local turnBeforeFamine		= -(foodStock / foodVariation)
-		if turnBeforeFamine < turnsToFamineHeavy then
-			ratio = heavyRationing
+		if foodStock == 0 then
+			ratio = math.max(consumptionRatio, Starvation)
 			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		elseif turnBeforeFamine < turnsToFamineMedium then
-			ratio = mediumRationing
+		elseif turnBeforeFamine <= turnsToFamineHeavy then
+			ratio = math.max(consumptionRatio, heavyRationing) -- Always use the maximum available supply, do not generate excedental food when rationing...
 			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		elseif turnBeforeFamine < turnsToFamineLight then
-			ratio = lightRationing
+		elseif turnBeforeFamine <= turnsToFamineMedium then
+			ratio = math.max(consumptionRatio, mediumRationing)
+			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
+		elseif turnBeforeFamine <= turnsToFamineLight then
+			ratio = math.max(consumptionRatio, lightRationing)
 			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
 		end
 	elseif Game.GetCurrentGameTurn() - cityData.FoodRatioTurn >= RationingTurnsLocked then
 		if cityData.FoodRatio <= heavyRationing then
-			ratio = mediumRationing
+			ratio = math.max(consumptionRatio, mediumRationing)
 			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
 		elseif cityData.FoodRatio <= mediumRationing then
-			ratio = lightRationing
+			ratio = math.max(consumptionRatio, lightRationing)
 			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
 		elseif cityData.FoodRatio <= lightRationing then
-			ratio = 1
+			ratio = consumptionRatio
 		end
 	end
 	ExposedMembers.CityData[cityKey].FoodRatio = ratio
@@ -2393,7 +2398,7 @@ function GetFoodStockString(self)
 
 	local str 					= ""
 	if cityRationning <= Starvation then
-		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
+		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_STARVATION", foodStock, maxFoodStock)
 	elseif cityRationning <= heavyRationing then
 		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
 	elseif cityRationning <= mediumRationing then
@@ -2918,8 +2923,8 @@ function DoFood(self)
 	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, self:GetKey(), resourceCost)
 
 	-- food eaten
-	local eaten = self:GetFoodConsumption()
-	self:ChangeStock(foodResourceID, - eaten, ResourceUseType.Consume, RefPopulationAll)
+	--local eaten = self:GetFoodConsumption()
+	--self:ChangeStock(foodResourceID, - eaten, ResourceUseType.Consume, RefPopulationAll)
 end
 
 function DoNeeds(self)
@@ -2937,30 +2942,7 @@ function DoNeeds(self)
 		[MiddleClassID] = { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},},
 		[LowerClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},},
 	}
-	
-	-- Upper Class
-	local upperHousingSize		= self:GetCityYield( YieldTypes.UPPER_HOUSING )
-	local upperHousing			= GetPopulationPerSize(upperHousingSize)
-	local upperPopulation		= self:GetPopulationClass(UpperClassID)
-	local upperHousingAvailable	= math.max( 0, upperHousing - upperPopulation)
-	local upperLookingForMiddle	= math.max( 0, upperPopulation - upperHousing)
-	Dprint( DEBUG_CITY_SCRIPT, "Upper Class Needs : Housing Size = ", upperHousingSize, " Housing Capacity = ", upperHousing, " Population = ", upperPopulation, " Available housing = ", upperHousingAvailable)
-	
-	-- Middle Class
-	local middleHousingSize			= self:GetCityYield( YieldTypes.MIDDLE_HOUSING )
-	local middleHousing				= GetPopulationPerSize(middleHousingSize)
-	local middlePopulation			= self:GetPopulationClass(MiddleClassID)
-	local middleHousingAvailable	= math.max( 0, middleHousing - middlePopulation - upperLookingForMiddle)
-	local middleLookingForLower		= math.max( 0, (middlePopulation + upperLookingForMiddle) - middleHousing)
-	Dprint( DEBUG_CITY_SCRIPT, "Middle Class Needs : Housing Size = ", middleHousingSize, " Housing Capacity = ", middleHousing, " Population = ", middlePopulation, " Available housing = ", middleHousingAvailable)
-	
-	-- Lower Class
-	local lowerHousingSize		= self:GetCityYield( YieldTypes.LOWER_HOUSING )
-	local lowerHousing			= GetPopulationPerSize(lowerHousingSize)
-	local lowerPopulation		= self:GetPopulationClass(LowerClassID)
-	local lowerHousingAvailable	= math.max( 0, lowerHousing - lowerPopulation - middleLookingForLower)
-	Dprint( DEBUG_CITY_SCRIPT, "Lower Class Needs : Housing Size = ", lowerHousingSize, " Housing Capacity = ", lowerHousing, " Population = ", lowerPopulation, " Available housing = ", lowerHousingAvailable)
-	
+
 	-- Private functions
 	function GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue) 	-- Return a higher value lowerValue is high
 		return maxEffectValue*(lowerValue/higherValue)
@@ -2971,6 +2953,123 @@ function DoNeeds(self)
 	function LimitEffect(maxEffectValue, effectValue)							-- Keep effectValue never equals to maxEffectValue
 		return GCO.ToDecimals(maxEffectValue*effectValue/(maxEffectValue+1))
 	end
+
+	
+	local upperPopulation		= self:GetPopulationClass(UpperClassID)
+	local middlePopulation		= self:GetPopulationClass(MiddleClassID)	
+	local lowerPopulation		= self:GetPopulationClass(LowerClassID)
+	
+	-- handle Death Rate first, Population can compensate with higher birth Rate...
+		
+	Dprint( DEBUG_CITY_SCRIPT, "Eating ----------")
+	
+	local rationing 	= self:GetFoodRationing()
+	local availableFood = self:GetStock(foodResourceID)
+	
+	Dprint( DEBUG_CITY_SCRIPT, "Available food = ", availableFood, " rationing = ", rationing)
+	
+	-- Food for personnel
+	local personnelNeed		= self:GetPersonnel() * PersonnelFoodConsumption
+	local personnelRation	= personnelNeed * rationing
+	local personnelFood		= math.min(availableFood, personnelRation)	
+	availableFood 			= availableFood - personnelFood	
+	Dprint( DEBUG_CITY_SCRIPT, "Personnel Needs : 		food wanted = ", personnelNeed, " ration allowed = ", personnelRation, " food eaten = ", personnelFood, "Available food left = ", availableFood)
+	
+	-- Food for upper class
+	local upperNeed		= upperPopulation * UpperClassFoodConsumption
+	local upperRation	= upperNeed * rationing
+	local upperFood		= math.min(availableFood, upperRation)	
+	availableFood 		= availableFood - upperFood	
+	Dprint( DEBUG_CITY_SCRIPT, "Upper Class Needs : 	food wanted = ", upperNeed, " ration allowed = ", upperRation, " food eaten = ", upperFood, "Available food left = ", availableFood)
+	if upperFood < upperNeed then
+		local maxEffectValue 	= 5
+		local higherValue 		= upperNeed
+		local lowerValue 		= upperFood
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
+		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.DeathRate]["LOC_DEATHRATE_FROM_FOOD_RATIONING"] = effectValue
+		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_DEATHRATE_FROM_FOOD_RATIONING", effectValue))
+	end
+	
+	local middleNeed	= middlePopulation * MiddleClassFoodConsumption
+	local middleRation	= middleNeed * rationing
+	local middleFood	= math.min(availableFood, middleRation)	
+	availableFood 		= availableFood - middleFood	
+	Dprint( DEBUG_CITY_SCRIPT, "Upper Class Needs : 	food wanted = ", middleNeed, " ration allowed = ", middleRation, " food eaten = ", middleFood, "Available food left = ", availableFood)
+	if middleFood < middleNeed then
+		local maxEffectValue 	= 10
+		local higherValue 		= middleNeed
+		local lowerValue 		= middleFood
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
+		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		_cached[cityKey].NeedsEffects[MiddleClassID][NeedsEffectType.DeathRate]["LOC_DEATHRATE_FROM_FOOD_RATIONING"] = effectValue
+		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_DEATHRATE_FROM_FOOD_RATIONING", effectValue))
+	end
+	
+	local lowerNeed		= lowerPopulation * LowerClassFoodConsumption
+	local lowerRation	= lowerNeed * rationing
+	local lowerFood		= math.min(availableFood, lowerRation)	
+	availableFood 		= availableFood - lowerFood	
+	Dprint( DEBUG_CITY_SCRIPT, "Lower Class Needs : 	food wanted = ", lowerNeed, " ration allowed = ", lowerRation, " food eaten = ", lowerFood, "Available food left = ", availableFood)
+	if lowerFood < lowerNeed then
+		local maxEffectValue 	= 15
+		local higherValue 		= lowerNeed
+		local lowerValue 		= lowerFood
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
+		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		_cached[cityKey].NeedsEffects[LowerClassID][NeedsEffectType.DeathRate]["LOC_DEATHRATE_FROM_FOOD_RATIONING"] = effectValue
+		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_DEATHRATE_FROM_FOOD_RATIONING", effectValue))
+	end	
+	
+	local slaveNeed		= slavePopulation * SlaveClassFoodConsumption
+	local slaveRation	= slaveNeed * rationing
+	local slaveFood		= math.min(availableFood, slaveRation)	
+	availableFood 		= availableFood - slaveFood	
+	Dprint( DEBUG_CITY_SCRIPT, "Slave Class Needs : 	food wanted = ", slaveNeed, " ration allowed = ", slaveRation, " food eaten = ", slaveFood, "Available food left = ", availableFood)
+	if slaveFood < slaveNeed then
+		local maxEffectValue 	= 5
+		local higherValue 		= slaveNeed
+		local lowerValue 		= slaveFood
+		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
+		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		_cached[cityKey].NeedsEffects[SlaveClassID][NeedsEffectType.DeathRate]["LOC_DEATHRATE_FROM_FOOD_RATIONING"] = effectValue
+		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_DEATHRATE_FROM_FOOD_RATIONING", effectValue))
+	end
+	
+	self:SetPopulationDeathRate(UpperClassID)
+	self:SetPopulationDeathRate(MiddleClassID)
+	self:SetPopulationDeathRate(LowerClassID)
+	self:SetPopulationDeathRate(SlaveClassID)	
+
+	-- Eat Food
+	self:ChangeStock(foodResourceID, - upperFood, ResourceUseType.Consume, RefPopulationUpper	)
+	self:ChangeStock(foodResourceID, - middleFood, ResourceUseType.Consume, RefPopulationMiddle	)
+	self:ChangeStock(foodResourceID, - lowerFood, ResourceUseType.Consume, RefPopulationLower	)
+	self:ChangeStock(foodResourceID, - slaveFood, ResourceUseType.Consume, RefPopulationSlave	)
+	
+	
+	-- Birth Rate Effects
+	
+	Dprint( DEBUG_CITY_SCRIPT, "Housing ----------")
+	-- Upper Class
+	local upperHousingSize		= self:GetCityYield( YieldTypes.UPPER_HOUSING )
+	local upperHousing			= GetPopulationPerSize(upperHousingSize)
+	local upperHousingAvailable	= math.max( 0, upperHousing - upperPopulation)
+	local upperLookingForMiddle	= math.max( 0, upperPopulation - upperHousing)
+	Dprint( DEBUG_CITY_SCRIPT, "Upper Class Needs : Housing Size = ", upperHousingSize, " Housing Capacity = ", upperHousing, " Population = ", upperPopulation, " Available housing = ", upperHousingAvailable)
+	
+	-- Middle Class
+	local middleHousingSize			= self:GetCityYield( YieldTypes.MIDDLE_HOUSING )
+	local middleHousing				= GetPopulationPerSize(middleHousingSize)
+	local middleHousingAvailable	= math.max( 0, middleHousing - middlePopulation - upperLookingForMiddle)
+	local middleLookingForLower		= math.max( 0, (middlePopulation + upperLookingForMiddle) - middleHousing)
+	Dprint( DEBUG_CITY_SCRIPT, "Middle Class Needs : Housing Size = ", middleHousingSize, " Housing Capacity = ", middleHousing, " Population = ", middlePopulation, " Available housing = ", middleHousingAvailable)
+	
+	-- Lower Class
+	local lowerHousingSize		= self:GetCityYield( YieldTypes.LOWER_HOUSING )
+	local lowerHousing			= GetPopulationPerSize(lowerHousingSize)
+	local lowerHousingAvailable	= math.max( 0, lowerHousing - lowerPopulation - middleLookingForLower)
+	Dprint( DEBUG_CITY_SCRIPT, "Lower Class Needs : Housing Size = ", lowerHousingSize, " Housing Capacity = ", lowerHousing, " Population = ", lowerPopulation, " Available housing = ", lowerHousingAvailable)
 	
 	-- Housing Upper Class	
 	Dprint( DEBUG_CITY_SCRIPT, "Upper class Housing effect...")
@@ -3035,16 +3134,12 @@ function DoNeeds(self)
 		lowerGrowthRateLeft = lowerGrowthRateLeft - effectValue
 	end	
 	
+	
 	self:SetPopulationBirthRate(UpperClassID)
 	self:SetPopulationBirthRate(MiddleClassID)
 	self:SetPopulationBirthRate(LowerClassID)
 	self:SetPopulationBirthRate(SlaveClassID)
-	
-	self:SetPopulationDeathRate(UpperClassID)
-	self:SetPopulationDeathRate(MiddleClassID)
-	self:SetPopulationDeathRate(LowerClassID)
-	self:SetPopulationDeathRate(SlaveClassID)
-	
+		
 	--[[
 	local player = GCO.GetPlayer(self:GetOwner())
 	for row in GameInfo.Populations() do
