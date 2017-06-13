@@ -55,6 +55,11 @@ local ResTypeBonus = {
 	}
 
 function SetResourcesCount()
+
+	if Game.GetCurrentGameTurn() > GameConfiguration.GetStartTurn() then -- only called on first turn
+		return
+	end
+	
 	local iPlotCount = Map.GetPlotCount()
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)

@@ -353,6 +353,8 @@ end
 
 function SaveTables()
 	print("--------------------------- Saving CityData ---------------------------")
+	
+	GCO.StartTimer("Saving And Checking CityData")
 	GCO.SaveTableToSlot(ExposedMembers.CityData, "CityData")
 end
 LuaEvents.SaveTables.Add(SaveTables)
@@ -366,6 +368,7 @@ function CheckSave()
 		LuaEvents.StopAuToPlay()
 		CompareData(ExposedMembers.CityData, GCO.LoadTableFromSlot("CityData"))
 	end
+	GCO.ShowTimer("Saving And Checking CityData")
 end
 LuaEvents.SaveTables.Add(CheckSave)
 
@@ -487,17 +490,36 @@ LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.
 
 -- for debugging
 function ShowCityData()
+	local Stats = {
+		["Stock"] 			= true,
+		["ResourceCost"] 	= true,
+		["ResourceUse"] 	= true,
+		["Population"]	 	= true
+		}
+	local count = 0
 	for cityKey, data in pairs(ExposedMembers.CityData) do
 		print(cityKey, data)
 		for k, v in pairs (data) do
 			print("-", k, v)
+			count = count + 1
 			if k == "Prisoners" then
 				for id, num in pairs (v) do
 					print("-", "-", id, num)
+					count = count + 1
+				end
+			end
+			if Stats[k] then
+				for turnkey, data2 in pairs(v) do
+					print("-", "-", turnkey)
+					for id, num in pairs(data2) do
+						print("-", "-", "-", id, num)
+						count = count + 1
+					end
 				end
 			end
 		end
 	end
+	print("#entry = ", count)
 end
 
 
@@ -1568,6 +1590,9 @@ function GetStock(self, resourceID)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
 	local resourceKey 	= tostring(resourceID)
+	if cityKey == nil or turnKey == nil or resourceKey == nil then
+		print("ERROR: nil value in GetStock", " cityKey = ", cityKey, "turnKey = ", turnKey, "resourceKey = ", resourceKey)
+	end
 	return ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] or 0
 end
 
@@ -3221,6 +3246,37 @@ function GetCityYield(self, yieldType)
 end
 
 -----------------------------------------------------------------------------------------
+-- General Functions
+-----------------------------------------------------------------------------------------
+function CleanCityData()
+
+	local DEBUG_CITY_SCRIPT = true
+
+	-- remove old data from the table
+	Dprint( DEBUG_CITY_SCRIPT, "-----------------------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")
+	for cityKey, data1 in pairs(ExposedMembers.CityData) do
+		local toClean = {"Stock","ResourceCost","ResourceUse","Population"}
+		for i, dataToClean in ipairs(toClean) do
+			turnTable = {}
+			for turnkey, data2 in pairs(data1[dataToClean]) do
+				local turn = tonumber(turnkey)
+				if turn <= (Game.GetCurrentGameTurn() - 10) then
+				
+					Dprint( DEBUG_CITY_SCRIPT, "Removing entry : ", cityKey, dataToClean, " turn = ", turn)
+					table.insert(turnTable, turn)
+				end
+			end
+			for j, turn in ipairs(turnTable) do
+				local turnkey = tostring(turn)
+				ExposedMembers.CityData[cityKey][dataToClean][turnkey] = nil
+			end
+		end
+	end
+end
+Events.TurnBegin.Add(CleanCityData)
+
+-----------------------------------------------------------------------------------------
 -- Shared Functions
 -----------------------------------------------------------------------------------------
 function GetCity(playerID, cityID) -- return a city with CityScript functions for another context
@@ -3244,8 +3300,10 @@ end
 function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToMap in initialize()
 	-- Note that those functions are limited to this file context
 	local city = CityManager.GetCity(playerID, cityID)
-	AttachCityFunctions(city)
-	Events.CityAddedToMap.Remove(InitializeCityFunctions)
+	if city then
+		AttachCityFunctions(city)
+		Events.CityAddedToMap.Remove(InitializeCityFunctions)
+	end
 end
 
 function AttachCityFunctions(city)

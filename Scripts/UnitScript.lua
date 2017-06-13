@@ -188,6 +188,7 @@ local unitTableEnum = {
 function SaveUnitTable()
 	local UnitData = ExposedMembers.UnitData
 	print("--------------------------- UnitData: Save w/Enum ---------------------------")
+	GCO.StartTimer("Saving And Checking UnitData")
 	local t = {}
 	for key, data in pairs(UnitData) do
 		t[key] = {}
@@ -239,7 +240,8 @@ function CheckSave()
 		print ("ERROR: reloading saved table show differences with actual table !")
 		LuaEvents.StopAuToPlay()
 		CompareData(ExposedMembers.UnitData, unitData)
-	end
+	end	
+	GCO.ShowTimer("Saving And Checking UnitData")
 end
 LuaEvents.SaveTables.Add(CheckSave)
 

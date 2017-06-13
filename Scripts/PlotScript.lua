@@ -34,7 +34,8 @@ end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
-	print("--------------------------- Saving CultureMap ---------------------------")
+	print("--------------------------- Saving CultureMap ---------------------------")	
+	GCO.StartTimer("Saving And Checking CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.CultureMap, "CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.PreviousCultureMap, "PreviousCultureMap")
 end
@@ -55,7 +56,8 @@ function CheckSave()
 		print("ERROR: reloading saved PreviousCultureMap table show differences with actual table !")
 		LuaEvents.StopAuToPlay()
 		CompareData(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap"))
-	end
+	end	
+	GCO.ShowTimer("Saving And Checking CultureMap")
 end
 LuaEvents.SaveTables.Add(CheckSave)
 
@@ -515,7 +517,7 @@ function DiffuseCulture( self )
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		local pAdjacentPlot = Map.GetAdjacentPlot(iX, iY, direction)
 		--table.insert(debugTable, "Direction = " .. direction ..", to (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
-		if (not pAdjacentPlot:IsWater()) then
+		if (pAdjacentPlot and not pAdjacentPlot:IsWater()) then
 			local iBonus 			= 0
 			local iPenalty 			= 0
 			local iPlotMax 			= iPlotBaseMax		
