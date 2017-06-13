@@ -336,7 +336,7 @@
 	
   </LocalizedText>	
  
-  <LocalizedText> <!-- Effects -->
+  <LocalizedText> <!-- Needs Effects -->
 
     <Replace Tag="LOC_BIRTHRATE_BONUS_FROM_HOUSING" Language="en_US">
       <Text>[COLOR_Civ6Green]+{1_Num}[ENDCOLOR] Birthrate from available [ICON_Housing] Housing.</Text>
@@ -344,6 +344,10 @@
 	
     <Replace Tag="LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING" Language="en_US">
       <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR] Birthrate from low [ICON_Housing] Housing left.</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_DEATHRATE_FROM_FOOD_RATIONING" Language="en_US">
+      <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR] from [ICON_Food] Food Rationing.</Text>
     </Replace>
 	
   </LocalizedText>
