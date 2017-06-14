@@ -48,9 +48,9 @@
 		<Row BuildingType="BUILDING_HERBALIST" 		Name="LOC_BUILDING_HERBALIST_NAME" 		PrereqTech="TECH_POTTERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE"	Name="LOC_BUILDING_SMALL_STABLE_NAME" 	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		Name="LOC_BUILDING_BLACKSMITH_NAME" 	PrereqTech="TECH_BRONZE_WORKING" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
-<!---->
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE" Name="LOC_BUILDING_CENTRAL_SQUARE_NAME" PrereqDistrict="DISTRICT_CITY_CENTER" Cost="1" NoPedia="1"/> <!--ObsoleteEra="ERA_ANCIENT"-->
-	
+<!--
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" Name="LOC_BUILDING_CENTRAL_SQUARE_NAME" PrereqDistrict="DISTRICT_CITY_CENTER" ObsoleteEra="ERA_ANCIENT" Cost="1" NoPedia="1"/>
+-->	
 		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	Name="LOC_BUILDING_ANCIENT_LOWER_HOUSING_NAME" 		PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="30" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	Name="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_NAME" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	Name="LOC_BUILDING_ANCIENT_UPPER_HOUSING_NAME" 		PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="120" AdvisorType="ADVISOR_GENERIC"/>
@@ -150,9 +150,11 @@
 	
 	<Building_YieldChanges>
 		<Row BuildingType="BUILDING_HERBALIST" YieldType="YIELD_HEALTH" YieldChange="1"/>
+		<!--
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_LOWER_HOUSING" 	YieldChange="2"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+		-->
 
 		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="1"/>
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>

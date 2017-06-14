@@ -559,7 +559,7 @@ function GetFoodConsumption(self)
 	if unitData.Prisoners then	
 		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisoners(unitData) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) * ratio )
 	end	
-	return math.max(1, GCO.Round( foodConsumption1000 / 1000 ))
+	return math.max(1, GCO.ToDecimals( foodConsumption1000 / 1000 ))
 end
 
 function GetUnitTypeFoodConsumption(unitData) -- local
@@ -658,7 +658,7 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 		ExposedMembers.UnitData[unitKey].HorsesReserve = math.max(0, unitData.HorsesReserve + value)
 		
 	elseif resourceKey == foodResourceKey then
-		ExposedMembers.UnitData[unitKey].FoodStock = math.max(0, unitData.FoodStock + value)
+		ExposedMembers.UnitData[unitKey].FoodStock = math.max(0, GCO.ToDecimals(unitData.FoodStock + value))
 		
 	elseif resourceKey == medicineResourceKey then
 		ExposedMembers.UnitData[unitKey].MedicineStock = math.max(0, unitData.MedicineStock + value)
@@ -670,7 +670,7 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 		ExposedMembers.UnitData[unitKey].Stock[resourceKey] = math.max(0, value)
 		
 	else
-		ExposedMembers.UnitData[unitKey].Stock[resourceKey] = math.max(0, unitData.Stock[resourceKey] + value)
+		ExposedMembers.UnitData[unitKey].Stock[resourceKey] = math.max(0, GCO.ToDecimals(unitData.Stock[resourceKey] + value))
 	end
 end
 
@@ -768,18 +768,18 @@ end
 
 function SetComponent(self, component, value)
 	local unitKey = self:GetKey()
-	ExposedMembers.UnitData[unitKey][component] = math.max(0,value)
+	ExposedMembers.UnitData[unitKey][component] = math.max(0,GCO.ToDecimals(value))
 end
 
 function ChangeComponent(self, component, value)
 	local unitKey = self:GetKey()
-	ExposedMembers.UnitData[unitKey][component] = math.max(0, ExposedMembers.UnitData[unitKey][component] + value)
+	ExposedMembers.UnitData[unitKey][component] = math.max(0, GCO.ToDecimals(ExposedMembers.UnitData[unitKey][component] + value))
 end
 
 function GetComponentVariation(self, component)
 	local unitKey = self:GetKey()
 	local previousComponent = "Previous"..tostring(component)
-	return ExposedMembers.UnitData[unitKey][component] - ExposedMembers.UnitData[unitKey][previousComponent]
+	return GCO.ToDecimals(ExposedMembers.UnitData[unitKey][component] - ExposedMembers.UnitData[unitKey][previousComponent])
 end
 
 
@@ -1030,19 +1030,19 @@ function GetFuelConsumptionString(self)
 end
 
 function GetFoodStockString(self) 
-	local unitKey 				= self:GetKey()
-	local data 					= ExposedMembers.UnitData[unitKey]
-	local baseFoodStock 		= self:GetBaseFoodStock()
-	local foodStockVariation 	= data.FoodStock - data.PreviousFoodStock
+	local unitKey 			= self:GetKey()
+	local data 				= ExposedMembers.UnitData[unitKey]
+	local baseFoodStock 	= self:GetBaseFoodStock()
+	local foodStock			= GCO.Round(data.FoodStock)
 	local str = ""
 	if data.FoodStock < (baseFoodStock * heavyRationing) then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", data.FoodStock, baseFoodStock)
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_HEAVY_RATIONING", foodStock, baseFoodStock)
 	elseif data.FoodStock < (baseFoodStock * mediumRationing) then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_MEDIUM_RATIONING", data.FoodStock, baseFoodStock)
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_MEDIUM_RATIONING", foodStock, baseFoodStock)
 	elseif data.FoodStock < (baseFoodStock * lightRationing) then
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", data.FoodStock, baseFoodStock)
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION_LIGHT_RATIONING", foodStock, baseFoodStock)
 	else
-		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", data.FoodStock, baseFoodStock)
+		str = Locale.Lookup("LOC_UNITFLAG_FOOD_RATION", foodStock, baseFoodStock)
 	end
 	
 	str =  str .. GCO.GetVariationString(self:GetComponentVariation("FoodStock")) 
@@ -1623,10 +1623,10 @@ function OnCombat( combatResult )
 
 			-- Update composition
 			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel 	= 0 -- Just to keep things clean...
-			ExposedMembers.UnitData[defender.unitKey].FoodStock 		= ExposedMembers.UnitData[defender.unitKey].FoodStock 			- attacker.FoodGained -- Just to keep things clean...
-			ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 	+ attacker.MaterielGained
-			ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve 	= ExposedMembers.UnitData[attacker.unitKey].PersonnelReserve 	+ attacker.LiberatedPrisoners
-			ExposedMembers.UnitData[attacker.unitKey].FoodStock 		= ExposedMembers.UnitData[attacker.unitKey].FoodStock 			+ attacker.FoodGained
+			ExposedMembers.UnitData[defender.unitKey].FoodStock 		= GCO:ToDecimals(ExposedMembers.UnitData[defender.unitKey].FoodStock - attacker.FoodGained) -- Just to keep things clean...
+			attacker.unit:ChangeComponent("MaterielReserve", attacker.MaterielGained)
+			attacker.unit:ChangeComponent("PersonnelReserve", attacker.LiberatedPrisoners)
+			attacker.unit:ChangeComponent("FoodStock", attacker.FoodGained)
 			-- To do : prisonners by nationality
 			ExposedMembers.UnitData[attacker.unitKey].Prisoners[defender.playerID]	= ExposedMembers.UnitData[attacker.unitKey].Prisoners[defender.playerID] + attacker.Prisoners
 
@@ -1773,6 +1773,9 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 				local damage = unit:GetDamage()
 				local initialHP = maxHP - damage
 				local finalHP = initialHP + hp
+				if finalHP < initialHP then
+					print ("ERROR : finalHP < initialHP for ", key, " initialHP:", initialHP , " finalHP:", finalHP, " hp from heal table:", hp)
+				end
 				--Dprint( DEBUG_UNIT_SCRIPT, "initialHP:", initialHP , "finalHP:", finalHP, "hp from heal table:", hp)
 				unit:SetDamage(damage-hp)
 				ExposedMembers.UnitData[key].HP = finalHP
@@ -2043,13 +2046,12 @@ function DoFood(self)
 			foodGet = foodGet + ((adjacentPlot:GetYield(yieldFood) / (1 + Units.GetUnitCountInPlot(adjacentPlot))) * adjacentRatio)
 		end
 	end
-	foodGet = GCO.Round(foodGet)
 	foodGet = math.max(0, math.min(maxFoodStock + foodEat - unitData.FoodStock, foodGet))
+	foodGet = GCO.ToDecimals(foodGet)
 
 	-- Update variation
 	local foodVariation = foodGet - foodEat
-	--ExposedMembers.UnitData[key].PreviousFoodStock = unitData.FoodStock
-	ExposedMembers.UnitData[key].FoodStock = unitData.FoodStock + foodVariation
+	self:ChangeComponent("FoodStock", foodVariation)
 
 	-- Visualize
 	local foodData = { foodEat = foodEat, foodGet = foodGet, X = self:GetX(), Y = self:GetY() }

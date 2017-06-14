@@ -227,6 +227,25 @@ function AreSameTables(o1, o2, ignore_mt)
     return internalProtectedEquals(o1, o2, ignore_mt, {})
 end
 
+local seen = {}
+function Dump(t,i)
+	if not i then i = "" end
+	seen[t]=true
+	local s={}
+	local n=0
+	for k, v in pairs(t) do
+		print(i,k,v)
+		if type(v)=="table" and not seen[v] then
+			print(i.."num entries = "..#v)
+			dump(v,i.."\t\t")
+		end
+		if type(k)=="table" and not seen[k] then
+			print(i.."num entries = "..#k)
+			dump(k,i.."\t\t")
+		end
+	end
+end
+
 ----------------------------------------------
 -- Timer
 ----------------------------------------------
@@ -518,6 +537,7 @@ function Initialize()
 	ExposedMembers.GCO.ToggleOutput 	= ToggleOutput
 	ExposedMembers.GCO.Dprint			= Dprint
 	ExposedMembers.GCO.AreSameTables	= AreSameTables
+	ExposedMembers.GCO.Dump				= Dump
 	-- "globals"
 	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations

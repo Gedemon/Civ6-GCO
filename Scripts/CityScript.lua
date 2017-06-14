@@ -82,7 +82,14 @@ local CitiesForTrade		= {}	-- temporary table to list all cities connected via (
 local CitiesTransferDemand	= {}	-- temporary table to list all resources required by own cities
 local CitiesTradeDemand		= {}	-- temporary table to list all resources required by other civilizations cities
 
-local SupplyRouteLengthFactor = {		-- When calculating supply line efficiency relatively to length
+local BaseCityYields			= {			
+		[YieldTypes.HEALTH]			= 1,
+		[YieldTypes.UPPER_HOUSING]	= 1,
+		[YieldTypes.MIDDLE_HOUSING]	= 1,
+		[YieldTypes.LOWER_HOUSING]	= 2
+	}
+
+local SupplyRouteLengthFactor 	= {		-- When calculating supply line efficiency relatively to length
 		[SupplyRouteType.Trader]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_TRADER_LENGTH_FACTOR"].Value),
 		[SupplyRouteType.Road]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_ROAD_LENGTH_FACTOR"].Value),
 		[SupplyRouteType.River]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_RIVER_LENGTH_FACTOR"].Value),
@@ -368,16 +375,27 @@ function CheckSave()
 end
 LuaEvents.SaveTables.Add(CheckSave)
 
-function CompareData(data1, data2)
-	print("comparing...")
+function CompareData(data1, data2, tab)
+	if not tab then tab = "" end
+	print(tab,"comparing...", data1, data2)
 	for key, data in pairs(data1) do
 		for k, v in pairs (data) do
+		print(k, v)
+		print("A")
 			if not data2[key] then
-				print("- reloaded table is nil for key = ", key)
-			elseif data2[key] and not data2[key][k] then			
-				print("- no value for key = ", key, " entry =", k)
-			elseif data2[key] and type(v) ~= "table" and v ~= data2[key][k] then
-				print("- different value for key = ", key, " entry =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]) )
+				print(tab,"- reloaded table is nil for key = ", key)
+			end
+		print("B")			
+			if data2[key] and not data2[key][k] then
+				print(tab,"- no value for key = ", key, " entry =", k)
+			end
+		print("C")
+			if data2[key] and type(v) ~= "table" and v ~= data2[key][k] then
+				print(tab,"- different value for key = ", key, " entry =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]) )
+			end
+		print("D")
+			if type(v) == "table" then
+				CompareData(v, data2[key][k], tab.."\t")
 			end
 		end
 	end
@@ -431,7 +449,7 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 		RegisterNewCity(playerID, city)		
 		
 		local pCityBuildQueue = city:GetBuildQueue();
-		pCityBuildQueue:CreateIncompleteBuilding(GameInfo.Buildings["BUILDING_CENTRAL_SQUARE"].Index, 100);
+		--pCityBuildQueue:CreateIncompleteBuilding(GameInfo.Buildings["BUILDING_CENTRAL_SQUARE"].Index, 100);
 		
 	else
 		Dprint( DEBUG_CITY_SCRIPT, "- WARNING : tried to initialize nil city for player #".. tostring(playerID))
@@ -1551,7 +1569,7 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , value)
 
 	else
-		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , cityData.Stock[turnKey][resourceKey] + value)
+		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , GCO.ToDecimals(cityData.Stock[turnKey][resourceKey] + value))
 	end
 
 	-- update stats
@@ -1565,7 +1583,7 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] = math.abs(value)
 
 	else
-		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] = ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] + math.abs(value)
+		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] = GCO.ToDecimals(ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] + math.abs(value))
 	end
 end
 
@@ -1606,7 +1624,7 @@ function GetPreviousStock(self , resourceID)
 end
 
 function GetStockVariation(self, resourceID)
-	return self:GetStock(resourceID) - self:GetPreviousStock(resourceID)
+	return GCO.ToDecimals(self:GetStock(resourceID) - self:GetPreviousStock(resourceID))
 end
 
 
@@ -1657,7 +1675,7 @@ function ChangeResourceCost(self, resourceID, value)
 end
 
 function GetResourceCostVariation(self, resourceID)
-	return (self:GetResourceCost(resourceID) - self:GetPreviousResourceCost(resourceID))
+	return GCO.ToDecimals(self:GetResourceCost(resourceID) - self:GetPreviousResourceCost(resourceID))
 end
 
 function GetPreviousResourceCost(self , resourceID)
@@ -1937,7 +1955,7 @@ function GetResourcesStockTable(self)
 			rowTable.Icon 			= GCO.GetResourceIcon(resourceID)			
 			rowTable.Name 			= Locale.Lookup(resRow.Name)
 			local toolTipHeader		= rowTable.Icon .. " " .. rowTable.Name .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR")			
-			rowTable.Stock 			= value
+			rowTable.Stock 			= GCO.Round(value)
 			
 			local availableForCities		= self:GetAvailableStockForCities(resourceID)
 			local minimalStockForCities		= self:GetMinimalStockForCities(resourceID)
@@ -1992,12 +2010,12 @@ function GetResourcesSupplyTable(self)
 		local resourceID 	= resRow.Index
 	--for resourceKey, useData in pairs(data.ResourceUse[turnKey]) do
 
-		local Collect 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey)
-		local Product 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey)
-		local Import 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
-		local TransferIn 	= self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey)
-		local Pillage 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey)
-		local OtherIn 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey)
+		local Collect 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
+		local Product 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
+		local Import 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
+		local TransferIn 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
+		local Pillage 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey))
+		local OtherIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey))
 		local TotalIn		= Collect + Product + Import + TransferIn + Pillage + OtherIn
 
 		if (TotalIn > 0) then
@@ -2069,12 +2087,12 @@ function GetResourcesDemandTable(self)
 	for resRow in GameInfo.Resources() do
 		local resourceID 	= resRow.Index
 
-		local Consume 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, turnKey)
-		local Export 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Export, turnKey)
-		local TransferOut 	= self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferOut, turnKey)
-		local Supply 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Supply, turnKey)
-		local Stolen 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey) -- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
-		local OtherOut 		= self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherOut, turnKey)
+		local Consume 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, turnKey))
+		local Export 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Export, turnKey))
+		local TransferOut 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferOut, turnKey))
+		local Supply 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Supply, turnKey))
+		local Stolen 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)) -- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
+		local OtherOut 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherOut, turnKey))
 		local TotalOut		= Consume + Export + TransferOut + Supply + Stolen + OtherOut
 
 		if (TotalOut > 0) then
@@ -3019,6 +3037,7 @@ function DoNeeds(self)
 	self:ChangeStock(foodResourceID, - middleFood, ResourceUseType.Consume, RefPopulationMiddle	)
 	self:ChangeStock(foodResourceID, - lowerFood, ResourceUseType.Consume, RefPopulationLower	)
 	self:ChangeStock(foodResourceID, - slaveFood, ResourceUseType.Consume, RefPopulationSlave	)
+	self:ChangeStock(foodResourceID, - personnelFood, ResourceUseType.Consume, RefPopulationAll	)
 	
 	
 	-- Birth Rate Effects
@@ -3301,7 +3320,9 @@ LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 -----------------------------------------------------------------------------------------
 function GetCityYield(self, yieldType)
 	if yieldType > YieldTypes.INTERNAL_MAX then
-		local yield = 0
+	
+		local yield = BaseCityYields[yieldType] or 0
+		
 		for buildingID, Yields in pairs(BuildingYields) do
 			if self:GetBuildings():HasBuilding(buildingID) and Yields[yieldType] then
 				yield = yield + Yields[yieldType]
