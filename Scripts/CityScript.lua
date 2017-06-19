@@ -58,11 +58,11 @@ local SupplyRouteType	= {	-- ENUM for resource trade/transfer route types
 local NO_IMPROVEMENT 	= -1
 local NO_FEATURE 		= -1
 
-YieldTypes.INTERNAL_MAX		= GameInfo.Yields["YIELD_FAITH"].Index -- last yield from base game
-YieldTypes.HEALTH			= GameInfo.Yields["YIELD_HEALTH"].Index
-YieldTypes.UPPER_HOUSING	= GameInfo.Yields["YIELD_UPPER_HOUSING"].Index
-YieldTypes.MIDDLE_HOUSING	= GameInfo.Yields["YIELD_MIDDLE_HOUSING"].Index
-YieldTypes.LOWER_HOUSING	= GameInfo.Yields["YIELD_LOWER_HOUSING"].Index
+YieldTypes.INTERNAL_MAX		= GameInfo.Yields["YIELD_FAITH"].Index -- last yield from base game (5)
+YieldTypes.HEALTH			= 6--GameInfo.Yields["YIELD_HEALTH"].Index
+YieldTypes.UPPER_HOUSING	= 7--GameInfo.Yields["YIELD_UPPER_HOUSING"].Index
+YieldTypes.MIDDLE_HOUSING	= 8--GameInfo.Yields["YIELD_MIDDLE_HOUSING"].Index
+YieldTypes.LOWER_HOUSING	= 9--GameInfo.Yields["YIELD_LOWER_HOUSING"].Index
 
 local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
 	DeathRate	= 1,
@@ -84,9 +84,9 @@ local CitiesTradeDemand		= {}	-- temporary table to list all resources required 
 
 local BaseCityYields			= {			
 		[YieldTypes.HEALTH]			= 1,
-		[YieldTypes.UPPER_HOUSING]	= 1,
-		[YieldTypes.MIDDLE_HOUSING]	= 1,
-		[YieldTypes.LOWER_HOUSING]	= 2
+		[YieldTypes.UPPER_HOUSING]	= 2, --2, --1
+		[YieldTypes.MIDDLE_HOUSING]	= 2, --2, --1
+		[YieldTypes.LOWER_HOUSING]	= 4, --4, --2
 	}
 
 local SupplyRouteLengthFactor 	= {		-- When calculating supply line efficiency relatively to length
@@ -120,13 +120,15 @@ local RefPopulationUpper	= "POPULATION_UPPER"
 local RefPopulationMiddle	= "POPULATION_MIDDLE"
 local RefPopulationLower	= "POPULATION_LOWER"
 local RefPopulationSlave	= "POPULATION_SLAVE"
+local RefPersonnel			= "POPULATION_PERSONNEL"
+local RefPrisoners			= "POPULATION_PRISONERS"
 local RefPopulationAll		= "POPULATION_ALL"
 
 -- Error checking
 for row in GameInfo.BuildingResourcesConverted() do
 	--print( DEBUG_CITY_SCRIPT, row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	if row.MultiResRequired and  row.MultiResCreated then
-		print("ERROR : BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
+		GCO.Error("BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	end
 end
 
@@ -204,6 +206,8 @@ local UpperClassID 					= GameInfo.Populations["POPULATION_UPPER"].Index
 local MiddleClassID 				= GameInfo.Populations["POPULATION_MIDDLE"].Index
 local LowerClassID 					= GameInfo.Populations["POPULATION_LOWER"].Index
 local SlaveClassID 					= GameInfo.Populations["POPULATION_SLAVE"].Index
+local PersonnelClassID				= GameInfo.Populations["POPULATION_PERSONNEL"].Index
+local PrisonersClassID				= GameInfo.Populations["POPULATION_PRISONERS"].Index
 local AllClassID 					= GameInfo.Populations["POPULATION_ALL"].Index
 
 local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
@@ -367,7 +371,7 @@ function CheckSave()
 	if GCO.AreSameTables(ExposedMembers.CityData, GCO.LoadTableFromSlot("CityData")) then
 		print("- Tables are identical")
 	else
-		print("ERROR: reloading saved table show differences with actual table !")
+		GCO.Error("reloading saved table show differences with actual table !")
 		LuaEvents.StopAuToPlay()
 		CompareData(ExposedMembers.CityData, GCO.LoadTableFromSlot("CityData"))
 	end
@@ -425,7 +429,7 @@ function RegisterNewCity(playerID, city)
 		Prisoners				= GCO.CreateEverAliveTableWithDefaultValue(0),
 		Stock					= { [turnKey] = {[foodResourceKey] = startingFood, [personnelResourceKey] = personnel, [materielResourceKey] = startingMateriel} },
 		ResourceCost			= { [turnKey] = {[foodResourceKey] = baseFoodCost, } },
-		ResourceUse				= { [turnKey] = { } }, -- [ResourceID] = { ResourceUseType.Collected = { [plotID] = 0, }, ResourceUseType.Consummed = { [buildingID] = 0, [PopulationType] = 0, }, ...)
+		ResourceUse				= { [turnKey] = { } }, -- [ResourceKey] = { ResourceUseType.Collected = { [plotKey] = 0, }, ResourceUseType.Consummed = { [buildingKey] = 0, [PopulationType] = 0, }, ...)
 		Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
 		FoodRatio				= 1,
 		FoodRatioTurn			= Game.GetCurrentGameTurn(),
@@ -435,6 +439,9 @@ function RegisterNewCity(playerID, city)
 end
 
 function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in initialize()
+
+	local DEBUG_CITY_SCRIPT = true
+	
 	local city = CityManager.GetCity(playerID, cityID)
 	if city then
 		local cityKey = city:GetKey()
@@ -449,7 +456,7 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 		RegisterNewCity(playerID, city)		
 		
 		local pCityBuildQueue = city:GetBuildQueue();
-		--pCityBuildQueue:CreateIncompleteBuilding(GameInfo.Buildings["BUILDING_CENTRAL_SQUARE"].Index, 100);
+		pCityBuildQueue:CreateIncompleteBuilding(GameInfo.Buildings["BUILDING_CENTRAL_SQUARE"].Index, 100);
 		
 	else
 		Dprint( DEBUG_CITY_SCRIPT, "- WARNING : tried to initialize nil city for player #".. tostring(playerID))
@@ -458,6 +465,11 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 end
 
 function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+
+	local DEBUG_CITY_SCRIPT = true
+	
+	LuaEvents.StopAuToPlay()
+	
 	local originalCityKey 	= GetCityKeyFromIDs(originalCityID, originalOwnerID)
 	local newCityKey 		= GetCityKeyFromIDs(newCityID, newOwnerID)
 	if ExposedMembers.CityData[originalCityKey] then
@@ -473,11 +485,14 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 				ExposedMembers.CityData[newCityKey].Prisoners[civID] = value
 			end
 			ExposedMembers.CityData[newCityKey].Prisoners[tostring(originalOwnerID)] = originalData.WoundedPersonnel
+			
 			for turnKey, data in pairs(originalData.Stock) do
 				ExposedMembers.CityData[newCityKey].Stock[turnKey] = {}
 				for resourceKey, value in pairs(data) do
+					Dprint( DEBUG_CITY_SCRIPT, turnKey, resourceKey, value)
 					if turnKey == GCO.GetTurnKey() and resourceKey == personnelResourceKey then
 						ExposedMembers.CityData[newCityKey].Prisoners[tostring(originalOwnerID)] = ExposedMembers.CityData[newCityKey].Prisoners[tostring(originalOwnerID)] + originalData.Stock[turnKey][personnelResourceKey]
+						ExposedMembers.CityData[newCityKey].Stock[turnKey][personnelResourceKey] = 0
 					else
 						ExposedMembers.CityData[newCityKey].Stock[turnKey][resourceKey] = value
 					end
@@ -486,18 +501,40 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 			for turnKey, data in pairs(originalData.ResourceCost) do
 				ExposedMembers.CityData[newCityKey].ResourceCost[turnKey] = {}
 				for resourceKey, value in pairs(data) do
+					Dprint( DEBUG_CITY_SCRIPT, turnKey, resourceKey, value)
 					ExposedMembers.CityData[newCityKey].ResourceCost[turnKey][resourceKey] = value
 				end
 			end
-			ExposedMembers.CityData[newCityKey].UpperClass 			= originalData.UpperClass
-			ExposedMembers.CityData[newCityKey].MiddleClass 		= originalData.MiddleClass
-			ExposedMembers.CityData[newCityKey].LowerClass 			= originalData.LowerClass
-			ExposedMembers.CityData[newCityKey].Slaves 				= originalData.Slaves
+			
+			for turnKey, data in pairs(originalData.ResourceUse) do
+				ExposedMembers.CityData[newCityKey].ResourceUse[turnKey] = {}
+				for resourceKey, resourceUses in pairs(data) do
+					ExposedMembers.CityData[newCityKey].ResourceUse[turnKey][resourceKey] = {}
+					for useKey, references in pairs(resourceUses) do
+						ExposedMembers.CityData[newCityKey].ResourceUse[turnKey][resourceKey][useKey] = {}
+						for referenceKey, value in pairs(references) do
+							Dprint( DEBUG_CITY_SCRIPT, turnKey, resourceKey, useKey, referenceKey, value)
+							ExposedMembers.CityData[newCityKey].ResourceUse[turnKey][resourceKey][useKey][referenceKey] = value
+						end
+					end
+				end
+			end
+			
+			for turnKey, data in pairs(originalData.Population) do
+				ExposedMembers.CityData[newCityKey].Population[turnKey] = {}
+				for PopulationKey, value in pairs(data) do
+					Dprint( DEBUG_CITY_SCRIPT, turnKey, PopulationKey, value)
+					ExposedMembers.CityData[newCityKey].Population[turnKey][PopulationKey] = value
+				end
+			end
 		else
-			print("ERROR: no data for new City on capture, cityID #", newCityID, "playerID #", newOwnerID)
+			GCO.Error("no data for new City on capture, cityID #", newCityID, "playerID #", newOwnerID)
 		end
+		
+		ExposedMembers.CityData[originalCityKey] = nil
+		
 	else
-		print("ERROR: no data for original City on capture, cityID #", originalCityID, "playerID #", originalOwnerID)
+		GCO.Error("no data for original City on capture, cityID #", originalCityID, "playerID #", originalOwnerID)
 	end
 end
 LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
@@ -512,6 +549,8 @@ function ShowCityData()
 		}
 	local count = 0
 	for cityKey, data in pairs(ExposedMembers.CityData) do
+		local city = GetCityFromKey ( cityKey )
+		if city then print(city:GetName()) end
 		print(cityKey, data)
 		for k, v in pairs (data) do
 			print("-", k, v)
@@ -870,7 +909,7 @@ function GetPopulationClass(self, populationID)
 	if populationID == LowerClassID 	then return self:GetLowerClass() end
 	if populationID == SlaveClassID 	then return self:GetSlaveClass() end
 	if populationID == AllClassID 		then return self:GetRealPopulation() end
-	print("ERROR : can't find population class for ID = ", populationID)
+	GCO.Error("can't find population class for ID = ", populationID)
 	return 0
 end
 
@@ -879,7 +918,7 @@ function ChangePopulationClass(self, populationID, value)
 	if populationID == MiddleClassID 	then return self:ChangeMiddleClass(value) end
 	if populationID == LowerClassID 	then return self:ChangeLowerClass(value) end
 	if populationID == SlaveClassID 	then return self:ChangeSlaveClass(value) end
-	print("ERROR : can't find population class for ID = ", populationID)
+	GCO.Error("can't find population class for ID = ", populationID)
 end
 
 function GetPreviousUpperClass(self)
@@ -1607,8 +1646,22 @@ function GetStock(self, resourceID)
 	local turnKey 		= GCO.GetTurnKey()
 	local resourceKey 	= tostring(resourceID)
 	if cityKey == nil or turnKey == nil or resourceKey == nil then
-		print("ERROR: nil value in GetStock", " cityKey = ", cityKey, "turnKey = ", turnKey, "resourceKey = ", resourceKey)
+		GCO.Error("nil value in GetStock", " cityKey = ", cityKey, "turnKey = ", turnKey, "resourceKey = ", resourceKey)
+		return 0
+	end	
+	if not ExposedMembers.CityData[cityKey] then
+		GCO.Error("nil value in GetStock", " ExposedMembers.CityData[cityKey] = ", ExposedMembers.CityData[cityKey], " cityKey = ", cityKey, "turnKey = ", turnKey, "resourceKey = ", resourceKey)
+		return 0
+	end	
+	if not ExposedMembers.CityData[cityKey].Stock then
+		GCO.Error("nil value in GetStock", " ExposedMembers.CityData[cityKey].Stock = ", ExposedMembers.CityData[cityKey].Stock, " cityKey = ", cityKey, "turnKey = ", turnKey, "resourceKey = ", resourceKey)
+		return 0
 	end
+	if not ExposedMembers.CityData[cityKey].Stock[turnKey] then
+		GCO.Error("nil value in GetStock", " ExposedMembers.CityData[cityKey].Stock[turnKey] = ", ExposedMembers.CityData[cityKey].Stock[turnKey], " cityKey = ", cityKey, "turnKey = ", turnKey, "resourceKey = ", resourceKey)
+		return 0
+	end
+	
 	return ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] or 0
 end
 
@@ -3037,7 +3090,7 @@ function DoNeeds(self)
 	self:ChangeStock(foodResourceID, - middleFood, ResourceUseType.Consume, RefPopulationMiddle	)
 	self:ChangeStock(foodResourceID, - lowerFood, ResourceUseType.Consume, RefPopulationLower	)
 	self:ChangeStock(foodResourceID, - slaveFood, ResourceUseType.Consume, RefPopulationSlave	)
-	self:ChangeStock(foodResourceID, - personnelFood, ResourceUseType.Consume, RefPopulationAll	)
+	self:ChangeStock(foodResourceID, - personnelFood, ResourceUseType.Consume, RefPersonnel	)
 	
 	
 	-- Birth Rate Effects
@@ -3396,6 +3449,7 @@ function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToM
 end
 
 function AttachCityFunctions(city)
+	if not city then return end
 	local c = getmetatable(city).__index
 	c.ChangeSize						= ChangeSize
 	c.GetSize							= GetSize

@@ -46,14 +46,14 @@ function CheckSave()
 	if GCO.AreSameTables(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap")) then
 		print("- Tables are identical")
 	else
-		print("ERROR: reloading saved CultureMap table show differences with actual table !")
+		GCO.Error("reloading saved CultureMap table show differences with actual table !")
 		CompareData(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap"))
 	end
 	
 	if GCO.AreSameTables(ExposedMembers.PreviousCultureMap, GCO.LoadTableFromSlot("PreviousCultureMap")) then
 		print("- Tables are identical")
 	else
-		print("ERROR: reloading saved PreviousCultureMap table show differences with actual table !")
+		GCO.Error("reloading saved PreviousCultureMap table show differences with actual table !")
 		LuaEvents.StopAuToPlay()
 		CompareData(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap"))
 	end	

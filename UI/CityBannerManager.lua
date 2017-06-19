@@ -805,73 +805,77 @@ function CityBanner.UpdateStats( self : CityBanner)
 			self.m_Instance.CityPopulation:SetText(currentPopulation);
 			
 			-- GCO <<<<<
-			local city 				= GCO.GetCity(pCity:GetOwner(), pCity:GetID())  -- to get a CityScript context city
-			local cityKey 			= city:GetKey()
-			
-			local citySize 			= city:GetSize()
-			
-			local maxFoodStock 		= city:GetMaxStock(foodResourceID)
-			local foodStock 		= city:GetStock(foodResourceID)
-			
-			local population 		= city:GetRealPopulation()
-			local popVariation 		= city:GetRealPopulationVariation()
-			
-			local nextPop			= GCO.GetPopulationPerSize(citySize+1)
-			local prevPop			= GCO.GetPopulationPerSize(citySize-1)	
-			
-			local popDiff	= 0
-			if popVariation > 0 then
-				--turnsUntilGrowth = GCO.Round((nextPop - population)/popVariation)
-				popDiff = nextPop - population
-			elseif popVariation < 0 then
-				--turnsUntilGrowth = GCO.Round((population-prevPop)/popVariation)
-				popDiff = population - prevPop
-			end
-			
-			local cityString =  Locale.Lookup("LOC_CITY_BANNER_SIZE", citySize) .. " - " .. Locale.Lookup(city:GetName()) .. " - " .. Locale.Lookup("LOC_CITY_BANNER_WEALTH", city:GetWealth())
+			local city = GCO.GetCity(pCity:GetOwner(), pCity:GetID())  -- to get a CityScript context city
+			local foodStock, maxFoodStock, population, popVariation
+			if city then
+				local cityKey 		= city:GetKey()
+				
+				local citySize 		= city:GetSize()
+				
+				maxFoodStock 		= city:GetMaxStock(foodResourceID)
+				foodStock 			= city:GetStock(foodResourceID)
+				
+				population 			= city:GetRealPopulation()
+				popVariation 		= city:GetRealPopulationVariation()
+				
+				local nextPop		= GCO.GetPopulationPerSize(citySize+1)
+				local prevPop		= GCO.GetPopulationPerSize(citySize-1)	
+				
+				local popDiff	= 0
+				if popVariation > 0 then
+					--turnsUntilGrowth = GCO.Round((nextPop - population)/popVariation)
+					popDiff = nextPop - population
+				elseif popVariation < 0 then
+					--turnsUntilGrowth = GCO.Round((population-prevPop)/popVariation)
+					popDiff = population - prevPop
+				end
+				
+				local cityString =  Locale.Lookup("LOC_CITY_BANNER_SIZE", citySize) .. " - " .. Locale.Lookup(city:GetName()) .. " - " .. Locale.Lookup("LOC_CITY_BANNER_WEALTH", city:GetWealth())
 
-			-- Population
-			if population > 0 then
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_TOTAL_POPULATION", population) .. GCO.GetVariationString(popVariation)
-				if city:GetUpperClass() + city:GetPreviousUpperClass() > 0 then
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", city:GetUpperClass()) .. GCO.GetVariationString(city:GetUpperClass() - city:GetPreviousUpperClass())
+				-- Population
+				if population > 0 then
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE")
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_TOTAL_POPULATION", population) .. GCO.GetVariationString(popVariation)
+					if city:GetUpperClass() + city:GetPreviousUpperClass() > 0 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", city:GetUpperClass()) .. GCO.GetVariationString(city:GetUpperClass() - city:GetPreviousUpperClass())
+					end
+					if city:GetMiddleClass() + city:GetPreviousMiddleClass() > 0 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", city:GetMiddleClass()) .. GCO.GetVariationString(city:GetMiddleClass() - city:GetPreviousMiddleClass())
+					end
+					if city:GetLowerClass() + city:GetPreviousLowerClass() > 0 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", city:GetLowerClass()) .. GCO.GetVariationString(city:GetLowerClass() - city:GetPreviousLowerClass())
+					end
+					if city:GetSlaveClass() + city:GetPreviousSlaveClass() > 0 then 
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", city:GetSlaveClass()) .. GCO.GetVariationString(city:GetSlaveClass() - city:GetPreviousSlaveClass())
+					end
+				 end
+					
+				if popVariation > 0 then
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_GROWTH", popDiff);
+					--popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_FOOD_SURPLUS", round(foodSurplus,1));				
+					self.m_Instance.CityPopTurnsLeft:SetColorByName("StatGoodCS");
+				elseif popVariation < 0 then
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_REDUCE", popDiff);
+					self.m_Instance.CityPopTurnsLeft:SetColorByName("StatBadCS");
+				else
+					self.m_Instance.CityPopTurnsLeft:SetColorByName("StatNormalCS");
+				end	
+					
+				-- Personnel				
+				if city:GetPersonnel() > 0 then
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
 				end
-				if city:GetMiddleClass() + city:GetPreviousMiddleClass() > 0 then
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", city:GetMiddleClass()) .. GCO.GetVariationString(city:GetMiddleClass() - city:GetPreviousMiddleClass())
-				end
-				if city:GetLowerClass() + city:GetPreviousLowerClass() > 0 then
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", city:GetLowerClass()) .. GCO.GetVariationString(city:GetLowerClass() - city:GetPreviousLowerClass())
-				end
-				if city:GetSlaveClass() + city:GetPreviousSlaveClass() > 0 then 
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", city:GetSlaveClass()) .. GCO.GetVariationString(city:GetSlaveClass() - city:GetPreviousSlaveClass())
-				end
-			 end
 				
-			if popVariation > 0 then
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_GROWTH", popDiff);
-				--popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_FOOD_SURPLUS", round(foodSurplus,1));				
-				self.m_Instance.CityPopTurnsLeft:SetColorByName("StatGoodCS");
-			elseif popVariation < 0 then
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_REDUCE", popDiff);
-				self.m_Instance.CityPopTurnsLeft:SetColorByName("StatBadCS");
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_TITLE")
+				cityString = cityString .. "[NEWLINE]" .. city:GetFoodStockString()
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
+				cityString = cityString .. "[NEWLINE]" .. city:GetFoodConsumptionString() -- Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())				
+				
+				popTooltip = cityString
 			else
-				self.m_Instance.CityPopTurnsLeft:SetColorByName("StatNormalCS");
-			end	
-				
-			-- Personnel				
-			if city:GetPersonnel() > 0 then
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+				print("WARNING : GCO.GetCity(pCity:GetOwner(), pCity:GetID()) is nil for Owner = ", pCity:GetOwner(), " ID = ",  pCity:GetID())
 			end
-			
-			cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_TITLE")
-			cityString = cityString .. "[NEWLINE]" .. city:GetFoodStockString()
-			cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
-			cityString = cityString .. "[NEWLINE]" .. city:GetFoodConsumptionString() -- Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())				
-			
-			popTooltip = cityString
-			
 			-- GCO >>>>>
 
 			if (self.m_Player == Players[localPlayerID]) then			--Only show growth data if the player is you
@@ -891,24 +895,26 @@ function CityBanner.UpdateStats( self : CityBanner)
 			end
 			
 			-- GCO <<<<<
-			foodpct = Clamp( foodStock / maxFoodStock, 0.0, 1.0 )
-			foodpctNextTurn = 0
-			local foodVar = city:GetStockVariation(foodResourceID)
-			if foodVar > 0 then				
-				foodpctNextTurn = Clamp( (foodStock + foodVar) / maxFoodStock, 0.0, 1.0 )
+			if city then
+				foodpct = Clamp( foodStock / maxFoodStock, 0.0, 1.0 )
+				foodpctNextTurn = 0
+				local foodVar = city:GetStockVariation(foodResourceID)
+				if foodVar > 0 then				
+					foodpctNextTurn = Clamp( (foodStock + foodVar) / maxFoodStock, 0.0, 1.0 )
+				end
+				
+				local growthIndicator = ""
+				if popVariation > 0 then
+					growthIndicator = "[ICON_PressureUp]"
+				elseif popVariation < 0 then
+					growthIndicator = "[ICON_PressureDown]"
+				end
+				
+				self.m_Instance.CityPopulation:SetToolTipString(popTooltip);
+				self.m_Instance.CityPopTurnsLeft:SetText(growthIndicator);
 			end
-			
-			local growthIndicator = ""
-			if popVariation > 0 then
-				growthIndicator = "[ICON_PressureUp]"
-			elseif popVariation < 0 then
-				growthIndicator = "[ICON_PressureDown]"
-			end
-			
-			self.m_Instance.CityPopulation:SetToolTipString(popTooltip);
-			self.m_Instance.CityPopTurnsLeft:SetText(growthIndicator);
-
 			-- GCO >>>>>
+			
 			self.m_Instance.CityPopulationMeter:SetPercent(foodpct);
 			self.m_Instance.CityPopulationNextTurn:SetPercent(foodpctNextTurn);
 
@@ -1310,120 +1316,126 @@ function CityBanner.UpdateName( self : CityBanner )
 			
 			-- GCO <<<<<
 			local city = GCO.GetCity(pCity:GetOwner(), pCity:GetID())  -- to get a CityScript context city
-			local cityKey = city:GetKey()
-			local cityData = ExposedMembers.CityData[cityKey]
-			local cityString = capitalIcon .. Locale.ToUpper(pCity:GetName()).. " - " .. Locale.Lookup("LOC_CITY_BANNER_WEALTH", city:GetWealth())
-			if cityData then
-				
-				-- Personnel				
-				if city:GetPersonnel() > 0 then
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
-				end
-				
-				-- Prisoners
-				local totalPrisoners = GCO.GetTotalPrisoners(cityData)
-				if totalPrisoners > 0 then
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PRISONERS_TITLE")
-					cityString = cityString .. GCO.GetPrisonersStringByCiv(cityData)
-				end
-				
-				-- Stock
-				local resourcesStockStr = city:GetResourcesStockString()
-				if string.len(resourcesStockStr) > 1 then
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STOCK_TITLE")
-					cityString = cityString .. resourcesStockStr
-				end
-				
-				--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
-				--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
-				
-				function ShowSupplyLine()
-					if bShownSupplyLine then return end
-					local cityList = {}
+			
+			if city then
+			
+				local cityKey = city:GetKey()
+				local cityData = ExposedMembers.CityData[cityKey]
+				local cityString = capitalIcon .. Locale.ToUpper(pCity:GetName()).. " - " .. Locale.Lookup("LOC_CITY_BANNER_WEALTH", city:GetWealth())
+				if cityData then
 					
-					local linkedCities = city:GetTransferCities() or {}					
-					local exportCities = city:GetExportCities() or {}
+					-- Personnel				
+					if city:GetPersonnel() > 0 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+					end
 					
-					if not (linkedCities or exportCities) then return end
-					UILens.SetActive("TradeRoute")
-					UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )
+					-- Prisoners
+					local totalPrisoners = GCO.GetTotalPrisoners(cityData)
+					if totalPrisoners > 0 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PRISONERS_TITLE")
+						cityString = cityString .. GCO.GetPrisonersStringByCiv(cityData)
+					end
 					
-					local IsAllowedRouteType = { -- route types used in RouteConnection.lua
-						["Land"] = true, ["Road"] = true, ["Railroad"] = true, ["Coastal"] = true, ["Ocean"] = true, ["Submarine"] = true, ["River"] = true
-					}
-					for destCityKey, data in pairs(linkedCities) do
-						local destCity			= GCO.GetCityFromKey(destCityKey)
-						local sRouteType 		= GCO.GetSupplyRouteString(data.RouteType)
-						local bIsTraderRoute 	= (sRouteType == "Trader") -- active traders means connection
-						if IsAllowedRouteType[sRouteType] or bIsTraderRoute then
-							local bIsPlotConnected = false
-							if not bIsPlotConnected then
-								bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
-							end
-							if bIsPlotConnected or bIsTraderRoute then
-								local pathPlots = {}
-								if bIsTraderRoute then
-									local tradeManager:table = Game.GetTradeManager()
-									pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
-								else
-									pathPlots = GCO.GetRoutePlots()
+					-- Stock
+					local resourcesStockStr = city:GetResourcesStockString()
+					if string.len(resourcesStockStr) > 1 then
+						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STOCK_TITLE")
+						cityString = cityString .. resourcesStockStr
+					end
+					
+					--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
+					--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
+					
+					function ShowSupplyLine()
+						if bShownSupplyLine then return end
+						local cityList = {}
+						
+						local linkedCities = city:GetTransferCities() or {}					
+						local exportCities = city:GetExportCities() or {}
+						
+						if not (linkedCities or exportCities) then return end
+						UILens.SetActive("TradeRoute")
+						UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )
+						
+						local IsAllowedRouteType = { -- route types used in RouteConnection.lua
+							["Land"] = true, ["Road"] = true, ["Railroad"] = true, ["Coastal"] = true, ["Ocean"] = true, ["Submarine"] = true, ["River"] = true
+						}
+						for destCityKey, data in pairs(linkedCities) do
+							local destCity			= GCO.GetCityFromKey(destCityKey)
+							local sRouteType 		= GCO.GetSupplyRouteString(data.RouteType)
+							local bIsTraderRoute 	= (sRouteType == "Trader") -- active traders means connection
+							if IsAllowedRouteType[sRouteType] or bIsTraderRoute then
+								local bIsPlotConnected = false
+								if not bIsPlotConnected then
+									bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
 								end
-								local kVariations:table = {}
-								local lastElement : number = table.count(pathPlots)
-								local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
-								local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
-								if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
-									table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-									UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
-									bShownSupplyLine = true
+								if bIsPlotConnected or bIsTraderRoute then
+									local pathPlots = {}
+									if bIsTraderRoute then
+										local tradeManager:table = Game.GetTradeManager()
+										pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
+									else
+										pathPlots = GCO.GetRoutePlots()
+									end
+									local kVariations:table = {}
+									local lastElement : number = table.count(pathPlots)
+									local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
+									local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
+									if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
+										table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
+										UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
+										bShownSupplyLine = true
+									end
 								end
 							end
 						end
-					end
-					
-					for destCityKey, data in pairs(exportCities) do
-						local destCity			= GCO.GetCityFromKey(destCityKey)
-						local sRouteType 		= GCO.GetSupplyRouteString(data.RouteType)
-						local bIsTraderRoute 	= (sRouteType == "Trader") -- active traders means connection
-						if IsAllowedRouteType[sRouteType] or bIsTraderRoute then
-							local bIsPlotConnected = false
-							if not bIsPlotConnected then
-								bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
-							end
-							if bIsPlotConnected or bIsTraderRoute then
-								local pathPlots = {}
-								if bIsTraderRoute then
-									local tradeManager:table = Game.GetTradeManager()
-									pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
-								else
-									pathPlots = GCO.GetRoutePlots()
+						
+						for destCityKey, data in pairs(exportCities) do
+							local destCity			= GCO.GetCityFromKey(destCityKey)
+							local sRouteType 		= GCO.GetSupplyRouteString(data.RouteType)
+							local bIsTraderRoute 	= (sRouteType == "Trader") -- active traders means connection
+							if IsAllowedRouteType[sRouteType] or bIsTraderRoute then
+								local bIsPlotConnected = false
+								if not bIsPlotConnected then
+									bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
 								end
-								local kVariations:table = {}
-								local lastElement : number = table.count(pathPlots)
-								local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
-								local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
-								if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
-									table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-									UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
-									bShownSupplyLine = true
+								if bIsPlotConnected or bIsTraderRoute then
+									local pathPlots = {}
+									if bIsTraderRoute then
+										local tradeManager:table = Game.GetTradeManager()
+										pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
+									else
+										pathPlots = GCO.GetRoutePlots()
+									end
+									local kVariations:table = {}
+									local lastElement : number = table.count(pathPlots)
+									local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
+									local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
+									if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
+										table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
+										UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
+										bShownSupplyLine = true
+									end
 								end
 							end
 						end
+					end		
+					self.m_Instance.CityName:RegisterMouseOverCallback( ShowSupplyLine )				
+					
+					function OnMouseOut()
+						bShownSupplyLine = false
+						if UILens.IsLensActive("TradeRoute") then
+							-- Make sure to switch back to default lens
+							UILens.SetActive("Default");
+						end
 					end
-				end		
-				self.m_Instance.CityName:RegisterMouseOverCallback( ShowSupplyLine )				
-				
-				function OnMouseOut()
-					bShownSupplyLine = false
-					if UILens.IsLensActive("TradeRoute") then
-						-- Make sure to switch back to default lens
-						UILens.SetActive("Default");
-					end
+					self.m_Instance.CityBannerButton:RegisterMouseExitCallback(OnMouseOut)				
+					
+					self.m_Instance.CityName:SetToolTipString(cityString);
+				else
+					print("WARNING : GCO.GetCity(pCity:GetOwner(), pCity:GetID()) is nil for Owner = ", pCity:GetOwner(), " ID = ",  pCity:GetID())
 				end
-				self.m_Instance.CityBannerButton:RegisterMouseExitCallback(OnMouseOut)				
-				
-				self.m_Instance.CityName:SetToolTipString(cityString);
 			end
 			-- GCO >>>>>
 

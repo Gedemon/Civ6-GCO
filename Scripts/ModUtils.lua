@@ -172,6 +172,11 @@ function Dprint(...)
 	print(select(2,...)) 											-- print everything else after the first argument
 end
 
+function Error(...)
+	print("Error : ", select(1,...))
+	LuaEvents.StopAuToPlay()
+end
+
 -- Compare tables
 local function internalProtectedEquals(o1, o2, ignore_mt, callList)
     if o1 == o2 then return true end
@@ -538,6 +543,7 @@ function Initialize()
 	ExposedMembers.GCO.Dprint			= Dprint
 	ExposedMembers.GCO.AreSameTables	= AreSameTables
 	ExposedMembers.GCO.Dump				= Dump
+	ExposedMembers.GCO.Error			= Error
 	-- "globals"
 	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations

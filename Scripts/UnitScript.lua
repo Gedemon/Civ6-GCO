@@ -383,6 +383,9 @@ function RegisterNewUnit(playerID, unit)
 end
 
 function InitializeUnit(playerID, unitID)
+
+	local DEBUG_UNIT_SCRIPT = true
+	
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
 		local unitKey = unit:GetKey()
@@ -394,7 +397,6 @@ function InitializeUnit(playerID, unitID)
 
 		Dprint( DEBUG_UNIT_SCRIPT, "Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
 		RegisterNewUnit(playerID, unit)
-		--Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
 	else
 		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when launching a new game)")
 	end
@@ -763,6 +765,10 @@ end
 
 function GetComponent(self, component)
 	local unitKey = self:GetKey()
+	if not ExposedMembers.UnitData[unitKey] then
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
 	return ExposedMembers.UnitData[unitKey][component]
 end
 
@@ -1623,7 +1629,7 @@ function OnCombat( combatResult )
 
 			-- Update composition
 			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel 	= 0 -- Just to keep things clean...
-			ExposedMembers.UnitData[defender.unitKey].FoodStock 		= GCO:ToDecimals(ExposedMembers.UnitData[defender.unitKey].FoodStock - attacker.FoodGained) -- Just to keep things clean...
+			ExposedMembers.UnitData[defender.unitKey].FoodStock 		= GCO.ToDecimals(ExposedMembers.UnitData[defender.unitKey].FoodStock - attacker.FoodGained) -- Just to keep things clean...
 			attacker.unit:ChangeComponent("MaterielReserve", attacker.MaterielGained)
 			attacker.unit:ChangeComponent("PersonnelReserve", attacker.LiberatedPrisoners)
 			attacker.unit:ChangeComponent("FoodStock", attacker.FoodGained)
@@ -1889,7 +1895,11 @@ function MarkUnitOnPillage(playerID, unitID)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	local testHP = unit:GetMaxDamage() - unit:GetDamage()
 	local unitKey = unit:GetKey()
-	Dprint( DEBUG_UNIT_SCRIPT, "Marking unit on pillage : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP)
+	if ExposedMembers.UnitData[unitKey] then
+		Dprint( DEBUG_UNIT_SCRIPT, "Marking unit on pillage : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP)
+	else
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil when marking unit on pillage : ", playerID, unitID, unit:GetDamage(), testHP, unitKey)
+	end
 	PillagingUnit = unit
 end
 GameEvents.OnPillage.Add(MarkUnitOnPillage)
@@ -1997,9 +2007,15 @@ Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 -- Do Turn for Units
 -----------------------------------------------------------------------------------------
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
-
+	local DEBUG_UNIT_SCRIPT = true
 	Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
-	local unitKey 			= self:GetKey()
+	
+	local unitKey 			= self:GetKey()	
+	if not ExposedMembers.UnitData[unitKey] then
+		Dprint( DEBUG_UNIT_SCRIPT, "Skipping (not initialized ?) :", Locale.Lookup(self:GetName())," key = ",unitKey)
+		return
+	end
+	
 	Dprint( DEBUG_UNIT_SCRIPT, "Updating Unit Data for ", Locale.Lookup(self:GetName())," key = ",unitKey)
 	
 	-- Update basic components

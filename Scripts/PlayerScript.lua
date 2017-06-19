@@ -224,7 +224,7 @@ Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
 function GetPlayer(playerID)
 	local player= Players[playerID]
 	if not player then
-		print("ERROR : player is nil in GetPlayer for playerID#", playerID)
+		GCO.Error("player is nil in GetPlayer for playerID#", playerID)
 		return
 	end
 	InitializePlayerFunctions(player)
