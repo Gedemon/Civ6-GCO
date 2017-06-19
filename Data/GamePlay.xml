@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
+
+	<Kinds>
+		<Row Kind="KIND_CUSTOM_YIELD"/>
+	</Kinds>
+	
 	<Types> <!-- Resources -->
 		<Row Type="RESOURCE_FOOD" 		Kind="KIND_RESOURCE"/>
 		<Row Type="RESOURCE_MATERIEL" 	Kind="KIND_RESOURCE"/>
@@ -34,10 +39,15 @@
 		<Row Type="BUILDING_ANCIENT_UPPER_HOUSING_3" 	Kind="KIND_BUILDING"/>	
 		
 		<Row Type="BUILDING_CENTRAL_SQUARE" 	Kind="KIND_BUILDING"/>
+		
+		
+		<Row Type="BUILDING_TEST_REQ1" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_TEST_REQ2" 	Kind="KIND_BUILDING"/>
+		<Row Type="BUILDING_TEST_REQ3" 	Kind="KIND_BUILDING"/>
 	</Types>
 	
 	<Types> <!-- Yields -->
-		<!---->
+		<!--
 		<Row Type="YIELD_HEALTH" 			Kind="KIND_YIELD"/>
 		<Row Type="YIELD_UPPER_HOUSING" 	Kind="KIND_YIELD"/>
 		<Row Type="YIELD_MIDDLE_HOUSING" 	Kind="KIND_YIELD"/>
@@ -45,8 +55,23 @@
 		<!---->
 	</Types>
 	
+	<Types> <!-- Yields -->
+		<!---->
+		<Row Type="YIELD_HEALTH" 			Kind="KIND_CUSTOM_YIELD"/>
+		<Row Type="YIELD_UPPER_HOUSING" 	Kind="KIND_CUSTOM_YIELD"/>
+		<Row Type="YIELD_MIDDLE_HOUSING" 	Kind="KIND_CUSTOM_YIELD"/>
+		<Row Type="YIELD_LOWER_HOUSING"		Kind="KIND_CUSTOM_YIELD"/>
+		<!---->
+	</Types>
+	
+	
+	
 	<Buildings>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE" Name="LOC_BUILDING_CENTRAL_SQUARE_NAME" PrereqDistrict="DISTRICT_CITY_CENTER"  Cost="1" NoPedia="1"/>
+		<Row BuildingType="BUILDING_TEST_REQ1" Name="TEST_REQ1" PrereqDistrict="DISTRICT_CITY_CENTER"  Cost="1" NoPedia="1"/>
+		<Row BuildingType="BUILDING_TEST_REQ2" Name="TEST_REQ2" PrereqDistrict="DISTRICT_CITY_CENTER"  Cost="1" NoPedia="1"/>
+		<Row BuildingType="BUILDING_TEST_REQ3" Name="TEST_REQ3" PrereqDistrict="DISTRICT_CITY_CENTER"  Cost="1" NoPedia="1"/>
+		
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" Name="LOC_BUILDING_CENTRAL_SQUARE_NAME" PrereqDistrict="DISTRICT_CITY_CENTER" Cost="1" NoPedia="1"/>
 
 		<Row BuildingType="BUILDING_BUTCHERY" 		Name="LOC_BUILDING_BUTCHERY_NAME" 		PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" AdvisorType="ADVISOR_GENERIC"/>
 		<Row BuildingType="BUILDING_HERBALIST" 		Name="LOC_BUILDING_HERBALIST_NAME" 		PrereqTech="TECH_POTTERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" AdvisorType="ADVISOR_GENERIC"/>
@@ -95,6 +120,10 @@
 	
 	<BuildingPrereqs>
 	<!---->
+		<Row Building="BUILDING_TEST_REQ1" 	PrereqBuilding="BUILDING_TEST_REQ1" 	/>
+		<Row Building="BUILDING_TEST_REQ2" 	PrereqBuilding="BUILDING_TEST_REQ3" 	/>
+		<Row Building="BUILDING_TEST_REQ3" 	PrereqBuilding="BUILDING_TEST_REQ2" 	/>
+		
 		<Row Building="BUILDING_ANCIENT_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	/>
 		<Row Building="BUILDING_ANCIENT_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_UPPER_HOUSING_1" 	/>
@@ -179,6 +208,27 @@
 	<!---->
 	</Building_YieldChanges>
 	
+	<Building_CustomYieldChanges>
+	<!---->
+		<Row BuildingType="BUILDING_HERBALIST" YieldType="YIELD_HEALTH" YieldChange="1"/>
+		
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_LOWER_HOUSING" 	YieldChange="2"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+		
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
+	<!---->	
+	</Building_CustomYieldChanges>
 
 	<CivilopediaPageQueries> <!-- previous entry deleted in Table.sql -->
 		<Row SectionId="BUILDINGS" PageGroupIdColumn="PageGroupId" TooltipColumn="Tooltip" SortIndex="10">
@@ -234,12 +284,19 @@
 	</ResourceStockUsage>
 
 	<Yields>
-	<!---->
+	<!--
 		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_Damaged]" OccupiedCityChange="0"/>
 		<Row YieldType="YIELD_UPPER_HOUSING"	Name="LOC_YIELD_UPPER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
 		<Row YieldType="YIELD_MIDDLE_HOUSING"	Name="LOC_YIELD_MIDDLE_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
 		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
 	<!---->
 	</Yields>
+	
+	<CustomYields>
+		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_Damaged]" OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_UPPER_HOUSING"	Name="LOC_YIELD_UPPER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_MIDDLE_HOUSING"	Name="LOC_YIELD_MIDDLE_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>	
+	</CustomYields>
 	
 </GameInfo>

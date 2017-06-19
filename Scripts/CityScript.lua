@@ -58,11 +58,10 @@ local SupplyRouteType	= {	-- ENUM for resource trade/transfer route types
 local NO_IMPROVEMENT 	= -1
 local NO_FEATURE 		= -1
 
-YieldTypes.INTERNAL_MAX		= GameInfo.Yields["YIELD_FAITH"].Index -- last yield from base game (5)
-YieldTypes.HEALTH			= 6--GameInfo.Yields["YIELD_HEALTH"].Index
-YieldTypes.UPPER_HOUSING	= 7--GameInfo.Yields["YIELD_UPPER_HOUSING"].Index
-YieldTypes.MIDDLE_HOUSING	= 8--GameInfo.Yields["YIELD_MIDDLE_HOUSING"].Index
-YieldTypes.LOWER_HOUSING	= 9--GameInfo.Yields["YIELD_LOWER_HOUSING"].Index
+YieldHealthID			= GameInfo.CustomYields["YIELD_HEALTH"].Index
+YieldUpperHousingID		= GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index
+YieldMiddleHousingID	= GameInfo.CustomYields["YIELD_MIDDLE_HOUSING"].Index
+YieldLowerHousingID		= GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index
 
 local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
 	DeathRate	= 1,
@@ -83,10 +82,10 @@ local CitiesTransferDemand	= {}	-- temporary table to list all resources require
 local CitiesTradeDemand		= {}	-- temporary table to list all resources required by other civilizations cities
 
 local BaseCityYields			= {			
-		[YieldTypes.HEALTH]			= 1,
-		[YieldTypes.UPPER_HOUSING]	= 2, --2, --1
-		[YieldTypes.MIDDLE_HOUSING]	= 2, --2, --1
-		[YieldTypes.LOWER_HOUSING]	= 4, --4, --2
+		[YieldHealthID]			= 1,
+		[YieldUpperHousingID]	= 0, --2, --1
+		[YieldMiddleHousingID]	= 0, --2, --1
+		[YieldLowerHousingID]	= 0, --4, --2
 	}
 
 local SupplyRouteLengthFactor 	= {		-- When calculating supply line efficiency relatively to length
@@ -157,13 +156,11 @@ for row in GameInfo.ResourceStockUsage() do
 end
 
 local BuildingYields		= {}		-- cached table with all the buildings that yield Upper/Middle/Lower Housing or Health
-for row in GameInfo.Building_YieldChanges() do
-	local YieldID = GameInfo.Yields[row.YieldType].Index
-	if YieldID > YieldTypes.INTERNAL_MAX then
-		local buildingID = GameInfo.Buildings[row.BuildingType].Index
-		if not BuildingYields[buildingID] then BuildingYields[buildingID] = {} end
-		BuildingYields[buildingID][YieldID] = row.YieldChange
-	end
+for row in GameInfo.Building_CustomYieldChanges() do
+	local YieldID = GameInfo.CustomYields[row.YieldType].Index
+	local buildingID = GameInfo.Buildings[row.BuildingType].Index
+	if not BuildingYields[buildingID] then BuildingYields[buildingID] = {} end
+	BuildingYields[buildingID][YieldID] = row.YieldChange
 end
 
 
@@ -2421,6 +2418,20 @@ end
 
 
 ----------------------------------------------
+-- Custom Yields function
+----------------------------------------------
+function GetCustomYield(self, yieldType)	
+	local yield = BaseCityYields[yieldType] or 0
+	
+	for buildingID, Yields in pairs(BuildingYields) do
+		if self:GetBuildings():HasBuilding(buildingID) and Yields[yieldType] then
+			yield = yield + Yields[yieldType]
+		end
+	end
+	return yield
+end
+
+----------------------------------------------
 -- Texts function
 ----------------------------------------------
 function GetResourcesStockString(self)
@@ -3097,21 +3108,21 @@ function DoNeeds(self)
 	
 	Dprint( DEBUG_CITY_SCRIPT, "Housing ----------")
 	-- Upper Class
-	local upperHousingSize		= self:GetCityYield( YieldTypes.UPPER_HOUSING )
+	local upperHousingSize		= self:GetCustomYield( YieldUpperHousingID )
 	local upperHousing			= GetPopulationPerSize(upperHousingSize)
 	local upperHousingAvailable	= math.max( 0, upperHousing - upperPopulation)
 	local upperLookingForMiddle	= math.max( 0, upperPopulation - upperHousing)
 	Dprint( DEBUG_CITY_SCRIPT, "Upper Class Needs : Housing Size = ", upperHousingSize, " Housing Capacity = ", upperHousing, " Population = ", upperPopulation, " Available housing = ", upperHousingAvailable)
 	
 	-- Middle Class
-	local middleHousingSize			= self:GetCityYield( YieldTypes.MIDDLE_HOUSING )
+	local middleHousingSize			= self:GetCustomYield( YieldMiddleHousingID )
 	local middleHousing				= GetPopulationPerSize(middleHousingSize)
 	local middleHousingAvailable	= math.max( 0, middleHousing - middlePopulation - upperLookingForMiddle)
 	local middleLookingForLower		= math.max( 0, (middlePopulation + upperLookingForMiddle) - middleHousing)
 	Dprint( DEBUG_CITY_SCRIPT, "Middle Class Needs : Housing Size = ", middleHousingSize, " Housing Capacity = ", middleHousing, " Population = ", middlePopulation, " Available housing = ", middleHousingAvailable)
 	
 	-- Lower Class
-	local lowerHousingSize		= self:GetCityYield( YieldTypes.LOWER_HOUSING )
+	local lowerHousingSize		= self:GetCustomYield( YieldLowerHousingID )
 	local lowerHousing			= GetPopulationPerSize(lowerHousingSize)
 	local lowerHousingAvailable	= math.max( 0, lowerHousing - lowerPopulation - middleLookingForLower)
 	Dprint( DEBUG_CITY_SCRIPT, "Lower Class Needs : Housing Size = ", lowerHousingSize, " Housing Capacity = ", lowerHousing, " Population = ", lowerPopulation, " Available housing = ", lowerHousingAvailable)
@@ -3372,19 +3383,7 @@ LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 -- Functions from UI Context
 -----------------------------------------------------------------------------------------
 function GetCityYield(self, yieldType)
-	if yieldType > YieldTypes.INTERNAL_MAX then
-	
-		local yield = BaseCityYields[yieldType] or 0
-		
-		for buildingID, Yields in pairs(BuildingYields) do
-			if self:GetBuildings():HasBuilding(buildingID) and Yields[yieldType] then
-				yield = yield + Yields[yieldType]
-			end
-		end
-		return yield
-	else
-		return GCO.GetCityYield( self, yieldType )
-	end
+	return GCO.GetCityYield( self, yieldType )
 end
 
 -----------------------------------------------------------------------------------------
@@ -3571,6 +3570,7 @@ function AttachCityFunctions(city)
 	c.GetResourceUseToolTipStringForTurn= GetResourceUseToolTipStringForTurn
 	
 	c.GetCityYield						= GetCityYield
+	c.GetCustomYield					= GetCustomYield
 
 end
 

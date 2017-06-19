@@ -162,6 +162,24 @@ CREATE TABLE IF NOT EXISTS PopulationNeeds
 		FOREIGN KEY (PopulationType) REFERENCES Populations(PopulationType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 
+CREATE TABLE IF NOT EXISTS CustomYields 
+	(
+		YieldType TEXT NOT NULL,
+		Name TEXT NOT NULL,
+		IconString TEXT NOT NULL,
+		OccupiedCityChange REAL NOT NULL DEFAULT 0,
+		PRIMARY KEY(YieldType)
+	);
+	
+CREATE TABLE IF NOT EXISTS Building_CustomYieldChanges 
+	(
+		BuildingType TEXT NOT NULL,
+		YieldType TEXT NOT NULL,
+		YieldChange INTEGER NOT NULL,
+		PRIMARY KEY(BuildingType, YieldType),
+		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (YieldType) REFERENCES CustomYields(YieldType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
 
 -----------------------------------------------
 -- Edit Tables

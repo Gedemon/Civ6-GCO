@@ -200,6 +200,14 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 				end
 			end
 		end
+		for row in GameInfo.Building_CustomYieldChanges() do
+			if(row.BuildingType == buildingType) then
+				local yield = GameInfo.CustomYields[row.YieldType];
+				if(yield) then
+					table.insert(stats, Locale.Lookup("LOC_TYPE_TRAIT_YIELD", row.YieldChange, yield.IconString, yield.Name)); 
+				end
+			end
+		end
 	-- GCO <<<<<
 	--[[
 	else
