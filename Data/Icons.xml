@@ -73,7 +73,7 @@
 		<Row Name="ICON_BUILDING_CENTRAL_SQUARE_FOW"	Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="15"/>
 	   
        <!--National Wonders End-->
-       <!-- HMP -->
+       <!-- 
        <Row Name="ICON_BUILDING_KEEP"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="19"/>
        <Row Name="ICON_BUILDING_ECO_CENTER"           Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="45"/>
        <Row Name="ICON_BUILDING_TELEGRAPH_STATION"    Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="35"/>
@@ -128,7 +128,7 @@
        <Row Name="ICON_BUILDING_CASINO"               Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="31"/>
        <Row Name="ICON_BUILDING_DINER"                Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="11"/>
        <Row Name="ICON_BUILDING_CLUB"                 Atlas="ICON_ToT_ATLAS_BUILDINGS_C" Index="12"/>
-       <!-- HMP -->
+	   
        <Row Name="ICON_BUILDING_KEEP_FOW"                  Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="19"/>
        <Row Name="ICON_BUILDING_ECO_CENTER_FOW"           Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="45"/>
        <Row Name="ICON_BUILDING_TELEGRAPH_STATION_FOW"    Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="35"/>
@@ -186,6 +186,7 @@
        <Row Name="ICON_BUILDING_DINER_FOW"                Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="11"/>
        <Row Name="ICON_BUILDING_CLUB_FOW"                 Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" Index="12"/>
        <Row Name="ICON_BUILDING_NATIONAL_FACTORY_FOW"     Atlas="ICON_ATLAS_TECH_FOW" Index="35"/>
+	   <!---->
    </IconDefinitions>
   
   <IconDefinitions>	<!-- RESOURCES -->

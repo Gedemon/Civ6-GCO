@@ -5,25 +5,25 @@
 */
  
 /* New Parameters */
---INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CSO_VERSION', 'Alpha .1');
+--INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('GCO_VERSION', 'Alpha .1');
 
 /* Remove GoodyHuts bonuses */
-/* 
+--/* 
 UPDATE GoodyHuts 			SET Weight = 0 WHERE GoodyHutType 		<> 'GOODYHUT_GOLD';
 UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMALL_GOLD';
-/* */
+--*/
 
 
 /* Units */
-/*
+--/*
 UPDATE Units SET PopulationCost ='0';
 UPDATE Units SET StrategicResource = NULL;
-/* */
+--*/
 
 /* Deals */
-/*
-DELETE FROM DealItems SET WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='DEAL_ITEM_RESOURCES';
-/* */
+--/*
+DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='DEAL_ITEM_RESOURCES';
+--*/
 
 /* Districts & Buildings */
 /* 
@@ -35,13 +35,14 @@ UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistric
 /* */
 
 -- Update projects before removing the distric themselves because of the cascade update...
-/* 
+--/* 
 --DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_THEATER';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HOLY_SITE';
+--*/
 
 /*
 --DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
@@ -50,7 +51,7 @@ DELETE FROM Districts WHERE DistrictType ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_ENTERTAINMENT_COMPLEX';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_THEATER';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_HOLY_SITE';
-/* */
+--*/
 
 /* Remove Housing & Entertainment */
 /* 
@@ -59,10 +60,10 @@ UPDATE Buildings SET Entertainment = 0;
 UPDATE Districts SET Housing = 0;
 UPDATE Districts SET Entertainment = 0;
 UPDATE Improvements SET Housing = 0;
-/* */
+--*/
 
 /* Start */
---UPDATE StartEras SET Tiles = '0';
+UPDATE StartEras SET Tiles = '0';
 
 /* Remove Faith */
 /* 
@@ -73,7 +74,7 @@ DELETE FROM Buildings WHERE BuildingType='BUILDING_TEMPLE';
 DELETE FROM Buildings WHERE BuildingType='BUILDING_STAVE_CHURCH';
 DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
 DELETE FROM Units WHERE PurchaseYield='YIELD_FAITH';
-/* */
+--*/
 
 /* 
 DELETE FROM Feature_YieldChanges WHERE YieldType ='YIELD_FAITH';
@@ -85,7 +86,7 @@ UPDATE ModifierArguments SET Value = 'YIELD_CULTURE' WHERE Value ='YIELD_FAITH';
 UPDATE Resource_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
 DELETE FROM Map_GreatPersonClasses WHERE GreatPersonClassType ='GREAT_PERSON_CLASS_PROPHET';
 DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
-/* */
+--*/
 
 /* Game Capabilities */
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_TRADE";
@@ -109,7 +110,7 @@ DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
 	
 
 */
-/*
+--/*
 -- Leaders
 CREATE TABLE NFLeaders (
       LeaderType  TEXT NOT NULL,

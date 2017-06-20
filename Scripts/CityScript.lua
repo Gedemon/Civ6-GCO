@@ -465,7 +465,7 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 
 	local DEBUG_CITY_SCRIPT = true
 	
-	LuaEvents.StopAuToPlay()
+	--LuaEvents.StopAuToPlay()
 	
 	local originalCityKey 	= GetCityKeyFromIDs(originalCityID, originalOwnerID)
 	local newCityKey 		= GetCityKeyFromIDs(newCityID, newOwnerID)
