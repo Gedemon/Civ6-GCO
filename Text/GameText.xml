@@ -536,6 +536,19 @@
     </Replace>
 	<Replace Tag="LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_RESOURCE_REQUIRED" Language="en_US">
       <Text>[NEWLINE][ICON_BULLET]{3_Name} ({2_Num} created per unit, up to {1_Num} used per turn[ICON_Turn])</Text>
+    </Replace>	
+	
+	<Replace Tag="LOC_TOOLTIP_UNIT_PERSONNEL" Language="en_US">
+      <Text>[ICON_Position] {1_Num} Personnel (including reserve)</Text>
+    </Replace>
+	<Replace Tag="LOC_TOOLTIP_UNIT_MATERIEL" Language="en_US">
+      <Text>[ICON_Charges] {1_Num} Materiel (including reserve)</Text>
+    </Replace>
+	<Replace Tag="LOC_TOOLTIP_UNIT_HORSES" Language="en_US">
+      <Text>[ICON_RESOURCE_HORSES] {1_Num} Horses (including reserve)</Text>
+    </Replace>
+	<Replace Tag="LOC_TOOLTIP_UNIT_EQUIPMENT" Language="en_US">
+      <Text>[ICON_Production] {1_Num} {2_Name} (including reserve)</Text>
     </Replace>
 	
   </LocalizedText>
@@ -617,7 +630,7 @@
       <Text>[ICON_Position] {1_Num} / {2_Num} Personnel</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_EQUIPMENT" Language="en_US">
-      <Text>[ICON_Production] {1_Num} / {2_Num} Equipment</Text>
+      <Text>[ICON_Production] {1_Num} / {2_Num} {3_Name}</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_HORSES" Language="en_US">
       <Text>[ICON_RESOURCE_HORSES] {1_Num} / {2_Num} Horses</Text>
@@ -630,7 +643,7 @@
       <Text>[ICON_Position] {1_Num} Personnel Reserve</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_EQUIPMENT_RESERVE" Language="en_US">
-      <Text>[ICON_Production] {1_Num} Equipment Reserve</Text>
+      <Text>[ICON_Production] {1_Num} {2_Name} Reserve</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_HORSES_RESERVE" Language="en_US">
       <Text>[ICON_RESOURCE_HORSES] {1_Num} Horses Reserve</Text>

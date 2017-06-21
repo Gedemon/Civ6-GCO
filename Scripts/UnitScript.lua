@@ -1056,6 +1056,7 @@ function GetFoodStockString(self)
 	return str
 end
 
+
 -- Floating text
 function ShowCasualtiesFloatingText(CombatData)
 	if floatingTextLevel == FLOATING_TEXT_NONE then
@@ -1347,6 +1348,13 @@ function ShowFuelConsumptionFloatingText(fuelData)
 	end
 end
 
+
+
+function GetEquipmentName(unitType)
+	local equipmentID = unitEquipment[unitType]
+	if equipmentID then return Locale.Lookup(GameInfo.Resources[equipmentID].Name) end
+	return "unknown"
+end
 
 -----------------------------------------------------------------------------------------
 -- Combat
@@ -2312,6 +2320,11 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetUnit 						= GetUnit
 	ExposedMembers.GCO.GetUnitFromKey 				= GetUnitFromKey
 	ExposedMembers.GCO.AttachUnitFunctions 			= AttachUnitFunctions
+	ExposedMembers.GCO.GetBasePersonnelReserve 		= GetBasePersonnelReserve
+	ExposedMembers.GCO.GetBaseEquipmentReserve 		= GetBaseEquipmentReserve
+	ExposedMembers.GCO.GetBaseHorsesReserve 		= GetBaseHorsesReserve
+	ExposedMembers.GCO.GetBaseMaterielReserve 		= GetBaseMaterielReserve
+	ExposedMembers.GCO.GetEquipmentName 			= GetEquipmentName
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end
