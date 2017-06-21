@@ -26,7 +26,7 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 --*/
 
 /* Districts & Buildings */
-/* 
+--/* 
 --UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_HARBOR';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
@@ -44,7 +44,7 @@ DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_THEATER';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HOLY_SITE';
 --*/
 
-/*
+--/*
 --DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_CAMPUS';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_COMMERCIAL_HUB';
@@ -54,7 +54,7 @@ DELETE FROM Districts WHERE DistrictType ='DISTRICT_HOLY_SITE';
 --*/
 
 /* Remove Housing & Entertainment */
-/* 
+--/* 
 UPDATE Buildings SET Housing = 0;
 UPDATE Buildings SET Entertainment = 0;
 UPDATE Districts SET Housing = 0;
@@ -66,8 +66,7 @@ UPDATE Improvements SET Housing = 0;
 UPDATE StartEras SET Tiles = '0';
 
 /* Remove Faith */
-/* 
-DELETE FROM Districts WHERE YieldType='YIELD_FAITH';
+--/* 
 DELETE FROM Buildings WHERE PurchaseYield='YIELD_FAITH';
 DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
 DELETE FROM Buildings WHERE BuildingType='BUILDING_TEMPLE';
@@ -76,7 +75,7 @@ DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
 DELETE FROM Units WHERE PurchaseYield='YIELD_FAITH';
 --*/
 
-/* 
+--/* 
 DELETE FROM Feature_YieldChanges WHERE YieldType ='YIELD_FAITH';
 UPDATE GreatWork_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
 DELETE FROM Improvement_YieldChanges WHERE YieldType ='YIELD_FAITH';
