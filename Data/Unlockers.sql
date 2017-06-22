@@ -6,7 +6,7 @@ CREATE TABLE OriginalBuildingList
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 		
-INSERT INTO OriginalBuildingList(BuildingType) SELECT BuildingType FROM BuildingPrereqs;
+INSERT INTO OriginalBuildingList(BuildingType) SELECT BuildingType FROM Buildings;
 
 
 /* Copy Original Building Prerequest */
