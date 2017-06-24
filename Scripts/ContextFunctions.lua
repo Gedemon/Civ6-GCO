@@ -13,6 +13,8 @@
 --]]
 --=================================================
 
+include( "Civ6Common" )
+
 ----------------------------------------------
 -- Defines
 ----------------------------------------------
@@ -58,6 +60,25 @@ function GetCityTrade(city)
 	return contextCity:GetTrade()
 end
 
+function CityCanProduce(city, productionType)
+	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	local pCityBuildQueue = contextCity:GetBuildQueue()
+	return pCityBuildQueue:CanProduce( productionType, true )
+end
+
+function GetCityProductionTurnsLeft(city, productionType)
+	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	local pCityBuildQueue = contextCity:GetBuildQueue()
+	return pCityBuildQueue:GetTurnsLeft( productionType )
+end
+
+function GetCityProductionYield(city)
+	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	local pCityBuildQueue = contextCity:GetBuildQueue()
+	return pCityBuildQueue:GetProductionYield()
+end
+
+
 ----------------------------------------------
 -- Players functions
 ----------------------------------------------
@@ -100,6 +121,9 @@ function Initialize()
 	ExposedMembers.GCO.GetCityPlots					= GetCityPlots
 	ExposedMembers.GCO.GetCityYield 				= GetCityYield
 	ExposedMembers.GCO.GetCityTrade 				= GetCityTrade
+	ExposedMembers.GCO.CityCanProduce				= CityCanProduce
+	ExposedMembers.GCO.GetCityProductionTurnsLeft	= GetCityProductionTurnsLeft
+	ExposedMembers.GCO.GetCityProductionYield		= GetCityProductionYield
 	-- players
 	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
 	ExposedMembers.GCO.IsResourceVisibleFor 		= IsResourceVisibleFor
@@ -117,3 +141,46 @@ function Initialize()
 	ExposedMembers.ContextFunctions_Initialized 	= true
 end
 Initialize()
+
+
+----------------------------------------------
+-- Testing...
+----------------------------------------------
+local _cache = {}
+function CheckProgression()
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
+		local player 	= Players[playerID]
+		local capital 	= player:GetCities():GetCapitalCity()
+		if capital then
+			GCO.AttachCityFunctions(capital)
+			local cityKey				= capital:GetKey()
+			local productionHash		= capital:GetBuildQueue():GetCurrentProductionTypeHash()
+			local currentProductionInfo	= GetProductionInfoOfCity( capital, productionHash )
+			if not _cache[cityKey] then _cache[cityKey] = {} end		
+			if not _cache[cityKey].PercentComplete then
+				_cache[cityKey].PercentComplete = currentProductionInfo.PercentComplete
+				print ("Production progressed at ", Locale.Lookup(capital:GetName()), currentProductionInfo.PercentComplete)
+			end
+			if _cache[cityKey].PercentComplete ~= currentProductionInfo.PercentComplete then
+				_cache[cityKey].PercentComplete = currentProductionInfo.PercentComplete
+				print ("Production progressed at ", Locale.Lookup(capital:GetName()), currentProductionInfo.PercentComplete)
+			end
+		end
+	end
+end
+Events.GameCoreEventPublishComplete.Add( CheckProgression )
+
+--[[
+	return {
+		Name					= productionName,
+		Description				= description, 
+		Type					= type;
+		Icon					= iconName,
+		PercentComplete			= percentComplete, 
+		PercentCompleteNextTurn	= percentCompleteNextTurn,
+		Turns					= prodTurnsLeft,
+		StatString				= statString;
+		Progress				= progress;
+		Cost					= cost;		
+	};
+--]]

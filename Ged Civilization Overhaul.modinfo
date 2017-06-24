@@ -36,6 +36,7 @@
 			<File>UI/CityPanelOverview.xml</File>
 			<File>UI/CityPanel.lua</File>
 			<File>UI/CitySupport.lua</File>
+			<File>UI/ProductionPanel.lua</File>
 		</ImportFiles>
 		
         <AddGameplayScripts>
@@ -70,8 +71,7 @@
 				<LoadOrder>-100</LoadOrder>
 		    </Properties>
 				<File>Data/Tables.sql</File>
-		</UpdateDatabase>
-		
+		</UpdateDatabase>		
 		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
            	<Properties>
 				<LoadOrder>100050</LoadOrder>
@@ -88,7 +88,13 @@
            	</Properties>
 				<File>custom.sql</File>
 				<File>custom.xml</File>
-		</UpdateDatabase>
+		</UpdateDatabase>		
+		<UpdateDatabase id="GCO_POST_COMPONENT">
+		    <Properties>
+				<LoadOrder>110000</LoadOrder>
+		    </Properties>
+				<File>Data/Unlockers.sql</File>
+		</UpdateDatabase>	
 		<UpdateText id="GCO_DEFAULT_LOC">
            	<Properties>
 				<LoadOrder>100700</LoadOrder>
@@ -111,6 +117,7 @@
 		<File>Data/CultureDiffusionParameters.sql</File>
 		<File>Data/CombatRules.sql</File>
 		<File>Data/ModRules.sql</File>
+		<File>Data/Unlockers.sql</File>
 		<File>Text/GameText.xml</File>
 		<File>Text/ConfigText.xml</File>
 		<File>Config/Config.xml</File>
@@ -139,6 +146,7 @@
 		<File>UI/CityPanelOverview.xml</File>
 		<File>UI/CityPanel.lua</File>
 		<File>UI/CitySupport.lua</File>
+		<File>UI/ProductionPanel.lua</File>
 		<File>GCO.dep</File>
 	</Files>
 </Mod>

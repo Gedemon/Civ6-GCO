@@ -60,7 +60,7 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -----------------------------------------------------------------------------------------
 -- Initialize 
 -----------------------------------------------------------------------------------------
-local GCO = {}
+local GCO = ExposedMembers.GCO or {}
 local CombatTypes = {}
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO			-- contains functions from other contexts
@@ -384,7 +384,7 @@ end
 
 function InitializeUnit(playerID, unitID)
 
-	local DEBUG_UNIT_SCRIPT = true
+	local DEBUG_UNIT_SCRIPT = false
 	
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
@@ -475,13 +475,8 @@ end
 -----------------------------------------------------------------------------------------
 -- Resources functions
 -----------------------------------------------------------------------------------------
-function GetMaxFrontLinePersonnel(self)
-	return GameInfo.Units[self:GetType()].Personnel
-end
-function GetMaxFrontLineMateriel(self)
-	return GameInfo.Units[self:GetType()].Materiel
-end
 
+-- unitType functions
 function GetBasePersonnelReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
@@ -490,12 +485,31 @@ function GetBaseEquipmentReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Equipment * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
+function GetEquipmentName(unitType)
+	local equipmentID = unitEquipment[unitType]
+	if equipmentID then return Locale.Lookup(GameInfo.Resources[equipmentID].Name) end
+	return "unknown"
+end
+
+function GetEquipmentID(unitType)
+	return unitEquipment[unitType]
+end
+
 function GetBaseHorsesReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
 function GetBaseMaterielReserve(unitType)
 	return GameInfo.Units[unitType].Materiel -- 100% stock for materiel reserve
+end
+
+-- Unit functions
+function GetMaxFrontLinePersonnel(self)
+	return GameInfo.Units[self:GetType()].Personnel
+end
+
+function GetMaxFrontLineMateriel(self)
+	return GameInfo.Units[self:GetType()].Materiel
 end
 
 function GetMaxPersonnelReserve(self)
@@ -1349,13 +1363,6 @@ function ShowFuelConsumptionFloatingText(fuelData)
 end
 
 
-
-function GetEquipmentName(unitType)
-	local equipmentID = unitEquipment[unitType]
-	if equipmentID then return Locale.Lookup(GameInfo.Resources[equipmentID].Name) end
-	return "unknown"
-end
-
 -----------------------------------------------------------------------------------------
 -- Combat
 -----------------------------------------------------------------------------------------
@@ -2015,7 +2022,9 @@ Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 -- Do Turn for Units
 -----------------------------------------------------------------------------------------
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
-	local DEBUG_UNIT_SCRIPT = true
+	
+	local DEBUG_UNIT_SCRIPT = false
+	
 	Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
 	
 	local unitKey 			= self:GetKey()	
@@ -2223,14 +2232,17 @@ function CleanUnitData()
 	-- remove dead units from the table
 	Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
 	Dprint( DEBUG_UNIT_SCRIPT, "Cleaning UnitData...")
+	
+	local DEBUG_UNIT_SCRIPT = false
+	
 	local unitData = ExposedMembers.UnitData
 	for unitKey, data in pairs(unitData) do
 		local unit = GetUnitFromKey ( unitKey )
 		if (not unit) then		
-			--Dprint( DEBUG_UNIT_SCRIPT, "REMOVING unit ID#"..tostring(data.unitID).." from player ID#"..tostring(data.playerID), "unit type = ".. tostring(GameInfo.Units[data.unitType].UnitType))
+			Dprint( DEBUG_UNIT_SCRIPT, "REMOVING unit ID#"..tostring(data.unitID).." from player ID#"..tostring(data.playerID), "unit type = ".. tostring(GameInfo.Units[data.unitType].UnitType))
 			ExposedMembers.UnitData[unitKey] = nil
 		else
-			--Dprint( DEBUG_UNIT_SCRIPT, "Keeping unit ID#"..unit:GetID(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
+			Dprint( DEBUG_UNIT_SCRIPT, "Keeping unit ID#"..unit:GetID(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
 		end
 	end
 end
@@ -2325,6 +2337,7 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetBaseHorsesReserve 		= GetBaseHorsesReserve
 	ExposedMembers.GCO.GetBaseMaterielReserve 		= GetBaseMaterielReserve
 	ExposedMembers.GCO.GetEquipmentName 			= GetEquipmentName
+	ExposedMembers.GCO.GetEquipmentID				= GetEquipmentID
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end

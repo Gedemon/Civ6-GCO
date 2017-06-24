@@ -9,6 +9,17 @@ print ("Loading GameScript.lua...")
 -- Defines
 -----------------------------------------------------------------------------------------
 
+local ResClassCount = {
+		["RESOURCECLASS_LUXURY"] 	= 2,
+		["RESOURCECLASS_STRATEGIC"]	= 10,
+		["RESOURCECLASS_BONUS"]		= 5
+	}
+	
+local ResTypeBonus = {
+		["RESOURCE_HORSES"] 	= 10,
+	}
+
+	
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
@@ -43,17 +54,10 @@ function KillAllCS()
 	end
 end
 
-local ResClassCount = {
-		["RESOURCECLASS_LUXURY"] 	= 2,
-		["RESOURCECLASS_STRATEGIC"]	= 10,
-		["RESOURCECLASS_BONUS"]		= 5
-	}
-	
-	
-local ResTypeBonus = {
-		["RESOURCE_HORSES"] 	= 10,
-	}
 
+-----------------------------------------------------------------------------------------
+-- Resources
+-----------------------------------------------------------------------------------------
 function SetResourcesCount()
 
 	if Game.GetCurrentGameTurn() > GameConfiguration.GetStartTurn() then -- only called on first turn
@@ -78,7 +82,7 @@ end
 
 
 -----------------------------------------------------------------------------------------
--- initializing new turn
+-- Initializing new turn
 -----------------------------------------------------------------------------------------
 function EndingTurn()
 	print("---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")

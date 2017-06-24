@@ -67,7 +67,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_CROSS_FOR
 ------------------------------------------------------------------------------------------------------------------------
 --
 -- Rate of diffusion
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_RATE',  150); --	percentage*10 : if CULTURE_DIFFUSION_RATE = 1000 then diffusion is 100% of diffusing plot value.
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CULTURE_DIFFUSION_RATE',  75); --	percentage*10 : if CULTURE_DIFFUSION_RATE = 1000 then diffusion is 100% of diffusing plot value.
 --							Defaut is 55',  5,5% diffusion
 
 ------------------------------------------------------------------------------------------------------------------------

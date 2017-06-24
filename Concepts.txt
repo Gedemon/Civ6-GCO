@@ -769,12 +769,13 @@ local
 	lower
 		risk of being attacked (enemy units near the city)
 		supplying personnel in time of war
-		lack of food
-		lack of justice (absence of related buildings)
+		lack of food or other needs
+		lack of justice (absence of related buildings) / high criminality
 		high taxes
 		low health
 		
 	raise
+		fulfilling needs
 		food variety
 		luxury products variety
 		low taxes
@@ -798,6 +799,9 @@ global
 --===============================--
 --[[ RESEARCH
 --===============================--
+
+- multiple fields for research (science, military, production, economy, culture...)
+- prerequisite could be something else than another tech (resource, combat XP, date, ...)
 - research is based on your actions at the beginning of the game, for example:
 	working a plot with wheat/rice give points for pottery
 	working a plot with cattle give points for animal husbandry

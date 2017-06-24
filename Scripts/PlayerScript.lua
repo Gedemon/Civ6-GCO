@@ -127,6 +127,49 @@ function GetKey(self)
 	return tostring(self:GetID())
 end
 
+function CanTrain(self, unitType)
+	local row 	= GameInfo.Units[unitType]
+	
+	if not row.CanTrain then return false end	
+	if row.TraitType then return false end
+	
+	local tech 	= row.PrereqTech
+	if tech then
+		local techID = GameInfo.Technologies[tech].Index
+		if not self:IsKnownTech(techID) then
+			return false
+		end
+	end
+	return true
+end
+
+function IsKnownTech(self, techID)
+	local selfID = self:GetID()
+	if not _cached.KnownTech then self:SetKnownTech() end
+	if not _cached.KnownTech[selfID] then self:SetKnownTech() end
+	return _cached.KnownTech[selfID][techID]
+end
+
+function SetKnownTech(self)
+
+	local selfID = self:GetID()
+	if not _cached.KnownTech then _cached.KnownTech = {} end
+	if not _cached.KnownTech[selfID] then _cached.KnownTech[selfID] = {} end
+	
+	for iPlayer = 0, PlayerManager.GetWasEverAliveCount() - 1 do
+		local player = Players[iPlayer]
+		if player and player:IsMajor() and player:GetCities():GetCount() > 0 and self:GetDiplomacy():HasMet(iPlayer) then
+			local pScience = player:GetTechs()
+			for kTech in GameInfo.Technologies() do		
+				local iTech	= kTech.Index
+				if pScience:HasTech(iTech) then
+					_cached.KnownTech[selfID][iTech] = true
+				end
+			end
+		end
+	end
+end
+
 function IsResourceVisible(self, resourceID)
 	return GCO.IsResourceVisibleFor(self, resourceID)
 end
@@ -163,6 +206,7 @@ function UpdateDataOnNewTurn(self)
 	local playerConfig = PlayerConfigurations[self:GetID()]
 	Dprint( DEBUG_PLAYER_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on new turn for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+
 	local playerCities = self:GetCities()
 	if playerCities then
 		for i, city in playerCities:Members() do
@@ -170,6 +214,7 @@ function UpdateDataOnNewTurn(self)
 			city:UpdateDataOnNewTurn()
 		end
 	end
+	
 	local playerUnits = self:GetUnits()
 	if playerUnits then
 		for j, unit in playerUnits:Members() do
@@ -177,6 +222,9 @@ function UpdateDataOnNewTurn(self)
 			unit:UpdateDataOnNewTurn()
 		end
 	end
+	
+	self:SetKnownTech()
+	
 end
 
 
@@ -241,6 +289,9 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.GetKey									= GetKey
 	p.InitializeData							= InitializeData
 	p.IsResourceVisible							= IsResourceVisible
+	p.CanTrain									= CanTrain
+	p.IsKnownTech								= IsKnownTech
+	p.SetKnownTech								= SetKnownTech
 	p.UpdateUnitsFlags							= UpdateUnitsFlags
 	p.UpdateCitiesBanners						= UpdateCitiesBanners
 	p.SetCurrentTurn							= SetCurrentTurn

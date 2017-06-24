@@ -16,10 +16,11 @@ UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_POP_PER_AMENITY';			
 /* Defines */
 
 -- city
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					20);	-- base stock for resource 		= CITY_STOCK_PER_SIZE * CitySize
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					40);	-- base stock for resource 		= CITY_STOCK_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 		= CITY_FOOD_STOCK_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					5);		-- base stock for equipment 	(not related to city size)
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		5);		-- unit of materiel produced 	= CITY_MATERIEL_PRODUCTION_PER_SIZE * CitySize
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		12);	-- unit of materiel produced 	= CITY_MATERIEL_PRODUCTION_PER_SIZE * CitySize
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PER_BUIDING_COST',			4);		-- unit of materiel used by unit of cost for buiding construction
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PER_SIZE', 				250);	-- base housing for personnel 	= CITY_PERSONNEL_PER_SIZE + CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		2500);	-- value added to the starting population of a new city (to do : Settlers with different size for late game)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_STOCK', 					100);	-- bonus food stock added to base resource stock
@@ -125,10 +126,10 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_HORSES_FACTOR',			3.50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_WOUNDED_FACTOR',		0.75);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_PRISONERS_FACTOR',		0.50);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_LIGHT_RATIO',				0.62);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_MEDIUM_RATIO',			0.43);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_HEAVY_RATIO',				0.27);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_STARVATION',				0.24);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_LIGHT_RATIO',				0.85);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_MEDIUM_RATIO',			0.55);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_HEAVY_RATIO',				0.35);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_STARVATION',				0.25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_COLLECTING_ADJACENT_PLOT_RATIO',	0.25);
 
 -- fuel

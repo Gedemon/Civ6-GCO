@@ -48,6 +48,7 @@
     <Replace Tag="LOC_BUILDING_BUTCHERY_NAME" 		Text="Butchery" 		Language="en_US" />
     <Replace Tag="LOC_BUILDING_HERBALIST_NAME" 		Text="Herbalist" 		Language="en_US" />
     <Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 	Text="Small Stable"		Language="en_US" />
+    <Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" Text="Small Barracks"	Language="en_US" />
     <Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 	Text="Blacksmith"		Language="en_US" />
 	
     <Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_NAME" Text="Central Square"	Language="en_US" />
@@ -539,16 +540,20 @@
     </Replace>	
 	
 	<Replace Tag="LOC_TOOLTIP_UNIT_PERSONNEL" Language="en_US">
-      <Text>[ICON_Position] {1_Num} Personnel (including reserve)</Text>
+      <Text>Requires [ICON_Position] {1_Num} Personnel (including reserve)</Text>
     </Replace>
 	<Replace Tag="LOC_TOOLTIP_UNIT_MATERIEL" Language="en_US">
-      <Text>[ICON_Charges] {1_Num} Materiel (including reserve)</Text>
+      <Text>Requires [ICON_Charges] {1_Num} Materiel (including reserve)</Text>
     </Replace>
 	<Replace Tag="LOC_TOOLTIP_UNIT_HORSES" Language="en_US">
-      <Text>[ICON_RESOURCE_HORSES] {1_Num} Horses (including reserve)</Text>
+      <Text>Requires [ICON_RESOURCE_HORSES] {1_Num} Horses (including reserve)</Text>
     </Replace>
 	<Replace Tag="LOC_TOOLTIP_UNIT_EQUIPMENT" Language="en_US">
-      <Text>[ICON_Production] {1_Num} {2_Name} (including reserve)</Text>
+      <Text>Requires [ICON_Production] {1_Num} {2_Name} (including reserve)</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_TOOLTIP_CITY_MATERIEL" Language="en_US">
+      <Text>Requires [ICON_Charges] {1_Num} Materiel</Text>
     </Replace>
 	
   </LocalizedText>

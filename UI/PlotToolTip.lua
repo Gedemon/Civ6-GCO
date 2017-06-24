@@ -722,12 +722,18 @@ function ShowPlotInfo( plotId:number, bIsUpdate:boolean )
 				if (cityBuildings) then
 					local buildingTypes = cityBuildings:GetBuildingsAtLocation(plotId);
 					for _, type in ipairs(buildingTypes) do
+						-- GCO <<<<<
+						if not GameInfo.Buildings[type].NoCityScreen then
+						-- GCO >>>>>
 						local building = GameInfo.Buildings[type];
 						table.insert(new_data.BuildingTypes, type);
 						local name = GameInfo.Buildings[building.BuildingType].Name;
 						table.insert(new_data.BuildingNames, name);
 						local bPillaged = cityBuildings:IsPillaged(type);
-						table.insert(new_data.BuildingsPillaged, bPillaged);
+						table.insert(new_data.BuildingsPillaged, bPillaged);							
+						-- GCO <<<<<
+						end
+						-- GCO >>>>>
 					end
 					if (cityBuildings:HasBuilding(plot:GetWonderType())) then
 						new_data.WonderComplete = true;

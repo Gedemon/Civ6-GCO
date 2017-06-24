@@ -47,8 +47,9 @@ ALTER TABLE Resources ADD COLUMN NoExport 	BOOLEAN NOT NULL CHECK (NoExport IN (
 ALTER TABLE Resources ADD COLUMN NoTransfer BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; -- Not allowed on internal trade routes
 
 -- Hidden Buildings
-ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; -- Do not show in Civilopedia
-ALTER TABLE Buildings ADD COLUMN NoCityScreen 	BOOLEAN NOT NULL CHECK (NoCityScreen IN (0,1)) DEFAULT 0; -- Do not show in City Screens
+ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; 		-- Do not show in Civilopedia
+ALTER TABLE Buildings ADD COLUMN NoCityScreen 	BOOLEAN NOT NULL CHECK (NoCityScreen IN (0,1)) DEFAULT 0; 	-- Do not show in City Screens
+ALTER TABLE Buildings ADD COLUMN Unlockers 		BOOLEAN NOT NULL CHECK (Unlockers IN (0,1)) DEFAULT 0; 		-- Unlockers for buildings and units
 
 -----------------------------------------------
 -- New Tables
@@ -180,7 +181,28 @@ CREATE TABLE IF NOT EXISTS Building_CustomYieldChanges
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (YieldType) REFERENCES CustomYields(YieldType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
+	
+/* BuildingRealPrereqsOR is created in Unlockers.sql and is a copy of BuildingPrereqs */
+CREATE TABLE IF NOT EXISTS BuildingRealPrereqsAND
+	(
+		Building TEXT NOT NULL,
+		PrereqBuilding TEXT NOT NULL,
+		PRIMARY KEY(Building, PrereqBuilding),
+		FOREIGN KEY (Building) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (PrereqBuilding) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
 
+/* Unit_RealBuildingPrereqsOR is created in Unlockers.sql and is a copy of Unit_BuildingPrereqs */
+CREATE TABLE Unit_RealBuildingPrereqsAND
+	(
+		Unit TEXT NOT NULL,
+		PrereqBuilding TEXT NOT NULL,
+		NumSupported INTEGER NOT NULL DEFAULT -1,
+		PRIMARY KEY(Unit, PrereqBuilding),
+		FOREIGN KEY (Unit) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (PrereqBuilding) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
 -----------------------------------------------
 -- Edit Tables
 -----------------------------------------------

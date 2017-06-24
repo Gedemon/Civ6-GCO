@@ -349,12 +349,18 @@ function GetCityData( pCity:table )
 			local kBuildingTypes:table = pCityBuildings:GetBuildingsAtLocation(plotID);
 			for _, type in ipairs(kBuildingTypes) do
 				local building	= GameInfo.Buildings[type];
-				table.insert( data.Buildings, { 
-					Name		= GameInfo.Buildings[building.BuildingType].Name, 
-					Citizens	= kPlot:GetWorkerCount(),
-					isPillaged	= pCityBuildings:IsPillaged(type),
-					Maintenance	= GameInfo.Buildings[building.BuildingType].Maintenance			--Expense in gold
-				});
+				-- GCO <<<<<
+				if not building.NoCityScreen then
+				-- GCO >>>>>
+					table.insert( data.Buildings, { 
+						Name		= building.Name, 
+						Citizens	= kPlot:GetWorkerCount(),
+						isPillaged	= pCityBuildings:IsPillaged(type),
+						Maintenance	= building.Maintenance			--Expense in gold
+					});
+				-- GCO <<<<<
+				end
+				-- GCO >>>>>
 			end
 		end
 	end	
@@ -456,7 +462,10 @@ function GetCityData( pCity:table )
 					ProductionPerTurn	= production,
 					SciencePerTurn		= science
 				});
-			else
+			else			
+				-- GCO <<<<<
+				if not building.NoCityScreen then
+				-- GCO >>>>>
 				data.BuildingsNum = data.BuildingsNum + 1;
 				table.insert( districtTable.Buildings, { 
 					Name				= Locale.Lookup(building.Name), 
@@ -472,6 +481,9 @@ function GetCityData( pCity:table )
 					ProductionPerTurn	= production,
 					SciencePerTurn		= science							
 				});
+				-- GCO <<<<<
+				end
+				-- GCO >>>>>
 			end
 
 		end

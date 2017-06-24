@@ -2,7 +2,7 @@
 CREATE TABLE OriginalBuildingList
 	(
 		BuildingType TEXT NOT NULL,
-		PRIMARY KEY(Building),
+		PRIMARY KEY(BuildingType),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 		
@@ -10,7 +10,7 @@ INSERT INTO OriginalBuildingList(BuildingType) SELECT BuildingType FROM Building
 
 
 /* Copy Original Building Prerequest */
-CREATE TABLE BuildingRealPrereqs
+CREATE TABLE BuildingRealPrereqsOR
 	(
 		Building TEXT NOT NULL,
 		PrereqBuilding TEXT NOT NULL,
@@ -19,11 +19,11 @@ CREATE TABLE BuildingRealPrereqs
 		FOREIGN KEY (PrereqBuilding) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 		
-INSERT INTO BuildingRealPrereqs SELECT FROM BuildingPrereqs;
+INSERT INTO BuildingRealPrereqsOR SELECT * FROM BuildingPrereqs;
 DELETE FROM BuildingPrereqs;
 
 /* Copy Original Units Prerequest */
-CREATE TABLE Unit_RealBuildingPrereqs
+CREATE TABLE Unit_RealBuildingPrereqsOR
 	(
 		Unit TEXT NOT NULL,
 		PrereqBuilding TEXT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE Unit_RealBuildingPrereqs
 		FOREIGN KEY (Unit) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (PrereqBuilding) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
-INSERT INTO Unit_RealBuildingPrereqs SELECT FROM Unit_BuildingPrereqs;
+INSERT INTO Unit_RealBuildingPrereqsOR SELECT * FROM Unit_BuildingPrereqs;
 DELETE FROM Unit_BuildingPrereqs;
 
 
@@ -46,7 +46,9 @@ CREATE TABLE Unlockers
 INSERT INTO Unlockers (UnlockerType) SELECT 'UNLOCKER_' || BuildingType FROM OriginalBuildingList;
 INSERT INTO Unlockers (UnlockerType) SELECT 'UNLOCKER_' || UnitType FROM Units;
 
-INSERT INTO Buildings (BuildingType, Name, Cost, NoPedia, NoCityScreen) SELECT UnlockerType, UnlockerType || '(should be hidden)', 1, 1, 1 FROM Unlockers;
+INSERT INTO Types ("Type", Kind) SELECT UnlockerType, 'KIND_BUILDING' FROM Unlockers;
+
+INSERT INTO Buildings (BuildingType, Name, Cost, NoPedia, NoCityScreen, Unlockers) SELECT UnlockerType, UnlockerType, 1, 1, 1, 1 FROM Unlockers;
 
 INSERT INTO BuildingPrereqs (Building, PrereqBuilding) SELECT BuildingType, 'UNLOCKER_' || BuildingType FROM OriginalBuildingList;
 INSERT INTO BuildingPrereqs (Building, PrereqBuilding) SELECT UnlockerType, UnlockerType FROM Unlockers;

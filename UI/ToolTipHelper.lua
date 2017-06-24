@@ -21,7 +21,7 @@ function InitializeUtilityFunctions()
 	GCO = ExposedMembers.GCO		-- contains functions from other contexts
 	--print ("Exposed Functions from other contexts initialized...")
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+--LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 -- GCO >>>>>
 
 ToolTipHelper = {};
@@ -185,6 +185,12 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 			table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_MAINTENANCE", maintenance, yield.IconString, yield.Name));
 		end
 	end
+	
+	-- GCO <<<<<
+	local materiel 	= building.Cost * tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PER_BUIDING_COST"].Value)
+	if materiel 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_CITY_MATERIEL", materiel)) end
+	-- GCO >>>>>
+	
 
 	local stats = {};
 
@@ -670,7 +676,7 @@ ToolTipHelper.GetUnitToolTip = function(unitType)
 	if personnel 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_PERSONNEL", personnel)) end
 	if equipment 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_EQUIPMENT", equipment, GCO.GetEquipmentName(unitType))) end
 	if horses 		> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_HORSES", horses)) end
-	if materiel 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_MATERIEL", materiel)) end	
+	if materiel 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_MATERIEL", materiel)) end
 	-- GCO >>>>>
 	
 	if(not Locale.IsNilOrWhitespace(description)) then

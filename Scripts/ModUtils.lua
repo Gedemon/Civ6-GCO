@@ -683,3 +683,7 @@ end
 --GameEvents.PlayerTurnStartComplete.Add(TestB)
 --Events.LocalPlayerTurnBegin.Add( TestC )
 --Events.RemotePlayerTurnBegin.Add( TestD )
+
+--Events.CityProductionUpdated.Add(TestA)
+--Events.CityProductionUpdated.Add(TestA)
+--Events.CityProductionCompleted.Add(TestC)
