@@ -13,13 +13,6 @@ UPDATE GoodyHuts 			SET Weight = 0 WHERE GoodyHutType 		<> 'GOODYHUT_GOLD';
 UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMALL_GOLD';
 --*/
 
-
-/* Units */
---/*
-UPDATE Units SET PopulationCost ='0';
-UPDATE Units SET StrategicResource = NULL;
---*/
-
 /* Deals */
 --/*
 DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='DEAL_ITEM_RESOURCES';
@@ -85,6 +78,14 @@ UPDATE ModifierArguments SET Value = 'YIELD_CULTURE' WHERE Value ='YIELD_FAITH';
 UPDATE Resource_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
 DELETE FROM Map_GreatPersonClasses WHERE GreatPersonClassType ='GREAT_PERSON_CLASS_PROPHET';
 DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
+--*/
+
+
+/* Units */
+--/*
+UPDATE Units SET PopulationCost ='0';
+UPDATE Units SET StrategicResource = NULL;
+UPDATE Units SET PurchaseYield = NULL;
 --*/
 
 /* Game Capabilities */

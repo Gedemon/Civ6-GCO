@@ -2759,7 +2759,7 @@ end
 
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
-	local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Data for ".. Locale.Lookup(self:GetName()))
@@ -2769,6 +2769,7 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	local previousTurnKey 	= GCO.GetPreviousTurnKey()
 	if turnKey ~= previousTurnKey then
 
+		Dprint( DEBUG_CITY_SCRIPT, "cityKey = ", cityKey, " turnKey = ", turnKey, " previousTurnKey = ", previousTurnKey)
 		-- initialize empty tables for the new turn data
 		ExposedMembers.CityData[cityKey].Stock[turnKey] 		= {}
 		ExposedMembers.CityData[cityKey].ResourceCost[turnKey]	= {}

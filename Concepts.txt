@@ -795,22 +795,31 @@ global
 		
 --]]
 
-
 --===============================--
 --[[ RESEARCH
 --===============================--
 
-- multiple fields for research (science, military, production, economy, culture...)
-- prerequisite could be something else than another tech (resource, combat XP, date, ...)
-- research is based on your actions at the beginning of the game, for example:
+multiple fields for research (science, military, production, economy, culture...)
+prerequisite could be something else than another tech (resource, combat XP, date, ...)
+	city on the coast or discovering sea resource unlock sailing for example
+	a technologie that has been developed by another civilizations you have meet can be unlocked without the other prerequisite
+		use a bucket to fill the "unlocker" for that tech faster depending on the relation or spy access level with the other civilization
+research is based on your actions at the beginning of the game, for example:
 	working a plot with wheat/rice give points for pottery
 	working a plot with cattle give points for animal husbandry
 	a city on the coast give points for sailing
-- certain buildings will allow to complete projects to advance in a specific field of research (barracks = military, library = civics/science, workshop = construction...)
-- higher cost for research
-- tech diffusion from contact with other civs (depending on relation, distance, trade routes, ...)
+science points are distributed each turn in all unlocked tech, independently of their specific fields
+"field points" are distributed each turn in all unlocked techs related to that field (a tech could be dependent of multiple fields)
+certain buildings will allow to develop projects to advance in a specific field of research (barracks = military, library = civics/science, workshop = construction...)
+higher cost for research
+tech diffusion from contact with other civilizations (depending on relation, distance, trade routes, spying...)
+applications/innovations are projects depending of a specific tech but with different prerequisite
+	first civilization to find a tech could get a free application/innovation from that tech
+	no "tech diffusion" for those (for an actual example the Manhattan Project is an application of Nuclear Fission, a civilization could potentially get Nuclear Fission from tech diffusion only in the mod, but would have to complete the project to get the application)
+	as for tech, application could be researched faster by developing projects in cities
+	unlike tech, only "field points" are distributed each turn in all unlocked application/innovation of that field, science points aren't used on those
+	
 --]]
-
 
 --===============================--
 --[[ SUPPLY
