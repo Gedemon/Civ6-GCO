@@ -492,6 +492,7 @@ function GetEquipmentName(unitType)
 end
 
 function GetEquipmentID(unitType)
+	if not unitEquipment[unitType] then print("WARNING: unitEquipment[unitType] is nil for "..tostring(unitEquipment[unitType])) end
 	return unitEquipment[unitType]
 end
 

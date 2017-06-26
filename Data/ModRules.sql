@@ -85,7 +85,13 @@ DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
 --/*
 UPDATE Units SET PopulationCost ='0';
 UPDATE Units SET StrategicResource = NULL;
+--*/
+
+
+/* No purchase */
+--/*
 UPDATE Units SET PurchaseYield = NULL;
+UPDATE Buildings SET PurchaseYield = NULL;
 --*/
 
 /* Game Capabilities */
