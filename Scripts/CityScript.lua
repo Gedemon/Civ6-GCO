@@ -2501,7 +2501,7 @@ function CanTrain(self, unitType)
 	-- check for required buildings (any required)
 	local bCheckBuildingOR
 	if UnitPrereqBuildingOR[unitID] then
-		for _, buildingID in ipairs(UnitPrereqBuildingOR[unitID]) do
+		for buildingID, _ in ipairs(UnitPrereqBuildingOR[unitID]) do
 			if self:GetBuildings():HasBuilding(buildingID) then bCheckBuildingOR = true end
 		end
 	else
@@ -2511,7 +2511,7 @@ function CanTrain(self, unitType)
 	-- check for required buildings (all required)
 	local bCheckBuildingAND
 	if UnitPrereqBuildingAND[unitID] then
-		for _, buildingID in ipairs(UnitPrereqBuildingAND[unitID]) do
+		for buildingID, _ in ipairs(UnitPrereqBuildingAND[unitID]) do
 			if not self:GetBuildings():HasBuilding(buildingID) then bCheckBuildingAND = false end
 		end
 	else
@@ -2554,7 +2554,7 @@ function CanConstruct(self, buildingType)
 	-- check for required buildings (any required)
 	local bCheckBuildingOR
 	if BuildingPrereqBuildingOR[buildingID] then
-		for _, prereq in ipairs(BuildingPrereqBuildingOR[buildingID]) do
+		for prereq, _ in pairs(BuildingPrereqBuildingOR[buildingID]) do
 			if self:GetBuildings():HasBuilding(prereq) then bCheckBuildingOR = true end
 		end
 	else
@@ -2564,7 +2564,7 @@ function CanConstruct(self, buildingType)
 	-- check for required buildings (all required)
 	local bCheckBuildingAND
 	if BuildingPrereqBuildingAND[buildingID] then
-		for _, prereq in ipairs(BuildingPrereqBuildingAND[buildingID]) do
+		for prereq, _ in pairs(BuildingPrereqBuildingAND[buildingID]) do
 			if not self:GetBuildings():HasBuilding(prereq) then bCheckBuildingAND = false end
 		end
 	else

@@ -43,6 +43,9 @@ for row in GameInfo.Units() do
 		if not unitEquipment[unitType] then unitEquipment[unitType] = {} end
 		unitEquipment[unitType] = equipmentID
 	end
+	if row.Equipment and not row.EquipmentType then
+		print("WARNING: Equipment number without EquipmentType for "..tostring(row.UnitType))
+	end
 end
 
 local foodResourceKey		= tostring(foodResourceID)
@@ -492,7 +495,6 @@ function GetEquipmentName(unitType)
 end
 
 function GetEquipmentID(unitType)
-	if not unitEquipment[unitType] then print("WARNING: unitEquipment[unitType] is nil for "..tostring(unitEquipment[unitType])) end
 	return unitEquipment[unitType]
 end
 
