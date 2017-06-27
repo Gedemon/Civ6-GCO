@@ -51,6 +51,9 @@
     <Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" Text="Small Barracks"	Language="en_US" />
     <Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 	Text="Blacksmith"		Language="en_US" />
 	
+	<Replace Tag="LOC_BUILDING_CARPENTER_NAME"		Text="Carpenter" 		Language="en_US" />
+	<Replace Tag="LOC_BUILDING_STONEMASON_NAME"		Text="Stonemason"	 	Language="en_US" />
+	
     <Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_NAME" Text="Central Square"	Language="en_US" />
 	
     <Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_NAME" 	Text="Ancient Wealthy Housing"	Language="en_US" />
