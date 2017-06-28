@@ -156,7 +156,7 @@ UPDATE Units SET Personnel = 160, 	Equipment = 40, Materiel = 400, MaterielPerEq
 UPDATE Units SET Personnel = 200, Materiel = 10  Where UnitType = "UNIT_SCOUT" OR UnitType = "UNIT_RANGER";
 
 /* Civilian */
-UPDATE Units SET Personnel = 1500,	Materiel = 1000	Where UnitType = "UNIT_SETTLER";
+UPDATE Units SET Personnel = 1500,	Materiel = 750	Where UnitType = "UNIT_SETTLER";
 UPDATE Units SET Personnel = 300,	Materiel = 300 	Where UnitType = "UNIT_BUILDER";
 
 /* Land Ranged */

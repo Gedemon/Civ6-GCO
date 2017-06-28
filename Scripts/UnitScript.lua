@@ -506,6 +506,31 @@ function GetBaseMaterielReserve(unitType)
 	return GameInfo.Units[unitType].Materiel -- 100% stock for materiel reserve
 end
 
+function GetUnitConstructionResources(unitType)
+
+	local resTable = {}
+
+	local personnel = (GameInfo.Units[unitType].Personnel 	+ GCO.GetBasePersonnelReserve(unitType))
+	local equipment = (GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType))
+	local horses 	= (GameInfo.Units[unitType].Horses 		+ GCO.GetBaseHorsesReserve(unitType))	
+	local materiel 	= (GameInfo.Units[unitType].Materiel 	+ GCO.GetBaseMaterielReserve(unitType))	
+	
+	local equipmentResourceID 	= GCO.GetEquipmentID(unitType)
+	if not equipmentResourceID then
+		materiel = materiel + equipment
+		equipment = 0
+	end
+	
+	
+	if personnel 	> 0 then resTable[personnelResourceID]	= personnel end
+	if equipment 	> 0 then resTable[equipmentResourceID]	= equipment end
+	if horses 		> 0 then resTable[horsesResourceID]		= horses	end
+	if materiel 	> 0 then resTable[materielResourceID]	= materiel end
+	
+	return resTable
+
+end
+
 -- Unit functions
 function GetMaxFrontLinePersonnel(self)
 	return GameInfo.Units[self:GetType()].Personnel
@@ -2341,6 +2366,7 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetBaseMaterielReserve 		= GetBaseMaterielReserve
 	ExposedMembers.GCO.GetEquipmentName 			= GetEquipmentName
 	ExposedMembers.GCO.GetEquipmentID				= GetEquipmentID
+	ExposedMembers.GCO.GetUnitConstructionResources	= GetUnitConstructionResources
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end

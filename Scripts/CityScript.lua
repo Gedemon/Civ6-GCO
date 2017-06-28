@@ -2122,13 +2122,16 @@ function GetResourcesSupplyTable(self)
 	--for resourceKey, useData in pairs(data.ResourceUse[turnKey]) do
 
 		local Collect 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
-		local Product 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
+		local Product 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey)) 
 		local Import 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
 		local TransferIn 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
 		local Pillage 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey))
 		local OtherIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey))
-		local TotalIn		= Collect + Product + Import + TransferIn + Pillage + OtherIn
 
+		if resourceID == personnelResourceID then Product = GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Recruit, turnKey)) end
+		
+		local TotalIn		= Collect + Product + Import + TransferIn + Pillage + OtherIn
+		
 		if (TotalIn > 0) then
 			local rowTable 			= {}
 
@@ -2148,6 +2151,7 @@ function GetResourcesSupplyTable(self)
 			else
 				rowTable.Product 		= Product
 				rowTable.ProductToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_PRODUCT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Product, turnKey)
+				if resourceID == personnelResourceID then rowTable.ProductToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_PRODUCT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Recruit, turnKey) end
 			end
 			if Import 		== 0 then
 				rowTable.Import			= "-"
@@ -3172,7 +3176,7 @@ function DoConstruction(self)
 		local turnsToBuild = math.max(1, math.ceil(unitRow.Cost / production))
 		Dprint( DEBUG_CITY_SCRIPT, "Building ", currentlyBuilding, " turns To Build = ", turnsToBuild, " Turns left = ", turnsLeft )
 		
-		local resTable 		= GCO.GetUnitConstructionResources(unitType)
+		local resTable 		= GCO.GetUnitConstructionResources(unitRow.UnitType)
 	
 		-- get construction efficiency...
 		local neededTable = {}
