@@ -464,6 +464,7 @@ function RegisterNewCity(playerID, city)
 		Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
 		FoodRatio				= 1,
 		FoodRatioTurn			= Game.GetCurrentGameTurn(),
+		ConstructionEfficiency	= 1,
 	}
 
 	LuaEvents.NewCityCreated()
@@ -2494,6 +2495,21 @@ end
 ----------------------------------------------
 -- Construction function
 ----------------------------------------------
+function GetConstructionEfficiency(self)
+	local cityKey = self:GetKey()
+	if ExposedMembers.CityData[cityKey] then
+		return ExposedMembers.CityData[cityKey].ConstructionEfficiency or 1
+	end
+	return 1
+end
+
+function SetConstructionEfficiency(self, efficiency)
+	local cityKey = self:GetKey()
+	if ExposedMembers.CityData[cityKey] then
+		ExposedMembers.CityData[cityKey].ConstructionEfficiency = efficiency
+	end
+end
+
 function CanTrain(self, unitType)
 
 	local unitID = GameInfo.Units[unitType].Index
@@ -2520,15 +2536,17 @@ function CanTrain(self, unitType)
 
 	-- check components
 	local bHasComponents = true
-	--[[
-	local personnel 	= GameInfo.Units[unitType].Personnel 	+ GCO.GetBasePersonnelReserve(unitType)
-	local equipment 	= GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType)
-	local horses 		= GameInfo.Units[unitType].Horses 		+ GCO.GetBaseHorsesReserve(unitType)
-	local materiel 		= GameInfo.Units[unitType].Materiel 	+ GCO.GetBaseMaterielReserve(unitType)
-	--]]
 
 	local production 		= self:GetProductionYield()
 	local turnsToBuild = math.max(1, math.ceil(GameInfo.Units[unitType].Cost / production))
+	
+	local resTable = GCO.GetUnitConstructionResources(unitType)
+	
+	for resourceID, value in pairs(resTable) do
+		if GCO.Round( value / turnsToBuild) > self:GetStock(resourceID) 	then bHasComponents = false end
+	end
+	
+	--[[
 
 	local personnel = GCO.Round( (GameInfo.Units[unitType].Personnel 	+ GCO.GetBasePersonnelReserve(unitType))	/ turnsToBuild )
 	local equipment = GCO.Round( (GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType))	/ turnsToBuild )
@@ -2543,6 +2561,7 @@ function CanTrain(self, unitType)
 	if personnel 	> self:GetStock(personnelResourceID) 	then bHasComponents = false end
 	if horses 		> self:GetStock(horsesResourceID) 		then bHasComponents = false end
 	if materiel 	> self:GetStock(materielResourceID) 	then bHasComponents = false end
+	--]]
 
 	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR)
 end
@@ -2807,7 +2826,7 @@ function SetUnlockers(self)
 					pCityBuildQueue:CreateIncompleteBuilding(unlockerID, 100)
 				end
 			else
-				if self:GetBuildings():HasBuilding(unlockerID) then
+				if self:GetBuildings():HasBuilding(unlockerID) and (not self:GetBuildQueue():CurrentlyBuilding() == row.UnitType) then
 					Dprint( DEBUG_CITY_SCRIPT, "Removing unlocker : ", unlocker)
 					self:GetBuildings():RemoveBuilding(unlockerID);
 					pCityBuildQueue:RemoveBuilding(unlockerID);
@@ -2826,7 +2845,7 @@ function SetUnlockers(self)
 					pCityBuildQueue:CreateIncompleteBuilding(unlockerID, 100)
 				end
 			else
-				if self:GetBuildings():HasBuilding(unlockerID) then
+				if self:GetBuildings():HasBuilding(unlockerID) and (not self:GetBuildQueue():CurrentlyBuilding() == row.UnitType) then
 					Dprint( DEBUG_CITY_SCRIPT, "Removing unlocker : ", unlocker)
 					self:GetBuildings():RemoveBuilding(unlockerID);
 					pCityBuildQueue:RemoveBuilding(unlockerID);
@@ -3139,7 +3158,7 @@ end
 function DoConstruction(self)
 
 	local DEBUG_CITY_SCRIPT = true
-	Dprint( DEBUG_CITY_SCRIPT, "Getting resources for Constructions...")
+	Dprint( DEBUG_CITY_SCRIPT, "Getting resources for Constructions...")	
 
 	local cityKey			= self:GetKey()
 	local currentlyBuilding	= self:GetBuildQueue():CurrentlyBuilding()
@@ -3147,11 +3166,40 @@ function DoConstruction(self)
 	local production 		= self:GetProductionYield()
 	local unitRow			= GameInfo.Units[currentlyBuilding]
 	local buildingRow		= GameInfo.Buildings[currentlyBuilding]
+	local efficiency		= 1	
 
 	if unitRow and production > 0 then
 		local turnsToBuild = math.max(1, math.ceil(unitRow.Cost / production))
 		Dprint( DEBUG_CITY_SCRIPT, "Building ", currentlyBuilding, " turns To Build = ", turnsToBuild, " Turns left = ", turnsLeft )
-
+		
+		local resTable 		= GCO.GetUnitConstructionResources(unitType)
+	
+		-- get construction efficiency...
+		local neededTable = {}
+		for resourceID, value in pairs(resTable) do
+			local neededPerTurn 	= math.ceil( value / turnsToBuild )
+			Dprint( DEBUG_CITY_SCRIPT, "Need : ", neededPerTurn, Locale.Lookup(GameInfo.Resources[resourceID].Name), " Actual Stock = ", self:GetStock(resourceID) )
+			neededTable[resourceID] = neededPerTurn
+			if neededPerTurn > self:GetStock(resourceID) then efficiency = math.min(efficiency, self:GetStock(resourceID) / neededPerTurn) end
+		end
+		
+		Dprint( DEBUG_CITY_SCRIPT, "Efficiency = ", efficiency )
+		
+		-- use resource
+		for resourceID, value in pairs(neededTable) do
+			local used = math.ceil(value * efficiency)
+			self:ChangeStock(resourceID, -used, ResourceUseType.Consume, cityKey)
+		end
+		
+		-- remove production progress if needed
+		if efficiency < 1 then
+			local actualProd 	= GCO.Round(production * efficiency)
+			local lostProd		= production - actualProd
+			Dprint( DEBUG_CITY_SCRIPT, "Max Production = ", production, " Actual Production = ", actualProd, " Wasted Production = ", lostProd)
+			self:GetBuildQueue():AddProgress(- lostProd)
+		end		
+		
+		--[[
 		local personnel = GCO.Round( (unitRow.Personnel + GCO.GetBasePersonnelReserve(currentlyBuilding))	/ turnsToBuild )
 		local equipment = GCO.Round( (unitRow.Equipment + GCO.GetBaseEquipmentReserve(currentlyBuilding))   / turnsToBuild )
 		local horses 	= GCO.Round( (unitRow.Horses 	+ GCO.GetBaseHorsesReserve(currentlyBuilding))      / turnsToBuild )
@@ -3163,6 +3211,7 @@ function DoConstruction(self)
 		if equipmentResourceID and equipment	> 0 then self:ChangeStock(equipmentResourceID, 	-equipment, ResourceUseType.Consume, cityKey)end
 		if horses		> 0 then self:ChangeStock(horsesResourceID, 	-horses, 	ResourceUseType.Consume, cityKey)end
 		if materiel		> 0 then self:ChangeStock(materielResourceID, 	-materiel, 	ResourceUseType.Consume, cityKey)end
+		--]]
 
 	end
 
@@ -3171,10 +3220,29 @@ function DoConstruction(self)
 		Dprint( DEBUG_CITY_SCRIPT, "Building ", currentlyBuilding, " turns To Build = ", turnsToBuild, " Turns left = ", turnsLeft )
 
 		local materiel 	= production * MaterielPerBuildingCost --GCO.Round( (buildingRow.Cost * 5)    / turnsToBuild )
-
-		if materiel		> 0 then self:ChangeStock(materielResourceID, 	-materiel, 	ResourceUseType.Consume, cityKey)end
-
+		
+		Dprint( DEBUG_CITY_SCRIPT, "Need : ", materiel, " materiel, Actual Stock = ", self:GetStock(materielResourceID) )
+			
+		if materiel > self:GetStock(materielResourceID) then efficiency = math.min(efficiency, self:GetStock(materielResourceID) / materiel) end
+		
+		Dprint( DEBUG_CITY_SCRIPT, "Efficiency = ", efficiency )
+		
+		local used = math.ceil(materiel * efficiency)
+		
+		if used	> 0 then self:ChangeStock(materielResourceID, 	-used, 	ResourceUseType.Consume, cityKey)end		
+		
+		-- remove production if needed
+		if efficiency < 1 then
+			local actualProd 	= GCO.Round(production * efficiency)
+			local lostProd		= production - actualProd
+			Dprint( DEBUG_CITY_SCRIPT, "Lost Prod = ", lostProd)
+			self:GetBuildQueue():AddProgress(- lostProd)
+		end
+		
 	end
+
+	-- save efficiency value for UI call
+	self:SetConstructionEfficiency(GCO.ToDecimals(efficiency))
 
 end
 
@@ -3894,6 +3962,8 @@ function AttachCityFunctions(city)
 	c.CanTrain							= CanTrain
 	c.GetProductionTurnsLeft			= GetProductionTurnsLeft
 	c.GetProductionYield				= GetProductionYield
+	c.GetConstructionEfficiency			= GetConstructionEfficiency
+	c.SetConstructionEfficiency			= SetConstructionEfficiency
 	--
 	c.GetCityYield						= GetCityYield
 	c.GetCustomYield					= GetCustomYield
