@@ -3243,7 +3243,7 @@ function DoConstruction(self)
 		local resTable 		= {}
 		
 		if bIsUnit 		then resTable = GCO.GetUnitConstructionResources(row.UnitType) end
-		if bIsBuilding 	then resTable = GCO.GetBuildingConstructionResources(row.UnitType) end
+		if bIsBuilding 	then resTable = GCO.GetBuildingConstructionResources(row.BuildingType) end
 	
 		-- get construction efficiency...
 		local neededTable = {}
