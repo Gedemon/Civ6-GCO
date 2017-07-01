@@ -561,6 +561,38 @@
 	
   </LocalizedText>
  
+  <LocalizedText> <!-- Production Panel Texts -->	
+
+	<Replace Tag="LOC_PRODUCTION_RESOURCE_NO_STOCK" Language="en_US">
+      <Text>Requires {1_Name} [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {2_Name} per turn, [COLOR_Civ6Red]{4_Num}[ENDCOLOR] left in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied.</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_PRODUCTION_RESOURCE_LIMITED_STOCK" Language="en_US">
+      <Text>Requires {1_Name} [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {2_Name} per turn, {4_Num} available in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied.</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_PRODUCTION_RESOURCE_ENOUGH_STOCK" Language="en_US">
+      <Text>Requires {1_Name} {3_Num} {2_Name} per turn, {4_Num} available in stock, {5_Num} supplied.</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_PRODUCTION_REQUIRES_ANY_BUILDING" Language="en_US">
+		<Text>Requires any of the following buildings:</Text>
+	</Replace>
+	<Replace Tag="LOC_PRODUCTION_REQUIRES_ALL_BUILDING" Language="en_US">
+		<Text>Requires all of the following buildings:</Text>
+	</Replace>
+	<Replace Tag="LOC_PRODUCTION_REQUIRES_BUILDING_FOUND_ANY" Language="en_US">
+		<Text>[ICON_Bullet] [COLOR_Civ6Green]{1_Building}[ENDCOLOR]</Text>
+	</Replace>
+	<Replace Tag="LOC_PRODUCTION_REQUIRES_BUILDING" Language="en_US">
+		<Text>[ICON_Bullet] {1_Building}</Text>
+	</Replace>
+	<Replace Tag="LOC_PRODUCTION_REQUIRES_BUILDING_MISSING_ALL" Language="en_US">
+		<Text>[ICON_Bullet] [COLOR_Civ6Red]{1_Building}[ENDCOLOR]</Text>
+	</Replace>
+	
+  </LocalizedText>
+  
   <LocalizedText> <!-- UnitFlagManager Texts -->	
 	
     <Replace Tag="LOC_UNITFLAG_MORALE_TITLE" Language="en_US">

@@ -1594,9 +1594,17 @@ function Refresh()
 		return;
 	end
 
+	-- GCO <<<<<
+	GCO.InitializePlayerFunctions(pPlayer)
+	-- GCO >>>>>
+			
 	local selectedCity	= UI.GetHeadSelectedCity();
 
 	if (selectedCity ~= nil) then
+	
+		-- GCO <<<<<
+		GCO.AttachCityFunctions(selectedCity)
+		-- GCO >>>>>
 		local cityGrowth	= selectedCity:GetGrowth();
 		local cityCulture	= selectedCity:GetCulture();
 		local buildQueue	= selectedCity:GetBuildQueue();
@@ -1685,7 +1693,10 @@ function Refresh()
 				new_data.CurrentProduction = row.Name;
 			end
 			
-			if row.Hash ~= currentProductionHash and not row.MustPurchase and buildQueue:CanProduce( row.Hash, true ) then
+			-- GCO <<<<<
+			--if row.Hash ~= currentProductionHash and not row.MustPurchase and buildQueue:CanProduce( row.Hash, true ) then
+			if not row.Unlockers and row.Hash ~= currentProductionHash and not row.MustPurchase and buildQueue:CanProduce( row.Hash, true ) then
+			-- GCO >>>>>
 				local isCanStart, results			 = buildQueue:CanProduce( row.Hash, false, true );
 				local isDisabled			:boolean = not isCanStart;
 				local allReasons			 :string = ComposeFailureReasonStrings( isDisabled, results );
@@ -1694,6 +1705,11 @@ function Refresh()
 				local iProductionCost		:number = buildQueue:GetBuildingCost( row.Index );
 				local iProductionProgress	:number = buildQueue:GetBuildingProgress( row.Index );
 				sToolTip = sToolTip .. ComposeProductionCostString( iProductionProgress, iProductionCost );
+				
+				-- GCO <<<<<
+				local bCanConstruct, requirementStr, prereqStr = selectedCity:CanConstruct(row.BuildingType)
+				sToolTip = ToolTipHelper.GetBuildingToolTip( row.Hash, playerID, selectedCity ) .. prereqStr .. ComposeProductionCostString( iProductionProgress, iProductionCost ) .. requirementStr
+				-- GCO >>>>>
 			
 				local iPrereqDistrict = "";
 				if row.PrereqDistrict ~= nil then
@@ -1750,6 +1766,11 @@ function Refresh()
 				local nProductionCost		:number = buildQueue:GetUnitCost( row.Index );
 				local nProductionProgress	:number = buildQueue:GetUnitProgress( row.Index );
 				sToolTip = sToolTip .. ComposeProductionCostString( nProductionProgress, nProductionCost );
+				
+				-- GCO <<<<<
+				local bCanTrain, requirementStr = selectedCity:CanTrain(row.UnitType)
+				sToolTip = sToolTip .. requirementStr
+				-- GCO >>>>>
 				
 				local kUnit :table = {
 					Type			= row.UnitType, 

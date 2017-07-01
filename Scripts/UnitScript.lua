@@ -43,8 +43,8 @@ for row in GameInfo.Units() do
 		if not unitEquipment[unitType] then unitEquipment[unitType] = {} end
 		unitEquipment[unitType] = equipmentID
 	end
-	if row.Equipment and not row.EquipmentType then
-		print("WARNING: Equipment number without EquipmentType for "..tostring(row.UnitType))
+	if row.Equipment > 0 and not row.EquipmentType then
+		print("WARNING: Equipment required without EquipmentType for "..tostring(row.UnitType))
 	end
 end
 

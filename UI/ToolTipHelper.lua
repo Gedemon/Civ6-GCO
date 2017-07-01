@@ -187,7 +187,7 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 	end
 	
 	-- GCO <<<<<
-	local materiel 	= building.Cost * tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PER_BUIDING_COST"].Value)
+	local materiel 	= building.Cost * building.MaterielPerProduction --* tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PER_BUIDING_COST"].Value)
 	if materiel 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_CITY_MATERIEL", materiel)) end
 	-- GCO >>>>>
 	
@@ -294,6 +294,7 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 		table.insert(toolTipLines, "[NEWLINE]" .. Locale.Lookup(description));	
 	end
 	
+	-- GCO <<<<<
 	for row in GameInfo.BuildingStock() do
 		if(row.BuildingType == buildingType) then
 			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
@@ -356,23 +357,7 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_MULTI_REQUIRED", resCreatedName, resRequiredString))
 	end
 	
-	--[[
-CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
-	(
-		BuildingType TEXT NOT NULL,
-		ResourceType TEXT NOT NULL,
-		ResourceCreated TEXT NOT NULL,
-		MultiResRequired BOOLEAN NOT NULL CHECK (MultiResRequired IN (0,1)) DEFAULT 0,	-- ResourceCreated requires multiple ResourceType (multi rows definition)
-		MultiResCreated BOOLEAN NOT NULL CHECK (MultiResCreated IN (0,1)) DEFAULT 0,	-- 1 unit of ResourceType creates multiple ResourceCreated (multi rows definition)
-		MaxConverted INTEGER NOT NULL DEFAULT 0,
-		Ratio REAL NOT NULL DEFAULT 1,
-		Priority INTEGER NOT NULL DEFAULT 0, -- higher value means higher priority when consuming resources
-		PRIMARY KEY(BuildingType, ResourceType, ResourceCreated),
-		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,		
-		FOREIGN KEY (ResourceCreated) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
-	);	
-	--]]
+	-- GCO >>>>>
 
 	if district ~= nil and building.RegionalRange ~= 0 then
 		local extraRange = district:GetExtraRegionalRange();
@@ -404,6 +389,11 @@ CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
 		end
 	end
 
+	
+	-- GCO <<<<<
+	-- Buildings prerequisite strings are created in custom CanConstruct function using helpers tablees in CityScript.lua
+	--[[
+	-- GCO >>>>>
 	local required_buildings = {};
 	for row in GameInfo.BuildingPrereqs() do
 		if(row.Building == buildingType) then
@@ -437,6 +427,10 @@ CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
 		-- Insert in front.
 		table.insert(reqLines, required_buildings[1]);
 	end
+	
+	-- GCO <<<<<
+	--]]
+	-- GCO >>>>>
 
 	local preReqDistrict = GameInfo.Districts[building.PrereqDistrict];
 	if(preReqDistrict and preReqDistrict.DistrictType ~= "DISTRICT_CITY_CENTER") then
