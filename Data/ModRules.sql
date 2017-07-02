@@ -13,25 +13,30 @@ UPDATE GoodyHuts 			SET Weight = 0 WHERE GoodyHutType 		<> 'GOODYHUT_GOLD';
 UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMALL_GOLD';
 --*/
 
+/* No resources harvesting */
+DELETE FROM Resource_Harvests;
+
 /* Deals */
 --/*
 DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='DEAL_ITEM_RESOURCES';
 --*/
 
 /* Districts & Buildings */
---/* 
---UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_HARBOR';
+--/*
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER', Coast = '1' WHERE PrereqDistrict ='DISTRICT_HARBOR';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_THEATER';
 
 UPDATE Buildings SET MaterielPerProduction = '3' WHERE BuildingType ='BUILDING_GRANARY';
+
+UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT_CITY_CENTER';
 --*/
 
 -- Update projects before removing the distric themselves because of the cascade update...
 --/* 
---DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
+DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
@@ -40,7 +45,7 @@ DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HOLY_SITE';
 --*/
 
 --/*
---DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_CAMPUS';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_ENTERTAINMENT_COMPLEX';
@@ -86,6 +91,7 @@ DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
 /* Units */
 --/*
 UPDATE Units SET PopulationCost ='0';
+UPDATE Units SET PrereqPopulation ='0';
 UPDATE Units SET StrategicResource = NULL;
 --*/
 

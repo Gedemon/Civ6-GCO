@@ -13,6 +13,26 @@
 
 -- GCO <<<<<
 -----------------------------------------------------------------------------------------
+-- Defines
+-----------------------------------------------------------------------------------------
+local FeatureResources				= {} -- cached table to list resources produced by a feature
+for row in GameInfo.FeatureResourcesProduced() do
+	local featureID		= GameInfo.Features[row.FeatureType].Index
+	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+	if not FeatureResources[featureID] then FeatureResources[featureID] = {} end
+	table.insert(FeatureResources[featureID], {[resourceID] = row.NumPerFeature})
+end
+
+local TerrainResources				= {} -- cached table to list resources available on a terrain
+for row in GameInfo.TerrainResourcesProduced() do
+	local terrainID		= GameInfo.Terrains[row.TerrainType].Index
+	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+	if not TerrainResources[terrainID] then TerrainResources[terrainID] = {} end
+	table.insert(TerrainResources[terrainID], {[resourceID] = row.NumPerTerrain})
+end
+
+
+-----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
@@ -469,6 +489,14 @@ function View(data:table, bIsUpdate:boolean)
 			table.insert(details, str);
 		end
 	end
+	
+	-- GCO <<<<<
+	for resourceID, v in pairs(data.Resources) do
+		local resName 		= GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)
+		local str = tostring(v) .. resName
+		table.insert(details, str)
+	end	
+	-- GCO >>>>>
 
 	-- NATURAL WONDER TILE
 	if(data.FeatureType ~= nil) then
@@ -696,8 +724,37 @@ function ShowPlotInfo( plotId:number, bIsUpdate:boolean )
 				BuildingTypes		= {},
 				Constructions		= {},
 				Yields				= {},
+				-- GCO <<<<<
+				Resources			= {},
+				-- GCO >>>>>
 				DistrictYields		= {},
 			};
+			
+			-- GCO <<<<<
+			local localPlayer	= GCO.GetPlayer(Game.GetLocalPlayer())
+			local featureID 	= plot:GetFeatureType()
+			local terrainID 	= plot:GetTerrainType()
+			
+			if FeatureResources[featureID] then
+				for _, data in pairs(FeatureResources[featureID]) do
+					for resourceID, value in pairs(data) do
+						if localPlayer:IsResourceVisible(resourceID) then
+							new_data.Resources[resourceID] = (new_data.Resources[resourceID] or 0) + value
+						end
+					end
+				end
+			end
+			
+			if TerrainResources[terrainID] then
+				for _, data in pairs(TerrainResources[terrainID]) do
+					for resourceID, value in pairs(data) do
+						if localPlayer:IsResourceVisible(resourceID) then
+							new_data.Resources[resourceID] = (new_data.Resources[resourceID] or 0) + value
+						end
+					end
+				end
+			end
+			-- GCO >>>>>
 
 			if (plot:IsNationalPark()) then
 				new_data.NationalPark = plot:GetNationalParkName();

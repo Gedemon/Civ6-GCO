@@ -22,6 +22,7 @@ local iCrossingRiverPenalty			= tonumber(GameInfo.GlobalParameters["CULTURE_CROS
 local iCrossingRiverThreshold		= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_RIVER_THRESHOLD"].Value)
 local iBaseThreshold 				= tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value)
 
+
 -----------------------------------------------------------------------------------------
 -- Initialize
 -----------------------------------------------------------------------------------------

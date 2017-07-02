@@ -57,6 +57,7 @@ local SupplyRouteType	= {	-- ENUM for resource trade/transfer route types
 
 local NO_IMPROVEMENT 	= -1
 local NO_FEATURE 		= -1
+local NO_PLAYER			= -1
 
 YieldHealthID			= GameInfo.CustomYields["YIELD_HEALTH"].Index
 YieldUpperHousingID		= GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index
@@ -164,11 +165,14 @@ for row in GameInfo.Building_CustomYieldChanges() do
 end
 
 local IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resource
+local ResourceImprovementID			= {} -- cached table with improvementID meant for resourceID 
 for row in GameInfo.Improvement_ValidResources() do
 	local improvementID = GameInfo.Improvements[row.ImprovementType].Index
 	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
 	if not IsImprovementForResource[improvementID] then IsImprovementForResource[improvementID] = {} end
+	if not ResourceImprovementID[resourceID] then ResourceImprovementID[resourceID] = {} end
 	IsImprovementForResource[improvementID][resourceID] = true
+	ResourceImprovementID[resourceID] = improvementID
 end
 
 local IsImprovementForFeature		= {} -- cached table to check if an improvement is meant for a feature
@@ -185,6 +189,14 @@ for row in GameInfo.FeatureResourcesProduced() do
 	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
 	if not FeatureResources[featureID] then FeatureResources[featureID] = {} end
 	table.insert(FeatureResources[featureID], {[resourceID] = row.NumPerFeature})
+end
+
+local TerrainResources				= {} -- cached table to list resources available on a terrain
+for row in GameInfo.TerrainResourcesProduced() do
+	local terrainID		= GameInfo.Terrains[row.TerrainType].Index
+	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
+	if not TerrainResources[terrainID] then TerrainResources[terrainID] = {} end
+	table.insert(TerrainResources[terrainID], {[resourceID] = row.NumPerTerrain})
 end
 
 local UnitPrereqBuildingOR			= {} -- cached table for buiding prerequired (Any) for an unit
@@ -571,6 +583,7 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 			end
 			
 			-- remove unlocker buildings that may now be pillaged and unrepairable...
+			--[[
 			for row in GameInfo.Buildings() do
 				if row.Unlockers then					
 					local unlockerID = row.Index
@@ -584,6 +597,7 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 			
 			-- reset unlockers
 			city:SetUnlockers()
+			--]]
 		else
 			GCO.Error("no data for new City on capture, cityID #", newCityID, "playerID #", newOwnerID)
 		end
@@ -691,6 +705,38 @@ function TurnCreated(self)
 	return Game.GetCurrentGameTurn()
 end
 
+function IsCoastal(self)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then _cached[cityKey] = {} end
+	if not _cached[cityKey].Coastal then
+		local plot = Map.GetPlot(self:GetX(), self:GetY())
+		if plot:IsCoastalLand() then
+			_cached[cityKey].Coastal = 1 -- we're not using false/true as the point is to avoid to check the plot everytime, which would happens if _cached[cityKey].Coastal = false
+		else
+			_cached[cityKey].Coastal = 0
+		end
+	end
+	return (_cached[cityKey].Coastal == 1)
+end
+
+function GetSeaRange(self)
+	local range = 0
+	local pTech = Players[self:GetOwner()]:GetTechs()
+	if pTech then
+		if pTech:HasTech(GameInfo.Technologies["TECH_SAILING"].Index) 				then range = range + 1	end
+		if pTech:HasTech(GameInfo.Technologies["TECH_CELESTIAL_NAVIGATION"].Index) 	then range = range + 1	end
+		if pTech:HasTech(GameInfo.Technologies["TECH_SHIPBUILDING"].Index) 			then range = range + 1	end
+		if pTech:HasTech(GameInfo.Technologies["TECH_CARTOGRAPHY"].Index) 			then range = range + 1	end
+		if pTech:HasTech(GameInfo.Technologies["TECH_SQUARE_RIGGING"].Index) 		then range = range + 1	end
+	end
+	local buildings = self:GetBuildings()
+	if buildings then
+		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then range = range + 1 end
+		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_SHIPYARD"].Index) then range = range + 1 end
+		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_SEAPORT"].Index) then range = range + 3 end
+	end
+	return range
+end
 
 -----------------------------------------------------------------------------------------
 -- Population functions
@@ -1086,6 +1132,9 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 	-- add new building for connection by river (river docks)
 	if sRouteType == "Coastal" then
 		local pTech = Players[self:GetOwner()]:GetTechs()
+		if pTech and not pTech:HasTech(GameInfo.Technologies["TECH_SAILING"].Index) then
+			return
+		end
 		if pTech and pTech:HasTech(GameInfo.Technologies["TECH_CARTOGRAPHY"].Index) then
 			sRouteType = "Ocean"
 		end
@@ -2635,6 +2684,17 @@ function CanConstruct(self, buildingType)
 	else
 		bCheckBuildingAND = true
 	end
+	
+	-- check for coastal buildings
+	local bCoastalCheck = true
+	if (row.Coast and row.PrereqDistrict == "DISTRICT_CITY_CENTER") then
+		if not self:IsCoastal() then
+			bCoastalCheck = false
+			--preReqStr = preReqStr.."[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_REQUIRES_COASTAL_FAIL")
+		else
+			--preReqStr = preReqStr.."[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_REQUIRES_COASTAL_CHECKED")		
+		end
+	end	
 
 	-- check components	
 	local bHasComponents = true
@@ -2664,7 +2724,7 @@ function CanConstruct(self, buildingType)
 	end	
 	
 
-	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR), requirementStr, preReqStr
+	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck), requirementStr, preReqStr
 end
 
 function GetProductionTurnsLeft(self, productionType)
@@ -3007,7 +3067,7 @@ end
 
 function DoCollectResources(self)
 
-	local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = true
 
 	local cityKey 		= self:GetKey()
 	local cityData 		= ExposedMembers.CityData[cityKey]
@@ -3028,11 +3088,50 @@ function DoCollectResources(self)
 
 	-- get resources on worked tiles
 	local cityPlots	= GCO.GetCityPlots(self)
+	
+	-- add sea resources
+	local seaRange = self:GetSeaRange()
+	if seaRange > 0 then
+		local sRouteType 	= "Coastal"
+		local pPlayer 		= Players[self:GetOwner()]
+		local pTech 		= pPlayer:GetTechs()
+		if pTech and pTech:HasTech(GameInfo.Technologies["TECH_SAILING"].Index) then
+			if  pTech:HasTech(GameInfo.Technologies["TECH_CARTOGRAPHY"].Index) then
+				sRouteType = "Ocean"
+			end
+			local cityPlot 	= Map.GetPlot(self:GetX(), self:GetY())
+			for ring = 1, seaRange do
+				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
+					if (pEdgePlot:IsWater() or pEdgePlot:IsLake()) and pEdgePlot:GetResourceCount() > 0 then					
+						local bIsPlotConnected 	= GCO.IsPlotConnected(pPlayer, cityPlot, pEdgePlot, sRouteType, true, nil, GCO.SupplyPathBlocked)
+						if bIsPlotConnected then
+							local routeLength = GCO.GetRouteLength()
+							if routeLength <= seaRange then
+								local resourceID = pEdgePlot:GetResourceType()
+								if player:IsResourceVisible(resourceID) then
+									table.insert(cityPlots, pEdgePlot:GetIndex())
+									Dprint( DEBUG_CITY_SCRIPT, "-- Adding Sea plots for resource collection, route length = ", routeLength, " sea range = ", seaRange, " resource = ", Locale.Lookup(GameInfo.Resources[resourceID].Name), " at ", pEdgePlot:GetX(), pEdgePlot:GetY() )
+									if (pEdgePlot:GetImprovementType() == NO_IMPROVEMENT) and self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then
+										local improvementID = ResourceImprovementID[resourceID]
+										if improvementID then
+											ImprovementBuilder.SetImprovementType(pEdgePlot, improvementID, NO_PLAYER)
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	
 	for _, plotID in ipairs(cityPlots) do
-		local plot		= Map.GetPlotByIndex(plotID)
-		local bWorked 	= (plot:GetWorkerCount() > 0)
-		local bImproved	= (plot:GetImprovementType() ~= NO_IMPROVEMENT)
-		if bWorked or bImproved then
+		local plot			= Map.GetPlotByIndex(plotID)
+		local bWorked 		= (plot:GetWorkerCount() > 0)
+		local bImproved		= (plot:GetImprovementType() ~= NO_IMPROVEMENT)
+		local bSeaResource 	= (plot:IsWater() or plot:IsLake())
+		if bWorked or bImproved or bSeaResource then
 
 			local improvementID = plot:GetImprovementType()
 			if plot:GetResourceCount() > 0 then
@@ -3053,6 +3152,21 @@ function DoCollectResources(self)
 							local collected 	= value
 							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 							local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
+							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
+						end
+					end
+				end
+			end
+			
+			--TerrainResources
+			local terrainID = plot:GetTerrainType()
+			if TerrainResources[terrainID] then
+				for _, data in pairs(TerrainResources[terrainID]) do
+					for resourceID, value in pairs(data) do
+						if player:IsResourceVisible(resourceID) then
+							local collected 	= value
+							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
+							local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 						end
 					end
@@ -4079,6 +4193,8 @@ function AttachCityFunctions(city)
 	c.GetProductionYield				= GetProductionYield
 	c.GetConstructionEfficiency			= GetConstructionEfficiency
 	c.SetConstructionEfficiency			= SetConstructionEfficiency
+	c.IsCoastal							= IsCoastal
+	c.GetSeaRange						= GetSeaRange
 	--
 	c.GetCityYield						= GetCityYield
 	c.GetCustomYield					= GetCustomYield

@@ -105,6 +105,16 @@ CREATE TABLE IF NOT EXISTS FeatureResourcesProduced
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
+CREATE TABLE IF NOT EXISTS TerrainResourcesProduced
+	(
+		TerrainType TEXT NOT NULL,
+		ResourceType TEXT NOT NULL,
+		NumPerTerrain REAL NOT NULL DEFAULT 0,
+		PRIMARY KEY(TerrainType, ResourceType),
+		FOREIGN KEY (TerrainType) REFERENCES Terrains(TerrainType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
 CREATE TABLE IF NOT EXISTS Populations
 	(
 		PopulationType TEXT NOT NULL,

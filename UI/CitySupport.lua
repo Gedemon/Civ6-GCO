@@ -468,6 +468,9 @@ function GetCityData( pCity:table )
 				-- GCO >>>>>
 				data.BuildingsNum = data.BuildingsNum + 1;
 				table.insert( districtTable.Buildings, { 
+					-- GCO <<<<<
+					Tooltip				= ToolTipHelper.GetBuildingToolTip( building.Hash, owner, pCity ),
+					-- GCO >>>>>
 					Name				= Locale.Lookup(building.Name), 
 					Yields				= kYields,
 					Icon				= "ICON_"..building.BuildingType,
@@ -479,7 +482,7 @@ function GetCityData( pCity:table )
 					FoodPerTurn			= food,		
 					GoldPerTurn			= gold,		
 					ProductionPerTurn	= production,
-					SciencePerTurn		= science							
+					SciencePerTurn		= science
 				});
 				-- GCO <<<<<
 				end

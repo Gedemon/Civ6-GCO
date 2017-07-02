@@ -555,6 +555,10 @@ function ViewPanelBreakdown( data:table )
 						yieldString = yieldString .. GetYieldString(kYield.YieldType,kYield.YieldChange);
 					end
 					kInstanceBuild.BuildingYield:SetText( yieldString );
+					-- GCO <<<<<
+					kInstanceBuild.BuildingYield:SetHide( true );
+					kInstanceBuild.Top:SetToolTipString( building.Tooltip )
+					-- GCO >>>>>
 				end
 			end
 			kInstanceDistrict.BuildingStack:CalculateSize();

@@ -37,11 +37,18 @@ local medicineResourceID	= GameInfo.Resources["RESOURCE_MEDICINE"].Index
 
 local unitEquipment			= {}
 for row in GameInfo.Units() do
-	local unitType = row.Index
+	local unitType 	= row.UnitType
+	local unitID 	= row.Index
 	if row.EquipmentType then
-		local equipmentID 	= GameInfo.Resources[row.EquipmentType].Index	-- equipment are special resources
+		local equipmentID 	= GameInfo.Resources[row.EquipmentType].Index	-- equipment are special resources		
 		if not unitEquipment[unitType] then unitEquipment[unitType] = {} end
 		unitEquipment[unitType] = equipmentID
+		-- This is to handle index, as pUnit:GetUnitType() returns an index...
+		if not unitEquipment[unitID] then unitEquipment[unitID] = {} end
+		unitEquipment[unitID] = equipmentID
+		-- This is to accept hash like ToolTipHelper
+		if not unitEquipment[row.Hash] then unitEquipment[row.Hash] = {} end
+		unitEquipment[row.Hash] = equipmentID		
 	end
 	if row.Equipment > 0 and not row.EquipmentType then
 		print("WARNING: Equipment required without EquipmentType for "..tostring(row.UnitType))
@@ -488,13 +495,13 @@ function GetBaseEquipmentReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Equipment * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
-function GetEquipmentName(unitType)
+function GetEquipmentName(unitType) -- also accept index and hash
 	local equipmentID = unitEquipment[unitType]
 	if equipmentID then return Locale.Lookup(GameInfo.Resources[equipmentID].Name) end
 	return "unknown"
 end
 
-function GetEquipmentID(unitType)
+function GetEquipmentID(unitType) -- also accept index and hash
 	return unitEquipment[unitType]
 end
 
