@@ -819,7 +819,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 				popVariation 		= city:GetRealPopulationVariation()
 				
 				local nextPop		= GCO.GetPopulationPerSize(citySize+1)
-				local prevPop		= GCO.GetPopulationPerSize(citySize-1)	
+				local prevPop		= GCO.GetPopulationPerSize(citySize)-- -1)
 				
 				local popDiff	= 0
 				if popVariation > 0 then
@@ -1013,6 +1013,26 @@ function CityBanner.UpdateStats( self : CityBanner)
 							self.m_Instance.CityProdTurnsLeft:SetText(prodTurnsLeft);
 						end
 						productionTip = productionTip .. "[NEWLINE]" .. productionTurnsLeftString;
+						-- GCO <<<<<
+						if city then
+							if ( pUnitDef ~= nil ) then
+								local bCanTrain, reqStr = city:CanTrain(pUnitDef.UnitType)
+								productionTip = productionTip .. "[NEWLINE]" .. reqStr
+							elseif ( pBuildingDef ~= nil ) then
+								local bCanTrain, reqStr = city:CanConstruct(pBuildingDef.BuildingType)
+								productionTip = productionTip .. "[NEWLINE]" .. reqStr							
+							end
+							local efficiencyPercent = GCO.ToDecimals(city:GetConstructionEfficiency() * 100)
+							productionTip = productionTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_PRODUCTION_EFFICIENCY", efficiencyPercent)
+							if efficiencyPercent < 100 then
+								realTurnsLeft = GCO.Round(prodTurnsLeft * 100 / efficiencyPercent)
+								self.m_Instance.CityProdTurnsLeft:SetText("[COLOR_Civ6Red]"..tostring(realTurnsLeft).."[ENDCOLOR]")
+								if realTurnsLeft > prodTurnsLeft then
+									productionTip = productionTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_PRODUCTION_TURN_LOST", (realTurnsLeft - prodTurnsLeft))
+								end
+							end
+						end
+						-- GCO >>>>>
 						self.m_Instance.CityProduction:SetToolTipString(productionTip);
 						self.m_Instance.ProductionIndicator:SetHide(false);
 						self.m_Instance.CityProductionProgress:SetHide(false);

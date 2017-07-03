@@ -869,9 +869,10 @@ function SetPopulationBirthRate(self, populationID)
 end
 
 function ChangeSize(self)
-	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", self:GetSize()+1, "required =", GetPopulationPerSize(self:GetSize()+1), "current =", self:GetRealPopulation())
-	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", self:GetSize()-1, "required =", GetPopulationPerSize(self:GetSize()-1), "current =", self:GetRealPopulation())
-	if GetPopulationPerSize(self:GetSize()-1) > self:GetRealPopulation() then
+	local size = self:GetSize()
+	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size+1, "required =", GetPopulationPerSize(self:GetSize()+1), "current =", self:GetRealPopulation())
+	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size-1, "required =", GetPopulationPerSize(size), "current =", self:GetRealPopulation())
+	if GetPopulationPerSize(self:GetSize()) > self:GetRealPopulation() and size > 1 then -- GetPopulationPerSize(self:GetSize()-1) > self:GetRealPopulation()
 		self:ChangePopulation(-1) -- (-1, true) ?
 	elseif GetPopulationPerSize(self:GetSize()+1) < self:GetRealPopulation() then
 		self:ChangePopulation(1)
@@ -2514,7 +2515,7 @@ function SetCityRationing(self)
 
 	Dprint( DEBUG_CITY_SCRIPT, " Food stock = ", foodStock," Variation = ",foodVariation, " Previous turn supply = ", previousTurnSupply, " Wanted = ", self:GetFoodConsumption(normalRatio), " Actual Consumption = ", self:GetFoodConsumption(), " Export+Transfer = ", foodSent, " Actual ratio = ", ratio, " Turn(s) locked left = ", (RationingTurnsLocked - (Game.GetCurrentGameTurn() - cityData.FoodRatioTurn)), " Consumption ratio = ",  consumptionRatio)
 
-	if foodVariation < 0 and foodSent == 0 then
+	if foodVariation < 0 and foodSent == 0 and foodStock < self:GetMaxStock(foodResourceID) * 0.75 then
 		local turnBeforeFamine		= -(foodStock / foodVariation)
 		Dprint( DEBUG_CITY_SCRIPT, " Turns Before Starvation = ", turnBeforeFamine)
 		if foodStock == 0 then

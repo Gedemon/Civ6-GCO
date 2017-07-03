@@ -180,7 +180,7 @@ UPDATE Units SET Personnel = 10000,	Materiel = 60 	Where UnitType = "UNIT_INFANT
 UPDATE Units SET Personnel = 400,	Materiel = 75, 	Horses = 200, 	Equipment = 100,	EquipmentType = "EQUIPMENT_CHARIOT", 	MaterielPerEquipment = 1	Where UnitType = "UNIT_HEAVY_CHARIOT" or UnitType = "UNIT_EGYPTIAN_CHARIOT_ARCHER";
 UPDATE Units SET Personnel = 300,	Materiel = 40, 	Horses = 300 	Where UnitType = "UNIT_BARBARIAN_HORSE_ARCHER";
 UPDATE Units SET Personnel = 300,	Materiel = 50, 	Horses = 300 	Where UnitType = "UNIT_HORSEMAN" OR UnitType = "UNIT_BARBARIAN_HORSEMAN";
-UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300 	Where UnitType = "UNIT_KNIGHT" OR UnitType = "UNIT_ARABIAN_MAMLUK" OR UnitType = "UNIT_POLISH_HUSSAR";
+UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300,	Equipment = 300,	EquipmentType = "EQUIPMENT_IRON", 	MaterielPerEquipment = 2 	 	Where UnitType = "UNIT_KNIGHT" OR UnitType = "UNIT_ARABIAN_MAMLUK" OR UnitType = "UNIT_POLISH_HUSSAR";
 UPDATE Units SET Personnel = 300,	Materiel = 75, 	Horses = 300 	Where UnitType = "UNIT_CAVALRY" OR UnitType = "UNIT_RUSSIAN_COSSACK";
 
 /* Mechanized */

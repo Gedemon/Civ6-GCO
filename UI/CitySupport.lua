@@ -511,7 +511,110 @@ function GetCityData( pCity:table )
 	data.ResourcesDemand 	= pCity:GetResourcesDemandTable()
 	data.ForeignRoutes	 	= pCity:GetExportCitiesTable()
 	data.TransferRoutes	 	= pCity:GetTransferCitiesTable()
-	data.SupplyLines	 	= pCity:GetSupplyLinesTable()
+	data.SupplyLines	 	= pCity:GetSupplyLinesTable()		
+	
+	local upperClass		= pCity:GetUpperClass()
+	local middleClass		= pCity:GetMiddleClass()
+	local lowerClass		= pCity:GetLowerClass()
+	local slaveClass		= pCity:GetSlaveClass()
+	local upperHousingSize	= pCity:GetCustomYield( GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index )
+	local upperHousing		= GCO.GetPopulationPerSize(upperHousingSize)
+	local upperHousingAvailable	= math.max( 0, upperHousing - upperClass)
+	local upperLookingForMiddle	= math.max( 0, upperClass - upperHousing)
+	local middleHousingSize	= pCity:GetCustomYield( GameInfo.CustomYields["YIELD_MIDDLE_HOUSING"].Index )
+	local middleHousing		= GCO.GetPopulationPerSize(middleHousingSize)
+	local middleHousingAvailable	= math.max( 0, middleHousing - middleClass - upperLookingForMiddle)
+	local middleLookingForLower		= math.max( 0, (middleClass + upperLookingForMiddle) - middleHousing)
+	local lowerHousingSize	= pCity:GetCustomYield( GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index )
+	local lowerHousing		= GCO.GetPopulationPerSize(lowerHousingSize)
+	local lowerHousingAvailable	= math.max( 0, lowerHousing - lowerClass - middleLookingForLower)
+	local realPopulation	= pCity:GetRealPopulation()
+	
+	data.TotalPopulation	= realPopulation
+	
+	data.UpperHousing		= upperHousing
+	data.MiddleHousing		= middleHousing
+	data.LowerHousing		= lowerHousing
+	
+	data.UpperAvailable		= upperHousingAvailable
+	data.UpperInMiddle		= upperLookingForMiddle
+	data.MiddleAvailable	= middleHousingAvailable
+	data.MiddleInLower		= middleLookingForLower
+	data.LowerAvailable		= lowerHousingAvailable
+	
+	data.UpperClass			= upperClass
+	data.MiddleClass		= middleClass
+	data.LowerClass			= lowerClass
+	data.SlaveClass			= slaveClass
+	
+	local maxPopulation		= upperHousing + middleHousing + lowerHousing + slaveClass -- slave class doesn't use housing space	
+	
+	local housingToolTip	= Locale.Lookup("LOC_HUD_CITY_TOTAL_HOUSING", realPopulation, maxPopulation)
+	housingToolTip	= housingToolTip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") ..Locale.Lookup("LOC_HUD_CITY_UPPER_HOUSING", upperHousing - upperHousingAvailable, upperHousing)
+	if upperClass - upperLookingForMiddle > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", upperClass - upperLookingForMiddle)
+	end
+	
+	housingToolTip	= housingToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_HUD_CITY_MIDDLE_HOUSING", middleHousing - middleHousingAvailable, middleHousing)
+	if upperLookingForMiddle > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", upperLookingForMiddle)
+	end
+	if middleClass - middleLookingForLower > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", middleClass - middleLookingForLower)
+	end
+	
+	housingToolTip	= housingToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_HUD_CITY_LOWER_HOUSING", lowerHousing - lowerHousingAvailable, lowerHousing)
+	if middleLookingForLower > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", middleLookingForLower)
+	end
+	if lowerClass > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", lowerClass)
+	end
+	
+	data.HousingToolTip		= housingToolTip
+	data.HousingText		= Locale.Lookup("LOC_HUD_CITY_HOUSING_OCCUPATION")
+	
+	data.MaxPopulation		= maxPopulation
+	
+	local popVariation 		= pCity:GetRealPopulationVariation()
+	local citySize 			= pCity:GetSize()
+				
+	local nextPop		= GCO.GetPopulationPerSize(citySize+1)
+	local prevPop		= GCO.GetPopulationPerSize(citySize)
+	
+	data.GrowthPercent		= Clamp( (realPopulation - prevPop) / (nextPop - prevPop), 0.0, 1.0 )
+	data.NextGrowthPercent	= Clamp( ((realPopulation + popVariation) - prevPop) / (nextPop - prevPop), 0.0, 1.0 )
+	data.GrowthToolTip			= Locale.Lookup("LOC_HUD_CITY_GROWTH_SIZE", popVariation, nextPop, prevPop)
+				
+	local popDiff	= 0
+	if popVariation >= 0 then
+		popDiff = nextPop - realPopulation
+	elseif popVariation < 0 then
+		popDiff = realPopulation - prevPop
+	end
+	
+	data.PopVariation	= popVariation
+	data.PopDifference	= popDiff
+	if popVariation > 0 then
+		data.PopGrowthStr	= Locale.Lookup("LOC_HUD_CITY_POPULATION_TO_GROWTH")
+	elseif popVariation < 0 then		
+		data.PopGrowthStr	= Locale.Lookup("LOC_HUD_CITY_POPULATION_TO_REDUCE")
+	else		
+		data.PopGrowthStr	= Locale.Lookup("LOC_HUD_CITY_POPULATION_TO_GROWTH")
+	end
+	
+	--[[
+	if popVariation > 0 then
+		cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_GROWTH", popDiff);			
+		self.m_Instance.CityPopTurnsLeft:SetColorByName("StatGoodCS");
+	elseif popVariation < 0 then
+		cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_REDUCE", popDiff);
+		self.m_Instance.CityPopTurnsLeft:SetColorByName("StatBadCS");
+	else
+		self.m_Instance.CityPopTurnsLeft:SetColorByName("StatNormalCS");
+	end	
+	--]]
+	
 	-- GCO >>>>>
 
 	return data;

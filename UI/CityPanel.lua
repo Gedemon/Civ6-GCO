@@ -10,6 +10,14 @@ include( "InstanceManager" );
 include( "SupportFunctions" );			-- Round(), Clamp(), DarkenLightenColor()
 include( "ToolTipHelper" );	
 
+-- GCO <<<<<
+-----------------------------------------------------------------------------------------
+-- Initialize Functions
+-----------------------------------------------------------------------------------------
+GCO = ExposedMembers.GCO -- ExposedMembers.GCO can't be nil at this point
+-- GCO >>>>>
+
+
 -- ===========================================================================
 --	DEBUG
 --	Toggle these for temporary debugging help.
@@ -335,6 +343,39 @@ function ViewMain( data:table )
 		widthNumLabel = Controls.ProductionNum:GetSizeX();
 	end
 
+	-- GCO <<<<<	
+	Controls.HousingNum:SetText( data.TotalPopulation );
+	Controls.HousingMax:SetText( data.MaxPopulation );	
+	colorName = GetPercentGrowthColor( data.MaxPopulation / (data.TotalPopulation * 1.2) );
+	Controls.HousingNum:SetColorByName( colorName );
+	Controls.HousingNum:SetToolTipString(data.HousingToolTip)
+	Controls.HousingMax:SetToolTipString(data.HousingToolTip)
+	Controls.HousingLabel:SetToolTipString(data.HousingToolTip)
+	Controls.HousingLabel:SetText(data.HousingText)
+	
+	widthNumLabel = Controls.HousingNum:GetSizeX() + Controls.HousingMax:GetSizeX() + 15;
+	TruncateStringWithTooltip(Controls.HousingLabel, MAX_BEFORE_TRUNC_TURN_LABELS-widthNumLabel, Controls.HousingLabel:GetText());
+	
+	Controls.GrowthTurnsBar:SetPercent( data.GrowthPercent );
+	Controls.GrowthTurnsBar:SetShadowPercent( data.NextGrowthPercent );	
+	Controls.GrowthTurnsBarSmall:SetPercent( data.GrowthPercent );
+	Controls.GrowthTurnsBarSmall:SetShadowPercent( data.NextGrowthPercent );
+	Controls.GrowthNum:SetText( data.PopDifference );
+	Controls.GrowthNumSmall:SetText( data.PopDifference.."[Icon_Turn]" );
+	Controls.GrowthLabel:SetText(data.PopGrowthStr)
+	Controls.GrowthLabel:SetToolTipString(data.GrowthToolTip)
+	if data.PopVariation > 0 then
+		Controls.GrowthLabel:SetColorByName("StatGoodCS")
+	elseif data.PopVariation > 0 then
+		Controls.GrowthLabel:SetColorByName("StatBadCS")
+	end
+	
+	Controls.GrowthNum:SetFontSize(16)
+	Controls.HousingNum:SetFontSize(16)
+	Controls.HousingMax:SetFontSize(16)
+	
+	-- GCO >>>>>
+	
 	TruncateStringWithTooltip(Controls.ProductionLabel, MAX_BEFORE_TRUNC_TURN_LABELS-widthNumLabel, Controls.ProductionLabel:GetText());
 	Controls.ProductionTurnsBar:ReprocessAnchoring();	-- Fixes up children elements inside of the bar.
 	
@@ -857,6 +898,9 @@ function OnCameraUpdate( vFocusX:number, vFocusY:number, fZoomLevel:number )
 end
 
 function DisplayGrowthTile()
+	-- GCO <<<<<
+	--[[
+	-- GCO >>>>>
 	if m_pCity ~= nil then
 		local cityCulture:table = m_pCity:GetCulture();
 		if cityCulture ~= nil then
@@ -886,6 +930,9 @@ function DisplayGrowthTile()
 			end
 		end
 	end
+	-- GCO <<<<<
+	--]]
+	-- GCO >>>>>
 end
 
 -- ===========================================================================

@@ -162,7 +162,15 @@
 	
 	<Replace Tag="LOC_CITY_BANNER_WEALTH" Language="en_US">
       <Text>[COLOR_GoldDark]{1_Num} Wealth[ENDCOLOR] [ICON_TradingPostLarge]</Text>
-    </Replace>	
+    </Replace>
+	
+	<Replace Tag="LOC_CITY_BANNER_PRODUCTION_EFFICIENCY" Language="en_US">
+      <Text> Production efficiency = {1_Num}% </Text>
+    </Replace>
+	<Replace Tag="LOC_CITY_BANNER_PRODUCTION_TURN_LOST" Language="en_US">
+      <Text> Turns lost from low efficiency = {1_Num} </Text>
+    </Replace>
+	
 	
   </LocalizedText>
     
@@ -336,6 +344,33 @@
 	
 	<Replace Tag="LOC_HUD_CITY_STOCK_TOOLTIP" Language="en_US">
       <Text>{1_Num} available for your other cities (minimal stock : {2_Num})[NEWLINE]{3_Num} available for industries (minimal stock : {4_Num})[NEWLINE]{5_Num} available for units (minimal stock : {6_Num})[NEWLINE]{7_Num} available for export (minimal stock : {8_Num})[NEWLINE]</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_HUD_CITY_POPULATION_TO_GROWTH" Language="en_US">
+      <Text>population until growth</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_POPULATION_TO_REDUCE" Language="en_US">
+      <Text>population before decline</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_GROWTH_SIZE" Language="en_US">
+      <Text>{1_Num} population variation[NEWLINE][ICON_Bullet] next size at {2_Num}[NEWLINE][ICON_Bullet] previous size at {3_Num}</Text>
+    </Replace>
+	
+	
+	<Replace Tag="LOC_HUD_CITY_UPPER_HOUSING" Language="en_US">
+      <Text>{1_Num} of {2_Num} Upper Housing occupied</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_MIDDLE_HOUSING" Language="en_US">
+      <Text>{1_Num} of {2_Num} Middle Housing occupied</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_LOWER_HOUSING" Language="en_US">
+      <Text>{1_Num} of {2_Num} Lower Housing occupied</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_HOUSING_OCCUPATION" Language="en_US">
+      <Text>Housing occupied</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_TOTAL_HOUSING" Language="en_US">
+      <Text>{1_Num} total population for {2_Num} max Housing</Text>
     </Replace>
 	
 	
