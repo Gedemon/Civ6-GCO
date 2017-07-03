@@ -870,11 +870,11 @@ end
 
 function ChangeSize(self)
 	local size = self:GetSize()
-	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size+1, "required =", GetPopulationPerSize(self:GetSize()+1), "current =", self:GetRealPopulation())
+	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size+1, "required =", GetPopulationPerSize(size+1), "current =", self:GetRealPopulation())
 	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size-1, "required =", GetPopulationPerSize(size), "current =", self:GetRealPopulation())
-	if GetPopulationPerSize(self:GetSize()) > self:GetRealPopulation() and size > 1 then -- GetPopulationPerSize(self:GetSize()-1) > self:GetRealPopulation()
+	if GetPopulationPerSize(size) > self:GetRealPopulation() and size > 1 then -- GetPopulationPerSize(self:GetSize()-1) > self:GetRealPopulation()
 		self:ChangePopulation(-1) -- (-1, true) ?
-	elseif GetPopulationPerSize(self:GetSize()+1) < self:GetRealPopulation() then
+	elseif GetPopulationPerSize(size+1) < self:GetRealPopulation() then
 		self:ChangePopulation(1)
 	end
 end

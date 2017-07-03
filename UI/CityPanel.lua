@@ -346,7 +346,7 @@ function ViewMain( data:table )
 	-- GCO <<<<<	
 	Controls.HousingNum:SetText( data.TotalPopulation );
 	Controls.HousingMax:SetText( data.MaxPopulation );	
-	colorName = GetPercentGrowthColor( data.MaxPopulation / (data.TotalPopulation * 1.2) );
+	colorName = GetPercentGrowthColor( data.MaxPopulation / (data.TotalPopulation * 2.5) );
 	Controls.HousingNum:SetColorByName( colorName );
 	Controls.HousingNum:SetToolTipString(data.HousingToolTip)
 	Controls.HousingMax:SetToolTipString(data.HousingToolTip)
@@ -364,9 +364,10 @@ function ViewMain( data:table )
 	Controls.GrowthNumSmall:SetText( data.PopDifference.."[Icon_Turn]" );
 	Controls.GrowthLabel:SetText(data.PopGrowthStr)
 	Controls.GrowthLabel:SetToolTipString(data.GrowthToolTip)
+	Controls.GrowthNum:SetToolTipString(data.GrowthToolTip)
 	if data.PopVariation > 0 then
 		Controls.GrowthLabel:SetColorByName("StatGoodCS")
-	elseif data.PopVariation > 0 then
+	elseif data.PopVariation < 0 then
 		Controls.GrowthLabel:SetColorByName("StatBadCS")
 	end
 	
