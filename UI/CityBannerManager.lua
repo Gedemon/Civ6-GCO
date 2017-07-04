@@ -1025,7 +1025,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 							local efficiencyPercent = GCO.ToDecimals(city:GetConstructionEfficiency() * 100)
 							productionTip = productionTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_PRODUCTION_EFFICIENCY", efficiencyPercent)
 							if efficiencyPercent < 100 then
-								realTurnsLeft = GCO.Round(prodTurnsLeft * 100 / efficiencyPercent)
+								local realTurnsLeft = GCO.Round(prodTurnsLeft * 100 / efficiencyPercent)
 								self.m_Instance.CityProdTurnsLeft:SetText("[COLOR_Civ6Red]"..tostring(realTurnsLeft).."[ENDCOLOR]")
 								if realTurnsLeft > prodTurnsLeft then
 									productionTip = productionTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_PRODUCTION_TURN_LOST", (realTurnsLeft - prodTurnsLeft))

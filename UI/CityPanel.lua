@@ -350,11 +350,11 @@ function ViewMain( data:table )
 	Controls.HousingNum:SetColorByName( colorName );
 	Controls.HousingNum:SetToolTipString(data.HousingToolTip)
 	Controls.HousingMax:SetToolTipString(data.HousingToolTip)
-	Controls.HousingLabel:SetToolTipString(data.HousingToolTip)
 	Controls.HousingLabel:SetText(data.HousingText)
 	
 	widthNumLabel = Controls.HousingNum:GetSizeX() + Controls.HousingMax:GetSizeX() + 15;
 	TruncateStringWithTooltip(Controls.HousingLabel, MAX_BEFORE_TRUNC_TURN_LABELS-widthNumLabel, Controls.HousingLabel:GetText());
+	Controls.HousingLabel:SetToolTipString(data.HousingToolTip)
 	
 	Controls.GrowthTurnsBar:SetPercent( data.GrowthPercent );
 	Controls.GrowthTurnsBar:SetShadowPercent( data.NextGrowthPercent );	
@@ -375,10 +375,24 @@ function ViewMain( data:table )
 	Controls.HousingNum:SetFontSize(16)
 	Controls.HousingMax:SetFontSize(16)
 	
+	Controls.ProductionNum:SetText( data.RealProductionTurnsLeft );
+	Controls.ProductionNum:SetToolTipString(data.ProductionToolTip)
+	Controls.ProductionDescriptionString:SetToolTipString(data.ProductionToolTip)
+	Controls.ProductionIcon:SetToolTipString(data.ProductionToolTip)
+	
+	if data.CurrentTurnsLeft < data.RealProductionTurnsLeft then
+		Controls.ProductionNum:SetColorByName("StatBadCS")
+	end
+	
 	-- GCO >>>>>
 	
 	TruncateStringWithTooltip(Controls.ProductionLabel, MAX_BEFORE_TRUNC_TURN_LABELS-widthNumLabel, Controls.ProductionLabel:GetText());
 	Controls.ProductionTurnsBar:ReprocessAnchoring();	-- Fixes up children elements inside of the bar.
+	
+	-- GCO <<<<<
+	-- after TruncateStringWithTooltip...
+	Controls.ProductionLabel:SetToolTipString(data.ProductionToolTip)
+	-- GCO >>>>>
 	
 	-- Tutorial lockdown
 	if m_kTutorialDisabledControls ~= nil then

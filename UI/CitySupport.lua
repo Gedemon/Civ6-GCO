@@ -602,18 +602,38 @@ function GetCityData( pCity:table )
 	else		
 		data.PopGrowthStr	= Locale.Lookup("LOC_HUD_CITY_POPULATION_TO_GROWTH")
 	end
-	
-	--[[
-	if popVariation > 0 then
-		cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_GROWTH", popDiff);			
-		self.m_Instance.CityPopTurnsLeft:SetColorByName("StatGoodCS");
-	elseif popVariation < 0 then
-		cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_REDUCE", popDiff);
-		self.m_Instance.CityPopTurnsLeft:SetColorByName("StatBadCS");
-	else
-		self.m_Instance.CityPopTurnsLeft:SetColorByName("StatNormalCS");
+		
+	local currentProductionHash = pBuildQueue:GetCurrentProductionTypeHash();
+
+	-- Attempt to obtain a hash for each item
+	if currentProductionHash ~= 0 then
+		pBuildingDef 	= GameInfo.Buildings[currentProductionHash];
+		pDistrictDef 	= GameInfo.Districts[currentProductionHash];
+		pUnitDef		= GameInfo.Units[currentProductionHash];
+		pProjectDef		= GameInfo.Projects[currentProductionHash];
 	end	
-	--]]
+	
+	local productionTip = ""
+	if ( pUnitDef ~= nil ) then
+		local bCanTrain, reqStr = pCity:CanTrain(pUnitDef.UnitType)
+		productionTip = reqStr
+	elseif ( pBuildingDef ~= nil ) then
+		local bCanTrain, reqStr = pCity:CanConstruct(pBuildingDef.BuildingType)
+		productionTip = reqStr							
+	end
+	local efficiencyPercent = GCO.ToDecimals(pCity:GetConstructionEfficiency() * 100)
+	local realTurnsLeft 	= prodTurnsLeft
+	productionTip 			= productionTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_PRODUCTION_EFFICIENCY", efficiencyPercent)
+	if efficiencyPercent < 100 then
+		realTurnsLeft 		= GCO.Round(prodTurnsLeft * 100 / efficiencyPercent)
+		data.ProdPercentNextTurn	= (pctNextTurn * 100 / efficiencyPercent)
+		if realTurnsLeft > prodTurnsLeft then
+			productionTip = productionTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_PRODUCTION_TURN_LOST", (realTurnsLeft - prodTurnsLeft))
+		end
+	end
+	
+	data.RealProductionTurnsLeft	= realTurnsLeft
+	data.ProductionToolTip			= productionTip
 	
 	-- GCO >>>>>
 

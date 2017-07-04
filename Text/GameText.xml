@@ -171,6 +171,9 @@
       <Text> Turns lost from low efficiency = {1_Num} </Text>
     </Replace>
 	
+	<Replace Tag="LOC_CITY_BANNER_TURNS_LEFT_UNTIL_COMPLETE" Language="en_US">
+      <Text>{1_Turns : plural 1?{1_Turns} turn; other? {1_Turn} turns;} to complete when at 100% production efficiency.</Text>
+    </Replace>
 	
   </LocalizedText>
     
@@ -371,8 +374,7 @@
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_TOTAL_HOUSING" Language="en_US">
       <Text>{1_Num} total population for {2_Num} max Housing</Text>
-    </Replace>
-	
+    </Replace>	
 	
   </LocalizedText>	
  
