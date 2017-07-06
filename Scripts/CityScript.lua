@@ -1125,8 +1125,8 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 	GCO.StartTimer("UpdateCitiesConnection")
 	local selfKey 		= self:GetKey()
 	local transferKey 	= transferCity:GetKey()
-	local selfPlot 		= Map.GetPlot(self:GetX(), self:GetY())
-	local transferPlot	= Map.GetPlot(transferCity:GetX(), transferCity:GetY())
+	local selfPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
+	local transferPlot	= GCO.GetPlot(transferCity:GetX(), transferCity:GetY())
 
 	-- Convert "Coastal" to "Ocean" with required tech for navigation on Ocean
 	-- to do check for docks to allow transfert by sea/rivers
@@ -1160,9 +1160,19 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute)
 		end
 	end
 
-	local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], selfPlot, transferPlot, sRouteType, true, nil, GCO.SupplyPathBlocked)
+	local bIsPlotConnected 	= false
+	local routeLength		= 0
+	if sRouteType == "River" then	
+		local path = selfPlot:GetRiverPath(transferPlot)
+		if path then 
+			bIsPlotConnected 	= true
+			routeLength 		= #path
+		end
+	else	
+		bIsPlotConnected 	= GCO.IsPlotConnected(Players[self:GetOwner()], selfPlot, transferPlot, sRouteType, true, nil, GCO.SupplyPathBlocked)
+		routeLength 		= GCO.GetRouteLength()
+	end
 	if bIsPlotConnected then
-		local routeLength 	= GCO.GetRouteLength()
 		local efficiency 	= GCO.GetRouteEfficiency( routeLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
 		if efficiency > 0 then
 			Dprint( DEBUG_CITY_SCRIPT, " - Found route at " .. tostring(efficiency).." % efficiency, bInternalRoute = ", tostring(bInternalRoute))

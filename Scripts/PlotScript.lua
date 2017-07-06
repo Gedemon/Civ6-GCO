@@ -803,6 +803,244 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 end
 Events.CityInitialized.Add(InitializeCityPlots)
 
+
+-----------------------------------------------------------------------------------------
+-- Rivers Functions
+-----------------------------------------------------------------------------------------
+local DirectionStr = {
+		[DirectionTypes.DIRECTION_WEST] = "W",
+		[DirectionTypes.DIRECTION_NORTHWEST] = "NW",
+		[DirectionTypes.DIRECTION_NORTHEAST] = "NE",
+		[DirectionTypes.DIRECTION_EAST] = "E",
+		[DirectionTypes.DIRECTION_SOUTHEAST] = "SE",
+		[DirectionTypes.DIRECTION_SOUTHWEST] = "SW",
+	}
+	
+local FlowDirectionStr = {
+		[FlowDirectionTypes.FLOWDIRECTION_NORTHEAST] = "NE",
+		[FlowDirectionTypes.FLOWDIRECTION_NORTHWEST] = "NW",
+		[FlowDirectionTypes.FLOWDIRECTION_NORTH] = "N",
+		[FlowDirectionTypes.FLOWDIRECTION_SOUTHEAST] = "SE",
+		[FlowDirectionTypes.FLOWDIRECTION_SOUTH] = "S",
+		[FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST] = "SW",
+		[FlowDirectionTypes.NO_FLOWDIRECTION] = "NO FLOW",
+	}
+
+local PlotPosition = {
+	NORTHEAST 	= 1,
+	EAST 		= 2,
+	SOUTHEAST 	= 3,
+	SOUTHWEST 	= 4,
+	WEST 		= 5,
+	NORTHWEST 	= 6,
+	}
+
+function IsEOfRiver(self)
+	if not self:IsRiver() then return false	end
+	local pAdjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), DirectionTypes.DIRECTION_WEST)
+	if pAdjacentPlot and pAdjacentPlot:IsWOfRiver() then return true end
+	return false
+end
+
+function IsSEOfRiver(self)
+	if not self:IsRiver() then return false	end
+	local pAdjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), DirectionTypes.DIRECTION_NORTHWEST)
+	if pAdjacentPlot and pAdjacentPlot:IsNWOfRiver() then return true end
+	return false
+end
+
+function IsSWOfRiver(self)
+	if not self:IsRiver() then return false	end
+	local pAdjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), DirectionTypes.DIRECTION_NORTHEAST)
+	if pAdjacentPlot and pAdjacentPlot:IsNEOfRiver() then return true end
+	return false
+end
+
+function GetOppositeFlowDirection(dir)
+	local numTypes = FlowDirectionTypes.NUM_FLOWDIRECTION_TYPES;
+	return ((dir + 3) % numTypes);
+end
+
+local opposedDirection = {
+	[DirectionTypes.DIRECTION_NORTHEAST] 	= DirectionTypes.DIRECTION_SOUTHWEST,
+	[DirectionTypes.DIRECTION_EAST] 		= DirectionTypes.DIRECTION_WEST,
+	[DirectionTypes.DIRECTION_SOUTHEAST] 	= DirectionTypes.DIRECTION_NORTHWEST,
+    [DirectionTypes.DIRECTION_SOUTHWEST] 	= DirectionTypes.DIRECTION_NORTHEAST,
+	[DirectionTypes.DIRECTION_WEST] 		= DirectionTypes.DIRECTION_EAST,
+	[DirectionTypes.DIRECTION_NORTHWEST] 	= DirectionTypes.DIRECTION_SOUTHEAST
+	}
+	
+local DirectionString = {
+	[DirectionTypes.DIRECTION_NORTHEAST] 	= "NORTHEAST",
+	[DirectionTypes.DIRECTION_EAST] 		= "EAST",
+	[DirectionTypes.DIRECTION_SOUTHEAST] 	= "SOUTHEAST",
+    [DirectionTypes.DIRECTION_SOUTHWEST] 	= "SOUTHWEST",
+	[DirectionTypes.DIRECTION_WEST] 		= "WEST",
+	[DirectionTypes.DIRECTION_NORTHWEST] 	= "NORTHWEST"
+	}
+
+function IsEdgeRiver(self, edge)
+	return (edge == DirectionTypes.DIRECTION_NORTHEAST 	and self:IsSWOfRiver()) 
+		or (edge == DirectionTypes.DIRECTION_EAST 		and self:IsWOfRiver())
+		or (edge == DirectionTypes.DIRECTION_SOUTHEAST 	and self:IsNWOfRiver())
+		or (edge == DirectionTypes.DIRECTION_SOUTHWEST 	and self:IsNEOfRiver())
+		or (edge == DirectionTypes.DIRECTION_WEST	 	and self:IsEOfRiver())
+		or (edge == DirectionTypes.DIRECTION_NORTHWEST 	and self:IsSEOfRiver())
+end
+
+function GetNextClockRiverPlot(self, edge)
+	local nextPlotEdge 	= (edge + 3 -1) % 6
+	local nextPlot		= Map.GetAdjacentPlot(self:GetX(), self:GetY(), edge)
+	if nextPlot:IsEdgeRiver(nextPlotEdge) then return nextPlot, nextPlotEdge end
+end
+
+function GetNextCounterClockRiverPlot(self, edge)
+	local nextPlotEdge 	= (edge + 3 + 1) % 6
+	local nextPlot		= Map.GetAdjacentPlot(self:GetX(), self:GetY(), edge)
+	if nextPlot:IsEdgeRiver(nextPlotEdge) then return nextPlot, nextPlotEdge end
+end
+
+function plotToNode(plot, edge)
+	return tostring(plot:GetIndex()) .."," .. tostring(edge)
+end
+
+function nodeToPlot(node)
+	local pos = string.find(node, ",")
+	local plotIndex = tonumber(string.sub(node, 1 , pos -1))
+	return Map.GetPlotByIndex(plotIndex)
+end
+
+function nodeToPlotEdge(node)
+	local pos  = string.find(node, ",")
+	local plotIndex = tonumber(string.sub(node, 1 , pos -1))
+	local edge = tonumber(string.sub(node, pos +1))
+	return Map.GetPlotByIndex(plotIndex), edge
+end
+
+function GetRiverPath(self, destPlot)
+	local bFound = false
+	local newPath
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		if not bFound and self:IsEdgeRiver(direction) then
+			newPath = self:GetRiverPathFromEdge(direction, destPlot)
+			if newPath then bFound = true end
+		end
+	end
+	return newPath
+end
+
+function GetRiverPathFromEdge(self, edge, destPlot)
+
+	if not self:IsRiver() or not destPlot:IsRiver() then return end	
+	
+	local startPlot	= self
+	local closedSet = {}
+	local openSet	= {}
+	local comeFrom 	= {}
+	local gScore	= {}
+	local fScore	= {}
+	
+	local startNode	= plotToNode(startPlot, edge)
+	
+	print("Check for river path between ", startPlot:GetX(), startPlot:GetY(), " edge direction = ", DirectionString[edge] ," and ", destPlot:GetX(), destPlot:GetY(), " distance = ", Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY()) )
+	
+	function GetPath(currentNode)
+	  local path = {}
+	  local seen = {}
+	  local current = currentNode
+	  while true do
+		local prev = comeFrom[current]
+		if prev == nil then break end
+		local plot = nodeToPlot(current)
+		local plotIndex = plot:GetIndex()
+		if not seen[plotIndex] then -- filter the plots that are referenced in multiple nodes as we are following the edges
+			table.insert(path, 1, plotIndex)
+			seen[plotIndex] = true
+		end
+		current = prev
+	  end
+	  table.insert(path, 1, startPlot:GetIndex())
+	  return path
+	end
+	
+	gScore[startNode]	= 0
+	fScore[startNode]	= Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY())
+	
+	local currentNode = startNode
+	while currentNode do --and nodeToPlot(currentNode) ~= destPlot do
+	
+		local currentPlot 		= nodeToPlot(currentNode)
+		closedSet[currentNode] 	= true
+		
+		if currentPlot == destPlot then
+			print("Found a path, returning...")
+			return GetPath(currentNode)
+		end
+		
+		local neighbors = GetNeighbors(currentNode)
+		for i, data in ipairs(neighbors) do
+			local node = plotToNode(data.Plot, data.Edge)
+			if not closedSet[node] then
+				if gScore[node] == nil then
+					local nodeDistance 		= Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), currentPlot:GetX(), currentPlot:GetY())
+					local destDistance		= Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), destPlot:GetX(), destPlot:GetY())
+					local tentative_gscore 	= (gScore[currentNode] or math.huge) + nodeDistance
+				
+					table.insert (openSet, {Node = node, Score = tentative_gscore + destDistance})
+
+					if tentative_gscore < (gScore[node] or math.huge) then
+						comeFrom[node] = currentNode
+						gScore[node] = tentative_gscore
+						fScore[node] = tentative_gscore + destDistance
+					end
+				end				
+			end		
+		end
+		table.sort(openSet, function(a, b) return a.Score > b.Score; end)
+		local data = table.remove(openSet)
+		if data then
+			local plot, edge = nodeToPlotEdge(data.Node)
+			print("Next to test : ", plot:GetX(), plot:GetY(), " edge direction = ", DirectionString[edge], data.Node, data.Score)
+			currentNode = data.Node 
+		else
+			currentNode = nil
+		end
+	end
+	print("failed to find a path")
+end
+
+
+function GetNeighbors(node)
+	--print("get neighbors :")
+	local neighbors 				= {}
+	local plot, edge 				= nodeToPlotEdge(node)
+	local oppositeEdge				= (edge + 3) % 6
+	local oppositePlot				= Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), edge)
+	local nextEdge 					= (edge + 1) % 6
+	local prevEdge 					= (edge - 1) % 6
+	local clockPlot, clockEdge		= plot:GetNextClockRiverPlot(edge)
+	local counterPlot, counterEdge	= plot:GetNextCounterClockRiverPlot(edge)
+	
+	if plot:IsEdgeRiver(nextEdge) 				then table.insert(neighbors, { Plot = plot, 		Edge = nextEdge }	) end
+	if plot:IsEdgeRiver(prevEdge) 				then table.insert(neighbors, { Plot = plot, 		Edge = prevEdge }	) end
+	if clockPlot								then table.insert(neighbors, { Plot = clockPlot, 	Edge = clockEdge }	) end
+	if counterPlot 								then table.insert(neighbors, { Plot = counterPlot, 	Edge = counterEdge }) end
+	if oppositePlot:IsEdgeRiver(oppositeEdge)	then table.insert(neighbors, { Plot = oppositePlot, Edge = oppositeEdge }) end
+	
+	-------
+	local clockPlot, clockEdge		= plot:GetNextClockRiverPlot(nextEdge)
+	local counterPlot, counterEdge	= plot:GetNextCounterClockRiverPlot(nextEdge)	
+	if clockPlot								then table.insert(neighbors, { Plot = clockPlot, 	Edge = clockEdge }	) end
+	if counterPlot 								then table.insert(neighbors, { Plot = counterPlot, 	Edge = counterEdge }) end
+	
+	local clockPlot, clockEdge		= plot:GetNextClockRiverPlot(prevEdge)
+	local counterPlot, counterEdge	= plot:GetNextCounterClockRiverPlot(prevEdge)	
+	if clockPlot								then table.insert(neighbors, { Plot = clockPlot, 	Edge = clockEdge }	) end
+	if counterPlot 								then table.insert(neighbors, { Plot = counterPlot, 	Edge = counterEdge }) end
+	
+	return neighbors
+end
+
 -----------------------------------------------------------------------------------------
 -- UI Functions
 -----------------------------------------------------------------------------------------
@@ -814,6 +1052,12 @@ Events.CityInitialized.Add(InitializeCityPlots)
 -----------------------------------------------------------------------------------------
 function GetPlotByIndex(index) -- return a plot with PlotScript functions for another context
 	local plot = Map.GetPlotByIndex(index)
+	InitializePlotFunctions(plot)
+	return plot
+end
+
+function GetPlot(x, y) -- return a plot with PlotScript functions for another context
+	local plot = Map.GetPlot(x, y)
 	InitializePlotFunctions(plot)
 	return plot
 end
@@ -851,7 +1095,17 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.UpdateCulture					= UpdateCulture
 	p.UpdateOwnership				= UpdateOwnership
 	p.DiffuseCulture				= DiffuseCulture
-	
+	--
+	p.IsEOfRiver					= IsEOfRiver
+	p.IsSEOfRiver					= IsSEOfRiver
+	p.IsSWOfRiver					= IsSWOfRiver
+	p.IsFollowingRiverTo			= IsFollowingRiverTo	-- not reliable
+	p.IsEdgeRiver					= IsEdgeRiver
+	p.GetNextClockRiverPlot			= GetNextClockRiverPlot
+	p.GetNextCounterClockRiverPlot	= GetNextCounterClockRiverPlot
+	p.GetRiverPath					= GetRiverPath
+	p.GetRiverPathFromEdge			= GetRiverPathFromEdge
+
 end
 
 
@@ -861,9 +1115,11 @@ end
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.GetPlotByIndex 			= GetPlotByIndex
+	ExposedMembers.GCO.GetPlot 					= GetPlot
 	ExposedMembers.GCO.InitializePlotFunctions 	= InitializePlotFunctions
 	--
 	ExposedMembers.GCO.GetPlotFromKey 			= GetPlotFromKey
+	ExposedMembers.GCO.GetRiverPath				= GetRiverPath
 	--
 	ExposedMembers.PlotScript_Initialized 		= true
 end

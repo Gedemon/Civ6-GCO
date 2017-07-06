@@ -1396,7 +1396,14 @@ function CityBanner.UpdateName( self : CityBanner )
 										local tradeManager:table = Game.GetTradeManager()
 										pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
 									else
-										pathPlots = GCO.GetRoutePlots()
+										if sRouteType == "River" then
+											local cityPlot 	= GCO.GetPlot(city:GetX(), city:GetY())
+											local destPlot 	= GCO.GetPlot(destCity:GetX(), destCity:GetY())
+											local newPath 	= cityPlot:GetRiverPath(destPlot)
+											pathPlots 		= newPath or {}
+										else
+											pathPlots = GCO.GetRoutePlots()
+										end
 									end
 									local kVariations:table = {}
 									local lastElement : number = table.count(pathPlots)
@@ -1426,7 +1433,14 @@ function CityBanner.UpdateName( self : CityBanner )
 										local tradeManager:table = Game.GetTradeManager()
 										pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
 									else
-										pathPlots = GCO.GetRoutePlots()
+										if sRouteType == "River" then
+											local cityPlot 	= GCO.GetPlot(city:GetX(), city:GetY())
+											local destPlot 	= GCO.GetPlot(destCity:GetX(), destCity:GetY())
+											local newPath 	= cityPlot:GetRiverPath(destPlot)
+											pathPlots 		= newPath or {}
+										else
+											pathPlots = GCO.GetRoutePlots()
+										end
 									end
 									local kVariations:table = {}
 									local lastElement : number = table.count(pathPlots)
