@@ -22,6 +22,11 @@ local iCrossingRiverPenalty			= tonumber(GameInfo.GlobalParameters["CULTURE_CROS
 local iCrossingRiverThreshold		= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_RIVER_THRESHOLD"].Value)
 local iBaseThreshold 				= tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value)
 
+-----------------------------------------------------------------------------------------
+-- Debug
+-----------------------------------------------------------------------------------------
+
+DEBUG_PLOT_SCRIPT			= false
 
 -----------------------------------------------------------------------------------------
 -- Initialize
@@ -29,6 +34,7 @@ local iBaseThreshold 				= tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO = ExposedMembers.GCO
+	Dprint 	= GCO.Dprint
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
@@ -889,14 +895,18 @@ function IsEdgeRiver(self, edge)
 end
 
 function GetNextClockRiverPlot(self, edge)
-	local nextPlotEdge 	= (edge + 3 -1) % 6
+	local DEBUG_PLOT_SCRIPT			= false
+	local nextPlotEdge 	= (edge + 3 + 1) % 6
 	local nextPlot		= Map.GetAdjacentPlot(self:GetX(), self:GetY(), edge)
+	Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", nextPlot:GetX(), nextPlot:GetY(), 				" river edge  = ", DirectionString[nextPlotEdge]); 		
 	if nextPlot:IsEdgeRiver(nextPlotEdge) then return nextPlot, nextPlotEdge end
 end
 
 function GetNextCounterClockRiverPlot(self, edge)
-	local nextPlotEdge 	= (edge + 3 + 1) % 6
+	local DEBUG_PLOT_SCRIPT			= false
+	local nextPlotEdge 	= (edge + 3 - 1) % 6
 	local nextPlot		= Map.GetAdjacentPlot(self:GetX(), self:GetY(), edge)
+	Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", nextPlot:GetX(), nextPlot:GetY(), 				" river edge  = ", DirectionString[nextPlotEdge]); 	
 	if nextPlot:IsEdgeRiver(nextPlotEdge) then return nextPlot, nextPlotEdge end
 end
 
@@ -930,6 +940,7 @@ function GetRiverPath(self, destPlot)
 end
 
 function GetRiverPathFromEdge(self, edge, destPlot)
+	local DEBUG_PLOT_SCRIPT			= true
 
 	if not self:IsRiver() or not destPlot:IsRiver() then return end	
 	
@@ -942,25 +953,33 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 	
 	local startNode	= plotToNode(startPlot, edge)
 	
-	print("Check for river path between ", startPlot:GetX(), startPlot:GetY(), " edge direction = ", DirectionString[edge] ," and ", destPlot:GetX(), destPlot:GetY(), " distance = ", Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY()) )
+	Dprint( DEBUG_PLOT_SCRIPT, "CHECK FOR RIVER PATH BETWEEN : ", startPlot:GetX(), startPlot:GetY(), " edge direction = ", DirectionString[edge] ," and ", destPlot:GetX(), destPlot:GetY(), " distance = ", Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY()) )
 	
 	function GetPath(currentNode)
-	  local path = {}
-	  local seen = {}
-	  local current = currentNode
-	  while true do
-		local prev = comeFrom[current]
-		if prev == nil then break end
-		local plot = nodeToPlot(current)
-		local plotIndex = plot:GetIndex()
-		if not seen[plotIndex] then -- filter the plots that are referenced in multiple nodes as we are following the edges
-			table.insert(path, 1, plotIndex)
-			seen[plotIndex] = true
-		end
-		current = prev
-	  end
-	  table.insert(path, 1, startPlot:GetIndex())
-	  return path
+		local path 		= {}
+		local seen 		= {}
+		local current 	= currentNode
+		local count 	= 0
+		while true do
+			local prev = comeFrom[current]
+			if prev == nil then break end
+			local plot = nodeToPlot(current)
+			local plotIndex = plot:GetIndex()
+			-- filter the plots that are referenced in consecutive nodes as we are following the edges
+			-- but if a path goes through 5 of the 6 edges, we add it twice for displaying the u-turn 
+			if plot ~= prevPlot or count > 2 then 
+				Dprint( DEBUG_PLOT_SCRIPT, "Adding to path : ", plot:GetX(), plot:GetY())
+				table.insert(path, 1, plotIndex)
+				prevPlot = plot
+				count = 0
+			else
+				count = count + 1 
+			end
+			current = prev
+		 end
+		Dprint( DEBUG_PLOT_SCRIPT, "Adding Starting plot to path : ", startPlot:GetX(), startPlot:GetY())
+		table.insert(path, 1, startPlot:GetIndex())
+		return path
 	end
 	
 	gScore[startNode]	= 0
@@ -973,7 +992,7 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 		closedSet[currentNode] 	= true
 		
 		if currentPlot == destPlot then
-			print("Found a path, returning...")
+			Dprint( DEBUG_PLOT_SCRIPT, "Found a path, returning...")
 			return GetPath(currentNode)
 		end
 		
@@ -983,12 +1002,24 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 			if not closedSet[node] then
 				if gScore[node] == nil then
 					local nodeDistance 		= Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), currentPlot:GetX(), currentPlot:GetY())
+					
+					--[[
+					for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+						if Map.GetAdjacentPlot(data.Plot:GetX(), data.Plot:GetY(), direction) then							
+							local oppositeEdge		= (data.Edge + 3) % 6
+							if data.Plot:IsEdgeRiver(data.Edge) and currentPlot:IsEdgeRiver(oppositeEdge) then nodeDistance = nodeDistance + 10; break end
+						end
+					end
+					--]]
+					if data.Plot:IsRiverCrossingToPlot(currentPlot) then nodeDistance = nodeDistance + 1.5 end
 					local destDistance		= Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), destPlot:GetX(), destPlot:GetY())
 					local tentative_gscore 	= (gScore[currentNode] or math.huge) + nodeDistance
 				
 					table.insert (openSet, {Node = node, Score = tentative_gscore + destDistance})
 
 					if tentative_gscore < (gScore[node] or math.huge) then
+						local plot, edge = nodeToPlotEdge(node)
+						Dprint( DEBUG_PLOT_SCRIPT, "New best : ", plot:GetX(), plot:GetY(), " edge direction = ", DirectionString[edge])
 						comeFrom[node] = currentNode
 						gScore[node] = tentative_gscore
 						fScore[node] = tentative_gscore + destDistance
@@ -1000,43 +1031,60 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 		local data = table.remove(openSet)
 		if data then
 			local plot, edge = nodeToPlotEdge(data.Node)
-			print("Next to test : ", plot:GetX(), plot:GetY(), " edge direction = ", DirectionString[edge], data.Node, data.Score)
+			Dprint( DEBUG_PLOT_SCRIPT, "Next to test : ", plot:GetX(), plot:GetY(), " edge direction = ", DirectionString[edge], data.Node, data.Score)
 			currentNode = data.Node 
 		else
 			currentNode = nil
 		end
 	end
-	print("failed to find a path")
+	Dprint( DEBUG_PLOT_SCRIPT, "failed to find a path")
 end
 
 
 function GetNeighbors(node)
-	--print("get neighbors :")
+	local DEBUG_PLOT_SCRIPT			= false
+	Dprint( DEBUG_PLOT_SCRIPT, "Get neighbors :")
 	local neighbors 				= {}
 	local plot, edge 				= nodeToPlotEdge(node)
 	local oppositeEdge				= (edge + 3) % 6
 	local oppositePlot				= Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), edge)
 	local nextEdge 					= (edge + 1) % 6
 	local prevEdge 					= (edge - 1) % 6
-	local clockPlot, clockEdge		= plot:GetNextClockRiverPlot(edge)
-	local counterPlot, counterEdge	= plot:GetNextCounterClockRiverPlot(edge)
 	
-	if plot:IsEdgeRiver(nextEdge) 				then table.insert(neighbors, { Plot = plot, 		Edge = nextEdge }	) end
-	if plot:IsEdgeRiver(prevEdge) 				then table.insert(neighbors, { Plot = plot, 		Edge = prevEdge }	) end
-	if clockPlot								then table.insert(neighbors, { Plot = clockPlot, 	Edge = clockEdge }	) end
-	if counterPlot 								then table.insert(neighbors, { Plot = counterPlot, 	Edge = counterEdge }) end
-	if oppositePlot:IsEdgeRiver(oppositeEdge)	then table.insert(neighbors, { Plot = oppositePlot, Edge = oppositeEdge }) end
+	-- Check next edge, same plot
+	Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", plot:GetX(), plot:GetY(), " river edge  = ", DirectionString[nextEdge])
+	if plot:IsEdgeRiver(nextEdge) then
+		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", plot:GetX(), plot:GetY(), " river edge  = ", DirectionString[nextEdge])
+ 		table.insert( neighbors, { Plot = plot, Edge = nextEdge } ) 
+	end
+
+	-- Check previous edge, same plot
+	Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", plot:GetX(), plot:GetY(), " river edge  = ", DirectionString[prevEdge])
+	if plot:IsEdgeRiver(prevEdge) then
+		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", plot:GetX(), plot:GetY(), " river edge  = ", DirectionString[prevEdge])
+		table.insert( neighbors, { Plot = plot, Edge = prevEdge } ) 
+	end
+
+	-- Add Opposite plot, same edge
+	--Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", oppositePlot:GetX(), oppositePlot:GetY(), " river edge  = ", DirectionString[oppositeEdge])
+	--if oppositePlot:IsEdgeRiver(oppositeEdge) then
+		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", oppositePlot:GetX(), oppositePlot:GetY(), " river edge  = ", DirectionString[oppositeEdge])
+		table.insert( neighbors, { Plot = oppositePlot, 	Edge = oppositeEdge } )
+	--end
 	
-	-------
+	-- Test diverging edge on next plot (clock direction)
 	local clockPlot, clockEdge		= plot:GetNextClockRiverPlot(nextEdge)
-	local counterPlot, counterEdge	= plot:GetNextCounterClockRiverPlot(nextEdge)	
-	if clockPlot								then table.insert(neighbors, { Plot = clockPlot, 	Edge = clockEdge }	) end
-	if counterPlot 								then table.insert(neighbors, { Plot = counterPlot, 	Edge = counterEdge }) end
+	if clockPlot then
+		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", clockPlot:GetX(), clockPlot:GetY(), " river edge  = ", DirectionString[clockEdge])
+		table.insert(neighbors, { Plot = clockPlot, Edge = clockEdge }	)
+	end
 	
-	local clockPlot, clockEdge		= plot:GetNextClockRiverPlot(prevEdge)
-	local counterPlot, counterEdge	= plot:GetNextCounterClockRiverPlot(prevEdge)	
-	if clockPlot								then table.insert(neighbors, { Plot = clockPlot, 	Edge = clockEdge }	) end
-	if counterPlot 								then table.insert(neighbors, { Plot = counterPlot, 	Edge = counterEdge }) end
+	-- Test diverging edge on previous plot (counter-clock direction)
+	local counterPlot, counterEdge	= plot:GetNextCounterClockRiverPlot(prevEdge)
+	if counterPlot then 
+		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", counterPlot:GetX(), counterPlot:GetY(), " river edge  = ", DirectionString[counterEdge])
+		table.insert(neighbors, { Plot = counterPlot, 	Edge = counterEdge }) 
+	end
 	
 	return neighbors
 end
