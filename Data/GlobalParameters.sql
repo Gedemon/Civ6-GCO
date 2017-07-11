@@ -5,13 +5,14 @@
 */
 
 /* Replaces */
-UPDATE GlobalParameters SET Value = 65534	WHERE Name = 'CITY_GROWTH_THRESHOLD';					-- default = 15
-UPDATE GlobalParameters SET Value = 1		WHERE Name = 'CITY_GROWTH_MULTIPLIER';					-- default = 8
-UPDATE GlobalParameters SET Value = 1		WHERE Name = 'CITY_GROWTH_EXPONENT';					-- default = 1.5
-UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_FOOD_CONSUMPTION_PER_POPULATION';	-- default = 2
-UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_CAPTURED_DAMAGE_PERCENTAGE';			-- default = 50
-UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_AMENITIES_FOR_FREE';					-- default = 1
-UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_POP_PER_AMENITY';					-- default = 2
+UPDATE GlobalParameters SET Value = 65534	WHERE Name = 'CITY_GROWTH_THRESHOLD';						-- default = 15
+UPDATE GlobalParameters SET Value = 1		WHERE Name = 'CITY_GROWTH_MULTIPLIER';						-- default = 8
+UPDATE GlobalParameters SET Value = 1		WHERE Name = 'CITY_GROWTH_EXPONENT';						-- default = 1.5
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_FOOD_CONSUMPTION_PER_POPULATION';		-- default = 2
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_CAPTURED_DAMAGE_PERCENTAGE';				-- default = 50
+UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_AMENITIES_FOR_FREE';						-- default = 1
+UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_POP_PER_AMENITY';						-- default = 2
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_POPULATION_LOSS_TO_CONQUEST_PERCENTAGE';	-- default = 0.25
  
 /* Defines */
 

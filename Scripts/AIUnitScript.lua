@@ -27,7 +27,7 @@ function OnPlayerTurnStarted( iPlayer )
 		MoveToXY(pUnit, pUnit:GetX()-2 , pUnit:GetY())
 	end
 end
-GameEvents.PlayerTurnStarted.Add( OnPlayerTurnStarted )
+--GameEvents.PlayerTurnStarted.Add( OnPlayerTurnStarted )
 
 function OnPlayerTurnActivated( iPlayer, bFirstTime )
 	local player = Players[iPlayer]
@@ -36,7 +36,7 @@ function OnPlayerTurnActivated( iPlayer, bFirstTime )
 		UnitManager.ChangeMovesRemaining(pUnit, - pUnit:GetMovesRemaining() )
 	end
 end
-Events.PlayerTurnActivated.Add( OnPlayerTurnActivated )
+--Events.PlayerTurnActivated.Add( OnPlayerTurnActivated )
 
 
 function OnRemotePlayerTurnBegin( iPlayer )
@@ -46,11 +46,12 @@ function OnRemotePlayerTurnBegin( iPlayer )
 		UnitManager.ChangeMovesRemaining(pUnit, - pUnit:GetMovesRemaining() )
 	end
 end
-Events.RemotePlayerTurnBegin.Add( OnRemotePlayerTurnBegin )
+--Events.RemotePlayerTurnBegin.Add( OnRemotePlayerTurnBegin )
 
 function UnitMovementPointsRestored(PlayerID, UnitID)
 	local unit = UnitManager.GetUnit(PlayerID, UnitID)
-	UnitManager.ChangeMovesRemaining(unit, - unit:GetMovesRemaining() )
+	MoveToXY(unit, unit:GetX()+2 , unit:GetY())
+	--UnitManager.ChangeMovesRemaining(unit, - unit:GetMovesRemaining() )
 end
 Events.UnitMovementPointsRestored.Add( UnitMovementPointsRestored )
 --]]

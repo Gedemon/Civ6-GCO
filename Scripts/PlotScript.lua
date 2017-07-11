@@ -1011,7 +1011,7 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 						end
 					end
 					--]]
-					if data.Plot:IsRiverCrossingToPlot(currentPlot) then nodeDistance = nodeDistance + 1.5 end
+					if data.Plot:IsRiverCrossingToPlot(currentPlot) then nodeDistance = nodeDistance + 0.15 end
 					local destDistance		= Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), destPlot:GetX(), destPlot:GetY())
 					local tentative_gscore 	= (gScore[currentNode] or math.huge) + nodeDistance
 				

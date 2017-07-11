@@ -731,7 +731,9 @@ function ShowPlotInfo( plotId:number, bIsUpdate:boolean )
 			};
 			
 			-- GCO <<<<<
-			local localPlayer	= GCO.GetPlayer(Game.GetLocalPlayer())
+			local localPlayerID = Game.GetLocalPlayer()
+			if localPlayerID == -1 then localPlayerID = 0 end
+			local localPlayer	= GCO.GetPlayer(localPlayerID)
 			local featureID 	= plot:GetFeatureType()
 			local terrainID 	= plot:GetTerrainType()
 			
