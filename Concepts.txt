@@ -953,6 +953,359 @@ Hegemony as a possible victory condition ?
 
 --]]
 
+
+--===============================--
+--[[ TECH TREE
+
+==============================================================================================================================================
+= ANCIENT ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Alphabet / Writing
+Animal Husbandry        (cows, sheep, horses)
+Ceremonial Burial
+Warrior Code            (combats XP)
+The Wheel
+Pottery
+Sailing                    (water tiles, sea resources)
+Agriculture                (wheat, rices)
+Herbalism                (plants, wounded)
+Trapping                (deers)
+
+
+-------
+Tiers 2
+-------
+
+Code of Laws            (Writing)
+Currency                (Writing)
+Mysticism                (Ceremonial Burial)
+Astrology                (Ceremonial Burial)
+Mining                    (Pottery, mineral/metal resources)
+Bronze Working            (Pottery)
+Irrigation                (Agriculture, corresponding resources)
+
+
+-------
+Tiers 3
+-------
+
+Foreign Trade            (Currency & Code of Laws)
+Polytheism                (Mysticism)
+Military Tradition        (Warrior Code, combats)
+Masonry                    (Pottery & Mining)
+Map Making                (Writing, find land plots: mountains, natural wonders)
+Calendar                (Writing & Astrology)
+                            
+
+==============================================================================================================================================
+= CLASSICAL ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Games and Recreation    (population)
+Philosophy                (Code of Laws & Mysticism, population)
+Monotheism                (Polytheism)
+Military Training        (Military Tradition, combats)
+Recorded History        (Writing, killed units | knowledge of a captured city | gain a level 3 unit)
+Iron Working            (Bronze Working & Mining, Iron)
+Celestial Navigation    (Calendar)
+Horseback Riding        (Military Tradition, Animal Husbandry)
+
+
+-------
+Tiers 2
+-------
+
+Mathematics                (Calendar | Currency)
+Literacy                (Currency & Philosophy)
+Drama and Poetry        (Games and Recreation)
+Construction            (Masonry)
+
+
+-------
+Tiers 3
+-------
+
+Paper                    (Literacy | Drama and Poetry | Recorded History)
+Theology                (Monotheism)
+Engineering                (Construction & Mathematics)
+Surgery                    (Herbalism, wounded)
+
+==============================================================================================================================================
+= MEDIEVAL ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Education                (Paper & Literacy)
+Feudalism                (Military Training & Recorded History)
+Apprenticeship            (Engineering)
+Military Engineering    (Military Training & Engineering)
+Heavy Fortifications    (Engineering)
+Machinery                (Engineering)
+
+
+-------
+Tiers 2
+-------
+
+Physics                    (Education & Mathematics)
+Civil Service            (Feudalism)
+Guilds                    (Apprenticeship)
+Optics                    (Machinery)
+Medicine                (Education & Surgery, illness)
+
+-------
+Tiers 3
+-------
+
+Compass                    (Physics & Celestial Navigation)
+Printing Press            (Guilds & Machinery)
+Metal casting            (Physics & Machinery)
+
+==============================================================================================================================================
+= DISCOVERY ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Nationalism                (Civil Service)
+Diplomatic Service        (Civil Service)
+Banking                    (Guilds)
+Siege tactics            ((Heavy Fortifications | Attacking city with a castle) & Military Engineering)
+Gunpowder                (Metal casting)
+Astronomy                (Optics & Physics & Celestial Navigation)
+
+
+-------
+Tiers 2
+-------
+
+Humanism                (Medicine)
+Architecture            (Heavy Fortifications)
+Mercantilism            (Banking)
+Magnetism                (Compass)
+Cartography                (Compass & Optics)
+Microbiology            (Medicine & Optics)
+Scientific Method        (Physics & Medicine)
+
+
+-------
+Tiers 3
+-------
+
+Liberalism                (Humanism)
+Constitution            (Humanism & Nationalism)
+Chemistry                (Scientific Method)
+Mass Production            (Mercantilism & Machinery)
+Theory of Gravity        (Scientific Method & Astronomy)
+
+
+==============================================================================================================================================
+= INDUSTRIAL ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Natural History            (Cartography & Scientific Method)
+Economics                (Mercantilism & Scientific Method)
+Steel                    (Mass Production & Metal casting)
+Rifling                    (Mass Production & Gunpowder & Metal casting)
+Steam Engine            (Chemistry & Metal casting)
+
+
+-------
+Tiers 2
+-------
+
+Fertilizer                (Chemistry)
+Electricity                (Magnetism)
+Assembly Lines            (Mass Production & Economics)
+Conscription            (Rifling, Constitution)
+Civil Engineering        (Steam Engine)
+Military Science        (Rifling)
+Vaccine                    (Microbiology & Scientific Method)
+
+
+-------
+Tiers 3
+-------
+
+Explosives                (Fertilizer & Steel)
+Capitalism                (Liberalism & Economics)
+Communism                (Civil Engineering & Assembly Lines)
+Industrialization        (Assembly Lines & (Steam Engine | Electricity))
+Refining                (Chemistry & (Steam Engine | Electricity))
+Urbanization            (Civil Engineering)
+
+
+==============================================================================================================================================
+= MACHINE ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Mobilization            (Conscription)
+Replacable Parts        (Industrialization)
+Combustion                (Refining)
+Scorched Earth            (Explosives & Military Science)
+
+
+-------
+Tiers 2
+-------
+
+Refrigeration            (Industrialization)
+Fascism                    (Mobilization & Industrialization)
+Electronics                (Replacable Parts & Electricity)
+Flight                    (Combustion, Industrialization)
+Ballistics                (Explosives & Military Science)
+
+
+-------
+Tiers 3
+-------
+
+Atomic Theory            (Electronics & Theory of Gravity)
+Radio                    (Electronics)
+Biotechnology            (Refrigeration)
+
+
+==============================================================================================================================================
+= ARMS RACE ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Mass Media                (Radio)
+Radar                    (Radio)
+Advanced Flight            (Flight, air combats)
+Advanced Ballistics        (Ballistics, ranged combats)
+Armored Warfare            (armored combats)
+Sonar                    (Radio)
+Plastics                (Combustion & Replacable Parts)
+
+
+-------
+Tiers 2
+-------
+ 
+Combined Arms            (Radio & Armored Warfare & Advanced Flight)
+Antibiotics                (Biotechnology)
+
+
+-------
+Tiers 3
+-------
+
+Amphibious Warfare        (Combined Arms)
+Nuclear Fission            (Atomic Theory, uranium)
+Jet Engine                (Advanced Flight & Electronics, air combats)
+
+
+==============================================================================================================================================
+= ATOMIC ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Ecology                    (Natural History)       
+Rocketry                (Jet Engine & Refrigeration)
+Fundamentalism            (Mass Media)
+
+
+-------
+Tiers 2
+-------
+
+Nuclear Power            (Nuclear Fission)
+Computers                (Electronics)
+Synthetic Materials        (Plastics)
+Guerilla Warfare        (Scorched Earth)
+Genetics                (Biotechnology)
+
+
+-------
+Tiers 3
+-------
+
+Recycling                (Ecology)
+Miniaturisation            (Computers & Radio)
+
+
+==============================================================================================================================================
+= INFORMATION ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Telecommunication        (Miniaturisation)
+Satellites                (Miniaturisation & Rocketry)
+Lasers                    (Miniaturisation)
+Composites                (Synthetic Materials)
+Mobile Tactics            (Amphibious Warfare & Guerilla Warfare)
+
+
+-------
+Tiers 2
+-------
+
+Social Media            (Telecommunication)
+Globalization            (Satellites & Telecommunication)
+Guidance Systems        (Lasers & Telecommunication)
+Eugenism                (Genetics)
+
+
+-------
+Tiers 3
+-------
+
+Fiber Optics            (Computers & Lasers)   
+Superconductors            (Composites & Refrigeration)
+Stealth                    (Composites & Guidance Systems)
+
+
+==============================================================================================================================================
+= FUTURE ERA
+==============================================================================================================================================
+-------
+Tiers 1
+-------
+
+Fusion Power            (Lasers & Superconductors)
+Nanotechnology            (Lasers)
+Genetics Engineering    (Eugenism)
+
+
+-------
+Tiers 2
+-------
+
+Artificial Intelligence    (Nanotechnology)
+
+
+-------
+Tiers 3
+-------
+
+Robotics                (Artificial Intelligence & Fusion Power)
+
+--]]
+
+
 --===============================--
 --[[ TERRITORY
 --===============================--

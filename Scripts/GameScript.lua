@@ -70,7 +70,7 @@ function SetResourcesCount()
 		local resCount = plot:GetResourceCount() 
 		if resCount > 0 then
 			local row 		= GameInfo.Resources[plot:GetResourceType()]
-			local baseNum 	= ResClassCount[row.ResourceClassType]
+			local baseNum 	= ResClassCount[row.ResourceClassType] or 1
 			if ResTypeBonus[row.ResourceType] then 
 				baseNum = baseNum + ResTypeBonus[row.ResourceType]
 			end

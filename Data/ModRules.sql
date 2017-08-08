@@ -126,7 +126,7 @@ UPDATE Buildings SET PurchaseYield = NULL;
 */
 --/*
 -- Leaders
-CREATE TABLE NFLeaders (
+CREATE TABLE IF NOT EXISTS NFLeaders (
       LeaderType  TEXT NOT NULL,
       TraitType   TEXT DEFAULT 'TRAIT_LEADER_NONE',
       Kind        TEXT DEFAULT 'KIND_TRAIT',
@@ -139,7 +139,7 @@ UPDATE NFLeaders SET TraitType=(TraitType || '_' || substr(LeaderType,8));
 
 
 -- Civilizations
-CREATE TABLE NFCivs (
+CREATE TABLE IF NOT EXISTS NFCivs (
       CivilizationType TEXT NOT NULL,
       TraitType        TEXT DEFAULT 'TRAIT_CIVILIZATION_NONE',
       Kind             TEXT DEFAULT 'KIND_TRAIT',
@@ -179,6 +179,9 @@ DELETE FROM LeaderTraits
 
 
 --*/
+
+DROP TABLE NFLeaders;
+DROP TABLE NFCivs;
 
 /*
 	Remap Table IDs

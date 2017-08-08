@@ -96,8 +96,8 @@ UPDATE GlobalParameters SET Value = 12		WHERE Name = 'COMBAT_BASE_DAMAGE';		-- d
 UPDATE GlobalParameters SET Value = 6		WHERE Name = 'COMBAT_MAX_EXTRA_DAMAGE';	-- default = 12
 
 /* remove healing (handled in Lua) */
-UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_CITY_GARRISON';		-- default = 20
-UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_CITY_OUTER_DEFENSES';	-- default = 10
+UPDATE GlobalParameters SET Value = 10		WHERE Name = 'COMBAT_HEAL_CITY_GARRISON';		-- default = 20
+UPDATE GlobalParameters SET Value = 5		WHERE Name = 'COMBAT_HEAL_CITY_OUTER_DEFENSES';	-- default = 10
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_LAND_ENEMY';			-- default = 5
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_LAND_FRIENDLY';		-- default = 15
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_LAND_NEUTRAL';		-- default = 10
@@ -122,15 +122,15 @@ UPDATE GlobalParameters SET Value = 14		WHERE Name = 'COMBAT_RANGED_VS_DISTRICT_
 
 UPDATE GlobalParameters SET Value = 75		WHERE Name = 'COMBAT_CITY_RANGED_DAMAGE_THRESHOLD';	-- default = 50
 
-UPDATE Districts SET HitPoints = 100 WHERE DistrictType = 'DISTRICT_CITY_CENTER';					-- default = 200
-UPDATE ModifierArguments SET Value = 100 WHERE ModifierID = 'CIVIL_ENGINEERING_URBAN_DEFENSES';		-- default = 200 -- Civil Engineering removed to try to remove city ranged attack
+UPDATE Districts SET HitPoints = 200 WHERE DistrictType = 'DISTRICT_CITY_CENTER';					-- default = 200
+UPDATE ModifierArguments SET Value = 200 WHERE ModifierID = 'CIVIL_ENGINEERING_URBAN_DEFENSES';		-- default = 200
 
-UPDATE Buildings SET OuterDefenseHitPoints = 10 WHERE BuildingType ='BUILDING_PALACE';		-- default = 0
-UPDATE Buildings SET OuterDefenseHitPoints = 20 WHERE BuildingType ='BUILDING_WALLS';		-- default = 50 -- Walls removed to try to remove city ranged attack
-UPDATE Buildings SET OuterDefenseHitPoints = 30 WHERE BuildingType ='BUILDING_CASTLE';		-- default = 50
-UPDATE Buildings SET OuterDefenseHitPoints = 40 WHERE BuildingType ='BUILDING_STAR_FORT';	-- default = 50
+UPDATE Buildings SET OuterDefenseHitPoints = 0 WHERE BuildingType ='BUILDING_PALACE';		-- default = 0
+UPDATE Buildings SET OuterDefenseHitPoints = 50 WHERE BuildingType ='BUILDING_WALLS';		-- default = 50
+UPDATE Buildings SET OuterDefenseHitPoints = 50 WHERE BuildingType ='BUILDING_CASTLE';		-- default = 50
+UPDATE Buildings SET OuterDefenseHitPoints = 50 WHERE BuildingType ='BUILDING_STAR_FORT';	-- default = 50
 
-UPDATE Buildings SET OuterDefenseStrength = 2 WHERE BuildingType ='BUILDING_WALLS';		-- default = 2 -- Walls removed to try to remove city ranged attack
+UPDATE Buildings SET OuterDefenseStrength = 2 WHERE BuildingType ='BUILDING_WALLS';		-- default = 2
 UPDATE Buildings SET OuterDefenseStrength = 2 WHERE BuildingType ='BUILDING_CASTLE';	-- default = 2
 UPDATE Buildings SET OuterDefenseStrength = 2 WHERE BuildingType ='BUILDING_STAR_FORT';	-- default = 2
 

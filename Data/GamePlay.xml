@@ -217,6 +217,20 @@
 	</BuildingStock>
 	
 	<Building_YieldChanges>
+		<Row BuildingType="BUILDING_STONEMASON" 	YieldType="YIELD_PRODUCTION" YieldChange="1"/>
+		<Row BuildingType="BUILDING_CARPENTER" 		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	YieldType="YIELD_PRODUCTION" YieldChange="2"/>
+
+		<Row BuildingType="BUILDING_BUTCHERY" 		YieldType="YIELD_FOOD" YieldChange="1"/>
+		<Row BuildingType="BUILDING_FISH_MARKET" 	YieldType="YIELD_FOOD" YieldChange="1"/>
+
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	YieldType="YIELD_GOLD" YieldChange="2"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	YieldType="YIELD_GOLD" YieldChange="2"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	YieldType="YIELD_GOLD" YieldChange="2"/>
+
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	YieldType="YIELD_GOLD" YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	YieldType="YIELD_GOLD" YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	YieldType="YIELD_GOLD" YieldChange="1"/>
 	<!--
 		<Row BuildingType="BUILDING_HERBALIST" YieldType="YIELD_HEALTH" YieldChange="1"/>
 		

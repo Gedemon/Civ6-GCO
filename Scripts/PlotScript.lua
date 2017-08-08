@@ -1119,7 +1119,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	if not plot then plot = Map.GetPlot(1,1) end
 	local p = getmetatable(plot).__index
 	
-	p.IsImprovementPillaged			= GCO.PlotIsImprovementPillaged -- not working ?
+	--p.IsImprovementPillaged			= GCO.PlotIsImprovementPillaged -- not working ?
 	
 	p.GetKey						= GetKey
 	p.GetTotalCulture 				= GetTotalCulture
