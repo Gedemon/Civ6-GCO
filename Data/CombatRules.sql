@@ -26,18 +26,16 @@ UPDATE Units SET RangedCombat ='65', Combat ='60' WHERE UnitType = 'UNIT_AT_CREW
 UPDATE Units SET RangedCombat ='75', Combat ='70' WHERE UnitType = 'UNIT_MODERN_AT';	-- default Combat = 80
 
 /* Create new formation classes */
-/*
--- Need DLL access to link FORMATION CLASS to a stacking class.
+-- Need DLL access to really link FORMATION CLASS to a stacking class ?
 INSERT INTO Types (Type, Kind) VALUES ('FORMATION_CLASS_RANGED', 'KIND_FORMATION_CLASS');
 INSERT INTO UnitFormationClasses (FormationClassType, Name) VALUES ('FORMATION_CLASS_RANGED', 'Ranged');
 
 INSERT INTO Types (Type, Kind) VALUES ('FORMATION_CLASS_RECON', 'KIND_FORMATION_CLASS');
 INSERT INTO UnitFormationClasses (FormationClassType, Name) VALUES ('FORMATION_CLASS_RECON', 'Recon');
-*/
 
 /* Apply the new classes (order is important !) */
-UPDATE Units SET FormationClass = 'FORMATION_CLASS_SUPPORT' WHERE (RangedCombat > 0 OR Bombard > 0) AND (Domain = 'DOMAIN_LAND');
-UPDATE Units SET FormationClass = 'FORMATION_CLASS_SUPPORT' WHERE PromotionClass = 'PROMOTION_CLASS_RECON' AND Domain = 'DOMAIN_LAND';
+UPDATE Units SET FormationClass = 'FORMATION_CLASS_RANGED' WHERE (RangedCombat > 0 OR Bombard > 0) AND (Domain = 'DOMAIN_LAND');
+UPDATE Units SET FormationClass = 'FORMATION_CLASS_RECON' WHERE PromotionClass = 'PROMOTION_CLASS_RECON' AND Domain = 'DOMAIN_LAND';
 
 /* Apply new AI */
 /*
@@ -45,6 +43,8 @@ UPDATE Units SET FormationClass = 'FORMATION_CLASS_SUPPORT' WHERE PromotionClass
 DELETE FROM UnitAiInfos WHERE UnitType = (SELECT UnitType FROM Units WHERE (RangedCombat > 0 OR Bombard > 0) AND (Domain = 'DOMAIN_LAND'));
 */
 UPDATE UnitAiInfos SET AiType ='UNITTYPE_RANGED' WHERE AiType ='UNITTYPE_MELEE' AND (UnitType = 'UNIT_AT_CREW' OR UnitType = 'UNIT_MODERN_AT');
+
+/*
 INSERT INTO UnitAiInfos 
 (	UnitType, 				AiType) VALUES
 (	'UNIT_AMERICAN_P51', 	'UNITTYPE_RANGED'),
@@ -53,6 +53,7 @@ INSERT INTO UnitAiInfos
 (	'UNIT_FIGHTER', 		'UNITTYPE_RANGED'),
 (	'UNIT_JET_BOMBER', 		'UNITTYPE_RANGED'),
 (	'UNIT_JET_FIGHTER', 	'UNITTYPE_RANGED');
+*/
 
 /* Range = 1 for all Ranged Land/Sea unit */
 UPDATE Units SET Range ='1' WHERE (RangedCombat > 0 OR Bombard > 0) AND (Domain = 'DOMAIN_LAND' OR Domain = 'DOMAIN_SEA');
