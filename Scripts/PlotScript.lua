@@ -813,33 +813,6 @@ Events.CityInitialized.Add(InitializeCityPlots)
 -----------------------------------------------------------------------------------------
 -- Rivers Functions
 -----------------------------------------------------------------------------------------
-local DirectionStr = {
-		[DirectionTypes.DIRECTION_WEST] = "W",
-		[DirectionTypes.DIRECTION_NORTHWEST] = "NW",
-		[DirectionTypes.DIRECTION_NORTHEAST] = "NE",
-		[DirectionTypes.DIRECTION_EAST] = "E",
-		[DirectionTypes.DIRECTION_SOUTHEAST] = "SE",
-		[DirectionTypes.DIRECTION_SOUTHWEST] = "SW",
-	}
-	
-local FlowDirectionStr = {
-		[FlowDirectionTypes.FLOWDIRECTION_NORTHEAST] = "NE",
-		[FlowDirectionTypes.FLOWDIRECTION_NORTHWEST] = "NW",
-		[FlowDirectionTypes.FLOWDIRECTION_NORTH] = "N",
-		[FlowDirectionTypes.FLOWDIRECTION_SOUTHEAST] = "SE",
-		[FlowDirectionTypes.FLOWDIRECTION_SOUTH] = "S",
-		[FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST] = "SW",
-		[FlowDirectionTypes.NO_FLOWDIRECTION] = "NO FLOW",
-	}
-
-local PlotPosition = {
-	NORTHEAST 	= 1,
-	EAST 		= 2,
-	SOUTHEAST 	= 3,
-	SOUTHWEST 	= 4,
-	WEST 		= 5,
-	NORTHWEST 	= 6,
-	}
 
 function IsEOfRiver(self)
 	if not self:IsRiver() then return false	end
@@ -867,15 +840,6 @@ function GetOppositeFlowDirection(dir)
 	return ((dir + 3) % numTypes);
 end
 
-local opposedDirection = {
-	[DirectionTypes.DIRECTION_NORTHEAST] 	= DirectionTypes.DIRECTION_SOUTHWEST,
-	[DirectionTypes.DIRECTION_EAST] 		= DirectionTypes.DIRECTION_WEST,
-	[DirectionTypes.DIRECTION_SOUTHEAST] 	= DirectionTypes.DIRECTION_NORTHWEST,
-    [DirectionTypes.DIRECTION_SOUTHWEST] 	= DirectionTypes.DIRECTION_NORTHEAST,
-	[DirectionTypes.DIRECTION_WEST] 		= DirectionTypes.DIRECTION_EAST,
-	[DirectionTypes.DIRECTION_NORTHWEST] 	= DirectionTypes.DIRECTION_SOUTHEAST
-	}
-	
 local DirectionString = {
 	[DirectionTypes.DIRECTION_NORTHEAST] 	= "NORTHEAST",
 	[DirectionTypes.DIRECTION_EAST] 		= "EAST",
@@ -940,7 +904,7 @@ function GetRiverPath(self, destPlot)
 end
 
 function GetRiverPathFromEdge(self, edge, destPlot)
-	local DEBUG_PLOT_SCRIPT			= true
+	local DEBUG_PLOT_SCRIPT			= false
 
 	if not self:IsRiver() or not destPlot:IsRiver() then return end	
 	
@@ -1147,7 +1111,6 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.IsEOfRiver					= IsEOfRiver
 	p.IsSEOfRiver					= IsSEOfRiver
 	p.IsSWOfRiver					= IsSWOfRiver
-	p.IsFollowingRiverTo			= IsFollowingRiverTo	-- not reliable
 	p.IsEdgeRiver					= IsEdgeRiver
 	p.GetNextClockRiverPlot			= GetNextClockRiverPlot
 	p.GetNextCounterClockRiverPlot	= GetNextCounterClockRiverPlot

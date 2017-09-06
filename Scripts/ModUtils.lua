@@ -47,12 +47,12 @@ local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
 local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 
 local ResourceTempIcons = {		-- Table to store temporary icons for resources until new FontIcons could be added...
-		[woodResourceID] 		= "[ICON_RESOURCE_CLOVES]",
-		[materielResourceID] 	= "[ICON_Charges]",
+		--[woodResourceID] 		= "[ICON_RESOURCE_CLOVES]",
+		--[materielResourceID] 	= "[ICON_Charges]",
 		[steelResourceID] 		= "[ICON_New]",
 		[medicineResourceID] 	= "[ICON_Damaged]",
-		[leatherResourceID] 	= "[ICON_New]",
-		[plantResourceID] 		= "[ICON_RESOURCE_CINNAMON]",
+		--[leatherResourceID] 	= "[ICON_New]",
+		--[plantResourceID] 		= "[ICON_RESOURCE_CINNAMON]",
 		[foodResourceID] 		= "[ICON_Food]",
 		[personnelResourceID]	= "[ICON_Position]",
 	}

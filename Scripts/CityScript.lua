@@ -3996,7 +3996,7 @@ function OnCityProductionChanged(playerID, cityID, productionID, objectID, bCanc
 	print("OnCityProductionChanged", Locale.Lookup(city:GetName()), playerID, cityID, productionID, objectID, bCanceled, typeModifier)
 
 end
-Events.CityProductionChanged.Remove( OnCityProductionChanged )
+Events.CityProductionChanged.Add( OnCityProductionChanged )
 
 
 function OnCityFocusChange( playerID, cityID )

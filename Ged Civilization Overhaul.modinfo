@@ -37,6 +37,7 @@
 			<File>UI/CityPanel.lua</File>
 			<File>UI/CitySupport.lua</File>
 			<File>UI/ProductionPanel.lua</File>
+			<File>GCO_FontIcons.dds</File>
 		</ImportFiles>
 		
         <AddGameplayScripts>
@@ -147,6 +148,7 @@
 		<File>UI/CityPanel.lua</File>
 		<File>UI/CitySupport.lua</File>
 		<File>UI/ProductionPanel.lua</File>
+		<File>GCO_FontIcons.dds</File>
 		<File>GCO.dep</File>
 	</Files>
 </Mod>

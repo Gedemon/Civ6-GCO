@@ -322,7 +322,7 @@ function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
           bAdd = true
         elseif (sRoute == routes[6] and pDestPlot:IsWater()) then
           bAdd = true
-        elseif (sRoute == routes[7] and (pDestPlot:IsRiverConnection(direction) or pPlot:IsRiverConnection(opposed[direction])) ) then -- to do allows only descending = IsRiverConnection(direction) until specific technologie...
+        elseif (sRoute == routes[7] and (pDestPlot:IsRiverConnection(direction) or pPlot:IsRiverConnection(opposed[direction])) ) then -- use GetRiverPath from plot script instead
           bAdd = true
         end
 

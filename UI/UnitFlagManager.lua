@@ -940,23 +940,28 @@ function UnitFlag.UpdateName( self )
 
 		function ShowSupplyLine()
 			if not unitData.SupplyLineCityKey then return end
-			if bShownSupplyLine then return end
+			--if bShownSupplyLine then return end
 			UILens.SetActive("TradeRoute")
 			UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )
 			local pathPlots = pUnit:GetSupplyPathPlots()
 			if pathPlots then
 				local kVariations:table = {}
 				local lastElement : number = table.count(pathPlots)
-				local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
+				local localPlayer = Game.GetLocalPlayer()
+				if localPlayer == -1 then localPlayer = 0 end
+				local localPlayerVis:table = PlayersVisibility[localPlayer]
 				local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
 				if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
-					table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-					UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
+					table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )					
+					local color = RGBAValuesToABGRHex(0.25, 0.25, 0.25, 0.5) --RGBAValuesToABGRHex(1, 1, 1, 1)
+					UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, color )
 					bShownSupplyLine = true
 				end
 			end
 		end		
-		self.m_Instance.UnitIcon:RegisterMouseOverCallback( ShowSupplyLine )
+		--self.m_Instance.UnitIcon:RegisterMouseOverCallback( ShowSupplyLine )
+		self.m_Instance.UnitIcon:RegisterMouseEnterCallback( ShowSupplyLine )
+		--ShowSupplyLine()
 		-- GCO >>>>>
 		
 		self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) );

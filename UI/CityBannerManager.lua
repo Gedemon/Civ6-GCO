@@ -1368,11 +1368,18 @@ function CityBanner.UpdateName( self : CityBanner )
 					--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
 					
 					function ShowSupplyLine()
-						if bShownSupplyLine then return end
+						--if bShownSupplyLine then return end
 						local cityList = {}
 						
 						local linkedCities = city:GetTransferCities() or {}					
 						local exportCities = city:GetExportCities() or {}
+						
+						local localPlayer = Game.GetLocalPlayer()
+						if localPlayer == -1 then localPlayer = 0 end
+						local localPlayerVis:table = PlayersVisibility[localPlayer]
+									
+						local transferColor = RGBAValuesToABGRHex(0.3, 0.3, 0.3, 0.75) --RGBAValuesToABGRHex(1, 1, 1, 1)
+						local foreignTradeColor = RGBAValuesToABGRHex(1, 1, 1, 0.75)
 						
 						if not (linkedCities or exportCities) then return end
 						UILens.SetActive("TradeRoute")
@@ -1407,11 +1414,10 @@ function CityBanner.UpdateName( self : CityBanner )
 									end
 									local kVariations:table = {}
 									local lastElement : number = table.count(pathPlots)
-									local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
 									local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
 									if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
 										table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-										UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
+										UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, transferColor )
 										bShownSupplyLine = true
 									end
 								end
@@ -1444,18 +1450,17 @@ function CityBanner.UpdateName( self : CityBanner )
 									end
 									local kVariations:table = {}
 									local lastElement : number = table.count(pathPlots)
-									local localPlayerVis:table = PlayersVisibility[Game.GetLocalPlayer()]
 									local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
 									if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
 										table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-										UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, Game.GetLocalPlayer(), pathPlots, kVariations )
+										UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, foreignTradeColor )
 										bShownSupplyLine = true
 									end
 								end
 							end
 						end
 					end		
-					self.m_Instance.CityName:RegisterMouseOverCallback( ShowSupplyLine )				
+					self.m_Instance.CityName:RegisterMouseEnterCallback( ShowSupplyLine )				
 					
 					function OnMouseOut()
 						bShownSupplyLine = false

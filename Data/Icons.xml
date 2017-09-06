@@ -202,8 +202,27 @@
    </IconDefinitions>
   
   <IconDefinitions>	<!-- RESOURCES -->
-	<Row Name="RESOURCE_MATERIEL"        Atlas="ICON_ATLAS_STATS" Index="4"/>	<!-- Charges Icons -->
+	<Row Name="ICON_RESOURCE_MATERIEL"        Atlas="ICON_ATLAS_STATS" Index="4"/>	<!-- Charges Icons -->
   </IconDefinitions>
+  
+  	<IconTextureAtlases> <!-- FONT ICONS -->
+		<Row Name="ICON_GCO_ATLAS_FONT_ICON_BASELINE_4" Baseline="4" IconSize="22" IconsPerRow="11" IconsPerColumn="25" Filename="GCO_FontIcons.dds"/>
+		<Row Name="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Baseline="6" IconSize="22" IconsPerRow="11" IconsPerColumn="25" Filename="GCO_FontIcons.dds"/>
+		<Row Name="ICON_GCO_ATLAS_FONT_ICON_BASELINE_8" Baseline="8" IconSize="22" IconsPerRow="11" IconsPerColumn="25" Filename="GCO_FontIcons.dds"/>
+	</IconTextureAtlases>
+
+	<IconDefinitions> <!-- FONT ICONS -->
+		<Row Name="Wounded" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="20"/>
+		<Row Name="Kill" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="90"/>
+		<Row Name="Death" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="92"/>
+		<Row Name="Prisoners" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="91"/>
+		<Row Name="SlaveClass" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="89"/>
+		<Row Name="lowerClass" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="88"/>
+		<Row Name="RESOURCE_LEATHER" 	Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="67"/>
+		<Row Name="RESOURCE_PLANTS" 	Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="70"/>
+		<Row Name="RESOURCE_WOOD" 		Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="71"/>
+		<Row Name="RESOURCE_MATERIEL" 	Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="79"/>
+	</IconDefinitions>
 
   
   </GameInfo>
