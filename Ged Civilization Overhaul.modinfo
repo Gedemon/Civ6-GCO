@@ -82,6 +82,9 @@
 				<File>Data/CombatRules.sql</File>
 				<File>Data/ModRules.sql</File>
 				<File>Data/GamePlay.xml</File>
+				<File>Data/Buildings.xml</File>
+				<File>Data/Equipment.xml</File>
+				<File>Data/Resources.xml</File>
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
            	<Properties>
@@ -120,6 +123,9 @@
 		<File>Data/ModRules.sql</File>
 		<File>Data/Unlockers.sql</File>
 		<File>Text/GameText.xml</File>
+		<File>Data/Buildings.xml</File>
+		<File>Data/Equipment.xml</File>
+		<File>Data/Resources.xml</File>
 		<File>Text/ConfigText.xml</File>
 		<File>Config/Config.xml</File>
 		<File>Scripts/ModUtils.lua</File>
