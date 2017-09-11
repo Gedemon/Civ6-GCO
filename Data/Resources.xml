@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameInfo>
+
+	
+	<Types> <!-- Resources -->
+		<Row Type="RESOURCE_FOOD" 		Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_MATERIEL" 	Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_PERSONNEL" 	Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_STEEL" 		Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_WOOD" 		Kind="KIND_RESOURCE"/>
+		
+		<Row Type="RESOURCE_MEDICINE" 	Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_LEATHER" 	Kind="KIND_RESOURCE"/>
+		<Row Type="RESOURCE_PLANTS" 	Kind="KIND_RESOURCE"/>
+	</Types>
+	
+	<FeatureResourcesProduced>
+		<Row FeatureType="FEATURE_JUNGLE" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="3"/>
+		<Row FeatureType="FEATURE_FOREST" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="5"/>
+		<Row FeatureType="FEATURE_JUNGLE" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="6"/>
+		<Row FeatureType="FEATURE_FOREST" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="3"/>
+		<Row FeatureType="FEATURE_MARSH" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="8"/>
+	</FeatureResourcesProduced>	
+		
+	<Resources>
+		<Row ResourceType="RESOURCE_FOOD" 		Name="LOC_RESOURCE_FOOD_NAME" 		ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_MATERIEL" 	Name="LOC_RESOURCE_MATERIEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_PERSONNEL" 	Name="LOC_RESOURCE_PERSONNEL_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
+		<Row ResourceType="RESOURCE_STEEL" 		Name="LOC_RESOURCE_STEEL_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_WOOD" 		Name="LOC_RESOURCE_WOOD_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_PLANTS" 	Name="LOC_RESOURCE_PLANTS_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>		
+		<Row ResourceType="RESOURCE_MEDICINE" 	Name="LOC_RESOURCE_MEDICINE_NAME" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_LEATHER" 	Name="LOC_RESOURCE_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>		
+	</Resources>
+
+	<ResourceStockUsage>
+		<!-- The example belows means :	only surplus send to unit, need stock > 150% to send to another city, never request transfert, export at stock > 75%, import at stock < 50%, convert all  
+		<Row ResourceType="RESOURCE_WOOD" 	MinPercentLeftToSupply="100"	MinPercentLeftToTransfer="150"	MaxPercentLeftToRequest="0"	MinPercentLeftToExport="75"	MaxPercentLeftToImport="50"	MinPercentLeftToConvert="0"	/>
+		-->
+		
+	</ResourceStockUsage>
+
+	<TerrainResourcesProduced>
+		<Row TerrainType="TERRAIN_DESERT_HILLS"	ResourceType="RESOURCE_COPPER" 	NumPerTerrain="1"/>
+		<Row TerrainType="TERRAIN_DESERT"		ResourceType="RESOURCE_SALT" 	NumPerTerrain="1"/>
+		<Row TerrainType="TERRAIN_DESERT" 		ResourceType="RESOURCE_STONE" 	NumPerTerrain="1"/>
+		<Row TerrainType="TERRAIN_GRASS_HILLS" 	ResourceType="RESOURCE_COPPER" 	NumPerTerrain="2"/>
+		<Row TerrainType="TERRAIN_GRASS_HILLS" 	ResourceType="RESOURCE_IRON" 	NumPerTerrain="1"/>
+		<Row TerrainType="TERRAIN_GRASS_HILLS" 	ResourceType="RESOURCE_STONE" 	NumPerTerrain="3"/>
+		<Row TerrainType="TERRAIN_PLAINS" 		ResourceType="RESOURCE_STONE" 	NumPerTerrain="1"/>
+		<Row TerrainType="TERRAIN_PLAINS_HILLS" ResourceType="RESOURCE_COPPER" 	NumPerTerrain="3"/>
+		<Row TerrainType="TERRAIN_PLAINS_HILLS" ResourceType="RESOURCE_IRON" 	NumPerTerrain="2"/>
+		<Row TerrainType="TERRAIN_PLAINS_HILLS" ResourceType="RESOURCE_STONE" 	NumPerTerrain="4"/>
+		<Row TerrainType="TERRAIN_TUNDRA_HILLS" ResourceType="RESOURCE_COPPER" 	NumPerTerrain="2"/>
+		<Row TerrainType="TERRAIN_TUNDRA_HILLS" ResourceType="RESOURCE_IRON" 	NumPerTerrain="1"/>
+		<Row TerrainType="TERRAIN_TUNDRA_HILLS" ResourceType="RESOURCE_STONE" 	NumPerTerrain="4"/>
+		<Row TerrainType="TERRAIN_SNOW_HILLS" 	ResourceType="RESOURCE_COPPER" 	NumPerTerrain="1"/>
+		<Row TerrainType="TERRAIN_SNOW_HILLS" 	ResourceType="RESOURCE_IRON" 	NumPerTerrain="1"/>
+		<Row TerrainType="TERRAIN_SNOW_HILLS" 	ResourceType="RESOURCE_STONE" 	NumPerTerrain="1"/>
+	</TerrainResourcesProduced>	
+
+</GameInfo>

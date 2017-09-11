@@ -136,23 +136,55 @@ CREATE TABLE IF NOT EXISTS ResourceStockUsage
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
-CREATE TABLE IF NOT EXISTS UnitEquipmentResources
+		
+CREATE TABLE IF NOT EXISTS EquipmentClasses 
 	(
-		EquipmentType TEXT NOT NULL,
-		ResourceType TEXT NOT NULL,
-		Amount INTEGER NOT NULL DEFAULT 0,
-		PRIMARY KEY(EquipmentType, ResourceType),
-		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
+		EquipmentClass TEXT, 														-- CLASS_VEHICLE, CLASS_GEAR, ...
+		Name TEXT,																	-- "Tanks", "Iron Materiel",...
+		PRIMARY KEY(EquipmentClass)
+	);
+	
+CREATE TABLE IF NOT EXISTS Equipments
+	(
+		ResourceType TEXT NOT NULL,							-- Equipment are handled as resources
+		EquipmentClass TEXT,
+		Desirability INTEGER NOT NULL DEFAULT 0,			-- Units will request ResourceType of higher desirability first
+		Toughness INTEGER NOT NULL DEFAULT 0,				-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
+		PersonnelArmor INTEGER NOT NULL DEFAULT 0,
+		AntiPersonnel INTEGER NOT NULL DEFAULT 0,
+		AntiPersonnelArmor INTEGER NOT NULL DEFAULT 0,
+		IgnorePersonnelArmor INTEGER NOT NULL DEFAULT 0,
+		VehicleArmor INTEGER NOT NULL DEFAULT 0,
+		AntiVehicle INTEGER NOT NULL DEFAULT 0,
+		AntiVehicleArmor INTEGER NOT NULL DEFAULT 0,
+		IgnoreVehicleArmor INTEGER NOT NULL DEFAULT 0,
+		Reliability INTEGER,								-- Percentage, 100 means no loss from breakdown, lower values means possible loss from unreliability (instead of damaged send in reserve)
+		FuelConsumption INTEGER,
+		FuelType TEXT,
+		PRIMARY KEY(ResourceType),
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (EquipmentClass) REFERENCES EquipmentClasses(EquipmentClass) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
+CREATE TABLE IF NOT EXISTS EquipmentEffects 
+	(
+		ResourceType TEXT, 				
+		EquipmentEffect TEXT,
+		EffectMaxStrength INTEGER NOT NULL DEFAULT 0,
+		PRIMARY KEY(ResourceType, EquipmentEffect)		-- an equipment could have multiple effects
 	);
 		
-CREATE TABLE IF NOT EXISTS UnitEquipments 
+CREATE TABLE IF NOT EXISTS UnitEquipmentClasses 
 	(
-		EquipmentType TEXT NOT NULL,												-- TYPE_TANK, TYPE_MODERN_ARMOR, TYPE_CHARIOT, ...
-		EquipmentName TEXT,															-- "Tanks", "Iron Materiel",...
-		EquipmentClass TEXT, 														-- CLASS_VEHICLE, CLASS_GEAR, ...
-		CanBeRepaired BOOLEAN NOT NULL CHECK (CanBeRepaired IN (0,1)) DEFAULT 1,	-- Can this equipment be repaired on the fiel, or does it need a complete replacement
-		UseInStats BOOLEAN NOT NULL CHECK (UseInStats IN (0,1)) DEFAULT 1,			-- Should we track losses in unit's statistic
-		PRIMARY KEY(EquipmentType)
+		UnitType TEXT NOT NULL,
+		EquipmentClass TEXT, 														-- 
+		MaxAmount INTEGER NOT NULL DEFAULT 0,
+		IsRequired BOOLEAN NOT NULL CHECK (IsRequired IN (0,1)) DEFAULT 1,			-- If required, the equipement is part of the healing table 
+		CanBeRepaired BOOLEAN NOT NULL CHECK (CanBeRepaired IN (0,1)) DEFAULT 0,	-- Can this equipment be repaired in reserve, or does it need a complete replacement
+		UseInStats BOOLEAN NOT NULL CHECK (UseInStats IN (0,1)) DEFAULT 0,			-- Should we track this equipment losses in unit's statistic
+		PRIMARY KEY(UnitType, EquipmentClass),
+		FOREIGN KEY (UnitType) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (EquipmentClass) REFERENCES EquipmentClasses(EquipmentClass) ON DELETE CASCADE ON UPDATE CASCADE
 	);	
 	
 CREATE TABLE IF NOT EXISTS PopulationNeeds

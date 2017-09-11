@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameInfo>
+
+	<Kinds>
+		
+	</Kinds>
+	
+	<Types> <!-- Resources -->		
+		<Row Type="EQUIPMENT_LEATHER" 	Kind="KIND_RESOURCE"/>
+		<Row Type="EQUIPMENT_IRON" 		Kind="KIND_RESOURCE"/>
+		<Row Type="EQUIPMENT_CHARIOT" 	Kind="KIND_RESOURCE"/>
+		
+		<Row Type="EQUIPMENT_BRONZE_SWORDS" Kind="KIND_RESOURCE"/>
+		<Row Type="EQUIPMENT_IRON_SWORDS" 	Kind="KIND_RESOURCE"/>
+		<Row Type="EQUIPMENT_STEEL_SWORDS" 	Kind="KIND_RESOURCE"/>
+		
+		<Row Type="EQUIPMENT_LEATHER_ARMOR" Kind="KIND_RESOURCE"/>
+	</Types>
+		
+	<Resources>
+		
+		<Row ResourceType="EQUIPMENT_LEATHER" 	Name="LOC_EQUIPMENT_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="EQUIPMENT_IRON" 		Name="LOC_EQUIPMENT_IRON_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="EQUIPMENT_CHARIOT"	Name="LOC_EQUIPMENT_CHARIOT_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>		
+		
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS" Name="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS" 	Name="LOC_EQUIPMENT_IRON_SWORDS_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS" 	Name="LOC_EQUIPMENT_STEEL_SWORDS_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR" Name="LOC_EQUIPMENT_LEATHER_ARMOR_NAME" ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		
+	</Resources>
+
+	<ResourceStockUsage>
+		<!-- The example belows means :	only surplus send to unit, need stock > 150% to send to another city, never request transfert, export at stock > 75%, import at stock < 50%, convert all  
+		<Row ResourceType="RESOURCE_WOOD" 	MinPercentLeftToSupply="100"	MinPercentLeftToTransfer="150"	MaxPercentLeftToRequest="0"	MinPercentLeftToExport="75"	MaxPercentLeftToImport="50"	MinPercentLeftToConvert="0"	/>
+		-->
+		
+	</ResourceStockUsage>
+	
+	<EquipmentClasses>
+		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"		Name="LOC_EQUIPMENT_SWORDS_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"	Name="LOC_EQUIPMENT_SHIELDS_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	Name="LOC_EQUIPMENT_BODYARMOR_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"		Name="LOC_EQUIPMENT_HELMET_NAME" />
+	</EquipmentClasses>
+	
+	<Equipments>
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="3"	Desirability="1" 	AntiPersonnel="10" AntiPersonnelArmor="5" />
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="5"	Desirability="10" 	AntiPersonnel="15" AntiPersonnelArmor="7" />
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="7"	Desirability="20" 	AntiPersonnel="20" AntiPersonnelArmor="10" />
+		
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	Toughness="2"	Desirability="1" 	PersonnelArmor="2" />
+	</Equipments>
+	
+	<EquipmentEffects>
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="50" />
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="100" />
+	</EquipmentEffects>
+	
+	<UnitEquipmentClasses>
+		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SWORDS"		MaxAmount="3000" />
+		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SHIELDS"		MaxAmount="3000" IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	MaxAmount="3000" IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_HELMET"		MaxAmount="3000" IsRequired="0" />
+	</UnitEquipmentClasses>	
+
+	
+</GameInfo>
