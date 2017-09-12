@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS UnitEquipmentClasses
 	(
 		UnitType TEXT NOT NULL,
 		EquipmentClass TEXT, 														-- 
-		MaxAmount INTEGER NOT NULL DEFAULT 0,
+		MaxAmount INTEGER,															-- When NULL use the unit's Personnel value
 		IsRequired BOOLEAN NOT NULL CHECK (IsRequired IN (0,1)) DEFAULT 1,			-- If required, the equipement is part of the healing table 
 		CanBeRepaired BOOLEAN NOT NULL CHECK (CanBeRepaired IN (0,1)) DEFAULT 0,	-- Can this equipment be repaired in reserve, or does it need a complete replacement
 		UseInStats BOOLEAN NOT NULL CHECK (UseInStats IN (0,1)) DEFAULT 0,			-- Should we track this equipment losses in unit's statistic

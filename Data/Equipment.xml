@@ -23,6 +23,8 @@
 		<Row ResourceType="EQUIPMENT_IRON" 		Name="LOC_EQUIPMENT_IRON_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="EQUIPMENT_CHARIOT"	Name="LOC_EQUIPMENT_CHARIOT_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>		
 		
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB" 	Name="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS" Name="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS" 	Name="LOC_EQUIPMENT_IRON_SWORDS_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS" 	Name="LOC_EQUIPMENT_STEEL_SWORDS_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
@@ -39,13 +41,16 @@
 	</ResourceStockUsage>
 	
 	<EquipmentClasses>
-		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"		Name="LOC_EQUIPMENT_SWORDS_NAME" />
-		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"	Name="LOC_EQUIPMENT_SHIELDS_NAME" />
-		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	Name="LOC_EQUIPMENT_BODYARMOR_NAME" />
-		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"		Name="LOC_EQUIPMENT_HELMET_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	Name="LOC_EQUIPMENT_BLUNT_WEAPONS_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"			Name="LOC_EQUIPMENT_SWORDS_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"		Name="LOC_EQUIPMENT_SHIELDS_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		Name="LOC_EQUIPMENT_BODYARMOR_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"			Name="LOC_EQUIPMENT_HELMET_NAME" />
 	</EquipmentClasses>
 	
 	<Equipments>
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"	EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	Toughness="1"	Desirability="1" AntiPersonnel="5" />
+		
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="3"	Desirability="1" 	AntiPersonnel="10" AntiPersonnelArmor="5" />
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="5"	Desirability="10" 	AntiPersonnel="15" AntiPersonnelArmor="7" />
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="7"	Desirability="20" 	AntiPersonnel="20" AntiPersonnelArmor="10" />
@@ -59,10 +64,11 @@
 	</EquipmentEffects>
 	
 	<UnitEquipmentClasses>
-		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SWORDS"		MaxAmount="3000" />
-		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SHIELDS"		MaxAmount="3000" IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	MaxAmount="3000" IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_HELMET"		MaxAmount="3000" IsRequired="0" />
+		<Row UnitType="UNIT_WARRIOR"	EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
+		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SWORDS" />
+		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
 	</UnitEquipmentClasses>	
 
 	
