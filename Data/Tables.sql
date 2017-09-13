@@ -139,15 +139,22 @@ CREATE TABLE IF NOT EXISTS ResourceStockUsage
 		
 CREATE TABLE IF NOT EXISTS EquipmentClasses 
 	(
-		EquipmentClass TEXT, 														-- CLASS_VEHICLE, CLASS_GEAR, ...
-		Name TEXT,																	-- "Tanks", "Iron Materiel",...
+		EquipmentClass TEXT NOT NULL, 		-- CLASS_VEHICLE, CLASS_GEAR, ...
+		Name TEXT,							-- "Tanks", "Iron Materiel",...
 		PRIMARY KEY(EquipmentClass)
+	);
+	
+CREATE TABLE IF NOT EXISTS EquipmentTypeClasses 
+	(
+		ResourceType TEXT NOT NULL,
+		EquipmentClass TEXT NOT NULL, 				
+		PRIMARY KEY(ResourceType, EquipmentClass)	-- an equipment could belong to multiple classes
 	);
 	
 CREATE TABLE IF NOT EXISTS Equipments
 	(
 		ResourceType TEXT NOT NULL,							-- Equipment are handled as resources
-		EquipmentClass TEXT,
+		EquipmentSize INTEGER NOT NULL DEFAULT 1,			-- Space taken in a city stockage capacity
 		Desirability INTEGER NOT NULL DEFAULT 0,			-- Units will request ResourceType of higher desirability first
 		Toughness INTEGER NOT NULL DEFAULT 0,				-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
 		PersonnelArmor INTEGER NOT NULL DEFAULT 0,

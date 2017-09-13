@@ -48,14 +48,22 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"			Name="LOC_EQUIPMENT_HELMET_NAME" />
 	</EquipmentClasses>
 	
+	<EquipmentTypeClasses>
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"	EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>		
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
+	</EquipmentTypeClasses>
+	
 	<Equipments>
-		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"	EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	Toughness="1"	Desirability="1" AntiPersonnel="5" />
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"	Toughness="1"	Desirability="1" 	AntiPersonnel="5" />
 		
-		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="3"	Desirability="1" 	AntiPersonnel="10" AntiPersonnelArmor="5" />
-		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="5"	Desirability="10" 	AntiPersonnel="15" AntiPersonnelArmor="7" />
-		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	EquipmentClass="EQUIPMENTCLASS_SWORDS"	Toughness="7"	Desirability="20" 	AntiPersonnel="20" AntiPersonnelArmor="10" />
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	Toughness="3"	Desirability="1" 	AntiPersonnel="10" AntiPersonnelArmor="5" />
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	Toughness="5"	Desirability="10" 	AntiPersonnel="15" AntiPersonnelArmor="7" />
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	Toughness="7"	Desirability="20" 	AntiPersonnel="20" AntiPersonnelArmor="10" />
 		
-		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	Toughness="2"	Desirability="1" 	PersonnelArmor="2" />
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"	Toughness="2"	Desirability="1" 	PersonnelArmor="2" />
 	</Equipments>
 	
 	<EquipmentEffects>
