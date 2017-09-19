@@ -35,6 +35,7 @@ local horsesResourceID 		= GameInfo.Resources["RESOURCE_HORSES"].Index
 local personnelResourceID	= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local medicineResourceID	= GameInfo.Resources["RESOURCE_MEDICINE"].Index
 
+--[[
 local unitEquipment			= {}
 for row in GameInfo.Units() do
 	local unitType 	= row.UnitType
@@ -53,6 +54,34 @@ for row in GameInfo.Units() do
 	if row.Equipment > 0 and not row.EquipmentType then
 		print("WARNING: Equipment required without EquipmentType for "..tostring(row.UnitType))
 	end
+end
+--]]
+
+local unitEquipmentClasses	= {}
+for row in GameInfo.UnitEquipmentClasses() do
+	local equipmentClass = row.EquipmentClass
+	local unitType 	= row.UnitType
+	local unitID 	= row.Index
+	if GameInfo.EquipmentClasses[row.EquipmentClass] then
+		local equipmentClassID 	= GameInfo.Resources[row.EquipmentClass].Index	-- equipment are special resources		
+		if not unitEquipmentClasses[unitType] then unitEquipmentClasses[unitType] = {} end
+		unitEquipment[unitType][equipmentClassID] = {Amount = row.Amount}
+		unitEquipment[unitType][equipmentClass] = {Amount = row.Amount}
+		-- This is to handle index, as pUnit:GetUnitType() returns an index...
+		if not unitEquipmentClasses[unitID] then unitEquipmentClasses[unitID] = {} end
+		unitEquipmentClasses[unitID][equipmentClassID] = {Amount = row.Amount}
+		unitEquipmentClasses[unitID][equipmentClass] = {Amount = row.Amount}
+		-- This is to accept hash like ToolTipHelper
+		if not unitEquipmentClasses[row.Hash] then unitEquipmentClasses[row.Hash] = {} end
+		unitEquipmentClasses[row.Hash][equipmentClassID] = {Amount = row.Amount}
+		unitEquipmentClasses[row.Hash][equipmentClass] = {Amount = row.Amount}
+	else
+		print("WARNING: no equipment class in GameInfo.EquipmentClasses for "..tostring(row.EquipmentClass))
+	end
+end
+
+function GetEquipmentClasses(self)
+	return unitEquipmentClasses[self:GetType()]
 end
 
 local foodResourceKey		= tostring(foodResourceID)
@@ -303,7 +332,7 @@ end
 -----------------------------------------------------------------------------------------
 -- Units Initialization
 -----------------------------------------------------------------------------------------
-function RegisterNewUnit(playerID, unit)
+function RegisterNewUnit(playerID, unit, equipment)
 
 	local unitType 	= unit:GetType()
 	local unitID 	= unit:GetID()
@@ -312,7 +341,7 @@ function RegisterNewUnit(playerID, unit)
 	local food 		= SetBaseFoodStock(unitType)	
 	
 	local personnel = UnitHitPointsTable[unitType][hp].Personnel
-	local equipment = UnitHitPointsTable[unitType][hp].Equipment
+	--local equipment = UnitHitPointsTable[unitType][hp].Equipment
 	local horses 	= UnitHitPointsTable[unitType][hp].Horses
 	local materiel 	= UnitHitPointsTable[unitType][hp].Materiel
 	
@@ -334,20 +363,20 @@ function RegisterNewUnit(playerID, unit)
 		testHP	 				= hp,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 				= personnel,
-		Equipment 				= equipment,
+		Equipment 				= {},
 		Horses 					= horses,
 		Materiel 				= materiel,
 		PreviousPersonnel 		= personnel,
-		PreviousEquipment 		= equipment,
+		PreviousEquipment 		= {},
 		PreviousHorses 			= horses,
 		PreviousMateriel 		= materiel,
 		-- "Tactical Reserve" : ready to reinforce frontline, that's where reinforcements from cities, healed personnel and repaired Equipment are affected first
 		PersonnelReserve		= PersonnelReserve,
-		EquipmentReserve		= EquipmentReserve,
+		EquipmentReserve		= {},
 		HorsesReserve			= HorsesReserve,
 		MaterielReserve			= MaterielReserve,
 		PreviousPersonnelReserve= PersonnelReserve,
-		PreviousEquipmentReserve= EquipmentReserve,
+		PreviousEquipmentReserve= {},
 		PreviousHorsesReserve	= HorsesReserve,		
 		PreviousMaterielReserve	= MaterielReserve,
 		-- "Rear"
