@@ -3,6 +3,8 @@
 --  Gedemon (2017)
 -----------------------------------------------------------------------------------------
 
+print ("Loading ContextFunctions.lua...")
+
 --=================================================
 -- Initialize UI context function to use them in scripts
 -- Notes from Salec (Firaxis) https://forums.civfanatics.com/threads/information-from-firaxis-developer-on-the-mod-tools.611291/

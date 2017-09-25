@@ -66,6 +66,7 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
+local g_Timer = Automation.GetTime()
 
 function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 	local bIsInitialized = 	(	ExposedMembers.SaveLoad_Initialized 
@@ -79,6 +80,21 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 							and ExposedMembers.UnitScript_Initialized
 							and ExposedMembers.PlayerScript_Initialized
 							)
+	if not bIsInitialized and Automation.GetTime() > g_Timer + 20 then
+		print("Still not initialized...  timer = ",  Automation.GetTime())
+		g_Timer = Automation.GetTime()
+		print("ExposedMembers.SaveLoad_Initialized         ",ExposedMembers.SaveLoad_Initialized           )
+		print("ExposedMembers.Utils_Initialized            ",ExposedMembers.Utils_Initialized              )
+		print("ExposedMembers.Serialize_Initialized        ",ExposedMembers.Serialize_Initialized          )
+		print("ExposedMembers.ContextFunctions_Initialized ",ExposedMembers.ContextFunctions_Initialized   )
+		print("ExposedMembers.RouteConnections_Initialized ",ExposedMembers.RouteConnections_Initialized   )
+		print("ExposedMembers.PlotIterator_Initialized     ",ExposedMembers.PlotIterator_Initialized       )
+		print("ExposedMembers.PlotScript_Initialized       ",ExposedMembers.PlotScript_Initialized         )
+		print("ExposedMembers.CityScript_Initialized       ",ExposedMembers.CityScript_Initialized         )
+		print("ExposedMembers.UnitScript_Initialized       ",ExposedMembers.UnitScript_Initialized         )
+		print("ExposedMembers.PlayerScript_Initialized     ",ExposedMembers.PlayerScript_Initialized       )
+	end
+		
 	return bIsInitialized
 end
 
@@ -607,6 +623,7 @@ function Cleaning()
 	ExposedMembers.CombatTypes 					= nil
 end
 Events.LeaveGameComplete.Add(Cleaning)
+LuaEvents.RestartGame.Add(Cleaning)
 
 
 -----------------------------------------------------------------------------------------

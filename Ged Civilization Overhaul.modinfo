@@ -44,27 +44,27 @@
 		    <Properties>
 				<LoadOrder>-100</LoadOrder>
 		    </Properties>
-            <File>Scripts/ModUtils.lua</File>
+            <File>Scripts/GCO_ModUtils.lua</File>
         </AddGameplayScripts>
         <AddGameplayScripts>
-            <File>Scripts/PlayerScript.lua</File>
-            <File>Scripts/CityScript.lua</File>
-            <File>Scripts/UnitScript.lua</File>
-            <File>Scripts/PlotScript.lua</File>
-            <File>Scripts/GameScript.lua</File>
-            <File>Scripts/Serialize.lua</File>
-            <File>Scripts/RouteConnections.lua</File>
-            <File>Scripts/PlotIterators.lua</File>
-            <File>Scripts/AIUnitScript.lua</File>
+            <File>Scripts/GCO_PlayerScript.lua</File>
+            <File>Scripts/GCO_CityScript.lua</File>
+            <File>Scripts/GCO_UnitScript.lua</File>
+            <File>Scripts/GCO_PlotScript.lua</File>
+            <File>Scripts/GCO_GameScript.lua</File>
+            <File>Scripts/GCO_Serialize.lua</File>
+            <File>Scripts/GCO_RouteConnections.lua</File>
+            <File>Scripts/GCO_PlotIterators.lua</File>
+            <File>Scripts/GCO_AIUnitScript.lua</File>
         </AddGameplayScripts>
 		
         <AddUserInterfaces>
 			<Properties>
 				<Context>InGame</Context>
 			</Properties>
-                <File>Scripts/SaveLoad.xml</File>
-                <File>Scripts/ContextFunctions.xml</File>
-				<File>InGame/ModInGame.xml</File>
+                <File>Scripts/GCO_SaveLoad.xml</File>
+                <File>Scripts/GCO_ContextFunctions.xml</File>
+				<File>InGame/GCO_ModInGame.xml</File>
         </AddUserInterfaces>
 		
 		<UpdateDatabase id="GCO_PRE_COMPONENT">
@@ -128,22 +128,22 @@
 		<File>Data/Resources.xml</File>
 		<File>Text/ConfigText.xml</File>
 		<File>Config/Config.xml</File>
-		<File>Scripts/ModUtils.lua</File>
-		<File>Scripts/PlayerScript.lua</File>
-		<File>Scripts/CityScript.lua</File>
-		<File>Scripts/UnitScript.lua</File>
-		<File>Scripts/PlotScript.lua</File>
-		<File>Scripts/GameScript.lua</File>
-		<File>Scripts/SaveLoad.lua</File>
-		<File>Scripts/SaveLoad.xml</File>
-		<File>Scripts/ContextFunctions.lua</File>
-		<File>Scripts/ContextFunctions.xml</File>
-		<File>Scripts/Serialize.lua</File>
-		<File>Scripts/RouteConnections.lua</File>
-		<File>Scripts/PlotIterators.lua</File>
-		<File>Scripts/AIUnitScript.lua</File>
-		<File>InGame/ModInGame.lua</File>
-		<File>InGame/ModInGame.xml</File>
+		<File>Scripts/GCO_ModUtils.lua</File>
+		<File>Scripts/GCO_PlayerScript.lua</File>
+		<File>Scripts/GCO_CityScript.lua</File>
+		<File>Scripts/GCO_UnitScript.lua</File>
+		<File>Scripts/GCO_PlotScript.lua</File>
+		<File>Scripts/GCO_GameScript.lua</File>
+		<File>Scripts/GCO_SaveLoad.lua</File>
+		<File>Scripts/GCO_SaveLoad.xml</File>
+		<File>Scripts/GCO_ContextFunctions.lua</File>
+		<File>Scripts/GCO_ContextFunctions.xml</File>
+		<File>Scripts/GCO_Serialize.lua</File>
+		<File>Scripts/GCO_RouteConnections.lua</File>
+		<File>Scripts/GCO_PlotIterators.lua</File>
+		<File>Scripts/GCO_AIUnitScript.lua</File>
+		<File>InGame/GCO_ModInGame.lua</File>
+		<File>InGame/GCO_ModInGame.xml</File>
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/CityBannerManager.lua</File>
 		<File>UI/PlotToolTip.lua</File>

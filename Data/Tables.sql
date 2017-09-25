@@ -169,8 +169,7 @@ CREATE TABLE IF NOT EXISTS Equipments
 		FuelConsumption INTEGER,
 		FuelType TEXT,
 		PRIMARY KEY(ResourceType),
-		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY (EquipmentClass) REFERENCES EquipmentClasses(EquipmentClass) ON DELETE CASCADE ON UPDATE CASCADE
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
 CREATE TABLE IF NOT EXISTS EquipmentEffects 

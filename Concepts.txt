@@ -1025,7 +1025,7 @@ Tiers 2
 Mathematics                (Calendar | Currency)
 Literacy                (Currency & Philosophy)
 Drama and Poetry        (Games and Recreation)
-Construction            (Masonry)
+Construction            (Masonry, The Wheel)
 
 
 -------
