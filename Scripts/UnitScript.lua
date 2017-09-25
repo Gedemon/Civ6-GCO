@@ -61,12 +61,12 @@ local unitEquipmentClasses	= {}
 for row in GameInfo.UnitEquipmentClasses() do
 	local equipmentClass = row.EquipmentClass
 	local unitType 	= row.UnitType
-	local unitID 	= row.Index
-	if GameInfo.EquipmentClasses[row.EquipmentClass] then
-		local equipmentClassID 	= GameInfo.Resources[row.EquipmentClass].Index	-- equipment are special resources		
+	local unitID 	= GameInfo.Units[unitType].Index
+	if GameInfo.EquipmentClasses[equipmentClass] then
+		local equipmentClassID 	= GameInfo.EquipmentClasses[equipmentClass].Index
 		if not unitEquipmentClasses[unitType] then unitEquipmentClasses[unitType] = {} end
-		unitEquipment[unitType][equipmentClassID] = {Amount = row.Amount}
-		unitEquipment[unitType][equipmentClass] = {Amount = row.Amount}
+		unitEquipmentClasses[unitType][equipmentClassID] = {Amount = row.Amount}
+		unitEquipmentClasses[unitType][equipmentClass] = {Amount = row.Amount}
 		-- This is to handle index, as pUnit:GetUnitType() returns an index...
 		if not unitEquipmentClasses[unitID] then unitEquipmentClasses[unitID] = {} end
 		unitEquipmentClasses[unitID][equipmentClassID] = {Amount = row.Amount}
@@ -80,8 +80,27 @@ for row in GameInfo.UnitEquipmentClasses() do
 	end
 end
 
-function GetEquipmentClasses(self)
-	return unitEquipmentClasses[self:GetType()]
+local equipmentTypeClasses	= {}
+for row in GameInfo.EquipmentTypeClasses() do
+	local equipmentClass 	= row.EquipmentClass
+	local equipmentType 	= row.EquipmentType
+	if GameInfo.Resources[row.equipmentType] then -- equipment are special resources
+		if GameInfo.EquipmentClasses[equipmentClass] then
+			local equipmentClassID 	= GameInfo.EquipmentClasses[equipmentClass].Index
+			local equipmentTypeID 	= GameInfo.Resources[equipmentType].Index			
+			if not equipmentTypeClasses[unitType] then equipmentTypeClasses[unitType] = {} end
+			equipmentTypeClasses[equipmentClass][equipmentType] = true
+			equipmentTypeClasses[equipmentClass][equipmentTypeID] = true
+			-- This is to handle index, as pUnit:GetUnitType() returns an index...
+			if not equipmentTypeClasses[unitID] then equipmentTypeClasses[unitID] = {} end
+			equipmentTypeClasses[equipmentClassID][equipmentType] = true
+			equipmentTypeClasses[equipmentClassID][equipmentTypeID] = true
+		else
+			print("WARNING: no equipment class in GameInfo.EquipmentClasses for "..tostring(equipmentClass))
+		end
+	else
+		print("WARNING: no equipment type in GameInfo.Resources for "..tostring(equipmentType))
+	end
 end
 
 local foodResourceKey		= tostring(foodResourceID)
@@ -146,13 +165,13 @@ function CreateUnitHitPointsTable()
 	for row in GameInfo.Units() do
 		UnitHitPointsTable[row.Index] = {}
 		local Personnel = row.Personnel
-		local Equipment = row.Equipment
+		--local Equipment = row.Equipment
 		local Horses = row.Horses
 		local Materiel = row.Materiel
 		for hp = 0, maxHP do
 			UnitHitPointsTable[row.Index][hp] = {}
 			if Personnel > 0 then UnitHitPointsTable[row.Index][hp].Personnel = GetNumComponentAtHP(Personnel, hp) else UnitHitPointsTable[row.Index][hp].Personnel = 0 end
-			if Equipment > 0 then UnitHitPointsTable[row.Index][hp].Equipment = GetNumComponentAtHP(Equipment, hp) else UnitHitPointsTable[row.Index][hp].Equipment = 0 end
+			--if Equipment > 0 then UnitHitPointsTable[row.Index][hp].Equipment = GetNumComponentAtHP(Equipment, hp) else UnitHitPointsTable[row.Index][hp].Equipment = 0 end
 			if Horses > 0 then UnitHitPointsTable[row.Index][hp].Horses = GetNumComponentAtHP(Horses, hp) else UnitHitPointsTable[row.Index][hp].Horses = 0 end
 			if Materiel > 0 then UnitHitPointsTable[row.Index][hp].Materiel = GetNumComponentAtHP(Materiel, hp) else UnitHitPointsTable[row.Index][hp].Materiel = 0 end
 		end
@@ -168,22 +187,22 @@ local unitTableEnum = {
 	unitID						= 1,
 	playerID					= 2,
 	unitType					= 3,
-	MaterielPerEquipment		= 4,
+	--MaterielPerEquipment		= 4,
 	Personnel					= 5,
-	Equipment					= 6,
+	--Equipment					= 6,
 	Horses						= 7,
 	Materiel					= 8,
 	PersonnelReserve			= 9,
-	EquipmentReserve			= 10,
+	--EquipmentReserve			= 10,
 	HorsesReserve				= 11,
 	MaterielReserve				= 12,
 	WoundedPersonnel			= 13,
-	DamagedEquipment			= 14,
+	--DamagedEquipment			= 14,
 	Prisoners					= 15,
 	FoodStock					= 16,
 	PreviousFoodStock			= 17,
 	TotalDeath					= 18,
-	TotalEquipmentLost			= 19,
+	--TotalEquipmentLost			= 19,
 	TotalHorsesLost				= 20,
 	TotalKill					= 21,
 	TotalUnitsKilled			= 22,
@@ -208,15 +227,15 @@ local unitTableEnum = {
 	Stock						= 41,
 	BaseFoodStock				= 42,
 	PreviousPersonnel			= 43,
-	PreviousEquipment			= 44,
+	--PreviousEquipment			= 44,
 	PreviousHorses				= 45,
 	PreviousMateriel			= 46,
 	PreviousPersonnelReserve	= 47,
-	PreviousEquipmentReserve	= 48,
+	--PreviousEquipmentReserve	= 48,
 	PreviousHorsesReserve		= 49,
 	PreviousMaterielReserve		= 50,
 	PreviousWoundedPersonnel	= 51,
-	PreviousDamagedEquipment	= 52,
+	--PreviousDamagedEquipment	= 52,
 	PreviousPrisoners			= 53,
 	MedicineStock				= 54,
 	PreviousMedicineStock		= 55,
@@ -332,7 +351,7 @@ end
 -----------------------------------------------------------------------------------------
 -- Units Initialization
 -----------------------------------------------------------------------------------------
-function RegisterNewUnit(playerID, unit, equipment)
+function RegisterNewUnit(playerID, unit, equipmentList)
 
 	local unitType 	= unit:GetType()
 	local unitID 	= unit:GetID()
@@ -346,7 +365,7 @@ function RegisterNewUnit(playerID, unit, equipment)
 	local materiel 	= UnitHitPointsTable[unitType][hp].Materiel
 	
 	local PersonnelReserve	= GetBasePersonnelReserve(unitType)
-	local EquipmentReserve	= GetBaseEquipmentReserve(unitType)
+	--local EquipmentReserve	= GetBaseEquipmentReserve(unitType)
 	local HorsesReserve		= GetBaseHorsesReserve(unitType)
 	local MaterielReserve	= GetBaseMaterielReserve(unitType)
 	
@@ -358,7 +377,7 @@ function RegisterNewUnit(playerID, unit, equipment)
 		unitID 					= unitID,
 		playerID 				= playerID,
 		unitType 				= unitType,
-		MaterielPerEquipment 	= GameInfo.Units[unitType].MaterielPerEquipment,
+		--MaterielPerEquipment 	= GameInfo.Units[unitType].MaterielPerEquipment,
 		HP	 					= hp,
 		testHP	 				= hp,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
@@ -381,10 +400,10 @@ function RegisterNewUnit(playerID, unit, equipment)
 		PreviousMaterielReserve	= MaterielReserve,
 		-- "Rear"
 		WoundedPersonnel		= 0,
-		DamagedEquipment		= 0,
+		DamagedEquipment		= {},
 		Prisoners				= GCO.CreateEverAliveTableWithDefaultValue(0), -- table with all civs in game (including Barbarians) to track Prisoners by nationality
 		PreviousWoundedPersonnel= 0,
-		PreviousDamagedEquipment= 0,
+		PreviousDamagedEquipment= {},
 		PreviousPrisoners		= GCO.CreateEverAliveTableWithDefaultValue(0),
 		FoodStock 				= food,
 		BaseFoodStock			= food,
@@ -397,7 +416,7 @@ function RegisterNewUnit(playerID, unit, equipment)
 		Stock					= {},
 		-- Statistics
 		TotalDeath				= 0,
-		TotalEquipmentLost		= 0,
+		TotalEquipmentLost		= {},
 		TotalHorsesLost			= 0,
 		TotalKill				= 0,
 		TotalUnitsKilled		= 0,
@@ -494,13 +513,13 @@ function CheckComponentsHP(unit, str, bNoWarning)
 		--Dprint( DEBUG_UNIT_SCRIPT, ExposedMembers.UnitData, ExposedMembers.UnitHitPointsTable)
 		--Dprint( DEBUG_UNIT_SCRIPT, ExposedMembers.UnitData[key], ExposedMembers.UnitHitPointsTable[unitType])
 		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Personnel =", ExposedMembers.UnitData[key].Personnel, "UnitHitPointsTable[unitType][HP].Personnel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel)
-		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Equipment =", ExposedMembers.UnitData[key].Equipment, "UnitHitPointsTable[unitType][HP].Equipment =", ExposedMembers.UnitHitPointsTable[unitType][HP].Equipment)
+		--Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Equipment =", ExposedMembers.UnitData[key].Equipment, "UnitHitPointsTable[unitType][HP].Equipment =", ExposedMembers.UnitHitPointsTable[unitType][HP].Equipment)
 		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Horses =", ExposedMembers.UnitData[key].Horses, "UnitHitPointsTable[unitType][HP].Horses =", ExposedMembers.UnitHitPointsTable[unitType][HP].Horses)
 		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Materiel =", ExposedMembers.UnitData[key].Materiel, "UnitHitPointsTable[unitType][HP].Materiel =", ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel)
 		Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
 	end
 	if 		ExposedMembers.UnitData[key].Personnel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Personnel 
-		or 	ExposedMembers.UnitData[key].Equipment  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Equipment  
+		--or 	ExposedMembers.UnitData[key].Equipment  	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Equipment  
 		or 	ExposedMembers.UnitData[key].Horses		~= ExposedMembers.UnitHitPointsTable[unitType][HP].Horses	 
 		or 	ExposedMembers.UnitData[key].Materiel 	~= ExposedMembers.UnitHitPointsTable[unitType][HP].Materiel 
 	then 
@@ -520,6 +539,7 @@ function GetBasePersonnelReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
+--[[
 function GetBaseEquipmentReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Equipment * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
@@ -533,6 +553,7 @@ end
 function GetEquipmentID(unitType) -- also accept index and hash
 	return unitEquipment[unitType]
 end
+--]]
 
 function GetBaseHorsesReserve(unitType)
 	return GCO.Round((GameInfo.Units[unitType].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
@@ -547,19 +568,21 @@ function GetUnitConstructionResources(unitType)
 	local resTable = {}
 
 	local personnel = (GameInfo.Units[unitType].Personnel 	+ GCO.GetBasePersonnelReserve(unitType))
-	local equipment = (GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType))
+	--local equipment = (GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType))
 	local horses 	= (GameInfo.Units[unitType].Horses 		+ GCO.GetBaseHorsesReserve(unitType))	
 	local materiel 	= (GameInfo.Units[unitType].Materiel 	+ GCO.GetBaseMaterielReserve(unitType))	
 	
+	--[[
 	local equipmentResourceID 	= GCO.GetEquipmentID(unitType)
 	if not equipmentResourceID then
 		materiel = materiel + equipment
 		equipment = 0
 	end
+	--]]
 	
 	
 	if personnel 	> 0 then resTable[personnelResourceID]	= personnel end
-	if equipment 	> 0 then resTable[equipmentResourceID]	= equipment end
+	--if equipment 	> 0 then resTable[equipmentResourceID]	= equipment end
 	if horses 		> 0 then resTable[horsesResourceID]		= horses	end
 	if materiel 	> 0 then resTable[materielResourceID]	= materiel end
 	
@@ -580,9 +603,11 @@ function GetMaxPersonnelReserve(self)
 	return GCO.Round((GameInfo.Units[self:GetType()].Personnel * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
 
+--[[
 function GetMaxEquipmentReserve(self)
 	return GCO.Round((GameInfo.Units[self:GetType()].Equipment * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
 end
+--]]
 
 function GetMaxHorsesReserve(self)
 	return GCO.Round((GameInfo.Units[self:GetType()].Horses * GameInfo.GlobalParameters["UNIT_RESERVE_RATIO"].Value / 10) * 10)
@@ -678,9 +703,11 @@ end
 function GetFuelConsumption(self)
 	local unitKey = self:GetKey()
 	local unitData = ExposedMembers.UnitData[unitKey]
+	--[[
 	if (not unitData.Equipment) or (unitData.Equipment == 0) then
 		return 0
 	end
+	--]]
 	local fuelConsumption1000 = 0
 	if not unitData.FuelConsumptionPerVehicle then unitData.FuelConsumptionPerVehicle = GameInfo.Units[unitData.unitType].FuelConsumptionPerVehicle end
 	if unitData.FuelConsumptionPerVehicle == 0 then return 0 end
@@ -689,21 +716,25 @@ function GetFuelConsumption(self)
 	
 	fuelConsumption1000 = fuelConsumption1000 + GetBaseFuelConsumption1000(unitData) * ratio
 	
+	--[[
 	if unitData.DamagedEquipment then	
 		fuelConsumption1000 = fuelConsumption1000 + (unitData.DamagedEquipment * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_DAMAGED_FACTOR"].Value) * ratio )
-	end	
+	end
+	--]]
 	return math.max(1, GCO.Round( fuelConsumption1000 / 1000))
 end
 
 function GetBaseFuelConsumption1000(unitData) -- local
-	return  unitData.Equipment * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value)
+	return 0 --unitData.Equipment * unitData.FuelConsumptionPerVehicle * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value)
 end
 
 function GetBaseFuelConsumption(unitData) -- local
-	return math.max(1, GCO.Round( GetBaseFuelConsumption1000(unitData) / 1000))
+	return 0 --math.max(1, GCO.Round( GetBaseFuelConsumption1000(unitData) / 1000))
 end
 
 function GetBaseFuelStock(unitType) -- local
+	return  0
+	--[[
 	local unitData = {}
 	unitData.unitType 					= unitType
 	unitData.Equipment 					= GameInfo.Units[unitType].Equipment
@@ -712,6 +743,7 @@ function GetBaseFuelStock(unitType) -- local
 		return GetBaseFuelConsumption(unitData) * 5 -- set enough stock for 5 turns
 	end
 	return 0
+	--]]
 end
 
 function GetMaxTransferTable(self)
@@ -743,8 +775,8 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 	elseif resourceKey == medicineResourceKey then
 		ExposedMembers.UnitData[unitKey].MedicineStock = math.max(0, unitData.MedicineStock + value)
 		
-	elseif GCO.IsResourceEquipment(resourceID) then
-		ExposedMembers.UnitData[unitKey].EquipmentReserve = math.max(0, unitData.EquipmentReserve + value)
+	--elseif GCO.IsResourceEquipment(resourceID) then
+	--	ExposedMembers.UnitData[unitKey].EquipmentReserve = math.max(0, unitData.EquipmentReserve + value)
 		
 	elseif not ExposedMembers.UnitData[unitKey].Stock[resourceKey] then
 		ExposedMembers.UnitData[unitKey].Stock[resourceKey] = math.max(0, value)
@@ -797,8 +829,8 @@ function GetNumResourceNeeded(self, resourceID)
 	elseif resourceKey == medicineResourceKey then
 		return math.max(0, self:GetMaxMedicineStock() - unitData.MedicineStock)
 		
-	elseif unitEquipment[unitType] and unitEquipment[unitType] == resourceID then
-		return math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
+	--elseif unitEquipment[unitType] and unitEquipment[unitType] == resourceID then
+	--	return math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
 		
 	end
 	
@@ -817,9 +849,9 @@ function GetRequirements(self)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get Requirements for unit ".. tostring(unitKey), Locale.Lookup(UnitManager.GetTypeName(self)) )
 	
 	-- add equipment to requirement...
-	if unitEquipment[unitType] then
-		table.insert(list, unitEquipment[unitType])
-	end
+	--if unitEquipment[unitType] then
+	--	table.insert(list, unitEquipment[unitType])
+	--end
 	--requirements.Equipment = math.max(0, self:GetMaxEquipmentReserve() - unitData.EquipmentReserve)
 
 	for _, resourceID in ipairs(list) do
@@ -864,6 +896,10 @@ function GetComponentVariation(self, component)
 	local unitKey = self:GetKey()
 	local previousComponent = "Previous"..tostring(component)
 	return GCO.ToDecimals(ExposedMembers.UnitData[unitKey][component] - ExposedMembers.UnitData[unitKey][previousComponent])
+end
+
+function GetEquipmentClasses(self)
+	return unitEquipmentClasses[self:GetType()]
 end
 
 
@@ -1102,14 +1138,16 @@ function GetFuelConsumptionString(self)
 	local unitData 			= ExposedMembers.UnitData[unitKey]
 	local str = ""
 	local ratio = GetFuelConsumptionRatio(unitData)
+	--[[
 	if unitData.Equipment > 0 then 
 		local fuel = ( unitData.Equipment * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) )/1000
 		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FUEL_CONSUMPTION_ACTIVE", GCO.ToDecimals(fuel * ratio), unitData.Equipment) 
-	end	
+	end
 	if unitData.DamagedEquipment > 0 then 
 		local fuel = ( unitData.DamagedEquipment * tonumber(GameInfo.GlobalParameters["FUEL_CONSUMPTION_ACTIVE_FACTOR"].Value) )/1000
 		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FUEL_CONSUMPTION_DAMAGED", GCO.ToDecimals(fuel * ratio), unitData.DamagedEquipment) 
-	end	
+	end
+	--]]
 	return str
 end
 
@@ -1155,11 +1193,13 @@ function ShowCasualtiesFloatingText(CombatData)
 				end
 				-- 
 				sText = ""
+				--[[
 				if CombatData.EquipmentCasualties > 0 then
 					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 					sText = sText .. Locale.Lookup("LOC_FRONTLINE_EQUIPMENT_CASUALTIES_DETAILS_SHORT", CombatData.EquipmentLost, CombatData.DamagedEquipment)
 					bNeedNewLine = true
 				end
+				--]]
 				if CombatData.HorsesLost > 0 then
 					if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 					sText = sText .. Locale.Lookup("LOC_FRONTLINE_HORSES_CASUALTIES_SHORT", CombatData.HorsesLost)
@@ -1183,6 +1223,7 @@ function ShowCasualtiesFloatingText(CombatData)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
 				end
 
+				--[[
 				if CombatData.EquipmentCasualties > 0 then
 					sText = Locale.Lookup("LOC_FRONTLINE_EQUIPMENT_CASUALTIES", CombatData.EquipmentCasualties)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
@@ -1191,6 +1232,7 @@ function ShowCasualtiesFloatingText(CombatData)
 					sText = Locale.Lookup("LOC_FRONTLINE_EQUIPMENT_CASUALTIES_DETAILS", CombatData.EquipmentLost, CombatData.DamagedEquipment)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
 				end
+				--]]
 
 				if CombatData.HorsesLost > 0 then
 					sText = Locale.Lookup("LOC_FRONTLINE_HORSES_CASUALTIES", CombatData.HorsesLost)
@@ -1308,11 +1350,13 @@ function ShowFrontLineHealingFloatingText(healingData)
 				if bNeedNewLine then Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0) end
 				bNeedNewLine, bNeedSeparator = false, false
 				sText = ""
+				--[[
 				if healingData.reqEquipment > 0 then
 					--if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 					sText = sText .. Locale.Lookup("LOC_EQUIPMENT_RESERVE_TRANSFER", healingData.reqEquipment)					
 					bNeedNewLine, bNeedSeparator = false, true
 				end
+				--]]
 				if healingData.reqHorses > 0 then
 					--if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 					if bNeedSeparator then sText = sText .. "," end
@@ -1325,10 +1369,12 @@ function ShowFrontLineHealingFloatingText(healingData)
 					sText = Locale.Lookup("LOC_HEALING_PERSONNEL_MATERIEL", healingData.reqPersonnel, healingData.reqMateriel)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 				end
+				--[[
 				if healingData.reqEquipment > 0 then
 					sText = Locale.Lookup("LOC_HEALING_EQUIPMENT", healingData.reqEquipment)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 				end
+				--]]
 				if healingData.reqHorses > 0 then
 					sText = Locale.Lookup("LOC_HEALING_HORSES", healingData.reqHorses)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
@@ -1356,6 +1402,7 @@ function ShowReserveHealingFloatingText(healingData)
 					bNeedNewLine, bNeedSeparator = true, false
 				end
 				-- second line
+				--[[
 				if bNeedNewLine then Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0) end
 				sText = ""
 				bNeedSeparator = false
@@ -1364,16 +1411,19 @@ function ShowReserveHealingFloatingText(healingData)
 					sText = sText .. Locale.Lookup("LOC_REPAIRING_EQUIPMENT", healingData.repairedEquipment)
 				end
 				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
+				--]]
 			else			
 				-- Show details with multiple calls to AddWorldViewText	
 				if healingData.deads + healingData.healed > 0 then
 					sText = Locale.Lookup("LOC_HEALING_WOUNDED", healingData.deads, healingData.healed)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 				end
+				--[[
 				if healingData.repairedEquipment > 0 then
 					sText = Locale.Lookup("LOC_REPAIRING_EQUIPMENT", healingData.repairedEquipment)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 				end
+				--]]
 			end
 		end
 	end
@@ -1388,12 +1438,14 @@ function ShowDesertionFloatingText(desertionData)
 		if (pLocalPlayerVis:IsVisible(desertionData.X, desertionData.Y)) then
 			local sText = Locale.Lookup("LOC_UNIT_PERSONNEL_DESERTION", desertionData.Personnel)
 			local bNeedNewLine, bNeedSeparator = true, false
+			--[[
 			if desertionData.Equipment > 0 then
 				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 				if bNeedSeparator then sText = sText .. "," end
 				sText = sText .. Locale.Lookup("LOC_EQUIPMENT_RESERVE_TRANSFER", desertionData.Equipment)
 				bNeedNewLine, bNeedSeparator = false, true
 			end
+			--]]
 			if desertionData.Horses > 0 then
 				if bNeedNewLine then sText = sText .. "[NEWLINE]" end
 				if bNeedSeparator then sText = sText .. "," end
@@ -1474,13 +1526,13 @@ function AddFrontLineCasualtiesInfoTo(Opponent)
 	end
 	--else
 		Opponent.PersonnelCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Personnel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Personnel
-		Opponent.EquipmentCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Equipment 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Equipment
+		--Opponent.EquipmentCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Equipment 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Equipment
 		Opponent.HorsesCasualties 		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Horses		- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Horses
 		Opponent.MaterielCasualties		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Materiel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Materiel
 
 		-- Remove casualties from frontline
 		ExposedMembers.UnitData[Opponent.unitKey].Personnel = ExposedMembers.UnitData[Opponent.unitKey].Personnel  	- Opponent.PersonnelCasualties
-		ExposedMembers.UnitData[Opponent.unitKey].Equipment  = ExposedMembers.UnitData[Opponent.unitKey].Equipment  	- Opponent.EquipmentCasualties
+		--ExposedMembers.UnitData[Opponent.unitKey].Equipment  = ExposedMembers.UnitData[Opponent.unitKey].Equipment  	- Opponent.EquipmentCasualties
 		ExposedMembers.UnitData[Opponent.unitKey].Horses	= ExposedMembers.UnitData[Opponent.unitKey].Horses	  	- Opponent.HorsesCasualties
 		ExposedMembers.UnitData[Opponent.unitKey].Materiel 	= ExposedMembers.UnitData[Opponent.unitKey].Materiel 	- Opponent.MaterielCasualties
 	--end
@@ -1511,8 +1563,8 @@ function AddCasualtiesInfoByTo(OpponentA, OpponentB)
 	OpponentB.Wounded = OpponentB.PersonnelCasualties - OpponentB.Dead - OpponentB.Captured
 	
 	-- Salvage Equipment
-	OpponentB.EquipmentLost = GCO.Round(OpponentB.EquipmentCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
-	OpponentB.DamagedEquipment = OpponentB.EquipmentCasualties - OpponentB.EquipmentLost
+	--OpponentB.EquipmentLost = GCO.Round(OpponentB.EquipmentCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
+	--OpponentB.DamagedEquipment = OpponentB.EquipmentCasualties - OpponentB.EquipmentLost
 	-- They Shoot Horses, Don't They?
 	OpponentB.HorsesLost = OpponentB.HorsesCasualties -- some of those may be captured by the opponent ?
 	
@@ -1521,11 +1573,11 @@ function AddCasualtiesInfoByTo(OpponentA, OpponentB)
 				
 	-- Apply Casualties	transfer
 	ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel = ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel 	+ OpponentB.Wounded
-	ExposedMembers.UnitData[OpponentB.unitKey].DamagedEquipment 	= ExposedMembers.UnitData[OpponentB.unitKey].DamagedEquipment 	+ OpponentB.DamagedEquipment
+	--ExposedMembers.UnitData[OpponentB.unitKey].DamagedEquipment 	= ExposedMembers.UnitData[OpponentB.unitKey].DamagedEquipment 	+ OpponentB.DamagedEquipment
 	
 	-- Update Stats
 	ExposedMembers.UnitData[OpponentB.unitKey].TotalDeath			= ExposedMembers.UnitData[OpponentB.unitKey].TotalDeath 		+ OpponentB.Dead
-	ExposedMembers.UnitData[OpponentB.unitKey].TotalEquipmentLost	= ExposedMembers.UnitData[OpponentB.unitKey].TotalEquipmentLost 	+ OpponentB.EquipmentLost
+	--ExposedMembers.UnitData[OpponentB.unitKey].TotalEquipmentLost	= ExposedMembers.UnitData[OpponentB.unitKey].TotalEquipmentLost 	+ OpponentB.EquipmentLost
 	ExposedMembers.UnitData[OpponentB.unitKey].TotalHorsesLost 		= ExposedMembers.UnitData[OpponentB.unitKey].TotalHorsesLost 	+ OpponentB.HorsesLost
 
 	return OpponentB
@@ -1536,7 +1588,7 @@ function GetMaterielFromKillOfBy(OpponentA, OpponentB)
 	local materielFromKill = 0
 	local materielFromCombat = OpponentA.MaterielLost * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value) / 100
 	local materielFromReserve = ExposedMembers.UnitData[OpponentA.unitKey].MaterielReserve * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value) /100
-	local materielFromEquipment = ExposedMembers.UnitData[OpponentA.unitKey].DamagedEquipment * ExposedMembers.UnitData[OpponentA.unitKey].MaterielPerEquipment * tonumber(GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value) / 100 * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_EQUIPMENT_KILL_PERCENT"].Value) / 100
+	local materielFromEquipment = 0 --ExposedMembers.UnitData[OpponentA.unitKey].DamagedEquipment * ExposedMembers.UnitData[OpponentA.unitKey].MaterielPerEquipment * tonumber(GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value) / 100 * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_EQUIPMENT_KILL_PERCENT"].Value) / 100
 	materielFromKill = GCO.Round(materielFromCombat + materielFromReserve + materielFromEquipment) 
 	return materielFromKill
 end
@@ -1825,7 +1877,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 								local unitInfo = GameInfo.Units[unit:GetType()] -- GetType in script, GetUnitType in UI context...
 								-- check here if the unit has enough reserves to get +1HP
 								local reqPersonnel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Personnel - UnitHitPointsTable[unitInfo.Index][hp].Personnel
-								local reqEquipment 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Equipment - UnitHitPointsTable[unitInfo.Index][hp].Equipment
+								--local reqEquipment 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Equipment - UnitHitPointsTable[unitInfo.Index][hp].Equipment
 								local reqHorses 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Horses 	- UnitHitPointsTable[unitInfo.Index][hp].Horses
 								local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][hp + healTable[unit] +1].Materiel 	- UnitHitPointsTable[unitInfo.Index][hp].Materiel
 								if not ExposedMembers.UnitData[key] then print ("WARNING, no entry for " .. tostring(unit:GetName()) .. " id#" .. tostring(unit:GetID())) end
@@ -1835,7 +1887,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 									Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
 
 								elseif  ExposedMembers.UnitData[key].PersonnelReserve >= reqPersonnel
-								and 	ExposedMembers.UnitData[key].EquipmentReserve >= reqEquipment
+								--and 	ExposedMembers.UnitData[key].EquipmentReserve >= reqEquipment
 								and 	ExposedMembers.UnitData[key].HorsesReserve >= reqHorses
 								and 	ExposedMembers.UnitData[key].MaterielReserve >= reqMateriel
 								then
@@ -1867,17 +1919,17 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 
 				-- update reserve and frontline...
 				local reqPersonnel 	= UnitHitPointsTable[unitInfo.Index][finalHP].Personnel - UnitHitPointsTable[unitInfo.Index][initialHP].Personnel
-				local reqEquipment 	= UnitHitPointsTable[unitInfo.Index][finalHP].Equipment - UnitHitPointsTable[unitInfo.Index][initialHP].Equipment
+				local reqEquipment 	= 0 --UnitHitPointsTable[unitInfo.Index][finalHP].Equipment - UnitHitPointsTable[unitInfo.Index][initialHP].Equipment
 				local reqHorses 	= UnitHitPointsTable[unitInfo.Index][finalHP].Horses 	- UnitHitPointsTable[unitInfo.Index][initialHP].Horses
 				local reqMateriel 	= UnitHitPointsTable[unitInfo.Index][finalHP].Materiel 	- UnitHitPointsTable[unitInfo.Index][initialHP].Materiel
 
 				ExposedMembers.UnitData[key].PersonnelReserve 	= ExposedMembers.UnitData[key].PersonnelReserve - reqPersonnel
-				ExposedMembers.UnitData[key].EquipmentReserve 	= ExposedMembers.UnitData[key].EquipmentReserve - reqEquipment
+				--ExposedMembers.UnitData[key].EquipmentReserve 	= ExposedMembers.UnitData[key].EquipmentReserve - reqEquipment
 				ExposedMembers.UnitData[key].HorsesReserve 		= ExposedMembers.UnitData[key].HorsesReserve 	- reqHorses
 				ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	- reqMateriel
 
 				ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel 	+ reqPersonnel
-				ExposedMembers.UnitData[key].Equipment 	= ExposedMembers.UnitData[key].Equipment 	+ reqEquipment
+				--ExposedMembers.UnitData[key].Equipment 	= ExposedMembers.UnitData[key].Equipment 	+ reqEquipment
 				ExposedMembers.UnitData[key].Horses 	= ExposedMembers.UnitData[key].Horses 		+ reqHorses
 				ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	+ reqMateriel
 
@@ -1936,6 +1988,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 
 					-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
 					local repairedEquipment = 0
+					--[[
 					if ExposedMembers.UnitData[key].MaterielPerEquipment > 0 then
 						local materielAvailable = maxTransfer[unit].Materiel - alreadyUsed[unit].Materiel
 						local maxRepairedEquipment = GCO.Round(materielAvailable/(ExposedMembers.UnitData[key].MaterielPerEquipment* GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
@@ -1946,6 +1999,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 							ExposedMembers.UnitData[key].EquipmentReserve = ExposedMembers.UnitData[key].EquipmentReserve + repairedEquipment
 						end
 					end
+					--]]
 
 					-- Visualize healing
 					local healingData = {deads = deads, healed = healed, repairedEquipment = repairedEquipment, X = unit:GetX(), Y = unit:GetY() }
@@ -2100,8 +2154,9 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	Dprint( DEBUG_UNIT_SCRIPT, "Updating Unit Data for ", Locale.Lookup(self:GetName())," key = ",unitKey)
 	
 	-- Update basic components
-	local componentsToUpdate = {"Personnel","Equipment","Horses","Materiel","PersonnelReserve","EquipmentReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","DamagedEquipment","FoodStock","FuelStock","Morale","MedicineStock"}
-	for _, component in ipairs(componentsToUpdate) do
+	--local componentsToUpdate = {"Personnel","Equipment","Horses","Materiel","PersonnelReserve","EquipmentReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","DamagedEquipment","FoodStock","FuelStock","Morale","MedicineStock"}
+	local componentsToUpdate = {"Personnel","Horses","Materiel","PersonnelReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","FoodStock","FuelStock","Morale","MedicineStock"}
+		for _, component in ipairs(componentsToUpdate) do
 		local previousComponent = "Previous"..tostring(component)
 		local currentValue		= self:GetComponent(component)
 		self:SetComponent(previousComponent, currentValue)
@@ -2200,18 +2255,18 @@ function DoMorale(self)
 
 			-- Get desertion number
 			desertionData.Personnel = UnitHitPointsTable[unitType][HP].Personnel 	- UnitHitPointsTable[unitType][finalHP].Personnel
-			desertionData.Equipment 	= UnitHitPointsTable[unitType][HP].Equipment 	- UnitHitPointsTable[unitType][finalHP].Equipment
+			--desertionData.Equipment 	= UnitHitPointsTable[unitType][HP].Equipment 	- UnitHitPointsTable[unitType][finalHP].Equipment
 			desertionData.Horses 	= UnitHitPointsTable[unitType][HP].Horses		- UnitHitPointsTable[unitType][finalHP].Horses
 			desertionData.Materiel	= UnitHitPointsTable[unitType][HP].Materiel 	- UnitHitPointsTable[unitType][finalHP].Materiel
 
 			-- Remove deserters from frontline
 			ExposedMembers.UnitData[key].Personnel 	= ExposedMembers.UnitData[key].Personnel  	- desertionData.Personnel
-			ExposedMembers.UnitData[key].Equipment  	= ExposedMembers.UnitData[key].Equipment  	- desertionData.Equipment
+			--ExposedMembers.UnitData[key].Equipment  	= ExposedMembers.UnitData[key].Equipment  	- desertionData.Equipment
 			ExposedMembers.UnitData[key].Horses		= ExposedMembers.UnitData[key].Horses	  	- desertionData.Horses
 			ExposedMembers.UnitData[key].Materiel 	= ExposedMembers.UnitData[key].Materiel 	- desertionData.Materiel
 
 			-- Store materiel, vehicles, horses
-			ExposedMembers.UnitData[key].EquipmentReserve  	= ExposedMembers.UnitData[key].EquipmentReserve 	+ desertionData.Equipment
+			--ExposedMembers.UnitData[key].EquipmentReserve  	= ExposedMembers.UnitData[key].EquipmentReserve 	+ desertionData.Equipment
 			ExposedMembers.UnitData[key].HorsesReserve		= ExposedMembers.UnitData[key].HorsesReserve	+ desertionData.Horses
 			ExposedMembers.UnitData[key].MaterielReserve 	= ExposedMembers.UnitData[key].MaterielReserve 	+ desertionData.Materiel
 
@@ -2351,7 +2406,7 @@ function AttachUnitFunctions(unit)
 		u.GetMaxHorsesReserve		= GetMaxHorsesReserve
 		u.GetMaxMaterielReserve		= GetMaxMaterielReserve
 		u.GetMaxPersonnelReserve	= GetMaxPersonnelReserve
-		u.GetMaxEquipmentReserve	= GetMaxEquipmentReserve
+		--u.GetMaxEquipmentReserve	= GetMaxEquipmentReserve
 		u.GetMaxTransferTable		= GetMaxTransferTable
 		u.GetMoraleFromFood			= GetMoraleFromFood
 		u.GetMoraleFromLastCombat	= GetMoraleFromLastCombat
@@ -2369,6 +2424,8 @@ function AttachUnitFunctions(unit)
 		u.SetComponent				= SetComponent
 		u.ChangeComponent			= ChangeComponent
 		u.GetComponentVariation		= GetComponentVariation
+		--
+		u.GetEquipmentClasses		= GetEquipmentClasses
 		--
 		u.UpdateDataOnNewTurn		= UpdateDataOnNewTurn
 		u.DoFood 					= DoFood
@@ -2397,11 +2454,11 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetUnitFromKey 				= GetUnitFromKey
 	ExposedMembers.GCO.AttachUnitFunctions 			= AttachUnitFunctions
 	ExposedMembers.GCO.GetBasePersonnelReserve 		= GetBasePersonnelReserve
-	ExposedMembers.GCO.GetBaseEquipmentReserve 		= GetBaseEquipmentReserve
+	--ExposedMembers.GCO.GetBaseEquipmentReserve 		= GetBaseEquipmentReserve
 	ExposedMembers.GCO.GetBaseHorsesReserve 		= GetBaseHorsesReserve
 	ExposedMembers.GCO.GetBaseMaterielReserve 		= GetBaseMaterielReserve
-	ExposedMembers.GCO.GetEquipmentName 			= GetEquipmentName
-	ExposedMembers.GCO.GetEquipmentID				= GetEquipmentID
+	--ExposedMembers.GCO.GetEquipmentName 			= GetEquipmentName
+	--ExposedMembers.GCO.GetEquipmentID				= GetEquipmentID
 	ExposedMembers.GCO.GetUnitConstructionResources	= GetUnitConstructionResources
 	--
 	ExposedMembers.UnitScript_Initialized 	= true

@@ -3035,9 +3035,11 @@ function DoReinforceUnits(self)
 	local supplyDemand 			= UnitsSupplyDemand[cityKey]
 	local reinforcements 		= {Resources = {}, ResPerUnit = {}}
 
+	--[[
 	if supplyDemand.Equipment and supplyDemand.Equipment > 0 then
 		Dprint( DEBUG_CITY_SCRIPT, "- Required Equipment = ", tostring(supplyDemand.Equipment), " for " , tostring(supplyDemand.NeedEquipment) ," units")
 	end
+	--]]
 
 	for resourceID, value in pairs(supplyDemand.Resources) do
 		reinforcements.Resources[resourceID] = math.min(value, self:GetAvailableStockForUnits(resourceID))
