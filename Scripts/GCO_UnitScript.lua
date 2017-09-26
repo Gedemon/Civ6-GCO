@@ -19,6 +19,9 @@ end
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
+
+local GCO = ExposedMembers.GCO or {}
+
 local UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
@@ -67,16 +70,10 @@ for row in GameInfo.UnitEquipmentClasses() do
 	if GameInfo.EquipmentClasses[equipmentClass] then
 		local equipmentClassID 	= GameInfo.EquipmentClasses[equipmentClass].Index
 		if not unitEquipmentClasses[unitType] then unitEquipmentClasses[unitType] = {} end
-		unitEquipmentClasses[unitType][equipmentClassID] = {Amount = row.Amount, IsRequired = row.IsRequired}
-		--unitEquipmentClasses[unitType][equipmentClass] = {Amount = row.Amount, IsRequired = row.IsRequired}
+		unitEquipmentClasses[unitType][equipmentClassID] = {Amount = (row.MaxAmount or GameInfo.Units[unitType].Personnel), IsRequired = row.IsRequired}
 		-- This is to handle index, as pUnit:GetUnitType() returns an index...
 		if not unitEquipmentClasses[unitID] then unitEquipmentClasses[unitID] = {} end
-		unitEquipmentClasses[unitID][equipmentClassID] = {Amount = row.Amount, IsRequired = row.IsRequired}
-		--unitEquipmentClasses[unitID][equipmentClass] = {Amount = row.Amount, IsRequired = row.IsRequired}
-		-- This is to accept hash like ToolTipHelper
-		if not unitEquipmentClasses[row.Hash] then unitEquipmentClasses[row.Hash] = {} end
-		unitEquipmentClasses[row.Hash][equipmentClassID] = {Amount = row.Amount, IsRequired = row.IsRequired}
-		--unitEquipmentClasses[row.Hash][equipmentClass] = {Amount = row.Amount, IsRequired = row.IsRequired}
+		unitEquipmentClasses[unitID][equipmentClassID] = {Amount = (row.MaxAmount or GameInfo.Units[unitType].Personnel), IsRequired = row.IsRequired}
 	else
 		print("WARNING: no equipment class in GameInfo.EquipmentClasses for "..tostring(row.EquipmentClass))
 	end
@@ -86,34 +83,28 @@ local equipmentTypeClasses	= {}
 local equipmentIsClass		= {}
 for row in GameInfo.EquipmentTypeClasses() do
 	local equipmentClass 	= row.EquipmentClass
-	local equipmentType 	= row.EquipmentType
+	local equipmentType 	= row.ResourceType
 	if GameInfo.Resources[equipmentType] and GameInfo.Equipment[equipmentType] then -- equipment are special resources
 		if GameInfo.EquipmentClasses[equipmentClass] then
 			local equipmentClassID 	= GameInfo.EquipmentClasses[equipmentClass].Index
 			local equipmentTypeID 	= GameInfo.Resources[equipmentType].Index
 			local desirability = GameInfo.Equipment[equipmentType].Desirability
-			--[[
-			if not equipmentTypeClasses[equipmentClass] then equipmentTypeClasses[equipmentClass] = {} end
-			equipmentTypeClasses[equipmentClass][equipmentType] = {Desirability = desirability}
-			equipmentTypeClasses[equipmentClass][equipmentTypeID] = {Desirability = desirability}
-			--]]
+
 			-- This is to handle index, as pUnit:GetUnitType() returns an index...
 			if not equipmentTypeClasses[equipmentClassID] then equipmentTypeClasses[equipmentClassID] = {} end
-			--equipmentTypeClasses[equipmentClassID][equipmentType] = {Desirability = desirability}
-			--equipmentTypeClasses[equipmentClassID][equipmentTypeID] = {Desirability = desirability}
 			table.insert(equipmentTypeClasses[equipmentClassID], {EquipmentID = equipmentTypeID, Desirability = desirability})
 			-- helper to get the class of an equipment
-			--if not equipmentIsClass[equipmentType] then equipmentIsClass[equipmentType] = {} end
 			if not equipmentIsClass[equipmentTypeID] then equipmentIsClass[equipmentTypeID] = {} end
-			--equipmentIsClass[equipmentTypeID][equipmentClass] 		= true
 			equipmentIsClass[equipmentTypeID][equipmentClassID] 	= true
-			--equipmentIsClass[equipmentType][equipmentClass] 		= true
-			--equipmentIsClass[equipmentType][equipmentClassID] 		= true
 		else
 			print("WARNING: no equipment class in GameInfo.EquipmentClasses for "..tostring(equipmentClass))
 		end
 	else
-		print("WARNING: no equipment type in GameInfo.Resources or  for "..tostring(equipmentType))
+		if GameInfo.Resources[equipmentType] then 
+			print("WARNING: no equipment type in GameInfo.Equipment for "..tostring(equipmentType))
+		else
+			print("WARNING: no equipment type in GameInfo.Resources for "..tostring(equipmentType))
+		end
 	end
 end
 
@@ -132,7 +123,7 @@ end
 function GetLowerEquipmentType(classType)
 	local equipmentTypes 	= GetEquipmentTypes(classType)
 	table.sort(equipmentTypes, function(a, b) return a.Desirability < b.Desirability; end)
-	return equipmentTypes[1]
+	return equipmentTypes[1].EquipmentID
 end
 
 --
@@ -142,9 +133,12 @@ end
 
 function GetRequiredEquipmentClasses(self)
 	local requiredClasses 	= {}
-	local allClasses 		= unitEquipmentClasses[self:GetType()]
+	local allClasses 		= unitEquipmentClasses[self:GetType()]	
+	if not allClasses then
+		return {}
+	end	
 	for classType, data in pairs(allClasses) do
-		if data.IsRequired == 1 then
+		if data.IsRequired then
 			requiredClasses[classType] = data
 		end
 	end
@@ -165,7 +159,7 @@ function GetMaxEquipmentFrontLine(self, equipmentClass)
 		-- handle ID, key
 		local row = unitEquipmentClasses[self:GetType()][tonumber(equipmentClass)] 
 		if row then
-			return row.Amount
+			return row.Amount or 0
 		end
 	end
 	return 0
@@ -183,7 +177,11 @@ function GetEquipmentClassFrontLine(self, equipmentClass)
 	end
 	local equipmentClassKey = tostring(equipmentClass)
 	local equipment = ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey]
-	return GCO.TableSummation(equipment)
+	if equipment then 
+		return GCO.TableSummation(equipment)
+	else
+		return 0
+	end
 end
 
 function GetEquipmentClassReserve(self, equipmentClass)
@@ -194,7 +192,11 @@ function GetEquipmentClassReserve(self, equipmentClass)
 	end
 	local equipmentClassKey = tostring(equipmentClass)
 	local equipment = ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey]
-	return GCO.TableSummation(equipment)
+	if equipment then 
+		return GCO.TableSummation(equipment)
+	else
+		return 0
+	end
 end
 
 function GetEquipmentClassReserveNeed(self, equipmentClass)
@@ -226,7 +228,7 @@ function GetFrontLineEquipment(self, equipmentType, classType) -- classType opti
 	local equipmentClass	= classType or self:GetEquipmentClass(equipmentType)
 	local equipmentClassKey = tostring(equipmentClass)
 	local equipmentTypeKey 	= tostring(equipmentType)
-	if ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey]
+	if ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey] then
 		return ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey]
 	end
 	return 0
@@ -241,7 +243,7 @@ function GetReserveEquipment(self, equipmentType, classType) -- classType option
 	local equipmentClass	= classType or self:GetEquipmentClass(equipmentType)
 	local equipmentClassKey = tostring(equipmentClass)
 	local equipmentTypeKey 	= tostring(equipmentType)
-	if ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey]
+	if ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey] then
 		return ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey][equipmentTypeKey]
 	end
 	return 0
@@ -333,7 +335,6 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -----------------------------------------------------------------------------------------
 -- Initialize 
 -----------------------------------------------------------------------------------------
-local GCO = ExposedMembers.GCO or {}
 local CombatTypes = {}
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO			-- contains functions from other contexts
@@ -568,6 +569,8 @@ end
 -----------------------------------------------------------------------------------------
 function RegisterNewUnit(playerID, unit, equipmentList) -- equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
+	local DEBUG_UNIT_SCRIPT = true
+	
 	local unitType 	= unit:GetType()
 	local unitID 	= unit:GetID()
 	local unitKey 	= unit:GetKey()
@@ -588,6 +591,7 @@ function RegisterNewUnit(playerID, unit, equipmentList) -- equipmentList = { Equ
 	local FuelStock 		= GetBaseFuelStock(unitType)
 
 	-- Initialize the unit's data
+	Dprint( DEBUG_UNIT_SCRIPT, "  - initialize unit data")
 	ExposedMembers.UnitData[unitKey] = {
 		TurnCreated				= Game.GetCurrentGameTurn(),
 		unitID 					= unitID,
@@ -669,12 +673,15 @@ function RegisterNewUnit(playerID, unit, equipmentList) -- equipmentList = { Equ
 		end	
 	end
 	
-	-- complete (or set basic) equipment
+	-- complete (or set) basic equipment
+	Dprint( DEBUG_UNIT_SCRIPT, "  - complete (or set) basic equipment")
 	local requiredEquipmentClasses = unit:GetRequiredEquipmentClasses()
 	for equipmentClass, data in pairs(requiredEquipmentClasses) do
+		Dprint( DEBUG_UNIT_SCRIPT, "   - adding equipment class : ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name))
 		local frontLineNeed	= unit:GetEquipmentClassFrontLineNeed( equipmentClass )
-		local reserveNeed	= unit:GetEquipmentClassFrontLineNeed( equipmentClass )
+		local reserveNeed	= unit:GetEquipmentClassReserveNeed( equipmentClass )
 		local equipmentID	= GetLowerEquipmentType( equipmentClass )
+		Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", frontline = ", frontLineNeed, ", reserve = ", reserveNeed)
 		unit:ChangeFrontLineEquipment( equipmentID, frontLineNeed )
 		unit:ChangeReserveEquipment( equipmentID, reserveNeed )
 	end	
@@ -685,7 +692,7 @@ end
 
 function InitializeUnit(playerID, unitID)
 
-	local DEBUG_UNIT_SCRIPT = false
+	local DEBUG_UNIT_SCRIPT = true
 	
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then

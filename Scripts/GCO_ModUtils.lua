@@ -258,11 +258,11 @@ function Dump(t,i)
 		print(i,k,v)
 		if type(v)=="table" and not seen[v] then
 			print(i.."num entries = "..#v)
-			dump(v,i.."\t\t")
+			Dump(v,i.."\t\t")
 		end
 		if type(k)=="table" and not seen[k] then
 			print(i.."num entries = "..#k)
-			dump(k,i.."\t\t")
+			Dump(k,i.."\t\t")
 		end
 	end
 end

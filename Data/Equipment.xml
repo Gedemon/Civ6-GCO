@@ -59,7 +59,7 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"			Name="LOC_EQUIPMENT_SWORDS_NAME" />
 		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"		Name="LOC_EQUIPMENT_SHIELDS_NAME" />
 		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		Name="LOC_EQUIPMENT_BODYARMOR_NAME" />
-		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		Name="LOC_EQUIPMENT_LIGHTARMOR_NAME" />
+		<Row EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		Name="LOC_EQUIPMENT_LIGHTARMOR_NAME" />
 		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"			Name="LOC_EQUIPMENT_HELMET_NAME" />
 	</EquipmentClasses>
 	
@@ -90,8 +90,6 @@
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	Toughness="3"	Desirability="1" 	AntiPersonnel="10" AntiPersonnelArmor="5" />
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	Toughness="5"	Desirability="10" 	AntiPersonnel="15" AntiPersonnelArmor="7" />
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	Toughness="7"	Desirability="20" 	AntiPersonnel="20" AntiPersonnelArmor="10" />
-		
-		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"	Toughness="2"	Desirability="1" 	PersonnelArmor="2" />
 	</Equipment>
 	
 	<Equipment>  <!-- Personnel Armor -->
@@ -105,7 +103,7 @@
 	
 	<UnitEquipmentClasses>
 		<Row UnitType="UNIT_WARRIOR"	EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
-		<Row UnitType="UNIT_WARRIOR"	EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR" />
+		<Row UnitType="UNIT_WARRIOR"	EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
 		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SWORDS" />
 		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
 		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
