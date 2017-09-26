@@ -82,7 +82,7 @@
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 	</EquipmentTypeClasses>
 	
-	<Equipments> <!-- Melee Weapons -->
+	<Equipment> <!-- Melee Weapons -->
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"	Toughness="1"	Desirability="1" 	AntiPersonnel="3" />
 		<Row ResourceType="EQUIPMENT_STONE_AXE"		Toughness="1"	Desirability="1" 	AntiPersonnel="3" />
 		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	Toughness="1"	Desirability="2" 	AntiPersonnel="5" />
@@ -92,11 +92,11 @@
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	Toughness="7"	Desirability="20" 	AntiPersonnel="20" AntiPersonnelArmor="10" />
 		
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"	Toughness="2"	Desirability="1" 	PersonnelArmor="2" />
-	</Equipments>
+	</Equipment>
 	
-	<Equipments>  <!-- Personnel Armor -->
+	<Equipment>  <!-- Personnel Armor -->
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"	Toughness="2"	Desirability="1" 	PersonnelArmor="2" />
-	</Equipments>
+	</Equipment>
 	
 	<EquipmentEffects>
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="50" />

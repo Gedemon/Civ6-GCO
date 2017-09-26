@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS EquipmentTypeClasses
 		PRIMARY KEY(ResourceType, EquipmentClass)	-- an equipment could belong to multiple classes
 	);
 	
-CREATE TABLE IF NOT EXISTS Equipments
+CREATE TABLE IF NOT EXISTS Equipment
 	(
 		ResourceType TEXT NOT NULL,							-- Equipment are handled as resources
 		EquipmentSize INTEGER NOT NULL DEFAULT 1,			-- Space taken in a city stockage capacity
