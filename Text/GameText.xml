@@ -378,6 +378,33 @@
 	
   </LocalizedText>	
  
+   <LocalizedText> <!-- Equipment -->
+		
+    <Replace Tag="LOC_EQUIPMENT_LEATHER_NAME" 	Text="Leather Equipment" 	Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_IRON_NAME" 		Text="Iron Equipment" 		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 	Text="Chariot" 				Language="en_US" /> 
+	
+	
+    <Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 		Text="Wooden Clubs" 	Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_STONE_AXE_NAME" 		Text="Stone Axes"		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_SPIKED_CLUB_NAME" 		Text="Spiked Clubs"		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" 	Text="Bronze Swords" 	Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_IRON_SWORDS_NAME" 		Text="Iron Swords"		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_STEEL_SWORDS_NAME" 		Text="Steel Swords"		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_LEATHER_ARMOR_NAME" 	Text="Leather Armor" 	Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_BRONZE_ARMOR_NAME" 		Text="Bronze Armor"		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_IRON_ARMOR_NAME" 		Text="Iron Armor"		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_CHAINMAIL_ARMOR_NAME" 	Text="Chainmail Armor"	Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_PLATE_ARMOR_NAME" 		Text="Plate Armor"		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_BLUNT_WEAPONS_NAME" 	Text="Blunt Weapons" 	Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_SWORDS_NAME" 			Text="Swords"			Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_SHIELDS_NAME" 			Text="Shield"			Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_BODYARMOR_NAME" 		Text="Body Armor" 		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_LIGHTARMOR_NAME" 		Text="Light Armor"		Language="en_US" /> 
+    <Replace Tag="LOC_EQUIPMENT_HELMET_NAME" 			Text="Helmets"			Language="en_US" /> 
+	
+  </LocalizedText>
+  
   <LocalizedText> <!-- Needs Effects -->
 
     <Replace Tag="LOC_BIRTHRATE_BONUS_FROM_HOUSING" Language="en_US">
@@ -549,11 +576,7 @@
     <Replace Tag="LOC_RESOURCE_PLANTS_NAME" 	Text="Plants" 		Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_LEATHER_NAME" 	Text="Leather" 		Language="en_US" /> 
     <Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 	Text="Medicine" 	Language="en_US" /> 
-	
-    <Replace Tag="LOC_EQUIPMENT_LEATHER_NAME" 	Text="Leather Equipment" 	Language="en_US" /> 
-    <Replace Tag="LOC_EQUIPMENT_IRON_NAME" 		Text="Iron Equipment" 		Language="en_US" /> 
-    <Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 	Text="Chariot" 				Language="en_US" /> 
-	
+		
   </LocalizedText>
 
   <LocalizedText> <!-- ToolTips Helper Texts -->

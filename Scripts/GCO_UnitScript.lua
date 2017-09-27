@@ -174,11 +174,14 @@ end
 function CreateUnitHitPointsTable()
 	for row in GameInfo.Units() do
 		UnitHitPointsTable[row.Index] = {}
-		local Personnel = row.Personnel
-		--local Equipment = row.Equipment
-		local EquipmentClass = {}
-		for classType, data in pairs(unitEquipmentClasses[row.Index]) do
-			EquipmentClass[classType] = data.Amount
+		local Personnel 		= row.Personnel
+		--local Equipment 		= row.Equipment
+		local EquipmentClass 	= {}
+		local classTable		= unitEquipmentClasses[row.Index]
+		if classTable then
+			for classType, data in pairs(classTable) do
+				EquipmentClass[classType] = data.Amount
+			end
 		end
 		local Horses = row.Horses
 		local Materiel = row.Materiel
@@ -187,6 +190,7 @@ function CreateUnitHitPointsTable()
 			if Personnel > 0 then UnitHitPointsTable[row.Index][hp].Personnel = GetNumComponentAtHP(Personnel, hp) else UnitHitPointsTable[row.Index][hp].Personnel = 0 end
 			--if Equipment > 0 then UnitHitPointsTable[row.Index][hp].Equipment = GetNumComponentAtHP(Equipment, hp) else UnitHitPointsTable[row.Index][hp].Equipment = 0 end
 			for classType, value in pairs(EquipmentClass) do
+				if not UnitHitPointsTable[row.Index][hp].EquipmentClass then UnitHitPointsTable[row.Index][hp].EquipmentClass = {} end
 				if value > 0 then UnitHitPointsTable[row.Index][hp].EquipmentClass[classType] = GetNumComponentAtHP(value, hp) else UnitHitPointsTable[row.Index][hp].EquipmentClass[classType] = 0 end
 			end
 			if Horses > 0 then UnitHitPointsTable[row.Index][hp].Horses = GetNumComponentAtHP(Horses, hp) else UnitHitPointsTable[row.Index][hp].Horses = 0 end
@@ -465,11 +469,13 @@ function RegisterNewUnit(playerID, unit, equipmentList) -- equipmentList = { Equ
 	-- So the delayed action should only be called for the initial units on a new game, before any possible combat...
 	UnitWithoutEquipment[unit] = Automation.GetTime()
 	if not initializeEquipmentCo then
+		Dprint( DEBUG_UNIT_SCRIPT, "  - Creating Equipment Initialization coroutine...")
 		initializeEquipmentCo = coroutine.create(DelayedEquipmentInitialization)
 		--Events.GameCoreEventPublishComplete.Remove( CheckEquipmentInitializationTimer )
 		Events.GameCoreEventPublishComplete.Add( CheckEquipmentInitializationTimer )
 	end
 
+	Dprint( DEBUG_UNIT_SCRIPT, "  - Set Supply lines")
 	unit:SetSupplyLine()
 	LuaEvents.NewUnitCreated()
 end
@@ -496,10 +502,8 @@ function InitializeUnit(playerID, unitID)
 end
 
 function InitializeEquipment(self, equipmentList) -- equipmentList optional
-
-	local DEBUG_UNIT_SCRIPT = true
-	
-	Dprint( DEBUG_UNIT_SCRIPT, "Initializing equipment for unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
+	local DEBUG_UNIT_SCRIPT = true	
+	Dprint( DEBUG_UNIT_SCRIPT, "Initializing equipment for unit (".. self:GetName() ..") for player #".. tostring(self:GetOwner()).. " id#" .. tostring(self:GetID()))
 	
 	-- set base equipment from a passed equipment list
 	if equipmentList then
@@ -535,20 +539,25 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional
 	
 	-- Unmark the unit for equipment initialization
 	UnitWithoutEquipment[self] = false
+	LuaEvents.UnitsCompositionUpdated(self:GetOwner(), self:GetID())
 end
 
 function DelayedEquipmentInitialization()
-	Dprint( DEBUG_UNIT_SCRIPT, "Starting Delayed Equipment Initialization...")	
-	local unitsToEquip = true
-	while (unitsToEquip) do
-		Dprint( DEBUG_UNIT_SCRIPT, "units to equip : ", #UnitWithoutEquipment)	
-		if #UnitWithoutEquipment == 0 then
-			unitsToEquip = false
-		end
+	local DEBUG_UNIT_SCRIPT = true
+	Dprint( DEBUG_UNIT_SCRIPT, "Starting Delayed Equipment Initialization...")
+	while (true) do
+		local totalNum 		= 0
+		local equipedNum 	= 0
 		for unit, timer in pairs(UnitWithoutEquipment) do
+			totalNum = totalNum + 1
 			if Automation.GetTime() >= timer + InitializeEquipmentPause then
+				equipedNum = equipedNum + 1
 				unit:InitializeEquipment()
 			end
+		end
+		Dprint( DEBUG_UNIT_SCRIPT, "Equiped #"..tostring(equipedNum).." unit(s), on a total of #"..tostring(totalNum).." unit(s) waiting for equipment")	
+		if totalNum == 0 then
+			return
 		end
 		InitializeEquipmentTimer = Automation.GetTime()
 		coroutine.yield()
@@ -556,12 +565,14 @@ function DelayedEquipmentInitialization()
 end
 
 function StopDelayedEquipmentInitialization()
+	local DEBUG_UNIT_SCRIPT = true
 	Dprint( DEBUG_UNIT_SCRIPT, "Stopping Delayed Equipment Initialization...")	
 	Events.GameCoreEventPublishComplete.Remove( CheckEquipmentInitializationTimer )	
 	initializeEquipmentCo = false
 end
 
 function CheckEquipmentInitializationTimer()
+	local DEBUG_UNIT_SCRIPT = true
 	if not initializeEquipmentCo then
 		print("- WARNING : CheckEquipmentInitializationTimer called but Initialize Equipment Coroutine = false")
 		StopDelayedEquipmentInitialization()
@@ -1035,7 +1046,7 @@ end
 
 -- Unit functions
 function GetEquipmentClasses(self)
-	return unitEquipmentClasses[self:GetType()]
+	return unitEquipmentClasses[self:GetType()] or {}
 end
 
 function GetRequiredEquipmentClasses(self)
@@ -1137,7 +1148,7 @@ function GetFrontLineEquipment(self, equipmentType, classType) -- classType opti
 	local equipmentClassKey = tostring(equipmentClass)
 	local equipmentTypeKey 	= tostring(equipmentType)
 	if ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey] then
-		return ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey]
+		return ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey] or 0
 	end
 	return 0
 end
@@ -1505,12 +1516,12 @@ function GetFrontLineEquipmentString(self)
 	for classType, classData in pairs(equipmentClasses) do
 		local classNum = self:GetEquipmentClassFrontLine(classType)
 		--if classNum > 0 then
-			str = str .. "[NEWLINE] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name)
+			str = str .. "[NEWLINE][ICON_Production] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)
 			local equipmentList = GetEquipmentTypes(classType)
 			table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
 			for _, equipmentData in ipairs(equipmentList) do
 				local equipmentID 	= equipmentData.EquipmentID
-				local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)
+				local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)			
 				--if equipmentNum > 0 then
 					str = str .. "[NEWLINE] [ICON_BULLET] " .. tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
 				--end
@@ -2834,6 +2845,9 @@ function AttachUnitFunctions(unit)
 		u.GetFuelStockString 			= GetFuelStockString
 		u.GetFuelConsumptionString 		= GetFuelConsumptionString
 		u.GetFrontLineEquipmentString	= GetFrontLineEquipmentString
+		
+		-- dirty fix: the game is using "GetType" in gameplay script context and "GetUnitType" in UI context...
+		if not u.GetType then u.GetType = u.GetUnitType end
 	end
 end
 
