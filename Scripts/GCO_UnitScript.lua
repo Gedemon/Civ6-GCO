@@ -22,7 +22,12 @@ end
 
 local GCO = ExposedMembers.GCO or {}
 
-local UnitHitPointsTable = {} -- cached table to store the required values of an unit components based on it's HP
+local UnitHitPointsTable 	= {} -- cached table to store the required values of an unit components based on it's HP
+local UnitWithoutEquipment	= {} -- cached table to store units requiring equipment initialization
+
+local InitializeEquipmentTimer 	= 0		-- to delay equipment initialization (to allow a city to pass the equipment list to an unit that has just been build, after its initialization)
+local InitializeEquipmentPause 	= 0.5	--
+local initializeEquipmentCo		= false	-- coroutine handling equipment initialization
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
@@ -39,6 +44,12 @@ local materielResourceID	= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local horsesResourceID 		= GameInfo.Resources["RESOURCE_HORSES"].Index
 local personnelResourceID	= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local medicineResourceID	= GameInfo.Resources["RESOURCE_MEDICINE"].Index
+
+local foodResourceKey		= tostring(foodResourceID)
+local materielResourceKey	= tostring(materielResourceID)
+local horsesResourceKey		= tostring(horsesResourceID)
+local personnelResourceKey	= tostring(personnelResourceID)
+local medicineResourceKey	= tostring(medicineResourceID)
 
 --[[
 local unitEquipment			= {}
@@ -109,223 +120,6 @@ for row in GameInfo.EquipmentTypeClasses() do
 end
 
 
------------------------------------------------------------------------------------------
--- Equipment functions 
------------------------------------------------------------------------------------------
-function IsEquipmentClass(equipmentType, equipmentClass)
-	return equipmentIsClass[equipmentType] and equipmentIsClass[equipmentType][equipmentClass]
-end
-
-function GetEquipmentTypes(equipmentClass)
-	return equipmentTypeClasses[tonumber(equipmentClass)]
-end
-
-function GetLowerEquipmentType(classType)
-	local equipmentTypes 	= GetEquipmentTypes(classType)
-	table.sort(equipmentTypes, function(a, b) return a.Desirability < b.Desirability; end)
-	return equipmentTypes[1].EquipmentID
-end
-
---
-function GetEquipmentClasses(self)
-	return unitEquipmentClasses[self:GetType()]
-end
-
-function GetRequiredEquipmentClasses(self)
-	local requiredClasses 	= {}
-	local allClasses 		= unitEquipmentClasses[self:GetType()]	
-	if not allClasses then
-		return {}
-	end	
-	for classType, data in pairs(allClasses) do
-		if data.IsRequired then
-			requiredClasses[classType] = data
-		end
-	end
-	return requiredClasses
-end
-
-function GetEquipmentClass(self, equipmentType)
-	local equipmentClasses = self:GetEquipmentClasses()
-	for classType, classData in pairs(equipmentClasses) do
-		if IsEquipmentClass(equipmentType, classType) then
-			return classType
-		end
-	end
-end
-
-function GetMaxEquipmentFrontLine(self, equipmentClass)
-	if unitEquipmentClasses[self:GetType()] then
-		-- handle ID, key
-		local row = unitEquipmentClasses[self:GetType()][tonumber(equipmentClass)] 
-		if row then
-			return row.Amount or 0
-		end
-	end
-	return 0
-end
-
-function GetMaxEquipmentReserve(self, equipmentClass)
-	return GCO.Round(self:GetMaxEquipmentFrontLine(equipmentClass) * reserveRatio / 10) * 10
-end
-
-function GetEquipmentClassFrontLine(self, equipmentClass)
-	local unitKey = self:GetKey()
-	if not ExposedMembers.UnitData[unitKey] then
-		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
-		return 0
-	end
-	local equipmentClassKey = tostring(equipmentClass)
-	local equipment = ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey]
-	if equipment then 
-		return GCO.TableSummation(equipment)
-	else
-		return 0
-	end
-end
-
-function GetEquipmentClassReserve(self, equipmentClass)
-	local unitKey = self:GetKey()
-	if not ExposedMembers.UnitData[unitKey] then
-		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
-		return 0
-	end
-	local equipmentClassKey = tostring(equipmentClass)
-	local equipment = ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey]
-	if equipment then 
-		return GCO.TableSummation(equipment)
-	else
-		return 0
-	end
-end
-
-function GetEquipmentClassReserveNeed(self, equipmentClass)
-	local need 	= self:GetMaxEquipmentReserve(equipmentClass)
-	local stock	= self:GetEquipmentClassReserve(equipmentClass)
-	if stock < need then
-		return need - stock
-	else
-		return 0
-	end
-end
-
-function GetEquipmentClassFrontLineNeed(self, equipmentClass)
-	local need 	= self:GetMaxEquipmentFrontLine(equipmentClass)
-	local stock	= self:GetEquipmentClassFrontLine(equipmentClass)
-	if stock < need then
-		return need - stock
-	else
-		return 0
-	end
-end
-
-function GetFrontLineEquipment(self, equipmentType, classType) -- classType optional
-	local unitKey = self:GetKey()
-	if not ExposedMembers.UnitData[unitKey] then
-		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
-		return 0
-	end
-	local equipmentClass	= classType or self:GetEquipmentClass(equipmentType)
-	local equipmentClassKey = tostring(equipmentClass)
-	local equipmentTypeKey 	= tostring(equipmentType)
-	if ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey] then
-		return ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey]
-	end
-	return 0
-end
-
-function GetReserveEquipment(self, equipmentType, classType) -- classType optional
-	local unitKey = self:GetKey()
-	if not ExposedMembers.UnitData[unitKey] then
-		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
-		return 0
-	end
-	local equipmentClass	= classType or self:GetEquipmentClass(equipmentType)
-	local equipmentClassKey = tostring(equipmentClass)
-	local equipmentTypeKey 	= tostring(equipmentType)
-	if ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey] then
-		return ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey][equipmentTypeKey]
-	end
-	return 0
-end
-
-function GetEquipmentReserveNeed(self)
-	local equipmentNeed = {}
-	local equipmentClasses = self:GetEquipmentClasses()
-	for classType, classData in pairs(equipmentClasses) do
-		local equipmentTypes 	= GetEquipmentTypes(classType)
-		local maxReserve		= self:GetMaxEquipmentReserve(classType)
-		local bestNum 			= 0
-		table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
-		for _, data in ipairs(equipmentTypes) do
-			local equipmentID = data.EquipmentID
-			local num = self:GetReserveEquipment(equipmentID, classType)
-			-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
-			bestNum = bestNum + num
-			equipmentNeed[equipmentID] = math.max(0, maxReserve - bestNum)
-		end
-	end
-	return equipmentNeed
-end
-
-function GetEquipmentFrontLineNeed(self)
-	local equipmentNeed = {}
-	local equipmentClasses = self:GetEquipmentClasses()
-	for classType, classData in pairs(equipmentClasses) do
-		local equipmentTypes 	= GetEquipmentTypes(classType)
-		local maxFrontLine		= self:GetMaxEquipmentFrontLine(classType)
-		local bestNum 			= 0
-		table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
-		for _, data in ipairs(equipmentTypes) do
-			local equipmentID = data.EquipmentID
-			local num = self:GetFrontLineEquipment(equipmentID, classType)
-			-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
-			bestNum = bestNum + num
-			equipmentNeed[equipmentID] = math.max(0, maxFrontLine - bestNum)
-		end
-	end
-	return equipmentNeed
-end
-
-function ChangeReserveEquipment(self, equipmentID, value, classType)  -- classType optional
-	local unitKey = self:GetKey()
-	if not ExposedMembers.UnitData[unitKey] then
-		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
-		return 0
-	end
-	local equipmentClass	= classType or self:GetEquipmentClass(equipmentID)
-	local equipmentClassKey = tostring(equipmentClass)
-	local equipmentTypeKey 	= tostring(equipmentID)
-	if not ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey] then
-		ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey] = { [equipmentTypeKey] = math.max(0, value)}
-	else
-		ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey][equipmentTypeKey] = math.max(0, (ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey][equipmentTypeKey] or 0) + value)
-	end
-end
-
-function ChangeFrontLineEquipment(self, equipmentID, value, classType)  -- classType optional
-	local unitKey = self:GetKey()
-	if not ExposedMembers.UnitData[unitKey] then
-		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
-		return 0
-	end
-	local equipmentClass	= classType or self:GetEquipmentClass(equipmentID)
-	local equipmentClassKey = tostring(equipmentClass)
-	local equipmentTypeKey 	= tostring(equipmentID)
-	if not ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey] then
-		ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey] = { [equipmentTypeKey] = math.max(0, value)}
-	else
-		ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey] = math.max(0, (ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey] or 0) + value)
-	end
-end
-
-
-local foodResourceKey		= tostring(foodResourceID)
-local materielResourceKey	= tostring(materielResourceID)
-local horsesResourceKey		= tostring(horsesResourceID)
-local personnelResourceKey	= tostring(personnelResourceID)
-local medicineResourceKey	= tostring(medicineResourceID)
-
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
 local FLOATING_TEXT_SHORT 	= 1
@@ -382,12 +176,19 @@ function CreateUnitHitPointsTable()
 		UnitHitPointsTable[row.Index] = {}
 		local Personnel = row.Personnel
 		--local Equipment = row.Equipment
+		local EquipmentClass = {}
+		for classType, data in pairs(unitEquipmentClasses[row.Index]) do
+			EquipmentClass[classType] = data.Amount
+		end
 		local Horses = row.Horses
 		local Materiel = row.Materiel
 		for hp = 0, maxHP do
 			UnitHitPointsTable[row.Index][hp] = {}
 			if Personnel > 0 then UnitHitPointsTable[row.Index][hp].Personnel = GetNumComponentAtHP(Personnel, hp) else UnitHitPointsTable[row.Index][hp].Personnel = 0 end
 			--if Equipment > 0 then UnitHitPointsTable[row.Index][hp].Equipment = GetNumComponentAtHP(Equipment, hp) else UnitHitPointsTable[row.Index][hp].Equipment = 0 end
+			for classType, value in pairs(EquipmentClass) do
+				if value > 0 then UnitHitPointsTable[row.Index][hp].EquipmentClass[classType] = GetNumComponentAtHP(value, hp) else UnitHitPointsTable[row.Index][hp].EquipmentClass[classType] = 0 end
+			end
 			if Horses > 0 then UnitHitPointsTable[row.Index][hp].Horses = GetNumComponentAtHP(Horses, hp) else UnitHitPointsTable[row.Index][hp].Horses = 0 end
 			if Materiel > 0 then UnitHitPointsTable[row.Index][hp].Materiel = GetNumComponentAtHP(Materiel, hp) else UnitHitPointsTable[row.Index][hp].Materiel = 0 end
 		end
@@ -657,34 +458,17 @@ function RegisterNewUnit(playerID, unit, equipmentList) -- equipmentList = { Equ
 		SupplyLineEfficiency 	= 0,
 	}
 
-	-- set base equipment from a passed equipment list
-	if equipmentList then
-		table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
-		for _, data in ipairs(equipmentList) do
-			local equipmentClass	= unit:GetEquipmentClass( data.EquipmentID )
-			local frontLineNeed		= unit:GetEquipmentClassFrontLineNeed( equipmentClass )
-			if data.Value > frontLineNeed then
-				local reserveValue = data.Value - frontLineNeed
-				unit:ChangeFrontLineEquipment( equipmentID, frontLineNeed )
-				unit:ChangeReserveEquipment( equipmentID, reserveValue )
-			else
-				unit:ChangeFrontLineEquipment( equipmentID, data.Value )
-			end
-		end	
+	-- Mark the unit for equipment initialization
+	-- Note : what if the AI attacks immediatly with a newly created unit ?
+	-- Normally, in a city or with scenario/mod controlled spawn, 
+	-- the unit will be equiped (next function call, or on event for city) immediatly after initialization by the mod
+	-- So the delayed action should only be called for the initial units on a new game, before any possible combat...
+	UnitWithoutEquipment[unit] = Automation.GetTime()
+	if not initializeEquipmentCo then
+		initializeEquipmentCo = coroutine.create(DelayedEquipmentInitialization)
+		--Events.GameCoreEventPublishComplete.Remove( CheckEquipmentInitializationTimer )
+		Events.GameCoreEventPublishComplete.Add( CheckEquipmentInitializationTimer )
 	end
-	
-	-- complete (or set) basic equipment
-	Dprint( DEBUG_UNIT_SCRIPT, "  - complete (or set) basic equipment")
-	local requiredEquipmentClasses = unit:GetRequiredEquipmentClasses()
-	for equipmentClass, data in pairs(requiredEquipmentClasses) do
-		Dprint( DEBUG_UNIT_SCRIPT, "   - adding equipment class : ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name))
-		local frontLineNeed	= unit:GetEquipmentClassFrontLineNeed( equipmentClass )
-		local reserveNeed	= unit:GetEquipmentClassReserveNeed( equipmentClass )
-		local equipmentID	= GetLowerEquipmentType( equipmentClass )
-		Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", frontline = ", frontLineNeed, ", reserve = ", reserveNeed)
-		unit:ChangeFrontLineEquipment( equipmentID, frontLineNeed )
-		unit:ChangeReserveEquipment( equipmentID, reserveNeed )
-	end	
 
 	unit:SetSupplyLine()
 	LuaEvents.NewUnitCreated()
@@ -711,6 +495,87 @@ function InitializeUnit(playerID, unitID)
 
 end
 
+function InitializeEquipment(self, equipmentList) -- equipmentList optional
+
+	local DEBUG_UNIT_SCRIPT = true
+	
+	Dprint( DEBUG_UNIT_SCRIPT, "Initializing equipment for unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
+	
+	-- set base equipment from a passed equipment list
+	if equipmentList then
+		Dprint( DEBUG_UNIT_SCRIPT, "  - add equipment from list")
+		table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
+		for _, data in ipairs(equipmentList) do
+			local equipmentClass	= self:GetEquipmentClass( data.EquipmentID )
+			local frontLineNeed		= self:GetEquipmentClassFrontLineNeed( equipmentClass )
+			Dprint( DEBUG_UNIT_SCRIPT, "   - adding equipment class : ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name))
+			if data.Value > frontLineNeed then
+				local reserveValue = data.Value - frontLineNeed
+				Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", frontline = ", frontLineNeed, ", reserve = ", reserveValue)
+				self:ChangeFrontLineEquipment( equipmentID, frontLineNeed )
+				self:ChangeReserveEquipment( equipmentID, reserveValue )
+			else
+				self:ChangeFrontLineEquipment( equipmentID, data.Value )
+			end
+		end	
+	end
+	
+	-- complete (or set) basic equipment
+	Dprint( DEBUG_UNIT_SCRIPT, "  - complete (or set) basic equipment")
+	local requiredEquipmentClasses = self:GetRequiredEquipmentClasses()
+	for equipmentClass, data in pairs(requiredEquipmentClasses) do
+		Dprint( DEBUG_UNIT_SCRIPT, "   - adding equipment class : ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name))
+		local frontLineNeed	= self:GetEquipmentClassFrontLineNeed( equipmentClass )
+		local reserveNeed	= self:GetEquipmentClassReserveNeed( equipmentClass )
+		local equipmentID	= GetLowerEquipmentType( equipmentClass )
+		Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", frontline = ", frontLineNeed, ", reserve = ", reserveNeed)
+		self:ChangeFrontLineEquipment( equipmentID, frontLineNeed )
+		self:ChangeReserveEquipment( equipmentID, reserveNeed )
+	end	
+	
+	-- Unmark the unit for equipment initialization
+	UnitWithoutEquipment[self] = false
+end
+
+function DelayedEquipmentInitialization()
+	Dprint( DEBUG_UNIT_SCRIPT, "Starting Delayed Equipment Initialization...")	
+	local unitsToEquip = true
+	while (unitsToEquip) do
+		Dprint( DEBUG_UNIT_SCRIPT, "units to equip : ", #UnitWithoutEquipment)	
+		if #UnitWithoutEquipment == 0 then
+			unitsToEquip = false
+		end
+		for unit, timer in pairs(UnitWithoutEquipment) do
+			if Automation.GetTime() >= timer + InitializeEquipmentPause then
+				unit:InitializeEquipment()
+			end
+		end
+		InitializeEquipmentTimer = Automation.GetTime()
+		coroutine.yield()
+	end
+end
+
+function StopDelayedEquipmentInitialization()
+	Dprint( DEBUG_UNIT_SCRIPT, "Stopping Delayed Equipment Initialization...")	
+	Events.GameCoreEventPublishComplete.Remove( CheckEquipmentInitializationTimer )	
+	initializeEquipmentCo = false
+end
+
+function CheckEquipmentInitializationTimer()
+	if not initializeEquipmentCo then
+		print("- WARNING : CheckEquipmentInitializationTimer called but Initialize Equipment Coroutine = false")
+		StopDelayedEquipmentInitialization()
+	end
+	if coroutine.status(initializeEquipmentCo)=="dead" then
+		Dprint( DEBUG_UNIT_SCRIPT, "CheckEquipmentInitializationTimer : Initialize Equipment Coroutine = dead")		
+		StopDelayedEquipmentInitialization()
+		return
+	end
+	if Automation.GetTime() >= InitializeEquipmentTimer + InitializeEquipmentPause then
+		InitializeEquipmentTimer = Automation.GetTime()
+		coroutine.resume(initializeEquipmentCo)
+	end
+end
 
 -----------------------------------------------------------------------------------------
 -- Units functions
@@ -1149,6 +1014,220 @@ function GetComponentVariation(self, component)
 end
 
 
+-----------------------------------------------------------------------------------------
+-- Equipment functions 
+-----------------------------------------------------------------------------------------
+
+-- Types functions
+function IsEquipmentClass(equipmentType, equipmentClass)
+	return equipmentIsClass[equipmentType] and equipmentIsClass[equipmentType][equipmentClass]
+end
+
+function GetEquipmentTypes(equipmentClass)
+	return equipmentTypeClasses[tonumber(equipmentClass)]
+end
+
+function GetLowerEquipmentType(classType)
+	local equipmentTypes 	= GetEquipmentTypes(classType)
+	table.sort(equipmentTypes, function(a, b) return a.Desirability < b.Desirability; end)
+	return equipmentTypes[1].EquipmentID
+end
+
+-- Unit functions
+function GetEquipmentClasses(self)
+	return unitEquipmentClasses[self:GetType()]
+end
+
+function GetRequiredEquipmentClasses(self)
+	local requiredClasses 	= {}
+	local allClasses 		= unitEquipmentClasses[self:GetType()]	
+	if not allClasses then
+		return {}
+	end	
+	for classType, data in pairs(allClasses) do
+		if data.IsRequired then
+			requiredClasses[classType] = data
+		end
+	end
+	return requiredClasses
+end
+
+function GetEquipmentClass(self, equipmentType)
+	local equipmentClasses = self:GetEquipmentClasses()
+	for classType, classData in pairs(equipmentClasses) do
+		if IsEquipmentClass(equipmentType, classType) then
+			return classType
+		end
+	end
+end
+
+function GetMaxEquipmentFrontLine(self, equipmentClass)
+	if unitEquipmentClasses[self:GetType()] then
+		-- handle ID, key
+		local row = unitEquipmentClasses[self:GetType()][tonumber(equipmentClass)] 
+		if row then
+			return row.Amount or 0
+		end
+	end
+	return 0
+end
+
+function GetMaxEquipmentReserve(self, equipmentClass)
+	return GCO.Round(self:GetMaxEquipmentFrontLine(equipmentClass) * reserveRatio / 10) * 10
+end
+
+function GetEquipmentClassFrontLine(self, equipmentClass)
+	local unitKey = self:GetKey()
+	if not ExposedMembers.UnitData[unitKey] then
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
+	local equipmentClassKey = tostring(equipmentClass)
+	local equipment = ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey]
+	if equipment then 
+		return GCO.TableSummation(equipment)
+	else
+		return 0
+	end
+end
+
+function GetEquipmentClassReserve(self, equipmentClass)
+	local unitKey = self:GetKey()
+	if not ExposedMembers.UnitData[unitKey] then
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
+	local equipmentClassKey = tostring(equipmentClass)
+	local equipment = ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey]
+	if equipment then 
+		return GCO.TableSummation(equipment)
+	else
+		return 0
+	end
+end
+
+function GetEquipmentClassReserveNeed(self, equipmentClass)
+	local need 	= self:GetMaxEquipmentReserve(equipmentClass)
+	local stock	= self:GetEquipmentClassReserve(equipmentClass)
+	if stock < need then
+		return need - stock
+	else
+		return 0
+	end
+end
+
+function GetEquipmentClassFrontLineNeed(self, equipmentClass)
+	local hp 	= self:GetMaxDamage() - self:GetDamage()
+	local need 	= UnitHitPointsTable[self:GetType()][hp].EquipmentClass[equipmentClass] --self:GetMaxEquipmentFrontLine(equipmentClass)
+	local stock	= self:GetEquipmentClassFrontLine(equipmentClass)
+	if stock < need then
+		return need - stock
+	else
+		return 0
+	end
+end
+
+function GetFrontLineEquipment(self, equipmentType, classType) -- classType optional
+	local unitKey = self:GetKey()
+	if not ExposedMembers.UnitData[unitKey] then
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
+	local equipmentClass	= classType or self:GetEquipmentClass(equipmentType)
+	local equipmentClassKey = tostring(equipmentClass)
+	local equipmentTypeKey 	= tostring(equipmentType)
+	if ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey] then
+		return ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey]
+	end
+	return 0
+end
+
+function GetReserveEquipment(self, equipmentType, classType) -- classType optional
+	local unitKey = self:GetKey()
+	if not ExposedMembers.UnitData[unitKey] then
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
+	local equipmentClass	= classType or self:GetEquipmentClass(equipmentType)
+	local equipmentClassKey = tostring(equipmentClass)
+	local equipmentTypeKey 	= tostring(equipmentType)
+	if ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey] then
+		return ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey][equipmentTypeKey]
+	end
+	return 0
+end
+
+function GetEquipmentReserveNeed(self)
+	local equipmentNeed = {}
+	local equipmentClasses = self:GetEquipmentClasses()
+	for classType, classData in pairs(equipmentClasses) do
+		local equipmentTypes 	= GetEquipmentTypes(classType)
+		local maxReserve		= self:GetMaxEquipmentReserve(classType)
+		local bestNum 			= 0
+		table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+		for _, data in ipairs(equipmentTypes) do
+			local equipmentID = data.EquipmentID
+			local num = self:GetReserveEquipment(equipmentID, classType)
+			-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
+			bestNum = bestNum + num
+			equipmentNeed[equipmentID] = math.max(0, maxReserve - bestNum)
+		end
+	end
+	return equipmentNeed
+end
+
+function GetEquipmentFrontLineNeed(self)
+	local equipmentNeed = {}
+	local equipmentClasses = self:GetEquipmentClasses()
+	for classType, classData in pairs(equipmentClasses) do
+		local equipmentTypes 	= GetEquipmentTypes(classType)
+		local maxFrontLine		= self:GetMaxEquipmentFrontLine(classType)
+		local bestNum 			= 0
+		table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+		for _, data in ipairs(equipmentTypes) do
+			local equipmentID = data.EquipmentID
+			local num = self:GetFrontLineEquipment(equipmentID, classType)
+			-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
+			bestNum = bestNum + num
+			equipmentNeed[equipmentID] = math.max(0, maxFrontLine - bestNum)
+		end
+	end
+	return equipmentNeed
+end
+
+function ChangeReserveEquipment(self, equipmentID, value, classType)  -- classType optional
+	local unitKey = self:GetKey()
+	if not ExposedMembers.UnitData[unitKey] then
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
+	local equipmentClass	= classType or self:GetEquipmentClass(equipmentID)
+	local equipmentClassKey = tostring(equipmentClass)
+	local equipmentTypeKey 	= tostring(equipmentID)
+	if not ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey] then
+		ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey] = { [equipmentTypeKey] = math.max(0, value)}
+	else
+		ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey][equipmentTypeKey] = math.max(0, (ExposedMembers.UnitData[unitKey].EquipmentReserve[equipmentClassKey][equipmentTypeKey] or 0) + value)
+	end
+end
+
+function ChangeFrontLineEquipment(self, equipmentID, value, classType)  -- classType optional
+	local unitKey = self:GetKey()
+	if not ExposedMembers.UnitData[unitKey] then
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
+	local equipmentClass	= classType or self:GetEquipmentClass(equipmentID)
+	local equipmentClassKey = tostring(equipmentClass)
+	local equipmentTypeKey 	= tostring(equipmentID)
+	if not ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey] then
+		ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey] = { [equipmentTypeKey] = math.max(0, value)}
+	else
+		ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey] = math.max(0, (ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey][equipmentTypeKey] or 0) + value)
+	end
+end
+
+
 ----------------------------------------------
 -- Morale function
 ----------------------------------------------
@@ -1418,6 +1497,28 @@ function GetFoodStockString(self)
 	return str
 end
 
+function GetFrontLineEquipmentString(self) 
+	local unitKey 			= self:GetKey()
+	local data 				= ExposedMembers.UnitData[unitKey]
+	local equipmentClasses	= self:GetEquipmentClasses()
+	local str = ""
+	for classType, classData in pairs(equipmentClasses) do
+		local classNum = self:GetEquipmentClassFrontLine(classType)
+		--if classNum > 0 then
+			str = str .. "[NEWLINE] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name)
+			local equipmentList = GetEquipmentTypes(classType)
+			table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
+			for _, equipmentData in ipairs(equipmentList) do
+				local equipmentID 	= equipmentData.EquipmentID
+				local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)
+				--if equipmentNum > 0 then
+					str = str .. "[NEWLINE] [ICON_BULLET] " .. tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
+				--end
+			end
+		--end
+	end
+	return str
+end
 
 -- Floating text
 function ShowCasualtiesFloatingText(CombatData)
@@ -2399,6 +2500,8 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "Updating Unit Data for ", Locale.Lookup(self:GetName())," key = ",unitKey)
 	
+	local unitData = ExposedMembers.UnitData[unitKey]
+	
 	-- Update basic components
 	--local componentsToUpdate = {"Personnel","Equipment","Horses","Materiel","PersonnelReserve","EquipmentReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","DamagedEquipment","FoodStock","FuelStock","Morale","MedicineStock"}
 	local componentsToUpdate = {"Personnel","Horses","Materiel","PersonnelReserve","HorsesReserve","MaterielReserve","WoundedPersonnel","FoodStock","FuelStock","Morale","MedicineStock"}
@@ -2409,10 +2512,39 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	end
 	
 	-- Update prisoners table	
-	local unitData = ExposedMembers.UnitData[unitKey]
 	for playerKey, number in pairs(unitData.Prisoners) do
 		ExposedMembers.UnitData[unitKey].PreviousPrisoners[playerKey] = number
 	end
+	
+	-- Update equipment tables
+	for equipmentClass, data in pairs(unitData.Equipment) do
+		for equipmentType, value in pairs(data) do
+			if not ExposedMembers.UnitData[unitKey].PreviousEquipment[equipmentClass] then
+				ExposedMembers.UnitData[unitKey].PreviousEquipment[equipmentClass] = { [equipmentType] = value }
+			else
+				ExposedMembers.UnitData[unitKey].PreviousEquipment[equipmentClass][equipmentType] = value
+			end
+		end
+	end	
+	for equipmentClass, data in pairs(unitData.EquipmentReserve) do
+		for equipmentType, value in pairs(data) do
+			if not ExposedMembers.UnitData[unitKey].PreviousEquipmentReserve[equipmentClass] then
+				ExposedMembers.UnitData[unitKey].PreviousEquipmentReserve[equipmentClass] = { [equipmentType] = value }
+			else
+				ExposedMembers.UnitData[unitKey].PreviousEquipmentReserve[equipmentClass][equipmentType] = value
+			end
+		end
+	end	
+	for equipmentClass, data in pairs(unitData.DamagedEquipment) do
+		for equipmentType, value in pairs(data) do
+			if not ExposedMembers.UnitData[unitKey].PreviousDamagedEquipment[equipmentClass] then
+				ExposedMembers.UnitData[unitKey].PreviousDamagedEquipment[equipmentClass] = { [equipmentType] = value }
+			else
+				ExposedMembers.UnitData[unitKey].PreviousDamagedEquipment[equipmentClass][equipmentType] = value
+			end
+		end
+	end
+	
 end
 
 function DoFood(self)
@@ -2671,6 +2803,7 @@ function AttachUnitFunctions(unit)
 		u.ChangeComponent			= ChangeComponent
 		u.GetComponentVariation		= GetComponentVariation
 		--
+		u.InitializeEquipment				= InitializeEquipment
 		u.GetEquipmentClass					= GetEquipmentClass
 		u.GetEquipmentClasses				= GetEquipmentClasses
 		u.GetRequiredEquipmentClasses		= GetRequiredEquipmentClasses
@@ -2695,11 +2828,12 @@ function AttachUnitFunctions(unit)
 		--
 		
 		-- flag strings
-		u.GetFoodStockString		= GetFoodStockString
-		u.GetFoodConsumptionString	= GetFoodConsumptionString
-		u.GetMoraleString			= GetMoraleString
-		u.GetFuelStockString 		= GetFuelStockString
-		u.GetFuelConsumptionString 	= GetFuelConsumptionString
+		u.GetFoodStockString			= GetFoodStockString
+		u.GetFoodConsumptionString		= GetFoodConsumptionString
+		u.GetMoraleString				= GetMoraleString
+		u.GetFuelStockString 			= GetFuelStockString
+		u.GetFuelConsumptionString 		= GetFuelConsumptionString
+		u.GetFrontLineEquipmentString	= GetFrontLineEquipmentString
 	end
 end
 
