@@ -382,7 +382,7 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 local GCO = {}
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts
-	Calendar 	= ExposedMembers.Calendar
+	Calendar 	= ExposedMembers.Calendar	-- required for city growth based on real calendar
 	Dprint 		= GCO.Dprint
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
@@ -477,6 +477,7 @@ function RegisterNewCity(playerID, city)
 		FoodRatio				= 1,
 		FoodRatioTurn			= Game.GetCurrentGameTurn(),
 		ConstructionEfficiency	= 1,
+		BuildQueue				= {},
 	}
 
 	LuaEvents.NewCityCreated()
@@ -1744,9 +1745,14 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 	-- Update stock
 	if not ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] then
 		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , value)
-
+		if value < 0 then
+			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name) .." stock, value = "..tostring(value))
+		end
 	else
 		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , GCO.ToDecimals(cityData.Stock[turnKey][resourceKey] + value))
+		if (cityData.Stock[turnKey][resourceKey] + value) < 0 then
+			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name) .." stock, previous stock = ".. tostring(cityData.Stock[turnKey][resourceKey])..", variation value = "..tostring(value))
+		end
 	end
 
 	-- update stats
@@ -1762,6 +1768,36 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 	else
 		ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] = GCO.ToDecimals(ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] + math.abs(value))
 	end
+end
+
+function ChangeBuildingQueueStock(self, resourceID, currentlyBuildingHash, value)
+
+	if not resourceID then
+		print("WARNING : resourceID is nil or false in ChangeBuildingQueueStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
+		return
+	end
+
+	if value == 0 then return end
+
+	local resourceKey 	= tostring(resourceID)
+	local cityKey 		= self:GetKey()
+	local cityData 		= ExposedMembers.CityData[cityKey]
+
+	-- Update stock
+	if not ExposedMembers.CityData[cityKey].BuildQueue[currentlyBuildingHash] then
+		ExposedMembers.CityData[cityKey].BuildQueue[currentlyBuildingHash] = { [resourceKey] = math.max(0 , GCO.ToDecimals(value)) }
+	else
+		ExposedMembers.CityData[cityKey].BuildQueue[currentlyBuildingHash][resourceKey] = math.max(0 , GCO.ToDecimals(cityData.BuildQueue[currentlyBuildingHash] + value)) -- try to prevent rounding error on addition, which in turn seems to lead to corrupted tables when saving data.
+	end
+end
+
+function ClearBuildingQueueStock(self, finishedBuildingHash)
+
+	local cityKey 		= self:GetKey()
+	local cityData 		= ExposedMembers.CityData[cityKey]
+
+	ExposedMembers.CityData[cityKey].BuildQueue[currentlyBuildingHash] = nil
+
 end
 
 function GetMaxStock(self, resourceID)
@@ -2587,7 +2623,6 @@ function GetBuildingConstructionResources(buildingType)
 
 end
 
-
 function GetConstructionEfficiency(self)
 	local cityKey = self:GetKey()
 	if ExposedMembers.CityData[cityKey] then
@@ -2634,6 +2669,7 @@ function CanTrain(self, unitType)
 	local turnsToBuild = math.max(1, math.ceil(GameInfo.Units[unitType].Cost / production))
 	
 	local resTable 			= GCO.GetUnitConstructionResources(unitType)
+	local resOrTable 		= GCO.GetUnitConstructionOrResources(row.UnitType)
 	local requirementStr 	= ""
 	
 	for resourceID, value in pairs(resTable) do	
@@ -3191,7 +3227,7 @@ end
 
 function DoIndustries(self)
 
-	local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
@@ -3206,21 +3242,31 @@ function DoIndustries(self)
 
 	local MultiResRequired 	= {}
 	local MultiResCreated 	= {}
+	local ResCreated		= {}
+	local ResNeeded			= {}
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
 		if self:GetBuildings():HasBuilding(buildingID) then
 			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
+			if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
+			ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + row.MaxConverted
+			ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + row.MaxConverted
 			--Dprint( DEBUG_CITY_SCRIPT, " - check " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production using ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
 			if row.MultiResRequired then
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 				if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {[buildingID] = {}} end
 				table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
-
+				
 			elseif row.MultiResCreated then
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 				if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {[buildingID] = {}} end
 				table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
 			else
+				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+				if not ResCreated[resourceRequiredID] then	ResCreated[resourceRequiredID] = {[buildingID] = {}} end
+				table.insert(ResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+			
+				--[[
 				local available = self:GetAvailableStockForIndustries(resourceRequiredID)
 				--Dprint( DEBUG_CITY_SCRIPT, "			available = ", available)
 				if available > 0 then
@@ -3249,14 +3295,84 @@ function DoIndustries(self)
 						self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 					end
 				end
+				--]]
 			end
 		end
 	end
+	
+	-- assign available resources for each building
+	local resPerBuilding = {}
+	Dprint( DEBUG_CITY_SCRIPT, "- Assign available resources for each building")
+	for resourceID, data in pairs(ResNeeded) do
+		local totalResNeeded	= data.Value
+		local totalResAvailable	= self:GetAvailableStockForIndustries(resourceID)
+		Dprint( DEBUG_CITY_SCRIPT, "- Check for ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)..", available = "..tostring(totalResAvailable)..", required = "..tostring(totalResNeeded))
+		if totalResAvailable >= totalResNeeded then		
+			for buildingID, value in pairs(data.Buildings) do
+				if not resPerBuilding[buildingID] then resPerBuilding[buildingID] = {} end
+				resPerBuilding[buildingID][resourceID] = value
+			end		
+		else
+			local numBuildings 		= 0
+			local buildingConsumptionRatio = {}
+			for buildingID, value in pairs(data.Buildings) do
+				numBuildings = numBuildings + 1
+				buildingConsumptionRatio[buildingID] = value / totalResNeeded				
+				Dprint( DEBUG_CITY_SCRIPT, " - Set ratio for ".. Locale.Lookup(GameInfo.Buildings[buildingID].Name) ..", requires = "..tostring(value)..", calculated ratio = "..tostring(value / totalResNeeded))
+			end
+			--local resPart = math.floor(totalResAvailable / numBuildings)			
+			for buildingID, _ in pairs(data.Buildings) do
+				if not resPerBuilding[buildingID] then resPerBuilding[buildingID] = {} end
+				local allocatedRes = math.floor(totalResAvailable * buildingConsumptionRatio[buildingID])
+				resPerBuilding[buildingID][resourceID] = allocatedRes
+				Dprint( DEBUG_CITY_SCRIPT, " - Allocating : ".. tostring(allocatedRes) .." to "..Locale.Lookup(GameInfo.Buildings[buildingID].Name))
+			end		
+		end		
+	end
 
+	for resourceRequiredID, data1 in pairs(ResCreated) do
+		for buildingID, data2 in pairs (data1) do
+			
+			for _, row in ipairs(data2) do
+		
+				local available = resPerBuilding[buildingID][resourceRequiredID]
+		
+				if available > 0 then
+					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+					local amountUsed		= math.min(available, row.MaxConverted)
+					local amountCreated		= math.floor(amountUsed * row.Ratio)
+				Dprint( DEBUG_CITY_SCRIPT, "			amountUsed = ", amountUsed)
+				Dprint( DEBUG_CITY_SCRIPT, "			amountCreated = ", amountCreated)
+
+					-- don't allow excedent if there is no demand
+					local bLimitedByExcedent	= false
+					local stockVariation 	= self:GetStockVariation(resourceCreatedID)
+				Dprint( DEBUG_CITY_SCRIPT, "			bLimitedByExcedent = ", bLimitedByExcedent)
+				Dprint( DEBUG_CITY_SCRIPT, "			stockVariation = ", stockVariation)
+					if amountCreated + self:GetStock(resourceCreatedID) > self:GetMaxStock(resourceCreatedID) and stockVariation >= 0 then
+						local maxCreated 	= self:GetMaxStock(resourceCreatedID) - self:GetStock(resourceCreatedID)
+						amountUsed 			= math.floor(maxCreated / row.Ratio)
+						amountCreated		= math.floor(amountUsed * row.Ratio)
+						bLimitedByExcedent	= true
+					end
+
+					if amountCreated > 0 then
+						local resourceCost 	= (GCO.GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
+						Dprint( DEBUG_CITY_SCRIPT, " - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
+						self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
+						resPerBuilding[buildingID][resourceRequiredID] = resPerBuilding[buildingID][resourceRequiredID] - amountUsed
+						self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
+					end
+				end
+		
+			end
+		end	
+	end
+	
 	for resourceRequiredID, data1 in pairs(MultiResCreated) do
 		for buildingID, data2 in pairs (data1) do
 			local bUsed			= false
-			local available 	= self:GetAvailableStockForIndustries(resourceRequiredID)
+			local available 	= resPerBuilding[buildingID][resourceRequiredID] --self:GetAvailableStockForIndustries(resourceRequiredID)
 			if available > 0 then
 				Dprint( DEBUG_CITY_SCRIPT, " - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production of multiple resources using ".. tostring(available) .." available ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
 				local amountUsed 			= 0
@@ -3289,6 +3405,7 @@ function DoIndustries(self)
 				end
 				if bUsed then
 					self:ChangeStock(resourceRequiredID, - maxRequired, ResourceUseType.Consume, buildingID)
+					resPerBuilding[buildingID][resourceRequiredID] = resPerBuilding[buildingID][resourceRequiredID] - maxRequired
 				end
 			end
 		end
@@ -3302,7 +3419,7 @@ function DoIndustries(self)
 			local bLimitedByExcedent		= false
 			for _, row in ipairs(data2) do
 				if bCanCreate then
-					local available = self:GetAvailableStockForIndustries(row.ResourceRequired)
+					local available = resPerBuilding[buildingID][row.ResourceRequired] --self:GetAvailableStockForIndustries(row.ResourceRequired)
 					if available > 0 then
 						local maxAmountUsed			= math.min(available, row.MaxConverted)
 						local maxResourceCreated	= maxAmountUsed * row.Ratio -- no rounding here, we'll use this number to recalculate the amount used
@@ -3339,6 +3456,7 @@ function DoIndustries(self)
 					totalRatio = totalRatio + ratio
 					Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) .." used at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(ratio))
 					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
+					resPerBuilding[buildingID][resourceRequiredID] = resPerBuilding[buildingID][resourceRequiredID] - amountUsed
 				end
 				local baseRatio = totalRatio / totalResourcesRequired
 				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth) + requiredResourceCost
@@ -3355,7 +3473,7 @@ function DoConstruction(self)
 	Dprint( DEBUG_CITY_SCRIPT, "Getting resources for Constructions...")	
 
 	local cityKey			= self:GetKey()
-	local currentlyBuilding	= self:GetBuildQueue():CurrentlyBuilding()
+	local currentlyBuilding	= self:GetBuildQueue():CurrentlyBuilding() -- return hash
 	local turnsLeft 		= self:GetProductionTurnsLeft(currentlyBuilding)
 	local production 		= self:GetProductionYield()
 	local row				= GameInfo.Units[currentlyBuilding] or GameInfo.Buildings[currentlyBuilding]
@@ -3367,26 +3485,107 @@ function DoConstruction(self)
 		local turnsToBuild = math.max(1, math.ceil(row.Cost / production))
 		Dprint( DEBUG_CITY_SCRIPT, "Building ", currentlyBuilding, " turns To Build = ", turnsToBuild, " Turns left = ", turnsLeft )
 		
-		local resTable 		= {}
+		local resTable 			= {} -- mandatory resources
+		local resOrTable 		= {} -- mandatory resources from OR list	
+		local resOptionalTable	= {} -- optional resources from OR list
 		
-		if bIsUnit 		then resTable = GCO.GetUnitConstructionResources(row.UnitType) end
-		if bIsBuilding 	then resTable = GCO.GetBuildingConstructionResources(row.BuildingType) end
+		if bIsUnit 		then resTable 			= GCO.GetUnitConstructionResources(row.UnitType) end
+		if bIsUnit 		then resOrTable 		= GCO.GetUnitConstructionOrResources(row.UnitType) end
+		if bIsUnit 		then resOptionalTable 	= GCO.GetUnitConstructionOptionalResources(row.UnitType) end
+		if bIsBuilding 	then resTable 			= GCO.GetBuildingConstructionResources(row.BuildingType) end
 	
-		-- get construction efficiency...
-		local neededTable = {}
+		-- Get construction efficiency from global resources...
+		local usedTable = {}
 		for resourceID, value in pairs(resTable) do
 			local neededPerTurn 	= math.ceil( value / turnsToBuild )
 			Dprint( DEBUG_CITY_SCRIPT, "Need : ", neededPerTurn, Locale.Lookup(GameInfo.Resources[resourceID].Name), " Actual Stock = ", self:GetStock(resourceID) )
-			neededTable[resourceID] = neededPerTurn
+			usedTable[resourceID] = neededPerTurn
 			if neededPerTurn > self:GetStock(resourceID) then efficiency = math.min(efficiency, self:GetStock(resourceID) / neededPerTurn) end
 		end
 		
-		Dprint( DEBUG_CITY_SCRIPT, "Efficiency = ", efficiency )
+		-- Get construction efficiency from mandatory equipment (OR list)
+		for equipmentClass, resourceTable in pairs(resOrTable) do
+			local neededPerTurn 		= math.ceil( resourceTable.Value / turnsToBuild ) -- total needed for that class at 100% production efficiency
+			local numResourceToProvide	= neededPerTurn
+			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
+				if numResourceToProvide > 0 then
+					local stock = self:GetStock(resourceID)
+					if stock >= numResourceToProvide then
+						numResourceToProvide	= 0
+					else
+						numResourceToProvide	= numResourceToProvide - stock
+					end
+				end
+			end
+			local providedResources = (neededPerTurn - numResourceToProvide)
+			
+			Dprint( DEBUG_CITY_SCRIPT, "Need : ", neededPerTurn, Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name), " Actual Stock = ", providedResources )
+			if numResourceToProvide > 0 then efficiency = math.min(efficiency, providedResources / neededPerTurn) end
+		end
 		
-		-- use resource
-		for resourceID, value in pairs(neededTable) do
+		-- Efficiency value is set, we can use the global resources...
+		Dprint( DEBUG_CITY_SCRIPT, "Calculated Efficiency = ", efficiency )
+		for resourceID, value in pairs(usedTable) do
 			local used = math.ceil(value * efficiency)
+			
+			-- add to building queue stock
+			self:ChangeBuildingQueueStock(resourceID, currentlyBuilding, used)
+			
+			-- remove from city stock
 			self:ChangeStock(resourceID, -used, ResourceUseType.Consume, cityKey)
+			
+			Dprint( DEBUG_CITY_SCRIPT, "Using : ", used, Locale.Lookup(GameInfo.Resources[resourceID].Name))
+		end
+		
+		-- reset usedTable for OR resources...
+		usedTable = {}
+		
+		-- Now get the equipment needed for that turn at the calculated production efficiency...
+		-- from mandatory equipment (OR list)
+		for equipmentClass, resourceTable in pairs(resOrTable) do
+			local neededPerTurn 		= math.ceil( (resourceTable.Value / turnsToBuild) * efficiency) -- needed at calculated efficiency for that class
+			local numResourceToProvide	= neededPerTurn
+			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
+				if numResourceToProvide > 0 then
+					local stock = self:GetStock(resourceID)
+					if stock >= numResourceToProvide then
+						usedTable[resourceID] 	= numResourceToProvide
+						numResourceToProvide	= 0
+					else
+						usedTable[resourceID] 	= stock
+						numResourceToProvide	= numResourceToProvide - stock
+					end
+				end
+			end
+		end		
+		
+		-- from optional equipment (OR list)
+		for equipmentClass, resourceTable in pairs(resOptionalTable) do
+			local neededPerTurn 		= math.ceil( (resourceTable.Value / turnsToBuild) * efficiency ) -- needed at calculated efficiency for that class
+			local numResourceToProvide	= neededPerTurn
+			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
+				if numResourceToProvide > 0 then
+					local stock = self:GetStock(resourceID)
+					if stock >= numResourceToProvide then
+						usedTable[resourceID] 	= numResourceToProvide
+						numResourceToProvide	= 0
+					else
+						usedTable[resourceID] 	= stock
+						numResourceToProvide	= numResourceToProvide - stock
+					end
+				end
+			end
+		end
+		
+		-- Get the resources (value is already set based on efficiency here)
+		for resourceID, value in pairs(usedTable) do			
+			-- add to building queue stock
+			self:ChangeBuildingQueueStock(resourceID, currentlyBuilding, value)
+			
+			-- remove from city stock
+			self:ChangeStock(resourceID, -value, ResourceUseType.Consume, cityKey)
+			
+			Dprint( DEBUG_CITY_SCRIPT, "Using : ", value, Locale.Lookup(GameInfo.Resources[resourceID].Name), " Actual Stock = ", self:GetStock(resourceID) )
 		end
 		
 		-- remove production progress if needed
@@ -4094,6 +4293,8 @@ function AttachCityFunctions(city)
 	c.GetStock 							= GetStock
 	c.GetPreviousStock					= GetPreviousStock
 	c.ChangeStock 						= ChangeStock
+	c.ChangeBuildingQueueStock			= ChangeBuildingQueueStock
+	c.ClearBuildingQueueStock			= ClearBuildingQueueStock
 	c.GetStockVariation					= GetStockVariation
 	c.GetMinimumResourceCost			= GetMinimumResourceCost
 	c.GetMaximumResourceCost			= GetMaximumResourceCost

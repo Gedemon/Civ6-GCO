@@ -25,9 +25,10 @@ local GCO = ExposedMembers.GCO or {}
 local UnitHitPointsTable 	= {} -- cached table to store the required values of an unit components based on it's HP
 local UnitWithoutEquipment	= {} -- cached table to store units requiring equipment initialization
 
-local InitializeEquipmentTimer 	= 0		-- to delay equipment initialization (to allow a city to pass the equipment list to an unit that has just been build, after its initialization)
-local InitializeEquipmentPause 	= 0.5	--
-local initializeEquipmentCo		= false	-- coroutine handling equipment initialization
+-- Delay equipment initialization (to allow a city/scenario to pass the equipment list to an unit that has just been build/spawned, after the mandatory data initialization on Events.UnitAddedToMap)
+local InitializeEquipmentTimer 	= 0	
+local InitializeEquipmentPause 	= 0.5
+local initializeEquipmentCo		= false	-- the coroutine thread that will handle equipment initialization
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
@@ -119,6 +120,12 @@ for row in GameInfo.EquipmentTypeClasses() do
 	end
 end
 
+-- Sort equipment list by desirability now, to prevent multiple calls to table.sort when dealing with equipment tranfert 
+for row in GameInfo.EquipmentClasses() do
+	if equipmentTypeClasses[row.Index] then
+		table.sort(equipmentTypeClasses[row.Index], function(a, b) return a.Desirability > b.Desirability; end)
+	end
+end
 
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
@@ -508,7 +515,7 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional
 	-- set base equipment from a passed equipment list
 	if equipmentList then
 		Dprint( DEBUG_UNIT_SCRIPT, "  - add equipment from list")
-		table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
+		--table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
 		for _, data in ipairs(equipmentList) do
 			local equipmentClass	= self:GetEquipmentClass( data.EquipmentID )
 			local frontLineNeed		= self:GetEquipmentClassFrontLineNeed( equipmentClass )
@@ -714,6 +721,14 @@ function GetUnitConstructionResources(unitType)
 	
 	return resTable
 
+end
+
+function GetUnitConstructionOrResources(unitType)
+	return GetUnitConstructionEquipment(unitType, "REQUIRED")
+end
+
+function GetUnitConstructionOptionalResources(unitType)
+	return GetUnitConstructionEquipment(unitType, "OPTIONAL")
 end
 
 -- Unit functions
@@ -985,6 +1000,11 @@ function GetRequirements(self)
 		Dprint( DEBUG_UNIT_SCRIPT, " - ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).." = ".. tostring(requirements.Resources[resourceID]))
 	end
 	
+	for equipmentID, value in pairs(self:GetEquipmentReserveNeed()) do
+		requirements.Resources[equipmentID] = value
+		Dprint( DEBUG_UNIT_SCRIPT, " - ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name).." = ".. tostring(value))
+	end
+	
 	-- Resources for all vehicles
 	--[[
 	local unitTypeName = GameInfo.Units[unitData.unitType].UnitType
@@ -1040,8 +1060,40 @@ end
 
 function GetLowerEquipmentType(classType)
 	local equipmentTypes 	= GetEquipmentTypes(classType)
-	table.sort(equipmentTypes, function(a, b) return a.Desirability < b.Desirability; end)
-	return equipmentTypes[1].EquipmentID
+	--table.sort(equipmentTypes, function(a, b) return a.Desirability < b.Desirability; end)	
+	return equipmentTypes[#equipmentTypes].EquipmentID
+end
+
+function GetUnitEquipmentClasses(unitTypeID)
+	return unitEquipmentClasses[unitTypeID] or {}
+end
+
+function GetUnitConstructionEquipment(unitType, sCondition)
+
+	local resTable = {}
+	
+	local bAll 				= (sCondition == "ALL" or sCondition == nil)
+	local bRequiredOnly 	= (sCondition == "REQUIRED")
+	local bOptionalOnly 	= (sCondition == "OPTIONAL")
+
+	local equipmentClasses = GetUnitEquipmentClasses(unitType)
+	
+	if equipmentClasses then
+		for classType, classData in pairs(equipmentClasses) do
+			if bAll or (bRequiredOnly and classData.IsRequired) or (bOptionalOnly and not classData.IsRequired) then 
+				resTable[classType]				= {}
+				resTable[classType].Resources	= {}
+				resTable[classType].Value 		= classData.Amount
+				local equipmentTypes 			= GetEquipmentTypes(classType)
+				for _, data in ipairs(equipmentTypes) do
+					table.insert(resTable[classType].Resources, data.ResourceID)
+				end
+			end
+		end
+	end
+	
+	return resTable
+
 end
 
 -- Unit functions
@@ -1175,7 +1227,7 @@ function GetEquipmentReserveNeed(self)
 		local equipmentTypes 	= GetEquipmentTypes(classType)
 		local maxReserve		= self:GetMaxEquipmentReserve(classType)
 		local bestNum 			= 0
-		table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+		--table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
 		for _, data in ipairs(equipmentTypes) do
 			local equipmentID = data.EquipmentID
 			local num = self:GetReserveEquipment(equipmentID, classType)
@@ -1194,7 +1246,7 @@ function GetEquipmentFrontLineNeed(self)
 		local equipmentTypes 	= GetEquipmentTypes(classType)
 		local maxFrontLine		= self:GetMaxEquipmentFrontLine(classType)
 		local bestNum 			= 0
-		table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+		--table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
 		for _, data in ipairs(equipmentTypes) do
 			local equipmentID = data.EquipmentID
 			local num = self:GetFrontLineEquipment(equipmentID, classType)
@@ -1518,7 +1570,7 @@ function GetFrontLineEquipmentString(self)
 		--if classNum > 0 then
 			str = str .. "[NEWLINE][ICON_Production] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)
 			local equipmentList = GetEquipmentTypes(classType)
-			table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
+			--table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
 			for _, equipmentData in ipairs(equipmentList) do
 				local equipmentID 	= equipmentData.EquipmentID
 				local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)			
@@ -1840,6 +1892,40 @@ end
 -----------------------------------------------------------------------------------------
 -- Combat
 -----------------------------------------------------------------------------------------
+
+function GetAntiPersonnelPercent(self)
+	
+	local antiPersonnel = GameInfo.Units[self:GetType()].AntiPersonnel -- 0 = no kill, 100 = all killed
+	local classAP		= {}
+	local numClassAP	= 0		-- number of equipment classes with Anti-Personnel value (usually weapons or ammunition)
+	
+	local equipmentClasses = self:GetEquipmentClasses()
+	for classType, classData in pairs(equipmentClasses) do
+		local equipmentTypes 	= GetEquipmentTypes(classType)
+		local totalFrontLine	= self:GetEquipmentClassFrontLine(classType)
+		--table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+		for _, data in ipairs(equipmentTypes) do
+			local equipmentTypeName = GameInfo.Resources[data.EquipmentID].Type
+			local equipmentAP 		= GameInfo.Equipment[equipmentTypeName]
+			if equipmentAP then
+				local equipmentID = data.EquipmentID
+				local num = self:GetFrontLineEquipment(equipmentID, classType)
+				local ratio = totalFrontLine / num
+				if not classAP[classType] then 
+					classAP[classType] = equipmentAP * ratio
+					numClassAP = numClassAP + 1
+				else
+					classAP[classType] = classAP[classType] + (equipmentAP * ratio)
+				end
+			end
+		end
+	end
+	
+	local averageAP = (GCO.TableSummation(classAP) + antiPersonnel) / ( numClassAP + 1 )
+	
+	return averageAP
+end
+
 function AddCombatInfoTo(Opponent)
 
 	Opponent.unit = UnitManager.GetUnit(Opponent.playerID, Opponent.unitID)
@@ -1855,7 +1941,7 @@ function AddCombatInfoTo(Opponent)
 		else
 			Opponent.MaxCapture = 0
 		end
-		Opponent.AntiPersonnel = GameInfo.Units[Opponent.unitType].AntiPersonnel
+		Opponent.AntiPersonnel = Opponent.unit:GetAntiPersonnelPercent()
 	else
 		Opponent.unitKey = GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)
 	end	
@@ -1865,80 +1951,73 @@ end
 
 function AddFrontLineCasualtiesInfoTo(Opponent)
 
+	local UnitHitPoints = ExposedMembers.UnitHitPointsTable[Opponent.unitType]
+	local UnitData		= ExposedMembers.UnitData[Opponent.unitKey]
+
 	if Opponent.IsDead then
-
 		Opponent.FinalHP = 0
-		--[[
-		Opponent.PersonnelCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Personnel
-		Opponent.EquipmentCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Equipment
-		Opponent.HorsesCasualties 		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Horses
-		Opponent.MaterielCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Materiel
-
-		-- "Kill" the unit
-		ExposedMembers.UnitData[Opponent.unitKey].Personnel = 0
-		ExposedMembers.UnitData[Opponent.unitKey].Equipment  = 0
-		ExposedMembers.UnitData[Opponent.unitKey].Horses	= 0
-		ExposedMembers.UnitData[Opponent.unitKey].Materiel 	= 0
-		--]]
-		--ExposedMembers.UnitData[Opponent.unitKey].Alive 	= false
 	end
-	--else
-		Opponent.PersonnelCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Personnel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Personnel
-		--Opponent.EquipmentCasualties 	= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Equipment 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Equipment
-		Opponent.HorsesCasualties 		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Horses		- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Horses
-		Opponent.MaterielCasualties		= ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.InitialHP].Materiel 	- ExposedMembers.UnitHitPointsTable[Opponent.unitType][Opponent.FinalHP].Materiel
+	
+	Opponent.PersonnelCasualties 	= UnitHitPoints[Opponent.InitialHP].Personnel 	- UnitHitPoints[Opponent.FinalHP].Personnel
+	Opponent.HorsesCasualties 		= UnitHitPoints[Opponent.InitialHP].Horses		- UnitHitPoints[Opponent.FinalHP].Horses
+	Opponent.MaterielCasualties		= UnitHitPoints[Opponent.InitialHP].Materiel 	- UnitHitPoints[Opponent.FinalHP].Materiel
 
-		-- Remove casualties from frontline
-		ExposedMembers.UnitData[Opponent.unitKey].Personnel = ExposedMembers.UnitData[Opponent.unitKey].Personnel  	- Opponent.PersonnelCasualties
-		--ExposedMembers.UnitData[Opponent.unitKey].Equipment  = ExposedMembers.UnitData[Opponent.unitKey].Equipment  	- Opponent.EquipmentCasualties
-		ExposedMembers.UnitData[Opponent.unitKey].Horses	= ExposedMembers.UnitData[Opponent.unitKey].Horses	  	- Opponent.HorsesCasualties
-		ExposedMembers.UnitData[Opponent.unitKey].Materiel 	= ExposedMembers.UnitData[Opponent.unitKey].Materiel 	- Opponent.MaterielCasualties
-	--end
+	Opponent.EquipmentCasualties 	= {}
+	-- to do : only IsRequired class here !!!
+	for equipmentClass, equipmentData in pairs(ExposedMembers.UnitData[Opponent.unitKey].Equipment) do
+		Opponent.EquipmentCasualties[equipmentClass] = UnitHitPoints[Opponent.InitialHP].EquipmentClass[equipmentClass] - UnitHitPoints[Opponent.FinalHP].EquipmentClass[equipmentClass]
+	end	
 
-	return Opponent
 end
 
-function AddCasualtiesInfoByTo(OpponentA, OpponentB)
+function AddCasualtiesInfoByTo(FromOpponent, Opponent)
+
+	local UnitData = ExposedMembers.UnitData[Opponent.unitKey]	
+	
+	-- Remove casualties from frontline
+	UnitData.Personnel 	= UnitData.Personnel  	- Opponent.PersonnelCasualties
+	--UnitData.Equipment  = UnitData.Equipment  	- Opponent.EquipmentCasualties
+	UnitData.Horses		= UnitData.Horses	  	- Opponent.HorsesCasualties
+	UnitData.Materiel 	= UnitData.Materiel 	- Opponent.MaterielCasualties
 
 	-- Send wounded to the rear, bury the dead, take prisonners
-	if OpponentA.AntiPersonnel then
-		OpponentB.Dead = GCO.Round(OpponentB.PersonnelCasualties * OpponentA.AntiPersonnel / 100)
+	if FromOpponent.AntiPersonnel then
+		Opponent.Dead = GCO.Round(Opponent.PersonnelCasualties * FromOpponent.AntiPersonnel / 100)
 	else
-		OpponentB.Dead = GCO.Round(OpponentB.PersonnelCasualties * GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value / 100)
+		Opponent.Dead = GCO.Round(Opponent.PersonnelCasualties * GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value / 100)
 	end	
-	if OpponentA.CanTakePrisoners then	
-		if OpponentA.CapturedPersonnelRatio then
-			OpponentB.Captured = GCO.Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * OpponentA.CapturedPersonnelRatio / 100)
+	if FromOpponent.CanTakePrisoners then	
+		if FromOpponent.CapturedPersonnelRatio then
+			Opponent.Captured = GCO.Round((Opponent.PersonnelCasualties - Opponent.Dead) * FromOpponent.CapturedPersonnelRatio / 100)
 		else
-			OpponentB.Captured = GCO.Round((OpponentB.PersonnelCasualties - OpponentB.Dead) * GameInfo.GlobalParameters["COMBAT_CAPTURED_PERSONNEL_PERCENT"].Value / 100)
+			Opponent.Captured = GCO.Round((Opponent.PersonnelCasualties - Opponent.Dead) * GameInfo.GlobalParameters["COMBAT_CAPTURED_PERSONNEL_PERCENT"].Value / 100)
 		end	
-		if OpponentA.MaxCapture then
-			OpponentB.Captured = math.min(OpponentA.MaxCapture, OpponentB.Captured)
+		if FromOpponent.MaxCapture then
+			Opponent.Captured = math.min(FromOpponent.MaxCapture, Opponent.Captured)
 		end
 	else
-		OpponentB.Captured = 0
+		Opponent.Captured = 0
 	end	
-	OpponentB.Wounded = OpponentB.PersonnelCasualties - OpponentB.Dead - OpponentB.Captured
+	Opponent.Wounded = Opponent.PersonnelCasualties - Opponent.Dead - Opponent.Captured
 	
 	-- Salvage Equipment
-	--OpponentB.EquipmentLost = GCO.Round(OpponentB.EquipmentCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
-	--OpponentB.DamagedEquipment = OpponentB.EquipmentCasualties - OpponentB.EquipmentLost
+	--Opponent.EquipmentLost = GCO.Round(Opponent.EquipmentCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
+	--Opponent.DamagedEquipment = Opponent.EquipmentCasualties - Opponent.EquipmentLost
 	-- They Shoot Horses, Don't They?
-	OpponentB.HorsesLost = OpponentB.HorsesCasualties -- some of those may be captured by the opponent ?
+	Opponent.HorsesLost = Opponent.HorsesCasualties -- some of those may be captured by the opponent ?
 	
 	-- Materiel too is a full lost
-	OpponentB.MaterielLost = OpponentB.MaterielCasualties
+	Opponent.MaterielLost = Opponent.MaterielCasualties
 				
 	-- Apply Casualties	transfer
-	ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel = ExposedMembers.UnitData[OpponentB.unitKey].WoundedPersonnel 	+ OpponentB.Wounded
-	--ExposedMembers.UnitData[OpponentB.unitKey].DamagedEquipment 	= ExposedMembers.UnitData[OpponentB.unitKey].DamagedEquipment 	+ OpponentB.DamagedEquipment
+	UnitData.WoundedPersonnel 	= UnitData.WoundedPersonnel 	+ Opponent.Wounded
+	--UnitData.DamagedEquipment = UnitData.DamagedEquipment 	+ Opponent.DamagedEquipment
 	
 	-- Update Stats
-	ExposedMembers.UnitData[OpponentB.unitKey].TotalDeath			= ExposedMembers.UnitData[OpponentB.unitKey].TotalDeath 		+ OpponentB.Dead
-	--ExposedMembers.UnitData[OpponentB.unitKey].TotalEquipmentLost	= ExposedMembers.UnitData[OpponentB.unitKey].TotalEquipmentLost 	+ OpponentB.EquipmentLost
-	ExposedMembers.UnitData[OpponentB.unitKey].TotalHorsesLost 		= ExposedMembers.UnitData[OpponentB.unitKey].TotalHorsesLost 	+ OpponentB.HorsesLost
+	UnitData.TotalDeath				= UnitData.TotalDeath 		+ Opponent.Dead
+	--UnitData.TotalEquipmentLost	= UnitData.TotalEquipmentLost 	+ Opponent.EquipmentLost
+	UnitData.TotalHorsesLost 		= UnitData.TotalHorsesLost 	+ Opponent.HorsesLost
 
-	return OpponentB
 end
 
 function GetMaterielFromKillOfBy(OpponentA, OpponentB)
@@ -2056,8 +2135,8 @@ function OnCombat( combatResult )
 	if attacker.IsUnit then -- and attacker[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
 		if attacker.unit then
 			if ExposedMembers.UnitData[attacker.unitKey] then
-				attacker = AddFrontLineCasualtiesInfoTo(attacker) 		-- Set Personnel, Equipment, Horses and Materiel casualties from the HP lost
-				attacker = AddCasualtiesInfoByTo(defender, attacker) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
+				AddFrontLineCasualtiesInfoTo(attacker) 		-- Set Personnel, Equipment, Horses and Materiel casualties from the HP lost
+				AddCasualtiesInfoByTo(defender, attacker) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
 				if not attacker.IsDead then
 					LuaEvents.UnitsCompositionUpdated(attacker.playerID, attacker.unitID) 	-- call to update flag
 					ShowCasualtiesFloatingText(attacker)									-- visualize all casualties
@@ -2069,8 +2148,8 @@ function OnCombat( combatResult )
 	if defender.IsUnit then -- and defender[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
 		if defender.unit then
 			if ExposedMembers.UnitData[defender.unitKey] then
-				defender = AddFrontLineCasualtiesInfoTo(defender) 		-- Set Personnel, Equipment, Horses and Materiel casualties from the HP lost
-				defender = AddCasualtiesInfoByTo(attacker, defender) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
+				AddFrontLineCasualtiesInfoTo(defender) 		-- Set Personnel, Equipment, Horses and Materiel casualties from the HP lost
+				AddCasualtiesInfoByTo(attacker, defender) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
 				if not defender.IsDead then
 					LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)	-- call to update flag
 					ShowCasualtiesFloatingText(defender)									-- visualize all casualties
@@ -2858,16 +2937,18 @@ end
 function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	--
-	ExposedMembers.GCO.GetUnit 						= GetUnit
-	ExposedMembers.GCO.GetUnitFromKey 				= GetUnitFromKey
-	ExposedMembers.GCO.AttachUnitFunctions 			= AttachUnitFunctions
-	ExposedMembers.GCO.GetBasePersonnelReserve 		= GetBasePersonnelReserve
-	--ExposedMembers.GCO.GetBaseEquipmentReserve 		= GetBaseEquipmentReserve
-	ExposedMembers.GCO.GetBaseHorsesReserve 		= GetBaseHorsesReserve
-	ExposedMembers.GCO.GetBaseMaterielReserve 		= GetBaseMaterielReserve
-	--ExposedMembers.GCO.GetEquipmentName 			= GetEquipmentName
-	--ExposedMembers.GCO.GetEquipmentID				= GetEquipmentID
-	ExposedMembers.GCO.GetUnitConstructionResources	= GetUnitConstructionResources
+	ExposedMembers.GCO.GetUnit 								= GetUnit
+	ExposedMembers.GCO.GetUnitFromKey 						= GetUnitFromKey
+	ExposedMembers.GCO.AttachUnitFunctions 					= AttachUnitFunctions
+	ExposedMembers.GCO.GetBasePersonnelReserve 				= GetBasePersonnelReserve
+	--ExposedMembers.GCO.GetBaseEquipmentReserve 			= GetBaseEquipmentReserve
+	ExposedMembers.GCO.GetBaseHorsesReserve 				= GetBaseHorsesReserve
+	ExposedMembers.GCO.GetBaseMaterielReserve 				= GetBaseMaterielReserve
+	--ExposedMembers.GCO.GetEquipmentName 					= GetEquipmentName
+	--ExposedMembers.GCO.GetEquipmentID						= GetEquipmentID
+	ExposedMembers.GCO.GetUnitConstructionResources			= GetUnitConstructionResources
+	ExposedMembers.GCO.GetUnitConstructionOrResources		= GetUnitConstructionOrResources
+	ExposedMembers.GCO.GetUnitConstructionOptionalResources	= GetUnitConstructionOptionalResources
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end
