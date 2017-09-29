@@ -153,19 +153,19 @@ CREATE TABLE IF NOT EXISTS EquipmentTypeClasses
 	
 CREATE TABLE IF NOT EXISTS Equipment
 	(
-		ResourceType TEXT NOT NULL,							-- Equipment are handled as resources
-		EquipmentSize INTEGER NOT NULL DEFAULT 1,			-- Space taken in a city stockage capacity
-		Desirability INTEGER NOT NULL DEFAULT 0,			-- Units will request ResourceType of higher desirability first
-		Toughness INTEGER NOT NULL DEFAULT 0,				-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
-		PersonnelArmor INTEGER NOT NULL DEFAULT 0,
-		AntiPersonnel INTEGER NOT NULL DEFAULT 0,
-		AntiPersonnelArmor INTEGER NOT NULL DEFAULT 0,
-		IgnorePersonnelArmor INTEGER NOT NULL DEFAULT 0,
-		VehicleArmor INTEGER NOT NULL DEFAULT 0,
-		AntiVehicle INTEGER NOT NULL DEFAULT 0,
-		AntiVehicleArmor INTEGER NOT NULL DEFAULT 0,
-		IgnoreVehicleArmor INTEGER NOT NULL DEFAULT 0,
-		Reliability INTEGER,								-- Percentage, 100 means no loss from breakdown, lower values means possible loss from unreliability (instead of damaged send in reserve)
+		ResourceType TEXT NOT NULL,					-- Equipment are handled as resources
+		EquipmentSize INTEGER NOT NULL DEFAULT 1,	-- Space taken in a city stockage capacity
+		Desirability INTEGER NOT NULL DEFAULT 0,	-- Units will request ResourceType of higher desirability first
+		Toughness INTEGER,							-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
+		PersonnelArmor INTEGER,
+		AntiPersonnel INTEGER,						-- 0 = no kill, 100 = all killed (if PersonnelArmor = 0)
+		AntiPersonnelArmor INTEGER,
+		IgnorePersonnelArmor INTEGER,
+		VehicleArmor INTEGER,
+		AntiVehicle INTEGER,
+		AntiVehicleArmor,
+		IgnoreVehicleArmor,
+		Reliability INTEGER,						-- Percentage, 100 means no loss from breakdown, lower values means possible loss from unreliability (instead of damaged send in reserve)
 		FuelConsumption INTEGER,
 		FuelType TEXT,
 		PRIMARY KEY(ResourceType),

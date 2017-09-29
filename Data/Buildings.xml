@@ -106,6 +106,9 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_FISH" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CRABS" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
 		
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 	MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" Ratio="15"/>
+		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 	MaxConverted="15" 	ResourceCreated="EQUIPMENT_STONE_AXE" 	Ratio="15"/>
+		
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 	MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"/>
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 	MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"/>
 		
@@ -128,7 +131,7 @@
 		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_SHEEP" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_SHEEP" 	MaxConverted="15" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_HERBALIST" 	ResourceType="RESOURCE_PLANTS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="1"/>
+		<Row BuildingType="BUILDING_HERBALIST" 		ResourceType="RESOURCE_PLANTS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="1"/>
 		
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2"/>
 		
@@ -136,6 +139,7 @@
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="5" 	MultiResCreated="1"/>
 		
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="5" 	/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_SPIKED_CLUB" Ratio="10"	/>
 	<!---->
 		
 		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_RICE" 	MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
