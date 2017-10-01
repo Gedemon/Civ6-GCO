@@ -854,6 +854,7 @@ function UnitFlag.UpdateName( self )
 		local unitData 	= ExposedMembers.UnitData[unitKey]
 		local unitType 	= pUnit:GetUnitType()
 		local unitInfo 	= GameInfo.Units[unitType]
+		
 		if unitData then
 		
 			-- Condition
@@ -862,7 +863,7 @@ function UnitFlag.UpdateName( self )
 		
 			--local bHasComponents = (unitInfo.Personnel + unitInfo.Equipment + unitInfo.Horses + unitInfo.Materiel > 0)
 			local bHasComponents = (unitInfo.Personnel + unitInfo.Horses + unitInfo.Materiel > 0)
-			if bHasComponents then				
+			if bHasComponents then
 				
 				-- "Frontline"
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FRONTLINE_TITLE")
@@ -876,7 +877,7 @@ function UnitFlag.UpdateName( self )
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_RESERVE_TITLE")
 				if unitInfo.Personnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL_RESERVE", pUnit:GetComponent("PersonnelReserve")) .. GCO.GetVariationString(pUnit:GetComponentVariation("PersonnelReserve")) end
 				--if unitInfo.Equipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_RESERVE", unitData.EquipmentReserve, GCO.GetEquipmentName(unitType)) .. GCO.GetVariationString(pUnit:GetComponentVariation("EquipmentReserve")) end
-				--nameString = nameString .. pUnit:GetFrontLineEquipmentString()
+				nameString = nameString .. pUnit:GetReserveEquipmentString()
 				if unitInfo.Horses 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES_RESERVE", unitData.HorsesReserve) .. GCO.GetVariationString(pUnit:GetComponentVariation("HorsesReserve")) end
 				if unitInfo.Materiel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MATERIEL_RESERVE", unitData.MaterielReserve) .. GCO.GetVariationString(pUnit:GetComponentVariation("MaterielReserve")) end
 				
@@ -886,7 +887,7 @@ function UnitFlag.UpdateName( self )
 			local totalPrisoners = GCO.GetTotalPrisoners(unitData)
 			--local bHasExtra = (unitData.WoundedPersonnel + unitData.DamagedEquipment + totalPrisoners + unitData.FoodStock + unitData.FoodStock > 0)
 			local bHasExtra = (unitData.WoundedPersonnel + totalPrisoners + unitData.FoodStock + unitData.FoodStock > 0)
-			if bHasExtra then				
+			if bHasExtra then
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_REAR_TITLE")					
 				if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) .. GCO.GetNeutralVariationString(pUnit:GetComponentVariation("WoundedPersonnel")) end
 				--if unitData.DamagedEquipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_EQUIPMENT", unitData.DamagedEquipment)  .. GCO.GetNeutralVariationString(pUnit:GetComponentVariation("DamagedEquipment"))end
@@ -944,6 +945,7 @@ function UnitFlag.UpdateName( self )
 		end
 
 		function ShowSupplyLine()
+			if not unitData then print("WTF ???") return end
 			if not unitData.SupplyLineCityKey then return end
 			--if bShownSupplyLine then return end
 			UILens.SetActive("TradeRoute")

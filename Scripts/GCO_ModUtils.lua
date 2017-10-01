@@ -27,6 +27,7 @@ local ResourceValue 		= {			-- cached table with value of resources type
 		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
 		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
 }
+local equipmentCostRatio = tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EQUIPMENT_RATIO"].Value)
 
 local IsEquipment	= {}
 for row in GameInfo.Resources() do
@@ -191,6 +192,15 @@ end
 function Error(...)
 	print("Error : ", select(1,...))
 	LuaEvents.StopAuToPlay()
+end
+
+function Dline()
+	local status, err = pcall(function () error("my error") end)
+	local str = string.match(err, 'Dline.-$')
+	local str = string.match(str, 'GCO_.-$')
+	local str = string.match(str, ':.-\'')
+	local str = string.match(str, '%d+')
+	print("at line "..str)
 end
 
 -- Compare tables
@@ -449,8 +459,15 @@ end
 -- Resources
 ----------------------------------------------
 function GetBaseResourceCost(resourceID)
+	local resourceID = tonumber(resourceID)
 	local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
-	return ResourceValue[resourceClassType] or 0
+	local cost = ResourceValue[resourceClassType] or 0
+	if IsResourceEquipment(resourceID) then
+		local resourceTypeName = GameInfo.Resources[resourceID].ResourceType
+		local equipmentSize = GameInfo.Equipment[resourceTypeName].EquipmentSize
+		cost = cost * equipmentCostRatio * equipmentSize		
+	end
+	return cost
 end
 
 function IsResourceEquipment(resourceID)
@@ -458,6 +475,7 @@ function IsResourceEquipment(resourceID)
 end
 
 function GetResourceIcon(resourceID)
+	if not resourceID then return "[ICON_Production]" end -- allow call with no argument to return default icon
 	local iconStr = ""
 	if ResourceTempIcons[resourceID] then
 		iconStr = ResourceTempIcons[resourceID]
@@ -560,6 +578,7 @@ function Initialize()
 	ExposedMembers.GCO.AreSameTables	= AreSameTables
 	ExposedMembers.GCO.Dump				= Dump
 	ExposedMembers.GCO.Error			= Error
+	ExposedMembers.GCO.Dline 			= Dline
 	-- "globals"
 	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations

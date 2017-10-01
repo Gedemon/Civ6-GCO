@@ -83,12 +83,12 @@
 	
 	<Equipment> <!-- Melee Weapons -->
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"	Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
-		<Row ResourceType="EQUIPMENT_STONE_AXE"		Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
-		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	Toughness="1"	Desirability="2" 	AntiPersonnel="32" />
+		<Row ResourceType="EQUIPMENT_STONE_AXE"		Toughness="1"	Desirability="2" 	AntiPersonnel="27" />
+		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	Toughness="1"	Desirability="3" 	AntiPersonnel="32" />
 		
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	Toughness="3"	Desirability="1" 	AntiPersonnel="38" AntiPersonnelArmor="5" />
-		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	Toughness="5"	Desirability="10" 	AntiPersonnel="42" AntiPersonnelArmor="7" />
-		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	Toughness="7"	Desirability="20" 	AntiPersonnel="46" AntiPersonnelArmor="10" />
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	Toughness="5"	Desirability="2" 	AntiPersonnel="42" AntiPersonnelArmor="7" />
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	Toughness="7"	Desirability="3" 	AntiPersonnel="46" AntiPersonnelArmor="10" />
 	</Equipment>
 	
 	<Equipment>  <!-- Personnel Armor -->

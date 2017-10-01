@@ -9,7 +9,7 @@ print("Loading PlayerScript.lua...")
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_PLAYER_SCRIPT			= false
+DEBUG_PLAYER_SCRIPT			= true
 
 function TogglePlayerDebug()
 	DEBUG_PLAYER_SCRIPT = not DEBUG_PLAYER_SCRIPT
@@ -230,20 +230,41 @@ end
 
 function DoPlayerTurn( playerID )
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
-	local player = Players[playerID]
-	local playerConfig = PlayerConfigurations[playerID]
+	
+	local player 							= Players[playerID]
+	local playerConfig						= PlayerConfigurations[playerID]
+	GCO.PlayerTurnsDebugChecks[playerID]	= {}
+	
 	print("---============================================================================================================================================================================---")
 	print("--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
 	print("---============================================================================================================================================================================---")
+	
 	--player:UpdatePopulationNeeds()
 	LuaEvents.DoUnitsTurn( playerID )
-	LuaEvents.DoCitiesTurn( playerID )
+	LuaEvents.DoCitiesTurn( playerID )	
+	
 	-- update flags after resources transfers
 	player:UpdateUnitsFlags()
 	player:UpdateCitiesBanners()
 	player:SetCurrentTurn()
 end
 --LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
+
+function CheckPlayerTurn(playerID)
+	local playerConfig	= PlayerConfigurations[playerID]
+	local bNoError		= true
+	if not GCO.PlayerTurnsDebugChecks[playerID].UnitsTurn then
+		GCO.Error("UNITS TURN UNFINISHED AT TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER #".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
+		bNoError = false
+	end
+	if not GCO.PlayerTurnsDebugChecks[playerID].CitiesTurn then
+		GCO.Error("CITIES TURN UNFINISHED AT TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER #".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
+		bNoError = false
+	end
+	if bNoError then		
+		Dprint( DEBUG_PLAYER_SCRIPT, "- No error detected during 'DoTurn' for player ID#".. tostring(playerID) .. " - "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+	end
+end
 
 -- can't use those, they makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager, and some other unidentified parts of the code...
 --GameEvents.PlayerTurnStarted.Add(DoPlayerTurn)
@@ -255,15 +276,28 @@ function DoTurnForLocal() -- The Error reported on the line below is triggered b
 	if player and not player:HasStartedTurn() then
 		DoPlayerTurn(playerID)
 		LuaEvents.SaveTables()
+		CheckPlayerTurn(playerID)
 	end
 end
 Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
 
 function DoTurnForRemote( playerID )
-	DoPlayerTurn(playerID)
+	DoPlayerTurn(playerID)	
+	CheckPlayerTurn(playerID)
 end
 Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
 
+function OnResearchCompleted(playerID)
+	local player = Players[playerID]
+	local playerCities = player:GetCities()
+	if playerCities then
+		for i, city in playerCities:Members() do
+			GCO.AttachCityFunctions(city)
+			city:SetUnlockers()
+		end
+	end	
+end
+Events.ResearchCompleted.Add(OnResearchCompleted)
 
 
 -----------------------------------------------------------------------------------------
@@ -312,6 +346,7 @@ function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.GetPlayer 					= GetPlayer
 	ExposedMembers.GCO.InitializePlayerFunctions 	= InitializePlayerFunctions
+	ExposedMembers.GCO.PlayerTurnsDebugChecks 		= {}
 	ExposedMembers.PlayerScript_Initialized 		= true
 end
 Initialize()

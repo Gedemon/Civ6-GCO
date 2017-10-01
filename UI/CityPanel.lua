@@ -382,6 +382,8 @@ function ViewMain( data:table )
 	
 	if data.CurrentTurnsLeft < data.RealProductionTurnsLeft then
 		Controls.ProductionNum:SetColorByName("StatBadCS")
+	else		
+		Controls.ProductionNum:SetColorByName("White")
 	end
 	
 	-- GCO >>>>>

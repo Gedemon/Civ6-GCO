@@ -295,6 +295,10 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 	end
 	
 	-- GCO <<<<<
+	if building.EquipmentStock and building.EquipmentStock > 0 then
+		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_EQUIPMENT_STOCK", building.EquipmentStock))
+	end
+	
 	for row in GameInfo.BuildingStock() do
 		if(row.BuildingType == buildingType) then
 			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
@@ -662,6 +666,7 @@ ToolTipHelper.GetUnitToolTip = function(unitType)
 	end
 	
 	-- GCO <<<<<
+	--[[
 	local personnel = GameInfo.Units[unitType].Personnel 	+ GCO.GetBasePersonnelReserve(unitType)
 	--local equipment = GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType)
 	local horses 	= GameInfo.Units[unitType].Horses 		+ GCO.GetBaseHorsesReserve(unitType)
@@ -671,6 +676,7 @@ ToolTipHelper.GetUnitToolTip = function(unitType)
 	--if equipment 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_EQUIPMENT", equipment, GCO.GetEquipmentName(unitType))) end
 	if horses 		> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_HORSES", horses)) end
 	if materiel 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_MATERIEL", materiel)) end
+	--]]
 	-- GCO >>>>>
 	
 	if(not Locale.IsNilOrWhitespace(description)) then

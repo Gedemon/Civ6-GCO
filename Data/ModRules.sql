@@ -36,7 +36,7 @@ UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT
 
 -- Update projects before removing the distric themselves because of the cascade update...
 --/* 
-DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
+--DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
@@ -45,7 +45,7 @@ DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HOLY_SITE';
 --*/
 
 --/*
-DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
+--DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_CAMPUS';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_ENTERTAINMENT_COMPLEX';

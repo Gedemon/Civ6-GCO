@@ -21,6 +21,11 @@ include( "Civ6Common" )
 -- Defines
 ----------------------------------------------
 
+local ProductionTypes = {
+		UNIT		= 0,
+		BUILDING	= 1,
+		DISTRICT 	= 2
+	}
 
 ----------------------------------------------
 -- Initialize
@@ -80,6 +85,19 @@ function GetCityProductionYield(city)
 	return pCityBuildQueue:GetProductionYield()
 end
 
+function GetCityProductionProgress(city, productionType, objetID)
+	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	local pCityBuildQueue = contextCity:GetBuildQueue()
+	if productionType == ProductionTypes.UNIT then
+		return pCityBuildQueue:GetUnitProgress(objetID)
+	elseif productionType == ProductionTypes.BUILDING then
+		return pCityBuildQueue:GetBuildingProgress(objetID)
+	elseif productionType == ProductionTypes.DISTRICT then
+		return pCityBuildQueue:GetDistrictProgress(objetID)
+	else
+		return pCityBuildQueue:GetUnitProgress(objetID)
+	end
+end
 
 ----------------------------------------------
 -- Players functions
@@ -126,6 +144,7 @@ function Initialize()
 	ExposedMembers.GCO.CityCanProduce				= CityCanProduce
 	ExposedMembers.GCO.GetCityProductionTurnsLeft	= GetCityProductionTurnsLeft
 	ExposedMembers.GCO.GetCityProductionYield		= GetCityProductionYield
+	ExposedMembers.GCO.GetCityProductionProgress	= GetCityProductionProgress
 	-- players
 	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
 	ExposedMembers.GCO.IsResourceVisibleFor 		= IsResourceVisibleFor
@@ -170,7 +189,7 @@ function CheckProgression()
 		end
 	end
 end
-Events.GameCoreEventPublishComplete.Add( CheckProgression )
+--Events.GameCoreEventPublishComplete.Add( CheckProgression )
 
 --[[
 	return {

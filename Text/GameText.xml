@@ -47,8 +47,8 @@
 	
     <Replace Tag="LOC_BUILDING_BUTCHERY_NAME" 		Text="Butchery" 		Language="en_US" />
     <Replace Tag="LOC_BUILDING_HERBALIST_NAME" 		Text="Herbalist" 		Language="en_US" />
-    <Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 	Text="Small Stable"		Language="en_US" />
-    <Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" Text="Small Barracks"	Language="en_US" />
+    <Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 	Text="City Stable"		Language="en_US" />
+    <Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" Text="City Barracks"	Language="en_US" />
     <Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 	Text="Blacksmith"		Language="en_US" />
     <Replace Tag="LOC_BUILDING_FISH_MARKET_NAME" 	Text="Fish Market"		Language="en_US" />
 	
@@ -382,8 +382,7 @@
 		
     <Replace Tag="LOC_EQUIPMENT_LEATHER_NAME" 	Text="Leather Equipment" 	Language="en_US" /> 
     <Replace Tag="LOC_EQUIPMENT_IRON_NAME" 		Text="Iron Equipment" 		Language="en_US" /> 
-    <Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 	Text="Chariot" 				Language="en_US" /> 
-	
+    <Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 	Text="Chariot" 				Language="en_US" /> 	
 	
     <Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 		Text="Wooden Clubs" 	Language="en_US" /> 
     <Replace Tag="LOC_EQUIPMENT_STONE_AXE_NAME" 		Text="Stone Axes"		Language="en_US" /> 
@@ -620,20 +619,28 @@
       <Text>Requires {1_Num} [ICON_RESOURCE_MATERIEL] Materiel</Text>
     </Replace>
 	
+	<Replace Tag="LOC_TOOLTIP_BUILDING_EQUIPMENT_STOCK" Language="en_US">
+      <Text>Provide {1_Num} storage space for Equipment</Text>
+    </Replace>	
+	
   </LocalizedText>
  
   <LocalizedText> <!-- Production Panel Texts -->	
 
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_NO_STOCK" Language="en_US">
-      <Text>Requires [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {1_Name} {2_Name} per turn, [COLOR_Civ6Red]{4_Num}[ENDCOLOR] left in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied.</Text>
+      <Text>[ICON_Bullet] [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {1_Name} {2_Name}, [COLOR_Civ6Red]{4_Num}[ENDCOLOR] left in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied.</Text>
     </Replace>
 	
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_LIMITED_STOCK" Language="en_US">
-      <Text>Requires [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {1_Name} {2_Name} per turn, {4_Num} available in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied.</Text>
+      <Text>[ICON_Bullet] [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {1_Name} {2_Name}, {4_Num} available in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied.</Text>
     </Replace>
 	
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_ENOUGH_STOCK" Language="en_US">
-      <Text>Requires {3_Num} {1_Name} {2_Name} per turn, {4_Num} available in stock, {5_Num} supplied.</Text>
+      <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name}, {4_Num} available in stock, {5_Num} supplied.</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_PRODUCTION_RESOURCE_TOTAL" Language="en_US">
+      <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name}  (including reserve)</Text>
     </Replace>
 	
 	<Replace Tag="LOC_PRODUCTION_REQUIRES_ANY_BUILDING" Language="en_US">
@@ -658,6 +665,22 @@
 	<Replace Tag="LOC_PRODUCTION_REQUIRES_COASTAL_FAIL" Language="en_US">
 		<Text>Can be build in [COLOR_Civ6Red]coastal city[ENDCOLOR only</Text>
 	</Replace>
+	
+	<Replace Tag="LOC_ALREADY_RESERVED_RESOURCE" Language="en_US">
+		<Text>Already reserved resources :</Text>
+	</Replace>	
+	<Replace Tag="LOC_PRODUCTION_RESERVED_RESOURCE" Language="en_US">
+      <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name}</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_PRODUCTION_TOTAL_REQUIREMENT" Language="en_US">
+		<Text>Total resources required :</Text>
+	</Replace>
+	<Replace Tag="LOC_PRODUCTION_PER_TURN_REQUIREMENT" Language="en_US">
+		<Text>Resources required per construction turn :</Text>
+	</Replace>	
+	
+	
 	
   </LocalizedText>
   
