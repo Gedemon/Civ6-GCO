@@ -134,13 +134,15 @@ end
 local equipmentUnitTypes	= {}
 for unitTypeID, equipmentClasses in pairs(unitEquipmentClasses) do
 	for equipmentClassID, _ in pairs(equipmentClasses) do
-		for equipmentClassID, equipmentData in pairs(equipmentTypeClasses[equipmentClassID]) do
-			if not equipmentUnitTypes[equipmentData.EquipmentID] then
-				equipmentUnitTypes[equipmentData.EquipmentID] = { [unitTypeID] = equipmentClassID }
-			elseif equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID] then
-				print("WARNING: Equipment Type ".. Locale.Lookup(GameInfo.Resources[equipmentData.EquipmentID].Name) .." in multiple classes (".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID]].Name) ..", ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name) .." for unit type "..Locale.Lookup(GameInfo.units[unitTypeID].Name))
-			else
-				equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID] = equipmentClassID
+		if equipmentTypeClasses[equipmentClassID] then
+			for equipmentClassID, equipmentData in pairs(equipmentTypeClasses[equipmentClassID]) do
+				if not equipmentUnitTypes[equipmentData.EquipmentID] then
+					equipmentUnitTypes[equipmentData.EquipmentID] = { [unitTypeID] = equipmentClassID }
+				elseif equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID] then
+					print("WARNING: Equipment Type ".. Locale.Lookup(GameInfo.Resources[equipmentData.EquipmentID].Name) .." in multiple classes (".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID]].Name) ..", ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name) .." for unit type "..Locale.Lookup(GameInfo.units[unitTypeID].Name))
+				else
+					equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID] = equipmentClassID
+				end
 			end
 		end
 	end
@@ -1211,6 +1213,11 @@ function GetRequiredEquipmentClasses(self)					-- get equipment classes required
 	return requiredClasses
 end
 
+function IsRequiringEquipmentClass(self, equipmentClassID)	-- return true if that equipment class is required by this unit
+	local unitType = self:GetType()
+	return unitEquipmentClasses[unitType] and unitEquipmentClasses[unitType][equipmentClassID] and unitEquipmentClasses[unitType][equipmentClassID].IsRequired
+end
+
 function GetEquipmentClass(self, equipmentTypeID)			-- return the class of an equipment type used by this unit
 	return GetUnitEquipmentClass(self:GetType(), equipmentTypeID)
 end
@@ -2080,7 +2087,7 @@ function AddFrontLineCasualtiesInfoTo(Opponent)
 	Opponent.EquipmentCasualties 	= {}
 	for equipmentClassKey, equipmentData in pairs(UnitData.Equipment) do
 		local equipmentClassID 	= tonumber(equipmentClassKey)
-		local isRequired	 	= unitEquipmentClasses[Opponent.unitType][equipmentClassID].IsRequired
+		local isRequired	 	= (unitEquipmentClasses[Opponent.unitType] and unitEquipmentClasses[Opponent.unitType][equipmentClassID] and unitEquipmentClasses[Opponent.unitType][equipmentClassID].IsRequired)
 		if isRequired then 	-- required equipment follow exactly the UnitHitPoints table
 			Opponent.EquipmentCasualties[equipmentClassKey] = UnitHitPoints[Opponent.InitialHP].EquipmentClass[equipmentClassID] - UnitHitPoints[Opponent.FinalHP].EquipmentClass[equipmentClassID]
 		else 				-- optional equipment use relative value, UnitHitPoints is used to handle the max value at HP Left
@@ -2552,17 +2559,49 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 							if (hp + healTable[unit] < maxHP) then
 								local unitInfo 	= GameInfo.Units[unit:GetType()] -- GetType in script, GetUnitType in UI context...
 								local unitData	= ExposedMembers.UnitData[key]
-								local hitPoints = UnitHitPointsTable[unitInfo.Index]
 								
-								-- check here if the unit has enough reserves to get +1HP
-								local reqPersonnel 	= hitPoints[hp + healTable[unit] +1].Personnel - hitPoints[hp].Personnel
-								--local reqEquipment 	= hitPoints[hp + healTable[unit] +1].Equipment - hitPoints[hp].Equipment
-								local reqHorses 	= hitPoints[hp + healTable[unit] +1].Horses 	- hitPoints[hp].Horses
-								local reqMateriel 	= hitPoints[hp + healTable[unit] +1].Materiel 	- hitPoints[hp].Materiel
+								if not unitData then 
+									print ("WARNING, no entry for " .. Locale.Lookup(unit:GetName()) .. " id#" .. tostring(unit:GetID()))
+								else								
+									local hitPoints = UnitHitPointsTable[unitInfo.Index]
+									local loopHP = hp + healTable[unit] +1
+									
+									-- check here if the unit has enough reserves to get +1HP
+									local reqPersonnel 	= hitPoints[loopHP].Personnel - hitPoints[hp].Personnel
+									if reqPersonnel > tonumber(maxTransfer[unit].Personnel) then
+										hasReachedLimit[unit] = true
+										Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(unit:GetName()) .. " at " .. tostring(healHP) ..", Personnel Requirements = ".. tostring(reqPersonnel) .. ", Max transferable per turn = ".. tostring(maxTransfer[unit].Personnel))
+									
+									else
+										local reqMateriel 	= hitPoints[loopHP].Materiel 	- hitPoints[hp].Materiel
+										if reqMateriel > tonumber(maxTransfer[unit].Materiel) then
+											hasReachedLimit[unit] = true
+											Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(unit:GetName()) .. " at " .. tostring(healHP) ..", Materiel Requirements = " .. tostring(reqMateriel) .. ", Max transferable per turn = ".. tostring(maxTransfer[unit].Materiel) )
+										
+										else
+											
+											if unitData.PersonnelReserve 	>= reqPersonnel then hasReachedLimit[unit] = true end
+											if unitData.MaterielReserve 	>= reqMateriel 	then hasReachedLimit[unit] = true end
+											
+											if unitData.HorsesReserve >= (hitPoints[loopHP].Horses - hitPoints[hp].Horses) then hasReachedLimit[unit] = true end
+												
+											for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
+												local equipmentClassID 	= tonumber(equipmentClassKey)
+												if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table
+													if unit:GetEquipmentClassReserve(equipmentClassID) >= hitPoints[loopHP].EquipmentClass[equipmentClassID] - hitPoints[hp].EquipmentClass[equipmentClassID] then
+														hasReachedLimit[unit] = true
+													end
+												end
+											end
+										end
+									end
+									
+									if not hasReachedLimit[unit] then
+										healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
+									end									
+								end								
+								--[[
 								
-								local reqEquipment 	= {}
-								
-								if not unitData then print ("WARNING, no entry for " .. tostring(unit:GetName()) .. " id#" .. tostring(unit:GetID())) end
 								
 								-- unit limit (vehicles and horses are handled by personnel...)
 								if reqPersonnel > tonumber(maxTransfer[unit].Personnel) or reqMateriel > tonumber(maxTransfer[unit].Materiel) then
@@ -2574,8 +2613,16 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 								and 	unitData.HorsesReserve >= reqHorses
 								and 	unitData.MaterielReserve >= reqMateriel
 								then
-									healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
+									local bHasEnoughEquipment = true
+									--for equipmentClassKey, reqValue in pairs(reqEquipment) do
+									--	if unit:GetReserveEquipment(equipmentType, classType)
+									--end
+										
+									if bHasEnoughEquipment then
+										healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
+									end
 								end
+								--]]
 							end
 						end
 					end
@@ -2605,25 +2652,51 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 
 				-- update reserve and frontline...
 				local reqPersonnel 	= hitPoints[finalHP].Personnel - hitPoints[initialHP].Personnel
-				local reqEquipment 	= 0 --hitPoints[finalHP].Equipment - hitPoints[initialHP].Equipment
 				local reqHorses 	= hitPoints[finalHP].Horses 	- hitPoints[initialHP].Horses
 				local reqMateriel 	= hitPoints[finalHP].Materiel 	- hitPoints[initialHP].Materiel
-
+				local reqEquipment 	= 0 --hitPoints[finalHP].Equipment - hitPoints[initialHP].Equipment
 				
 				unitData.PersonnelReserve 	= unitData.PersonnelReserve - reqPersonnel
-				--unitData.EquipmentReserve 	= unitData.EquipmentReserve - reqEquipment
 				unitData.HorsesReserve 		= unitData.HorsesReserve 	- reqHorses
 				unitData.MaterielReserve 	= unitData.MaterielReserve 	- reqMateriel
+				--unitData.EquipmentReserve 	= unitData.EquipmentReserve - reqEquipment
 
 				unitData.Personnel 	= unitData.Personnel 	+ reqPersonnel
-				--unitData.Equipment 	= unitData.Equipment 	+ reqEquipment
 				unitData.Horses 	= unitData.Horses 		+ reqHorses
 				unitData.Materiel 	= unitData.Materiel 	+ reqMateriel
+				--unitData.Equipment 	= unitData.Equipment 	+ reqEquipment
+				
+				for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
+					local equipmentClassID 	= tonumber(equipmentClassKey)
+					if unit:IsRequiringEquipmentClass(equipmentClassID) then
+						local reqEquipment 			= hitPoints[finalHP].EquipmentClass[equipmentClassID] - hitPoints[initialHP].EquipmentClass[equipmentClassID]
+						local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)						
+						local numEquipmentToProvide	= reqEquipment						
+						for _, data in ipairs(equipmentTypes) do							
+							if numEquipmentToProvide > 0 then
+								local equipmentID 		= data.EquipmentID
+								local equipmentReserve 	= unit:GetReserveEquipment(equipmentID, equipmentClassID)
+								local equipmentUsed		= 0
+								if equipmentReserve >= numEquipmentToProvide then
+									equipmentUsed 			= numEquipmentToProvide
+									numEquipmentToProvide	= 0
+								else
+									equipmentUsed 			= equipmentReserve
+									numEquipmentToProvide	= numEquipmentToProvide - equipmentReserve
+								end
+								if equipmentUsed > 0 then
+									unit:ChangeReserveEquipment(equipmentID, -equipmentUsed, equipmentClassID)
+									unit:ChangeFrontLineEquipment(equipmentID, equipmentUsed, equipmentClassID)								
+								end
+							end
+						end						
+					end
+				end				
 
 				alreadyUsed[unit].Materiel = reqMateriel
 
 				-- Visualize healing
-				local healingData = {reqPersonnel = reqPersonnel, reqMateriel = reqMateriel, reqEquipment = reqEquipment, reqHorses = reqHorses, X = unit:GetX(), Y = unit:GetY() }
+				local healingData = {reqPersonnel = reqPersonnel, reqMateriel = reqMateriel, reqHorses = reqHorses, X = unit:GetX(), Y = unit:GetY() } --reqEquipment = reqEquipment, 
 				ShowFrontLineHealingFloatingText(healingData)
 
 				LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
@@ -2765,9 +2838,9 @@ function GetSupplyPathPlots(self)
 end 
 
 function SetSupplyLine(self)
-	local key = self:GetKey()
-	local NoLinkToCity = true
-	--local unitData = unitData
+	local key 			= self:GetKey()
+	local NoLinkToCity 	= true
+	local unitData 		= ExposedMembers.UnitData[key]
 	local closestCity, distance = GCO.FindNearestPlayerCity( self:GetOwner(), self:GetX(), self:GetY() )
 	if closestCity then
 		GCO.AttachCityFunctions(closestCity)
@@ -2894,7 +2967,7 @@ end
 function DoFood(self)
 
 	local key = self:GetKey()
-	local unitData = unitData
+	local unitData = ExposedMembers.UnitData[key]
 	
 	if unitData.TurnCreated == Game.GetCurrentGameTurn() then return end -- don't eat on first turn
 
@@ -2939,7 +3012,7 @@ function DoMorale(self)
 	end
 	
 	local key = self:GetKey()
-	local unitData = unitData
+	local unitData = ExposedMembers.UnitData[key]
 	local moraleVariation = 0
 	
 	moraleVariation = moraleVariation + self:GetMoraleFromFood()
@@ -3025,7 +3098,7 @@ end
 function DoFuel(self)
 
 	local key = self:GetKey()
-	local unitData = unitData
+	local unitData = ExposedMembers.UnitData[key]
 	local fuelConsumption = math.min(self:GetFuelConsumption(), unitData.FuelStock)
 	if fuelConsumption > 0 then
 		-- Update variation
@@ -3220,6 +3293,7 @@ function AttachUnitFunctions(unit)
 		u.GetEquipmentClass					= GetEquipmentClass
 		u.GetEquipmentClasses				= GetEquipmentClasses
 		u.GetRequiredEquipmentClasses		= GetRequiredEquipmentClasses
+		u.IsRequiringEquipmentClass			= IsRequiringEquipmentClass
 		u.GetMaxEquipmentFrontLine			= GetMaxEquipmentFrontLine
 		u.GetMaxEquipmentReserve			= GetMaxEquipmentReserve
 		u.GetEquipmentClassFrontLine		= GetEquipmentClassFrontLine
