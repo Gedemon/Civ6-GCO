@@ -3205,7 +3205,7 @@ function DoReinforceUnits(self)
 			if toTransfert > 0 then
 				unit:ChangeStock(resourceID, -toTransfert)
 				self:ChangeStock(resourceID, toTransfert, ResourceUseType.Pillage, unit:GetKey(), 0)
-				Dprint( DEBUG_CITY_SCRIPT, "  - received #" .. tostring(toTransfert) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." from ".. Locale.Lookup(unit:GetName()) .." that had an excedent of #".. tostring(value))
+				Dprint( DEBUG_CITY_SCRIPT, "  - received " .. tostring(toTransfert) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." from ".. Locale.Lookup(unit:GetName()) .." that had an excedent of ".. tostring(value))
 			end
 		end
 		-- Send prisoners to city
@@ -3213,8 +3213,9 @@ function DoReinforceUnits(self)
 		local cityData = ExposedMembers.CityData[cityKey]
 		for playerKey, number in pairs(unitData.Prisoners) do
 			if number > 0 then
-				Dprint( DEBUG_CITY_SCRIPT, "  - received #" .. tostring(number) .." " .. Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners from ".. unit:GetName())
+				Dprint( DEBUG_CITY_SCRIPT, "  - received " .. tostring(number) .." " .. Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners from ".. unit:GetName())
 				cityData.Prisoners[playerKey] = cityData.Prisoners[playerKey] + number
+				unitData.Prisoners[playerKey] = 0
 			end
 		end
 	end
@@ -3523,7 +3524,7 @@ function DoIndustries(self)
 
 						if not amountCreated then amountCreated = maxResourceCreated end
 						if math.floor(maxResourceCreated) > 0 then
-							table.insert(requiredResourcesRatio, ResourceRequiredID = row.ResourceRequired, Ratio = row.Ratio, CostFactor = row.CostFactor)
+							table.insert(requiredResourcesRatio, { ResourceRequiredID = row.ResourceRequired, Ratio = row.Ratio, CostFactor = row.CostFactor })
 							amountCreated = math.min(amountCreated, maxResourceCreated)
 						else
 							bCanCreate = false

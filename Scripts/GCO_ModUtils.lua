@@ -194,13 +194,13 @@ function Error(...)
 	LuaEvents.StopAuToPlay()
 end
 
-function Dline()
+function Dline(...)
 	local status, err = pcall(function () error("my error") end)
 	local str = string.match(err, 'Dline.-$')
 	local str = string.match(str, 'GCO_.-$')
 	local str = string.match(str, ':.-\'')
 	local str = string.match(str, '%d+')
-	print("at line "..str)
+	print("at line "..str, select(1,...))
 end
 
 -- Compare tables

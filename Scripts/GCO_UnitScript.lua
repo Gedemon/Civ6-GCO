@@ -135,12 +135,14 @@ local equipmentUnitTypes	= {}
 for unitTypeID, equipmentClasses in pairs(unitEquipmentClasses) do
 	for equipmentClassID, _ in pairs(equipmentClasses) do
 		if equipmentTypeClasses[equipmentClassID] then
-			for equipmentClassID, equipmentData in pairs(equipmentTypeClasses[equipmentClassID]) do
+			for _, equipmentData in pairs(equipmentTypeClasses[equipmentClassID]) do
 				if not equipmentUnitTypes[equipmentData.EquipmentID] then
 					equipmentUnitTypes[equipmentData.EquipmentID] = { [unitTypeID] = equipmentClassID }
+					--print("Unit Type = ".. Locale.Lookup(GameInfo.Units[unitTypeID].Name) ..", Equipment Type = ".. Locale.Lookup(GameInfo.Resources[equipmentData.EquipmentID].Name) ..", class = ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 				elseif equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID] then
 					print("WARNING: Equipment Type ".. Locale.Lookup(GameInfo.Resources[equipmentData.EquipmentID].Name) .." in multiple classes (".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID]].Name) ..", ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name) .." for unit type "..Locale.Lookup(GameInfo.units[unitTypeID].Name))
 				else
+					--print("Unit Type = ".. Locale.Lookup(GameInfo.Units[unitTypeID].Name) ..", Equipment Type = ".. Locale.Lookup(GameInfo.Resources[equipmentData.EquipmentID].Name) ..", class = ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 					equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID] = equipmentClassID
 				end
 			end
@@ -371,6 +373,16 @@ function ShowUnitData()
 					print("-", "-", id, num)
 				end			
 			end
+			
+			if k == "Equipment" then
+				for class, data in pairs (v) do
+					print("-", "-", Locale.Lookup(GameInfo.EquipmentClasses[tonumber(class)].Name), data)
+					
+					for id, num in pairs (data) do
+						print("-", "-", "-", Locale.Lookup(GameInfo.Resources[tonumber(id)].Name), num)
+					end		
+				end			
+			end
 		end
 	end
 end
@@ -574,12 +586,12 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional, equ
 		local reserveNeed	= self:GetEquipmentClassReserveNeed( equipmentClass )
 		local equipmentID	= GetLowerEquipmentType( equipmentClass )
 		Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", frontline = ", frontLineNeed, ", reserve = ", reserveNeed)
-		self:ChangeFrontLineEquipment( equipmentID, frontLineNeed )
-		self:ChangeReserveEquipment( equipmentID, reserveNeed )
+		self:ChangeFrontLineEquipment( equipmentID, frontLineNeed, equipmentClass )
+		self:ChangeReserveEquipment( equipmentID, reserveNeed, equipmentClass )
 	end	
 	
 	-- Unmark the unit for equipment initialization
-	UnitWithoutEquipment[unitKey] = false
+	UnitWithoutEquipment[unitKey] = nil
 	LuaEvents.UnitsCompositionUpdated(self:GetOwner(), self:GetID())
 end
 
@@ -597,6 +609,7 @@ function DelayedEquipmentInitialization()
 	local DEBUG_UNIT_SCRIPT = true
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "Starting Delayed Equipment Initialization...")
+	Dprint( DEBUG_UNIT_SCRIPT, "coroutine.status = ", coroutine.status(initializeEquipmentCo))
 	local count = 0
 	while (true) do
 		count = count + 1
@@ -1245,7 +1258,7 @@ function GetEquipmentClassFrontLine(self, equipmentClass)	-- get current number 
 	end
 	local equipmentClassKey = tostring(equipmentClass)
 	local equipment = ExposedMembers.UnitData[unitKey].Equipment[equipmentClassKey]
-	if equipment then 
+	if equipment then
 		return GCO.TableSummation(equipment)
 	else
 		return 0
@@ -1326,12 +1339,14 @@ function GetEquipmentReserveNeed(self)						-- return a table with all equipment
 		local maxReserve		= self:GetMaxEquipmentReserve(classType)
 		local bestNum 			= 0
 		--table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
-		for _, data in ipairs(equipmentTypes) do
-			local equipmentID = data.EquipmentID
-			local num = self:GetReserveEquipment(equipmentID, classType)
-			-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
-			bestNum = bestNum + num
-			equipmentNeed[equipmentID] = math.max(0, maxReserve - bestNum)
+		if equipmentTypes then
+			for _, data in ipairs(equipmentTypes) do
+				local equipmentID = data.EquipmentID
+				local num = self:GetReserveEquipment(equipmentID, classType)
+				-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
+				bestNum = bestNum + num
+				equipmentNeed[equipmentID] = math.max(0, maxReserve - bestNum)
+			end
 		end
 	end
 	return equipmentNeed
@@ -1345,12 +1360,14 @@ function GetEquipmentFrontLineNeed(self)					-- return a table with all equipmen
 		local maxFrontLine		= self:GetMaxEquipmentFrontLine(classType)
 		local bestNum 			= 0
 		--table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
-		for _, data in ipairs(equipmentTypes) do
-			local equipmentID = data.EquipmentID
-			local num = self:GetFrontLineEquipment(equipmentID, classType)
-			-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
-			bestNum = bestNum + num
-			equipmentNeed[equipmentID] = math.max(0, maxFrontLine - bestNum)
+		if equipmentTypes then
+			for _, data in ipairs(equipmentTypes) do
+				local equipmentID = data.EquipmentID
+				local num = self:GetFrontLineEquipment(equipmentID, classType)
+				-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
+				bestNum = bestNum + num
+				equipmentNeed[equipmentID] = math.max(0, maxFrontLine - bestNum)
+			end
 		end
 	end
 	return equipmentNeed
@@ -1658,7 +1675,7 @@ function GetFoodStockString(self)
 	return str
 end
 
-function GetFrontLineEquipmentString(self) 
+function GetFrontLineEquipmentString(self)
 	local unitKey 			= self:GetKey()
 	local data 				= ExposedMembers.UnitData[unitKey]
 	local equipmentClasses	= self:GetEquipmentClasses()
@@ -1671,7 +1688,7 @@ function GetFrontLineEquipmentString(self)
 			--table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end) -- should not be needed as the table is sorted after its creation
 			for _, equipmentData in ipairs(equipmentList) do
 				local equipmentID 	= equipmentData.EquipmentID
-				local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)			
+				local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)
 				if equipmentNum > 0 then
 					str = str .. "[NEWLINE] [ICON_BULLET] " .. tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
 				end
@@ -2025,18 +2042,20 @@ function GetAntiPersonnelPercent(self)
 		local equipmentTypes 	= GetEquipmentTypes(classType)
 		local totalFrontLine	= self:GetEquipmentClassFrontLine(classType)
 		--table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
-		for _, data in ipairs(equipmentTypes) do
-			local equipmentAP 		= EquipmentInfo[data.EquipmentID].AntiPersonnel
-			if equipmentAP then
-				local equipmentID = data.EquipmentID
-				local num = self:GetFrontLineEquipment(equipmentID, classType)
-				if num > 0 then
-					local ratio = totalFrontLine / num
-					if not classAP[classType] then 
-						classAP[classType] = equipmentAP * ratio
-						numClassAP = numClassAP + 1
-					else
-						classAP[classType] = classAP[classType] + (equipmentAP * ratio)
+		if equipmentTypes then
+			for _, data in ipairs(equipmentTypes) do
+				local equipmentAP 		= EquipmentInfo[data.EquipmentID].AntiPersonnel
+				if equipmentAP then
+					local equipmentID = data.EquipmentID
+					local num = self:GetFrontLineEquipment(equipmentID, classType)
+					if num > 0 then
+						local ratio = totalFrontLine / num
+						if not classAP[classType] then 
+							classAP[classType] = equipmentAP * ratio
+							numClassAP = numClassAP + 1
+						else
+							classAP[classType] = classAP[classType] + (equipmentAP * ratio)
+						end
 					end
 				end
 			end
@@ -2514,6 +2533,8 @@ Events.Combat.Add( OnCombat )
 -----------------------------------------------------------------------------------------
 function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" statistic ?
 
+	local DEBUG_UNIT_SCRIPT = true
+
 	local player = Players[playerID]
 	local playerConfig = PlayerConfigurations[playerID]
 	local playerUnits = player:GetUnits()
@@ -2565,7 +2586,6 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 								else								
 									local hitPoints = UnitHitPointsTable[unitInfo.Index]
 									local loopHP = hp + healTable[unit] +1
-									
 									-- check here if the unit has enough reserves to get +1HP
 									local reqPersonnel 	= hitPoints[loopHP].Personnel - hitPoints[hp].Personnel
 									if reqPersonnel > tonumber(maxTransfer[unit].Personnel) then
@@ -2579,16 +2599,14 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 											Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(unit:GetName()) .. " at " .. tostring(healHP) ..", Materiel Requirements = " .. tostring(reqMateriel) .. ", Max transferable per turn = ".. tostring(maxTransfer[unit].Materiel) )
 										
 										else
-											
-											if unitData.PersonnelReserve 	>= reqPersonnel then hasReachedLimit[unit] = true end
-											if unitData.MaterielReserve 	>= reqMateriel 	then hasReachedLimit[unit] = true end
-											
-											if unitData.HorsesReserve >= (hitPoints[loopHP].Horses - hitPoints[hp].Horses) then hasReachedLimit[unit] = true end
+											if unitData.PersonnelReserve 	< reqPersonnel 	then hasReachedLimit[unit] = true end
+											if unitData.MaterielReserve 	< reqMateriel 	then hasReachedLimit[unit] = true end											
+											if unitData.HorsesReserve 		< (hitPoints[loopHP].Horses - hitPoints[hp].Horses) then hasReachedLimit[unit] = true end
 												
 											for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
 												local equipmentClassID 	= tonumber(equipmentClassKey)
-												if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table
-													if unit:GetEquipmentClassReserve(equipmentClassID) >= hitPoints[loopHP].EquipmentClass[equipmentClassID] - hitPoints[hp].EquipmentClass[equipmentClassID] then
+												if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table								
+													if unit:GetEquipmentClassReserve(equipmentClassID) < hitPoints[loopHP].EquipmentClass[equipmentClassID] - hitPoints[hp].EquipmentClass[equipmentClassID] then
 														hasReachedLimit[unit] = true
 													end
 												end
@@ -2598,31 +2616,8 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 									
 									if not hasReachedLimit[unit] then
 										healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
-									end									
-								end								
-								--[[
-								
-								
-								-- unit limit (vehicles and horses are handled by personnel...)
-								if reqPersonnel > tonumber(maxTransfer[unit].Personnel) or reqMateriel > tonumber(maxTransfer[unit].Materiel) then
-									hasReachedLimit[unit] = true
-									Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. unit:GetName() .. " at " .. tostring(healHP) ..", Requirements : Personnel = ".. tostring(reqPersonnel) .. ", Materiel = " .. tostring(reqMateriel))
-
-								elseif  unitData.PersonnelReserve >= reqPersonnel
-								--and 	unitData.EquipmentReserve >= reqEquipment
-								and 	unitData.HorsesReserve >= reqHorses
-								and 	unitData.MaterielReserve >= reqMateriel
-								then
-									local bHasEnoughEquipment = true
-									--for equipmentClassKey, reqValue in pairs(reqEquipment) do
-									--	if unit:GetReserveEquipment(equipmentType, classType)
-									--end
-										
-									if bHasEnoughEquipment then
-										healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
 									end
 								end
-								--]]
 							end
 						end
 					end
@@ -2654,24 +2649,22 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 				local reqPersonnel 	= hitPoints[finalHP].Personnel - hitPoints[initialHP].Personnel
 				local reqHorses 	= hitPoints[finalHP].Horses 	- hitPoints[initialHP].Horses
 				local reqMateriel 	= hitPoints[finalHP].Materiel 	- hitPoints[initialHP].Materiel
-				local reqEquipment 	= 0 --hitPoints[finalHP].Equipment - hitPoints[initialHP].Equipment
+				local reqEquipment 	= {}
 				
 				unitData.PersonnelReserve 	= unitData.PersonnelReserve - reqPersonnel
 				unitData.HorsesReserve 		= unitData.HorsesReserve 	- reqHorses
 				unitData.MaterielReserve 	= unitData.MaterielReserve 	- reqMateriel
-				--unitData.EquipmentReserve 	= unitData.EquipmentReserve - reqEquipment
 
 				unitData.Personnel 	= unitData.Personnel 	+ reqPersonnel
 				unitData.Horses 	= unitData.Horses 		+ reqHorses
 				unitData.Materiel 	= unitData.Materiel 	+ reqMateriel
-				--unitData.Equipment 	= unitData.Equipment 	+ reqEquipment
 				
 				for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
 					local equipmentClassID 	= tonumber(equipmentClassKey)
 					if unit:IsRequiringEquipmentClass(equipmentClassID) then
-						local reqEquipment 			= hitPoints[finalHP].EquipmentClass[equipmentClassID] - hitPoints[initialHP].EquipmentClass[equipmentClassID]
+						local required	 			= hitPoints[finalHP].EquipmentClass[equipmentClassID] - hitPoints[initialHP].EquipmentClass[equipmentClassID]
 						local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)						
-						local numEquipmentToProvide	= reqEquipment						
+						local numEquipmentToProvide	= required						
 						for _, data in ipairs(equipmentTypes) do							
 							if numEquipmentToProvide > 0 then
 								local equipmentID 		= data.EquipmentID
@@ -2685,6 +2678,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 									numEquipmentToProvide	= numEquipmentToProvide - equipmentReserve
 								end
 								if equipmentUsed > 0 then
+									reqEquipment[equipmentID] = equipmentUsed
 									unit:ChangeReserveEquipment(equipmentID, -equipmentUsed, equipmentClassID)
 									unit:ChangeFrontLineEquipment(equipmentID, equipmentUsed, equipmentClassID)								
 								end
@@ -2769,7 +2763,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 					local healingData = {deads = deads, healed = healed, repairedEquipment = repairedEquipment, X = unit:GetX(), Y = unit:GetY() }
 					ShowReserveHealingFloatingText(healingData)
 
-					-- when called from GameEvents.PlayerTurnStarted() it makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager
+					-- when called from GameEvents.PlayerTurnStarted() this makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager
 					LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
 
 				else
