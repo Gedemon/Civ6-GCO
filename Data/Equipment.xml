@@ -6,8 +6,6 @@
 	</Kinds>
 	
 	<Types> <!-- Resources -->		
-		<Row Type="EQUIPMENT_LEATHER" 	Kind="KIND_RESOURCE"/>
-		<Row Type="EQUIPMENT_IRON" 		Kind="KIND_RESOURCE"/>
 		<Row Type="EQUIPMENT_CHARIOT" 	Kind="KIND_RESOURCE"/>
 		
 		<Row Type="EQUIPMENT_WOODEN_CLUB" 	Kind="KIND_RESOURCE"/>
@@ -27,22 +25,20 @@
 		
 	<Resources>
 		
-		<Row ResourceType="EQUIPMENT_LEATHER" 	Name="LOC_EQUIPMENT_LEATHER_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_IRON" 		Name="LOC_EQUIPMENT_IRON_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_CHARIOT"	Name="LOC_EQUIPMENT_CHARIOT_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>		
+		<Row ResourceType="EQUIPMENT_CHARIOT"			Name="LOC_EQUIPMENT_CHARIOT_NAME" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_ANIMAL_HUSBANDRY"/>		
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB" 		Name="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="EQUIPMENT_STONE_AXE" 		Name="LOC_EQUIPMENT_STONE_AXE_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_SPIKED_CLUB" 		Name="LOC_EQUIPMENT_SPIKED_CLUB_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>		
-		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS" 	Name="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_IRON_SWORDS" 		Name="LOC_EQUIPMENT_IRON_SWORDS_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_STEEL_SWORDS" 		Name="LOC_EQUIPMENT_STEEL_SWORDS_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="EQUIPMENT_SPIKED_CLUB" 		Name="LOC_EQUIPMENT_SPIKED_CLUB_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_BRONZE_WORKING"/>		
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS" 	Name="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_BRONZE_WORKING"/>
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS" 		Name="LOC_EQUIPMENT_IRON_SWORDS_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_IRON_WORKING" />
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS" 		Name="LOC_EQUIPMENT_STEEL_SWORDS_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_STEEL" />
 		
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR" 	Name="LOC_EQUIPMENT_LEATHER_ARMOR_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR" 		Name="LOC_EQUIPMENT_BRONZE_ARMOR_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_IRON_ARMOR" 		Name="LOC_EQUIPMENT_IRON_ARMOR_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	Name="LOC_EQUIPMENT_CHAINMAIL_ARMOR_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="EQUIPMENT_PLATE_ARMOR" 		Name="LOC_EQUIPMENT_PLATE_ARMOR_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR" 		Name="LOC_EQUIPMENT_BRONZE_ARMOR_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_BRONZE_WORKING"/>
+		<Row ResourceType="EQUIPMENT_IRON_ARMOR" 		Name="LOC_EQUIPMENT_IRON_ARMOR_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_IRON_WORKING" />
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	Name="LOC_EQUIPMENT_CHAINMAIL_ARMOR_NAME" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_IRON_WORKING" />
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR" 		Name="LOC_EQUIPMENT_PLATE_ARMOR_NAME" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0" PrereqTech="TECH_STEEL" />
 		
 	</Resources>
 
@@ -84,7 +80,7 @@
 	<Equipment> <!-- Melee Weapons -->
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"	Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
 		<Row ResourceType="EQUIPMENT_STONE_AXE"		Toughness="1"	Desirability="2" 	AntiPersonnel="27" />
-		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	Toughness="1"	Desirability="3" 	AntiPersonnel="32" />
+		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	Toughness="2"	Desirability="3" 	AntiPersonnel="32" AntiPersonnelArmor="10" />
 		
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	Toughness="3"	Desirability="1" 	AntiPersonnel="38" AntiPersonnelArmor="5" />
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	Toughness="5"	Desirability="2" 	AntiPersonnel="42" AntiPersonnelArmor="7" />
@@ -92,7 +88,11 @@
 	</Equipment>
 	
 	<Equipment>  <!-- Personnel Armor -->
-		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"	Toughness="2"	Desirability="1" 	PersonnelArmor="2" />
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		Toughness="3"	Desirability="10" 	PersonnelArmor="20" />
+		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		Toughness="5"	Desirability="20" 	PersonnelArmor="25" />
+		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		Toughness="15"	Desirability="30" 	PersonnelArmor="35" />
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	Toughness="20"	Desirability="40" 	PersonnelArmor="40" />
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		Toughness="30"	Desirability="50" 	PersonnelArmor="50" />
 	</Equipment>
 	
 	<EquipmentEffects>

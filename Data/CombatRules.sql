@@ -150,11 +150,11 @@ UPDATE Units SET AntiPersonnel = 25 Where UnitType = "UNIT_SLINGER";
 -----------------------------------------------
 
 /* Air */
-UPDATE Units SET Personnel = 75, 	Equipment = 75, Materiel = 250, MaterielPerEquipment = 10, FuelConsumptionPerVehicle = 10 Where UnitType = "UNIT_BIPLANE" OR UnitType = "UNIT_FIGHTER" OR UnitType = "UNIT_AMERICAN_P51" OR UnitType = "UNIT_JET_FIGHTER";
-UPDATE Units SET Personnel = 160, 	Equipment = 40, Materiel = 400, MaterielPerEquipment = 20, FuelConsumptionPerVehicle = 15 Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
+UPDATE Units SET Personnel = 75, 	Materiel = 250 Where UnitType = "UNIT_BIPLANE" OR UnitType = "UNIT_FIGHTER" OR UnitType = "UNIT_AMERICAN_P51" OR UnitType = "UNIT_JET_FIGHTER";
+UPDATE Units SET Personnel = 160, 	Materiel = 400 Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
 
 /* Recon */
-UPDATE Units SET Personnel = 200, Materiel = 10  Where UnitType = "UNIT_SCOUT" OR UnitType = "UNIT_RANGER";
+UPDATE Units SET Personnel = 200, 	Materiel = 10  Where UnitType = "UNIT_SCOUT" OR UnitType = "UNIT_RANGER";
 
 /* Civilian */
 UPDATE Units SET Personnel = 1500,	Materiel = 500	Where UnitType = "UNIT_SETTLER";
@@ -172,32 +172,32 @@ UPDATE Units SET Personnel = 100, 	Materiel = 300  Where UnitType = "UNIT_ARTILL
 /* Land infantry */
 UPDATE Units SET Personnel = 2000,	Materiel = 30 	Where UnitType = "UNIT_WARRIOR" OR UnitType = "UNIT_AZTEC_EAGLE_WARRIOR";
 UPDATE Units SET Personnel = 2500,	Materiel = 40 	Where UnitType = "UNIT_SPEARMAN" OR UnitType = "UNIT_GREEK_HOPLITE";
-UPDATE Units SET Personnel = 3000,	Materiel = 75,	Equipment = 50,	EquipmentType = "EQUIPMENT_IRON", 	MaterielPerEquipment = 2 	Where UnitType = "UNIT_SWORDSMAN" OR UnitType= "UNIT_ROMAN_LEGION" OR UnitType= "UNIT_KONGO_SHIELD_BEARER";
+UPDATE Units SET Personnel = 3000,	Materiel = 75	Where UnitType = "UNIT_SWORDSMAN" OR UnitType= "UNIT_ROMAN_LEGION" OR UnitType= "UNIT_KONGO_SHIELD_BEARER";
 UPDATE Units SET Personnel = 4500,	Materiel = 60 	Where UnitType = "UNIT_PIKEMAN";
 UPDATE Units SET Personnel = 6000,	Materiel = 60 	Where UnitType = "UNIT_MUSKETMAN" OR UnitType = "UNIT_SPANISH_CONQUISTADOR";
 UPDATE Units SET Personnel = 10000,	Materiel = 60 	Where UnitType = "UNIT_INFANTRY";
 
 /* Cavalry */
-UPDATE Units SET Personnel = 400,	Materiel = 75, 	Horses = 200, 	Equipment = 100,	EquipmentType = "EQUIPMENT_CHARIOT", 	MaterielPerEquipment = 1	Where UnitType = "UNIT_HEAVY_CHARIOT" or UnitType = "UNIT_EGYPTIAN_CHARIOT_ARCHER";
+UPDATE Units SET Personnel = 400,	Materiel = 75, 	Horses = 200 	Where UnitType = "UNIT_HEAVY_CHARIOT" or UnitType = "UNIT_EGYPTIAN_CHARIOT_ARCHER";
 UPDATE Units SET Personnel = 300,	Materiel = 40, 	Horses = 300 	Where UnitType = "UNIT_BARBARIAN_HORSE_ARCHER";
 UPDATE Units SET Personnel = 300,	Materiel = 50, 	Horses = 300 	Where UnitType = "UNIT_HORSEMAN" OR UnitType = "UNIT_BARBARIAN_HORSEMAN";
-UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300,	Equipment = 300,	EquipmentType = "EQUIPMENT_IRON", 	MaterielPerEquipment = 2 	 	Where UnitType = "UNIT_KNIGHT" OR UnitType = "UNIT_ARABIAN_MAMLUK" OR UnitType = "UNIT_POLISH_HUSSAR";
+UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300	Where UnitType = "UNIT_KNIGHT" OR UnitType = "UNIT_ARABIAN_MAMLUK" OR UnitType = "UNIT_POLISH_HUSSAR";
 UPDATE Units SET Personnel = 300,	Materiel = 75, 	Horses = 300 	Where UnitType = "UNIT_CAVALRY" OR UnitType = "UNIT_RUSSIAN_COSSACK";
 
 /* Mechanized */
-UPDATE Units SET Personnel = 800, 	Equipment = 200, 	Materiel = 1000, 	MaterielPerEquipment = 10, FuelConsumptionPerVehicle = 5 Where UnitType = "UNIT_TANK" OR UnitType = "UNIT_MODERN_ARMOR";
-UPDATE Units SET Personnel = 2500, 	Equipment = 250, 	Materiel = 500, 	MaterielPerEquipment = 5, FuelConsumptionPerVehicle = 1 Where UnitType = "UNIT_MECHANIZED_INFANTRY";
-UPDATE Units SET Personnel = 100, 	Equipment = 50,		Materiel = 500, 	MaterielPerEquipment = 10, FuelConsumptionPerVehicle = 3 Where UnitType = "UNIT_ROCKET_ARTILLERY" OR UnitType = "UNIT_MOBILE_SAM";
-UPDATE Units SET Personnel = 150, 	Equipment = 75, 	Materiel = 250, 	MaterielPerEquipment = 10, FuelConsumptionPerVehicle = 8 Where UnitType = "UNIT_HELICOPTER";
+UPDATE Units SET Personnel = 800, 	Materiel = 1000 Where UnitType = "UNIT_TANK" OR UnitType = "UNIT_MODERN_ARMOR";
+UPDATE Units SET Personnel = 2500, 	Materiel = 500 	Where UnitType = "UNIT_MECHANIZED_INFANTRY";
+UPDATE Units SET Personnel = 100, 	Materiel = 500 	Where UnitType = "UNIT_ROCKET_ARTILLERY" OR UnitType = "UNIT_MOBILE_SAM";
+UPDATE Units SET Personnel = 150, 	Materiel = 250 	Where UnitType = "UNIT_HELICOPTER";
 
 /* Sea */
-UPDATE Units SET Personnel = 200, 	Equipment = 2, 		Materiel = 40,  	MaterielPerEquipment = 25 Where UnitType = "UNIT_BARBARIAN_RAIDER" or UnitType = "UNIT_GALLEY" or UnitType = "UNIT_NORWEGIAN_LONGSHIP";
-UPDATE Units SET Personnel = 300, 	Equipment = 2, 		Materiel = 70,  	MaterielPerEquipment = 40 Where UnitType = "UNIT_QUADRIREME";
-UPDATE Units SET Personnel = 150, 	Equipment = 3, 		Materiel = 50,  	MaterielPerEquipment = 20 Where UnitType = "UNIT_CARAVEL";
-UPDATE Units SET Personnel = 400, 	Equipment = 2, 		Materiel = 100,  	MaterielPerEquipment = 75 Where UnitType = "UNIT_FRIGATE" or UnitType = "UNIT_PRIVATEER" or UnitType = "UNIT_ENGLISH_SEADOG";
-UPDATE Units SET Personnel = 150, 	Equipment = 1, 		Materiel = 250,  	MaterielPerEquipment = 300 Where UnitType = "UNIT_IRONCLAD";
-UPDATE Units SET Personnel = 2000, 	Equipment = 1, 		Materiel = 5000,  	MaterielPerEquipment = 7500 Where UnitType = "UNIT_BATTLESHIP" or UnitType = "UNIT_BRAZILIAN_MINAS_GERAES";
-UPDATE Units SET Personnel = 150, 	Equipment = 3, 		Materiel = 750,  	MaterielPerEquipment = 300 Where UnitType = "UNIT_SUBMARINE" or UnitType = "UNIT_GERMAN_UBOAT";
-UPDATE Units SET Personnel = 2500, 	Equipment = 1, 		Materiel = 7500,  	MaterielPerEquipment = 9000 Where UnitType = "UNIT_AIRCRAFT_CARRIER";
-UPDATE Units SET Personnel = 250, 	Equipment = 1, 		Materiel = 900,  	MaterielPerEquipment = 1200 Where UnitType = "UNIT_DESTROYER";
-UPDATE Units SET Personnel = 400, 	Equipment = 1, 		Materiel = 2000,  	MaterielPerEquipment = 3000 Where UnitType = "UNIT_MISSILE_CRUISER";
+UPDATE Units SET Personnel = 200, 	Materiel = 40  	Where UnitType = "UNIT_BARBARIAN_RAIDER" or UnitType = "UNIT_GALLEY" or UnitType = "UNIT_NORWEGIAN_LONGSHIP";
+UPDATE Units SET Personnel = 300, 	Materiel = 70  	Where UnitType = "UNIT_QUADRIREME";
+UPDATE Units SET Personnel = 150, 	Materiel = 50  	Where UnitType = "UNIT_CARAVEL";
+UPDATE Units SET Personnel = 400, 	Materiel = 100  Where UnitType = "UNIT_FRIGATE" or UnitType = "UNIT_PRIVATEER" or UnitType = "UNIT_ENGLISH_SEADOG";
+UPDATE Units SET Personnel = 150, 	Materiel = 250  Where UnitType = "UNIT_IRONCLAD";
+UPDATE Units SET Personnel = 2000, 	Materiel = 5000 Where UnitType = "UNIT_BATTLESHIP" or UnitType = "UNIT_BRAZILIAN_MINAS_GERAES";
+UPDATE Units SET Personnel = 150, 	Materiel = 750  Where UnitType = "UNIT_SUBMARINE" or UnitType = "UNIT_GERMAN_UBOAT";
+UPDATE Units SET Personnel = 2500, 	Materiel = 7500 Where UnitType = "UNIT_AIRCRAFT_CARRIER";
+UPDATE Units SET Personnel = 250, 	Materiel = 900  Where UnitType = "UNIT_DESTROYER";
+UPDATE Units SET Personnel = 400, 	Materiel = 2000 Where UnitType = "UNIT_MISSILE_CRUISER";
