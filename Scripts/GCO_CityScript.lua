@@ -1580,7 +1580,7 @@ end
 function GetRequirements(self, fromCity)
 	local DEBUG_CITY_SCRIPT = false
 	local selfKey 				= self:GetKey()
-	local player 				= GCO.GetPlayer(self:GetOwner())
+	--local player 				= GCO.GetPlayer(self:GetOwner())
 	local cityName	 			= Locale.Lookup(self:GetName())
 	local bExternalRoute 		= (self:GetOwner() ~= fromCity:GetOwner())
 	local requirements 			= {}
@@ -1594,7 +1594,7 @@ function GetRequirements(self, fromCity)
 		local bCanRequest 			= false
 		local bCanTradeResource 	= not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute)))
 		--Dprint( DEBUG_CITY_SCRIPT, "can trade = ", bCanTradeResource,"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
-		if player:IsResourceVisible(resourceID) and bCanTradeResource then
+		if bCanTradeResource then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources
 			local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
 			if numResourceNeeded > 0 then
 				local bPriorityRequest	= false
@@ -3339,7 +3339,8 @@ function DoIndustries(self)
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
 	local size 		= self:GetSize()
-	local wealth 	= self:GetWealth()
+	local wealth 	= self:GetWealth()	
+	local player 	= GCO.GetPlayer(self:GetOwner())
 
 	-- materiel
 	local materielprod	= MaterielProductionPerSize * size
@@ -3354,27 +3355,30 @@ function DoIndustries(self)
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
 		if self:GetBuildings():HasBuilding(buildingID) then
-			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
-			if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
-			ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + row.MaxConverted
-			ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + row.MaxConverted
-			--Dprint( DEBUG_CITY_SCRIPT, " - check " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production using ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
-			if row.MultiResRequired then
-				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
-				if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {} end
-				if not MultiResRequired[resourceCreatedID][buildingID] then	MultiResRequired[resourceCreatedID][buildingID] = {} end
-				table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
-				
-			elseif row.MultiResCreated then
-				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
-				if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {} end
-				if not MultiResCreated[resourceRequiredID][buildingID] then	MultiResCreated[resourceRequiredID][buildingID] = {} end
-				table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
-			else
-				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
-				if not ResCreated[resourceRequiredID] then	ResCreated[resourceRequiredID] = {} end
-				if not ResCreated[resourceRequiredID][buildingID] then	ResCreated[resourceRequiredID][buildingID] = {} end
-				table.insert(ResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+			local resourceRequiredID 	= GameInfo.Resources[row.ResourceType].Index
+			local resourceCreatedID 	= GameInfo.Resources[row.ResourceCreated].Index
+			
+			if player:IsResourceVisible(resourceCreatedID) then -- don't create resources we don't have the tech for...
+				if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
+				ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + row.MaxConverted
+				ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + row.MaxConverted
+				--Dprint( DEBUG_CITY_SCRIPT, " - check " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production using ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+				if row.MultiResRequired then
+					if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {} end
+					if not MultiResRequired[resourceCreatedID][buildingID] then	MultiResRequired[resourceCreatedID][buildingID] = {} end
+					table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+					
+				elseif row.MultiResCreated then
+					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+					if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {} end
+					if not MultiResCreated[resourceRequiredID][buildingID] then	MultiResCreated[resourceRequiredID][buildingID] = {} end
+					table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+				else
+					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+					if not ResCreated[resourceRequiredID] then	ResCreated[resourceRequiredID] = {} end
+					if not ResCreated[resourceRequiredID][buildingID] then	ResCreated[resourceRequiredID][buildingID] = {} end
+					table.insert(ResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+				end
 			end
 		end
 	end
@@ -3441,7 +3445,8 @@ function DoIndustries(self)
 					end
 
 					if amountCreated > 0 then
-						local resourceCost 	= (GCO.GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
+						local costFactor	= row.CostFactor
+						local resourceCost 	= (GCO.GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth * costFactor) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
 						Dprint( DEBUG_CITY_SCRIPT, " - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, using ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 						self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
 						resPerBuilding[buildingID][resourceRequiredID] = resPerBuilding[buildingID][resourceRequiredID] - amountUsed
@@ -3477,6 +3482,7 @@ function DoIndustries(self)
 					maxRequired	= math.max( maxRequired, amountUsed)
 
 					if amountCreated > 0 then
+						local costFactor	= row.CostFactor
 						local resourceCost 	= (GCO.GetBaseResourceCost(row.ResourceCreated) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
 						Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name).." created at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(row.Ratio) .. ", used ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 						self:ChangeStock(row.ResourceCreated, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
@@ -3517,7 +3523,7 @@ function DoIndustries(self)
 
 						if not amountCreated then amountCreated = maxResourceCreated end
 						if math.floor(maxResourceCreated) > 0 then
-							requiredResourcesRatio[row.ResourceRequired] = row.Ratio
+							table.insert(requiredResourcesRatio, ResourceRequiredID = row.ResourceRequired, Ratio = row.Ratio, CostFactor = row.CostFactor)
 							amountCreated = math.min(amountCreated, maxResourceCreated)
 						else
 							bCanCreate = false
@@ -3530,12 +3536,14 @@ function DoIndustries(self)
 
 			if bCanCreate then
 				Dprint( DEBUG_CITY_SCRIPT, " - " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production: ".. tostring(amountCreated) .." ".. Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " using multiple resource")
-				local requiredResourceCost = 0
-				local totalResourcesRequired = #requiredResourcesRatio
-				local totalRatio = 0
-				for resourceRequiredID, ratio in pairs(requiredResourcesRatio) do
-					local amountUsed = GCO.Round(amountCreated / ratio) -- we shouldn't be here if ratio = 0, and the rounded value should be < maxAmountUsed
-					local resourceCost = (self:GetResourceCost(resourceRequiredID) / ratio)
+				local requiredResourceCost 		= 0
+				local totalResourcesRequired 	= #requiredResourcesRatio
+				local totalRatio 				= 0
+				for i, row in pairs(requiredResourcesRatio) do
+					local resourceRequiredID 	= row.ResourceRequiredID
+					local ratio 				= row.Ratio
+					local amountUsed 			= GCO.Round(amountCreated / ratio) -- we shouldn't be here if ratio = 0, and the rounded value should be < maxAmountUsed
+					local resourceCost 			= (self:GetResourceCost(resourceRequiredID) / ratio) * row.CostFactor
 					requiredResourceCost = requiredResourceCost + resourceCost
 					totalRatio = totalRatio + ratio
 					Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountUsed) .." ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name) .." used at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit, ratio = " .. tostring(ratio))
@@ -3543,7 +3551,7 @@ function DoIndustries(self)
 					resPerBuilding[buildingID][resourceRequiredID] = resPerBuilding[buildingID][resourceRequiredID] - amountUsed
 				end
 				local baseRatio = totalRatio / totalResourcesRequired
-				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth) + requiredResourceCost
+				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth * costFactor) + requiredResourceCost
 				Dprint( DEBUG_CITY_SCRIPT, "    - " ..  Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name).. " cost per unit  = "..resourceCost ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 			end
