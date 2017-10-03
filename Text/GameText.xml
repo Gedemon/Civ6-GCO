@@ -380,9 +380,7 @@
  
    <LocalizedText> <!-- Equipment -->
 		
-    <Replace Tag="LOC_EQUIPMENT_LEATHER_NAME" 	Text="Leather Equipment" 	Language="en_US" /> 
-    <Replace Tag="LOC_EQUIPMENT_IRON_NAME" 		Text="Iron Equipment" 		Language="en_US" /> 
-    <Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 	Text="Chariot" 				Language="en_US" /> 	
+    <Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 			Text="Chariot" 			Language="en_US" /> 	
 	
     <Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 		Text="Wooden Clubs" 	Language="en_US" /> 
     <Replace Tag="LOC_EQUIPMENT_STONE_AXE_NAME" 		Text="Stone Axes"		Language="en_US" /> 
