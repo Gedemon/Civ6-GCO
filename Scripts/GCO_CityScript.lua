@@ -1309,12 +1309,16 @@ function UpdateTransferCities(self)
 end
 
 function TransferToCities(self)
-	local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTransferDemand[selfKey]
 	local transfers 		= {Resources = {}, ResPerCity = {}}
-	local cityToSupply 		= CitiesForTransfer[selfKey]
+	local cityToSupply 		= {}	
+	local unsortedTable		= CitiesForTransfer[selfKey]
+	for cityKey, data in pairs(unsortedTable) do
+		table.insert(cityToSupply, { CityKey = cityKey, Efficiency = data.Efficiency})
+	end
 
 	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
 
@@ -1342,10 +1346,11 @@ function TransferToCities(self)
 		local bResourcePrecedence	= supplyDemand.HasPrecedence[resourceID]
 
 		while (resourceLeft > 0 and loop < maxLoop) do
-			for cityKey, data in pairs(cityToSupply) do
+			for _, data in ipairs(cityToSupply) do
+				local cityKey			= data.CityKey
 				local city				= GCO.GetCityFromKey(cityKey)
 				local requiredValue		= city:GetNumResourceNeeded(resourceID)
-				local bCityPrecedence	= cityToSupply[cityKey].HasPrecedence[resourceID]
+				local bCityPrecedence	= data.HasPrecedence[resourceID]
 				if PrecedenceLeft > 0 and bResourcePrecedence and not bCityPrecedence then
 					requiredValue = 0
 				end

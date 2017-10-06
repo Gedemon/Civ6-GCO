@@ -2033,6 +2033,8 @@ end
 
 function GetAntiPersonnelPercent(self)
 	
+	local DEBUG_UNIT_SCRIPT = true
+	
 	local antiPersonnel = GameInfo.Units[self:GetType()].AntiPersonnel -- 0 = no kill, 100 = all killed
 	local classAP		= {}
 	local numClassAP	= 0		-- number of equipment classes with Anti-Personnel value (usually weapons or ammunition)
@@ -2049,7 +2051,7 @@ function GetAntiPersonnelPercent(self)
 					local equipmentID = data.EquipmentID
 					local num = self:GetFrontLineEquipment(equipmentID, classType)
 					if num > 0 then
-						local ratio = totalFrontLine / num
+						local ratio = num / totalFrontLine 
 						if not classAP[classType] then 
 							classAP[classType] = equipmentAP * ratio
 							numClassAP = numClassAP + 1
@@ -2063,6 +2065,8 @@ function GetAntiPersonnelPercent(self)
 	end
 	
 	local averageAP = (GCO.TableSummation(classAP) + antiPersonnel) / ( numClassAP + 1 )
+	
+	Dprint( DEBUG_UNIT_SCRIPT, "- Getting AP value for ".. Locale.Lookup(self:GetName()), " averageAP = ", tostring(averageAP), " base AP = ", tostring(antiPersonnel), ", classAP = ", GCO.TableSummation(classAP), ", numClassAP = ", numClassAP )
 	
 	return averageAP
 end
@@ -2127,14 +2131,18 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 
 	local DEBUG_UNIT_SCRIPT = true
 	
-	local UnitData = ExposedMembers.UnitData[Opponent.unitKey]	
+	local UnitData = ExposedMembers.UnitData[Opponent.unitKey]
+	
+	Dprint( DEBUG_UNIT_SCRIPT, "- Handling casualties to Personnel : initial = ".. tostring(UnitData.Personnel), " casualties = ", Opponent.PersonnelCasualties, " final = ", tostring(UnitData.Personnel  	- Opponent.PersonnelCasualties) )
+	Dprint( DEBUG_UNIT_SCRIPT, "- Handling casualties to Horses : initial = ".. tostring(UnitData.Horses), " casualties = ", Opponent.HorsesCasualties, " final = ", tostring(UnitData.Horses  	- Opponent.HorsesCasualties) )
+	Dprint( DEBUG_UNIT_SCRIPT, "- Handling casualties to Materiel : initial = ".. tostring(UnitData.Materiel), " casualties = ", Opponent.MaterielCasualties, " final = ", tostring(UnitData.Materiel  	- Opponent.MaterielCasualties) )
 	
 	-- Remove casualties from frontline
 	UnitData.Personnel 	= UnitData.Personnel  	- Opponent.PersonnelCasualties
 	--UnitData.Equipment  = UnitData.Equipment  	- Opponent.EquipmentCasualties
 	UnitData.Horses		= UnitData.Horses	  	- Opponent.HorsesCasualties
 	UnitData.Materiel 	= UnitData.Materiel 	- Opponent.MaterielCasualties
-	
+		
 	Opponent.EquipmentLost 		= {}
 	Opponent.DamagedEquipment 	= {}
 	
@@ -2243,6 +2251,9 @@ end
 
 local combatCount = 0
 function OnCombat( combatResult )
+
+	local DEBUG_UNIT_SCRIPT = true
+	
 	-- for console debugging...
 	ExposedMembers.lastCombat = combatResult
 	
