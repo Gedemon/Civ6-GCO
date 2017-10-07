@@ -895,6 +895,7 @@ function UnitFlag.UpdateName( self )
 				if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. pUnit:GetFoodStockString() end
 				if unitData.MedicineStock 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MEDICINE_STOCK", unitData.MedicineStock)  .. GCO.GetVariationString(pUnit:GetComponentVariation("MedicineStock"))end
 				if unitData.FuelStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. pUnit:GetFuelStockString(unitData) end
+				nameString = nameString .. pUnit:GetResourcesStockString()
 			end
 				
 			-- Statistics

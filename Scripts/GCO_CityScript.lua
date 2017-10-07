@@ -1855,13 +1855,13 @@ end
 -- Equipment functions
 -----------------------------------------------------------------------------------------
 function GetMaxEquipmentStorage(self)
-	local equipmentStockage = EquipmentBaseStock
-	for buildingID, value in ipairs(EquipmentStockage) do	
+	local storage = EquipmentBaseStock
+	for buildingID, value in pairs(EquipmentStockage) do	
 		if self:GetBuildings():HasBuilding(buildingID) then
-			equipmentStockage = equipmentStockage + value
+			storage = storage + value
 		end
 	end
-	return equipmentStockage
+	return storage
 end
 
 function GetMaxEquipmentStock(self, equipmentID)

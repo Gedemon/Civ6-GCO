@@ -23,6 +23,7 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 
 /* Districts & Buildings */
 --/*
+
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER', Coast = '1' WHERE PrereqDistrict ='DISTRICT_HARBOR';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';

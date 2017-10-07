@@ -1682,15 +1682,17 @@ function GetFrontLineEquipmentString(self)
 	local str = ""
 	for classType, classData in pairs(equipmentClasses) do
 		local classNum = self:GetEquipmentClassFrontLine(classType)
+		local maxClass = self:GetMaxEquipmentFrontLine(classType)
 		if classNum > 0 then
-			str = str .. "[NEWLINE][ICON_Production] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)
+			str = str .. "[NEWLINE]".. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_CLASS_FRONTLINE", classNum, maxClass, GameInfo.EquipmentClasses[classType].Name, GCO.GetResourceIcon()) --[ICON_Production] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)
 			local equipmentList = GetEquipmentTypes(classType)
 			--table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end) -- should not be needed as the table is sorted after its creation
 			for _, equipmentData in ipairs(equipmentList) do
 				local equipmentID 	= equipmentData.EquipmentID
 				local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)
 				if equipmentNum > 0 then
-					str = str .. "[NEWLINE] [ICON_BULLET] " .. tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
+					local percentage =  GCO.Round(equipmentNum / classNum * 100)
+					str = str .. "[NEWLINE] [ICON_BULLET] " .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_FRONTLINE", equipmentNum, percentage, GameInfo.Resources[equipmentID].Name, GCO.GetResourceIcon(equipmentID)) --" .. tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
 				end
 			end
 		end
@@ -1706,16 +1708,30 @@ function GetReserveEquipmentString(self)
 	for classType, classData in pairs(equipmentClasses) do
 		local classNum = self:GetEquipmentClassReserve(classType)
 		if classNum > 0 then
-			str = str .. "[NEWLINE][ICON_Production] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)
+			str = str .. "[NEWLINE]".. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_CLASS_RESERVE", classNum, GameInfo.EquipmentClasses[classType].Name, GCO.GetResourceIcon()) --[ICON_Production] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)
 			local equipmentList = GetEquipmentTypes(classType)
 			--table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end) -- should not be needed as the table is sorted after its creation
 			for _, equipmentData in ipairs(equipmentList) do
 				local equipmentID 	= equipmentData.EquipmentID
 				local equipmentNum 	= self:GetReserveEquipment( equipmentID, classType)			
 				if equipmentNum > 0 then
-					str = str .. "[NEWLINE] [ICON_BULLET] " .. tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
+					str = str .. "[NEWLINE] [ICON_BULLET] " .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_RESERVE", equipmentNum, GameInfo.Resources[equipmentID].Name, GCO.GetResourceIcon(equipmentID)) -- ..tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
 				end
 			end
+		end
+	end
+	return str
+end
+
+function GetResourcesStockString(self)
+	local unitKey 	= self:GetKey()
+	local data 		= ExposedMembers.UnitData[unitKey]
+	local str 		= ""
+	for resourceKey, value in pairs(data.Stock) do	
+		local resourceID 		= tonumber(resourceKey)		
+		if (value) > 0 then
+			local resRow 			= GameInfo.Resources[resourceID]
+			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_RESOURCE_STOCK", value, resRow.Name, GCO.GetResourceIcon(resourceID))
 		end
 	end
 	return str
@@ -3328,6 +3344,7 @@ function AttachUnitFunctions(unit)
 		u.GetFuelConsumptionString 		= GetFuelConsumptionString
 		u.GetFrontLineEquipmentString	= GetFrontLineEquipmentString
 		u.GetReserveEquipmentString		= GetReserveEquipmentString
+		u.GetResourcesStockString		= GetResourcesStockString
 		
 		-- fix when attaching to an unit from UI context: the game is using "GetType" in gameplay script context and "GetUnitType" in UI context...
 		if not u.GetType then u.GetType = u.GetUnitType end

@@ -867,6 +867,22 @@
       <Text>[ICON_HousingInsufficient] Can't find a route for supply</Text>
     </Replace>
 	
+	<Replace Tag="LOC_UNITFLAG_RESOURCE_STOCK" Language="en_US">
+      <Text>{3_Name} {1_Num} {2_Name}</Text>
+    </Replace>
+	<Replace Tag="LOC_UNITFLAG_EQUIPMENT_CLASS_FRONTLINE" Language="en_US">
+      <Text>{4_Name} {1_Num} / {2_Num} {3_Name}</Text>
+    </Replace>
+	<Replace Tag="LOC_UNITFLAG_EQUIPMENT_FRONTLINE" Language="en_US">
+      <Text>{4_Name} {1_Num} {3_Name} ({2_Num} %) </Text>
+    </Replace>
+	<Replace Tag="LOC_UNITFLAG_EQUIPMENT_CLASS_RESERVE" Language="en_US">
+      <Text>{3_Name} {1_Num} {2_Name}</Text>
+    </Replace>
+	<Replace Tag="LOC_UNITFLAG_EQUIPMENT_RESERVE" Language="en_US">
+      <Text>{3_Name} {1_Num} {2_Name}</Text>
+    </Replace>
+
   </LocalizedText>
   
   <LocalizedText> <!-- Yields -->
