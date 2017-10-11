@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+
+	<LocalizedText> <!-- Buildings Names -->
+	
+		<Replace Tag="LOC_BUILDING_BUTCHERY_NAME" 					Text="Butchery" 				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_HERBALIST_NAME" 					Text="Herbalist" 				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 				Text="City Stable"				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" 			Text="City Barracks"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 				Text="Blacksmith"				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_FISH_MARKET_NAME" 				Text="Fish Market"				Language="en_US" />
+							
+		<Replace Tag="LOC_BUILDING_CARPENTER_NAME"					Text="Carpenter" 				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_STONEMASON_NAME"					Text="Stonemason"	 			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ARTILLATOR_NAME"					Text="Artillator"	 			Language="en_US" />
+							
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_NAME" 			Text="Central Square"			Language="en_US" />
+		
+		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_1_NAME" 	Text="Ancient Wealthy Housing"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_1_NAME" 	Text="Ancient Housing"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_1_NAME" 	Text="Ancient Cheap Housing"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_2_NAME" 	Text="Ancient Wealthy Housing"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_2_NAME" 	Text="Ancient Housing"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_2_NAME" 	Text="Ancient Cheap Housing"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_3_NAME" 	Text="Ancient Wealthy Housing"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_3_NAME" 	Text="Ancient Housing"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_3_NAME" 	Text="Ancient Cheap Housing"	Language="en_US" />
+	
+	</LocalizedText>
+	
+	<LocalizedText> <!-- Buildings Descriptions -->
+		
+		<Replace Tag="LOC_BUILDING_ARTILLATOR_DESCRIPTION" Language="en_US">
+			<Text>A building for the makers of bows, arrows, and other archery goods.</Text>
+		</Replace>
+	
+	</LocalizedText>
+  
+	<LocalizedText> <!-- Equipment -->
+		
+		<Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 			Text="Chariot" 			Language="en_US" /> 	
+		
+		<Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 		Text="Wooden Clubs" 	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_STONE_AXE_NAME" 		Text="Stone Axes"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_SPIKED_CLUB_NAME" 		Text="Spiked Clubs"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" 	Text="Bronze Swords" 	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_IRON_SWORDS_NAME" 		Text="Iron Swords"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_STEEL_SWORDS_NAME" 		Text="Steel Swords"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_LEATHER_ARMOR_NAME" 	Text="Leather Armor" 	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_BRONZE_ARMOR_NAME" 		Text="Bronze Armor"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_IRON_ARMOR_NAME" 		Text="Iron Armor"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_CHAINMAIL_ARMOR_NAME" 	Text="Chainmail Armor"	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_PLATE_ARMOR_NAME" 		Text="Plate Armor"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_BLUNT_WEAPONS_NAME" 	Text="Blunt Weapons" 	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_SWORDS_NAME" 			Text="Swords"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_SHIELDS_NAME" 			Text="Shield"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_BODYARMOR_NAME" 		Text="Body Armor" 		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_LIGHTARMOR_NAME" 		Text="Light Armor"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_HELMET_NAME" 			Text="Helmets"			Language="en_US" /> 
+	
+	</LocalizedText>
+    
+	<LocalizedText> <!-- Resources -->
+	
+		<Replace Tag="LOC_RESOURCE_FOOD_NAME" 		Text="Food" 		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 	Text="Materiel" 	Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"	Text="Personnel"	Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_STEEL_NAME" 		Text="Steel" 		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_WOOD_NAME" 		Text="Wood" 		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_PLANTS_NAME" 	Text="Plants" 		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_LEATHER_NAME" 	Text="Leather" 		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 	Text="Medicine" 	Language="en_US" /> 
+		
+	</LocalizedText>
+ 
+</GameData>

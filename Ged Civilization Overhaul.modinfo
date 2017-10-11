@@ -85,6 +85,8 @@
 				<File>Data/Buildings.xml</File>
 				<File>Data/Equipment.xml</File>
 				<File>Data/Resources.xml</File>
+				<!-- Add buildings, units, ... name & descriptions here to automate table filling -->
+				<File>Text/NameText.xml</File>
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
            	<Properties>
@@ -98,12 +100,14 @@
 				<LoadOrder>110000</LoadOrder>
 		    </Properties>
 				<File>Data/Unlockers.sql</File>
+				<File>Data/PostUpdate.sql</File>
 		</UpdateDatabase>	
 		<UpdateText id="GCO_DEFAULT_LOC">
            	<Properties>
 				<LoadOrder>100700</LoadOrder>
            	</Properties>
 				<File>Text/GameText.xml</File>
+				<File>Text/NameText.xml</File>
 		</UpdateText>
 	</InGameActions>
 
@@ -122,7 +126,9 @@
 		<File>Data/CombatRules.sql</File>
 		<File>Data/ModRules.sql</File>
 		<File>Data/Unlockers.sql</File>
+		<File>Data/PostUpdate.sql</File>
 		<File>Text/GameText.xml</File>
+		<File>Text/NameText.xml</File>
 		<File>Data/Buildings.xml</File>
 		<File>Data/Equipment.xml</File>
 		<File>Data/Resources.xml</File>
