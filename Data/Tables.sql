@@ -8,8 +8,8 @@
 -- Modified Tables
 -----------------------------------------------
 
--- Recreate the Building/Resources/Units table to add a default value to <Name>
-CREATE TABLE temp_Buildings (
+-- Create temporary Building/Resources/Units tables that will be used to fill all required tables using SQL in PostUpdate.sql
+CREATE TABLE IF NOT EXISTS BuildingsGCO (
 		BuildingType TEXT NOT NULL,
 		Name TEXT NOT NULL DEFAULT 'BUILDING_NAME',
 		PrereqTech TEXT,
@@ -18,7 +18,7 @@ CREATE TABLE temp_Buildings (
 		MaxPlayerInstances INTEGER NOT NULL DEFAULT -1,
 		MaxWorldInstances INTEGER NOT NULL DEFAULT -1,
 		Capital BOOLEAN NOT NULL CHECK (Capital IN (0,1)) DEFAULT 0,
-		PrereqDistrict TEXT,
+		PrereqDistrict TEXT NOT NULL DEFAULT 'DISTRICT_CITY_CENTER',
 		AdjacentDistrict TEXT,
 		Description TEXT,
 		RequiresPlacement BOOLEAN NOT NULL CHECK (RequiresPlacement IN (0,1)) DEFAULT 0,
@@ -50,10 +50,17 @@ CREATE TABLE temp_Buildings (
 		Quote TEXT,
 		QuoteAudio TEXT,
 		MustBeAdjacentLand BOOLEAN NOT NULL CHECK (MustBeAdjacentLand IN (0,1)) DEFAULT 0,
-		AdvisorType TEXT,
+		AdvisorType TEXT NOT NULL DEFAULT 'ADVISOR_GENERIC',
 		AdjacentCapital BOOLEAN NOT NULL CHECK (AdjacentCapital IN (0,1)) DEFAULT 0,
 		AdjacentImprovement TEXT,
 		CityAdjacentTerrain TEXT,
+		-- Hidden Buildings
+		NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0,		-- Do not show in Civilopedia
+		NoCityScreen 	BOOLEAN NOT NULL CHECK (NoCityScreen IN (0,1)) DEFAULT 0, 	-- Do not show in City Screens
+		Unlockers 		BOOLEAN NOT NULL CHECK (Unlockers IN (0,1)) DEFAULT 0, 		-- Unlockers for buildings and units
+		EquipmentStock	integer DEFAULT 0, 											-- Equipment that can be stocked by the building
+		-- Materiel ratio for Buildings construction
+		MaterielPerProduction 	INTEGER DEFAULT '4', 								-- Materiel per unit of production needed for buildings construction
 		PRIMARY KEY(BuildingType),
 		FOREIGN KEY (AdjacentDistrict) REFERENCES Districts(DistrictType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
 		FOREIGN KEY (PrereqDistrict) REFERENCES Districts(DistrictType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
@@ -65,11 +72,11 @@ CREATE TABLE temp_Buildings (
 		FOREIGN KEY (BuildingType) REFERENCES Types(Type) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (AdjacentImprovement) REFERENCES Improvements(ImprovementType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (CityAdjacentTerrain) REFERENCES Terrains(TerrainType) ON DELETE CASCADE ON UPDATE CASCADE);
-INSERT INTO temp_Buildings SELECT * FROM Buildings;
-DROP TABLE Buildings;
-ALTER TABLE temp_Buildings RENAME TO Buildings;
+--INSERT INTO temp_Buildings SELECT * FROM Buildings;
+--DROP TABLE Buildings;
+--ALTER TABLE temp_Buildings RENAME TO Buildings;
 
-CREATE TABLE temp_Resources (
+CREATE TABLE IF NOT EXISTS ResourcesGCO (
 		ResourceType TEXT NOT NULL,
 		Name TEXT NOT NULL DEFAULT 'RESOURCE_NAME',
 		ResourceClassType TEXT NOT NULL,
@@ -85,15 +92,18 @@ CREATE TABLE temp_Resources (
 		LakeEligible BOOLEAN NOT NULL CHECK (LakeEligible IN (0,1)) DEFAULT 1,
 		AdjacentToLand BOOLEAN NOT NULL CHECK (AdjacentToLand IN (0,1)) DEFAULT 0,
 		SeaFrequency INTEGER NOT NULL DEFAULT 0,
+		-- Resources trading
+		NoExport 	BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0, 	-- Not allowed on international trade routes
+		NoTransfer 	BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0,	-- Not allowed on internal trade routes
 		PRIMARY KEY(ResourceType),
 		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
 		FOREIGN KEY (PrereqCivic) REFERENCES Civics(CivicType) ON DELETE SET NULL ON UPDATE CASCADE,
 		FOREIGN KEY (ResourceType) REFERENCES Types(Type) ON DELETE CASCADE ON UPDATE CASCADE);
-INSERT INTO temp_Resources SELECT * FROM Resources;
-DROP TABLE Resources;
-ALTER TABLE temp_Resources RENAME TO Resources;
+--INSERT INTO temp_Resources SELECT * FROM Resources;
+--DROP TABLE Resources;
+--ALTER TABLE temp_Resources RENAME TO Resources;
 
-CREATE TABLE temp_Units (
+CREATE TABLE IF NOT EXISTS UnitsGCO (
 		UnitType TEXT NOT NULL,
 		Name TEXT NOT NULL DEFAULT 'UNIT_NAME',
 		BaseSightRange INTEGER NOT NULL,
@@ -154,6 +164,18 @@ CREATE TABLE temp_Units (
 		MandatoryObsoleteTech TEXT,
 		MandatoryObsoleteCivic TEXT,
 		AdvisorType TEXT,
+		-- Composition in personnel, vehicles and horses of an unit at full health 
+		Personnel integer DEFAULT '0',
+		Equipment integer DEFAULT '0',
+		EquipmentType TEXT,
+		Horses integer DEFAULT '0',
+		-- Materiel required  
+		Materiel integer DEFAULT '0', 			-- total value for unit at 100% health, representing general equipement, armement and munitions
+		-- Casualties modifier
+		AntiPersonnel 	integer DEFAULT '55', 	-- 100 means all personnel casualties are dead, no wounded, no prisonners
+		AntiArmor 		integer DEFAULT '20',
+		AntiShip 		integer DEFAULT '50',
+		AntiAir 		integer DEFAULT '50',
 		PRIMARY KEY(UnitType),
 		FOREIGN KEY (Flavor) REFERENCES Flavors(FlavorType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
 		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
@@ -171,9 +193,9 @@ CREATE TABLE temp_Units (
 		FOREIGN KEY (MandatoryObsoleteCivic) REFERENCES Civics(CivicType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
 		FOREIGN KEY (MandatoryObsoleteTech) REFERENCES Technologies(TechnologyType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
 		FOREIGN KEY (ObsoleteTech) REFERENCES Technologies(TechnologyType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT);
-INSERT INTO temp_Units SELECT * FROM Units;
-DROP TABLE Units;
-ALTER TABLE temp_Units RENAME TO Units;
+--INSERT INTO temp_Units SELECT * FROM Units;
+--DROP TABLE Units;
+--ALTER TABLE temp_Units RENAME TO Units;
 		
 -- Composition in personnel, vehicles and horses of an unit at full health 
 ALTER TABLE Units ADD COLUMN Personnel integer DEFAULT '0';
@@ -183,11 +205,11 @@ ALTER TABLE Units ADD COLUMN Horses integer DEFAULT '0';
 
 -- Materiel required  
 ALTER TABLE Units ADD COLUMN Materiel integer DEFAULT '0'; 				-- total value for unit at 100% health, representing general equipement, armement and munitions
-ALTER TABLE Units ADD COLUMN MaterielPerEquipment integer DEFAULT '0'; 	-- materiel required to replace a vehicle (reparing cost less)
+--ALTER TABLE Units ADD COLUMN MaterielPerEquipment integer DEFAULT '0'; 	-- materiel required to replace a vehicle (reparing cost less)
 
 -- Fuel usage for mechanized units
-ALTER TABLE Units ADD COLUMN FuelConsumptionPerVehicle real DEFAULT '0';
-ALTER TABLE Units ADD COLUMN FuelType TEXT; -- resource type used as fuel
+--ALTER TABLE Units ADD COLUMN FuelConsumptionPerVehicle real DEFAULT '0';
+--ALTER TABLE Units ADD COLUMN FuelType TEXT; -- resource type used as fuel
 
 -- Casualties modifier
 ALTER TABLE Units ADD COLUMN AntiPersonnel 	integer DEFAULT '55'; -- 100 means all personnel casualties are dead, no wounded, no prisonners
@@ -227,15 +249,15 @@ ALTER TABLE Buildings ADD COLUMN MaterielPerProduction 	INTEGER DEFAULT '4'; 		-
 -----------------------------------------------
 
 -- Create a version of the LocalizedText table in GameData, the Mod text will be copied there, then the SQL
-CREATE TABLE LocalizedText(	'Language' TEXT NOT NULL,
-							'Tag' TEXT NOT NULL,
-							'Text' TEXT,						
-							'Gender' TEXT,
-							'Plurality' TEXT,
-                            PRIMARY KEY (Language, Tag));
+CREATE TABLE IF NOT EXISTS LocalizedText(
+	Language TEXT NOT NULL,
+	Tag TEXT NOT NULL,
+	Text TEXT,
+	Gender TEXT,
+	Plurality TEXT,
+	PRIMARY KEY (Language, Tag));
 
-CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
-	(
+CREATE TABLE IF NOT EXISTS BuildingResourcesConverted (
 		BuildingType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,
 		ResourceCreated TEXT NOT NULL,
@@ -251,8 +273,7 @@ CREATE TABLE IF NOT EXISTS BuildingResourcesConverted
 		FOREIGN KEY (ResourceCreated) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
-CREATE TABLE IF NOT EXISTS BuildingStock
-	(
+CREATE TABLE IF NOT EXISTS BuildingStock (
 		BuildingType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,
 		Stock INTEGER NOT NULL DEFAULT 0,
@@ -261,8 +282,7 @@ CREATE TABLE IF NOT EXISTS BuildingStock
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
-CREATE TABLE IF NOT EXISTS BuildingPopulationEffect
-	(
+CREATE TABLE IF NOT EXISTS BuildingPopulationEffect	(
 		BuildingType TEXT NOT NULL,
 		PopulationType TEXT NOT NULL,		-- POPULATION_UPPER, POPULATION_MIDDLE, POPULATION_LOWER, POPULATION_SLAVE
 		EffectType TEXT NOT NULL,			-- CLASS_MAX_PERCENT, CLASS_MIN_PERCENT
@@ -272,8 +292,7 @@ CREATE TABLE IF NOT EXISTS BuildingPopulationEffect
 		FOREIGN KEY (PopulationType) REFERENCES Populations(PopulationType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
-CREATE TABLE IF NOT EXISTS FeatureResourcesProduced
-	(
+CREATE TABLE IF NOT EXISTS FeatureResourcesProduced	(
 		FeatureType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,
 		NumPerFeature REAL NOT NULL DEFAULT 0,
@@ -282,8 +301,7 @@ CREATE TABLE IF NOT EXISTS FeatureResourcesProduced
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
-CREATE TABLE IF NOT EXISTS TerrainResourcesProduced
-	(
+CREATE TABLE IF NOT EXISTS TerrainResourcesProduced	(
 		TerrainType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,
 		NumPerTerrain REAL NOT NULL DEFAULT 0,
@@ -292,16 +310,14 @@ CREATE TABLE IF NOT EXISTS TerrainResourcesProduced
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
-CREATE TABLE IF NOT EXISTS Populations
-	(
+CREATE TABLE IF NOT EXISTS Populations (
 		PopulationType TEXT NOT NULL,
 		Name TEXT NOT NULL,
 		Description TEXT NOT NULL,
 		PRIMARY KEY(PopulationType)
 	);
 	
-CREATE TABLE IF NOT EXISTS ResourceStockUsage
-	(
+CREATE TABLE IF NOT EXISTS ResourceStockUsage (
 		ResourceType TEXT NOT NULL,
 		MinPercentLeftToSupply INTEGER NOT NULL DEFAULT 50,		-- stock above that percentage are available for reinforcing units
 		MinPercentLeftToTransfer INTEGER NOT NULL DEFAULT 75,	-- stock above that percentage are available for transfer to other cities of the same civilization
@@ -312,24 +328,20 @@ CREATE TABLE IF NOT EXISTS ResourceStockUsage
 		PRIMARY KEY(ResourceType),
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
-	
 		
-CREATE TABLE IF NOT EXISTS EquipmentClasses 
-	(
+CREATE TABLE IF NOT EXISTS EquipmentClasses	(
 		EquipmentClass TEXT NOT NULL, 		-- CLASS_VEHICLE, CLASS_GEAR, ...
 		Name TEXT,							-- "Tanks", "Iron Materiel",...
 		PRIMARY KEY(EquipmentClass)
 	);
 	
-CREATE TABLE IF NOT EXISTS EquipmentTypeClasses 
-	(
+CREATE TABLE IF NOT EXISTS EquipmentTypeClasses	(
 		ResourceType TEXT NOT NULL,
 		EquipmentClass TEXT NOT NULL, 				
 		PRIMARY KEY(ResourceType, EquipmentClass)	-- an equipment could belong to multiple classes
 	);
 	
-CREATE TABLE IF NOT EXISTS Equipment
-	(
+CREATE TABLE IF NOT EXISTS Equipment	(
 		ResourceType TEXT NOT NULL,					-- Equipment are handled as resources
 		EquipmentSize INTEGER NOT NULL DEFAULT 1,	-- Space taken in a city stockage capacity
 		Desirability INTEGER NOT NULL DEFAULT 0,	-- Units will request ResourceType of higher desirability first
@@ -340,25 +352,26 @@ CREATE TABLE IF NOT EXISTS Equipment
 		IgnorePersonnelArmor INTEGER,
 		VehicleArmor INTEGER,
 		AntiVehicle INTEGER,
-		AntiVehicleArmor,
-		IgnoreVehicleArmor,
-		Reliability INTEGER,						-- Percentage, 100 means no loss from breakdown, lower values means possible loss from unreliability (instead of damaged send in reserve)
+		AntiVehicleArmor INTEGER,
+		IgnoreVehicleArmor INTEGER,
+		Reliability INTEGER,						-- Percentage, 100 means no loss from breakdown, lower values means possible loss from unreliability ( = captured or destroyed instead of damaged -> in reserve)
 		FuelConsumption INTEGER,
 		FuelType TEXT,
+		PrereqTech TEXT,
+		RevealedEra INTEGER NOT NULL DEFAULT 1,
 		PRIMARY KEY(ResourceType),
-		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE
 	);
 	
-CREATE TABLE IF NOT EXISTS EquipmentEffects 
-	(
+CREATE TABLE IF NOT EXISTS EquipmentEffects (
 		ResourceType TEXT, 				
 		EquipmentEffect TEXT,
 		EffectMaxStrength INTEGER NOT NULL DEFAULT 0,
 		PRIMARY KEY(ResourceType, EquipmentEffect)		-- an equipment could have multiple effects
 	);
 		
-CREATE TABLE IF NOT EXISTS UnitEquipmentClasses 
-	(
+CREATE TABLE IF NOT EXISTS UnitEquipmentClasses (
 		UnitType TEXT NOT NULL,
 		EquipmentClass TEXT, 														-- 
 		MaxAmount INTEGER,															-- When NULL use the unit's Personnel value
@@ -370,8 +383,7 @@ CREATE TABLE IF NOT EXISTS UnitEquipmentClasses
 		FOREIGN KEY (EquipmentClass) REFERENCES EquipmentClasses(EquipmentClass) ON DELETE CASCADE ON UPDATE CASCADE
 	);	
 	
-CREATE TABLE IF NOT EXISTS PopulationNeeds
-	(
+CREATE TABLE IF NOT EXISTS PopulationNeeds (
 		ResourceType TEXT NOT NULL,
 		PopulationType TEXT NOT NULL,
 		--EffectType TEXT NOT NULL,		-- HUNGER, ... (allow same resource and same population type to have different effect
@@ -391,8 +403,7 @@ CREATE TABLE IF NOT EXISTS PopulationNeeds
 		FOREIGN KEY (PopulationType) REFERENCES Populations(PopulationType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 
-CREATE TABLE IF NOT EXISTS CustomYields 
-	(
+CREATE TABLE IF NOT EXISTS CustomYields	(
 		YieldType TEXT NOT NULL,
 		Name TEXT NOT NULL,
 		IconString TEXT NOT NULL,
@@ -400,8 +411,7 @@ CREATE TABLE IF NOT EXISTS CustomYields
 		PRIMARY KEY(YieldType)
 	);
 	
-CREATE TABLE IF NOT EXISTS Building_CustomYieldChanges 
-	(
+CREATE TABLE IF NOT EXISTS Building_CustomYieldChanges (
 		BuildingType TEXT NOT NULL,
 		YieldType TEXT NOT NULL,
 		YieldChange INTEGER NOT NULL,
@@ -411,8 +421,7 @@ CREATE TABLE IF NOT EXISTS Building_CustomYieldChanges
 	);
 	
 /* BuildingRealPrereqsOR is created in Unlockers.sql and is a copy of BuildingPrereqs */
-CREATE TABLE IF NOT EXISTS BuildingRealPrereqsAND
-	(
+CREATE TABLE IF NOT EXISTS BuildingRealPrereqsAND (
 		Building TEXT NOT NULL,
 		PrereqBuilding TEXT NOT NULL,
 		PRIMARY KEY(Building, PrereqBuilding),
@@ -421,8 +430,7 @@ CREATE TABLE IF NOT EXISTS BuildingRealPrereqsAND
 	);
 
 /* Unit_RealBuildingPrereqsOR is created in Unlockers.sql and is a copy of Unit_BuildingPrereqs */
-CREATE TABLE Unit_RealBuildingPrereqsAND
-	(
+CREATE TABLE IF NOT EXISTS Unit_RealBuildingPrereqsAND (
 		Unit TEXT NOT NULL,
 		PrereqBuilding TEXT NOT NULL,
 		NumSupported INTEGER NOT NULL DEFAULT -1,

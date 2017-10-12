@@ -1,62 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
 
+	<!--
+		BuildingsGCO : Temporary table to set the new buildings.		
+		PostUpdate.sql add the required entries (like <Name>, <Description>, ...) and rows to various tables (like <Types>, <Buildings>, ...)		
+		By default <AdvisorType> is set to "ADVISOR_GENERIC", you'll need to specify different AdvisorType or use AdvisorType="NONE" for NULL
+		By default <PrereqDistrict> is set to "DISTRICT_CITY_CENTER", you'll need to specify different PrereqDistrict or use PrereqDistrict="NONE" for NULL
+	-->
+	<BuildingsGCO>
+		
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 			Cost="1" 	NoPedia="1"/>
+			
+		<Row BuildingType="BUILDING_BUTCHERY" 					Cost="80" 	MaterielPerProduction="3" PrereqTech="TECH_ANIMAL_HUSBANDRY" />
+		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 		 />
+		<Row BuildingType="BUILDING_FISH_MARKET" 				Cost="70" 	MaterielPerProduction="2" PrereqTech="TECH_SAILING" 		 />
+		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EquipmentStock="500" />
+		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING" 		EquipmentStock="500" />
+		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" 										EquipmentStock="1000"/>
+		
+		<Row BuildingType="BUILDING_CARPENTER"					Cost="15" 	MaterielPerProduction="2" />
+		<Row BuildingType="BUILDING_STONEMASON"					Cost="15" 	MaterielPerProduction="2" />
+		
+		<Row BuildingType="BUILDING_ARTILLATOR"					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_ARCHERY" 	 		EquipmentStock="250" />
 	
-	<Types> <!-- Buildings -->
-		<Row Type="BUILDING_CARPENTER" 		Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_STONEMASON"		Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_BUTCHERY" 		Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_HERBALIST" 		Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_SMALL_STABLE" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_SMALL_BARRACKS"	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_BLACKSMITH" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_FISH_MARKET" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_ARTILLATOR" 	Kind="KIND_BUILDING"/>
-		
-		<Row Type="BUILDING_ANCIENT_LOWER_HOUSING_1" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_ANCIENT_UPPER_HOUSING_1" 	Kind="KIND_BUILDING"/>
-		
-		<Row Type="BUILDING_ANCIENT_LOWER_HOUSING_2" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_ANCIENT_UPPER_HOUSING_2" 	Kind="KIND_BUILDING"/>	
-		<Row Type="BUILDING_ANCIENT_LOWER_HOUSING_3" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	Kind="KIND_BUILDING"/>
-		<Row Type="BUILDING_ANCIENT_UPPER_HOUSING_3" 	Kind="KIND_BUILDING"/>	
-		
-		<Row Type="BUILDING_CENTRAL_SQUARE" 	Kind="KIND_BUILDING"/>		
-		
-	</Types>	
-	
-	<Buildings>
-		
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE" PrereqDistrict="DISTRICT_CITY_CENTER" Cost="1" NoPedia="1"/>
-
-		<Row BuildingType="BUILDING_BUTCHERY" 		PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" MaterielPerProduction="3" AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_HERBALIST" 		PrereqTech="TECH_POTTERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" MaterielPerProduction="2" AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_FISH_MARKET" 	PrereqTech="TECH_SAILING" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="70" MaterielPerProduction="2" AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE"	PrereqTech="TECH_ANIMAL_HUSBANDRY" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" MaterielPerProduction="4" AdvisorType="ADVISOR_GENERIC" EquipmentStock="500" />
-		<Row BuildingType="BUILDING_BLACKSMITH"		PrereqTech="TECH_BRONZE_WORKING" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" MaterielPerProduction="4" AdvisorType="ADVISOR_GENERIC" EquipmentStock="500" />
-		<Row BuildingType="BUILDING_SMALL_BARRACKS"									 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" MaterielPerProduction="4" AdvisorType="ADVISOR_GENERIC" EquipmentStock="1000"/>
-		
-		<Row BuildingType="BUILDING_CARPENTER"										 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="15" MaterielPerProduction="2" AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_STONEMASON"										 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="15" MaterielPerProduction="2" AdvisorType="ADVISOR_GENERIC"/>
-		
-		<Row BuildingType="BUILDING_ARTILLATOR"		PrereqTech="TECH_ARCHERY" 			PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="80" MaterielPerProduction="4" AdvisorType="ADVISOR_GENERIC" EquipmentStock="500" />
-
-	
-		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="30" 	MaterielPerProduction="2"	AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" 	MaterielPerProduction="4"	AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="120" MaterielPerProduction="5"	AdvisorType="ADVISOR_GENERIC"/>
-	<!---->		                                                                                                                            
-		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="30" 	MaterielPerProduction="2"	AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" 	MaterielPerProduction="4"	AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="120" MaterielPerProduction="5"	AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="30" 	MaterielPerProduction="2"	AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="60" 	MaterielPerProduction="4"	AdvisorType="ADVISOR_GENERIC"/>
-		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	PrereqDistrict="DISTRICT_CITY_CENTER" PurchaseYield="YIELD_GOLD" Cost="120" MaterielPerProduction="5"	AdvisorType="ADVISOR_GENERIC"/>
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	Cost="30" 	MaterielPerProduction="2" />
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	Cost="60" 	MaterielPerProduction="4" />
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	Cost="120" 	MaterielPerProduction="5" />
+	<!---->		                                                           
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	Cost="30" 	MaterielPerProduction="2" />
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	Cost="60" 	MaterielPerProduction="4" />
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	Cost="120" 	MaterielPerProduction="5" />
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	Cost="30" 	MaterielPerProduction="2" />
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	Cost="60" 	MaterielPerProduction="4" />
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	Cost="120" 	MaterielPerProduction="5" />
 	<!---->
-	</Buildings>
+	</BuildingsGCO>
 
 	<BuildingModifiers>
 		<Row BuildingType="BUILDING_MARKET"			ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
