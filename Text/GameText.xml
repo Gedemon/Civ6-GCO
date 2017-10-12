@@ -7,8 +7,10 @@
 	
   <LocalizedText>  
 	<!--  -->	
+	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION">
+		<Text>May create new cities.</Text>
+	</Replace>
 
-	
   </LocalizedText>
 
 		<!-- ++++++++++++++++++++++++++ -->
@@ -20,7 +22,6 @@
     <Replace Tag="LOC_TOOLTIP_SEPARATOR"	Text="[NEWLINE][COLOR_Grey]------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" /> 
 	
   </LocalizedText>	
-	
 	
   <LocalizedText> <!-- To show FontIcons on Pedia front page... -->
 	
