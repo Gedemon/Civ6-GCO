@@ -24,6 +24,9 @@ DELETE FROM Resource_Harvests;
 DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='DEAL_ITEM_RESOURCES';
 --*/
 
+/* Improvements */
+UPDATE Improvements 	SET PrereqTech ='TECH_CASTLES' WHERE ImprovementType ='IMPROVEMENT_FORT';
+
 /* Districts & Buildings */
 --/*
 
@@ -33,9 +36,17 @@ UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistric
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_THEATER';
 
+--UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_SCIENCE' 	WHERE BuildingType ='DISTRICT_ENCAMPMENT';
+--UPDATE Buildings SET PrereqTech = 'TECH_INDUSTRIALIZATION' 	WHERE BuildingType ='DISTRICT_INDUSTRIAL_ZONE';
+--UPDATE Buildings SET PrereqTech = 'TECH_MASS_PRODUCTION' 	WHERE BuildingType ='BUILDING_SHIPYARD';
+
 UPDATE Buildings SET MaterielPerProduction = '3' WHERE BuildingType ='BUILDING_GRANARY';
 
 UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT_CITY_CENTER';
+
+UPDATE Districts SET PrereqTech = 'TECH_MILITARY_SCIENCE' 	WHERE DistrictType ='DISTRICT_ENCAMPMENT';
+UPDATE Districts SET PrereqTech = 'TECH_INDUSTRIALIZATION' 	WHERE DistrictType ='DISTRICT_INDUSTRIAL_ZONE';
+UPDATE Districts SET PrereqTech = 'TECH_MASS_PRODUCTION' 	WHERE DistrictType ='DISTRICT_HARBOR';
 --*/
 
 -- Update projects before removing the distric themselves because of the cascade update...

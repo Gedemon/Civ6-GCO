@@ -58,7 +58,8 @@
 		<Replace Tag="LOC_EQUIPMENT_PLATE_ARMOR_NAME" 		Text="Plate Armor"		Language="en_US" /> 
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_BLUNT_WEAPONS_NAME" 	Text="Blunt Weapons" 	Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENTCLASS_BOWS_NAME" 			Text="Bows"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_BOWS_NAME" 			Text="Bows"				Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_CHARIOT_NAME" 			Text="Chariot"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SWORDS_NAME" 			Text="Swords"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SPEARS_NAME" 			Text="Spears"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENTCLASS_SHIELDS_NAME" 			Text="Shield"			Language="en_US" /> 

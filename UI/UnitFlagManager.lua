@@ -878,7 +878,7 @@ function UnitFlag.UpdateName( self )
 				if unitInfo.Personnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL_RESERVE", pUnit:GetComponent("PersonnelReserve")) .. GCO.GetVariationString(pUnit:GetComponentVariation("PersonnelReserve")) end
 				--if unitInfo.Equipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_RESERVE", unitData.EquipmentReserve, GCO.GetEquipmentName(unitType)) .. GCO.GetVariationString(pUnit:GetComponentVariation("EquipmentReserve")) end
 				nameString = nameString .. pUnit:GetReserveEquipmentString()
-				if unitInfo.Horses 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES_RESERVE", unitData.HorsesReserve) .. GCO.GetVariationString(pUnit:GetComponentVariation("HorsesReserve")) end
+				if unitInfo.Horses 		> 0 or unitData.HorsesReserve > 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES_RESERVE", unitData.HorsesReserve) .. GCO.GetVariationString(pUnit:GetComponentVariation("HorsesReserve")) end
 				if unitInfo.Materiel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MATERIEL_RESERVE", unitData.MaterielReserve) .. GCO.GetVariationString(pUnit:GetComponentVariation("MaterielReserve")) end
 				
 			end

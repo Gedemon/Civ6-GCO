@@ -979,13 +979,10 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 		unitData.MedicineStock = math.max(0, unitData.MedicineStock + value)
 	
 	elseif self:IsEquipment(resourceID) then
-		self:ChangeReserveEquipment( resourceID, value )		
-		
-	elseif not ExposedMembers.UnitData[unitKey].Stock[resourceKey] then
-		unitData.Stock[resourceKey] = math.max(0, value)
+		self:ChangeReserveEquipment( resourceID, value )
 		
 	else
-		unitData.Stock[resourceKey] = math.max(0, GCO.ToDecimals(unitData.Stock[resourceKey] + value))
+		unitData.Stock[resourceKey] = math.max(0, GCO.ToDecimals((unitData.Stock[resourceKey] or 0) + value))
 	end
 end
 
@@ -1157,7 +1154,7 @@ function IsUnitEquipment(unitTypeID, equipmentTypeID)
 end
 
 function GetEquipmentTypes(equipmentClass)
-	return equipmentTypeClasses[tonumber(equipmentClass)]
+	return equipmentTypeClasses[tonumber(equipmentClass)] or {}
 end
 
 function GetUnitEquipmentClass(unitTypeID, equipmentTypeID)
@@ -1193,6 +1190,7 @@ function GetUnitConstructionEquipment(unitType, sCondition)
 				resTable[classType].Resources	= {}
 				resTable[classType].Value 		= classData.Amount + GCO.Round(classData.Amount * reserveRatio / 10) * 10
 				local equipmentTypes 			= GetEquipmentTypes(classType)
+				
 				for _, data in ipairs(equipmentTypes) do
 					table.insert(resTable[classType].Resources, data.EquipmentID)
 				end
@@ -2242,7 +2240,7 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	--Opponent.EquipmentLost = GCO.Round(Opponent.EquipmentCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
 	--Opponent.DamagedEquipment = Opponent.EquipmentCasualties - Opponent.EquipmentLost
 	-- They Shoot Horses, Don't They?
-	Opponent.HorsesLost = Opponent.HorsesCasualties -- some of those may be captured by the opponent ?
+	Opponent.HorsesLost = Opponent.HorsesCasualties -- some of those may be captured ?
 	
 	-- Materiel too is a full lost
 	Opponent.MaterielLost = Opponent.MaterielCasualties
@@ -2495,7 +2493,7 @@ function OnCombat( combatResult )
 			if defender.unit then
 				defender.Prisoners 			= attacker.Captured
 				defender.MaterielGained 	= math.floor(attacker.MaterielLost * defenderMaterielGainPercent / 100)
-				attacker.HorsesGained 		= math.floor(defender.HorsesLost * defenderMaterielGainPercent / 100)
+				defender.HorsesGained 		= math.floor(defender.HorsesLost * defenderMaterielGainPercent / 100)
 				
 				defender.EquipmentGained 	= {}
 				for equipmentKey, value in pairs(defender.EquipmentLost) do
@@ -2853,10 +2851,16 @@ Events.UnitDamageChanged.Add(DamageChanged)
 function GetSupplyPathPlots(self)
 	local unitKey 	= self:GetKey()
 	local unitData 	= ExposedMembers.UnitData[unitKey]
-	if not unitdata then
-		print ("- WARNING : no entry in ExposedMembers.UnitData for unit ".. tostring(self:GetName()) .." (key = ".. tostring(unitKey) ..") in GetSupplyPathPlots()")
-		return
-	end
+	local timer = Automation.GetTime()
+	while not unitData do -- this prevent a "trying to index nil" error on the following line... is it linked to the script/UI not being synchronized ?
+		unitData 	= ExposedMembers.UnitData[unitKey]
+		if Automation.GetTime() + 0.5 > timer then
+			print("- WARNING : unitData= ExposedMembers.UnitData[unitKey] is nil for unit ".. tostring(unit:GetName()) .." (key = ".. tostring(key) ..") in GetSupplyPathPlots()")
+			print("- ExposedMembers.UnitData[unitKey] =  ".. tostring(ExposedMembers.UnitData[unitKey]) .." unitData = ".. unitData)
+			unitData 	= ExposedMembers.UnitData[unitKey]
+			if not unitData then return else break end
+		end
+	end 
 	if unitData.SupplyLineCityKey then
 		local city = GCO.GetCityFromKey( unitData.SupplyLineCityKey )
 		if city then

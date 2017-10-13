@@ -43,6 +43,7 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"			/>
 	</EquipmentClasses>
@@ -60,8 +61,8 @@
 		<Row ResourceType="EQUIPMENT_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CHARIOT"			/>
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
-		<Row ResourceType="EQUIPMENT_BRONZE_SPEAR"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
-		<Row ResourceType="EQUIPMENT_IRON_SPEAR"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
+		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
 		
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
