@@ -68,7 +68,6 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 local g_Timer = Automation.GetTime()
-
 function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 	local bIsInitialized = 	(	ExposedMembers.SaveLoad_Initialized 
 							and ExposedMembers.Utils_Initialized
@@ -82,6 +81,7 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 							and ExposedMembers.PlayerScript_Initialized
 							)
 	if not bIsInitialized and Automation.GetTime() > g_Timer + 20 then
+		Error("GCO Initialization problem")
 		print("Still not initialized...  timer = ",  Automation.GetTime())
 		g_Timer = Automation.GetTime()
 		print("ExposedMembers.SaveLoad_Initialized         ",ExposedMembers.SaveLoad_Initialized           )
@@ -106,7 +106,7 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 		GCO = ExposedMembers.GCO					-- contains functions from other contexts
 		print ("Exposed Functions from other contexts initialized...")
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
-		-- tell all other scripts they can initialize now
+		-- tell all other scripts that they can initialize now
 		LuaEvents.InitializeGCO() 
 	end
 end
@@ -172,10 +172,11 @@ function TableSummation(data) -- return the Summation of all values in a table f
 	return total
 end
 
+
 ----------------------------------------------
 -- Debug
 ----------------------------------------------
-
+local sLastLog	= ""
 local bNoOutput = false
 function ToggleOutput()
 	bNoOutput = not bNoOutput
@@ -192,6 +193,7 @@ end
 function Error(...)
 	print("Error : ", select(1,...))
 	LuaEvents.StopAuToPlay()
+	LuaEvents.ShowLastLog()
 end
 
 function Dline(...)
@@ -202,6 +204,21 @@ function Dline(...)
 	local str = string.match(str, '%d+')
 	print("at line "..str, select(1,...))
 end
+
+function Dlog(...)
+	local status, err = pcall(function () error("my error") end)
+	local str = string.match(err, 'Dline.-$')
+	--local str = string.match(str, 'GCO_.-$')
+	--local str = string.match(str, ':.-\'')
+	--local str = string.match(str, '%d+')
+	--print("at line "..str, select(1,...))
+	sLastLog = str
+end
+
+function ShowLastLog()
+	print(sLastLog)
+end
+LuaEvents.ShowLastLog.Add( ShowLastLog )
 
 -- Compare tables
 local function internalProtectedEquals(o1, o2, ignore_mt, callList)
@@ -277,10 +294,10 @@ function Dump(t,i)
 	end
 end
 
+
 ----------------------------------------------
 -- Timer
 ----------------------------------------------
-
 local Timer = {}
 function StartTimer(name)
 	Timer[name] = Automation.GetTime()
@@ -294,10 +311,10 @@ function ShowTimer(name)
 	end
 end
 
+
 ----------------------------------------------
 -- Civilizations
 ----------------------------------------------
-
 function CreateEverAliveTableWithDefaultValue(value)
 	local t = {}
 	for i, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
@@ -314,10 +331,10 @@ function CreateEverAliveTableWithEmptyTable()
 	return t
 end
 
+
 ----------------------------------------------
 -- Map
 ----------------------------------------------
-
 function FindNearestPlayerCity( eTargetPlayer, iX, iY )
 
 	local pCity = nil
@@ -372,7 +389,6 @@ end
 ----------------------------------------------
 -- Cities
 ----------------------------------------------
-
 -- City Capture Events
 local cityCaptureTest = {}
 function CityCaptureDistrictRemoved(playerID, districtID, cityID, iX, iY)
@@ -429,7 +445,6 @@ Events.CityInitialized.Add(CityCaptureCityInitialized)
 ----------------------------------------------
 -- Common
 ----------------------------------------------
-
 function GetTotalPrisoners(data) -- works for cityData and unitData
 	return TableSummation(data.Prisoners)
 end
@@ -442,10 +457,10 @@ function GetPreviousTurnKey()
 	return tostring(math.max(0, Game.GetCurrentGameTurn()-1))
 end
 
+
 ----------------------------------------------
 -- Players
 ----------------------------------------------
-
 function GetPlayerUpperClassPercent( playerID )
 	return tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_PERCENT"].Value)
 end

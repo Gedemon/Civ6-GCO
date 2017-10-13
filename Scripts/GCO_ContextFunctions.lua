@@ -59,6 +59,7 @@ end
 
 function GetCityYield(city, yieldType)
 	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	if not contextCity then return 0 end
 	return contextCity:GetYield(yieldType)
 end
 
@@ -69,24 +70,28 @@ end
 
 function CityCanProduce(city, productionType)
 	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	if not contextCity then return false end
 	local pCityBuildQueue = contextCity:GetBuildQueue()
 	return pCityBuildQueue:CanProduce( productionType, true )
 end
 
 function GetCityProductionTurnsLeft(city, productionType)
 	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	if not contextCity then return 0 end
 	local pCityBuildQueue = contextCity:GetBuildQueue()
 	return pCityBuildQueue:GetTurnsLeft( productionType )
 end
 
 function GetCityProductionYield(city)
 	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	if not contextCity then return 0 end
 	local pCityBuildQueue = contextCity:GetBuildQueue()
 	return pCityBuildQueue:GetProductionYield()
 end
 
 function GetCityProductionProgress(city, productionType, objetID)
 	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	if not contextCity then return 0 end
 	local pCityBuildQueue = contextCity:GetBuildQueue()
 	if productionType == ProductionTypes.UNIT then
 		return pCityBuildQueue:GetUnitProgress(objetID)

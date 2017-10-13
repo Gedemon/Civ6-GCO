@@ -2175,7 +2175,9 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 			local equipmentID 	= tonumber(equipmentTypeKey)
 			--equipment[equipmentTypeKey].Toughness 		= EquipmentInfo[equipmentID].Toughness
 			--equipment[equipmentTypeKey].RelativeValue 	= value / EquipmentInfo[equipmentID].Toughness
-			local relativeValue = value / EquipmentInfo[equipmentID].Toughness
+			local toughness		= EquipmentInfo[equipmentID].Toughness or 1
+			if toughness == 0 then toughness = 1 end -- todo: add a check in SQL to prevent Toughness = 0
+			local relativeValue = value / toughness
 			table.insert(equipment, {Key = equipmentTypeKey, ID = equipmentID, RelativeValue = relativeValue })
 			--equipment[equipmentTypeKey].Ratio		= value / totalEquipment
 			--averageToughness = averageToughness + EquipmentInfo[equipmentID].Toughness * (value / totalEquipment)			
@@ -2429,9 +2431,10 @@ function OnCombat( combatResult )
 
 			attacker.Prisoners 			= defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded (to do : add prisonners from enemy nationality here)
 			attacker.MaterielGained 	= GetMaterielFromKillOfBy(defender, attacker)
+			attacker.HorsesGained 		= math.floor(defender.HorsesLost * attackerMaterielGainPercent / 100) + math.floor(ExposedMembers.UnitData[defender.unitKey].Horses * attackerMaterielKillPercent /100)
 			attacker.LiberatedPrisoners = GCO.GetTotalPrisoners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
 			attacker.FoodGained 		= math.floor(ExposedMembers.UnitData[defender.unitKey].FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) /100)
-			attacker.FoodGained 		= math.max(0, math.min(attacker.unit:GetBaseFoodStock() - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
+			--attacker.FoodGained 		= math.max(0, math.min(attacker.unit:GetBaseFoodStock() - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
 			attacker.EquipmentGained 	= {}
 			for equipmentKey, value in pairs(defender.EquipmentLost) do
 				local fromCombat		= value * attackerMaterielGainPercent / 100
@@ -2463,8 +2466,9 @@ function OnCombat( combatResult )
 		else
 			-- attacker
 			if attacker.unit then
-				attacker.Prisoners 	= defender.Captured
-				attacker.MaterielGained = math.floor(defender.MaterielLost * attackerMaterielGainPercent /100)
+				attacker.Prisoners 			= defender.Captured
+				attacker.MaterielGained 	= math.floor(defender.MaterielLost * attackerMaterielGainPercent /100)
+				attacker.HorsesGained 		= math.floor(defender.HorsesLost * attackerMaterielGainPercent / 100)
 				
 				attacker.EquipmentGained 	= {}
 				for equipmentKey, value in pairs(defender.EquipmentLost) do
@@ -2474,21 +2478,24 @@ function OnCombat( combatResult )
 					attacker.EquipmentGained[equipmentKey] = equipmentGained
 					
 					-- Update composition
-					if attacker.unit:IsEquipment(equipmentID) then -- maybe a bit faster than letting unit:ChangeStock() handle the distribution ?
+					if attacker.unit:IsEquipment(equipmentID) then -- maybe a bit faster to check here than letting unit:ChangeStock() handle the distribution ?
 						attacker.unit:ChangeReserveEquipment(equipmentID, equipmentGained)
 					else
 						attacker.unit:ChangeStock(equipmentID, equipmentGained) -- captured equipment that can't be used by the attacker will be placed in "stock"
 					end
 				end
 			
-				ExposedMembers.UnitData[attacker.unitKey].MaterielReserve 				= ExposedMembers.UnitData[attacker.unitKey].MaterielReserve + attacker.MaterielGained
+				attacker.unit:ChangeStock(materielResourceID, attacker.MaterielGained)
+				attacker.unit:ChangeStock(horsesResourceID, attacker.HorsesGained)
+				
 				ExposedMembers.UnitData[attacker.unitKey].Prisoners[defender.playerID]	= ExposedMembers.UnitData[attacker.unitKey].Prisoners[defender.playerID] + attacker.Prisoners
 			end
 			
 			-- defender
 			if defender.unit then
-				defender.Prisoners 	= attacker.Captured
-				defender.MaterielGained = math.floor(attacker.MaterielLost * defenderMaterielGainPercent /100)
+				defender.Prisoners 			= attacker.Captured
+				defender.MaterielGained 	= math.floor(attacker.MaterielLost * defenderMaterielGainPercent / 100)
+				attacker.HorsesGained 		= math.floor(defender.HorsesLost * defenderMaterielGainPercent / 100)
 				
 				defender.EquipmentGained 	= {}
 				for equipmentKey, value in pairs(defender.EquipmentLost) do
@@ -2505,7 +2512,8 @@ function OnCombat( combatResult )
 					end
 				end
 				
-				ExposedMembers.UnitData[defender.unitKey].MaterielReserve 				= ExposedMembers.UnitData[defender.unitKey].MaterielReserve + defender.MaterielGained
+				defender.unit:ChangeStock(materielResourceID, defender.MaterielGained)
+				defender.unit:ChangeStock(horsesResourceID, defender.HorsesGained)
 				ExposedMembers.UnitData[defender.unitKey].Prisoners[attacker.playerID]	= ExposedMembers.UnitData[defender.unitKey].Prisoners[attacker.playerID] + defender.Prisoners
 			end
 		end
@@ -2845,6 +2853,10 @@ Events.UnitDamageChanged.Add(DamageChanged)
 function GetSupplyPathPlots(self)
 	local unitKey 	= self:GetKey()
 	local unitData 	= ExposedMembers.UnitData[unitKey]
+	if not unitdata then
+		print ("- WARNING : no entry in ExposedMembers.UnitData for unit ".. tostring(self:GetName()) .." (key = ".. tostring(unitKey) ..") in GetSupplyPathPlots()")
+		return
+	end
 	if unitData.SupplyLineCityKey then
 		local city = GCO.GetCityFromKey( unitData.SupplyLineCityKey )
 		if city then
