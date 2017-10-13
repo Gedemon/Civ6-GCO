@@ -1,4 +1,5 @@
 /*
+	Post Update Database : After XML data filling
 	This file update and add required entries to various tables.
 	This way we can limit XML rows to the minimum
 */
@@ -9,7 +10,7 @@
 
 /* Create new Buildings entries from the temporary BuildingsGCO table */
 INSERT OR REPLACE INTO Buildings (BuildingType, Name, PrereqTech, PrereqDistrict, Cost, NoPedia, MaterielPerProduction, AdvisorType, EquipmentStock)
-	SELECT BuildingsGCO.BuildingType, 'LOC_' || BuildingsGCO.BuildingType || '_NAME', BuildingsGCO.PrereqTech, BuildingsGCO.Cost, BuildingsGCO.NoPedia, BuildingsGCO.MaterielPerProduction, BuildingsGCO.AdvisorType, BuildingsGCO.EquipmentStock
+	SELECT BuildingsGCO.BuildingType, 'LOC_' || BuildingsGCO.BuildingType || '_NAME', BuildingsGCO.PrereqTech, BuildingsGCO.PrereqDistrict, BuildingsGCO.Cost, BuildingsGCO.NoPedia, BuildingsGCO.MaterielPerProduction, BuildingsGCO.AdvisorType, BuildingsGCO.EquipmentStock
 	FROM BuildingsGCO;
 	
 /* Create new Buildings Types entries from the temporary BuildingsGCO table */
@@ -54,3 +55,16 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT Equipment.ResourceType, 'KIND_RESOURCE'
 	FROM Equipment;
+	
+	
+UPDATE EquipmentClasses SET Name = 'LOC_' || EquipmentClasses.EquipmentClass || '_NAME';
+
+-----------------------------------------------
+-- Units
+-----------------------------------------------
+
+/* Replace Unit Upgrade table by custom version */
+INSERT OR REPLACE INTO UnitUpgradesGCO (Unit, UpgradeUnit)
+	SELECT UnitUpgrades.Unit, UnitUpgrades.UpgradeUnit
+	FROM UnitUpgrades;
+DELETE FROM UnitUpgrades;

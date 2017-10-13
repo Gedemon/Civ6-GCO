@@ -7,7 +7,7 @@
 	
   <LocalizedText>  
 	<!--  -->	
-	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION">
+	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION"	Language="en_US">
 		<Text>May create new cities.</Text>
 	</Replace>
 

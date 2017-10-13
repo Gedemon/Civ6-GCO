@@ -55,6 +55,9 @@
 	   
        <Row Name="ICON_BUILDING_ARTILLATOR"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="18"/>
        <Row Name="ICON_BUILDING_ARTILLATOR_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="18"/>
+	   
+       <Row Name="ICON_BUILDING_ARMORER"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="16"/>
+       <Row Name="ICON_BUILDING_ARMORER_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" Index="16"/>
 		
 		
 		<Row Name="ICON_BUILDING_ANCIENT_LOWER_HOUSING_1"		Atlas="ICON_ToT_ATLAS_BUILDINGS_A" Index="9"/>	   

@@ -3225,6 +3225,70 @@ end
 Events.CityProductionCompleted.Add(	OnUnitProductionCompleted)
 
 
+function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
+	print(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
+	local unit = UnitManager.GetUnit(unitOwner, unitID)
+	if unit then
+		if( GameInfo.Improvements[improvementType].BarbarianCamp ) then
+			print("Barbarian Village Cleaned");
+			local bows 		= Automation.GetRandomNumber(1000)
+			local spears 	= Automation.GetRandomNumber(1000)
+			local bswords 	= Automation.GetRandomNumber(1000)
+			local iswords 	= Automation.GetRandomNumber(300)
+			unit:ChangeStock(GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Index, bows)
+			unit:ChangeStock(GameInfo.Resources["EQUIPMENT_BRONZE_SPEARS"].Index, spears)
+			unit:ChangeStock(GameInfo.Resources["EQUIPMENT_BRONZE_SWORDS"].Index, bswords)	
+			unit:ChangeStock(GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Index, iswords)
+
+			LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)			
+			
+			local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+			if (pLocalPlayerVis ~= nil) then
+				if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
+					local sText = "+" .. tostring(bows).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Name) 
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
+					
+					local sText = "+" .. tostring(spears).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_BRONZE_SPEARS"].Name) 
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
+					
+					local sText = "+" .. tostring(bswords).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_BRONZE_SWORDS"].Name) 
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
+					
+					local sText = "+" .. tostring(iswords).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Name) 
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)					
+				end
+			end
+		end
+		if( GameInfo.Improvements[improvementType].Goody ) then
+			print("GoodyHut Activated"); 
+			local food 		= Automation.GetRandomNumber(100)
+			local materiel 	= Automation.GetRandomNumber(300)
+			local personnel	= Automation.GetRandomNumber(1000)
+			local medicine 	= Automation.GetRandomNumber(500)
+			local wheat 	= Automation.GetRandomNumber(500)
+			unit:ChangeStock(foodResourceID, food)
+			unit:ChangeStock(materielResourceID, materiel)
+			unit:ChangeStock(personnelResourceID, personnel)
+			unit:ChangeStock(medicineResourceID, medicine)
+			unit:ChangeStock(GameInfo.Resources["RESOURCE_WHEAT"].Index, wheat)
+			
+			LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)
+			
+			local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+			if (pLocalPlayerVis ~= nil) then
+				if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
+					local sText = "+" .. tostring(food).." "..GetResourceIcon(foodResourceID) ..", +" .. tostring(materiel).." "..GetResourceIcon(materielResourceID)..", +" .. tostring(personnel).." "..GetResourceIcon(personnelResourceID)..", +" .. tostring(medicine).." "..GetResourceIcon(medicineResourceID)..", +" .. tostring(wheat).." "..GetResourceIcon(GameInfo.Resources["RESOURCE_WHEAT"].Index)
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
+					
+					--local sText = "200" .. GetResourceIcon(foodResourceID) ..", 200 "..GetResourceIcon(materielResourceID)..", 250 "..GetResourceIcon(personnelResourceID)..", 300 "..GetResourceIcon(medicineResourceID)..", 250 "..GetResourceIcon(GameInfo.Resources["RESOURCE_WHEAT"].Index)
+					--Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)					
+				end
+			end			
+		end
+	end
+end
+Events.ImprovementActivated.Add( OnImprovementActivated )
+
 -----------------------------------------------------------------------------------------
 -- General Functions
 -----------------------------------------------------------------------------------------

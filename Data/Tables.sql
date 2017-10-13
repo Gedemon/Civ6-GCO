@@ -439,6 +439,14 @@ CREATE TABLE IF NOT EXISTS Unit_RealBuildingPrereqsAND (
 		FOREIGN KEY (PrereqBuilding) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
+CREATE TABLE UnitUpgradesGCO (
+		Unit TEXT NOT NULL UNIQUE,
+		UpgradeUnit TEXT NOT NULL,
+		PRIMARY KEY(Unit),
+		FOREIGN KEY (UpgradeUnit) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (Unit) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
 -----------------------------------------------
 -- Edit Tables
 -----------------------------------------------

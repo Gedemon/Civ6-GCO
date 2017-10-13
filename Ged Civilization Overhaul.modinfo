@@ -77,16 +77,18 @@
            	<Properties>
 				<LoadOrder>100050</LoadOrder>
            	</Properties>
-				<File>Data/GlobalParameters.sql</File>
-				<File>Data/CultureDiffusionParameters.sql</File>
-				<File>Data/CombatRules.sql</File>
-				<File>Data/ModRules.sql</File>
-				<File>Data/GamePlay.xml</File>
-				<File>Data/Buildings.xml</File>
-				<File>Data/Equipment.xml</File>
-				<File>Data/Resources.xml</File>
+				<File Priority="100">Data/GlobalParameters.sql</File>
+				<File Priority="100">Data/CultureDiffusionParameters.sql</File>
+				<File Priority="100">Data/CombatRules.sql</File>
+				<File Priority="100">Data/ModRules.sql</File>
+				<File Priority="100">Data/GamePlay.xml</File>
+				<File Priority="100">Data/Buildings.xml</File>
+				<File Priority="100">Data/Equipment.xml</File>
+				<File Priority="100">Data/Resources.xml</File>
 				<!-- Add buildings, units, ... name & descriptions here to automate table filling -->
-				<File>Text/NameText.xml</File>
+				<File Priority="100">Text/NameText.xml</File>
+				<File Priority="2">Data/PostUpdate.sql</File>
+				<File Priority="1">Data/Unlockers.sql</File>
 		</UpdateDatabase>
 		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
            	<Properties>
@@ -99,8 +101,6 @@
 		    <Properties>
 				<LoadOrder>110000</LoadOrder>
 		    </Properties>
-				<File>Data/Unlockers.sql</File>
-				<File>Data/PostUpdate.sql</File>
 		</UpdateDatabase>	
 		<UpdateText id="GCO_DEFAULT_LOC">
            	<Properties>

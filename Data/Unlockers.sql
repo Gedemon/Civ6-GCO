@@ -1,5 +1,5 @@
 /* Create table of normal buildings */
-CREATE TABLE OriginalBuildingList
+CREATE TABLE IF NOT EXISTS OriginalBuildingList
 	(
 		BuildingType TEXT NOT NULL,
 		PRIMARY KEY(BuildingType),
@@ -10,7 +10,7 @@ INSERT INTO OriginalBuildingList(BuildingType) SELECT BuildingType FROM Building
 
 
 /* Copy Original Building Prerequest */
-CREATE TABLE BuildingRealPrereqsOR
+CREATE TABLE IF NOT EXISTS BuildingRealPrereqsOR
 	(
 		Building TEXT NOT NULL,
 		PrereqBuilding TEXT NOT NULL,
@@ -23,7 +23,7 @@ INSERT INTO BuildingRealPrereqsOR SELECT * FROM BuildingPrereqs;
 DELETE FROM BuildingPrereqs;
 
 /* Copy Original Units Prerequest */
-CREATE TABLE Unit_RealBuildingPrereqsOR
+CREATE TABLE IF NOT EXISTS Unit_RealBuildingPrereqsOR
 	(
 		Unit TEXT NOT NULL,
 		PrereqBuilding TEXT NOT NULL,
@@ -37,7 +37,7 @@ DELETE FROM Unit_BuildingPrereqs;
 
 
 /* Create unlockers */
-CREATE TABLE Unlockers
+CREATE TABLE IF NOT EXISTS Unlockers
 	(
 		UnlockerType TEXT NOT NULL,
 		PRIMARY KEY(UnlockerType)

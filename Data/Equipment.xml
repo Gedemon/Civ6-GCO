@@ -12,9 +12,11 @@
 		<Row ResourceType="EQUIPMENT_STONE_AXE"												Toughness="1"	Desirability="2" 	AntiPersonnel="27" />
 		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="3" 	AntiPersonnel="32" AntiPersonnelArmor="10" />
 		
-		<Row ResourceType="EQUIPMENT_WOODEN_SPEAR"											Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
-		<Row ResourceType="EQUIPMENT_BRONZE_SPEAR"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="2" 	AntiPersonnel="32" AntiPersonnelArmor="4" />
-		<Row ResourceType="EQUIPMENT_IRON_SPEAR"	PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="3" 	AntiPersonnel="40" AntiPersonnelArmor="6" />
+		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"			/>
+		
+		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
+		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="2" 	AntiPersonnel="32" AntiPersonnelArmor="4" />
+		<Row ResourceType="EQUIPMENT_IRON_SPEARS"	PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="3" 	AntiPersonnel="40" AntiPersonnelArmor="6" />
 		
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="3"	Desirability="1" 	AntiPersonnel="38" AntiPersonnelArmor="5" />
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	PrereqTech="TECH_IRON_WORKING"			Toughness="5"	Desirability="2" 	AntiPersonnel="42" AntiPersonnelArmor="7" />
@@ -25,21 +27,24 @@
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" />
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		PrereqTech="TECH_BRONZE_WORKING"	Toughness="5"	Desirability="20" 	PersonnelArmor="25" />
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		PrereqTech="TECH_IRON_WORKING"		Toughness="15"	Desirability="30" 	PersonnelArmor="35" />
-		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_IRON_WORKING"		Toughness="20"	Desirability="40" 	PersonnelArmor="40" />
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			Toughness="20"	Desirability="40" 	PersonnelArmor="40" />
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_CASTLES"			Toughness="30"	Desirability="50" 	PersonnelArmor="50" />
 	</Equipment>
 	
 	<Equipment>  <!-- "Vehicle" -->
-		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_ANIMAL_HUSBANDRY"/>
+		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"/>
 	</Equipment>
 	
 	<EquipmentClasses>
-		<Row EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	Name="LOC_EQUIPMENT_BLUNT_WEAPONS_NAME" />
-		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"			Name="LOC_EQUIPMENT_SWORDS_NAME" 		/>
-		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"		Name="LOC_EQUIPMENT_SHIELDS_NAME" 		/>
-		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		Name="LOC_EQUIPMENT_BODYARMOR_NAME" 	/>
-		<Row EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		Name="LOC_EQUIPMENT_LIGHTARMOR_NAME" 	/>
-		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"			Name="LOC_EQUIPMENT_HELMET_NAME" 		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
+		<Row EquipmentClass="EQUIPMENTCLASS_BOWS"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_CHARIOT"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"			/>
 	</EquipmentClasses>
 	
 	<EquipmentTypeClasses>
@@ -50,6 +55,14 @@
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
 		
+		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"		EquipmentClass="EQUIPMENTCLASS_BOWS"			/>
+		
+		<Row ResourceType="EQUIPMENT_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CHARIOT"			/>
+		
+		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SPEAR"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
+		<Row ResourceType="EQUIPMENT_IRON_SPEAR"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
+		
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
@@ -58,7 +71,6 @@
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
-		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 	</EquipmentTypeClasses>
 	
 	<EquipmentEffects>
@@ -74,12 +86,18 @@
 	</ResourceStockUsage>	
 	
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type -->
-		<Row UnitType="UNIT_WARRIOR"	EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
-		<Row UnitType="UNIT_WARRIOR"	EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SWORDS" />
-		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"	EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
+		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
+		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+		<Row UnitType="UNIT_ARCHER"			EquipmentClass="EQUIPMENTCLASS_BOWS" />
+		<Row UnitType="UNIT_HEAVY_CHARIOT"	EquipmentClass="EQUIPMENTCLASS_CHARIOT" MaxAmount="100"/>
+		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_SPEARS" />
+		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
+		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SWORDS" />
+		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
 	</UnitEquipmentClasses>
 	
 </GameInfo>

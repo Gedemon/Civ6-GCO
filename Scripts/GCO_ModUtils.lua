@@ -133,7 +133,7 @@ function Shuffle(t)
  
   while n >= 2 do
     -- n is now the last pertinent index
-    local k = math.random(n) -- 1 <= k <= n
+    local k = Automation.GetRandomNumber(n)+1 --math.random(n) -- 1 <= k <= n
     -- Quick swap
     t[n], t[k] = t[k], t[n]
     n = n - 1

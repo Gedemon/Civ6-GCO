@@ -13,6 +13,7 @@
 		<Replace Tag="LOC_BUILDING_CARPENTER_NAME"					Text="Carpenter" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_STONEMASON_NAME"					Text="Stonemason"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_ARTILLATOR_NAME"					Text="Artillator"	 			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ARMORER_NAME"					Text="Armorer"	 				Language="en_US" />
 							
 		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_NAME" 			Text="Central Square"			Language="en_US" />
 		
@@ -42,7 +43,11 @@
 		
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 		Text="Wooden Clubs" 	Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_STONE_AXE_NAME" 		Text="Stone Axes"		Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_SPIKED_CLUB_NAME" 		Text="Spiked Clubs"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_SPIKED_CLUB_NAME" 		Text="Spiked Clubs"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENT_WOODEN_SPEARS_NAME"		Text="Wooden Spears" 	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_BRONZE_SPEARS_NAME" 	Text="Bronze Spears" 	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_IRON_SPEARS_NAME" 		Text="Iron Spears"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_WOODEN_BOWS_NAME"		Text="Wooden Bows" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" 	Text="Bronze Swords" 	Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_IRON_SWORDS_NAME" 		Text="Iron Swords"		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_STEEL_SWORDS_NAME" 		Text="Steel Swords"		Language="en_US" /> 
@@ -51,12 +56,15 @@
 		<Replace Tag="LOC_EQUIPMENT_IRON_ARMOR_NAME" 		Text="Iron Armor"		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_CHAINMAIL_ARMOR_NAME" 	Text="Chainmail Armor"	Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_PLATE_ARMOR_NAME" 		Text="Plate Armor"		Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_BLUNT_WEAPONS_NAME" 	Text="Blunt Weapons" 	Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_SWORDS_NAME" 			Text="Swords"			Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_SHIELDS_NAME" 			Text="Shield"			Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_BODYARMOR_NAME" 		Text="Body Armor" 		Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_LIGHTARMOR_NAME" 		Text="Light Armor"		Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_HELMET_NAME" 			Text="Helmets"			Language="en_US" /> 
+		
+		<Replace Tag="LOC_EQUIPMENTCLASS_BLUNT_WEAPONS_NAME" 	Text="Blunt Weapons" 	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_BOWS_NAME" 			Text="Bows"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_SWORDS_NAME" 			Text="Swords"			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_SPEARS_NAME" 			Text="Spears"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_SHIELDS_NAME" 			Text="Shield"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_BODYARMOR_NAME" 		Text="Body Armor" 		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_LIGHTARMOR_NAME" 		Text="Light Armor"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_HELMET_NAME" 			Text="Helmets"			Language="en_US" /> 
 	
 	</LocalizedText>
     

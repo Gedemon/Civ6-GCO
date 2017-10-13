@@ -262,7 +262,7 @@ function CheckPlayerTurn(playerID)
 		bNoError = false
 	end
 	if bNoError then		
-		Dprint( DEBUG_PLAYER_SCRIPT, "- No error detected during 'DoTurn' for player ID#".. tostring(playerID) .. " - "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+		Dprint( DEBUG_PLAYER_SCRIPT, "- 'DoTurn' completed for player ID#".. tostring(playerID) .. " - "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 	end
 end
 

@@ -22,6 +22,7 @@
 		<Row BuildingType="BUILDING_STONEMASON"					Cost="15" 	MaterielPerProduction="2" />
 		
 		<Row BuildingType="BUILDING_ARTILLATOR"					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_ARCHERY" 	 		EquipmentStock="250" />
+		<Row BuildingType="BUILDING_ARMORER"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_MINING" 		 		EquipmentStock="250" />
 	
 		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	Cost="30" 	MaterielPerProduction="2" />
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	Cost="60" 	MaterielPerProduction="4" />
@@ -89,8 +90,9 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_STONE" 	MaxConverted="4" 	ResourceCreated="EQUIPMENT_STONE_AXE" 	Ratio="20"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WOOD" 	MaxConverted="4" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" Ratio="25"/>
 		
-		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 	MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" Ratio="25"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 	MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 	MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="25"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 	MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_SPEARS" 	Ratio="10"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 	MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="2"	MultiResCreated="1"/>
 		
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 	MaxConverted="15" 	ResourceCreated="EQUIPMENT_STONE_AXE" 	Ratio="20"	MultiResCreated="1" CostFactor="1.1"/>		
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 	MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"	MultiResCreated="1"/>
@@ -118,10 +120,20 @@
 		
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2"/>
 		
-		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SWORDS" Ratio="10" 	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="5" 	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="5" 	MultiResCreated="1"	/>
-		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_SPIKED_CLUB" Ratio="10"	MultiResCreated="1" CostFactor="1.15"/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SWORDS" 	Ratio="10" 	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SPEARS" 	Ratio="10"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="5" 	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="5" 	MultiResCreated="1"	/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_SPIKED_CLUB" 	Ratio="10"	MultiResCreated="1" CostFactor="1.15"/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_SPEARS" 	Ratio="10"	MultiResCreated="1"/>
+		
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_LEATHER" MaxConverted="10" 	ResourceCreated="EQUIPMENT_LEATHER_ARMOR" 	Ratio="5"	/>
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_ARMOR" 	Ratio="5"	/>
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="7"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="2"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_PLATE_ARMOR" 	Ratio="1"	MultiResCreated="1" />
+		
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 	MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="15" />
 	<!---->
 		
 		<Row BuildingType="BUILDING_MARKET" 	ResourceType="RESOURCE_RICE" 	MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
