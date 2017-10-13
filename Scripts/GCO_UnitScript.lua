@@ -3277,10 +3277,10 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 			local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
 			if (pLocalPlayerVis ~= nil) then
 				if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
-					local sText = "+" .. tostring(food).." "..GetResourceIcon(foodResourceID) ..", +" .. tostring(materiel).." "..GetResourceIcon(materielResourceID)..", +" .. tostring(personnel).." "..GetResourceIcon(personnelResourceID)..", +" .. tostring(medicine).." "..GetResourceIcon(medicineResourceID)..", +" .. tostring(wheat).." "..GetResourceIcon(GameInfo.Resources["RESOURCE_WHEAT"].Index)
+					local sText = "+" .. tostring(food).." "..GCO.GetResourceIcon(foodResourceID) ..", +" .. tostring(materiel).." "..GCO.GetResourceIcon(materielResourceID)..", +" .. tostring(personnel).." "..GCO.GetResourceIcon(personnelResourceID)..", +" .. tostring(medicine).." "..GCO.GetResourceIcon(medicineResourceID)..", +" .. tostring(wheat).." "..GCO.GetResourceIcon(GameInfo.Resources["RESOURCE_WHEAT"].Index)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
 					
-					--local sText = "200" .. GetResourceIcon(foodResourceID) ..", 200 "..GetResourceIcon(materielResourceID)..", 250 "..GetResourceIcon(personnelResourceID)..", 300 "..GetResourceIcon(medicineResourceID)..", 250 "..GetResourceIcon(GameInfo.Resources["RESOURCE_WHEAT"].Index)
+					--local sText = "200" .. GCO.GetResourceIcon(foodResourceID) ..", 200 "..GCO.GetResourceIcon(materielResourceID)..", 250 "..GCO.GetResourceIcon(personnelResourceID)..", 300 "..GCO.GetResourceIcon(medicineResourceID)..", 250 "..GCO.GetResourceIcon(GameInfo.Resources["RESOURCE_WHEAT"].Index)
 					--Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)					
 				end
 			end			
