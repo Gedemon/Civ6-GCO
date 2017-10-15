@@ -172,6 +172,7 @@ function InitializeUtilityFunctions()
 	CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
 	Dprint 		= GCO.Dprint					-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline						-- output current code line number to firetuner/log
+	Dlog		= GCO.Dlog						-- log a string entry, last 10 lines displayed after a call to GCO.Error()
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
@@ -422,7 +423,7 @@ end
 -----------------------------------------------------------------------------------------
 function RegisterNewUnit(playerID, unit, equipmentList) -- equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	
 	local unitType 	= unit:GetType()
 	local unitID 	= unit:GetID()
@@ -530,7 +531,7 @@ end
 
 function InitializeUnit(playerID, unitID)
 
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
@@ -551,7 +552,8 @@ end
 
 function InitializeEquipment(self, equipmentList) -- equipmentList optional, equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
-	local DEBUG_UNIT_SCRIPT = true	
+	Dlog("InitializeEquipment /START")
+	--local DEBUG_UNIT_SCRIPT = true	
 	Dprint( DEBUG_UNIT_SCRIPT, "Initializing equipment for unit (".. self:GetName() ..") for player #".. tostring(self:GetOwner()).. " id#" .. tostring(self:GetID()))
 	
 	local unitKey 	= self:GetKey()
@@ -593,6 +595,7 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional, equ
 	-- Unmark the unit for equipment initialization
 	UnitWithoutEquipment[unitKey] = nil
 	LuaEvents.UnitsCompositionUpdated(self:GetOwner(), self:GetID())
+	Dlog("InitializeEquipment /END")
 end
 
 function IsWaitingForEquipment(self)
@@ -606,7 +609,7 @@ end
 
 function DelayedEquipmentInitialization()
 
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "Starting Delayed Equipment Initialization...")
 	Dprint( DEBUG_UNIT_SCRIPT, "coroutine.status = ", coroutine.status(initializeEquipmentCo))
@@ -634,14 +637,14 @@ function DelayedEquipmentInitialization()
 end
 
 function StopDelayedEquipmentInitialization()
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	Dprint( DEBUG_UNIT_SCRIPT, "Stopping Delayed Equipment Initialization...")	
 	Events.GameCoreEventPublishComplete.Remove( CheckEquipmentInitializationTimer )	
 	initializeEquipmentCo = false
 end
 
 function CheckEquipmentInitializationTimer()
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	if not initializeEquipmentCo then
 		print("- WARNING : CheckEquipmentInitializationTimer called but Initialize Equipment Coroutine = false")
 		StopDelayedEquipmentInitialization()
@@ -1010,7 +1013,7 @@ end
 
 function GetAllExcedent(self) -- Return all resources that can be transfered back to a city (or a nearby unit/improvement ?)
 
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	Dprint( DEBUG_UNIT_SCRIPT, "- check excedent for : ".. Locale.Lookup(self:GetName()))
 	
 	local unitKey 	= self:GetKey()
@@ -1087,7 +1090,7 @@ end
 
 function GetRequirements(self)
 
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	
 	local unitKey 			= self:GetKey()
 	local unitData 			= ExposedMembers.UnitData[unitKey]
@@ -2047,7 +2050,7 @@ end
 
 function GetAntiPersonnelPercent(self)
 	
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	
 	local antiPersonnel = GameInfo.Units[self:GetType()].AntiPersonnel -- 0 = no kill, 100 = all killed
 	local classAP		= {}
@@ -2143,7 +2146,7 @@ end
 
 function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	
 	local UnitData = ExposedMembers.UnitData[Opponent.unitKey]
 	
@@ -2268,7 +2271,7 @@ end
 local combatCount = 0
 function OnCombat( combatResult )
 
-	local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = true
 	
 	-- for console debugging...
 	ExposedMembers.lastCombat = combatResult
@@ -2565,8 +2568,8 @@ Events.Combat.Add( OnCombat )
 -- Healing
 -----------------------------------------------------------------------------------------
 function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" statistic ?
-
-	local DEBUG_UNIT_SCRIPT = true
+	Dlog("HealingUnits /START")
+	--local DEBUG_UNIT_SCRIPT = true
 
 	local player = Players[playerID]
 	local playerConfig = PlayerConfigurations[playerID]
@@ -2811,6 +2814,7 @@ function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" sta
 		Dprint( DEBUG_UNIT_SCRIPT, "Healing units used " .. tostring(endTime-startTime) .. " seconds")
 		Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
 	end
+	Dlog("HealingUnits /END")
 end
 
 -- Handle pillage healing...
@@ -2875,6 +2879,7 @@ function GetSupplyPathPlots(self)
 end 
 
 function SetSupplyLine(self)
+	Dlog("SetSupplyLine /START")
 	local key 			= self:GetKey()
 	local NoLinkToCity 	= true
 	local unitData 		= ExposedMembers.UnitData[key]
@@ -2920,6 +2925,7 @@ function SetSupplyLine(self)
 		unitData.SupplyLineCityKey = nil
 		unitData.SupplyLineEfficiency = 0
 	end
+	Dlog("SetSupplyLine /END")
 end
 
 function GetSupplyLineEfficiency(self)
@@ -2942,6 +2948,7 @@ Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 -----------------------------------------------------------------------------------------
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 	
+	Dlog("UpdateDataOnNewTurn /START")
 	local DEBUG_UNIT_SCRIPT = false
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
@@ -2999,10 +3006,12 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 		end
 	end
 	
+	Dlog("UpdateDataOnNewTurn /END")
 end
 
 function DoFood(self)
 
+	Dlog("DoFood /START")
 	local key = self:GetKey()
 	local unitData = ExposedMembers.UnitData[key]
 	
@@ -3040,9 +3049,11 @@ function DoFood(self)
 	-- Visualize
 	local foodData = { foodEat = foodEat, foodGet = foodGet, X = self:GetX(), Y = self:GetY() }
 	ShowFoodFloatingText(foodData)
+	Dlog("DoFood /END")
 end
 
 function DoMorale(self)
+	Dlog("DoMorale /START")
 
 	if not CheckComponentsHP(self, "bypassing DoMorale()") then
 		return
@@ -3130,9 +3141,11 @@ function DoMorale(self)
 		end
 	end
 	CheckComponentsHP(self, "after DoMorale()")	
+	Dlog("DoMorale /END")
 end
 
 function DoFuel(self)
+	Dlog("DoFuel /START")
 
 	local key = self:GetKey()
 	local unitData = ExposedMembers.UnitData[key]
@@ -3145,6 +3158,7 @@ function DoFuel(self)
 		local fuelData = { fuelConsumption = fuelConsumption, X = self:GetX(), Y = self:GetY() }
 		ShowFuelConsumptionFloatingText(fuelData)
 	end
+	Dlog("DoFuel /END")
 end
 
 function DoTurn(self)
@@ -3161,6 +3175,10 @@ function DoTurn(self)
 end
 
 function DoUnitsTurn( playerID )
+	
+	local DEBUG_UNIT_SCRIPT = true	
+	Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_UNIT_SCRIPT, "Units turn")
 	
 	HealingUnits( playerID )
 

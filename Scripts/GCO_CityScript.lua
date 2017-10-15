@@ -382,12 +382,13 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -----------------------------------------------------------------------------------------
 -- Initialize
 -----------------------------------------------------------------------------------------
-local GCO = {}
+local GCO 	= {}
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts
 	Calendar 	= ExposedMembers.Calendar	-- required for city growth (when based on real calendar)
 	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
+	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
@@ -517,7 +518,7 @@ end
 
 function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
 
-	local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = true
 
 	--LuaEvents.StopAuToPlay()
 
@@ -1083,7 +1084,7 @@ end
 -----------------------------------------------------------------------------------------
 function UpdateLinkedUnits(self)
 
-	local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Linked Units...")
 	local selfKey 				= self:GetKey()
@@ -1309,7 +1310,8 @@ function UpdateTransferCities(self)
 end
 
 function TransferToCities(self)
-	local DEBUG_CITY_SCRIPT = true
+	Dlog("TransferToCities /START")
+	--local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTransferDemand[selfKey]
@@ -1317,7 +1319,11 @@ function TransferToCities(self)
 	local cityToSupply 		= {}
 	local unsortedTable		= CitiesForTransfer[selfKey]
 	for cityKey, data in pairs(unsortedTable) do
-		table.insert(cityToSupply, { CityKey = cityKey, Efficiency = data.Efficiency})
+		local precedenceTable = {}
+		for resourceID, _ in pairs(data.HasPrecedence) do
+			precedenceTable[resourceID]	= true
+		end
+		table.insert(cityToSupply, { CityKey = cityKey, Efficiency = data.Efficiency, HasPrecedence = precedenceTable })
 	end
 
 	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
@@ -1351,6 +1357,7 @@ function TransferToCities(self)
 				local city				= GCO.GetCityFromKey(cityKey)
 				local requiredValue		= city:GetNumResourceNeeded(resourceID)
 				local bCityPrecedence	= data.HasPrecedence[resourceID]
+
 				if PrecedenceLeft > 0 and bResourcePrecedence and not bCityPrecedence then
 					requiredValue = 0
 				end
@@ -1372,9 +1379,12 @@ function TransferToCities(self)
 			loop = loop + 1
 		end
 	end
+	Dlog("TransferToCities /END")
 end
 
 function UpdateExportCities(self)
+	Dlog("UpdateExportCities /START")
+	--local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
 	local selfKey 				= self:GetKey()
@@ -1445,10 +1455,12 @@ function UpdateExportCities(self)
 			end
 		end
 	end
+	Dlog("UpdateExportCities /END")
 end
 
 function ExportToForeignCities(self)
-	local DEBUG_CITY_SCRIPT = false
+	--Dlog("ExportToForeignCities /START")
+	--local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
 	local selfKey 			= self:GetKey()
@@ -1514,6 +1526,7 @@ function ExportToForeignCities(self)
 			Players[city:GetOwner()]:GetTreasury():ChangeGoldBalance(exportIncome)
 		end
 	end
+	Dlog("ExportToForeignCities /END")
 end
 
 function GetMaxPercentLeftToRequest(self, resourceID)
@@ -1752,7 +1765,7 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , value)
 	else
 		local newStock = GCO.ToDecimals(cityData.Stock[turnKey][resourceKey] + value)
-		if newStock < 0 then
+		if newStock < -1 then -- allow a rounding error of 1
 			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[tonumber(resourceID)].Name) .." stock, previous stock = ".. tostring(cityData.Stock[turnKey][resourceKey])..", variation value = "..tostring(value))
 		end
 		ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = math.max(0 , newStock)
@@ -1796,16 +1809,20 @@ end
 
 function GetBuildingQueueStock(self, resourceID, currentlyBuilding)
 	local cityKey 		= self:GetKey()
+	local cityData 		= ExposedMembers.CityData[cityKey]
 	local resourceKey	= tostring(resourceID)
-	if ExposedMembers.CityData[cityKey].BuildQueue[currentlyBuilding] then
-		return ExposedMembers.CityData[cityKey].BuildQueue[currentlyBuilding][resourceKey] or 0
+	if not cityData then return {} end -- could happen on city initialization or after capture ? 
+	if cityData.BuildQueue[currentlyBuilding] then
+		return cityData.BuildQueue[currentlyBuilding][resourceKey] or 0
 	end
 	return 0
 end
 
 function GetBuildingQueueAllStock(self, currentlyBuilding)
-	local cityKey 		= self:GetKey()
-	return ExposedMembers.CityData[cityKey].BuildQueue[currentlyBuilding] or {}
+	local cityKey 	= self:GetKey()
+	local cityData 	= ExposedMembers.CityData[cityKey]
+	if not cityData then return {} end -- could happen on city initialization or after capture ? 
+	return cityData.BuildQueue[currentlyBuilding] or {}
 end
 
 function ClearBuildingQueueStock(self, finishedBuilding)
@@ -2582,55 +2599,6 @@ function GetFoodRationing(self)
 	return ExposedMembers.CityData[cityKey].FoodRatio
 end
 
-function SetCityRationing(self)
-
-	--local DEBUG_CITY_SCRIPT = true
-
-	Dprint( DEBUG_CITY_SCRIPT, "Set Rationing...")
-	local cityKey 				= self:GetKey()
-	local cityData 				= ExposedMembers.CityData[cityKey]
-	local ratio 				= cityData.FoodRatio
-	local foodStock 			= self:GetStock(foodResourceID)
-	local previousTurn			= tonumber(GCO.GetPreviousTurnKey())
-	local previousTurnSupply 	= self:GetSupplyAtTurn(foodResourceID, previousTurn)
-	local foodSent 				= GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.Export, previousTurn)) +  GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.TransferOut, previousTurn))
-	local normalRatio 			= 1
-	local foodVariation 		=  previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
-	local consumptionRatio		= math.min(normalRatio, previousTurnSupply / self:GetFoodConsumption(normalRatio)) -- GetFoodConsumption returns a value >= 1
-
-	Dprint( DEBUG_CITY_SCRIPT, " Food stock = ", foodStock," Variation = ",foodVariation, " Previous turn supply = ", previousTurnSupply, " Wanted = ", self:GetFoodConsumption(normalRatio), " Actual Consumption = ", self:GetFoodConsumption(), " Export+Transfer = ", foodSent, " Actual ratio = ", ratio, " Turn(s) locked left = ", (RationingTurnsLocked - (Game.GetCurrentGameTurn() - cityData.FoodRatioTurn)), " Consumption ratio = ",  consumptionRatio)
-
-	if foodVariation < 0 and foodSent == 0 and foodStock < self:GetMaxStock(foodResourceID) * 0.75 then
-		local turnBeforeFamine		= -(foodStock / foodVariation)
-		Dprint( DEBUG_CITY_SCRIPT, " Turns Before Starvation = ", turnBeforeFamine)
-		if foodStock == 0 then
-			ratio = math.max(consumptionRatio, Starvation)
-			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		elseif turnBeforeFamine <= turnsToFamineHeavy then
-			ratio = math.max(consumptionRatio, heavyRationing) -- Always use the maximum available supply, do not generate excedental food when rationing...
-			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		elseif turnBeforeFamine <= turnsToFamineMedium then
-			ratio = math.max(consumptionRatio, mediumRationing)
-			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		elseif turnBeforeFamine <= turnsToFamineLight then
-			ratio = math.max(consumptionRatio, lightRationing)
-			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		end
-	elseif Game.GetCurrentGameTurn() - cityData.FoodRatioTurn >= RationingTurnsLocked then
-		if cityData.FoodRatio <= heavyRationing then
-			ratio = math.max(consumptionRatio, mediumRationing)
-			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		elseif cityData.FoodRatio <= mediumRationing then
-			ratio = math.max(consumptionRatio, lightRationing)
-			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
-		elseif cityData.FoodRatio <= lightRationing then
-			ratio = consumptionRatio
-		end
-	end
-	Dprint( DEBUG_CITY_SCRIPT, " Final Ratio = ", ratio)
-	ExposedMembers.CityData[cityKey].FoodRatio = GCO.ToDecimals(ratio)
-end
-
 
 ----------------------------------------------
 -- Custom Yields function
@@ -2973,7 +2941,59 @@ end
 -----------------------------------------------------------------------------------------
 -- Do Turn for Cities
 -----------------------------------------------------------------------------------------
+function SetCityRationing(self)
+	Dlog("SetCityRationing /START")
+	--local DEBUG_CITY_SCRIPT = true
+
+	Dprint( DEBUG_CITY_SCRIPT, "Set Rationing...")
+	local cityKey 				= self:GetKey()
+	local cityData 				= ExposedMembers.CityData[cityKey]
+	local ratio 				= cityData.FoodRatio
+	local foodStock 			= self:GetStock(foodResourceID)
+	local previousTurn			= tonumber(GCO.GetPreviousTurnKey())
+	local previousTurnSupply 	= self:GetSupplyAtTurn(foodResourceID, previousTurn)
+	local foodSent 				= GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.Export, previousTurn)) +  GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.TransferOut, previousTurn))
+	local normalRatio 			= 1
+	local foodVariation 		=  previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
+	local consumptionRatio		= math.min(normalRatio, previousTurnSupply / self:GetFoodConsumption(normalRatio)) -- GetFoodConsumption returns a value >= 1
+
+	Dprint( DEBUG_CITY_SCRIPT, " Food stock = ", foodStock," Variation = ",foodVariation, " Previous turn supply = ", previousTurnSupply, " Wanted = ", self:GetFoodConsumption(normalRatio), " Actual Consumption = ", self:GetFoodConsumption(), " Export+Transfer = ", foodSent, " Actual ratio = ", ratio, " Turn(s) locked left = ", (RationingTurnsLocked - (Game.GetCurrentGameTurn() - cityData.FoodRatioTurn)), " Consumption ratio = ",  consumptionRatio)
+
+	if foodVariation < 0 and foodSent == 0 and foodStock < self:GetMaxStock(foodResourceID) * 0.75 then
+		local turnBeforeFamine		= -(foodStock / foodVariation)
+		Dprint( DEBUG_CITY_SCRIPT, " Turns Before Starvation = ", turnBeforeFamine)
+		if foodStock == 0 then
+			ratio = math.max(consumptionRatio, Starvation)
+			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
+		elseif turnBeforeFamine <= turnsToFamineHeavy then
+			ratio = math.max(consumptionRatio, heavyRationing) -- Always use the maximum available supply, do not generate excedental food when rationing...
+			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
+		elseif turnBeforeFamine <= turnsToFamineMedium then
+			ratio = math.max(consumptionRatio, mediumRationing)
+			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
+		elseif turnBeforeFamine <= turnsToFamineLight then
+			ratio = math.max(consumptionRatio, lightRationing)
+			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
+		end
+	elseif Game.GetCurrentGameTurn() - cityData.FoodRatioTurn >= RationingTurnsLocked then
+		if cityData.FoodRatio <= heavyRationing then
+			ratio = math.max(consumptionRatio, mediumRationing)
+			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
+		elseif cityData.FoodRatio <= mediumRationing then
+			ratio = math.max(consumptionRatio, lightRationing)
+			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
+		elseif cityData.FoodRatio <= lightRationing then
+			ratio = consumptionRatio
+		end
+	end
+	Dprint( DEBUG_CITY_SCRIPT, " Final Ratio = ", ratio)
+	ExposedMembers.CityData[cityKey].FoodRatio = GCO.ToDecimals(ratio)
+	Dlog("SetCityRationing /END")
+end
+
 function UpdateCosts(self)
+
+	Dlog("UpdateCosts")
 	local DEBUG_CITY_SCRIPT = false
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
@@ -3032,6 +3052,7 @@ end
 
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
+	Dlog("UpdateDataOnNewTurn /START")
 	local DEBUG_CITY_SCRIPT = false
 
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
@@ -3043,22 +3064,24 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	if turnKey ~= previousTurnKey then
 
 		Dprint( DEBUG_CITY_SCRIPT, "cityKey = ", cityKey, " turnKey = ", turnKey, " previousTurnKey = ", previousTurnKey)
+		
+		-- get previous turn data
+		local stockData = data.Stock[previousTurnKey]
+		local costData 	= data.ResourceCost[previousTurnKey]
+		local popData 	= data.Population[previousTurnKey]
+		
+		-- when using the "enforce TSL option" from YnAMP, the entry may have already been set (and theere is no previous entries) no need to update in that case
+		-- if there is neither previous turn and current turn data, output an Error message before aborting
+		if stockData 	== nil then if not data.Stock[turnKey] 			then GCO.Error("stockData[previousTurnKey] = nil"); return	else return end end
+		if costData 	== nil then if not data.ResourceCost[turnKey]	then GCO.Error("costData[previousTurnKey] = nil"); return	else return end end
+		if popData 		== nil then if not data.Population[turnKey]		then GCO.Error("popData[previousTurnKey] = nil"); return	else return end end
 
 		-- initialize empty tables for the new turn data
-		ExposedMembers.CityData[cityKey].Stock[turnKey] 		= {}
-		ExposedMembers.CityData[cityKey].ResourceCost[turnKey]	= {}
-		ExposedMembers.CityData[cityKey].Population[turnKey]	= {}
-		ExposedMembers.CityData[cityKey].ResourceUse[turnKey]	= {}
-
-		-- get previous turn data
-		local stockData = ExposedMembers.CityData[cityKey].Stock[previousTurnKey]
-		local costData 	= ExposedMembers.CityData[cityKey].ResourceCost[previousTurnKey]
-		local popData 	= ExposedMembers.CityData[cityKey].Population[previousTurnKey]
-
-		if stockData 	== nil then GCO.Error("stockData[previousTurnKey] = nil") end
-		if costData 	== nil then GCO.Error("costData[previousTurnKey] = nil") end
-		if popData 		== nil then GCO.Error("popData[previousTurnKey] = nil") end
-
+		data.Stock[turnKey] 		= {}
+		data.ResourceCost[turnKey]	= {}
+		data.Population[turnKey]	= {}
+		data.ResourceUse[turnKey]	= {}
+		
 		-- fill the new table with previous turn data
 		for resourceKey, value in pairs(stockData) do
 			ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] = value
@@ -3074,11 +3097,13 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 
 		self:UpdateCosts()
 	end
+	Dlog("UpdateDataOnNewTurn /END")
 end
 
 function SetUnlockers(self)
 
-	--local DEBUG_CITY_SCRIPT = true
+	Dlog("SetUnlockers")
+	local DEBUG_CITY_SCRIPT = false
 
 	Dprint( DEBUG_CITY_SCRIPT, "Setting unlocker buildings for ".. Locale.Lookup(self:GetName()), " production = ", self:GetProductionYield())
 
@@ -3113,7 +3138,8 @@ function SetUnlockers(self)
 					pCityBuildQueue:CreateIncompleteBuilding(unlockerID, 100)
 				end
 			else
-				if self:GetBuildings():HasBuilding(unlockerID) and self:GetBuildQueue():CurrentlyBuilding() ~= row.UnitType then
+				local player = Players[self:GetOwner()]
+				if self:GetBuildings():HasBuilding(unlockerID) and (self:GetBuildQueue():CurrentlyBuilding() ~= row.UnitType or not player:IsHuman()) then
 					Dprint( DEBUG_CITY_SCRIPT, "Removing unlocker : ", unlocker)
 					self:GetBuildings():RemoveBuilding(unlockerID);
 					pCityBuildQueue:RemoveBuilding(unlockerID);
@@ -3125,7 +3151,9 @@ function SetUnlockers(self)
 end
 
 function DoRecruitPersonnel(self)
-	local DEBUG_CITY_SCRIPT = false
+	
+	Dlog("DoRecruitPersonnel /START")
+	--local DEBUG_CITY_SCRIPT = false
 	Dprint( DEBUG_CITY_SCRIPT, "Recruiting Personnel...")
 	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
 
@@ -3153,11 +3181,14 @@ function DoRecruitPersonnel(self)
 	self:ChangePersonnel(recruitedGenerals, ResourceUseType.Recruit, RefPopulationUpper)
 	self:ChangePersonnel(recruitedOfficers, ResourceUseType.Recruit, RefPopulationMiddle)
 	self:ChangePersonnel(recruitedSoldiers, ResourceUseType.Recruit, RefPopulationLower)
+	
+	Dlog("DoRecruitPersonnel /END")
 end
 
 function DoReinforceUnits(self)
 
-	local DEBUG_CITY_SCRIPT = true
+	Dlog("DoReinforceUnits")
+	--local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "Reinforcing units...")
 	local cityKey 				= self:GetKey()
@@ -3226,6 +3257,7 @@ end
 
 function DoCollectResources(self)
 
+	Dlog("DoCollectResources")
 	--local DEBUG_CITY_SCRIPT = true
 
 	local cityKey 		= self:GetKey()
@@ -3337,7 +3369,8 @@ end
 
 function DoIndustries(self)
 
-	local DEBUG_CITY_SCRIPT = true
+	Dlog("DoIndustries")
+	--local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
@@ -3564,7 +3597,8 @@ end
 
 function DoConstruction(self)
 
-	local DEBUG_CITY_SCRIPT = true
+	Dlog("DoConstruction")
+	--local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Getting resources for Constructions...")
 
 	local cityKey			= self:GetKey()
@@ -3725,6 +3759,7 @@ end
 
 function DoExcedents(self)
 
+	Dlog("DoExcedents")
 	Dprint( DEBUG_CITY_SCRIPT, "Handling excedent...")
 
 	local cityKey 	= self:GetKey()
@@ -3766,6 +3801,7 @@ end
 
 function DoGrowth(self)
 
+	Dlog("DoGrowth")
 	--local DEBUG_CITY_SCRIPT = true
 
 	if Game.GetCurrentGameTurn() < 2 and bUseRealYears then return end -- we need to know the previous year turn to calculate growth rate...
@@ -3811,6 +3847,8 @@ function DoGrowth(self)
 end
 
 function DoFood(self)
+
+	Dlog("DoFood")
 	-- get city food yield
 	local food = self:GetCityYield(YieldTypes.FOOD )
 	local resourceCost = GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
@@ -3823,6 +3861,7 @@ end
 
 function DoNeeds(self)
 
+	Dlog("DoNeeds")
 	--local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "handling Population needs...")
@@ -4031,6 +4070,7 @@ end
 
 function DoSocialClassStratification(self)
 
+	Dlog("DoSocialClassStratification")
 	local totalPopultation = self:GetRealPopulation()
 
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
@@ -4108,10 +4148,15 @@ function DoSocialClassStratification(self)
 end
 
 function DoTurnFirstPass(self)
+	Dlog("DoTurnFirstPass /START")
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "First Pass on ".. Locale.Lookup(self:GetName()))
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
+	if not cityData then -- this can happen when using the "enforce TSL option" from YnAMP, so just output a warning
+		print("WARNING : cityData is nil in DoTurnFirstPass")
+		return
+	end
 
 	-- set food rationing
 	self:SetCityRationing()
@@ -4131,19 +4176,37 @@ function DoTurnFirstPass(self)
 	self:DoIndustries()
 	self:DoConstruction()
 	self:DoReinforceUnits()
+	Dlog("DoTurnFirstPass /END")
 end
 
 function DoTurnSecondPass(self)
+	Dlog("DoTurnSecondPass /START")
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "Second Pass on ".. Locale.Lookup(self:GetName()))
 
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	if not cityData then -- this can happen when using the "enforce TSL option" from YnAMP, so just output a warning
+		print("WARNING : cityData is nil in DoTurnFirstPass")
+		return
+	end
+
 	-- get linked cities and supply demand
 	self:UpdateTransferCities()
+	Dlog("DoTurnSecondPass /END")
 end
 
 function DoTurnThirdPass(self)
+	Dlog("DoTurnThirdPass /START")
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "Third Pass on ".. Locale.Lookup(self:GetName()))
+	
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	if not cityData then -- this can happen when using the "enforce TSL option" from YnAMP, so just output a warning
+		print("WARNING : cityData is nil in DoTurnFirstPass")
+		return
+	end
 
 	-- diffuse to other cities, now that all of them have made their request after servicing industries and units
 	self:TransferToCities()
@@ -4151,11 +4214,20 @@ function DoTurnThirdPass(self)
 	-- now export what's still available
 	self:UpdateExportCities()
 	self:ExportToForeignCities()
+	Dlog("DoTurnThirdPass /END")
 end
 
 function DoTurnFourthPass(self)
+	Dlog("DoTurnFourthPass /START")
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass on ".. Locale.Lookup(self:GetName()))
+	
+	local cityKey = self:GetKey()
+	local cityData = ExposedMembers.CityData[cityKey]
+	if not cityData then -- this can happen when using the "enforce TSL option" from YnAMP, so just output a warning
+		print("WARNING : cityData is nil in DoTurnFirstPass")
+		return
+	end
 
 	-- Update City Size / social classes
 	self:DoGrowth()
@@ -4170,9 +4242,12 @@ function DoTurnFourthPass(self)
 
 	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass done for ".. Locale.Lookup(self:GetName()))
 	LuaEvents.CityCompositionUpdated(self:GetOwner(), self:GetID())
+	Dlog("DoTurnFourthPass /END")
 end
 
 function DoCitiesTurn( playerID )
+	local DEBUG_CITY_SCRIPT = true
+	Dlog("DoCitiesTurn /START")
 	local player = Players[playerID]
 	local playerCities = player:GetCities()
 	if playerCities then
@@ -4188,6 +4263,7 @@ function DoCitiesTurn( playerID )
 			end
 		end
 	end
+	Dlog("DoCitiesTurn /END")
 	GCO.PlayerTurnsDebugChecks[playerID].CitiesTurn	= true
 end
 LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
@@ -4210,7 +4286,7 @@ Events.CityProductionCompleted.Add(	OnCityProductionCompleted)
 
 function OnCityProductionUpdated( playerID, cityID, objectID, productionID)
 
-	local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = true
 
 	local city = CityManager.GetCity(playerID, cityID)
 	if productionID == ProductionTypes.BUILDING then

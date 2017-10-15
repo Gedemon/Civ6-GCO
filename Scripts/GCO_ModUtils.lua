@@ -176,7 +176,7 @@ end
 ----------------------------------------------
 -- Debug
 ----------------------------------------------
-local sLastLog	= ""
+local lastLog	= {}
 local bNoOutput = false
 function ToggleOutput()
 	bNoOutput = not bNoOutput
@@ -192,12 +192,15 @@ end
 
 function Error(...)
 	print("Error : ", select(1,...))
+	local status, err = pcall(function () error("custom error") end)
+	local str = string.match(err, '\'Error.-$')
+	print(str)
 	LuaEvents.StopAuToPlay()
 	LuaEvents.ShowLastLog()
 end
 
 function Dline(...)
-	local status, err = pcall(function () error("my error") end)
+	local status, err = pcall(function () error("custom error") end)
 	local str = string.match(err, 'Dline.-$')
 	local str = string.match(str, 'GCO_.-$')
 	local str = string.match(str, ':.-\'')
@@ -205,18 +208,36 @@ function Dline(...)
 	print("at line "..str, select(1,...))
 end
 
-function Dlog(...)
-	local status, err = pcall(function () error("my error") end)
-	local str = string.match(err, 'Dline.-$')
-	--local str = string.match(str, 'GCO_.-$')
+function DfullLog()
+	local status, err = pcall(function () error("logged call") end)
+	local str = string.match(err, '\'Dlog.-$')
+	--local str = string.match(str, '^.-%[')
+	--local str = string.match(str, '^.*%[')
+	--local str = string.match(str, '^.*\'')
+	local str = string.gsub(str, '\'Dlog\'', '')
 	--local str = string.match(str, ':.-\'')
 	--local str = string.match(str, '%d+')
-	--print("at line "..str, select(1,...))
-	sLastLog = str
+	--print(lastLog, str)
+	table.insert(lastLog, str)
+end
+
+function Dlog(...)
+	table.insert(lastLog, select(1,...))
 end
 
 function ShowLastLog()
-	print(sLastLog)
+	print("Check logged call...")
+	if #lastLog > 0 then
+		print("last 10 logged call...")
+		for i = #lastLog, 1, -1 do
+			print(GCO.Separator)
+			print("Log entry #", i)
+			print(lastLog[i])
+			print(GCO.Separator)
+			if i < #lastLog - 10 then return end
+		end
+	end
+	lastLog = {}
 end
 LuaEvents.ShowLastLog.Add( ShowLastLog )
 
@@ -594,6 +615,8 @@ function Initialize()
 	ExposedMembers.GCO.Dump				= Dump
 	ExposedMembers.GCO.Error			= Error
 	ExposedMembers.GCO.Dline 			= Dline
+	ExposedMembers.GCO.Dlog 			= Dlog
+	ExposedMembers.GCO.DfullLog 		= DfullLog
 	-- "globals"
 	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations

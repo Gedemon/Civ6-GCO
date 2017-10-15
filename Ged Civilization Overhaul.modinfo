@@ -47,6 +47,9 @@
             <File>Scripts/GCO_ModUtils.lua</File>
         </AddGameplayScripts>
         <AddGameplayScripts>
+		    <Properties>
+				<LoadOrder>-50</LoadOrder>
+		    </Properties>
             <File>Scripts/GCO_PlayerScript.lua</File>
             <File>Scripts/GCO_CityScript.lua</File>
             <File>Scripts/GCO_UnitScript.lua</File>
@@ -113,6 +116,9 @@
 
 	<FrontEndActions>
 		<UpdateDatabase id="GCO_SETTING">
+           	<Properties>
+				<LoadOrder>100050</LoadOrder>
+           	</Properties>
 			<File>Config/Config.xml</File>
 		</UpdateDatabase>
 	</FrontEndActions>
