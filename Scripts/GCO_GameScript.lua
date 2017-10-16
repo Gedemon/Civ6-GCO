@@ -82,6 +82,34 @@ end
 
 
 -----------------------------------------------------------------------------------------
+-- Game Era
+-----------------------------------------------------------------------------------------
+local gameEra = 0
+function UpdateGameEra()
+	local averageEra 	= 0
+	local totalEra		= 0
+	local count 		= 0
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		local player = Players[playerID]
+		if player and not player:IsBarbarian() then
+			totalEra 	= totalEra + player:GetEra()
+			count		= count + 1
+		end	
+	end
+	if count > 0 then 
+		averageEra = math.ceil(totalEra / count)
+	else 
+		averageEra = 0
+	end
+	gameEra = averageEra
+end
+GameEvents.OnGameTurnStarted.Add(UpdateGameEra)
+
+function GetGameEra()
+	return gameEra
+end
+
+-----------------------------------------------------------------------------------------
 -- Initializing new turn
 -----------------------------------------------------------------------------------------
 function EndingTurn()
@@ -105,11 +133,21 @@ end
 GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)
 
 
+
 -----------------------------------------------------------------------------------------
 -- Initialize script
 -----------------------------------------------------------------------------------------
 function Initialize()
 	KillAllCS()
 	SetResourcesCount()
+	UpdateGameEra()
+	
+	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
+	-- Era
+	ExposedMembers.GCO.GetGameEra 			= GetGameEra
+
+	-- initialization	
+	ExposedMembers.GameScript_Initialized 	= true
+	
 end
 Initialize()

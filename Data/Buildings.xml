@@ -14,12 +14,16 @@
 		<Row BuildingType="BUILDING_BUTCHERY" 					Cost="80" 	MaterielPerProduction="3" PrereqTech="TECH_ANIMAL_HUSBANDRY" />
 		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 		 />
 		<Row BuildingType="BUILDING_FISH_MARKET" 				Cost="70" 	MaterielPerProduction="2" PrereqTech="TECH_SAILING" 		 />
+		<Row BuildingType="BUILDING_FRUIT_MARKET" 				Cost="110" 	MaterielPerProduction="3" PrereqTech="TECH_IRRIGATION" 		 />
 		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EquipmentStock="500" />
 		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING" 		EquipmentStock="500" />
 		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" 										EquipmentStock="1000"/>
 		
-		<Row BuildingType="BUILDING_CARPENTER"					Cost="15" 	MaterielPerProduction="2" />
-		<Row BuildingType="BUILDING_STONEMASON"					Cost="15" 	MaterielPerProduction="2" />
+		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2" />
+		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2" />
+		
+		<Row BuildingType="BUILDING_TREADMILL" 					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_THE_WHEEL" />
+		<Row BuildingType="BUILDING_WINDMILL" 					Cost="195" 	MaterielPerProduction="3" PrereqTech="TECH_MACHINERY" />
 		
 		<Row BuildingType="BUILDING_ARTILLATOR"					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_ARCHERY" 	 		EquipmentStock="250" />
 		<Row BuildingType="BUILDING_ARMORER"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_MINING" 		 		EquipmentStock="250" />
@@ -78,15 +82,15 @@
 	
 	<BuildingResourcesConverted>
 	
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_RICE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WHEAT" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CATTLE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_DEER" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_SHEEP" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_BANANAS" MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_RICE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WHEAT" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CATTLE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_DEER" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_SHEEP" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_BANANAS" MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WHALES" 	MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_FISH" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CRABS" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_FISH" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CRABS" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_STONE" 	MaxConverted="4" 	ResourceCreated="EQUIPMENT_STONE_AXE" 	Ratio="20"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WOOD" 	MaxConverted="4" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" Ratio="25"/>
 		
@@ -101,10 +105,19 @@
 		<Row BuildingType="BUILDING_FISH_MARKET"	ResourceType="RESOURCE_FISH" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 		<Row BuildingType="BUILDING_FISH_MARKET"	ResourceType="RESOURCE_CRABS" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 		
+		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_CITRUS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="3.2" CostFactor="1.8"/>
+		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_COCOA" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2.5" CostFactor="2"/>
+		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_WINE" 	MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1.5" CostFactor="1.2"/>
+		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_BANANAS" MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_RICE" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_WHEAT" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
-		<Row BuildingType="BUILDING_WATER_MILL" 	ResourceType="RESOURCE_RICE" 	MaxConverted="25" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
-		<Row BuildingType="BUILDING_WATER_MILL" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="25" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_TREADMILL" 		ResourceType="RESOURCE_RICE" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_TREADMILL" 		ResourceType="RESOURCE_WHEAT" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_WATER_MILL" 	ResourceType="RESOURCE_RICE" 	MaxConverted="35" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_WATER_MILL" 	ResourceType="RESOURCE_WHEAT" 	MaxConverted="35" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_WINDMILL" 		ResourceType="RESOURCE_RICE" 	MaxConverted="40" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_WINDMILL" 		ResourceType="RESOURCE_WHEAT" 	MaxConverted="40" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1"/>
 		
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_COAL" 	MaxConverted="5" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="2"	MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_IRON" 	MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="0.5"	MultiResRequired="1"/>
@@ -121,11 +134,13 @@
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2"/>
 		
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SWORDS" 	Ratio="10" 	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_STEEL_SWORDS" 	Ratio="1.5"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SPEARS" 	Ratio="10"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="5" 	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="5" 	MultiResCreated="1"	/>
-		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_SPIKED_CLUB" 	Ratio="10"	MultiResCreated="1" CostFactor="1.15"/>
-		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_SPEARS" 	Ratio="10"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_SWORDS" 	Ratio="5" 	MultiResCreated="1" CostFactor="1.25"/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_SPIKED_CLUB" 	Ratio="5"	MultiResCreated="1" CostFactor="1.15"/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_SPEARS" 	Ratio="5"	MultiResCreated="1"/>
 		
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_LEATHER" MaxConverted="10" 	ResourceCreated="EQUIPMENT_LEATHER_ARMOR" 	Ratio="5"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_COPPER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_ARMOR" 	Ratio="5"	/>
@@ -159,11 +174,20 @@
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_WHEAT" 		Stock="100"/>
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_FOOD" 		Stock="200"/>
 		
+		<Row BuildingType="BUILDING_TREADMILL" 		ResourceType="RESOURCE_RICE" 		Stock="100"/>
+		<Row BuildingType="BUILDING_TREADMILL" 		ResourceType="RESOURCE_WHEAT" 		Stock="100"/>
+		<Row BuildingType="BUILDING_WATER_MILL" 	ResourceType="RESOURCE_RICE" 		Stock="150"/>
+		<Row BuildingType="BUILDING_WATER_MILL" 	ResourceType="RESOURCE_WHEAT" 		Stock="150"/>
+		<Row BuildingType="BUILDING_WINDMILL" 		ResourceType="RESOURCE_RICE" 		Stock="200"/>
+		<Row BuildingType="BUILDING_WINDMILL" 		ResourceType="RESOURCE_WHEAT" 		Stock="200"/>
+		
 		<Row BuildingType="BUILDING_BARRACKS" 		ResourceType="RESOURCE_PERSONNEL" 	Stock="5000"/>
 	<!---->
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" ResourceType="RESOURCE_MATERIEL" 	Stock="50"/>
 		
 		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_FOOD" 		Stock="200"/>
+		<Row BuildingType="BUILDING_FISH_MARKET"	ResourceType="RESOURCE_FOOD" 		Stock="150"/>
+		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_FOOD" 		Stock="150"/>
 		<Row BuildingType="BUILDING_MARKET" 		ResourceType="RESOURCE_FOOD" 		Stock="300"/>
 		
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		Stock="500"/>

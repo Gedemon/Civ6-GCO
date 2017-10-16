@@ -1110,6 +1110,8 @@ function CityBanner.UpdateStats( self : CityBanner)
 				self.m_Instance.CityOccupiedIcon:SetHide(true);
 			end
 
+			-- GCO <<<<<
+			--[[
 			-- Update insufficient housing icon
 			if self.m_Instance.CityHousingInsufficientIcon ~= nil then
 				if pCityGrowth:GetHousing() < pCity:GetPopulation() then
@@ -1118,6 +1120,9 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self.m_Instance.CityHousingInsufficientIcon:SetHide(true);
 				end
 			end
+			--]]
+			if self.m_Instance.CityHousingInsufficientIcon ~= nil then self.m_Instance.CityHousingInsufficientIcon:SetHide(true); end
+			-- GCO >>>>>
 
 			-- Update insufficient amenities icon
 			if self.m_Instance.CityAmenitiesInsufficientIcon ~= nil then

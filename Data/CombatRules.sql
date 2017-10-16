@@ -173,7 +173,7 @@ UPDATE Units SET Personnel = 100, 	Materiel = 300  Where UnitType = "UNIT_ARTILL
 UPDATE Units SET Personnel = 800,	Materiel = 30 	Where UnitType = "UNIT_WARRIOR" OR UnitType = "UNIT_AZTEC_EAGLE_WARRIOR";
 UPDATE Units SET Personnel = 900,	Materiel = 40, 	PrereqTech = NULL 	Where UnitType = "UNIT_SPEARMAN" OR UnitType = "UNIT_GREEK_HOPLITE";
 UPDATE Units SET Personnel = 1000,	Materiel = 75, 	PrereqTech = NULL	Where UnitType = "UNIT_SWORDSMAN" OR UnitType= "UNIT_ROMAN_LEGION" OR UnitType= "UNIT_KONGO_SHIELD_BEARER";
-UPDATE Units SET Personnel = 2000,	Materiel = 60 	Where UnitType = "UNIT_PIKEMAN";
+UPDATE Units SET Personnel = 2000,	Materiel = 60, 	PrereqTech = 'TECH_APPRENTICESHIP' 	Where UnitType = "UNIT_PIKEMAN";
 UPDATE Units SET Personnel = 4000,	Materiel = 60 	Where UnitType = "UNIT_MUSKETMAN" OR UnitType = "UNIT_SPANISH_CONQUISTADOR";
 UPDATE Units SET Personnel = 10000,	Materiel = 60 	Where UnitType = "UNIT_INFANTRY";
 

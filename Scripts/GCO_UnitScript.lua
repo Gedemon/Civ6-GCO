@@ -176,7 +176,11 @@ function InitializeUtilityFunctions()
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
+function InitializeCheck()
+	if not ExposedMembers.UnitData then GCO.Error("ExposedMembers.UnitData is nil after Initialization") end
+end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeCheck )
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	LoadUnitTable()
@@ -536,14 +540,21 @@ function InitializeUnit(playerID, unitID)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
 		local unitKey = unit:GetKey()
-		if ExposedMembers.UnitData[unitKey] then
+		if ExposedMembers.UnitData[unitKey] then 
 			-- unit already registered, don't add it again...
 			Dprint( DEBUG_UNIT_SCRIPT, "  - ".. unit:GetName() .." is already registered")
 			return
 		end
-
-		Dprint( DEBUG_UNIT_SCRIPT, "Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
-		RegisterNewUnit(playerID, unit)
+		
+		-- check replacement for barbarian
+		if Players[playerID]:IsBarbarian() then
+			unit = CheckAndReplaceBarbarianUnit(unit)
+		end
+		
+		if unit then
+			Dprint( DEBUG_UNIT_SCRIPT, "Initializing new unit (".. unit:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetID()))
+			RegisterNewUnit(playerID, unit)
+		end
 	else
 		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when launching a new game)")
 	end
@@ -660,6 +671,173 @@ function CheckEquipmentInitializationTimer()
 	end
 end
 
+local barbarianUnits = {
+	["ERA_ANCIENT"] 		= 
+		{
+			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
+			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		},
+			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HEAVY_CHARIOT", 	},
+			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_HEAVY_CHARIOT", 	},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_WARRIOR", 			AltType = "UNIT_SWORDSMAN", AltProbability = 30 },
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY", 			},
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER", },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_GALLEY", 			},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_SLINGER", 			AltType = "UNIT_ARCHER", AltProbability = 40 },
+			--["PROMOTION_CLASS_SIEGE"] 			= { },
+			--["PROMOTION_CLASS_SUPPORT"] 		= { },
+	
+		} ,
+	["ERA_CLASSICAL"] 		=
+		{
+			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
+			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		},
+			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY", 			},
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER", },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_GALLEY", 			},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_ARCHER", 			},
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
+			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_BATTERING_RAM", 	},	
+		} ,
+	["ERA_MEDIEVAL"] 		=
+		{
+			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
+			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
+			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
+			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
+			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+	
+		} ,
+	["ERA_RENAISSANCE"] 	=
+		{
+			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
+			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_PIKEMAN", 			AltType = "UNIT_MUSKETMAN", AltProbability = 35 },
+			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
+			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
+			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+	
+		} ,
+	["ERA_INDUSTRIAL"] 		=
+		{
+			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
+			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
+			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
+			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
+			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+	
+		} ,
+	["ERA_MODERN"] 			=
+		{
+			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
+			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
+			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
+			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
+			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+	
+		} ,
+	["ERA_ATOMIC"] 			=
+		{
+			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
+			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
+			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
+			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
+			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+	
+		} ,
+	["ERA_INFORMATION"] 	=
+		{
+			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
+			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
+			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
+			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
+			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+	
+		} ,
+}
+
+function CheckAndReplaceBarbarianUnit(unit)
+	local DEBUG_UNIT_SCRIPT = true
+	Dprint( DEBUG_UNIT_SCRIPT, "Check And Replace Barbarian Unit type...")
+	
+	local eraType			= GameInfo.Eras[GCO.GetGameEra()].EraType
+	local unitTypeID		= unit:GetType()
+	local promotionClass 	= GameInfo.Units[unitTypeID].PromotionClass
+	local playerUnits		= Players[unit:GetOwner()]:GetUnits()
+	
+	Dprint( DEBUG_UNIT_SCRIPT, " - Era = ", eraType, ", Type = ", GameInfo.Units[unitTypeID].UnitType , ", PromotionClass = ", promotionClass )
+	
+	if barbarianUnits[eraType] and barbarianUnits[eraType][promotionClass] then
+		local row = barbarianUnits[eraType][promotionClass]
+		if row.AltType then
+			local prob = Automation.GetRandomNumber(100)
+			Dprint( DEBUG_UNIT_SCRIPT, " - AltType = ", row.AltType, ", Probability = ", row.AltProbability, ", rng = ", prob )
+			if row.AltProbability and row.AltProbability > prob then
+				local newTypeID = GameInfo.Units[row.AltType].Index
+				if newTypeID ~= unitTypeID then
+					Dprint( DEBUG_UNIT_SCRIPT, " - Replacing unit..." )
+					local plotX = unit:GetX()
+					local plotY = unit:GetY()
+					playerUnits:Destroy(unit)
+					return playerUnits:Create(newTypeID, plotX, plotY)
+				else
+					return unit
+				end
+			end
+		end		
+		local newTypeID = GameInfo.Units[row.Type].Index
+		Dprint( DEBUG_UNIT_SCRIPT, " - Replacement Type = ", row.Type )
+		if newTypeID ~= unitTypeID then
+			Dprint( DEBUG_UNIT_SCRIPT, " - Replacing unit..." )
+			local plotX = unit:GetX()
+			local plotY = unit:GetY()
+			playerUnits:Destroy(unit)
+			return playerUnits:Create(newTypeID, plotX, plotY)
+		end		
+		return unit	-- did not found a replacement
+	else -- class not allowed in this era
+		playerUnits:Destroy(unit)
+		return nil
+	end
+end
+
 -----------------------------------------------------------------------------------------
 -- Units functions
 -----------------------------------------------------------------------------------------
@@ -690,6 +868,7 @@ function GetUnitFromKey ( unitKey )
 end
 
 function CheckComponentsHP(unit, str, bNoWarning)
+	local DEBUG_UNIT_SCRIPT = true
 	if not unit then
 		print ("WARNING : unit is nil in CheckComponentsHP() for " .. tostring(str))
 		return
@@ -2569,7 +2748,7 @@ Events.Combat.Add( OnCombat )
 -----------------------------------------------------------------------------------------
 function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" statistic ?
 	Dlog("HealingUnits /START")
-	--local DEBUG_UNIT_SCRIPT = true
+	local DEBUG_UNIT_SCRIPT = true
 
 	local player = Players[playerID]
 	local playerConfig = PlayerConfigurations[playerID]
@@ -2859,7 +3038,7 @@ function GetSupplyPathPlots(self)
 	while not unitData do -- this prevent a "trying to index nil" error on the following line... is it linked to the script/UI not being synchronized ?
 		unitData 	= ExposedMembers.UnitData[unitKey]
 		if Automation.GetTime() + 0.5 > timer then
-			print("- WARNING : unitData= ExposedMembers.UnitData[unitKey] is nil for unit ".. tostring(unit:GetName()) .." (key = ".. tostring(key) ..") in GetSupplyPathPlots()")
+			print("- WARNING : unitData= ExposedMembers.UnitData[unitKey] is nil for unit ".. tostring(self:GetName()) .." (key = ".. tostring(key) ..") in GetSupplyPathPlots()")
 			print("- ExposedMembers.UnitData[unitKey] =  ".. tostring(ExposedMembers.UnitData[unitKey]) .." unitData = ".. unitData)
 			unitData 	= ExposedMembers.UnitData[unitKey]
 			if not unitData then return else break end
@@ -3260,11 +3439,11 @@ Events.CityProductionCompleted.Add(	OnUnitProductionCompleted)
 
 
 function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
-	print(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
+	--print(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
 	local unit = UnitManager.GetUnit(unitOwner, unitID)
 	if unit then
 		if( GameInfo.Improvements[improvementType].BarbarianCamp ) then
-			print("Barbarian Village Cleaned");
+			Dprint( DEBUG_UNIT_SCRIPT, "Barbarian Village Cleaned");
 			local bows 		= Automation.GetRandomNumber(1000)
 			local spears 	= Automation.GetRandomNumber(1000)
 			local bswords 	= Automation.GetRandomNumber(1000)
@@ -3294,7 +3473,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 			end
 		end
 		if( GameInfo.Improvements[improvementType].Goody ) then
-			print("GoodyHut Activated"); 
+			Dprint( DEBUG_UNIT_SCRIPT, "GoodyHut Activated"); 
 			local food 		= Automation.GetRandomNumber(100)
 			local materiel 	= Automation.GetRandomNumber(300)
 			local personnel	= Automation.GetRandomNumber(1000)

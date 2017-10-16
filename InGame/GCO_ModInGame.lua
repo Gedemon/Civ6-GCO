@@ -8,6 +8,51 @@ print ("Loading ModInGame.lua...")
 include( "PopupDialog" )
 
 -----------------------------------------------------------------------------------------
+-- In Game message 
+-----------------------------------------------------------------------------------------
+local m_statusIM				:table = InstanceManager:new( "StatusMessageInstance", "Root", Controls.StackOfMessages );
+local m_gossipIM				:table = InstanceManager:new( "GossipMessageInstance", "Root", Controls.StackOfMessages );
+function StatusMessage( str:string, fDisplayTime:number, statusType:number )
+
+	if not statusType then statusType = ReportingStatusTypes.DEFAULT end
+
+	if (statusType == ReportingStatusTypes.DEFAULT or
+		statusType == ReportingStatusTypes.GOSSIP) then	-- A statusType we handle?
+
+		local kTypeEntry :table = m_kMessages[statusType];
+		if (kTypeEntry == nil) then
+			-- New statusType
+			m_kMessages[statusType] = {
+				InstanceManager = nil,
+				MessageInstances= {}
+			};
+			kTypeEntry = m_kMessages[statusType];
+
+			-- Link to the instance manager and the stack the UI displays in
+			if (statusType == ReportingStatusTypes.GOSSIP) then
+				kTypeEntry.InstanceManager	= m_gossipIM;
+			else
+				kTypeEntry.InstanceManager	= m_statusIM;
+			end
+		end
+
+		local pInstance:table = kTypeEntry.InstanceManager:GetInstance();
+		table.insert( kTypeEntry.MessageInstances, pInstance );
+
+		local timeToDisplay:number = (fDisplayTime > 0) and fDisplayTime or DEFAULT_TIME_TO_DISPLAY;
+		pInstance.StatusLabel:SetText( str );		
+		pInstance.Anim:SetEndPauseTime( timeToDisplay );
+		pInstance.Anim:RegisterEndCallback( function() OnEndAnim(kTypeEntry,pInstance) end );
+		pInstance.Anim:SetToBeginning();
+		pInstance.Anim:Play();
+
+		Controls.StackOfMessages:CalculateSize();
+		Controls.StackOfMessages:ReprocessAnchoring();
+	end
+end
+LuaEvents.StatusMessage.Add( StatusMessage )
+
+-----------------------------------------------------------------------------------------
 -- Hide unused items
 -----------------------------------------------------------------------------------------
 

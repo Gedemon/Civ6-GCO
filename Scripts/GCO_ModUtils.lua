@@ -20,6 +20,7 @@ ExposedMembers.PlotScript_Initialized 		= nil
 ExposedMembers.CityScript_Initialized 		= nil
 ExposedMembers.UnitScript_Initialized		= nil
 ExposedMembers.PlayerScript_Initialized 	= nil
+ExposedMembers.GameScript_Initialized		= nil
 
 	
 local ResourceValue 		= {			-- cached table with value of resources type
@@ -79,6 +80,7 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 							and ExposedMembers.CityScript_Initialized
 							and ExposedMembers.UnitScript_Initialized
 							and ExposedMembers.PlayerScript_Initialized
+							and ExposedMembers.GameScript_Initialized
 							)
 	if not bIsInitialized and Automation.GetTime() > g_Timer + 20 then
 		Error("GCO Initialization problem")
@@ -176,8 +178,9 @@ end
 ----------------------------------------------
 -- Debug
 ----------------------------------------------
-local lastLog	= {}
-local bNoOutput = false
+local lastLog			= {}
+local bNoOutput 		= false
+local bErrorToScreen 	= true
 function ToggleOutput()
 	bNoOutput = not bNoOutput
 	print("Spam control = " .. tostring(bNoOutput))
@@ -197,6 +200,7 @@ function Error(...)
 	print(str)
 	LuaEvents.StopAuToPlay()
 	LuaEvents.ShowLastLog()
+	if bErrorToScreen then LuaEvents.StatusMessage("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 10) end
 end
 
 function Dline(...)

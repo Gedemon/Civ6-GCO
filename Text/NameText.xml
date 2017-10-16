@@ -9,6 +9,9 @@
 		<Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" 			Text="City Barracks"			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 				Text="Blacksmith"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FISH_MARKET_NAME" 				Text="Fish Market"				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_FRUIT_MARKET_NAME" 				Text="Fruit Market"				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_TREADMILL_NAME"					Text="Treadmill"	 			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_WINDMILL_NAME"					Text="Windmill"	 				Language="en_US" />
 							
 		<Replace Tag="LOC_BUILDING_CARPENTER_NAME"					Text="Carpenter" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_STONEMASON_NAME"					Text="Stonemason"	 			Language="en_US" />
@@ -71,6 +74,8 @@
     
 	<LocalizedText> <!-- Resources -->
 	
+		<Replace Tag="LOC_RESOURCE_WINE_NAME" 		Text="Grapes" 		Language="en_US" /> 
+		
 		<Replace Tag="LOC_RESOURCE_FOOD_NAME" 		Text="Food" 		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 	Text="Materiel" 	Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"	Text="Personnel"	Language="en_US" /> 

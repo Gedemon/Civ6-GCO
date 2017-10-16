@@ -392,7 +392,11 @@ function InitializeUtilityFunctions()
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
+function InitializeCheck()
+	if not ExposedMembers.CityData then GCO.Error("ExposedMembers.CityData is nil after Initialization") end
+end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+LuaEvents.InitializeGCO.Add( InitializeCheck )
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.CityData 		= GCO.LoadTableFromSlot("CityData") or {}
@@ -1084,7 +1088,8 @@ end
 -----------------------------------------------------------------------------------------
 function UpdateLinkedUnits(self)
 
-	--local DEBUG_CITY_SCRIPT = true
+	Dlog("UpdateLinkedUnits /START")
+	local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Linked Units...")
 	local selfKey 				= self:GetKey()
@@ -1109,6 +1114,7 @@ function UpdateLinkedUnits(self)
 		end
 	end
 
+	Dlog("UpdateLinkedUnits /START")
 end
 
 function GetLinkedUnits(self)
@@ -1311,7 +1317,7 @@ end
 
 function TransferToCities(self)
 	Dlog("TransferToCities /START")
-	--local DEBUG_CITY_SCRIPT = true
+	local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTransferDemand[selfKey]
@@ -1331,9 +1337,9 @@ function TransferToCities(self)
 	for resourceID, value in pairs(supplyDemand.Resources) do
 		local availableStock = self:GetAvailableStockForCities(resourceID)
 		if supplyDemand.HasPrecedence[resourceID] then -- one city has made a prioritary request for that resource
-			local bHasLocalPrecedence = (UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID]) -- to do : a function to test all precedence, and another to return the number of unit of resource required
+			local bHasLocalPrecedence = (UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID]) or self:GetNumRequiredInQueue(resourceID) > 0  -- to do : a function to test all precedence, and another to return the number of unit of resource required, separate build queue / units
 			if bHasLocalPrecedence then
-				availableStock = math.max(availableStock, GCO.Round(self:GetAvailableStockForUnits(resourceID)/2)) -- sharing unit stock when both city
+				availableStock = math.max(availableStock, GCO.Round(self:GetAvailableStockForUnits(resourceID)/2)) -- sharing unit stock when both city rquires it 
 			else
 				availableStock = math.max(availableStock, GCO.Round(self:GetStock(resourceID)/2))
 			end
@@ -1596,7 +1602,7 @@ function GetRouteEfficiencyTo(self, city)
 end
 
 function GetRequirements(self, fromCity)
-	local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = true
 	local selfKey 				= self:GetKey()
 	--local player 				= GCO.GetPlayer(self:GetOwner())
 	local cityName	 			= Locale.Lookup(self:GetName())
@@ -1630,6 +1636,12 @@ function GetRequirements(self, fromCity)
 
 					if UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID] and resourceID ~= foodResourceID then -- Units have required this resource...
 						numResourceNeeded	= math.min(self:GetMaxStock(resourceID), numResourceNeeded + UnitsSupplyDemand[selfKey].Resources[resourceID])
+						bPriorityRequest	= true
+					end
+					
+					local numRequiredInQueue = self:GetNumRequiredInQueue(resourceID)
+					if numRequiredInQueue > 0 then -- an Item in build queue is requiring this resource...
+						numResourceNeeded	= math.min(self:GetMaxStock(resourceID), numResourceNeeded + numRequiredInQueue)
 						bPriorityRequest	= true
 					end
 
@@ -1828,6 +1840,46 @@ end
 function ClearBuildingQueueStock(self, finishedBuilding)
 	local cityKey 		= self:GetKey()
 	ExposedMembers.CityData[cityKey].BuildQueue[finishedBuilding] = nil
+end
+
+function GetNumRequiredInQueue(self, resourceID)
+
+	local DEBUG_CITY_SCRIPT = true
+	
+	local cityKey 		= self:GetKey()
+	local cityData 		= ExposedMembers.CityData[cityKey]
+	local resourceKey	= tostring(resourceID)
+	for itemBuild, data in pairs(cityData.BuildQueue) do
+		if data[resourceKey] then
+			if GameInfo.Units[itemBuild] then
+				local unitID		= GameInfo.Units[itemBuild].Index
+				local resTable 		= GCO.GetUnitConstructionResources(unitID)
+				local resOrTable 	= GCO.GetUnitConstructionOrResources(unitID)
+				local resNeeded		= 0
+				if resTable[resourceKey] then
+					resNeeded = resNeeded + math.max(0, resTable[resourceID] - data[resourceKey])
+				end
+				for equipmentClass, resourceTable in pairs(resOrTable) do				
+					local totalNeeded 		= resourceTable.Value
+					local alreadyStocked 	= 0
+					local bInResOrTable		= false
+					-- get the number of resource already stocked for that class...
+					for _, neededResourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
+						if neededResourceID == resourceID then bInResOrTable = true end
+						alreadyStocked = alreadyStocked + self:GetBuildingQueueStock(neededResourceID, itemBuild)
+					end
+					if bInResOrTable then
+						resNeeded = resNeeded + math.max(0, totalNeeded - alreadyStocked)
+					end				
+				end
+				Dprint( DEBUG_CITY_SCRIPT, " - Required by item in build queue for ".. tostring(itemBuild) .." in ".. self:GetName() .." : ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(resNeeded) .. " already stocked = " .. tostring(data[resourceKey]))
+				return resNeeded
+			else -- to do...
+				return 0
+			end
+		end
+	end
+	return 0
 end
 
 function GetMaxStock(self, resourceID)
@@ -3235,6 +3287,7 @@ function DoReinforceUnits(self)
 		-- Send excedent back to city
 		for resourceID, value in pairs(unitExcedent) do
 			local toTransfert = math.min(self:GetMaxStock(resourceID) - self:GetStock(resourceID), value)
+			if resourceID == personnelResourceID then toTransfert = value end -- city can convert surplus in personnel to population
 			if toTransfert > 0 then
 				unit:ChangeStock(resourceID, -toTransfert)
 				self:ChangeStock(resourceID, toTransfert, ResourceUseType.Pillage, unit:GetKey(), 0)
@@ -4429,6 +4482,7 @@ function AttachCityFunctions(city)
 	c.ClearBuildingQueueStock			= ClearBuildingQueueStock
 	c.GetBuildingQueueStock				= GetBuildingQueueStock
 	c.GetBuildingQueueAllStock			= GetBuildingQueueAllStock
+	c.GetNumRequiredInQueue				= GetNumRequiredInQueue
 	c.GetStockVariation					= GetStockVariation
 	c.GetMinimumResourceCost			= GetMinimumResourceCost
 	c.GetMaximumResourceCost			= GetMaximumResourceCost

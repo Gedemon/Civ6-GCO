@@ -12,6 +12,7 @@ local SEPARATIST_PLAYER 			= "64" -- use string for table keys for correct seria
 local NO_IMPROVEMENT 				= -1
 local NO_FEATURE	 				= -1
 local NO_OWNER 						= -1
+local NO_RESOURCE					= -1
 local iDiffusionRatePer1000 		= 1
 local iRoadMax		 				= tonumber(GameInfo.GlobalParameters["CULTURE_FOLLOW_ROAD_MAX"].Value)
 local iRoadBonus	 				= tonumber(GameInfo.GlobalParameters["CULTURE_FOLLOW_ROAD_BONUS"].Value)
@@ -759,6 +760,12 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 						local yield = pEdgePlot:GetYield(row.Index);
 						if (yield > 0) then
 							totalYield = totalYield + 1
+						end
+					end
+					local resourceID = pEdgePlot:GetResourceType()
+					if resourceID ~= NO_RESOURCE then
+						if Players[playerID]:IsResourceVisible(resourceID) then
+							totalYield = totalYield + 2
 						end
 					end
 					table.insert(plotList, {plot = pEdgePlot, yield = totalYield})				

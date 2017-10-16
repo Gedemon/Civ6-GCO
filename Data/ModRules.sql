@@ -27,6 +27,26 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 /* Improvements */
 UPDATE Improvements 	SET PrereqTech ='TECH_CASTLES' WHERE ImprovementType ='IMPROVEMENT_FORT';
 
+/* Technologies */
+UPDATE Technologies SET Cost = 25 WHERE TechnologyType ='TECH_THE_WHEEL';
+UPDATE Technologies SET UITreeRow = 3 WHERE TechnologyType ='TECH_MACHINERY';
+DELETE FROM Technologies WHERE TechnologyType ='TECH_MILITARY_TACTICS';
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_THE_WHEEL';
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MACHINERY';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MACHINERY', 'TECH_ENGINEERING');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MACHINERY', 'TECH_CONSTRUCTION');
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_ENGINEERING';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ENGINEERING', 'TECH_THE_WHEEL');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ENGINEERING', 'TECH_IRON_WORKING');
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_CASTLES';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CASTLES', 'TECH_MACHINERY');
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MILITARY_ENGINEERING';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_ENGINEERING', 'TECH_MACHINERY');
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CONSTRUCTION', 'TECH_IRON_WORKING');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STIRRUPS', 'TECH_APPRENTICESHIP');
+
+
 /* Districts & Buildings */
 --/*
 
@@ -35,6 +55,8 @@ UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistric
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_THEATER';
+
+UPDATE Buildings SET PrereqTech = 'TECH_ENGINEERING' 	WHERE BuildingType ='BUILDING_WATER_MILL';
 
 --UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_SCIENCE' 	WHERE BuildingType ='DISTRICT_ENCAMPMENT';
 --UPDATE Buildings SET PrereqTech = 'TECH_INDUSTRIALIZATION' 	WHERE BuildingType ='DISTRICT_INDUSTRIAL_ZONE';

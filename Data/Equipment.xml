@@ -14,7 +14,7 @@
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"			/>
 		
-		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
+		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"											Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
 		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="2" 	AntiPersonnel="32" AntiPersonnelArmor="4" />
 		<Row ResourceType="EQUIPMENT_IRON_SPEARS"	PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="3" 	AntiPersonnel="40" AntiPersonnelArmor="6" />
 		
