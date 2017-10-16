@@ -229,7 +229,8 @@ function Dlog(...)
 	table.insert(lastLog, select(1,...))
 end
 
-function ShowLastLog()
+function ShowLastLog(n)
+	if not n then n = 100 end
 	print("Check logged call...")
 	if #lastLog > 0 then
 		print("last 10 logged call...")
@@ -238,7 +239,7 @@ function ShowLastLog()
 			print("Log entry #", i)
 			print(lastLog[i])
 			print(GCO.Separator)
-			if i < #lastLog - 10 then return end
+			if i < #lastLog - n then return end
 		end
 	end
 	lastLog = {}
@@ -504,7 +505,7 @@ function GetBaseResourceCost(resourceID)
 	local cost = ResourceValue[resourceClassType] or 0
 	if IsResourceEquipment(resourceID) then
 		local resourceTypeName = GameInfo.Resources[resourceID].ResourceType
-		local equipmentSize = GameInfo.Equipment[resourceTypeName].EquipmentSize
+		local equipmentSize = GameInfo.Equipment[resourceTypeName].Size
 		cost = cost * equipmentCostRatio * equipmentSize		
 	end
 	return cost

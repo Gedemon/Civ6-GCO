@@ -343,7 +343,7 @@ CREATE TABLE IF NOT EXISTS EquipmentTypeClasses	(
 	
 CREATE TABLE IF NOT EXISTS Equipment	(
 		ResourceType TEXT NOT NULL,					-- Equipment are handled as resources
-		EquipmentSize INTEGER NOT NULL DEFAULT 1,	-- Space taken in a city stockage capacity
+		Size INTEGER NOT NULL DEFAULT 1,	-- Space taken in a city stockage capacity
 		Desirability INTEGER NOT NULL DEFAULT 0,	-- Units will request ResourceType of higher desirability first
 		Toughness INTEGER,							-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
 		PersonnelArmor INTEGER,

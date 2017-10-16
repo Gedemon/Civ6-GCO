@@ -32,7 +32,7 @@
 	</Equipment>
 	
 	<Equipment>  <!-- "Vehicle" -->
-		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"/>
+		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Size="20"/>
 	</Equipment>
 	
 	<EquipmentClasses>

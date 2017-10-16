@@ -9,7 +9,7 @@ print("Loading CityScript.lua...")
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_CITY_SCRIPT			= false
+DEBUG_CITY_SCRIPT			= true
 
 function ToggleCityDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -351,8 +351,9 @@ local ImprovementCostRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_IMPRO
 local NotWorkedCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_NOT_WORKED_COST_MULTIPLIER"].Value)
 
 local MaxCostVariationPercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_VARIATION_PERCENT"].Value)
-
-local ResourceTransportMaxCost	= tonumber(GameInfo.GlobalParameters["RESOURCE_TRANSPORT_MAX_COST"].Value)
+local MaxCostFromBaseFactor 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_FROM_BASE_FACTOR"].Value)
+local MinCostFromBaseFactor 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MIN_FROM_BASE_FACTOR"].Value)
+local ResourceTransportMaxCost	= tonumber(GameInfo.GlobalParameters["RESOURCE_TRANSPORT_MAX_COST_RATIO"].Value)
 
 local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 
@@ -1316,7 +1317,7 @@ function UpdateTransferCities(self)
 end
 
 function TransferToCities(self)
-	Dlog("TransferToCities /START")
+	Dlog("TransferToCities ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local selfKey 			= self:GetKey()
@@ -1370,7 +1371,7 @@ function TransferToCities(self)
 				if requiredValue > 0 then
 					local efficiency	= data.Efficiency
 					local send 			= math.min(transfers.ResPerCity[resourceID], requiredValue, resourceLeft)
-					local costPerUnit	= self:GetTransportCostTo(city) + resourceCost -- to do : cache transport cost
+					local costPerUnit	= (resourceCost * self:GetTransportCostTo(city)) + resourceCost -- to do : cache transport cost
 					if (costPerUnit < city:GetResourceCost(resourceID)) or (bCityPrecedence and PrecedenceLeft > 0) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost here again before sending the resource...
 						resourceLeft = resourceLeft - send
 						if bCityPrecedence then
@@ -1378,18 +1379,18 @@ function TransferToCities(self)
 						end
 						city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, selfKey, costPerUnit)
 						self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut, cityKey)
-						Dprint( DEBUG_CITY_SCRIPT, "  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .." % efficiency) to ".. Locale.Lookup(city:GetName()))
+						Dprint( DEBUG_CITY_SCRIPT, "  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .." percent efficiency) to ".. Locale.Lookup(city:GetName()))
 					end
 				end
 			end
 			loop = loop + 1
 		end
 	end
-	Dlog("TransferToCities /END")
+	Dlog("TransferToCities ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function UpdateExportCities(self)
-	Dlog("UpdateExportCities /START")
+	Dlog("UpdateExportCities ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
@@ -1461,11 +1462,11 @@ function UpdateExportCities(self)
 			end
 		end
 	end
-	Dlog("UpdateExportCities /END")
+	Dlog("UpdateExportCities "..Locale.Lookup(self:GetName()).." /END")
 end
 
 function ExportToForeignCities(self)
-	--Dlog("ExportToForeignCities /START")
+	Dlog("ExportToForeignCities ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
@@ -1498,7 +1499,8 @@ function ExportToForeignCities(self)
 					local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
 					local efficiency		= data.Efficiency
 					local send 				= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
-					local costPerUnit		= self:GetTransportCostTo(city) + self:GetResourceCost(resourceID)
+					local localCost			= self:GetResourceCost(resourceID)
+					local costPerUnit		= (localCost * self:GetTransportCostTo(city)) + localCost
 					if costPerUnit < city:GetResourceCost(resourceID) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost and stock here again before sending the resource... to do : track value per city
 						local transactionIncome = send * self:GetResourceCost(resourceID) -- * costPerUnit
 						resLeft = resLeft - send
@@ -1532,7 +1534,7 @@ function ExportToForeignCities(self)
 			Players[city:GetOwner()]:GetTreasury():ChangeGoldBalance(exportIncome)
 		end
 	end
-	Dlog("ExportToForeignCities /END")
+	Dlog("ExportToForeignCities "..Locale.Lookup(self:GetName()).." /END")
 end
 
 function GetMaxPercentLeftToRequest(self, resourceID)
@@ -1628,10 +1630,11 @@ function GetRequirements(self, fromCity)
 					local bHasStock		= fromCity:GetStock(resourceID) > 0
 					if bHasStock then
 						local fromName	 		= Locale.Lookup(fromCity:GetName())
-						Dprint( DEBUG_CITY_SCRIPT, "    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
+						Dprint( DEBUG_CITY_SCRIPT, "    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", fromCity:GetResourceCost(resourceID) * transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
 					end
 					local bHasMoreStock 	= true -- (fromCity:GetStock(resourceID) > self:GetStock(resourceID)) --< must find another check, this one doesn't allow small city at full stock to transfer to big city at low stock (but still higher than small city max stock) use percentage stock instead ?
-					local bIsLowerCost 		= (fromCity:GetResourceCost(resourceID) + transportCost < self:GetResourceCost(resourceID))
+					local fromCost			= fromCity:GetResourceCost(resourceID)
+					local bIsLowerCost 		= ((fromCost * transportCost) + fromCost < self:GetResourceCost(resourceID))
 					bPriorityRequest		= false
 
 					if UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID] and resourceID ~= foodResourceID then -- Units have required this resource...
@@ -1935,13 +1938,13 @@ end
 
 function GetMaxEquipmentStock(self, equipmentID)
 	local equipmentType = GameInfo.Resources[equipmentID].ResourceType
-	local equipmentSize = GameInfo.Equipment[equipmentType].EquipmentSize
+	local equipmentSize = GameInfo.Equipment[equipmentType].Size
 	return math.floor(self:GetMaxEquipmentStorage() / equipmentSize)
 end
 
 function GetEquipmentStorageLeft(self, equipmentID)
 	local equipmentType = GameInfo.Resources[equipmentID].ResourceType
-	local equipmentSize = GameInfo.Equipment[equipmentType].EquipmentSize
+	local equipmentSize = GameInfo.Equipment[equipmentType].Size
 	return math.max(0, self:GetMaxEquipmentStorage() - (self:GetStock(equipmentID)*equipmentSize))
 end
 
@@ -1950,11 +1953,11 @@ end
 -- Resources Cost
 -----------------------------------------------------------------------------------------
 function GetMinimumResourceCost(self, resourceID)
-	return GCO.GetBaseResourceCost(resourceID) / 4
+	return GCO.GetBaseResourceCost(resourceID) * MinCostFromBaseFactor -- MinCostFromBaseFactor < 1
 end
 
 function GetMaximumResourceCost(self, resourceID)
-	return GCO.GetBaseResourceCost(resourceID) * 4
+	return GCO.GetBaseResourceCost(resourceID) * MaxCostFromBaseFactor -- MaxCostFromBaseFactor > 1
 end
 
 function GetResourceCost(self, resourceID)
@@ -2994,7 +2997,7 @@ end
 -- Do Turn for Cities
 -----------------------------------------------------------------------------------------
 function SetCityRationing(self)
-	Dlog("SetCityRationing /START")
+	Dlog("SetCityRationing ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "Set Rationing...")
@@ -3045,7 +3048,7 @@ end
 
 function UpdateCosts(self)
 
-	Dlog("UpdateCosts")
+	Dlog("UpdateCosts ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT = false
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
@@ -3104,7 +3107,7 @@ end
 
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
-	Dlog("UpdateDataOnNewTurn /START")
+	Dlog("UpdateDataOnNewTurn ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT = false
 
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
@@ -3154,7 +3157,7 @@ end
 
 function SetUnlockers(self)
 
-	Dlog("SetUnlockers")
+	Dlog("SetUnlockers ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT = false
 
 	Dprint( DEBUG_CITY_SCRIPT, "Setting unlocker buildings for ".. Locale.Lookup(self:GetName()), " production = ", self:GetProductionYield())
@@ -3204,7 +3207,7 @@ end
 
 function DoRecruitPersonnel(self)
 	
-	Dlog("DoRecruitPersonnel /START")
+	Dlog("DoRecruitPersonnel ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = false
 	Dprint( DEBUG_CITY_SCRIPT, "Recruiting Personnel...")
 	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
@@ -3239,7 +3242,7 @@ end
 
 function DoReinforceUnits(self)
 
-	Dlog("DoReinforceUnits")
+	Dlog("DoReinforceUnits ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "Reinforcing units...")
@@ -3310,7 +3313,7 @@ end
 
 function DoCollectResources(self)
 
-	Dlog("DoCollectResources")
+	Dlog("DoCollectResources ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 
 	local cityKey 		= self:GetKey()
@@ -3422,7 +3425,7 @@ end
 
 function DoIndustries(self)
 
-	Dlog("DoIndustries")
+	Dlog("DoIndustries ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
@@ -3650,7 +3653,7 @@ end
 
 function DoConstruction(self)
 
-	Dlog("DoConstruction")
+	Dlog("DoConstruction ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Getting resources for Constructions...")
 
@@ -3854,7 +3857,7 @@ end
 
 function DoGrowth(self)
 
-	Dlog("DoGrowth")
+	Dlog("DoGrowth ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 
 	if Game.GetCurrentGameTurn() < 2 and bUseRealYears then return end -- we need to know the previous year turn to calculate growth rate...
@@ -3901,7 +3904,7 @@ end
 
 function DoFood(self)
 
-	Dlog("DoFood")
+	Dlog("DoFood ".. Locale.Lookup(self:GetName()).." /START")
 	-- get city food yield
 	local food = self:GetCityYield(YieldTypes.FOOD )
 	local resourceCost = GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
@@ -3914,7 +3917,7 @@ end
 
 function DoNeeds(self)
 
-	Dlog("DoNeeds")
+	Dlog("DoNeeds ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = true
 
 	Dprint( DEBUG_CITY_SCRIPT, "handling Population needs...")
@@ -4123,7 +4126,7 @@ end
 
 function DoSocialClassStratification(self)
 
-	Dlog("DoSocialClassStratification")
+	Dlog("DoSocialClassStratification ".. Locale.Lookup(self:GetName()).." /START")
 	local totalPopultation = self:GetRealPopulation()
 
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
@@ -4201,7 +4204,7 @@ function DoSocialClassStratification(self)
 end
 
 function DoTurnFirstPass(self)
-	Dlog("DoTurnFirstPass /START")
+	Dlog("DoTurnFirstPass ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "First Pass on ".. Locale.Lookup(self:GetName()))
 	local cityKey = self:GetKey()
@@ -4229,11 +4232,11 @@ function DoTurnFirstPass(self)
 	self:DoIndustries()
 	self:DoConstruction()
 	self:DoReinforceUnits()
-	Dlog("DoTurnFirstPass /END")
+	Dlog("DoTurnFirstPass ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoTurnSecondPass(self)
-	Dlog("DoTurnSecondPass /START")
+	Dlog("DoTurnSecondPass ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "Second Pass on ".. Locale.Lookup(self:GetName()))
 
@@ -4246,11 +4249,11 @@ function DoTurnSecondPass(self)
 
 	-- get linked cities and supply demand
 	self:UpdateTransferCities()
-	Dlog("DoTurnSecondPass /END")
+	Dlog("DoTurnSecondPass ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoTurnThirdPass(self)
-	Dlog("DoTurnThirdPass /START")
+	Dlog("DoTurnThirdPass ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "Third Pass on ".. Locale.Lookup(self:GetName()))
 	
@@ -4267,11 +4270,11 @@ function DoTurnThirdPass(self)
 	-- now export what's still available
 	self:UpdateExportCities()
 	self:ExportToForeignCities()
-	Dlog("DoTurnThirdPass /END")
+	Dlog("DoTurnThirdPass ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoTurnFourthPass(self)
-	Dlog("DoTurnFourthPass /START")
+	Dlog("DoTurnFourthPass ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass on ".. Locale.Lookup(self:GetName()))
 	
@@ -4295,7 +4298,7 @@ function DoTurnFourthPass(self)
 
 	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass done for ".. Locale.Lookup(self:GetName()))
 	LuaEvents.CityCompositionUpdated(self:GetOwner(), self:GetID())
-	Dlog("DoTurnFourthPass /END")
+	Dlog("DoTurnFourthPass ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoCitiesTurn( playerID )
