@@ -101,4 +101,20 @@
 		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
 	</UnitEquipmentClasses>
 	
+	
+	<UnitVisualEquipmentClasses> <!-- Equipment Classes representing an Unit Type -->
+		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
+		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
+		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+		<Row UnitType="UNIT_ARCHER"			EquipmentClass="EQUIPMENTCLASS_BOWS" />
+		<Row UnitType="UNIT_HEAVY_CHARIOT"	EquipmentClass="EQUIPMENTCLASS_CHARIOT" MaxAmount="100"/>
+		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_SPEARS" />
+		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
+		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SWORDS" />
+		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+	</UnitVisualEquipmentClasses>
+	
 </GameInfo>

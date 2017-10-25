@@ -231,57 +231,73 @@ end
 function DoPlayerTurn( playerID )
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	
-	local player 							= Players[playerID]
-	local playerConfig						= PlayerConfigurations[playerID]
-	GCO.PlayerTurnsDebugChecks[playerID]	= {}
-	
-	print("---============================================================================================================================================================================---")
-	print("--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
-	print("---============================================================================================================================================================================---")
-	
-	--player:UpdatePopulationNeeds()
-	LuaEvents.DoUnitsTurn( playerID )
-	LuaEvents.DoCitiesTurn( playerID )	
-	
-	-- update flags after resources transfers
-	player:UpdateUnitsFlags()
-	player:UpdateCitiesBanners()
-	player:SetCurrentTurn()
+	local player = Players[playerID]
+	if player and not player:HasStartedTurn() then
+		local playerConfig						= PlayerConfigurations[playerID]
+		GCO.PlayerTurnsDebugChecks[playerID]	= {}
+		
+		print("---============================================================================================================================================================================---")
+		print("--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
+		print("---============================================================================================================================================================================---")
+		
+		--player:UpdatePopulationNeeds()
+		LuaEvents.DoUnitsTurn( playerID )
+		LuaEvents.DoCitiesTurn( playerID )	
+		
+		-- update flags after resources transfers
+		player:UpdateUnitsFlags()
+		player:UpdateCitiesBanners()
+		player:SetCurrentTurn()
+		
+		if playerID == Game.GetLocalPlayer() then		
+			LuaEvents.SaveTables()
+		end
+	end
 end
---LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
+LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
 
 function CheckPlayerTurn(playerID)
 	local playerConfig	= PlayerConfigurations[playerID]
 	local bNoError		= true
-	if not GCO.PlayerTurnsDebugChecks[playerID].UnitsTurn then
-		GCO.Error("UNITS TURN UNFINISHED AT TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER #".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
-		bNoError = false
-	end
-	if not GCO.PlayerTurnsDebugChecks[playerID].CitiesTurn then
-		GCO.Error("CITIES TURN UNFINISHED AT TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER #".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
-		bNoError = false
-	end
-	if bNoError then		
-		Dprint( DEBUG_PLAYER_SCRIPT, "- 'DoTurn' completed for player ID#".. tostring(playerID) .. " - "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+	if GCO.PlayerTurnsDebugChecks[playerID] then
+		if not GCO.PlayerTurnsDebugChecks[playerID].UnitsTurn then
+			GCO.ErrorWithLog("UNITS TURN UNFINISHED AT TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER #".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
+			bNoError = false
+		end
+		if not GCO.PlayerTurnsDebugChecks[playerID].CitiesTurn then
+			GCO.ErrorWithLog("CITIES TURN UNFINISHED AT TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER #".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
+			bNoError = false
+		end
+		if bNoError then		
+			Dprint( DEBUG_PLAYER_SCRIPT, "- 'DoTurn' completed for player ID#".. tostring(playerID) .. " - "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+		end
+		GCO.PlayerTurnsDebugChecks[playerID] = nil
 	end
 end
+LuaEvents.StartPlayerTurn.Add(CheckPlayerTurn)
 
 -- can't use those, they makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager, and some other unidentified parts of the code...
 --GameEvents.PlayerTurnStarted.Add(DoPlayerTurn)
+--GameEvents.PlayerTurnStarted.Add(CheckPlayerTurn)
 --GameEvents.PlayerTurnStartComplete.Add(DoPlayerTurn)
 
 function DoTurnForLocal() -- The Error reported on the line below is triggered by something else.
 	local playerID = Game.GetLocalPlayer()
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	print("-- Events.LocalPlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	local player = Players[playerID]
-	if player and not player:HasStartedTurn() then
+	if player and not player:HasStartedTurn() then	
 		DoPlayerTurn(playerID)
-		LuaEvents.SaveTables()
 		CheckPlayerTurn(playerID)
 	end
 end
 Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
 
 function DoTurnForRemote( playerID )
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	print("-- Events.RemotePlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	DoPlayerTurn(playerID)	
 	CheckPlayerTurn(playerID)
 end

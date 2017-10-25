@@ -194,13 +194,27 @@ function Dprint(...)
 end
 
 function Error(...)
-	print("Error : ", select(1,...))
+	print("ERROR : ", select(1,...))
+	local status, err = pcall(function () error("custom error") end)
+	local str = string.match(err, '\'Error.-$')
+	print(str)
+	LuaEvents.StopAuToPlay()
+	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
+end
+
+function ErrorWithLog(...)
+	print("ERROR : ", select(1,...))
 	local status, err = pcall(function () error("custom error") end)
 	local str = string.match(err, '\'Error.-$')
 	print(str)
 	LuaEvents.StopAuToPlay()
 	LuaEvents.ShowLastLog()
-	if bErrorToScreen then LuaEvents.StatusMessage("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 10) end
+	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
+end
+
+function Warning(...)
+	print("WARNING : ", select(1,...))
+	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
 
 function Dline(...)
@@ -619,6 +633,8 @@ function Initialize()
 	ExposedMembers.GCO.AreSameTables	= AreSameTables
 	ExposedMembers.GCO.Dump				= Dump
 	ExposedMembers.GCO.Error			= Error
+	ExposedMembers.GCO.ErrorWithLog 	= ErrorWithLog
+	ExposedMembers.GCO.Warning			= Warning
 	ExposedMembers.GCO.Dline 			= Dline
 	ExposedMembers.GCO.Dlog 			= Dlog
 	ExposedMembers.GCO.DfullLog 		= DfullLog
@@ -699,11 +715,11 @@ function GetPlayerTurn(playerID)
 		currentTurn = Game.GetCurrentGameTurn()
 		playerMadeTurn = {}
 	end
-	if not playerMadeTurn[playerID] then
-		LuaEvents.StartPlayerTurn(playerID)			
+	if not playerMadeTurn[playerID] then		
 		print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-		print("-- Test Start Turn player#"..tostring(playerID))
+		print("-- Events.GameCoreEventPublishComplete -> Testing Start Turn for player#"..tostring(playerID))
 		print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+		LuaEvents.StartPlayerTurn(playerID)
 		playerMadeTurn[playerID] = true
 	end
 end
@@ -722,12 +738,12 @@ end
 function FindActivePlayer()
 	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
 		local player = Players[playerID]
-		if player:IsTurnActive() then
+		if player:IsTurnActive() or playerID == 0 then -- start player 0 turn ASAP when automation is running (player:IsTurnActive() always return false for player 0 in that case)
 			GetPlayerTurn(playerID)
 		end
 	end
 end
---Events.GameCoreEventPublishComplete.Add( FindActivePlayer ) -- first to fire, but not early enough
+Events.GameCoreEventPublishComplete.Add( FindActivePlayer ) -- first to fire, but not early enough
 --Events.UnitMovementPointsChanged.Add(OnUnitMovementPointsChanged)
 --Events.OnAiAdvisorUpdated.Add(OnAiAdvisorUpdated)
 

@@ -12,6 +12,8 @@ include( "PopupDialog" )
 -----------------------------------------------------------------------------------------
 local m_statusIM				:table = InstanceManager:new( "StatusMessageInstance", "Root", Controls.StackOfMessages );
 local m_gossipIM				:table = InstanceManager:new( "GossipMessageInstance", "Root", Controls.StackOfMessages );
+local m_kMessages 				:table = {}
+local DEFAULT_TIME_TO_DISPLAY	= 4
 function StatusMessage( str:string, fDisplayTime:number, statusType:number )
 
 	if not statusType then statusType = ReportingStatusTypes.DEFAULT end
@@ -50,7 +52,14 @@ function StatusMessage( str:string, fDisplayTime:number, statusType:number )
 		Controls.StackOfMessages:ReprocessAnchoring();
 	end
 end
-LuaEvents.StatusMessage.Add( StatusMessage )
+LuaEvents.GCO_Message.Add( StatusMessage )
+
+function OnEndAnim( kTypeEntry:table, pInstance:table )
+	pInstance.Anim:ClearEndCallback();
+	Controls.StackOfMessages:CalculateSize();
+	Controls.StackOfMessages:ReprocessAnchoring();
+	kTypeEntry.InstanceManager:ReleaseInstance( pInstance ) 	
+end
 
 -----------------------------------------------------------------------------------------
 -- Hide unused items
