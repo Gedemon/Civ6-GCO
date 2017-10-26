@@ -517,7 +517,7 @@ function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in ini
 			return
 		end
 
-		Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+		Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 		Dprint( DEBUG_CITY_SCRIPT, "Initializing new city (".. city:GetName() ..") for player #".. tostring(playerID).. " id#" .. tostring(city:GetID()))
 		RegisterNewCity(playerID, city)
 
@@ -550,7 +550,7 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 		if ExposedMembers.CityData[newCityKey] then
 			local city = CityManager.GetCity(newOwnerID, newCityID)
 			Dprint( DEBUG_CITY_SCRIPT, "Updating captured city (".. city:GetName() ..") for player #".. tostring(newOwnerID).. " id#" .. tostring(city:GetID()))
-			Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+			Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 
 			ExposedMembers.CityData[newCityKey].TurnCreated 		= originalData.TurnCreated
 			ExposedMembers.CityData[newCityKey].WoundedPersonnel 	= 0
@@ -3132,7 +3132,7 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	Dlog("UpdateDataOnNewTurn ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT = false
 
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Data for ".. Locale.Lookup(self:GetName()))
 	local cityKey 			= self:GetKey()
 	local data 				= ExposedMembers.CityData[cityKey]
@@ -3467,16 +3467,17 @@ function DoIndustries(self)
 	local wealth 	= self:GetWealth()
 	local player 	= GCO.GetPlayer(self:GetOwner())
 
-	-- materiel
+	-- materiel production
 	local materielprod	= MaterielProductionPerSize * size
 	local materielCost 	= GCO.GetBaseResourceCost(materielResourceID) * wealth -- GCO.GetBaseResourceCost(materielResourceID)
 	Dprint( DEBUG_CITY_SCRIPT, " - City production: ".. tostring(materielprod) .." ".. Locale.Lookup(GameInfo.Resources[materielResourceID].Name).." at ".. tostring(GCO.ToDecimals(materielCost)) .. " cost/unit")
 	self:ChangeStock(materielResourceID, materielprod, ResourceUseType.Product, self:GetKey(), materielCost)
 
-	local MultiResRequired 	= {}
-	local MultiResCreated 	= {}
-	local ResCreated		= {}
-	local ResNeeded			= {}
+	-- Resources production: creating tables
+	local MultiResRequired 	= {}	-- Resources that require multiple resources to be created
+	local MultiResCreated 	= {}	-- Resources that create multiple resources
+	local ResCreated		= {}	-- Resources that are created from a single resource type
+	local ResNeeded			= {}	-- Total resources required 
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
 		if self:GetBuildings():HasBuilding(buildingID) then
@@ -3487,7 +3488,7 @@ function DoIndustries(self)
 				if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
 				ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + row.MaxConverted
 				ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + row.MaxConverted
-				--Dprint( DEBUG_CITY_SCRIPT, " - check " .. Locale.Lookup(GameInfo.Buildings[buildingID].Name) .." production using ".. Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name))
+
 				if row.MultiResRequired then
 					if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {} end
 					if not MultiResRequired[resourceCreatedID][buildingID] then	MultiResRequired[resourceCreatedID][buildingID] = {} end
@@ -3508,7 +3509,7 @@ function DoIndustries(self)
 		end
 	end
 
-	-- assign available resources for each building
+	-- Resources production: assign available resources for each building
 	local resPerBuilding = {}
 	Dprint( DEBUG_CITY_SCRIPT, "- Assign available resources for each building")
 	for resourceID, data in pairs(ResNeeded) do
@@ -3530,7 +3531,7 @@ function DoIndustries(self)
 					buildingConsumptionRatio[buildingID] = value / totalResNeeded
 					Dprint( DEBUG_CITY_SCRIPT, " - Set ratio for ".. Locale.Lookup(GameInfo.Buildings[buildingID].Name) ..", requires = "..tostring(value)..", calculated ratio = "..tostring(value / totalResNeeded))
 				end
-				--local resPart = math.floor(totalResAvailable / numBuildings)
+				
 				for buildingID, _ in pairs(data.Buildings) do
 					if not resPerBuilding[buildingID] then resPerBuilding[buildingID] = {} end
 					local allocatedRes = math.floor(totalResAvailable * buildingConsumptionRatio[buildingID])
@@ -3547,6 +3548,7 @@ function DoIndustries(self)
 		end
 	end
 
+	-- Resources production: create single resources
 	for resourceRequiredID, data1 in pairs(ResCreated) do
 		for buildingID, data2 in pairs (data1) do
 
@@ -3583,6 +3585,7 @@ function DoIndustries(self)
 		end
 	end
 
+	-- Resources production: create multiple Resources from one Resource
 	for resourceRequiredID, data1 in pairs(MultiResCreated) do
 		for buildingID, data2 in pairs (data1) do
 			local bUsed			= false
@@ -3601,7 +3604,7 @@ function DoIndustries(self)
 					if amountCreated + self:GetStock(row.ResourceCreated) > self:GetMaxStock(row.ResourceCreated) and stockVariation >= 0 then
 						amountCreated 		= self:GetMaxStock(row.ResourceCreated) - self:GetStock(row.ResourceCreated)
 						amountUsed			= math.floor(amountCreated / row.Ratio)
-					else -- limit only if all resource created will generate excedents
+					else -- limit only if all resources created will generate excedents
 						bLimitedByExcedent	= false
 					end
 					maxRequired	= math.max( maxRequired, amountUsed)
@@ -3626,6 +3629,7 @@ function DoIndustries(self)
 		end
 	end
 
+	-- Resources production: create single Resources from multiple Resources
 	for resourceCreatedID, data1 in pairs(MultiResRequired) do
 		for buildingID, data2 in pairs (data1) do
 			local bCanCreate				= true
@@ -3724,7 +3728,6 @@ function DoConstruction(self)
 		-- Get construction efficiency from global resources...
 		local usedTable = {}
 		for resourceID, value in pairs(resTable) do
-			--local neededPerTurn 	= math.ceil( value / turnsToBuild )
 			local neededPerTurn 	= math.ceil( (value - self:GetBuildingQueueStock(resourceID, currentlyBuilding)) / turnsLeft)
 			Dprint( DEBUG_CITY_SCRIPT, "Need : ", neededPerTurn, Locale.Lookup(GameInfo.Resources[resourceID].Name), " Actual Stock = ", self:GetStock(resourceID) )
 			usedTable[resourceID] = neededPerTurn
@@ -3740,7 +3743,6 @@ function DoConstruction(self)
 				alreadyStocked = alreadyStocked + self:GetBuildingQueueStock(resourceID, currentlyBuilding)
 			end
 
-			--local neededPerTurn 		= math.ceil( resourceTable.Value / turnsToBuild ) -- total needed for that class at 100% production efficiency
 			local neededPerTurn 		= math.ceil( (totalNeeded-alreadyStocked) / turnsLeft ) -- total needed for that class at 100% production efficiency
 			local numResourceToProvide	= neededPerTurn
 			local totalClass			= 0
@@ -3826,18 +3828,26 @@ function DoConstruction(self)
 			self:ChangeStock(resourceID, -value, ResourceUseType.Consume, cityKey)
 		end
 
-		-- remove production progress if needed
 		if efficiency < 1 then
 			local actualProd 	= math.floor(math.min(production, prodLeft) * efficiency)
 			local lostProd		= production - actualProd
 			Dprint( DEBUG_CITY_SCRIPT, "Under 100 percent efficiency: Max Production = ", production, " Production Left = ", prodLeft, " Actualized Production = ", actualProd, " Wasted Production = ", lostProd)
-			--if turnsLeft > 1 then
-			--	self:GetBuildQueue():AddProgress(- lostProd)
-			--else
-				self:GetBuildQueue():AddProgress(- production) -- nullify production, add real value after update
-				if not _cached.RealProduction then _cached.RealProduction = {} end
-				_cached.RealProduction[cityKey] = actualProd
-			--end
+
+			-- At this point in the code, the production value is not added yet to the current item in build queue
+			-- we nullify this turn production by removing it before it's applied (to prevent item spawning when it's the last turn of production)
+			-- we'll add the real value based on efficiency when Events.CityProductionUpdated is called
+			
+			-- to do, maybe, to prevent unexpected behavior on first turn: 
+			-- 1/ calculate progressBasedOnEfficiency = (current production + actualProd)
+			-- 2/ set current progress to 0 here
+			-- 3/ update current progress to progressBasedOnEfficiency when Events.CityProductionUpdated is called
+			
+			-- to do : check if we can set a negative progression value, in that case no need of the 1-2-3 above, the AddProgress(- production)
+			-- below is enough for all cases (including items requiring a total of production < 1 turn of city yield)
+			
+			self:GetBuildQueue():AddProgress(- production) 
+			if not _cached.RealProduction then _cached.RealProduction = {} end
+			_cached.RealProduction[cityKey] = actualProd
 		end
 
 	end
@@ -3946,9 +3956,7 @@ function DoFood(self)
 	local resourceCost = GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
 	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, self:GetKey(), resourceCost)
 
-	-- food eaten
-	--local eaten = self:GetFoodConsumption()
-	--self:ChangeStock(foodResourceID, - eaten, ResourceUseType.Consume, RefPopulationAll)
+	-- food eaten is calculated in DoNeeds()
 end
 
 function DoNeeds(self)
@@ -4165,7 +4173,7 @@ function DoSocialClassStratification(self)
 	Dlog("DoSocialClassStratification ".. Locale.Lookup(self:GetName()).." /START")
 	local totalPopultation = self:GetRealPopulation()
 
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: totalPopultation = ", totalPopultation)
 
 	local maxUpper = self:GetMaxUpperClass()
@@ -4181,19 +4189,19 @@ function DoSocialClassStratification(self)
 	local actualMiddle = self:GetMiddleClass()
 	local actualLower = self:GetLowerClass()
 
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxUpper = ", maxUpper)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualUpper = ", actualUpper)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minUpper = ", minUpper)
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxMiddle = ", maxMiddle)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualMiddle = ", actualMiddle)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minMiddle = ", minMiddle)
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxLower = ", maxLower)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualLower = ", actualLower)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minLower = ", minLower)
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 
 	-- Move Upper to Middle
 	if actualUpper > maxUpper then
@@ -4241,7 +4249,7 @@ end
 
 function DoTurnFirstPass(self)
 	Dlog("DoTurnFirstPass ".. Locale.Lookup(self:GetName()).." /START")
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "First Pass on ".. Locale.Lookup(self:GetName()))
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
@@ -4279,7 +4287,7 @@ function DoTurnSecondPass(self)
 	if CitiesToIgnoreThisTurn[cityKey] then return end
 	
 	Dlog("DoTurnSecondPass ".. Locale.Lookup(self:GetName()).." /START")
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Second Pass on ".. Locale.Lookup(self:GetName()))
 
 	local cityData = ExposedMembers.CityData[cityKey]
@@ -4299,7 +4307,7 @@ function DoTurnThirdPass(self)
 	if CitiesToIgnoreThisTurn[cityKey] then return end
 	
 	Dlog("DoTurnThirdPass ".. Locale.Lookup(self:GetName()).." /START")
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Third Pass on ".. Locale.Lookup(self:GetName()))
 	
 	local cityData = ExposedMembers.CityData[cityKey]
@@ -4323,7 +4331,7 @@ function DoTurnFourthPass(self)
 	if CitiesToIgnoreThisTurn[cityKey] then return end
 	
 	Dlog("DoTurnFourthPass ".. Locale.Lookup(self:GetName()).." /START")
-	Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass on ".. Locale.Lookup(self:GetName()))
 	
 	local cityData = ExposedMembers.CityData[cityKey]
@@ -4338,13 +4346,13 @@ function DoTurnFourthPass(self)
 	self:DoSocialClassStratification()
 	self:SetWealth()
 	self:ChangeSize()
+	-- self:Heal() -- to implement
 
 	-- last...
 	self:DoExcedents()
 	self:SetUnlockers()
 
 	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass done for ".. Locale.Lookup(self:GetName()))
-	--LuaEvents.CityCompositionUpdated(self:GetOwner(), self:GetID())
 	Dlog("DoTurnFourthPass ".. Locale.Lookup(self:GetName()).." /END")
 end
 
@@ -4356,7 +4364,7 @@ function DoCitiesTurn( playerID )
 	local playerCities = player:GetCities()
 	if playerCities then
 		for pass = 1, 4 do
-			Dprint( DEBUG_CITY_SCRIPT, "---------------------------------------------------------------------------")
+			Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 			Dprint( DEBUG_CITY_SCRIPT, "Cities Turn, pass #" .. tostring(pass))
 			for i, city in playerCities:Members() do
 				if 		pass == 1 then city:DoTurnFirstPass()
@@ -4430,7 +4438,7 @@ Events.CityFocusChanged.Add(OnCityFocusChange );
 
 
 -----------------------------------------------------------------------------------------
--- Functions from UI Context
+-- Functions passed from UI Context
 -----------------------------------------------------------------------------------------
 function GetCityYield(self, yieldType)
 	return GCO.GetCityYield( self, yieldType )
@@ -4454,11 +4462,12 @@ end
 -----------------------------------------------------------------------------------------
 function CleanCityData() -- called in GCO_GameScript.lua
 
-	--local DEBUG_CITY_SCRIPT = false
-
 	-- remove old data from the table
 	Dprint( DEBUG_CITY_SCRIPT, "-----------------------------------------------------------------------------------------")
 	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")
+	
+	local DEBUG_CITY_SCRIPT = false
+	
 	for cityKey, data1 in pairs(ExposedMembers.CityData) do
 		local toClean = {"Stock","ResourceCost","ResourceUse","Population"}
 		for i, dataToClean in ipairs(toClean) do
@@ -4478,8 +4487,7 @@ function CleanCityData() -- called in GCO_GameScript.lua
 		end
 	end
 end
---Events.TurnBegin.Add(CleanCityData)
---GameEvents.OnGameTurnStarted.Add(CleanCityData)
+
 
 -----------------------------------------------------------------------------------------
 -- Shared Functions
@@ -4687,51 +4695,3 @@ end
 -- Initialize after loading
 ----------------------------------------------
 Initialize()
-
-function debugList()
-	for cityKey, data in pairs(CitiesForTransfer) do
-		for routeCityKey, routeData in pairs(data) do
-
-			local city				= GCO.GetCityFromKey(routeCityKey)
-			local ownCity			= GCO.GetCityFromKey(cityKey)
-
-			if city:GetOwner() ~= ownCity:GetOwner() then
-				Dprint( DEBUG_CITY_SCRIPT, "WARNING : foreign city found in internal transfer list : " ..city:GetName())
-				Dprint( DEBUG_CITY_SCRIPT, "WARNING : key = " ..routeCityKey)
-				CitiesForTransfer[cityKey][routeCityKey] = nil
-			end
-		end
-	end
-end
---Events.GameCoreEventPublishComplete.Add( debugList )
-
-
-----------------------------------------------
--- Testing...
-----------------------------------------------
-local _cache = {}
-function CheckProgression()
-	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
-		local player 	= Players[playerID]
-		local capital 	= player:GetCities():GetCapitalCity()
-		if capital then
-			if not capital.GetKey then return end
-			local cityKey				= capital:GetKey()
-			if not cityKey then return end
-			--local turnsLeft				= capital:GetBuildQueue():GetTurnsLeft() -- 24 jun 2017 : Runtime Error: not implemented
-			local CurrentlyBuilding		= capital:GetBuildQueue():CurrentlyBuilding()
-			--local HasProductionProgress	= capital:GetBuildQueue():HasProductionProgress(1,1)
-			local TypeName				= capital:GetBuildQueue().TypeName
-			if not _cache[cityKey] then _cache[cityKey] = {} end
-			if not _cache[cityKey].CurrentlyBuilding then
-				print ("Production Turns left changed at ", Locale.Lookup(capital:GetName()), " previous turns left = ", _cache[cityKey].TurnsLeft, " actual turns left = ", turnsLeft, " CurrentlyBuilding = ", CurrentlyBuilding, " HasProductionProgress = ", HasProductionProgress )
-				_cache[cityKey].CurrentlyBuilding = CurrentlyBuilding
-			end
-			if _cache[cityKey].CurrentlyBuilding ~= CurrentlyBuilding then
-				print ("Production Turns left changed at ", Locale.Lookup(capital:GetName()), " previous turns left = ", _cache[cityKey].TurnsLeft, " actual turns left = ", turnsLeft, " CurrentlyBuilding = ", CurrentlyBuilding, " HasProductionProgress = ", HasProductionProgress )
-				_cache[cityKey].CurrentlyBuilding = CurrentlyBuilding
-			end
-		end
-	end
-end
-Events.GameCoreEventPublishComplete.Add( CheckProgression )

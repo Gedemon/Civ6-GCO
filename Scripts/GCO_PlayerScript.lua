@@ -204,7 +204,7 @@ end
 
 function UpdateDataOnNewTurn(self)
 	local playerConfig = PlayerConfigurations[self:GetID()]
-	Dprint( DEBUG_PLAYER_SCRIPT, "---------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on new turn for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 
 	local playerCities = self:GetCities()

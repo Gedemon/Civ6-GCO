@@ -441,19 +441,29 @@ function RegisterNewUnit(playerID, unit, partialHP) -- use partialHP to initiali
 
 	--local DEBUG_UNIT_SCRIPT = true
 	
+	--[[ Current HP (ie unit:GetMaxDamage() - unit:GetDamage()) can't be trusted
+	***********
+	26-Oct-2017
+	
+	The DLL return the HP left after all combats, which are processed in GameCore before any of the current (non-crashing) Events
+	related to player turn or units can be called, including Events.UnitAddedToMap.
+	So we're using a virtual HP value, stocked in the UnitData table, updated only when the mod is controlling healing or checking damage,
+	and we monitor and revert changes made outside the mod's control (actually only hardcoded healing from pillaging improvments)
+	***********
+	--]]
+	
+	local hp 		= partialHP or maxHP
+	
 	local unitType 	= unit:GetType()
 	local unitID 	= unit:GetID()
 	local unitKey 	= unit:GetKey()
-	local hp 		= partialHP or maxHP --unit:GetMaxDamage() - unit:GetDamage() -- WARNING: current HP can't be trusted, it's possible that the unit had already made an attack before Events.UnitAddedToMap was called
 	local food 		= SetBaseFoodStock(unitType)	
 	
 	local personnel = UnitHitPointsTable[unitType][hp].Personnel
-	--local equipment = UnitHitPointsTable[unitType][hp].Equipment
 	local horses 	= UnitHitPointsTable[unitType][hp].Horses
 	local materiel 	= UnitHitPointsTable[unitType][hp].Materiel
 	
 	local PersonnelReserve	= GetBasePersonnelReserve(unitType)
-	--local EquipmentReserve	= GetBaseEquipmentReserve(unitType)
 	local HorsesReserve		= GetBaseHorsesReserve(unitType)
 	local MaterielReserve	= GetBaseMaterielReserve(unitType)
 	
@@ -468,7 +478,7 @@ function RegisterNewUnit(playerID, unit, partialHP) -- use partialHP to initiali
 		playerID 				= playerID,
 		unitType 				= unitType,
 		--MaterielPerEquipment 	= GameInfo.Units[unitType].MaterielPerEquipment,
-		HP	 					= hp,
+		HP	 					= hp, -- Should only update this when updating the unit's composition during mod's healing/damage to reflect the HP relative to the composition of the unit.
 		testHP	 				= hp,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 				= personnel,
@@ -573,7 +583,7 @@ function InitializeUnit(playerID, unitID)
 
 end
 
-function InitializeEquipment(self, equipmentList, partialHP) -- equipmentList optional, equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
+function InitializeEquipment(self, equipmentList) -- equipmentList optional, equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
 	Dlog("InitializeEquipment /START")
 	--local DEBUG_UNIT_SCRIPT = true	
@@ -581,10 +591,14 @@ function InitializeEquipment(self, equipmentList, partialHP) -- equipmentList op
 	
 	local unitKey 	= self:GetKey()	
 	
+	-- what's below is (hopefully) deprecated with the use of virtualHP everywhere, else partialHP need to be passed 
+	--[[
 	-- Current HP can't be trusted, it's possible that the unit had already made an attack before InitializeEquipment() was called
 	-- So we're initializing at maxHP (or partialHP if the argument exist), then we'll set back the current damage
 	-- If there was indeed an attack before the initialization, we'll have to handle that in Combat event
-	-- Actually Events.Combat is called after Events.CityProductionCompleted which call InitializeEquipment() with the equipmet list passed from the city that build it, but if that order change, we're fracked
+	-- Actually Events.Combat is called after Events.CityProductionCompleted which call InitializeEquipment()
+	-- with the equipmet list passed from the city that build it, but if that order change, we're fracked
+ 
 	local currentDamage	= self:GetDamage()
 	local initDamage	= 0
 	if partialHP then initDamage = maxHP - partialHP end
@@ -598,7 +612,8 @@ function InitializeEquipment(self, equipmentList, partialHP) -- equipmentList op
 		end
 	end
 		
-	self:SetDamage(initDamage)
+	--self:SetDamage(initDamage)
+	--]]
 	
 	Dprint( DEBUG_UNIT_SCRIPT, " - Current GameCore Damage = ".. tostring(currentDamage) ..", initializing at Damage = ".. tostring(initDamage).. ", partialHP = " .. tostring(partialHP))
 	
@@ -643,7 +658,7 @@ function InitializeEquipment(self, equipmentList, partialHP) -- equipmentList op
 	LuaEvents.UnitsCompositionUpdated(self:GetOwner(), self:GetID())
 	
 	-- Restore current damage	
-	self:SetDamage(currentDamage)
+	--self:SetDamage(currentDamage)
 	
 	Dlog("InitializeEquipment /END")
 end
@@ -944,7 +959,7 @@ function CheckComponentsHP(unit, str, bNoWarning)
 		else
 			print ("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
 		end
-		Dprint( DEBUG_UNIT_SCRIPT, "key =", key, "unitType =", unitType, "HP =", HP)
+		Dprint( DEBUG_UNIT_SCRIPT, "key = ", key, " unitType = ", unitType, " GameCore HP = ", HP, " Virtual HP = ", unitData.HP)
 		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Personnel =", unitData.Personnel, " HitPointsTable[HP].Personnel =", hitPoint.Personnel)
 		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Horses =", unitData.Horses, " HitPointsTable[HP].Horses =", hitPoint.Horses)
 		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Materiel =", unitData.Materiel, " HitPointsTable[HP].Materiel =", hitPoint.Materiel)
@@ -1566,7 +1581,7 @@ function GetEquipmentClassReserveNeed(self, equipmentClass)	-- get number of equ
 end
 
 function GetEquipmentClassFrontLineNeed(self, equipmentClass) -- get number of equipment of that class needed in frontline
-	local hp 	= self:GetMaxDamage() - self:GetDamage()
+	local hp 	= self:GetHP() --self:GetMaxDamage() - self:GetDamage() -- use virtual HP here ?
 	local need 	= UnitHitPointsTable[self:GetType()][hp].EquipmentClass[equipmentClass] --self:GetMaxEquipmentFrontLine(equipmentClass)
 	local stock	= self:GetEquipmentClassFrontLine(equipmentClass)
 	if stock < need then
@@ -2364,13 +2379,14 @@ end
 
 function AddCombatInfoTo(Opponent)
 
-	Opponent.unit = UnitManager.GetUnit(Opponent.playerID, Opponent.unitID)
+	Opponent.unit = GetUnit(Opponent.playerID, Opponent.unitID)
+	
 	if Opponent.unit then
-		Opponent.unitType = Opponent.unit:GetType()
-		Opponent.unitKey = Opponent.unit:GetKey()
+		Opponent.unitType 	= Opponent.unit:GetType()
+		Opponent.unitKey 	= Opponent.unit:GetKey()
 		
 		if UnitWithoutEquipment[Opponent.unitKey] then
-			print("WARNING: Unit no equiped yet in AddCombatInfoTo : ".. Locale.Lookup(Opponent.unit:GetName()) .." of player #".. tostring(Opponent.unit:GetOwner()).. " id#" .. tostring(Opponent.unit:GetKey()))
+			print("WARNING: Unit no equiped yet in AddCombatInfoTo, forcing initialization for ".. Locale.Lookup(Opponent.unit:GetName()) .." of player #".. tostring(Opponent.unit:GetOwner()).. " id#" .. tostring(Opponent.unit:GetKey()))
 			Opponent.unit:InitializeEquipment() 
 		end
 		
@@ -2387,14 +2403,15 @@ function AddCombatInfoTo(Opponent)
 	else
 		Opponent.unitKey = GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)
 	end	
-
+	
+	Opponent.unitData 	= ExposedMembers.UnitData[Opponent.unitKey]
+		
 	return Opponent
 end
 
 function AddFrontLineCasualtiesInfoTo(Opponent)
 
 	local UnitHitPoints = ExposedMembers.UnitHitPointsTable[Opponent.unitType]
-	local UnitData		= ExposedMembers.UnitData[Opponent.unitKey]
 
 	if Opponent.IsDead then
 		Opponent.FinalHP = 0
@@ -2412,7 +2429,7 @@ function AddFrontLineCasualtiesInfoTo(Opponent)
 	Dprint( DEBUG_UNIT_SCRIPT, "- Calculating casualties to Materiel : initial = ".. tostring(UnitHitPoints[Opponent.InitialHP].Materiel), " casualties = ", Opponent.MaterielCasualties, " final = ", tostring(UnitHitPoints[Opponent.FinalHP].Materiel) )
 
 	Opponent.EquipmentCasualties 	= {}
-	for equipmentClassKey, equipmentData in pairs(UnitData.Equipment) do
+	for equipmentClassKey, equipmentData in pairs(Opponent.unitData.Equipment) do
 		local equipmentClassID 	= tonumber(equipmentClassKey)
 		local isRequired	 	= (unitEquipmentClasses[Opponent.unitType] and unitEquipmentClasses[Opponent.unitType][equipmentClassID] and unitEquipmentClasses[Opponent.unitType][equipmentClassID].IsRequired)
 		if isRequired then 	-- required equipment follow exactly the UnitHitPoints table
@@ -2435,7 +2452,7 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 
 	--local DEBUG_UNIT_SCRIPT = true
 	
-	local UnitData = ExposedMembers.UnitData[Opponent.unitKey]
+	local UnitData = Opponent.unitData
 	
 	if Opponent.unit then Dprint( DEBUG_UNIT_SCRIPT, "Add Casualties Info To "..tostring(GameInfo.Units[Opponent.unit:GetType()].UnitType).." id#".. tostring(Opponent.unit:GetKey()).." player#"..tostring(Opponent.unit:GetOwner())) end
 	Dprint( DEBUG_UNIT_SCRIPT, "- Handling casualties to Personnel : initial = ".. tostring(UnitData.Personnel), " casualties = ", Opponent.PersonnelCasualties, " final = ", tostring(UnitData.Personnel  	- Opponent.PersonnelCasualties) )
@@ -2591,6 +2608,9 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	UnitData.TotalDeath				= UnitData.TotalDeath 		+ Opponent.Dead
 	--UnitData.TotalEquipmentLost	= UnitData.TotalEquipmentLost 	+ Opponent.EquipmentLost
 	UnitData.TotalHorsesLost 		= UnitData.TotalHorsesLost 	+ Opponent.HorsesLost
+	
+	-- Update virtual HP
+	UnitData.HP = Opponent.FinalHP
 end
 
 function GetMaterielFromKillOfBy(OpponentA, OpponentB)
@@ -2666,34 +2686,35 @@ function OnCombat( combatResult )
 	---[[
 	if attacker.unit then
 		local testHP = attacker.unit:GetMaxDamage() - attacker.unit:GetDamage()
-		if testHP ~= attacker.FinalHP or ExposedMembers.UnitData[attacker.unitKey].HP ~= attacker.InitialHP then
+		if attacker.unitData.HP ~= attacker.InitialHP then -- testHP ~= attacker.FinalHP or 
 			-- this can happen when an unit takes part in multiple combat, the DLL return the HP left after all combat, while combatResult show the HP at the moment of the combat
 			print ("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetKey()).." player#"..tostring(attacker.unit:GetOwner()))
 			Dprint( DEBUG_UNIT_SCRIPT, "attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO] = ")
 			Dprint( DEBUG_UNIT_SCRIPT, attacker.FinalHP, "=", attacker[CombatResultParameters.MAX_HIT_POINTS], "-", attacker[CombatResultParameters.FINAL_DAMAGE_TO])
-			Dprint( DEBUG_UNIT_SCRIPT, "current HP = unit:GetMaxDamage() - unit:GetDamage() = ", testHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "gamecore HP = unit:GetMaxDamage() - unit:GetDamage() = ", testHP)
 			Dprint( DEBUG_UNIT_SCRIPT, "attacker.InitialHP = ", attacker.InitialHP)
-			Dprint( DEBUG_UNIT_SCRIPT, "PreviousHP = unitData.HP = ", ExposedMembers.UnitData[attacker.unitKey].HP)
+			Dprint( DEBUG_UNIT_SCRIPT, "PreviousHP = unitData.HP = ", attacker.unitData.HP)
 			Dprint( DEBUG_UNIT_SCRIPT, "attacker[CombatResultParameters.DAMAGE_TO] = ", attacker[CombatResultParameters.DAMAGE_TO])
-			--attacker.InitialHP = ExposedMembers.UnitData[attacker.unitKey].HP
+			--attacker.InitialHP = attacker.unitData.HP
 			--attacker.FinalHP = testHP			
 		end		
-		ExposedMembers.UnitData[attacker.unitKey].HP = testHP
+		--attacker.unitData.HP = testHP
+		--attacker.unitData.HP = attacker.FinalHP
 	end
 	if defender.unit then
 		local testHP = defender.unit:GetMaxDamage() - defender.unit:GetDamage()
-		if testHP ~= defender.FinalHP or ExposedMembers.UnitData[defender.unitKey].HP ~= defender.InitialHP then
+		if defender.unitData.HP ~= defender.InitialHP then --testHP ~= defender.FinalHP or 
 			print ("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetKey()).." player#"..tostring(defender.unit:GetOwner()))
 			Dprint( DEBUG_UNIT_SCRIPT, "defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO] = ")
 			Dprint( DEBUG_UNIT_SCRIPT, defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
 			Dprint( DEBUG_UNIT_SCRIPT, "current HP = unit:GetMaxDamage() - unit:GetDamage() = =", testHP)
 			Dprint( DEBUG_UNIT_SCRIPT, "defender.InitialHP = ", defender.InitialHP)
-			Dprint( DEBUG_UNIT_SCRIPT, "PreviousHP = unitData.HP = ", ExposedMembers.UnitData[defender.unitKey].HP)
+			Dprint( DEBUG_UNIT_SCRIPT, "PreviousHP = unitData.HP = ", defender.unitData.HP)
 			Dprint( DEBUG_UNIT_SCRIPT, "defender[CombatResultParameters.DAMAGE_TO] = ", defender[CombatResultParameters.DAMAGE_TO])
-			--defender.InitialHP = ExposedMembers.UnitData[defender.unitKey].HP
+			--defender.InitialHP = defender.unitData.HP
 			--defender.FinalHP = testHP			
 		end		
-		ExposedMembers.UnitData[defender.unitKey].HP = testHP
+		--defender.unitData.HP = testHP
 	end	
 	
 	if attacker.IsUnit then --and not attacker.IsDead then
@@ -2711,7 +2732,7 @@ function OnCombat( combatResult )
 	-- Handle casualties
 	if attacker.IsUnit then -- and attacker[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
 		if attacker.unit then
-			if ExposedMembers.UnitData[attacker.unitKey] then
+			if attacker.unitData then
 				AddFrontLineCasualtiesInfoTo(attacker) 		-- Set Personnel, Equipment, Horses and Materiel casualties from the HP lost
 				AddCasualtiesInfoByTo(defender, attacker) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
 				if not attacker.IsDead then
@@ -2724,7 +2745,7 @@ function OnCombat( combatResult )
 
 	if defender.IsUnit then -- and defender[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
 		if defender.unit then
-			if ExposedMembers.UnitData[defender.unitKey] then
+			if defender.unitData then
 				AddFrontLineCasualtiesInfoTo(defender) 		-- Set Personnel, Equipment, Horses and Materiel casualties from the HP lost
 				AddCasualtiesInfoByTo(attacker, defender) 	-- set detailed casualties (Dead, Captured, Wounded, Damaged, ...) from frontline Casualties and return the updated table
 				if not defender.IsDead then
@@ -2741,19 +2762,19 @@ function OnCombat( combatResult )
 	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 
 	-- Update some stats
-	if attacker.IsUnit and defender.Dead then ExposedMembers.UnitData[attacker.unitKey].TotalKill = ExposedMembers.UnitData[attacker.unitKey].TotalKill + defender.Dead end
-	if defender.IsUnit and attacker.Dead then ExposedMembers.UnitData[defender.unitKey].TotalKill = ExposedMembers.UnitData[defender.unitKey].TotalKill + attacker.Dead end
+	if attacker.IsUnit and defender.Dead then attacker.unitData.TotalKill = attacker.unitData.TotalKill + defender.Dead end
+	if defender.IsUnit and attacker.Dead then defender.unitData.TotalKill = defender.unitData.TotalKill + attacker.Dead end
 
 	if attacker.IsUnit and defender.IsUnit then
 		local turn = Game.GetCurrentGameTurn()
-		ExposedMembers.UnitData[attacker.unitKey].LastCombatTurn = turn
-		ExposedMembers.UnitData[defender.unitKey].LastCombatTurn = turn
+		attacker.unitData.LastCombatTurn = turn
+		defender.unitData.LastCombatTurn = turn
 
-		ExposedMembers.UnitData[attacker.unitKey].LastCombatResult = defender[CombatResultParameters.DAMAGE_TO] - attacker[CombatResultParameters.DAMAGE_TO]
-		ExposedMembers.UnitData[defender.unitKey].LastCombatResult = attacker[CombatResultParameters.DAMAGE_TO] - defender[CombatResultParameters.DAMAGE_TO]
+		attacker.unitData.LastCombatResult = defender[CombatResultParameters.DAMAGE_TO] - attacker[CombatResultParameters.DAMAGE_TO]
+		defender.unitData.LastCombatResult = attacker[CombatResultParameters.DAMAGE_TO] - defender[CombatResultParameters.DAMAGE_TO]
 
-		ExposedMembers.UnitData[attacker.unitKey].LastCombatType = combatType
-		ExposedMembers.UnitData[defender.unitKey].LastCombatType = combatType
+		attacker.unitData.LastCombatType = combatType
+		defender.unitData.LastCombatType = combatType
 	end
 	
 
@@ -2766,19 +2787,18 @@ function OnCombat( combatResult )
 
 		if defender.IsDead and attacker.unit then
 
-			attacker.Prisoners 			= defender.Captured + ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel -- capture all the wounded (to do : add prisonners from enemy nationality here)
+			attacker.Prisoners 			= defender.Captured + defender.unitData.WoundedPersonnel -- capture all the wounded (to do : add prisonners from enemy nationality here)
 			attacker.MaterielGained 	= GetMaterielFromKillOfBy(defender, attacker)
-			attacker.HorsesGained 		= math.floor(defender.HorsesLost * attackerMaterielGainPercent / 100) + math.floor(ExposedMembers.UnitData[defender.unitKey].Horses * attackerMaterielKillPercent /100)
-			attacker.LiberatedPrisoners = GCO.GetTotalPrisoners(ExposedMembers.UnitData[defender.unitKey]) -- to do : recruit only some of the enemy prisonners and liberate own prisonners
-			attacker.FoodGained 		= math.floor(ExposedMembers.UnitData[defender.unitKey].FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) /100)
-			--attacker.FoodGained 		= math.max(0, math.min(attacker.unit:GetBaseFoodStock() - ExposedMembers.UnitData[attacker.unitKey].FoodStock, attacker.FoodGained ))
+			attacker.HorsesGained 		= math.floor(defender.HorsesLost * attackerMaterielGainPercent / 100) + math.floor(defender.unitData.Horses * attackerMaterielKillPercent /100)
+			attacker.LiberatedPrisoners = GCO.GetTotalPrisoners(defender.unitData) 	-- to do : recruit only some of the enemy prisonners and liberate own prisonners
+			attacker.FoodGained 		= math.floor(defender.unitData.FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) / 100)
 			attacker.EquipmentGained 	= {}
 			for equipmentKey, value in pairs(defender.EquipmentLost) do
 				local fromCombat		= value * attackerMaterielGainPercent / 100
 				local equipmentID		= tonumber(equipmentKey)
 				local equipmentClassID	= GetUnitEquipmentClass(defender.unitType, equipmentID)
 				local equipmentClassKey	= tostring(equipmentClassID)
-				local fromReserve		= ExposedMembers.UnitData[defender.unitKey].Equipment[equipmentClassKey][equipmentKey] * attackerMaterielKillPercent / 100
+				local fromReserve		= defender.unitData.Equipment[equipmentClassKey][equipmentKey] * attackerMaterielKillPercent / 100
 				local equipmentGained	= math.floor(fromCombat + fromReserve)
 				
 				attacker.EquipmentGained[equipmentKey] = equipmentGained
@@ -2792,13 +2812,13 @@ function OnCombat( combatResult )
 			end
 			
 			-- Update composition
-			ExposedMembers.UnitData[defender.unitKey].WoundedPersonnel 	= 0 -- Just to keep things clean...
-			ExposedMembers.UnitData[defender.unitKey].FoodStock 		= GCO.ToDecimals(ExposedMembers.UnitData[defender.unitKey].FoodStock - attacker.FoodGained) -- Just to keep things clean...
+			defender.unitData.WoundedPersonnel 	= 0 -- Just to keep things clean...
+			defender.unitData.FoodStock 		= GCO.ToDecimals(defender.unitData.FoodStock - attacker.FoodGained) -- Just to keep things clean...
 			attacker.unit:ChangeComponent("MaterielReserve", attacker.MaterielGained)
 			attacker.unit:ChangeComponent("PersonnelReserve", attacker.LiberatedPrisoners)
 			attacker.unit:ChangeComponent("FoodStock", attacker.FoodGained)
 			-- To do : prisonners by nationality
-			ExposedMembers.UnitData[attacker.unitKey].Prisoners[defender.playerID]	= ExposedMembers.UnitData[attacker.unitKey].Prisoners[defender.playerID] + attacker.Prisoners
+			attacker.unitData.Prisoners[defender.playerID]	= attacker.unitData.Prisoners[defender.playerID] + attacker.Prisoners
 
 		else
 			-- attacker
@@ -2825,7 +2845,7 @@ function OnCombat( combatResult )
 				attacker.unit:ChangeStock(materielResourceID, attacker.MaterielGained)
 				attacker.unit:ChangeStock(horsesResourceID, attacker.HorsesGained)
 				
-				ExposedMembers.UnitData[attacker.unitKey].Prisoners[defender.playerID]	= ExposedMembers.UnitData[attacker.unitKey].Prisoners[defender.playerID] + attacker.Prisoners
+				attacker.unitData.Prisoners[defender.playerID]	= attacker.unitData.Prisoners[defender.playerID] + attacker.Prisoners
 			end
 			
 			-- defender
@@ -2851,7 +2871,7 @@ function OnCombat( combatResult )
 				
 				defender.unit:ChangeStock(materielResourceID, defender.MaterielGained)
 				defender.unit:ChangeStock(horsesResourceID, defender.HorsesGained)
-				ExposedMembers.UnitData[defender.unitKey].Prisoners[attacker.playerID]	= ExposedMembers.UnitData[defender.unitKey].Prisoners[attacker.playerID] + defender.Prisoners
+				defender.unitData.Prisoners[attacker.playerID]	= defender.unitData.Prisoners[attacker.playerID] + defender.Prisoners
 			end
 		end
 
@@ -2928,6 +2948,27 @@ function HealingUnits(playerID)
 	Dlog("HealingUnits /END")
 end
 
+function GetHP(self)
+	local unitKey 	= self:GetKey()
+	local unitData 	= ExposedMembers.UnitData[unitKey]
+	if unitData then
+		return unitData.HP
+	else
+		GCO.Error("Trying to get HP but unitData is nil for "..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+		return 0
+	end	
+end
+
+function SetHP(self, value)
+	local unitKey 	= self:GetKey()
+	local unitData 	= ExposedMembers.UnitData[unitKey]
+	if unitData then
+		unitData.HP = value
+	else
+		GCO.Error("Trying to set HP but unitData is nil for "..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+	end	
+end
+
 function Heal(self)
 
 	if self:GetDamage() == 0 then return end
@@ -2946,7 +2987,7 @@ function Heal(self)
 			UnitDelayedHealing[unitKey] = Game.GetCurrentGameTurn()
 			--GCO.Warning("desynchronized data in HealingUnits() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
 			--ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
-			print("WARNING: desynchronized data in HealingUnits() for self: "..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+			print("WARNING: desynchronized data in HealingUnits() for unit: "..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
 		end
 		return
 	end
@@ -3434,7 +3475,7 @@ function DoMorale(self)
 	end
 	
 	CheckComponentsHP(self, "In DoMorale(), desertion Rate = " .. tostring(desertionRate))
-	if desertionRate > 0 then
+	if false then--desertionRate > 0 then -- to do : reactivate after writing the code to handle Equipment balance between front/reserve
 		local HP = self:GetMaxDamage() - self:GetDamage()
 		local unitType = self:GetType()
 		local personnelReservePercent = GCO.Round( unitData.PersonnelReserve / self:GetMaxPersonnelReserve() * 100)
@@ -3771,6 +3812,8 @@ function AttachUnitFunctions(unit)
 		u.SetSupplyLine				= SetSupplyLine
 		u.GetSupplyLineEfficiency	= GetSupplyLineEfficiency
 		u.Heal						= Heal
+		u.GetHP 					= GetHP
+		u.SetHP 					= SetHP
 		--
 		u.GetAntiPersonnelPercent	= GetAntiPersonnelPercent
 		--
