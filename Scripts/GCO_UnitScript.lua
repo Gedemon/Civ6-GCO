@@ -25,6 +25,7 @@ local GCO = ExposedMembers.GCO or {}
 local UnitHitPointsTable 	= {} -- cached table to store the required values of an unit components based on it's HP
 local UnitWithoutEquipment	= {} -- cached table to store units requiring equipment initialization
 local UnitLastHealingValue	= {} -- cached table to store units HP gained from healing
+local UnitDelayedHealing	= {} -- cached table to store units with desync data for delayed healing
 
 -- Delay equipment initialization (to allow a city/scenario to pass the equipment list to an unit that has just been build/spawned, after the mandatory data initialization on Events.UnitAddedToMap)
 local InitializeEquipmentTimer 	= 0	
@@ -2902,264 +2903,235 @@ Events.Combat.Add( OnCombat )
 -----------------------------------------------------------------------------------------
 -- Healing
 -----------------------------------------------------------------------------------------
-function HealingUnits(playerID) -- to do : add dying wounded to the "Deaths" statistic ?
+function HealingUnits(playerID)
 	Dlog("HealingUnits /START")
 	local DEBUG_UNIT_SCRIPT = true
 
-	local player = Players[playerID]
-	local playerConfig = PlayerConfigurations[playerID]
-	local playerUnits = player:GetUnits()
+	local player 		= Players[playerID]
+	local playerConfig 	= PlayerConfigurations[playerID]
+	local playerUnits 	= player:GetUnits()
+	
 	if playerUnits then
 		Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
 		Dprint( DEBUG_UNIT_SCRIPT, "Healing units for " .. tostring(Locale.Lookup(playerConfig:GetCivilizationShortDescription())))
 
 		local startTime = Automation.GetTime()
-
-		-- stock units in a table from higher damage to lower
-		local damaged = {}		-- List of damaged units needing reinforcements, ordered by healt left
-		local healTable = {} 	-- This table store HP gained to apply en masse after all reinforcements are calculated (visual fix)
-		for n = 0, maxHP do 	-- An unit can still be alive at 0 HP ?
-			damaged[n] = {}
-		end
-
-		local maxTransfer = {}	-- maximum value of a component that can be used to heal in one turn
-		local alreadyUsed = {}	-- materiel is used both to heal the unit (reserve -> front) and repair Equipment in reserve, up to a limit
 		for i, unit in playerUnits:Members() do
-			-- todo : check if the unit can heal (has a supply line, is not on water, ...)
-			local hp 		= unit:GetMaxDamage() - unit:GetDamage()
-			local bCheck	= CheckComponentsHP(unit, "bypassing healing")
-			if hp < maxHP and bCheck then
-				table.insert(damaged[hp], unit)
-				healTable[unit] = 0
-			end
-			if (not bCheck) and ExposedMembers.UnitData[unit:GetKey()] then
-				GCO.Warning("desynchronized data in HealingUnits() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
-				ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
-				--print("WARNING: in HealingUnits() for unit: "..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
-			end
-			maxTransfer[unit] = unit:GetMaxTransferTable()
-			alreadyUsed[unit] = {}
-			alreadyUsed[unit].Materiel = 0
-		end
-
-		-- try to reinforce the selected units (move personnel, vehicule, horses, materiel from reserve to frontline)
-		-- up to MAX_HP_HEALED (or an unit component limit), 1hp per loop
-		local hasReachedLimit = {}
-		for healHP = 1, GameInfo.GlobalParameters["UNIT_MAX_HP_HEALED_FROM_RESERVE"].Value do -- to do : add limit by units in the loop
-			for n = 0, maxHP do
-				local unitTable = damaged[n]
-				for j, unit in ipairs (unitTable) do
-					if not hasReachedLimit[unit] then
-						local hp 		= unit:GetMaxDamage() - unit:GetDamage()
-						local key 		= unit:GetKey()
-						
-						if key then
-							if (hp + healTable[unit] < maxHP) then
-								local unitInfo 	= GameInfo.Units[unit:GetType()] -- GetType in script, GetUnitType in UI context...
-								local unitData	= ExposedMembers.UnitData[key]
-								
-								if not unitData then 
-									print ("WARNING, no entry for " .. Locale.Lookup(unit:GetName()) .. " id#" .. tostring(unit:GetKey()))
-								else								
-									local hitPoints = UnitHitPointsTable[unitInfo.Index]
-									local loopHP = hp + healTable[unit] +1
-									-- check here if the unit has enough reserves to get +1HP
-									local reqPersonnel 	= hitPoints[loopHP].Personnel - hitPoints[hp].Personnel
-									if reqPersonnel > tonumber(maxTransfer[unit].Personnel) then
-										hasReachedLimit[unit] = true
-										Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(unit:GetName()) .. " at " .. tostring(healHP) ..", Personnel Requirements = ".. tostring(reqPersonnel) .. ", Max transferable per turn = ".. tostring(maxTransfer[unit].Personnel))
-									
-									else
-										local reqMateriel 	= hitPoints[loopHP].Materiel 	- hitPoints[hp].Materiel
-										if reqMateriel > tonumber(maxTransfer[unit].Materiel) then
-											hasReachedLimit[unit] = true
-											Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(unit:GetName()) .. " at " .. tostring(healHP) ..", Materiel Requirements = " .. tostring(reqMateriel) .. ", Max transferable per turn = ".. tostring(maxTransfer[unit].Materiel) )
-										
-										else
-											if unitData.PersonnelReserve 	< reqPersonnel 	then hasReachedLimit[unit] = true end
-											if unitData.MaterielReserve 	< reqMateriel 	then hasReachedLimit[unit] = true end											
-											if unitData.HorsesReserve 		< (hitPoints[loopHP].Horses - hitPoints[hp].Horses) then hasReachedLimit[unit] = true end
-												
-											for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
-												local equipmentClassID 	= tonumber(equipmentClassKey)
-												if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table								
-													if unit:GetEquipmentClassReserve(equipmentClassID) < hitPoints[loopHP].EquipmentClass[equipmentClassID] - hitPoints[hp].EquipmentClass[equipmentClassID] then
-														hasReachedLimit[unit] = true
-													end
-												end
-											end
-										end
-									end
-									
-									if not hasReachedLimit[unit] then
-										healTable[unit] = healTable[unit] + 1 -- store +1 HP for this unit
-									end
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-
-
-		-- apply reinforcement from all passes to units in one call to SetDamage (fix visual display of one "+1" when the unit was getting possibly more)
-		for unit, hp in pairs (healTable) do
-			CheckComponentsHP(unit, "before Healing")
-			local key = unit:GetKey()
-			if key then
-
-				local unitInfo 				= GameInfo.Units[unit:GetType()]
-				local unitData				= ExposedMembers.UnitData[key]
-				local damage 				= unit:GetDamage()
-				local initialHP 			= maxHP - damage
-				local finalHP 				= initialHP + hp
-				local hitPoints 			= UnitHitPointsTable[unitInfo.Index]
-				unitData.HP 				= finalHP
-				UnitLastHealingValue[key] 	= hp
-				
-				if finalHP < initialHP then
-					print ("ERROR : finalHP < initialHP for ", key, " initialHP:", initialHP , " finalHP:", finalHP, " hp from heal table:", hp)
-				end
-				--Dprint( DEBUG_UNIT_SCRIPT, "initialHP:", initialHP , "finalHP:", finalHP, "hp from heal table:", hp)				
-				Dprint( DEBUG_UNIT_SCRIPT, "Healing ", Locale.Lookup(unit:GetName()), " id#", unit:GetKey(), " initialHP= ", initialHP , " finalHP= ", finalHP, " heal table HP = ", hp)
-				
-				unit:SetDamage(damage-hp)
-
-				-- update reserve and frontline...
-				local reqPersonnel 	= hitPoints[finalHP].Personnel - hitPoints[initialHP].Personnel
-				local reqHorses 	= hitPoints[finalHP].Horses 	- hitPoints[initialHP].Horses
-				local reqMateriel 	= hitPoints[finalHP].Materiel 	- hitPoints[initialHP].Materiel
-				local reqEquipment 	= {}
-				
-				unitData.PersonnelReserve 	= unitData.PersonnelReserve - reqPersonnel
-				unitData.HorsesReserve 		= unitData.HorsesReserve 	- reqHorses
-				unitData.MaterielReserve 	= unitData.MaterielReserve 	- reqMateriel
-
-				unitData.Personnel 	= unitData.Personnel 	+ reqPersonnel
-				unitData.Horses 	= unitData.Horses 		+ reqHorses
-				unitData.Materiel 	= unitData.Materiel 	+ reqMateriel
-				
-				for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
-					local equipmentClassID 	= tonumber(equipmentClassKey)
-					if unit:IsRequiringEquipmentClass(equipmentClassID) then
-						local required	 			= hitPoints[finalHP].EquipmentClass[equipmentClassID] - hitPoints[initialHP].EquipmentClass[equipmentClassID]
-						local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)						
-						local numEquipmentToProvide	= required						
-						for _, data in ipairs(equipmentTypes) do							
-							if numEquipmentToProvide > 0 then
-								local equipmentID 		= data.EquipmentID
-								local equipmentReserve 	= unit:GetReserveEquipment(equipmentID, equipmentClassID)
-								local equipmentUsed		= 0
-								if equipmentReserve >= numEquipmentToProvide then
-									equipmentUsed 			= numEquipmentToProvide
-									numEquipmentToProvide	= 0
-								else
-									equipmentUsed 			= equipmentReserve
-									numEquipmentToProvide	= numEquipmentToProvide - equipmentReserve
-								end
-								if equipmentUsed > 0 then
-									reqEquipment[equipmentID] = equipmentUsed
-									unit:ChangeReserveEquipment(equipmentID, -equipmentUsed, equipmentClassID)
-									unit:ChangeFrontLineEquipment(equipmentID, equipmentUsed, equipmentClassID)								
-								end
-							end
-						end						
-					end
-				end				
-
-				alreadyUsed[unit].Materiel = reqMateriel
-
-				-- Visualize healing
-				local healingData = {reqPersonnel = reqPersonnel, reqMateriel = reqMateriel, reqHorses = reqHorses, X = unit:GetX(), Y = unit:GetY() } --reqEquipment = reqEquipment, 
-				ShowFrontLineHealingFloatingText(healingData)
-
-				--LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
-				
-				CheckComponentsHP(unit, "after Healing")
-			end
-
-		end
-
-		-- try to heal wounded and repair Equipment using materiel (move healed personnel and repaired Equipment to reserve)
-		for i, unit in playerUnits:Members() do
-			local key = unit:GetKey()
-			if key then
-				if ExposedMembers.UnitData[key] then
-				
-					local unitData	= ExposedMembers.UnitData[key]
-				
-					-- hardcoding and magic numbers everywhere, to do : era, promotions, support					
-					-- check available medicine...
-					local availableMedicine = unitData.MedicineStock
-					
-					-- get the number of wounded that may heal or die this turn
-					local woundedToHandle	= GCO.Round(math.min(unitData.WoundedPersonnel, math.max(20,unitData.WoundedPersonnel * 50/100)))
-					
-					-- wounded soldiers may die...
-					local potentialDeads 	= GCO.Round(woundedToHandle / 2)
-					local savedWithMedicine	= math.min(availableMedicine*10, GCO.Round(potentialDeads/2))
-					local medicineUsed		= math.ceil(savedWithMedicine/10)
-					
-					local deads				= potentialDeads - savedWithMedicine
-					availableMedicine		= availableMedicine - medicineUsed
-					
-					unitData.WoundedPersonnel 	= unitData.WoundedPersonnel - deads
-					--unitData.TotalDeath			= unitData.TotalDeath 		+ deads	-- Update Stats
-
-					-- wounded soldiers may heal...
-					local potentialHealed 		= woundedToHandle - potentialDeads
-					local healedDirectly		= GCO.Round(potentialHealed/2)
-					local healedWithMedicine	= math.min(availableMedicine*10, potentialHealed - healedDirectly )
-					medicineUsed				= medicineUsed + math.ceil(healedWithMedicine/10)
-					
-					local healed 				= healedDirectly + healedWithMedicine
-					
-					unitData.WoundedPersonnel = unitData.WoundedPersonnel - healed
-					unitData.PersonnelReserve = unitData.PersonnelReserve + healed
-					
-					-- remove used medicine
-					if unitData.MedicineStock - medicineUsed < 0 then
-						print ("WARNING : used more medicine than available, initial stock = ".. tostring(unitData.MedicineStock) ..", used =".. tostring(medicineUsed)..", wounded to treat = ".. tostring(woundedToHandle))
-						Dprint( DEBUG_UNIT_SCRIPT, "deads = ", deads, " healed = ", healed, " potentialDeads = ", potentialDeads, " savedWithMedicine = ", savedWithMedicine, " potentialHealed = ", potentialHealed, " healedDirectly = ", healedDirectly, " requiredMedicine = ", requiredMedicine)
-					end
-					unitData.MedicineStock = math.max(0, unitData.MedicineStock - medicineUsed)
-
-					-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
-					local repairedEquipment = 0
-					--[[
-					if unitData.MaterielPerEquipment > 0 then
-						local materielAvailable = maxTransfer[unit].Materiel - alreadyUsed[unit].Materiel
-						local maxRepairedEquipment = GCO.Round(materielAvailable/(unitData.MaterielPerEquipment* GameInfo.GlobalParameters["UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
-						local repairedEquipment = 0
-						if maxRepairedEquipment > 0 then
-							repairedEquipment = math.min(maxRepairedEquipment, unitData.DamagedEquipment)
-							unitData.DamagedEquipment = unitData.DamagedEquipment - repairedEquipment
-							unitData.EquipmentReserve = unitData.EquipmentReserve + repairedEquipment
-						end
-					end
-					--]]
-
-					-- Visualize healing
-					local healingData = {deads = deads, healed = healed, repairedEquipment = repairedEquipment, X = unit:GetX(), Y = unit:GetY() }
-					ShowReserveHealingFloatingText(healingData)
-
-					-- when called from GameEvents.PlayerTurnStarted() this makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager
-					--LuaEvents.UnitsCompositionUpdated(playerID, unit:GetID()) -- call to update flag
-
-				else
-					print ("- WARNING : no entry in ExposedMembers.UnitData for unit ".. tostring(unit:GetName()) .." (key = ".. tostring(key) ..") in HealingUnits()")
-				end
-			else
-				print ("- WARNING : key is nil for unit ".. tostring(unit) .." in HealingUnits()")
-			end
+			unit:Heal()
 		end
 
 		local endTime = Automation.GetTime()
+		Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
 		Dprint( DEBUG_UNIT_SCRIPT, "Healing units used " .. tostring(endTime-startTime) .. " seconds")
 		Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
 	end
 	Dlog("HealingUnits /END")
+end
+
+function Heal(self)
+
+	if self:GetDamage() == 0 then return end
+
+	local DEBUG_UNIT_SCRIPT = true
+	Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
+	Dprint( DEBUG_UNIT_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
+
+	if UnitDelayedHealing[unitKey] and UnitDelayedHealing[unitKey] < Game.GetCurrentGameTurn() then
+		GCO.Warning("Unit with desynchronized data wasn't healed during the previous turn :[NEWLINE]"..Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()).." prevTurn = "..tostring(unitDelayedHealing[unitKey]).." currTurn = "..tostring(Game.GetCurrentGameTurn()))
+	end
+	
+	local unitKey = self:GetKey()
+	if (not CheckComponentsHP(self, "bypassing healing")) then
+		if ExposedMembers.UnitData[unitKey] then
+			UnitDelayedHealing[unitKey] = Game.GetCurrentGameTurn()
+			--GCO.Warning("desynchronized data in HealingUnits() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+			--ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
+			print("WARNING: desynchronized data in HealingUnits() for self: "..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+		end
+		return
+	end
+	
+	local unitData = ExposedMembers.UnitData[unitKey]
+	if not unitData then 
+		print ("WARNING, no entry for " .. Locale.Lookup(self:GetName()) .. " id#" .. tostring(self:GetKey()))
+		return
+	end
+	
+	UnitDelayedHealing[unitKey] = nil
+
+	local restoredHP 		= 0 	-- HP gained to apply en masse after all reinforcements are calculated (visual fix)
+	local maxTransfer 		= self:GetMaxTransferTable()	-- maximum value of a component that can be used to heal in one turn
+	local alreadyUsed 		= {}	-- materiel is used both to heal the unit (reserve -> front) and repair Equipment in reserve, up to a limit
+	alreadyUsed.Materiel 	= 0
+	local damage 			= self:GetDamage()
+	local initialHP 		= maxHP - damage
+	local hasReachedLimit 	= false
+	local unitInfo 			= GameInfo.Units[self:GetType()]
+	local hitPoints 		= UnitHitPointsTable[unitInfo.Index]
+
+	-- try to reinforce the selected Units (move personnel, vehicule, horses, materiel from reserve to frontline)
+	-- up to MAX_HP_HEALED (or an self component limit), 1hp per loop
+	for healHP = 1, GameInfo.GlobalParameters["UNIT_MAX_HP_HEALED_FROM_RESERVE"].Value do -- to do : add limit by Units in the loop
+		if not hasReachedLimit then
+			if (initialHP + restoredHP < maxHP) then
+				local loopHP = initialHP + restoredHP + 1
+				-- check here if the unit has enough reserves to get +1HP
+				local reqPersonnel 	= hitPoints[loopHP].Personnel - hitPoints[initialHP].Personnel
+				if reqPersonnel > tonumber(maxTransfer.Personnel) then
+					hasReachedLimit = true
+					Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(self:GetName()) .. " at " .. tostring(healHP) ..", Personnel Requirements = ".. tostring(reqPersonnel) .. ", Max transferable per turn = ".. tostring(maxTransfer.Personnel))
+
+				else
+					local reqMateriel 	= hitPoints[loopHP].Materiel 	- hitPoints[initialHP].Materiel
+					if reqMateriel > tonumber(maxTransfer.Materiel) then
+						hasReachedLimit = true
+						Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(self:GetName()) .. " at " .. tostring(healHP) ..", Materiel Requirements = " .. tostring(reqMateriel) .. ", Max transferable per turn = ".. tostring(maxTransfer.Materiel) )
+					
+					else
+						if unitData.PersonnelReserve 	< reqPersonnel 	then hasReachedLimit = true end
+						if unitData.MaterielReserve 	< reqMateriel 	then hasReachedLimit = true end											
+						if unitData.HorsesReserve 		< (hitPoints[loopHP].Horses - hitPoints[initialHP].Horses) then hasReachedLimit = true end
+							
+						for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
+							local equipmentClassID 	= tonumber(equipmentClassKey)
+							if self:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the selfHitPoints table								
+								if self:GetEquipmentClassReserve(equipmentClassID) < hitPoints[loopHP].EquipmentClass[equipmentClassID] - hitPoints[initialHP].EquipmentClass[equipmentClassID] then
+									hasReachedLimit = true
+								end
+							end
+						end
+					end
+				end
+
+				if not hasReachedLimit then
+					restoredHP = restoredHP + 1 -- store +1 HP for this self
+				end
+			end
+		end
+	end
+	
+	CheckComponentsHP(self, "before Healing")
+
+	local finalHP 					= initialHP + restoredHP
+	unitData.HP 					= finalHP
+	UnitLastHealingValue[unitKey] 	= restoredHP
+	
+	if finalHP < initialHP then
+		GCO.Error("finalHP < initialHP for ", unitKey, " initialHP:", initialHP , " finalHP:", finalHP, " restoredHP :", restoredHP)
+	end		
+	Dprint( DEBUG_UNIT_SCRIPT, " initialHP = ", initialHP , " finalHP = ", finalHP, " restoredHP = ", restoredHP)
+				
+	self:SetDamage(damage-restoredHP)
+	
+	-- update reserve and frontline...
+	local reqPersonnel 	= hitPoints[finalHP].Personnel 	- hitPoints[initialHP].Personnel
+	local reqHorses 	= hitPoints[finalHP].Horses 	- hitPoints[initialHP].Horses
+	local reqMateriel 	= hitPoints[finalHP].Materiel 	- hitPoints[initialHP].Materiel
+	local reqEquipment 	= {}
+	
+	unitData.PersonnelReserve 	= unitData.PersonnelReserve - reqPersonnel
+	unitData.HorsesReserve 		= unitData.HorsesReserve 	- reqHorses
+	unitData.MaterielReserve 	= unitData.MaterielReserve 	- reqMateriel
+
+	unitData.Personnel 	= unitData.Personnel 	+ reqPersonnel
+	unitData.Horses 	= unitData.Horses 		+ reqHorses
+	unitData.Materiel 	= unitData.Materiel 	+ reqMateriel
+	
+	for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
+		local equipmentClassID 	= tonumber(equipmentClassKey)
+		if self:IsRequiringEquipmentClass(equipmentClassID) then
+			local required	 			= hitPoints[finalHP].EquipmentClass[equipmentClassID] - hitPoints[initialHP].EquipmentClass[equipmentClassID]
+			local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)						
+			local numEquipmentToProvide	= required						
+			for _, data in ipairs(equipmentTypes) do							
+				if numEquipmentToProvide > 0 then
+					local equipmentID 		= data.EquipmentID
+					local equipmentReserve 	= self:GetReserveEquipment(equipmentID, equipmentClassID)
+					local equipmentUsed		= 0
+					if equipmentReserve >= numEquipmentToProvide then
+						equipmentUsed 			= numEquipmentToProvide
+						numEquipmentToProvide	= 0
+					else
+						equipmentUsed 			= equipmentReserve
+						numEquipmentToProvide	= numEquipmentToProvide - equipmentReserve
+					end
+					if equipmentUsed > 0 then
+						reqEquipment[equipmentID] = equipmentUsed
+						self:ChangeReserveEquipment(equipmentID, -equipmentUsed, equipmentClassID)
+						self:ChangeFrontLineEquipment(equipmentID, equipmentUsed, equipmentClassID)								
+					end
+				end
+			end						
+		end
+	end
+	
+	alreadyUsed.Materiel = reqMateriel
+
+	-- Visualize healing
+	local healingData = {reqPersonnel = reqPersonnel, reqMateriel = reqMateriel, reqHorses = reqHorses, X = self:GetX(), Y = self:GetY() } --reqEquipment = reqEquipment, 
+	ShowFrontLineHealingFloatingText(healingData)
+	
+	CheckComponentsHP(self, "after Healing")
+
+	-- try to heal wounded and repair Equipment using materiel (move healed personnel and repaired Equipment to reserve)	
+
+	-- hardcoding and magic numbers everywhere, to do : era, promotions, support					
+	-- check available medicine...
+	local availableMedicine = unitData.MedicineStock
+	
+	-- get the number of wounded that may heal or die this turn
+	local woundedToHandle	= GCO.Round(math.min(unitData.WoundedPersonnel, math.max(20,unitData.WoundedPersonnel * 50/100)))
+	
+	-- wounded soldiers may die...
+	local potentialDeads 	= GCO.Round(woundedToHandle / 2)
+	local savedWithMedicine	= math.min(availableMedicine*10, GCO.Round(potentialDeads/2))
+	local medicineUsed		= math.ceil(savedWithMedicine/10)
+	
+	local deads				= potentialDeads - savedWithMedicine
+	availableMedicine		= availableMedicine - medicineUsed
+	
+	unitData.WoundedPersonnel 	= unitData.WoundedPersonnel - deads
+	--unitData.TotalDeath			= unitData.TotalDeath 		+ deads	-- Update Stats
+
+	-- wounded soldiers may heal...
+	local potentialHealed 		= woundedToHandle - potentialDeads
+	local healedDirectly		= GCO.Round(potentialHealed/2)
+	local healedWithMedicine	= math.min(availableMedicine*10, potentialHealed - healedDirectly )
+	medicineUsed				= medicineUsed + math.ceil(healedWithMedicine/10)
+	
+	local healed 				= healedDirectly + healedWithMedicine
+	
+	unitData.WoundedPersonnel = unitData.WoundedPersonnel - healed
+	unitData.PersonnelReserve = unitData.PersonnelReserve + healed
+	
+	-- remove used medicine
+	if unitData.MedicineStock - medicineUsed < 0 then
+		print ("WARNING : used more medicine than available, initial stock = ".. tostring(unitData.MedicineStock) ..", used =".. tostring(medicineUsed)..", wounded to treat = ".. tostring(woundedToHandle))
+		Dprint( DEBUG_UNIT_SCRIPT, "deads = ", deads, " healed = ", healed, " potentialDeads = ", potentialDeads, " savedWithMedicine = ", savedWithMedicine, " potentialHealed = ", potentialHealed, " healedDirectly = ", healedDirectly, " requiredMedicine = ", requiredMedicine)
+	end
+	unitData.MedicineStock = math.max(0, unitData.MedicineStock - medicineUsed)
+
+	-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
+	local repairedEquipment = 0
+	--[[
+	if unitData.MaterielPerEquipment > 0 then
+		local materielAvailable = maxTransfer.Materiel - alreadyUsed.Materiel
+		local maxRepairedEquipment = GCO.Round(materielAvailable/(unitData.MaterielPerEquipment* GameInfo.GlobalParameters["self_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
+		local repairedEquipment = 0
+		if maxRepairedEquipment > 0 then
+			repairedEquipment = math.min(maxRepairedEquipment, unitData.DamagedEquipment)
+			unitData.DamagedEquipment = unitData.DamagedEquipment - repairedEquipment
+			unitData.EquipmentReserve = unitData.EquipmentReserve + repairedEquipment
+		end
+	end
+	--]]
+
+	-- Visualize healing
+	local healingData = {deads = deads, healed = healed, repairedEquipment = repairedEquipment, X = self:GetX(), Y = self:GetY() }
+	ShowReserveHealingFloatingText(healingData)
+	
+	-- when called from GameEvents.PlayerTurnStarted() this makes the game crash at self.m_Instance.selfIcon:SetToolTipString( Locale.Lookup(nameString) ) in selfFlagManager
+	LuaEvents.UnitsCompositionUpdated(playerID, self:GetID()) -- call to update flag	
 end
 
 function HealingControl (playerID, unitID, newDamage, prevDamage)
@@ -3176,13 +3148,16 @@ function HealingControl (playerID, unitID, newDamage, prevDamage)
 		Dprint( DEBUG_UNIT_SCRIPT, "HP change =", value)
 		Dprint( DEBUG_UNIT_SCRIPT, "newDamage, prevDamage =", newDamage, prevDamage)
 		Dprint( DEBUG_UNIT_SCRIPT, "------------------------------------------------------------------------------")
-		data.testHP = testHP
-		if value > 0 and UnitLastHealingValue[unitKey] ~= value then
+		data.testHP = testHP		
+		
+		if value > 0 and UnitLastHealingValue[unitKey] ~= value then -- that unit has received health outside the mod control (like when pillaging, hardcoding is bad Firaxis, bad !)
 			--ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
 			local plot = Map.GetPlot(unit:GetX(), unit:GetY())
-			--GCO.Error("Unexpected healing : +"..tostring(value).." HP for "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
 			Dprint( DEBUG_UNIT_SCRIPT, "Reverting unexpected healing : +"..tostring(value).." HP for "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()), ", in city = ", plot:IsCity())
 			unit:SetDamage(prevDamage)
+		elseif UnitDelayedHealing[unitKey] then -- now that combat damage has been applied, try to heal units marked for delayed healing again (the Heal function will check for desync again)
+			unit:Heal()
+			return
 		end
 		UnitLastHealingValue[unitKey] = nil
 	end
@@ -3795,6 +3770,7 @@ function AttachUnitFunctions(unit)
 		u.GetSupplyPathPlots 		= GetSupplyPathPlots
 		u.SetSupplyLine				= SetSupplyLine
 		u.GetSupplyLineEfficiency	= GetSupplyLineEfficiency
+		u.Heal						= Heal
 		--
 		u.GetAntiPersonnelPercent	= GetAntiPersonnelPercent
 		--

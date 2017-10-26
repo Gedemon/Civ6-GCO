@@ -288,8 +288,9 @@ function DoTurnForLocal() -- The Error reported on the line below is triggered b
 	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	local player = Players[playerID]
 	if player and not player:HasStartedTurn() then	
-		DoPlayerTurn(playerID)
-		CheckPlayerTurn(playerID)
+		--DoPlayerTurn(playerID)
+		--CheckPlayerTurn(playerID)
+		LuaEvents.StartPlayerTurn(playerID)
 	end
 end
 Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
@@ -298,10 +299,43 @@ function DoTurnForRemote( playerID )
 	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	print("-- Events.RemotePlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
 	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-	DoPlayerTurn(playerID)	
-	CheckPlayerTurn(playerID)
+	--DoPlayerTurn(playerID)	
+	--CheckPlayerTurn(playerID)
+	LuaEvents.StartPlayerTurn(playerID)
 end
 Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
+
+--
+function DoTurnForNextPlayerFromRemote( playerID )
+
+	repeat
+		playerID = playerID + 1
+		player = Players[playerID]
+	until((player and player:WasEverAlive()) or playerID > 63)
+	
+	if playerID > 63 then playerID = 0 end
+	
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	print("-- Events.RemotePlayerTurnEnd -> Testing Start Turn for player#"..tostring(playerID))
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	LuaEvents.StartPlayerTurn(playerID)
+end
+Events.RemotePlayerTurnEnd.Add( DoTurnForNextPlayerFromRemote )
+
+function DoTurnForNextPlayerFromLocal( playerID )
+	if not playerID then playerID = 0 end
+	repeat
+		playerID = playerID + 1
+		player = Players[playerID]
+	until((player and player:WasEverAlive()) or playerID > 63)
+	
+	if playerID > 63 then playerID = 0 end
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	print("-- Events.LocalPlayerTurnEnd -> Testing Start Turn for player#"..tostring(playerID))
+	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	LuaEvents.StartPlayerTurn(playerID)
+end
+Events.LocalPlayerTurnEnd.Add( DoTurnForNextPlayerFromLocal )
 
 function OnResearchCompleted(playerID)
 	local player = Players[playerID]
