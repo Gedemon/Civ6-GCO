@@ -744,7 +744,7 @@ function FindActivePlayer()
 		end
 	end
 end
-Events.GameCoreEventPublishComplete.Add( FindActivePlayer ) -- first to fire, but not early enough
+--Events.GameCoreEventPublishComplete.Add( FindActivePlayer ) -- first to fire, but not early enough
 --Events.UnitMovementPointsChanged.Add(OnUnitMovementPointsChanged)
 --Events.OnAiAdvisorUpdated.Add(OnAiAdvisorUpdated)
 

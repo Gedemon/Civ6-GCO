@@ -25,7 +25,7 @@ local GCO = ExposedMembers.GCO or {}
 local UnitHitPointsTable 	= {} -- cached table to store the required values of an unit components based on it's HP
 local UnitWithoutEquipment	= {} -- cached table to store units requiring equipment initialization
 local UnitLastHealingValue	= {} -- cached table to store units HP gained from healing
-local UnitDelayedHealing	= {} -- cached table to store units with desync data for delayed healing
+--local UnitDelayedHealing	= {} -- cached table to store units with desync data for delayed healing
 
 -- Delay equipment initialization (to allow a city/scenario to pass the equipment list to an unit that has just been build/spawned, after the mandatory data initialization on Events.UnitAddedToMap)
 local InitializeEquipmentTimer 	= 0	
@@ -305,6 +305,7 @@ local unitTableEnum = {
 	PreviousPrisoners			= 53,
 	MedicineStock				= 54,
 	PreviousMedicineStock		= 55,
+	UnitLastHealingValue		= 56,
 	
 	EndOfEnum				= 99
 }                           
@@ -362,7 +363,7 @@ function CheckSave()
 	if GCO.AreSameTables(ExposedMembers.UnitData, unitData) then
 		print("- Tables are identical")
 	else
-		print ("ERROR: reloading saved table show differences with actual table !")
+		GCO.Error("reloading saved table show differences with actual table !")
 		LuaEvents.StopAuToPlay()
 		CompareData(ExposedMembers.UnitData, unitData)
 	end	
@@ -480,6 +481,7 @@ function RegisterNewUnit(playerID, unit, partialHP) -- use partialHP to initiali
 		--MaterielPerEquipment 	= GameInfo.Units[unitType].MaterielPerEquipment,
 		HP	 					= hp, -- Should only update this when updating the unit's composition during mod's healing/damage to reflect the HP relative to the composition of the unit.
 		testHP	 				= hp,
+		UnitLastHealingValue	= 0,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 				= personnel,
 		Equipment 				= {}, -- {[EquipmentClassKey] = { [ResourceKey] = value, ... } , ...}
@@ -929,69 +931,6 @@ function GetUnitFromKey ( unitKey )
 	else
 		print ("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey(".. tostring(unitKey)..")")
 	end
-end
-
-function CheckComponentsHP(unit, str, bNoWarning)
-	local DEBUG_UNIT_SCRIPT = true
-	
-	if not unit then
-		print ("WARNING : unit is nil in CheckComponentsHP() for " .. tostring(str))
-		return
-	end
-	
-	local HP 		= unit:GetMaxDamage() - unit:GetDamage()
-	local unitType 	= unit:GetType()
-	local key 		= unit:GetKey()
-	local unitData 	= ExposedMembers.UnitData[key]
-	local hitPoint	= ExposedMembers.UnitHitPointsTable[unitType][HP]
-	
-	if not unitData then
-		print ("WARNING : unitData is nil in CheckComponentsHP() for " .. tostring(str))
-		return
-	end
-	
-	--if HP < 0 then
-	function debug()
-		Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
-		Dprint( DEBUG_UNIT_SCRIPT, "in CheckComponentsHP() for " .. tostring(str))
-		if bNoWarning then
-			Dprint( DEBUG_UNIT_SCRIPT, "SHOWING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
-		else
-			print ("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
-		end
-		Dprint( DEBUG_UNIT_SCRIPT, "key = ", key, " unitType = ", unitType, " GameCore HP = ", HP, " Virtual HP = ", unitData.HP)
-		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Personnel =", unitData.Personnel, " HitPointsTable[HP].Personnel =", hitPoint.Personnel)
-		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Horses =", unitData.Horses, " HitPointsTable[HP].Horses =", hitPoint.Horses)
-		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Materiel =", unitData.Materiel, " HitPointsTable[HP].Materiel =", hitPoint.Materiel)
-		
-		for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
-			local equipmentClassID 	= tonumber(equipmentClassKey)
-			if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table
-				Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].EquipmentClass[".. Locale.Lookup(GameInfo.EquipmentClasses[tonumber(equipmentClassKey)].Name), "] = ", unit:GetEquipmentClassFrontLine(equipmentClassID), " HitPointsTable[HP].EquipmentClass[equipmentClassID] = ", hitPoint.EquipmentClass[equipmentClassID])
-			end
-		end
-		Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
-	end
-	
-	local bEquipmentCheckFail = false
-	for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
-		local equipmentClassID 	= tonumber(equipmentClassKey)
-		if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table								
-			if unit:GetEquipmentClassFrontLine(equipmentClassID) ~= hitPoint.EquipmentClass[equipmentClassID] then
-				bEquipmentCheckFail = true
-			end
-		end
-	end	
-	
-	if 		unitData.Personnel 	~= hitPoint.Personnel 
-		or 	bEquipmentCheckFail  
-		or 	unitData.Horses		~= hitPoint.Horses	 
-		or 	unitData.Materiel 	~= hitPoint.Materiel 
-	then 
-		debug()
-		return false
-	end
-	return true
 end
 
 
@@ -2405,7 +2344,14 @@ function AddCombatInfoTo(Opponent)
 	end	
 	
 	Opponent.unitData 	= ExposedMembers.UnitData[Opponent.unitKey]
-		
+	
+	local pendingHeal = UnitLastHealingValue[Opponent.unitKey]
+	if pendingHeal and Opponent.InitialHP ~= Opponent.unitData.HP then
+		Opponent.InitialHP 			= math.min( maxHP , Opponent.InitialHP + pendingHeal)
+		Opponent.FinalHP 			= math.min( maxHP , Opponent.FinalHP + pendingHeal)
+		Opponent.ShiftHP 			= true
+		Dprint( DEBUG_UNIT_SCRIPT, "-- Pending heal detected, shifting HP values by ", pendingHeal, " InitialHP = ", Opponent.InitialHP, " FinalHP = ", Opponent.FinalHP )
+	end		
 	return Opponent
 end
 
@@ -2610,7 +2556,10 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	UnitData.TotalHorsesLost 		= UnitData.TotalHorsesLost 	+ Opponent.HorsesLost
 	
 	-- Update virtual HP
-	UnitData.HP = Opponent.FinalHP
+	-- There may be a bug with CombatResultParameters.FINAL_DAMAGE_TO always equal to 0 when CombatResultParameters.DAMAGE_TO = 0,
+	-- while its supposed to return the global damage value of the unit, and in that case Opponent.FinalHP is always 100 which may not be the unit's real value
+	-- (27-Oct-17)
+	if Opponent.Damage > 0 then UnitData.HP = Opponent.FinalHP end
 end
 
 function GetMaterielFromKillOfBy(OpponentA, OpponentB)
@@ -2652,11 +2601,12 @@ function OnCombat( combatResult )
 	if attacker.IsUnit then
 		attacker.IsAttacker = true
 		-- attach everything required by the update functions from the base CombatResultParameters
-		attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]
-		attacker.InitialHP = attacker.FinalHP + attacker[CombatResultParameters.DAMAGE_TO]
-		attacker.IsDead = attacker[CombatResultParameters.FINAL_DAMAGE_TO] > attacker[CombatResultParameters.MAX_HIT_POINTS]
-		attacker.playerID = tostring(attacker[CombatResultParameters.ID].player) -- playerID is a key for Prisoners table
-		attacker.unitID = attacker[CombatResultParameters.ID].id
+		attacker.FinalHP 	= attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]
+		attacker.InitialHP 	= attacker.FinalHP + attacker[CombatResultParameters.DAMAGE_TO]
+		attacker.Damage 	= attacker[CombatResultParameters.DAMAGE_TO]
+		attacker.IsDead 	= attacker[CombatResultParameters.FINAL_DAMAGE_TO] > attacker[CombatResultParameters.MAX_HIT_POINTS]
+		attacker.playerID 	= tostring(attacker[CombatResultParameters.ID].player) -- playerID is a key for Prisoners table
+		attacker.unitID 	= attacker[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
 		attacker = AddCombatInfoTo(attacker)
 		--
@@ -2668,11 +2618,12 @@ function OnCombat( combatResult )
 	if defender.IsUnit then
 		defender.IsDefender = true
 		-- attach everything required by the update functions from the base CombatResultParameters
-		defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]
-		defender.InitialHP = defender.FinalHP + defender[CombatResultParameters.DAMAGE_TO]
-		defender.IsDead = defender[CombatResultParameters.FINAL_DAMAGE_TO] > defender[CombatResultParameters.MAX_HIT_POINTS]
-		defender.playerID = tostring(defender[CombatResultParameters.ID].player)
-		defender.unitID = defender[CombatResultParameters.ID].id
+		defender.FinalHP 	= defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]
+		defender.InitialHP 	= defender.FinalHP + defender[CombatResultParameters.DAMAGE_TO]
+		defender.Damage 	= defender[CombatResultParameters.DAMAGE_TO]
+		defender.IsDead 	= defender[CombatResultParameters.FINAL_DAMAGE_TO] > defender[CombatResultParameters.MAX_HIT_POINTS]
+		defender.playerID 	= tostring(defender[CombatResultParameters.ID].player)
+		defender.unitID 	= defender[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
 		defender = AddCombatInfoTo(defender)
 		--
@@ -2689,12 +2640,13 @@ function OnCombat( combatResult )
 		if attacker.unitData.HP ~= attacker.InitialHP then -- testHP ~= attacker.FinalHP or 
 			-- this can happen when an unit takes part in multiple combat, the DLL return the HP left after all combat, while combatResult show the HP at the moment of the combat
 			print ("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetKey()).." player#"..tostring(attacker.unit:GetOwner()))
-			Dprint( DEBUG_UNIT_SCRIPT, "attacker.FinalHP = attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO] = ")
-			Dprint( DEBUG_UNIT_SCRIPT, attacker.FinalHP, "=", attacker[CombatResultParameters.MAX_HIT_POINTS], "-", attacker[CombatResultParameters.FINAL_DAMAGE_TO])
-			Dprint( DEBUG_UNIT_SCRIPT, "gamecore HP = unit:GetMaxDamage() - unit:GetDamage() = ", testHP)
-			Dprint( DEBUG_UNIT_SCRIPT, "attacker.InitialHP = ", attacker.InitialHP)
-			Dprint( DEBUG_UNIT_SCRIPT, "PreviousHP = unitData.HP = ", attacker.unitData.HP)
-			Dprint( DEBUG_UNIT_SCRIPT, "attacker[CombatResultParameters.DAMAGE_TO] = ", attacker[CombatResultParameters.DAMAGE_TO])
+			Dprint( DEBUG_UNIT_SCRIPT, "attacker.FinalHP = MAX_HP - FINAL_DAMAGE_TO .. = ", attacker.FinalHP, "=", attacker[CombatResultParameters.MAX_HIT_POINTS], "-", attacker[CombatResultParameters.FINAL_DAMAGE_TO])
+			Dprint( DEBUG_UNIT_SCRIPT, "gamecore HP = GetMaxDamage() - GetDamage() ... = ", testHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "attacker.InitialHP ........................... = ", attacker.InitialHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "PreviousHP = unitData.HP ..................... = ", attacker.unitData.HP)
+			Dprint( DEBUG_UNIT_SCRIPT, "attacker[CombatResultParameters.DAMAGE_TO] ... = ", attacker[CombatResultParameters.DAMAGE_TO])
+			Dprint( DEBUG_UNIT_SCRIPT, "attacker.unitData.UnitLastHealingValue ....... = ", attacker.unitData.UnitLastHealingValue)
+			Dprint( DEBUG_UNIT_SCRIPT, "attacker.ShiftHP ............................. = ", attacker.ShiftHP)
 			--attacker.InitialHP = attacker.unitData.HP
 			--attacker.FinalHP = testHP			
 		end		
@@ -2705,12 +2657,13 @@ function OnCombat( combatResult )
 		local testHP = defender.unit:GetMaxDamage() - defender.unit:GetDamage()
 		if defender.unitData.HP ~= defender.InitialHP then --testHP ~= defender.FinalHP or 
 			print ("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetKey()).." player#"..tostring(defender.unit:GetOwner()))
-			Dprint( DEBUG_UNIT_SCRIPT, "defender.FinalHP = defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO] = ")
-			Dprint( DEBUG_UNIT_SCRIPT, defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
-			Dprint( DEBUG_UNIT_SCRIPT, "current HP = unit:GetMaxDamage() - unit:GetDamage() = =", testHP)
-			Dprint( DEBUG_UNIT_SCRIPT, "defender.InitialHP = ", defender.InitialHP)
-			Dprint( DEBUG_UNIT_SCRIPT, "PreviousHP = unitData.HP = ", defender.unitData.HP)
-			Dprint( DEBUG_UNIT_SCRIPT, "defender[CombatResultParameters.DAMAGE_TO] = ", defender[CombatResultParameters.DAMAGE_TO])
+			Dprint( DEBUG_UNIT_SCRIPT, "defender.FinalHP = MAX_HP - FINAL_DAMAGE_TO .. = ", defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
+			Dprint( DEBUG_UNIT_SCRIPT, "gamecore HP = GetMaxDamage() - GetDamage() ... = ", testHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "defender.InitialHP ........................... = ", defender.InitialHP)
+			Dprint( DEBUG_UNIT_SCRIPT, "PreviousHP = unitData.HP ..................... = ", defender.unitData.HP)
+			Dprint( DEBUG_UNIT_SCRIPT, "defender[CombatResultParameters.DAMAGE_TO] ... = ", defender[CombatResultParameters.DAMAGE_TO])
+			Dprint( DEBUG_UNIT_SCRIPT, "defender.unitData.UnitLastHealingValue ....... = ", defender.unitData.UnitLastHealingValue)
+			Dprint( DEBUG_UNIT_SCRIPT, "defender.ShiftHP ............................. = ", defender.ShiftHP)
 			--defender.InitialHP = defender.unitData.HP
 			--defender.FinalHP = testHP			
 		end		
@@ -2976,21 +2929,23 @@ function Heal(self)
 	local DEBUG_UNIT_SCRIPT = true
 	Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
 	Dprint( DEBUG_UNIT_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
-
+	
+	local unitKey = self:GetKey()
+	--[[
 	if UnitDelayedHealing[unitKey] and UnitDelayedHealing[unitKey] < Game.GetCurrentGameTurn() then
 		GCO.Warning("Unit with desynchronized data wasn't healed during the previous turn :[NEWLINE]"..Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()).." prevTurn = "..tostring(unitDelayedHealing[unitKey]).." currTurn = "..tostring(Game.GetCurrentGameTurn()))
 	end
 	
-	local unitKey = self:GetKey()
 	if (not CheckComponentsHP(self, "bypassing healing")) then
 		if ExposedMembers.UnitData[unitKey] then
 			UnitDelayedHealing[unitKey] = Game.GetCurrentGameTurn()
-			--GCO.Warning("desynchronized data in HealingUnits() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
-			--ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
-			print("WARNING: desynchronized data in HealingUnits() for unit: "..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+			GCO.Warning("desynchronized data in HealingUnits() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+			ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
+			--print("WARNING: desynchronized data in HealingUnits() for unit: "..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
 		end
 		return
 	end
+	--]]
 	
 	local unitData = ExposedMembers.UnitData[unitKey]
 	if not unitData then 
@@ -2998,14 +2953,14 @@ function Heal(self)
 		return
 	end
 	
-	UnitDelayedHealing[unitKey] = nil
+	--UnitDelayedHealing[unitKey] = nil
 
 	local restoredHP 		= 0 	-- HP gained to apply en masse after all reinforcements are calculated (visual fix)
 	local maxTransfer 		= self:GetMaxTransferTable()	-- maximum value of a component that can be used to heal in one turn
 	local alreadyUsed 		= {}	-- materiel is used both to heal the unit (reserve -> front) and repair Equipment in reserve, up to a limit
 	alreadyUsed.Materiel 	= 0
 	local damage 			= self:GetDamage()
-	local initialHP 		= maxHP - damage
+	local initialHP 		= self:GetHP() --maxHP - damage
 	local hasReachedLimit 	= false
 	local unitInfo 			= GameInfo.Units[self:GetType()]
 	local hitPoints 		= UnitHitPointsTable[unitInfo.Index]
@@ -3056,11 +3011,12 @@ function Heal(self)
 	local finalHP 					= initialHP + restoredHP
 	unitData.HP 					= finalHP
 	UnitLastHealingValue[unitKey] 	= restoredHP
+	unitData.UnitLastHealingValue 	= restoredHP
 	
 	if finalHP < initialHP then
 		GCO.Error("finalHP < initialHP for ", unitKey, " initialHP:", initialHP , " finalHP:", finalHP, " restoredHP :", restoredHP)
 	end		
-	Dprint( DEBUG_UNIT_SCRIPT, " initialHP = ", initialHP , " finalHP = ", finalHP, " restoredHP = ", restoredHP)
+	Dprint( DEBUG_UNIT_SCRIPT, "initialHP = ", initialHP , " finalHP = ", finalHP, " restoredHP = ", restoredHP, " core initialHP = ", maxHP - damage, " core finalHP = ", maxHP - damage + restoredHP)
 				
 	self:SetDamage(damage-restoredHP)
 	
@@ -3182,28 +3138,110 @@ function HealingControl (playerID, unitID, newDamage, prevDamage)
 		local data 		= ExposedMembers.UnitData[unitKey]
 		local testHP 	= unit:GetMaxDamage() - unit:GetDamage()
 		local value		= testHP - data.testHP
+		local change	= prevDamage - newDamage
 		Dprint( DEBUG_UNIT_SCRIPT, "--------------------------------------- UnitDamageChanged ---------------------------------------")
 		Dprint( DEBUG_UNIT_SCRIPT, "changing HP of unit "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
-		Dprint( DEBUG_UNIT_SCRIPT, "previous HP =", data.testHP)
-		Dprint( DEBUG_UNIT_SCRIPT, "new HP =", testHP)
-		Dprint( DEBUG_UNIT_SCRIPT, "HP change =", value)
+		Dprint( DEBUG_UNIT_SCRIPT, "previous Core HP .... =", data.testHP)
+		Dprint( DEBUG_UNIT_SCRIPT, "current Core HP ..... =", testHP)
+		Dprint( DEBUG_UNIT_SCRIPT, "core HP change ...... =", value)
+		Dprint( DEBUG_UNIT_SCRIPT, "current HP change ... =", change)
+		Dprint( DEBUG_UNIT_SCRIPT, "pending Heal ........ =", UnitLastHealingValue[unitKey])
+		Dprint( DEBUG_UNIT_SCRIPT, "last Heal ........... =", data.UnitLastHealingValue)
 		Dprint( DEBUG_UNIT_SCRIPT, "newDamage, prevDamage =", newDamage, prevDamage)
 		Dprint( DEBUG_UNIT_SCRIPT, "------------------------------------------------------------------------------")
 		data.testHP = testHP		
 		
-		if value > 0 and UnitLastHealingValue[unitKey] ~= value then -- that unit has received health outside the mod control (like when pillaging, hardcoding is bad Firaxis, bad !)
+		if change > 0 and UnitLastHealingValue[unitKey] ~= change then -- that unit has received health outside the mod control (like when pillaging, hardcoding is bad Firaxis, bad !)
 			--ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
 			local plot = Map.GetPlot(unit:GetX(), unit:GetY())
-			Dprint( DEBUG_UNIT_SCRIPT, "Reverting unexpected healing : +"..tostring(value).." HP for "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()), ", in city = ", plot:IsCity())
+			Dprint( DEBUG_UNIT_SCRIPT, "Reverting unexpected healing : +"..tostring(change).." HP for "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()), ", in city = ", plot:IsCity())
 			unit:SetDamage(prevDamage)
-		elseif UnitDelayedHealing[unitKey] then -- now that combat damage has been applied, try to heal units marked for delayed healing again (the Heal function will check for desync again)
-			unit:Heal()
-			return
+		--elseif UnitDelayedHealing[unitKey] then -- now that combat damage has been applied, try to heal units marked for delayed healing again (the Heal function will check for desync again)
+		--	unit:Heal()
+		--	return
 		end
-		UnitLastHealingValue[unitKey] = nil
+		if change == UnitLastHealingValue[unitKey] then		
+			Dprint( DEBUG_UNIT_SCRIPT, "Marking pending healing done for "..Locale.Lookup(unit:GetName()).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
+			UnitLastHealingValue[unitKey] = nil
+		end
 	end
 end
 Events.UnitDamageChanged.Add(HealingControl)
+
+function CheckComponentsHP(unit, str, bNoWarning)
+	local DEBUG_UNIT_SCRIPT = true
+	
+	if not unit then
+		print ("WARNING : unit is nil in CheckComponentsHP() for " .. tostring(str))
+		return
+	end
+	
+	local unitType 	= unit:GetType()
+	local key 		= unit:GetKey()
+	local unitData 	= ExposedMembers.UnitData[key]
+	
+	if not unitData then
+		print ("WARNING : unitData is nil in CheckComponentsHP() for " .. tostring(str))
+		return
+	end	
+	
+	local coreHP 	= unit:GetMaxDamage() - unit:GetDamage()
+	local virtualHP = unit:GetHP()
+	
+	function debug(unit, HP, str, bNoWarning, hitPoint)
+		Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
+		Dprint( DEBUG_UNIT_SCRIPT, "in CheckComponentsHP() for " .. tostring(str))
+		if bNoWarning then
+			Dprint( DEBUG_UNIT_SCRIPT, "SHOWING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
+		else
+			print ("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
+		end
+		Dprint( DEBUG_UNIT_SCRIPT, "key = ", key, " unitType = ", unitType, " GameCore HP = ", coreHP, " Virtual HP = ", virtualHP, " testing at HP = ", HP, " last Heal = ", unitData.UnitLastHealingValue)
+		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Personnel .. =", unitData.Personnel, 	" HitPointsTable[HP].Personnel .. =", hitPoint.Personnel)
+		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Horses ..... =", unitData.Horses, 	" HitPointsTable[HP].Horses ..... =", hitPoint.Horses)
+		Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].Materiel ... =", unitData.Materiel, 	" HitPointsTable[HP].Materiel ... =", hitPoint.Materiel)
+		
+		for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
+			local equipmentClassID 	= tonumber(equipmentClassKey)
+			if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table
+				Dprint( DEBUG_UNIT_SCRIPT, "UnitData[key].EquipmentClass[".. Locale.Lookup(GameInfo.EquipmentClasses[tonumber(equipmentClassKey)].Name), "] = ", unit:GetEquipmentClassFrontLine(equipmentClassID), " HitPointsTable[HP].EquipmentClass[equipmentClassID] = ", hitPoint.EquipmentClass[equipmentClassID])
+			end
+		end
+		Dprint( DEBUG_UNIT_SCRIPT, "---------------------------------------------------------------------------")
+	end
+	
+	function CheckComponentsSynchronizedHP(unit, HP, str, bNoWarning)	
+	
+		local hitPoint = ExposedMembers.UnitHitPointsTable[unitType][HP]
+		local bEquipmentCheckFail = false
+		for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
+			local equipmentClassID 	= tonumber(equipmentClassKey)
+			if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table								
+				if unit:GetEquipmentClassFrontLine(equipmentClassID) ~= hitPoint.EquipmentClass[equipmentClassID] then
+					bEquipmentCheckFail = true
+				end
+			end
+		end	
+		
+		if 		unitData.Personnel 	~= hitPoint.Personnel 
+			or 	bEquipmentCheckFail  
+			or 	unitData.Horses		~= hitPoint.Horses	 
+			or 	unitData.Materiel 	~= hitPoint.Materiel 
+		then 
+			debug(unit, HP, str, bNoWarning, hitPoint)
+			return false
+		end		
+		Dprint( DEBUG_UNIT_SCRIPT, str .. " : OK For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
+		return true
+	end
+
+	local bIsCoreSynchronized = CheckComponentsSynchronizedHP(unit, coreHP, str .. " for Core synchronization", bNoWarning)
+	local bIsDataSynchronized = CheckComponentsSynchronizedHP(unit, virtualHP, str .. " for Data consistency", bNoWarning)
+	
+	--if not bIsDataSynchronized then GCO.Error("Data inconsistency detected for :[NEWLINE] "..Locale.Lookup(unit:GetName()).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner())) end
+	
+	return bIsCoreSynchronized and bIsDataSynchronized
+end
 
 -- Handle pillage healing
 -- (Deprecated by HealingControl based on last healing value)
@@ -3751,6 +3789,12 @@ function CleanUnitData() -- called in GCO_GameScript.lua
 			ExposedMembers.UnitData[unitKey] = nil
 		else
 			Dprint( DEBUG_UNIT_SCRIPT, "Keeping unit ID#"..unit:GetKey(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
+
+			-- Check data syncronization
+			if (not CheckComponentsHP(unit, "CleanUnitData")) then
+				GCO.Error("desynchronization detected in CleanUnitData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()))
+				ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
+			end			
 		end
 	end
 end
