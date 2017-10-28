@@ -88,10 +88,10 @@ for row in GameInfo.UnitEquipmentClasses() do
 	if GameInfo.EquipmentClasses[equipmentClass] then
 		local equipmentClassID 	= GameInfo.EquipmentClasses[equipmentClass].Index
 		if not unitEquipmentClasses[unitType] then unitEquipmentClasses[unitType] = {} end
-		unitEquipmentClasses[unitType][equipmentClassID] = {Amount = (row.MaxAmount or GameInfo.Units[unitType].Personnel), IsRequired = row.IsRequired}
+		unitEquipmentClasses[unitType][equipmentClassID] = {Amount = (GCO.Round(GameInfo.Units[unitType].Personnel * row.PercentageOfPersonnel / 100)), IsRequired = row.IsRequired}
 		-- This is to handle index, as pUnit:GetUnitType() returns an index...
 		if not unitEquipmentClasses[unitID] then unitEquipmentClasses[unitID] = {} end
-		unitEquipmentClasses[unitID][equipmentClassID] = {Amount = (row.MaxAmount or GameInfo.Units[unitType].Personnel), IsRequired = row.IsRequired}
+		unitEquipmentClasses[unitID][equipmentClassID] = unitEquipmentClasses[unitType][equipmentClassID]
 	else
 		print("WARNING: no equipment class in GameInfo.EquipmentClasses for "..tostring(row.EquipmentClass))
 	end
@@ -464,9 +464,9 @@ function RegisterNewUnit(playerID, unit, partialHP) -- use partialHP to initiali
 	local horses 	= UnitHitPointsTable[unitType][hp].Horses
 	local materiel 	= UnitHitPointsTable[unitType][hp].Materiel
 	
-	local PersonnelReserve	= GetBasePersonnelReserve(unitType)
-	local HorsesReserve		= GetBaseHorsesReserve(unitType)
-	local MaterielReserve	= GetBaseMaterielReserve(unitType)
+	local PersonnelReserve	= 0--GetBasePersonnelReserve(unitType)
+	local HorsesReserve		= 0--GetBaseHorsesReserve(unitType)
+	local MaterielReserve	= 0--GetBaseMaterielReserve(unitType)
 	
 	local Morale 			= tonumber(GameInfo.GlobalParameters["MORALE_BASE_VALUE"].Value)
 	local FuelStock 		= GetBaseFuelStock(unitType)
@@ -645,12 +645,18 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional, equ
 	local requiredEquipmentClasses = self:GetRequiredEquipmentClasses()
 	for equipmentClass, data in pairs(requiredEquipmentClasses) do
 		Dprint( DEBUG_UNIT_SCRIPT, "   - adding equipment class : ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name))
-		local frontLineNeed	= self:GetEquipmentClassFrontLineNeed( equipmentClass )
-		local reserveNeed	= self:GetEquipmentClassReserveNeed( equipmentClass )
+
 		local equipmentID	= GetLowerEquipmentType( equipmentClass )
-		Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", frontline = ", frontLineNeed, ", reserve = ", reserveNeed)
+		
+		-- update frontline first, as GetEquipmentClassReserveNeed will refer to the number of equipment set in frontline...
+		local frontLineNeed	= self:GetEquipmentClassFrontLineNeed( equipmentClass )
 		self:ChangeFrontLineEquipment( equipmentID, frontLineNeed, equipmentClass )
+		
+		-- now that frontline is set, get requirement for reserve...
+		local reserveNeed	= self:GetEquipmentClassReserveNeed( equipmentClass )
 		self:ChangeReserveEquipment( equipmentID, reserveNeed, equipmentClass )
+		
+		Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", frontline = ", frontLineNeed, ", reserve = ", reserveNeed)
 	end	
 	
 	-- Unmark the unit for equipment initialization
@@ -940,7 +946,7 @@ end
 
 -- unitType functions
 function GetBasePersonnelReserve(unitType)
-	return GCO.Round(GameInfo.Units[unitType].Personnel * reserveRatio / 10) * 10
+	return 0 --GCO.Round(GameInfo.Units[unitType].Personnel * reserveRatio / 10) * 10
 end
 
 --[[
@@ -960,21 +966,21 @@ end
 --]]
 
 function GetBaseHorsesReserve(unitType)
-	return GCO.Round(GameInfo.Units[unitType].Horses * reserveRatio / 10) * 10
+	return 0 --GCO.Round(GameInfo.Units[unitType].Horses * reserveRatio / 10) * 10
 end
 
 function GetBaseMaterielReserve(unitType)
-	return GameInfo.Units[unitType].Materiel -- 100% stock for materiel reserve
+	return 0 --GameInfo.Units[unitType].Materiel -- 100% stock for materiel reserve
 end
 
 function GetUnitConstructionResources(unitType)
 
 	local resTable = {}
 
-	local personnel = (GameInfo.Units[unitType].Personnel 	+ GCO.GetBasePersonnelReserve(unitType))
-	--local equipment = (GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType))
-	local horses 	= (GameInfo.Units[unitType].Horses 		+ GCO.GetBaseHorsesReserve(unitType))	
-	local materiel 	= (GameInfo.Units[unitType].Materiel 	+ GCO.GetBaseMaterielReserve(unitType))	
+	local personnel = GameInfo.Units[unitType].Personnel 	--+ GCO.GetBasePersonnelReserve(unitType)
+	--local equipment = GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType)
+	local horses 	= GameInfo.Units[unitType].Horses 		--+ GCO.GetBaseHorsesReserve(unitType)	
+	local materiel 	= GameInfo.Units[unitType].Materiel 	--+ GCO.GetBaseMaterielReserve(unitType)	
 	
 	--[[
 	local equipmentResourceID 	= GCO.GetEquipmentID(unitType)
@@ -1012,7 +1018,9 @@ function GetMaxFrontLineMateriel(self)
 end
 
 function GetMaxPersonnelReserve(self)
-	return GCO.Round((GameInfo.Units[self:GetType()].Personnel * reserveRatio / 10) * 10)
+	--return GCO.Round((GameInfo.Units[self:GetType()].Personnel * reserveRatio / 10) * 10)
+	local neededForHealing = self:GetMaxFrontLinePersonnel() - self:GetComponent("Personnel")	
+	return neededForHealing
 end
 
 --[[
@@ -1180,11 +1188,11 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 	if resourceKey == personnelResourceKey then
 		unitData.PersonnelReserve = math.max(0, unitData.PersonnelReserve + value)
 		
-	elseif resourceKey == materielResourceKey then
-		unitData.MaterielReserve = math.max(0, unitData.MaterielReserve + value)
+	--elseif resourceKey == materielResourceKey then
+	--	unitData.MaterielReserve = math.max(0, unitData.MaterielReserve + value)
 		
-	elseif resourceKey == horsesResourceKey then
-		unitData.HorsesReserve = math.max(0, unitData.HorsesReserve + value)
+	--elseif resourceKey == horsesResourceKey then
+	--	unitData.HorsesReserve = math.max(0, unitData.HorsesReserve + value)
 		
 	elseif resourceKey == foodResourceKey then
 		unitData.FoodStock = math.max(0, GCO.ToDecimals(unitData.FoodStock + value))
@@ -1419,7 +1427,7 @@ function GetUnitConstructionEquipment(unitType, sCondition)
 			if bAll or (bRequiredOnly and classData.IsRequired) or (bOptionalOnly and not classData.IsRequired) then
 				resTable[classType]				= {}
 				resTable[classType].Resources	= {}
-				resTable[classType].Value 		= classData.Amount + GCO.Round(classData.Amount * reserveRatio / 10) * 10
+				resTable[classType].Value 		= classData.Amount --+ GCO.Round(classData.Amount * reserveRatio / 10) * 10
 				local equipmentTypes 			= GetEquipmentTypes(classType)
 				
 				for _, data in ipairs(equipmentTypes) do
@@ -1429,6 +1437,10 @@ function GetUnitConstructionEquipment(unitType, sCondition)
 		end
 	end
 	return resTable
+
+end
+
+function GetUnitTypeFromEquipmentList(promotionClass, equipmentList)
 
 end
 
@@ -1476,7 +1488,10 @@ function GetMaxEquipmentFrontLine(self, equipmentClass)		-- get max equipment in
 end
 
 function GetMaxEquipmentReserve(self, equipmentClass)		-- get max equipment in reserve for that class
-	return GCO.Round(self:GetMaxEquipmentFrontLine(equipmentClass) * reserveRatio / 10) * 10
+	--return GCO.Round(self:GetMaxEquipmentFrontLine(equipmentClass) * reserveRatio / 10) * 10
+	local neededForHealing = self:GetMaxEquipmentFrontLine(equipmentClass) - self:GetEquipmentClassFrontLine(equipmentClass)
+	--print("neededForHealing = GetMaxEquipmentFrontLine - GetEquipmentClassFrontLine ", self:GetMaxEquipmentFrontLine(equipmentClass), self:GetEquipmentClassFrontLine(equipmentClass), equipmentClass)
+	return neededForHealing
 end
 
 function GetEquipmentClassFrontLine(self, equipmentClass)	-- get current number of equipment of that class in frontline
@@ -1512,6 +1527,7 @@ end
 function GetEquipmentClassReserveNeed(self, equipmentClass)	-- get number of equipment of that class needed in reserve
 	local need 	= self:GetMaxEquipmentReserve(equipmentClass)
 	local stock	= self:GetEquipmentClassReserve(equipmentClass)
+	--print("GetEquipmentClassReserveNeed -> need, stock, equipmentClass = ", need, stock, equipmentClass)
 	if stock < need then
 		return need - stock
 	else
@@ -1915,13 +1931,14 @@ function GetFrontLineEquipmentString(self)
 		if classNum > 0 then
 			str = str .. "[NEWLINE]".. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_CLASS_FRONTLINE", classNum, maxClass, GameInfo.EquipmentClasses[classType].Name, GCO.GetResourceIcon()) --[ICON_Production] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)
 			local equipmentList = GetEquipmentTypes(classType)
-			--table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end) -- should not be needed as the table is sorted after its creation
-			for _, equipmentData in ipairs(equipmentList) do
-				local equipmentID 	= equipmentData.EquipmentID
-				local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)
-				if equipmentNum > 0 then
-					local percentage =  GCO.Round(equipmentNum / classNum * 100)
-					str = str .. "[NEWLINE] [ICON_BULLET] " .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_FRONTLINE", equipmentNum, percentage, GameInfo.Resources[equipmentID].Name, GCO.GetResourceIcon(equipmentID)) --" .. tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
+			if #equipmentList > 1 then  -- show sub-entries only if there could be more than one equipment type in this class
+				for _, equipmentData in ipairs(equipmentList) do
+					local equipmentID 	= equipmentData.EquipmentID
+					local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)
+					if equipmentNum > 0 then
+						local percentage =  GCO.Round(equipmentNum / classNum * 100)
+						str = str .. "[NEWLINE] [ICON_BULLET] " .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_FRONTLINE", equipmentNum, percentage, GameInfo.Resources[equipmentID].Name, GCO.GetResourceIcon(equipmentID)) --" .. tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
+					end
 				end
 			end
 		end
@@ -1939,12 +1956,13 @@ function GetReserveEquipmentString(self)
 		if classNum > 0 then
 			str = str .. "[NEWLINE]".. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_CLASS_RESERVE", classNum, GameInfo.EquipmentClasses[classType].Name, GCO.GetResourceIcon()) --[ICON_Production] " .. tostring(classNum) .. " " .. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)
 			local equipmentList = GetEquipmentTypes(classType)
-			--table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end) -- should not be needed as the table is sorted after its creation
-			for _, equipmentData in ipairs(equipmentList) do
-				local equipmentID 	= equipmentData.EquipmentID
-				local equipmentNum 	= self:GetReserveEquipment( equipmentID, classType)			
-				if equipmentNum > 0 then
-					str = str .. "[NEWLINE] [ICON_BULLET] " .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_RESERVE", equipmentNum, GameInfo.Resources[equipmentID].Name, GCO.GetResourceIcon(equipmentID)) -- ..tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
+			if #equipmentList > 1 then -- show sub-entries only if there could be more than one equipment type in this class
+				for _, equipmentData in ipairs(equipmentList) do
+					local equipmentID 	= equipmentData.EquipmentID
+					local equipmentNum 	= self:GetReserveEquipment( equipmentID, classType)			
+					if equipmentNum > 0 then
+						str = str .. "[NEWLINE] [ICON_BULLET] " .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_RESERVE", equipmentNum, GameInfo.Resources[equipmentID].Name, GCO.GetResourceIcon(equipmentID)) -- ..tostring(equipmentNum) .. " " .. Locale.Lookup(GameInfo.Resources[equipmentID].Name)
+					end
 				end
 			end
 		end
@@ -2436,9 +2454,8 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 		for equipmentTypeKey, value in pairs(UnitData.Equipment[equipmentClassKey]) do
 			if value > 0 then
 				local equipmentID 	= tonumber(equipmentTypeKey)
-				local toughness		= EquipmentInfo[equipmentID].Toughness or 1
-				if toughness == 0 then toughness = 1 end -- todo: add a check in SQL to prevent Toughness = 0
-				local relativeValue = value / toughness
+				local toughness		= EquipmentInfo[equipmentID].Toughness
+				local relativeValue = value / toughness	-- the SQL column constrain says toughness > 0
 				table.insert(equipment, {Key = equipmentTypeKey, ID = equipmentID, RelativeValue = relativeValue })		
 				totalPondered = totalPondered + relativeValue
 				Dprint( DEBUG_UNIT_SCRIPT, "  - data for ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", number = ", value, ", relative number = ", relativeValue, "percentage of class = ", GCO.Round(value / totalEquipment * 100))
@@ -3238,7 +3255,7 @@ function CheckComponentsHP(unit, str, bNoWarning)
 	local bIsCoreSynchronized = CheckComponentsSynchronizedHP(unit, coreHP, str .. " for Core synchronization", bNoWarning)
 	local bIsDataSynchronized = CheckComponentsSynchronizedHP(unit, virtualHP, str .. " for Data consistency", bNoWarning)
 	
-	--if not bIsDataSynchronized then GCO.Error("Data inconsistency detected for :[NEWLINE] "..Locale.Lookup(unit:GetName()).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner())) end
+	if not bIsDataSynchronized then GCO.Error("Data inconsistency detected for :[NEWLINE] "..Locale.Lookup(unit:GetName()).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner())) end
 	
 	return bIsCoreSynchronized and bIsDataSynchronized
 end
@@ -3622,7 +3639,6 @@ function DoUnitsTurn( playerID )
 end
 LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
 
-
 function DoHealing( playerID )
 	
 	local DEBUG_UNIT_SCRIPT = true	
@@ -3705,21 +3721,24 @@ function OnUnitProductionCompleted(playerID, cityID, productionID, objectID, bCa
 end
 Events.CityProductionCompleted.Add(	OnUnitProductionCompleted)
 
-
 function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
 	--print(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
 	local unit = UnitManager.GetUnit(unitOwner, unitID)
 	if unit then
 		if( GameInfo.Improvements[improvementType].BarbarianCamp ) then
 			Dprint( DEBUG_UNIT_SCRIPT, "Barbarian Village Cleaned");
+			local food 		= Automation.GetRandomNumber(100)
 			local bows 		= Automation.GetRandomNumber(1000)
 			local spears 	= Automation.GetRandomNumber(1000)
 			local bswords 	= Automation.GetRandomNumber(1000)
 			local iswords 	= Automation.GetRandomNumber(300)
+			local materiel 	= Automation.GetRandomNumber(300)
+			unit:ChangeStock(foodResourceID, food)
 			unit:ChangeStock(GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Index, bows)
 			unit:ChangeStock(GameInfo.Resources["EQUIPMENT_BRONZE_SPEARS"].Index, spears)
 			unit:ChangeStock(GameInfo.Resources["EQUIPMENT_BRONZE_SWORDS"].Index, bswords)	
 			unit:ChangeStock(GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Index, iswords)
+			unit:ChangeStock(materielResourceID, materiel)
 
 			LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)			
 			
@@ -3736,6 +3755,9 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
 					
 					local sText = "+" .. tostring(iswords).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Name) 
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
+					
+					local sText = "+" .. tostring(food).." "..GCO.GetResourceIcon(foodResourceID) ..", +" .. tostring(materiel).." "..GCO.GetResourceIcon(materielResourceID)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)					
 				end
 			end
@@ -3747,6 +3769,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 			local personnel	= Automation.GetRandomNumber(1000)
 			local medicine 	= Automation.GetRandomNumber(500)
 			local wheat 	= Automation.GetRandomNumber(500)
+			local materiel 	= Automation.GetRandomNumber(300)
 			unit:ChangeStock(foodResourceID, food)
 			unit:ChangeStock(materielResourceID, materiel)
 			unit:ChangeStock(personnelResourceID, personnel)
@@ -3762,8 +3785,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
 					
 					local sText = "+" .. tostring(medicine).." "..GCO.GetResourceIcon(medicineResourceID)..", +" .. tostring(wheat).." "..GCO.GetResourceIcon(GameInfo.Resources["RESOURCE_WHEAT"].Index)
-					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-				
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)			
 				end
 			end			
 		end

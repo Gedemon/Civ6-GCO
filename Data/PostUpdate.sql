@@ -54,14 +54,16 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 /* Create new Resources Types entries from the Equipment table */
 INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT Equipment.ResourceType, 'KIND_RESOURCE'
-	FROM Equipment;
-	
+	FROM Equipment;	
 	
 UPDATE EquipmentClasses SET Name = 'LOC_' || EquipmentClasses.EquipmentClass || '_NAME';
 
 -----------------------------------------------
 -- Units
 -----------------------------------------------
+
+/* temporary for testing before removing completely those columns from the Units table */
+UPDATE Units SET Materiel = 0, Horses = 0;
 
 /* Replace Unit Upgrade table by custom version */
 INSERT OR REPLACE INTO UnitUpgradesGCO (Unit, UpgradeUnit)

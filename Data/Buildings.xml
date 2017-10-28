@@ -132,6 +132,8 @@
 		<Row BuildingType="BUILDING_HERBALIST" 		ResourceType="RESOURCE_PLANTS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="1"/>
 		
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 	MaxConverted="20" 	ResourceCreated="EQUIPMENT_WAR_HORSES" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 	MaxConverted="40" 	ResourceCreated="EQUIPMENT_WAR_HORSES" 	Ratio="1"/>
 		
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SWORDS" 	Ratio="10" 	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_STEEL_SWORDS" 	Ratio="1.5"	MultiResCreated="1"/>
@@ -192,6 +194,8 @@
 		
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		Stock="500"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		Stock="100"/>
+		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_WAR_HORSES" Stock="500"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_WAR_HORSES" Stock="100"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_MATERIEL" 	Stock="100"/>
 		<Row BuildingType="BUILDING_SMALL_BARRACKS" ResourceType="RESOURCE_PERSONNEL" 	Stock="1000"/>
 		

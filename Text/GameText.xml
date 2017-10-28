@@ -631,6 +631,15 @@
     <Replace Tag="LOC_UNITFLAG_MORALE_TITLE" Language="en_US">
       <Text>[COLOR_Grey]--------------- Morale --------------[ENDCOLOR]</Text>
     </Replace>
+    <Replace Tag="LOC_UNITFLAG_ANCIENT_FRONTLINE_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]--------- Ready for Battle --------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_ANCIENT_RESERVE_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]-------------- In Camp -------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_ANCIENT_REAR_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------ Supply Train ---------[ENDCOLOR]</Text>
+    </Replace>
     <Replace Tag="LOC_UNITFLAG_FRONTLINE_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------- Frontline ------------[ENDCOLOR]</Text>
     </Replace>
@@ -644,7 +653,7 @@
       <Text>[COLOR_Grey]-------------- Statistics -------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_CONSUMPTION_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]------------ Consumption ---------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]----------- Consumption --------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_SUPPLY_LINE_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------ Supply Line ---------[ENDCOLOR]</Text>
@@ -713,7 +722,7 @@
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_PERSONNEL_RESERVE" Language="en_US">
-      <Text>[ICON_Position] {1_Num} Personnel Reserve</Text>
+      <Text>[ICON_Position] {1_Num} Personnel</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_EQUIPMENT_RESERVE" Language="en_US">
       <Text>[ICON_Production] {1_Num} {2_Name} Reserve</Text>
@@ -723,6 +732,9 @@
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MATERIEL_RESERVE" Language="en_US">
       <Text>[ICON_RESOURCE_MATERIEL] {1_Num} Materiel Reserve</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_EMPTY_RESERVE" Language="en_US">
+      <Text>- nothing here -</Text>
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_WOUNDED_PERSONNEL" Language="en_US">

@@ -665,20 +665,6 @@ ToolTipHelper.GetUnitToolTip = function(unitType)
 		end
 	end
 	
-	-- GCO <<<<<
-	--[[
-	local personnel = GameInfo.Units[unitType].Personnel 	+ GCO.GetBasePersonnelReserve(unitType)
-	--local equipment = GameInfo.Units[unitType].Equipment 	+ GCO.GetBaseEquipmentReserve(unitType)
-	local horses 	= GameInfo.Units[unitType].Horses 		+ GCO.GetBaseHorsesReserve(unitType)
-	local materiel 	= GameInfo.Units[unitType].Materiel 	+ GCO.GetBaseMaterielReserve(unitType)
-	
-	if personnel 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_PERSONNEL", personnel)) end
-	--if equipment 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_EQUIPMENT", equipment, GCO.GetEquipmentName(unitType))) end
-	if horses 		> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_HORSES", horses)) end
-	if materiel 	> 0 then table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_UNIT_MATERIEL", materiel)) end
-	--]]
-	-- GCO >>>>>
-	
 	if(not Locale.IsNilOrWhitespace(description)) then
 		description = "[NEWLINE]" .. Locale.Lookup(description);
 		table.insert(toolTipLines, description);

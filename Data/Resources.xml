@@ -6,7 +6,7 @@
 	-->		
 	<ResourcesGCO>
 		<Row ResourceType="RESOURCE_FOOD" 		ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
-		<Row ResourceType="RESOURCE_MATERIEL" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<!--<Row ResourceType="RESOURCE_MATERIEL" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>-->
 		<Row ResourceType="RESOURCE_PERSONNEL" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
 		<Row ResourceType="RESOURCE_STEEL" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_WOOD" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>

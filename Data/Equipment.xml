@@ -7,6 +7,10 @@
 		By default <ResourceClassType> for Equipment is set to "RESOURCECLASS_STRATEGIC"
 	-->
 	
+	<Equipment>  <!-- Materiel is both Equipment and Resource -->
+		<Row ResourceType="RESOURCE_MATERIEL" />
+	</Equipment>
+	
 	<Equipment> <!-- Melee Weapons -->
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"											Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
 		<Row ResourceType="EQUIPMENT_STONE_AXE"												Toughness="1"	Desirability="2" 	AntiPersonnel="27" />
@@ -33,12 +37,15 @@
 	
 	<Equipment>  <!-- "Vehicle" -->
 		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Size="20"/>
+		<Row ResourceType="EQUIPMENT_WAR_HORSES"		Size="10" />
 	</Equipment>
 	
 	<EquipmentClasses>
+		<Row EquipmentClass="EQUIPMENTCLASS_MATERIEL"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BOWS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_CHARIOT"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_HORSES"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"		/>
@@ -49,6 +56,8 @@
 	</EquipmentClasses>
 	
 	<EquipmentTypeClasses>
+		<Row ResourceType="RESOURCE_MATERIEL"			EquipmentClass="EQUIPMENTCLASS_MATERIEL"	/>
+		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_STONE_AXE"			EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
@@ -59,6 +68,7 @@
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"		EquipmentClass="EQUIPMENTCLASS_BOWS"			/>
 		
 		<Row ResourceType="EQUIPMENT_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CHARIOT"			/>
+		<Row ResourceType="EQUIPMENT_WAR_HORSES"		EquipmentClass="EQUIPMENTCLASS_HORSES"			/>
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
 		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
@@ -74,47 +84,59 @@
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 	</EquipmentTypeClasses>
 	
-	<EquipmentEffects>
+	<EquipmentEffects> <!-- Not coded yet -->
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="50" />
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="100" />
 	</EquipmentEffects>
 	
-	<ResourceStockUsage>
-		<!-- The example belows means :	only surplus send to unit, need stock > 150% to send to another city, never request transfert, export at stock > 75%, import at stock < 50%, convert all  
-		<Row ResourceType="RESOURCE_WOOD" 	MinPercentLeftToSupply="100"	MinPercentLeftToTransfer="150"	MaxPercentLeftToRequest="0"	MinPercentLeftToExport="75"	MaxPercentLeftToImport="50"	MinPercentLeftToConvert="0"	/>
-		-->
-		
-	</ResourceStockUsage>	
-	
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type -->
-		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
-		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
-		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
-		<Row UnitType="UNIT_ARCHER"			EquipmentClass="EQUIPMENTCLASS_BOWS" />
-		<Row UnitType="UNIT_HEAVY_CHARIOT"	EquipmentClass="EQUIPMENTCLASS_CHARIOT" MaxAmount="100"/>
-		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_SPEARS" />
-		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
-		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SWORDS" />
-		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+		<Row UnitType="UNIT_SETTLER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="30" />
+		<Row UnitType="UNIT_BUILDER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="100" />
+		
+		<Row UnitType="UNIT_SCOUT"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="5" />
+		
+		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
+		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		IsRequired="0" />
+		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		
+		<Row UnitType="UNIT_SLINGER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="6" />
+		
+		<Row UnitType="UNIT_ARCHER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="7" />
+		<Row UnitType="UNIT_ARCHER"					EquipmentClass="EQUIPMENTCLASS_BOWS" />
+		
+		<Row UnitType="UNIT_HEAVY_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="15" />
+		<Row UnitType="UNIT_HEAVY_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CHARIOT" 		PercentageOfPersonnel="25" />
+		<Row UnitType="UNIT_HEAVY_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_HORSES" 			PercentageOfPersonnel="50" />
+		<Row UnitType="UNIT_BARBARIAN_HORSE_ARCHER"	EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_BARBARIAN_HORSE_ARCHER"	EquipmentClass="EQUIPMENTCLASS_HORSES" />
+		<Row UnitType="UNIT_BARBARIAN_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_BARBARIAN_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_HORSES" />
+		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_HORSES" />
+		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_SPEARS" />
+		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		IsRequired="0" />
+		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SWORDS" />
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 	</UnitEquipmentClasses>
 	
-	
-	<UnitVisualEquipmentClasses> <!-- Equipment Classes representing an Unit Type -->
-		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
-		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
-		<Row UnitType="UNIT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
-		<Row UnitType="UNIT_ARCHER"			EquipmentClass="EQUIPMENTCLASS_BOWS" />
-		<Row UnitType="UNIT_HEAVY_CHARIOT"	EquipmentClass="EQUIPMENTCLASS_CHARIOT" MaxAmount="100"/>
-		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_SPEARS" />
-		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
-		<Row UnitType="UNIT_SPEARMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SWORDS" />
-		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
-	</UnitVisualEquipmentClasses>
+	<PromotionClassEquipmentClasses> <!-- Equipment Classes representing an Upgrade Line -->
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_SWORDS" />
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_RANGED"		EquipmentClass="EQUIPMENTCLASS_BOWS" />
+		<Row PromotionClassType="PROMOTION_CLASS_HEAVY_CAVALRY"	EquipmentClass="EQUIPMENTCLASS_CHARIOT" 	PercentageOfPersonnel="25"/>
+		<Row PromotionClassType="PROMOTION_CLASS_ANTI_CAVALRY"	EquipmentClass="EQUIPMENTCLASS_SPEARS" />
+		<Row PromotionClassType="PROMOTION_CLASS_ANTI_CAVALRY"	EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_ANTI_CAVALRY"	EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+	</PromotionClassEquipmentClasses>
 	
 </GameInfo>
