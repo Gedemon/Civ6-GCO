@@ -202,7 +202,6 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UI_MAX_PRISONERS_
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MIN_COMPONENT_LEFT_FACTOR', 		5);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_COMPONENT_LEFT_FACTOR', 		3);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MATERIEL_TO_REPAIR_VEHICLE_PERCENT',50);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_RESERVE_RATIO', 					0.75);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_HP_HEALED_FROM_RESERVE',		25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PERSONNEL_PERCENT_FROM_RESERVE',15);	-- Max percent of max personnel transfered from reserve to front line
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_MATERIEL_PERCENT_FROM_RESERVE',	15);	-- Max percent of max materiel transfered from reserve to front line

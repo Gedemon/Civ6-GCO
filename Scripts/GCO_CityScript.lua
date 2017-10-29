@@ -1876,7 +1876,7 @@ function GetNumRequiredInQueue(self, resourceID)
 		if data[resourceKey] then
 			if GameInfo.Units[itemBuild] then
 				local unitID		= GameInfo.Units[itemBuild].Index
-				local resTable 		= GCO.GetUnitConstructionResources(unitID)
+				local resTable 		= GCO.GetUnitConstructionResources(unitID) -- this only give the personnel value now, to do: replace with a call to player function returning personnel value from military organization level
 				local resOrTable 	= GCO.GetUnitConstructionOrResources(unitID)
 				local resNeeded		= 0
 				if resTable[resourceKey] then
@@ -2748,7 +2748,7 @@ function CanTrain(self, unitType)
 	local production 		= self:GetProductionYield()
 	local turnsToBuild 		= math.max(1, math.ceil(GameInfo.Units[unitType].Cost / production))
 	local turnsLeft 		= self:GetProductionTurnsLeft(unitType) or turnsToBuild
-	local resTable 			= GCO.GetUnitConstructionResources(unitID)
+	local resTable 			= GCO.GetUnitConstructionResources(unitID)  -- this only give the personnel value now, to do: replace with a call to player function returning personnel value from military organization level
 	local resOrTable 		= GCO.GetUnitConstructionOrResources(unitID)
 	local requirementStr 	= Locale.Lookup("LOC_PRODUCTION_PER_TURN_REQUIREMENT")
 	local reservedStr		= Locale.Lookup("LOC_ALREADY_RESERVED_RESOURCE")
@@ -2763,7 +2763,6 @@ function CanTrain(self, unitType)
 		bAddStr = true
 		break
 	end
-
 
 	-- check components needed
 	for resourceID, value in pairs(resTable) do
@@ -2844,7 +2843,7 @@ function CanConstruct(self, buildingType)
 
 	local row 			= GameInfo.Buildings[buildingType]
 	local buildingID 	= row.Index
-	local preReqStr = ""
+	local preReqStr 	= ""
 
 	-- check for required buildings (any required)
 	local bCheckBuildingOR
@@ -2898,7 +2897,17 @@ function CanConstruct(self, buildingType)
 	local turnsToBuild = math.max(1, math.ceil(row.Cost / production))
 
 	local resTable 			= GCO.GetBuildingConstructionResources(buildingType)
-	local requirementStr 	= ""
+	local requirementStr 	= Locale.Lookup("LOC_PRODUCTION_PER_TURN_REQUIREMENT")
+	local reservedStr		= Locale.Lookup("LOC_ALREADY_RESERVED_RESOURCE")
+	local totalStr			= Locale.Lookup("LOC_PRODUCTION_TOTAL_REQUIREMENT")
+	
+	-- Check if this unit is already in production queue
+	local reservedResource 	= self:GetBuildingQueueAllStock(buildingType)
+	local bAddStr 			= false
+	for resourceKey, value in pairs(reservedResource) do
+		bAddStr = true
+		break
+	end
 
 	for resourceID, value in pairs(resTable) do
 
@@ -2907,7 +2916,15 @@ function CanConstruct(self, buildingType)
 		local previousTurn		= math.max(0, turn - 1 )
 		local needPerTurn 		= math.ceil( value / turnsToBuild)
 		local stock				= self:GetStock(resourceID)
-		local supplied			= math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))
+		local supplied			= math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))		
+		local reserved 			= self:GetBuildingQueueStock(resourceID, buildingType)
+
+		if reserved > 0 then
+			reservedStr = reservedStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESERVED_RESOURCE", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, reserved )
+		end
+		
+		totalStr = totalStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESOURCE_TOTAL", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, value )
+
 		if (needPerTurn * ConstructionMinStockRatio) > stock and (needPerTurn * ConstructionMinStockRatio) > supplied then
 			bHasComponents = false
 			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESOURCE_NO_STOCK", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, needPerTurn, stock, supplied )
@@ -2917,7 +2934,9 @@ function CanConstruct(self, buildingType)
 			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESOURCE_ENOUGH_STOCK", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, needPerTurn, stock, supplied )
 		end
 	end
-
+	-- construct the complete requirement string
+	if bAddStr then requirementStr = reservedStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr end
+	requirementStr = "[NEWLINE]" .. totalStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr
 
 	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck), requirementStr, preReqStr
 end
@@ -3720,7 +3739,7 @@ function DoConstruction(self)
 		local resOrTable 		= {} -- mandatory resources from OR list
 		local resOptionalTable	= {} -- optional resources from OR list
 
-		if bIsUnit 		then resTable 			= GCO.GetUnitConstructionResources(row.Index) end
+		if bIsUnit 		then resTable 			= GCO.GetUnitConstructionResources(row.Index) end  -- this only give the personnel value now, to do: replace with a call to player function returning personnel value from military organization level
 		if bIsUnit 		then resOrTable 		= GCO.GetUnitConstructionOrResources(row.Index) end
 		if bIsUnit 		then resOptionalTable 	= GCO.GetUnitConstructionOptionalResources(row.Index) end
 		if bIsBuilding 	then resTable 			= GCO.GetBuildingConstructionResources(row.Index) end

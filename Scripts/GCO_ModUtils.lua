@@ -23,18 +23,17 @@ ExposedMembers.PlayerScript_Initialized 	= nil
 ExposedMembers.GameScript_Initialized		= nil
 
 	
-local ResourceValue 		= {			-- cached table with value of resources type
+local ResourceValue = {			-- cached table with value of resources type
 		["RESOURCECLASS_LUXURY"] 	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_LUXURY"].Value),
 		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
 		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
 }
 local equipmentCostRatio = tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EQUIPMENT_RATIO"].Value)
 
-local IsEquipment	= {}
+local IsEquipment	= {}		-- cached table to check if ResourceID is an Equipment
 for row in GameInfo.Resources() do
 	local resourceType	= row.ResourceType
-	local strStart, strEnd 	= string.find(resourceType, "EQUIPMENT_")
-	if strStart and strStart == 1 and strEnd == 10 then
+	if GameInfo.Equipment[resourceType] then
 		IsEquipment[row.Index] = true
 	end
 end
