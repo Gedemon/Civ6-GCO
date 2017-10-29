@@ -395,6 +395,34 @@ CREATE TABLE IF NOT EXISTS PromotionClassEquipmentClasses (
 		FOREIGN KEY (EquipmentClass) REFERENCES EquipmentClasses(EquipmentClass) ON DELETE CASCADE ON UPDATE CASCADE
 	);	
 	
+CREATE TABLE IF NOT EXISTS MilitaryOrganisationLevels (
+		OrganisationLevelType TEXT NOT NULL,				--
+		Name TEXT,											-- 
+		SupplyLineLengthFactor REAL NOT NULL,				-- SupplyLineEfficiency = ( 100 - math.pow(distance * SupplyLineLengthFactor,2) ) at 0.3 max distance = 33, at 0.85 max distance = 11, at 1.80 max distance = 5
+		MaxPersonnelPercentFromReserve INTEGER NOT NULL,	-- Percentage of max personnel in frontline that can be transfered from reserve when healing
+		MaxmaterielPercentFromReserve INTEGER NOT NULL,		-- Percentage of max materiel in frontline that can be transfered from reserve when healing
+		MaxHealingPerTurn INTEGER NOT NULL,					-- Max HP per turn when healing
+		PRIMARY KEY(OrganisationLevelType)
+	);
+	
+CREATE TABLE IF NOT EXISTS MilitaryFormations (
+		MilitaryFormationType TEXT NOT NULL,
+		Name TEXT,
+		PRIMARY KEY(MilitaryFormationType)
+	);
+	
+CREATE TABLE IF NOT EXISTS MilitaryFormationStructures (
+		OrganisationLevelType TEXT NOT NULL,
+		PromotionClassType TEXT NOT NULL, 		--
+		MilitaryFormationType TEXT NOT NULL, 	-- 
+		FrontLinePersonnel INTEGER NOT NULL,	-- max number of personnel in Frontline
+		ReservePersonnel INTEGER NOT NULL,		-- max number of personnel in Reserve (added to the default value which is the number of personnel missing in frontline)
+		PRIMARY KEY(OrganisationLevelType, PromotionClassType),
+		FOREIGN KEY (PromotionClassType) REFERENCES UnitPromotionClasses(PromotionClassType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (MilitaryFormationType) REFERENCES MilitaryFormations(MilitaryFormationType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (OrganisationLevelType) REFERENCES MilitaryOrganisationLevels(OrganisationLevelType) ON DELETE CASCADE ON UPDATE CASCADE
+	);	
+	
 CREATE TABLE IF NOT EXISTS PopulationNeeds (
 		ResourceType TEXT NOT NULL,
 		PopulationType TEXT NOT NULL,

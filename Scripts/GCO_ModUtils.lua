@@ -42,20 +42,18 @@ local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
 local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
-local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
+local warHorsesResourceID		= GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index
 local medicineResourceID		= GameInfo.Resources["RESOURCE_MEDICINE"].Index
 local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
 local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 
 local ResourceTempIcons = {		-- Table to store temporary icons for resources until new FontIcons could be added...
-		--[woodResourceID] 		= "[ICON_RESOURCE_CLOVES]",
-		--[materielResourceID] 	= "[ICON_Charges]",
+		[materielResourceID] 	= "[ICON_RESOURCE_MATERIEL]",
 		[steelResourceID] 		= "[ICON_New]",
 		[medicineResourceID] 	= "[ICON_Damaged]",
-		--[leatherResourceID] 	= "[ICON_New]",
-		--[plantResourceID] 		= "[ICON_RESOURCE_CINNAMON]",
 		[foodResourceID] 		= "[ICON_Food]",
 		[personnelResourceID]	= "[ICON_Position]",
+		[warHorsesResourceID]	= "[ICON_RESOURCE_HORSES]",
 	}
 
 -- Floating Texts LOD

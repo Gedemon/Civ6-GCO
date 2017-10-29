@@ -59,6 +59,13 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 UPDATE EquipmentClasses SET Name = 'LOC_' || EquipmentClasses.EquipmentClass || '_NAME';
 
 -----------------------------------------------
+-- Military Organization & Formations
+-----------------------------------------------
+
+UPDATE MilitaryOrganisationLevels 	SET Name = 'LOC_' || MilitaryOrganisationLevels.OrganisationLevelType || '_NAME';
+UPDATE MilitaryFormations 			SET Name = 'LOC_' || MilitaryFormations.MilitaryFormationType || '_NAME';
+
+-----------------------------------------------
 -- Units
 -----------------------------------------------
 

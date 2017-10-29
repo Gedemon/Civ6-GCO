@@ -3062,7 +3062,7 @@ function SetCityRationing(self)
 			ratio = math.max(consumptionRatio, Starvation)
 			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
 		elseif turnBeforeFamine <= turnsToFamineHeavy then
-			ratio = math.max(consumptionRatio, heavyRationing) -- Always use the maximum available supply, do not generate excedental food when rationing...
+			ratio = math.max(consumptionRatio, heavyRationing) -- Always use the maximum available supply, do not generate surplus food when rationing...
 			ExposedMembers.CityData[cityKey].FoodRatioTurn = Game.GetCurrentGameTurn()
 		elseif turnBeforeFamine <= turnsToFamineMedium then
 			ratio = math.max(consumptionRatio, mediumRationing)
@@ -3350,7 +3350,7 @@ function DoReinforceUnits(self)
 				local cityData = ExposedMembers.CityData[cityKey]
 				for playerKey, number in pairs(unitData.Prisoners) do
 					if number > 0 then
-						Dprint( DEBUG_CITY_SCRIPT, "  - received " .. tostring(number) .." " .. Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners from ".. unit:GetName())
+						Dprint( DEBUG_CITY_SCRIPT, "  - received " .. tostring(number) .." " .. Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners from ".. Locale.Lookup(unit:GetName()))
 						cityData.Prisoners[playerKey] = cityData.Prisoners[playerKey] + number
 						unitData.Prisoners[playerKey] = 0
 					end
@@ -3778,7 +3778,7 @@ function DoConstruction(self)
 			end
 			local providedResources = (neededPerTurn - numResourceToProvide)
 
-			Dprint( DEBUG_CITY_SCRIPT, "Need : ", neededPerTurn, Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name), " Actual Stock = ", totalClass )
+			Dprint( DEBUG_CITY_SCRIPT, "Need : ", neededPerTurn, " Actual Stock = ", totalClass, " Equipment : ", Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name) )
 			if numResourceToProvide > 0 then efficiency = math.min(efficiency, providedResources / neededPerTurn) end
 		end
 
@@ -3886,7 +3886,7 @@ function DoExcedents(self)
 	local cityData 	= ExposedMembers.CityData[cityKey]
 	local turnKey 	= GCO.GetTurnKey()
 
-	-- excedental personnel is sent back to civil life... (to do : send them to another location if available)
+	-- surplus personnel is sent back to civil life... (to do : send them to another location if available)
 	local excedentalPersonnel = self:GetPersonnel() - self:GetMaxPersonnel()
 
 	if excedentalPersonnel > 0 then
@@ -3903,16 +3903,16 @@ function DoExcedents(self)
 		self:ChangePersonnel(-toMiddle, ResourceUseType.Demobilize, RefPopulationMiddle)
 		self:ChangePersonnel(-toLower, ResourceUseType.Demobilize, RefPopulationLower)
 
-		Dprint( DEBUG_CITY_SCRIPT, " - Demobilized personnel =", excedentalPersonnel, "upper class =", toUpper,"middle class =", toMiddle, "lower class =",toLower)
+		Dprint( DEBUG_CITY_SCRIPT, " - Demobilized personnel = ", excedentalPersonnel, " upper class = ", toUpper," middle class = ", toMiddle, " lower class = ",toLower)
 
 	end
 
-	-- excedental resources are lost
+	-- surplus resources are lost
 	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
 		local resourceID = tonumber(resourceKey)
 		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
 		if excedent > 0 then
-			Dprint( DEBUG_CITY_SCRIPT, " - Excedental ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." destroyed = ".. tostring(excedent))
+			Dprint( DEBUG_CITY_SCRIPT, " - Surplus destroyed = ".. tostring(excedent).." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
 			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
 		end
 	end
@@ -3955,10 +3955,10 @@ function DoGrowth(self)
 	local slaveVar 	= CalculateVar( slavePop, self:GetPopulationBirthRate(SlaveClassID), self:GetPopulationDeathRate(SlaveClassID))
 
 
-	Dprint( DEBUG_CITY_SCRIPT, "Upper :		BirthRate = ", self:GetPopulationBirthRate(UpperClassID), " DeathRate = ", self:GetPopulationDeathRate(UpperClassID), " Initial Population = ", upperPop, " Variation = ", upperVar )
-	Dprint( DEBUG_CITY_SCRIPT, "Middle :	BirthRate = ", self:GetPopulationBirthRate(MiddleClassID), " DeathRate = ", self:GetPopulationDeathRate(MiddleClassID), " Initial Population = ", middlePop, " Variation = ", middleVar )
-	Dprint( DEBUG_CITY_SCRIPT, "Lower :		BirthRate = ", self:GetPopulationBirthRate(LowerClassID), " DeathRate = ", self:GetPopulationDeathRate(LowerClassID), " Initial Population = ", lowerPop, " Variation = ", lowerVar )
-	Dprint( DEBUG_CITY_SCRIPT, "Slave :		BirthRate = ", self:GetPopulationBirthRate(SlaveClassID), " DeathRate = ", self:GetPopulationDeathRate(SlaveClassID), " Initial Population = ", slavePop, " Variation = ", slaveVar )
+	Dprint( DEBUG_CITY_SCRIPT, "Upper :	...	BirthRate = ", self:GetPopulationBirthRate(UpperClassID), " DeathRate = ", self:GetPopulationDeathRate(UpperClassID), " Initial Population = ", upperPop, " Variation = ", upperVar )
+	Dprint( DEBUG_CITY_SCRIPT, "Middle : ..	BirthRate = ", self:GetPopulationBirthRate(MiddleClassID), " DeathRate = ", self:GetPopulationDeathRate(MiddleClassID), " Initial Population = ", middlePop, " Variation = ", middleVar )
+	Dprint( DEBUG_CITY_SCRIPT, "Lower :	...	BirthRate = ", self:GetPopulationBirthRate(LowerClassID), " DeathRate = ", self:GetPopulationDeathRate(LowerClassID), " Initial Population = ", lowerPop, " Variation = ", lowerVar )
+	Dprint( DEBUG_CITY_SCRIPT, "Slave :	...	BirthRate = ", self:GetPopulationBirthRate(SlaveClassID), " DeathRate = ", self:GetPopulationDeathRate(SlaveClassID), " Initial Population = ", slavePop, " Variation = ", slaveVar )
 
 	self:ChangeUpperClass(upperVar)
 	self:ChangeMiddleClass(middleVar)
@@ -4209,58 +4209,58 @@ function DoSocialClassStratification(self)
 	local actualLower = self:GetLowerClass()
 
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxUpper = ", maxUpper)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxUpper .. = ", maxUpper)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualUpper = ", actualUpper)
-	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minUpper = ", minUpper)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minUpper .. = ", minUpper)
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxMiddle = ", maxMiddle)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxMiddle .. = ", maxMiddle)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualMiddle = ", actualMiddle)
-	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minMiddle = ", minMiddle)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minMiddle .. = ", minMiddle)
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxLower = ", maxLower)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: maxLower .. = ", maxLower)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: actualLower = ", actualLower)
-	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minLower = ", minLower)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minLower .. = ", minLower)
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 
 	-- Move Upper to Middle
 	if actualUpper > maxUpper then
 		toMove = actualUpper - maxUpper
-		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Upper to Middle (from actualUpper > maxUpper) = ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Upper to Middle (from actualUpper > maxUpper) ..... = ", toMove)
 		self:ChangeUpperClass(- toMove)
 		self:ChangeMiddleClass( toMove)
 	end
 	-- Move Middle to Upper
 	if actualUpper < minUpper then
 		toMove = minUpper - actualUpper
-		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Upper (from actualUpper < minUpper)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Upper (from actualUpper < minUpper) ..... = ", toMove)
 		self:ChangeUpperClass(toMove)
 		self:ChangeMiddleClass(-toMove)
 	end
 	-- Move Middle to Lower
 	if actualMiddle > maxMiddle then
 		toMove = actualMiddle - maxMiddle
-		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Lower (from actualMiddle > maxMiddle)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Lower (from actualMiddle > maxMiddle) ... = ", toMove)
 		self:ChangeMiddleClass(-toMove)
 		self:ChangeLowerClass(toMove)
 	end
 	-- Move Lower to Middle
 	if actualMiddle < minMiddle then
 		toMove = minMiddle - actualMiddle
-		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Lower to Middle (from actualMiddle < minMiddle)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Lower to Middle (from actualMiddle < minMiddle) ... = ", toMove)
 		self:ChangeMiddleClass(toMove)
 		self:ChangeLowerClass(-toMove)
 	end
 	-- Move Lower to Middle
 	if actualLower > maxLower then
 		toMove = actualLower - maxLower
-		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Lower to Middle (from actualLower > maxLower)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Lower to Middle (from actualLower > maxLower) ..... = ", toMove)
 		self:ChangeMiddleClass(toMove)
 		self:ChangeLowerClass(-toMove)
 	end
 	-- Move Middle to Lower
 	if actualLower < minLower then
 		toMove = minLower - actualLower
-		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Lower (from actualLower < minLower)= ", toMove)
+		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Lower (from actualLower < minLower) ..... = ", toMove)
 		self:ChangeMiddleClass(-toMove)
 		self:ChangeLowerClass(toMove)
 	end
