@@ -267,23 +267,23 @@
 	</GameSpeed_Turns>
 	
 	<MilitaryOrganisationLevels>
-		<Row OrganisationLevelType="LEVEL0" 	SupplyLineLengthFactor="1.80" MaxPersonnelPercentFromReserve="10" MaxmaterielPercentFromReserve="10" MaxHealingPerTurn="10" />
-		<Row OrganisationLevelType="LEVEL1" 	SupplyLineLengthFactor="1.25" MaxPersonnelPercentFromReserve="12" MaxmaterielPercentFromReserve="12" MaxHealingPerTurn="11" />
-		<Row OrganisationLevelType="LEVEL2" 	SupplyLineLengthFactor="1.20" MaxPersonnelPercentFromReserve="14" MaxmaterielPercentFromReserve="14" MaxHealingPerTurn="12" />
-		<Row OrganisationLevelType="LEVEL3" 	SupplyLineLengthFactor="1.00" MaxPersonnelPercentFromReserve="16" MaxmaterielPercentFromReserve="16" MaxHealingPerTurn="14" />
-		<Row OrganisationLevelType="LEVEL4" 	SupplyLineLengthFactor="0.80" MaxPersonnelPercentFromReserve="18" MaxmaterielPercentFromReserve="18" MaxHealingPerTurn="16" />
-		<Row OrganisationLevelType="LEVEL5" 	SupplyLineLengthFactor="0.50" MaxPersonnelPercentFromReserve="20" MaxmaterielPercentFromReserve="20" MaxHealingPerTurn="18" />
-		<Row OrganisationLevelType="LEVEL6" 	SupplyLineLengthFactor="0.40" MaxPersonnelPercentFromReserve="22" MaxmaterielPercentFromReserve="22" MaxHealingPerTurn="20" />
-		<Row OrganisationLevelType="LEVEL7" 	SupplyLineLengthFactor="0.30" MaxPersonnelPercentFromReserve="25" MaxmaterielPercentFromReserve="25" MaxHealingPerTurn="25" />
-		<Row OrganisationLevelType="LEVEL8" 	SupplyLineLengthFactor="0.25" MaxPersonnelPercentFromReserve="30" MaxmaterielPercentFromReserve="30" MaxHealingPerTurn="30" />
+		<Row OrganisationLevelType="LEVEL0" 	SupplyLineLengthFactor="1.80" MaxPersonnelPercentFromReserve="10" MaxmaterielPercentFromReserve="10" MaxHealingPerTurn="10" /> <!-- SupplyLine = 5 -->
+		<Row OrganisationLevelType="LEVEL1" 	SupplyLineLengthFactor="1.40" MaxPersonnelPercentFromReserve="12" MaxmaterielPercentFromReserve="12" MaxHealingPerTurn="11" /> <!-- SupplyLine = 7 -->
+		<Row OrganisationLevelType="LEVEL2" 	SupplyLineLengthFactor="1.20" MaxPersonnelPercentFromReserve="14" MaxmaterielPercentFromReserve="14" MaxHealingPerTurn="12" /> <!-- SupplyLine = 8 -->
+		<Row OrganisationLevelType="LEVEL3" 	SupplyLineLengthFactor="1.00" MaxPersonnelPercentFromReserve="16" MaxmaterielPercentFromReserve="16" MaxHealingPerTurn="14" /> <!-- SupplyLine = 9 -->
+		<Row OrganisationLevelType="LEVEL4" 	SupplyLineLengthFactor="0.80" MaxPersonnelPercentFromReserve="18" MaxmaterielPercentFromReserve="18" MaxHealingPerTurn="16" /> <!-- SupplyLine = 12 -->
+		<Row OrganisationLevelType="LEVEL5" 	SupplyLineLengthFactor="0.50" MaxPersonnelPercentFromReserve="20" MaxmaterielPercentFromReserve="20" MaxHealingPerTurn="18" /> <!-- SupplyLine = 20 -->
+		<Row OrganisationLevelType="LEVEL6" 	SupplyLineLengthFactor="0.40" MaxPersonnelPercentFromReserve="22" MaxmaterielPercentFromReserve="22" MaxHealingPerTurn="20" /> <!-- SupplyLine = 26 -->
+		<Row OrganisationLevelType="LEVEL7" 	SupplyLineLengthFactor="0.30" MaxPersonnelPercentFromReserve="25" MaxmaterielPercentFromReserve="25" MaxHealingPerTurn="25" /> <!-- SupplyLine = 33 -->
+		<Row OrganisationLevelType="LEVEL8" 	SupplyLineLengthFactor="0.25" MaxPersonnelPercentFromReserve="30" MaxmaterielPercentFromReserve="30" MaxHealingPerTurn="30" /> <!-- SupplyLine = 39 -->
 	</MilitaryOrganisationLevels>
 	
 	<MilitaryFormations>
 		<Row MilitaryFormationType="FORMATION_PARTY" 	/>
 		<Row MilitaryFormationType="FORMATION_HORDE" 	/>
 		<Row MilitaryFormationType="FORMATION_COHORTE" 	/>
+		<Row MilitaryFormationType="FORMATION_COMPANY"	/>
 		<Row MilitaryFormationType="FORMATION_BRIGADE" 	/>
-		<Row MilitaryFormationType="FORMATION_COMPAGNY"	/>
 		<Row MilitaryFormationType="FORMATION_REGIMENT" />
 		<Row MilitaryFormationType="FORMATION_DIVISION"	/>
 	</MilitaryFormations>
@@ -292,12 +292,12 @@
 		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_PARTY" 		FrontLinePersonnel="400" 	ReservePersonnel="0" />
 		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_HORDE" 		FrontLinePersonnel="700" 	ReservePersonnel="0" />
 		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_COHORTE" 	FrontLinePersonnel="1000" 	ReservePersonnel="100" />
-		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_COMPAGNY" 	FrontLinePersonnel="1500" 	ReservePersonnel="500" />
-		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_COMPAGNY" 	FrontLinePersonnel="3000" 	ReservePersonnel="1000" />
+		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_COMPANY" 	FrontLinePersonnel="1500" 	ReservePersonnel="500" />
+		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_BRIGADE" 	FrontLinePersonnel="3000" 	ReservePersonnel="1000" />
 		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_DIVISION" 	FrontLinePersonnel="5000" 	ReservePersonnel="2000" />
 		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_DIVISION" 	FrontLinePersonnel="6000" 	ReservePersonnel="4000" />
 		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_DIVISION" 	FrontLinePersonnel="5000" 	ReservePersonnel="5000" />
-		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_DIVISION" 	FrontLinePersonnel="5000" 	ReservePersonnel="5000" />
+		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_MELEE" MilitaryFormationType="FORMATION_BRIGADE" 	FrontLinePersonnel="4000" 	ReservePersonnel="4000" />
 	</MilitaryFormationStructures>
 	
 </GameInfo>

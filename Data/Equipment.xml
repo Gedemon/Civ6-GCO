@@ -8,7 +8,7 @@
 	-->
 	
 	<Equipment>  <!-- Materiel is both Equipment and Resource -->
-		<Row ResourceType="RESOURCE_MATERIEL" />
+		<Row ResourceType="RESOURCE_MATERIEL" Size="10" />
 	</Equipment>
 	
 	<Equipment> <!-- Melee Weapons -->
