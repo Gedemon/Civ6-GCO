@@ -119,7 +119,8 @@ end
 function InitializeData(self)
 	local playerKey = self:GetKey()
 	ExposedMembers.PlayerData[playerKey] = {
-		CurrentTurn = Game.GetCurrentGameTurn(),
+		CurrentTurn 		= Game.GetCurrentGameTurn(),
+		OrganizationLevel 	= 0,
 	}
 end
 
@@ -182,6 +183,16 @@ end
 function HasStartedTurn(self)
 	local playerKey = self:GetKey()
 	return (ExposedMembers.PlayerData[playerKey].CurrentTurn == Game.GetCurrentGameTurn())
+end
+
+function SetMilitaryOrganizationLevel(self, OrganizationLevelID)
+	local playerKey = self:GetKey()
+	ExposedMembers.PlayerData[playerKey].OrganizationLevel == OrganizationLevelID
+end
+
+function GetMilitaryOrganizationLevel(self)
+	local playerKey = self:GetKey()
+	return ExposedMembers.PlayerData[playerKey].OrganizationLevel or 0
 end
 
 function UpdateUnitsFlags(self)
