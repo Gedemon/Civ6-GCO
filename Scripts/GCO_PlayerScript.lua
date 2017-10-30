@@ -187,7 +187,7 @@ end
 
 function SetMilitaryOrganizationLevel(self, OrganizationLevelID)
 	local playerKey = self:GetKey()
-	ExposedMembers.PlayerData[playerKey].OrganizationLevel == OrganizationLevelID
+	ExposedMembers.PlayerData[playerKey].OrganizationLevel = OrganizationLevelID
 end
 
 function GetMilitaryOrganizationLevel(self)
@@ -385,6 +385,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.InitializeData							= InitializeData
 	p.IsResourceVisible							= IsResourceVisible
 	p.CanTrain									= CanTrain
+	p.GetMilitaryOrganizationLevel				= GetMilitaryOrganizationLevel
 	p.IsKnownTech								= IsKnownTech
 	p.SetKnownTech								= SetKnownTech
 	p.UpdateUnitsFlags							= UpdateUnitsFlags
