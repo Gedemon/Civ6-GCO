@@ -784,6 +784,8 @@ function UnitFlag.UpdateName( self )
 		end
 
 		-- display military formation indicator(s)
+		-- GCO <<<<<
+		--[[
 		local militaryFormation = pUnit:GetMilitaryFormation();
 		if self.m_Style == FLAGSTYLE_NAVAL then
 			if (militaryFormation == MilitaryFormationTypes.CORPS_FORMATION) then
@@ -798,6 +800,20 @@ function UnitFlag.UpdateName( self )
 				nameString = nameString .. TXT_UNITFLAG_ARMY_SUFFIX;
 			end
 		end
+		--]]
+		GCO.AttachUnitFunctions(pUnit)
+		nameString = nameString .. " " ..Locale.Lookup(pUnit:GetMilitaryFormationTypeName())
+		
+		local militaryFormationString = pUnit:GetMilitaryFormationSizeString();
+		if string.len(militaryFormationString) > 0 then
+			self.m_Instance.CorpsMarker:SetHide(true);
+			self.m_Instance.MilitaryFormationMarker:SetHide(false);
+			self.m_Instance.MilitaryFormationString:SetText(militaryFormationString)
+		else
+			self.m_Instance.CorpsMarker:SetHide(true);
+			self.m_Instance.ArmyMarker:SetHide(true);
+		end		
+		-- GCO >>>>>
 
 		-- DEBUG TEXT FOR SHOWING UNIT ACTIVITY TYPE
 		--[[
@@ -849,7 +865,6 @@ function UnitFlag.UpdateName( self )
 		end
 
 		-- GCO <<<<<
-		GCO.AttachUnitFunctions(pUnit)
 		local unitKey 	= pUnit:GetKey()
 		local unitData 	= ExposedMembers.UnitData[unitKey]
 		local unitType 	= pUnit:GetUnitType()

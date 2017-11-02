@@ -75,10 +75,8 @@
 	
 	</LocalizedText>
     
-	<LocalizedText> <!-- Resources -->
-	
-		<Replace Tag="LOC_RESOURCE_WINE_NAME" 		Text="Grapes" 		Language="en_US" /> 
-		
+	<LocalizedText> <!-- Resources -->	
+		<Replace Tag="LOC_RESOURCE_WINE_NAME" 		Text="Grapes" 		Language="en_US" /> 		
 		<Replace Tag="LOC_RESOURCE_FOOD_NAME" 		Text="Food" 		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 	Text="Materiel" 	Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"	Text="Personnel"	Language="en_US" /> 
@@ -86,8 +84,22 @@
 		<Replace Tag="LOC_RESOURCE_WOOD_NAME" 		Text="Wood" 		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_PLANTS_NAME" 	Text="Plants" 		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_LEATHER_NAME" 	Text="Leather" 		Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 	Text="Medicine" 	Language="en_US" /> 
-		
+		<Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 	Text="Medicine" 	Language="en_US" /> 		
+	</LocalizedText>
+	
+	<LocalizedText> <!-- Promotions -->	
+		<Replace Tag="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 		Text="Strength in Numbers" 		Language="en_US" /> 
+		<Replace Tag="LOC_PROMOTION_REMOVE_RANGED_ATTACK_NAME" 		Text="Can't fire" 				Language="en_US" /> 		
+	</LocalizedText>	
+	
+	<LocalizedText> <!-- Formations -->	
+		<Replace Tag="LOC_FORMATION_PARTY_NAME"         Text="Party" 		Language="en_US" />
+		<Replace Tag="LOC_FORMATION_HORDE_NAME"			Text="Horde" 		Language="en_US" />
+		<Replace Tag="LOC_FORMATION_COHORTE_NAME"		Text="Cohorte" 		Language="en_US" />
+		<Replace Tag="LOC_FORMATION_COMPANY_NAME"		Text="Company" 		Language="en_US" />
+		<Replace Tag="LOC_FORMATION_BRIGADE_NAME"		Text="Brigade" 		Language="en_US" />
+		<Replace Tag="LOC_FORMATION_REGIMENT_NAME"		Text="Regiment" 	Language="en_US" />
+		<Replace Tag="LOC_FORMATION_DIVISION_NAME"		Text="Division" 	Language="en_US" />		
 	</LocalizedText>
  
 </GameData>

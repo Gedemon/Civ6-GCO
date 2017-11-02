@@ -205,5 +205,4 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MATERIEL_TO_
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_HP_HEALED_FROM_RESERVE',		25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PERSONNEL_PERCENT_FROM_RESERVE',15);	-- Max percent of max personnel transfered from reserve to front line
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_MATERIEL_PERCENT_FROM_RESERVE',	15);	-- Max percent of max materiel transfered from reserve to front line
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PSEUDO_HP_FROM_REINFORCEMENT',	5);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_SUPPLY_LINE_LENGTH_FACTOR',			0.85);	-- When calculating supply line efficiency relatively to length
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_SUPPLY_LINE_DEFAULT_LENGTH_FACTOR',	0.85);	-- When calculating supply line efficiency relatively to length

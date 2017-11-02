@@ -134,6 +134,17 @@ function GetMoveToPath( unit, plotIndex )
 	return UnitManager.GetMoveToPath( contextUnit, plotIndex )
 end
 
+function SetUnitName( unit, name )
+	local contextUnit = UnitManager.GetUnit(unit:GetOwner(), unit:GetID())
+	if (contextUnit) then
+		local tParameters = {};
+		tParameters[UnitCommandTypes.PARAM_NAME] = name
+		if (name ~= "") then
+			UnitManager.RequestCommand( contextUnit, UnitCommandTypes.NAME_UNIT, tParameters );
+		end
+	end
+end
+
 
 ----------------------------------------------
 -- Initialize functions for other contexts
@@ -159,6 +170,7 @@ function Initialize()
 	ExposedMembers.GCO.IsImprovementPillaged 		= IsImprovementPillaged
 	-- units
 	ExposedMembers.GCO.GetMoveToPath				= GetMoveToPath
+	ExposedMembers.GCO.SetUnitName					= SetUnitName
 	-- others
 	ExposedMembers.UI 								= UI
 	ExposedMembers.Calendar							= Calendar

@@ -39,8 +39,6 @@ local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIG
 local mediumRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 local heavyRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
 
-local SupplyLineLengthFactor	= tonumber(GameInfo.GlobalParameters["UNIT_SUPPLY_LINE_LENGTH_FACTOR"].Value)
-
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local horsesResourceID 			= GameInfo.Resources["RESOURCE_HORSES"].Index
@@ -171,10 +169,9 @@ for row in GameInfo.MilitaryFormationStructures() do
 		militaryOrganization[organizationRow.Index] = {}
 		militaryOrganization[organizationRow.Index].SupplyLineLengthFactor 			= organizationRow.SupplyLineLengthFactor
 		militaryOrganization[organizationRow.Index].MaxPersonnelPercentFromReserve 	= organizationRow.MaxPersonnelPercentFromReserve
-		militaryOrganization[organizationRow.Index].MaxmaterielPercentFromReserve 	= organizationRow.MaxmaterielPercentFromReserve
 		militaryOrganization[organizationRow.Index].MaxHealingPerTurn 				= organizationRow.MaxHealingPerTurn
 	end
-	militaryOrganization[organizationRow.Index][promotionClassID] = { MilitaryFormationType = row.MilitaryFormationType, FrontLinePersonnel = row.FrontLinePersonnel, ReservePersonnel = row.ReservePersonnel}
+	militaryOrganization[organizationRow.Index][promotionClassID] = { MilitaryFormationType = row.MilitaryFormationType, FrontLinePersonnel = row.FrontLinePersonnel, ReservePersonnel = row.ReservePersonnel, SizeString = row.SizeString}
 end
 
 
@@ -301,19 +298,19 @@ end
 -----------------------------------------------------------------------------------------
 -- Use Enum for faster serialization
 local unitTableEnum = {
-
+	-- commented out enum can be reused for new entries
 	unitID						= 1,
 	playerID					= 2,
 	unitType					= 3,
-	--MaterielPerEquipment		= 4,
+	OrganizationLevel			= 4,
 	Personnel					= 5,
 	Equipment					= 6,
-	--Horses					= 7,
+	UniqueID					= 7, 
 	--Materiel					= 8,
 	PersonnelReserve			= 9,
 	EquipmentReserve			= 10,
 	--HorsesReserve				= 11,
-	--MaterielReserve			= 12,
+	CanChangeOrganization		= 12,
 	WoundedPersonnel			= 13,
 	DamagedEquipment			= 14,
 	Prisoners					= 15,
@@ -491,7 +488,7 @@ end
 -----------------------------------------------------------------------------------------
 -- Units Initialization
 -----------------------------------------------------------------------------------------
-function RegisterNewUnit(playerID, unit, partialHP, personnelReserve) -- use partialHP to initialize incomplete unit, use personnelReserve to initialize unit with reserve
+function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizationLevel) -- use partialHP to initialize incomplete unit, use personnelReserve to initialize unit with reserve
 
 	--local DEBUG_UNIT_SCRIPT = true
 	
@@ -506,14 +503,13 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve) -- use par
 	***********
 	--]]
 	
-	local organizationLevel	= unit:GetOrganizationLevel()
-	--local unitOrganization	= unit:GetMilitaryOrganization()
-
-	local hp 		= partialHP or maxHP
-	local unitType 	= unit:GetType()
-	local unitID 	= unit:GetID()
-	local unitKey 	= unit:GetKey()
-	local food 		= SetBaseFoodStock(unitType, organizationLevel)	
+	local hp 				= partialHP or maxHP
+	local unitType 			= unit:GetType()
+	local unitID 			= unit:GetID()
+	local unitKey 			= unit:GetKey()
+	local food 				= SetBaseFoodStock(unitType, organizationLevel)	
+	local player 			= GCO.GetPlayer(unit:GetOwner())
+	local organizationLevel	= organizationLevel or player:GetMilitaryOrganizationLevel()
 	
 	local personnel 		= unit:GetPersonnelAtHP(hp) --UnitHitPointsTable[unitType][hp].Personnel	
 	local personnelReserve	= personnelReserve or 0
@@ -528,9 +524,12 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve) -- use par
 		unitID 					= unitID,
 		playerID 				= playerID,
 		unitType 				= unitType,
+		UniqueID 				= unitID.."-"..playerID.."-"..Automation.GetTime(), -- for linked statistics
 		HP	 					= hp, -- This is only updated during mod's healing/damage to reflect the HP relative to the composition of the unit.
 		testHP	 				= hp,
 		UnitLastHealingValue	= 0,
+		OrganizationLevel		= organizationLevel,
+		CanChangeOrganization	= true,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 				= personnel,
 		Equipment 				= {}, -- {[EquipmentClassKey] = { [ResourceKey] = value, ... } , ...}
@@ -678,10 +677,7 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional, equ
 	UnitWithoutEquipment[unitKey] = nil
 	
 	-- Update unit's flag
-	LuaEvents.UnitsCompositionUpdated(self:GetOwner(), self:GetID())
-	
-	-- Restore current damage	
-	--self:SetDamage(currentDamage)
+	LuaEvents.UnitsCompositionUpdated(self:GetOwner(), self:GetID())	
 	
 	Dlog("InitializeEquipment /END")
 end
@@ -752,6 +748,90 @@ function CheckEquipmentInitializationTimer()
 		coroutine.resume(initializeEquipmentCo)
 	end
 end
+
+function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions)
+
+	if not excludedPromotions then excludedPromotions = {} end
+	if not playerID then playerID = oldUnit:GetOwner() end
+	
+	local newUnit
+	local newUnitPromotions	= {}
+	local plotX				= oldUnit:GetX()
+	local plotY				= oldUnit:GetY()
+	local prevPlayerUnits 	= Players[oldUnit:GetOwner()]:GetUnits()
+	local oldUnitKey		= oldUnit:GetKey()
+	local newPlayerUnits 	= Players[playerID]:GetUnits()
+	local bTypeChanged
+	
+	-- Get old unit data
+	local prevDamage 			= oldUnit:GetDamage()
+	local prevUnitExperience	= oldUnit:GetExperience()
+	local prevExperiencePoints	= prevUnitExperience:GetExperiencePoints()
+	local prevFortifyTurns		= oldUnit:GetFortifyTurns()
+	local prevName				= oldUnit:GetName()
+	local prevType				= oldUnit:GetType()
+	
+	-- Get previous promotions
+	for row in GameInfo.UnitPromotions() do
+		local promotionID = row.Index
+		if not excludedPromotions[promotionID] and prevUnitExperience:HasPromotion(promotionID) then
+			table.insert(newUnitPromotions, promotionID)
+		end
+	end
+	
+	-- Destroy old unit first to prevent stacking issues
+	prevPlayerUnits:Destroy(oldUnit)	
+	
+	-- Create new unit
+	if type(newUnitType) == "number" then
+		newUnit = newPlayerUnits:Create(newUnitType, plotX, plotY) -- type ID
+	else
+		newUnit = UnitManager.InitUnit(playerID, newUnitType, plotX, plotY) -- type text
+	end
+	
+	if newUnit then
+				
+		local bTypeChanged = ( prevType ~= newUnit:GetType() )
+		
+		local newUnitKey = newUnit:GetKey()
+		if ExposedMembers.UnitData[newUnitKey] then
+			GCO.Warning("New unit in ChangeUnitTo() has already an entry in UnitData for unitKey = "..tostring(newUnitKey)..", old unitKey = "..tostring(oldUnitKey))
+		end
+		
+		ExposedMembers.UnitData[newUnitKey] = {}
+		local newUnitData = ExposedMembers.UnitData[newUnitKey]
+		for key, value in pairs(ExposedMembers.UnitData[oldUnitKey]) do 
+			newUnitData[key] = value
+		end
+		newUnitData.unitID 		= unit:GetID()
+		newUnitData.playerID 	= playerID
+		newUnitData.unitType 	= unit:GetType()
+		
+		ExposedMembers.UnitData[oldUnitKey] = nil
+		
+		newUnit:SetDamage(prevDamage)
+		newUnit:SetFortifyTurns(prevFortifyTurns)
+		newUnit:SetName(prevName)
+		
+		local newUnitExperience = newUnit:GetExperience()
+		newUnitExperience:ChangeExperience(-newUnitExperience:GetExperiencePoints() + prevExperiencePoints)
+		
+		-- add promotions
+		for _, promotionID in ipairs(newUnitPromotions) do
+			newUnitExperience:SetPromotion(promotionID)
+		end
+		
+		if bTypeChanged then
+			--newUnitData.CombatXP = 0 -- do we need to reset combat XP for new type ? or are we going to track that differently for research bonuses ?
+			--newUnit:UpdateData()
+		end
+		
+		return newUnit
+	else
+		GCO.Error("Failed to replace unit unitKey#"..tostring(oldUnitKey).." by unit type = "..tostring(newUnitType).." player ID#"..tostring(playerID))
+	end
+end
+
 
 local barbarianUnits = {
 	["ERA_ANCIENT"] 		= 
@@ -988,9 +1068,103 @@ function GetMilitaryOrganization(self)
 end
 
 function GetOrganizationLevel(self)
-	local player = GCO.GetPlayer(self:GetOwner())
-	return player:GetMilitaryOrganizationLevel()
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]
+	if not unitData then return 0 end
+	if not unitData.OrganizationLevel then
+		local player = GCO.GetPlayer(self:GetOwner())
+		return player:GetMilitaryOrganizationLevel()
+	else
+		return unitData.OrganizationLevel
+	end
 end
+
+function SetOrganizationLevel(self, organizationLevel)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]	
+	if unitData then
+		if unitData.OrganizationLevel ~= organizationLevel then
+			unitData.OrganizationLevel = organizationLevel
+			self:UpdateData()
+			LuaEvents.OrganizationLevelChanged(self:GetOwner(), self:GetID())
+		end
+	else
+		GCO.Error("unitData is nil when calling SetOrganizationLevel() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+		ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)	
+	end
+end
+
+function UpdateData(self) -- that function will have to be called after we change the structure of an unit (upgrading, downgrading, new military organization level, ...)
+	local unitKey = self:GetKey()
+	local unitData = ExposedMembers.UnitData[unitKey]
+	-- When updating, we'll set the HP based on what's available in frontline, no healing here...
+	local currentDamage = self:GetDamage()
+	local maxUnitHP 	= maxHP - currentDamage
+	-- We need to be sure that the call is made while the core HP is synchronized with the virtuel HP
+	if (maxUnitHP ~= unitData.HP) then
+		GCO.Error("Calling UpdateData() while HP is not synchronized for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+		ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
+		return
+	end
+	local bReached 			= false
+	local personnelSurplus 	= 0
+	local equipmentSurplus	= {}
+	while (not bReached) and (maxUnitHP > 0) do
+		local bNeedToLowerHP	= false
+		personnelSurplus 		= self:GetFrontLinePersonnel() - self:GetPersonnelAtHP(maxUnitHP)
+		if personnelSurplus < 0 then
+			bNeedToLowerHP = true
+		else
+			for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
+				local classID 	= tonumber(equipmentClassKey)
+				equipmentSurplus[classID] = self:GetEquipmentClassFrontLine(classID) - self:GetEquipmentAtHP(classID, maxUnitHP)
+				if equipmentSurplus[classID] < 0 and self:IsRequiringEquipmentClass(classID) then
+					bNeedToLowerHP = true
+				end
+			end		
+		end
+		if bNeedToLowerHP then
+			maxUnitHP = maxUnitHP - 1
+		else
+			bReached = true
+		end
+	end
+	if maxUnitHP == 0 then
+		GCO.Error("UpdateData() is trying to murder that innocent unit :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+		ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
+		return
+	end
+	if personnelSurplus > 0 then	
+		unitData.PersonnelReserve 	= unitData.PersonnelReserve + personnelSurplus
+		unitData.Personnel 			= unitData.Personnel 		- personnelSurplus
+	end
+	for classID, surplus in pairs(equipmentSurplus) do
+		if surplus > 0 then
+			local equipmentTypes 	= GetEquipmentTypes(classID)
+			local bestNum 			= 0			
+			local equipmentToRemove = {}			
+			for i = #equipmentTypes, 1, -1 do -- iterate from least to most wanted equipment			
+				local equipmentID = equipmentTypes[i].EquipmentID
+				local num = self:GetFrontLineEquipment(equipmentID, classID)				
+				-- we want the least wanted available, and we increment the number of least wanted equipment already set as surplus for the next loop...
+				bestNum = bestNum + num
+				equipmentToRemove[equipmentID] = math.min(bestNum, surplus )
+				--Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", num = ", num, ", class surplus left = ", surplus, ", total equipment checked = ", bestNum, ", surplus removed = ", excedent[equipmentID])
+				surplus = math.max(0, surplus - equipmentToRemove[equipmentID])
+			end
+			for equipmentID, surplus in pairs(equipmentToRemove) do
+				self:ChangeReserveEquipment(equipmentID, surplus, classID)
+				self:ChangeFrontLineEquipment(equipmentID, -surplus, classID)
+			end
+		end		
+	end
+	local newDamage = maxHP - maxUnitHP
+	if newDamage ~= currentDamage then
+		self:SetDamage(newDamage)
+		unitData.HP = maxUnitHP
+	end
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Resources functions
@@ -1056,6 +1230,15 @@ function GetMaxPersonnelReserve(self)
 	local neededForHealing 	= self:GetMaxFrontLinePersonnel() - self:GetComponent("Personnel")
 	local baseReserve		= GetBasePersonnelReserve(self:GetType(), self:GetOrganizationLevel())
 	return neededForHealing + baseReserve
+end
+
+function GetFrontLinePersonnel(self)
+	local unitKey = self:GetKey()
+	if not ExposedMembers.UnitData[unitKey] then
+		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
+	return ExposedMembers.UnitData[unitKey].Personnel or 0
 end
 
 function GetBaseFoodStock(self)
@@ -1185,15 +1368,6 @@ function GetBaseFuelStock(unitType) -- local
 	end
 	return 0
 	--]]
-end
-
-function GetMaxTransferTable(self)
-	local maxTranfert = {}
-	local unitType = self:GetType()
-	local unitInfo = GameInfo.Units[unitType]
-	maxTranfert.Personnel 	= GCO.Round(GetMaxFrontLinePersonnel(self)*GameInfo.GlobalParameters["UNIT_MAX_PERSONNEL_PERCENT_FROM_RESERVE"].Value/100)
-	maxTranfert.Materiel 	= GCO.Round(GetMaxFrontLineMateriel(self)*GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_PERCENT_FROM_RESERVE"].Value/100)
-	return maxTranfert
 end
 
 function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rear" for units
@@ -2002,6 +2176,19 @@ function GetResourcesStockString(self)
 		end
 	end
 	return str
+end
+
+function GetMilitaryFormationSizeString(self)
+	local unitOrganization = self:GetMilitaryOrganization()
+	if not unitOrganization then return "" end
+	return unitOrganization.SizeString or ""
+end
+
+function GetMilitaryFormationTypeName(self)
+	local unitOrganization 	= self:GetMilitaryOrganization()
+	if not unitOrganization then return "" end
+	local formationType 	= unitOrganization.MilitaryFormationType
+	if formationType then return GameInfo.MilitaryFormations[formationType].Name or "" end
 end
 
 -- Floating text
@@ -2928,34 +3115,45 @@ function Heal(self)
 	
 	local unitKey 	= self:GetKey()	
 	local unitData 	= ExposedMembers.UnitData[unitKey]
-	if not unitData then 
+	if not unitData then
 		print ("WARNING, no entry for " .. Locale.Lookup(self:GetName()) .. " id#" .. tostring(self:GetKey()))
 		return
 	end
 	
-	--UnitDelayedHealing[unitKey] = nil
-
-	local restoredHP 		= 0 	-- HP gained to apply en masse after all reinforcements are calculated (visual fix)
-	local maxTransfer 		= self:GetMaxTransferTable()	-- maximum value of a component that can be used to heal in one turn
-	local alreadyUsed 		= {}	-- materiel is used both to heal the unit (reserve -> front) and repair Equipment in reserve, up to a limit
-	alreadyUsed.Materiel 	= 0
-	local damage 			= self:GetDamage()
-	local initialHP 		= self:GetHP() --maxHP - damage
-	local hasReachedLimit 	= false
-	local unitInfo 			= GameInfo.Units[self:GetType()]
-	local hitPoints 		= self:GetHitPointTable()
-
+	local restoredHP 			= 0 	-- HP gained to apply en masse after all reinforcements are calculated (visual fix)
+	local alreadyUsed 			= {}	-- materiel is used both to heal the unit (reserve -> front) and repair Equipment in reserve, up to a limit
+	alreadyUsed.Materiel 		= 0
+	local damage 				= self:GetDamage()
+	local initialHP 			= self:GetHP() --maxHP - damage
+	local hasReachedLimit 		= false
+	local unitInfo 				= GameInfo.Units[self:GetType()]
+	local hitPoints 			= self:GetHitPointTable()
+	local unitOrganization 		= self:GetMilitaryOrganization()
+	local maxPersonnelTransfer	= 0
+	local maxMaterielTransfer	= 0	-- Materiel may also be used to repair/build equipment, up to a limit
+	local maxHealedHP			= 0
+	
+	if unitOrganization then
+		maxPersonnelTransfer 	= self:GetMaxFrontLinePersonnel() * (unitOrganization.MaxPersonnelPercentFromReserve or GameInfo.GlobalParameters["UNIT_MAX_PERSONNEL_PERCENT_FROM_RESERVE"].Value) / 100
+		maxMaterielTransfer 	= self:GetMaxFrontLineMateriel() * (unitOrganization.MaxMaterielPercentFromReserve or GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_PERCENT_FROM_RESERVE"].Value) / 100
+		maxHealedHP				= unitOrganization.MaxHealingPerTurn or GameInfo.GlobalParameters["UNIT_MAX_HP_HEALED_FROM_RESERVE"].Value
+	else
+		maxPersonnelTransfer 	= self:GetMaxFrontLinePersonnel() * GameInfo.GlobalParameters["UNIT_MAX_PERSONNEL_PERCENT_FROM_RESERVE"].Value / 100
+		maxMaterielTransfer 	= self:GetMaxFrontLineMateriel() * GameInfo.GlobalParameters["UNIT_MAX_MATERIEL_PERCENT_FROM_RESERVE"].Value / 100
+		maxHealedHP				= GameInfo.GlobalParameters["UNIT_MAX_HP_HEALED_FROM_RESERVE"].Value
+	end
+	
 	-- try to reinforce the selected Units (move personnel and equipment from reserve to frontline)
 	-- up to MAX_HP_HEALED (or an unit component limit), 1hp per loop
-	for healHP = 1, GameInfo.GlobalParameters["UNIT_MAX_HP_HEALED_FROM_RESERVE"].Value do -- to do : add limit by Units in the loop
+	for healHP = 1, maxHealedHP do -- to do : add limit by Units in the loop
 		if not hasReachedLimit then
 			if (initialHP + restoredHP < maxHP) then
 				local loopHP = initialHP + restoredHP + 1
 				-- check here if the unit has enough reserves to get +1HP
 				local reqPersonnel 	= hitPoints[loopHP].Personnel - hitPoints[initialHP].Personnel
-				if reqPersonnel > tonumber(maxTransfer.Personnel) then
+				if reqPersonnel > tonumber(maxPersonnelTransfer) then
 					hasReachedLimit = true
-					Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(self:GetName()) .. " at " .. tostring(healHP) ..", Personnel Requirements = ".. tostring(reqPersonnel) .. ", Max transferable per turn = ".. tostring(maxTransfer.Personnel))
+					Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(self:GetName()) .. " at " .. tostring(healHP) ..", Personnel Requirements = ".. tostring(reqPersonnel) .. ", Max transferable per turn = ".. tostring(maxPersonnelTransfer))
 
 				else 
 					if unitData.PersonnelReserve 	< reqPersonnel 	then hasReachedLimit = true end
@@ -2963,13 +3161,7 @@ function Heal(self)
 					for equipmentClassKey, equipmentData in pairs(unitData.Equipment) do
 						local equipmentClassID 	= tonumber(equipmentClassKey)
 						local reqEquipment = self:GetEquipmentAtHP(equipmentClassID, loopHP) - self:GetEquipmentAtHP(equipmentClassID, initialHP) --hitPoints[loopHP].EquipmentClass[equipmentClassID] - hitPoints[initialHP].EquipmentClass[equipmentClassID]
-						
-						-- todo: limit per equipment class instead of hardcoded limit on materiel equipment class
-						if equipmentClassID == materielEquipmentClassID and reqEquipment > tonumber(maxTransfer.Materiel) then
-							hasReachedLimit = true
-							Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(self:GetName()) .. " at " .. tostring(healHP) ..", Materiel Requirements = " .. tostring(reqEquipment) .. ", Max transferable per turn = ".. tostring(maxTransfer.Materiel) )
-						
-						elseif self:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the selfHitPoints table								
+						if self:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the selfHitPoints table								
 							if self:GetEquipmentClassReserve(equipmentClassID) < reqEquipment then
 								hasReachedLimit = true
 							end
@@ -2990,7 +3182,7 @@ function Heal(self)
 	unitData.HP 					= finalHP
 	UnitLastHealingValue[unitKey] 	= restoredHP
 	unitData.UnitLastHealingValue 	= restoredHP
-	
+
 	if finalHP < initialHP then
 		GCO.Error("finalHP < initialHP for ", unitKey, " initialHP:", initialHP , " finalHP:", finalHP, " restoredHP :", restoredHP)
 	end		
@@ -3001,7 +3193,7 @@ function Heal(self)
 	-- update reserve and frontline...
 	local reqPersonnel 	= hitPoints[finalHP].Personnel 	- hitPoints[initialHP].Personnel
 	local reqEquipment 	= {}
-	
+
 	unitData.PersonnelReserve 	= unitData.PersonnelReserve - reqPersonnel
 	unitData.Personnel 			= unitData.Personnel 		+ reqPersonnel
 	
@@ -3070,7 +3262,7 @@ function Heal(self)
 	medicineUsed				= medicineUsed + math.ceil(healedWithMedicine/10)
 	
 	local healed 				= healedDirectly + healedWithMedicine
-	
+
 	unitData.WoundedPersonnel = unitData.WoundedPersonnel - healed
 	unitData.PersonnelReserve = unitData.PersonnelReserve + healed
 	
@@ -3085,7 +3277,7 @@ function Heal(self)
 	local repairedEquipment = {}
 	--[[
 	if unitData.MaterielPerEquipment > 0 then
-		local materielAvailable = maxTransfer.Materiel - alreadyUsed.Materiel
+		local materielAvailable = maxMaterielTransfer - alreadyUsed.Materiel
 		local maxRepairedEquipment = GCO.Round(materielAvailable/(unitData.MaterielPerEquipment* GameInfo.GlobalParameters["self_MATERIEL_TO_REPAIR_VEHICLE_PERCENT"].Value/100))
 		local repairedEquipment = 0
 		if maxRepairedEquipment > 0 then
@@ -3099,7 +3291,7 @@ function Heal(self)
 	-- Visualize healing
 	local healingData = {deads = deads, healed = healed, repairedEquipment = repairedEquipment, X = self:GetX(), Y = self:GetY() }
 	ShowReserveHealingFloatingText(healingData)
-	
+
 	-- when called from GameEvents.PlayerTurnStarted() this makes the game crash at self.m_Instance.selfIcon:SetToolTipString( Locale.Lookup(nameString) ) in selfFlagManager
 	LuaEvents.UnitsCompositionUpdated(playerID, self:GetID()) -- call to update flag	
 end
@@ -3296,11 +3488,13 @@ function SetSupplyLine(self)
 				NoLinkToCity = false
 			end
 		--]]
-		local bShortestRoute = true
-		local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
-		local routeLength = GCO.GetRouteLength()
+		local bShortestRoute 			= true
+		local bIsPlotConnected 			= GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
+		local routeLength 				= GCO.GetRouteLength()
 		if bIsPlotConnected then
-			local efficiency = GCO.GetRouteEfficiency(routeLength*SupplyLineLengthFactor)
+			local unitOrganization 			= self:GetMilitaryOrganization()
+			local SupplyLineLengthFactor 	= unitOrganization.SupplyLineLengthFactor or tonumber(GameInfo.GlobalParameters["UNIT_SUPPLY_LINE_DEFAULT_LENGTH_FACTOR"].Value)
+			local efficiency 				= GCO.GetRouteEfficiency(routeLength*SupplyLineLengthFactor)
 			if efficiency > 0 then
 				unitData.SupplyLineCityKey = closestCity:GetKey()
 				unitData.SupplyLineEfficiency = efficiency
@@ -3754,13 +3948,25 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 end
 Events.ImprovementActivated.Add( OnImprovementActivated )
 
+function OnMilitaryFormationChanged( playerID : number, unitID : number )
+	local pPlayer = Players[ playerID ];
+	if (pPlayer ~= nil) then
+		local pUnit = pPlayer:GetUnits():FindID(unitID);
+		if (pUnit ~= nil) then
+			-- we need both units to do a merge... the event only return one, so... how ?
+		end
+	end
+end
+Events.UnitFormCorps.Add( OnMilitaryFormationChanged )
+Events.UnitFormArmy.Add( OnMilitaryFormationChanged )
+
 -----------------------------------------------------------------------------------------
 -- General Functions
 -----------------------------------------------------------------------------------------
-function CleanUnitData() -- called in GCO_GameScript.lua
+function UpdateUnitsData() -- called in GCO_GameScript.lua
 	-- remove dead units from the table
 	Dprint( DEBUG_UNIT_SCRIPT, "-----------------------------------------------------------------------------------------")
-	Dprint( DEBUG_UNIT_SCRIPT, "Cleaning UnitData...")
+	Dprint( DEBUG_UNIT_SCRIPT, "Updating UnitData...")
 	
 	local DEBUG_UNIT_SCRIPT = false
 	
@@ -3774,16 +3980,29 @@ function CleanUnitData() -- called in GCO_GameScript.lua
 			Dprint( DEBUG_UNIT_SCRIPT, "Keeping unit ID#"..unit:GetKey(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
 
 			-- Check data syncronization
-			if (not CheckComponentsHP(unit, "CleanUnitData")) then
-				GCO.Error("desynchronization detected in CleanUnitData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()))
+			if (not CheckComponentsHP(unit, "UpdateUnitsData")) then
+				GCO.Error("desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()))
 				ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
+			end			
+			
+			local player 					= GCO.GetPlayer(unit:GetOwner())
+			local playerOrganizationLevel 	= player:GetMilitaryOrganizationLevel()
+			if playerOrganizationLevel ~= unit:GetOrganizationLevel() and data.CanChangeOrganization and data.SupplyLineCityKey then
+				unit:SetOrganizationLevel(playerOrganizationLevel)
 			end			
 		end
 	end
 end
---Events.TurnBegin.Add(CleanUnitData)
---GameEvents.OnGameTurnStarted.Add(CleanUnitData)
+--Events.TurnBegin.Add(UpdateUnitsData)
+--GameEvents.OnGameTurnStarted.Add(UpdateUnitsData)
 
+
+-----------------------------------------------------------------------------------------
+-- Functions passed from UI Context
+-----------------------------------------------------------------------------------------
+function SetName(self, name)
+	GCO.SetUnitName(self, name)
+end
 
 -----------------------------------------------------------------------------------------
 -- Shared Functions
@@ -3815,6 +4034,8 @@ function AttachUnitFunctions(unit)
 		u.GetPromotionClassID			= GetPromotionClassID
 		u.GetMilitaryOrganization		= GetMilitaryOrganization
 		u.GetOrganizationLevel			= GetOrganizationLevel
+		u.SetOrganizationLevel			= SetOrganizationLevel
+		u.UpdateData					= UpdateData
 		--
 		u.ChangeStock					= ChangeStock
 		u.GetBaseFoodStock				= GetBaseFoodStock
@@ -3826,7 +4047,7 @@ function AttachUnitFunctions(unit)
 		u.GetMaxFoodStock				= GetMaxFoodStock
 		u.GetMaxMedicineStock			= GetMaxMedicineStock
 		u.GetMaxPersonnelReserve		= GetMaxPersonnelReserve
-		u.GetMaxTransferTable			= GetMaxTransferTable
+		u.GetFrontLinePersonnel			= GetFrontLinePersonnel
 		u.GetMoraleFromFood				= GetMoraleFromFood
 		u.GetMoraleFromLastCombat		= GetMoraleFromLastCombat
 		u.GetMoraleFromWounded			= GetMoraleFromWounded
@@ -3882,14 +4103,18 @@ function AttachUnitFunctions(unit)
 		--
 		
 		-- flag strings
-		u.GetFoodStockString			= GetFoodStockString
-		u.GetFoodConsumptionString		= GetFoodConsumptionString
-		u.GetMoraleString				= GetMoraleString
-		u.GetFuelStockString 			= GetFuelStockString
-		u.GetFuelConsumptionString 		= GetFuelConsumptionString
-		u.GetFrontLineEquipmentString	= GetFrontLineEquipmentString
-		u.GetReserveEquipmentString		= GetReserveEquipmentString
-		u.GetResourcesStockString		= GetResourcesStockString
+		u.GetFoodStockString				= GetFoodStockString
+		u.GetFoodConsumptionString			= GetFoodConsumptionString
+		u.GetMoraleString					= GetMoraleString
+		u.GetFuelStockString 				= GetFuelStockString
+		u.GetFuelConsumptionString 			= GetFuelConsumptionString
+		u.GetFrontLineEquipmentString		= GetFrontLineEquipmentString
+		u.GetReserveEquipmentString			= GetReserveEquipmentString
+		u.GetResourcesStockString			= GetResourcesStockString
+		u.GetMilitaryFormationSizeString	= GetMilitaryFormationSizeString
+		u.GetMilitaryFormationTypeName		= GetMilitaryFormationTypeName
+		--
+		u.SetName						= SetName
 		
 		u.HasAttachedFunctions			= true
 		
@@ -3913,7 +4138,7 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetUnitConstructionResources			= GetUnitConstructionResources
 	ExposedMembers.GCO.GetUnitConstructionOrResources		= GetUnitConstructionOrResources
 	ExposedMembers.GCO.GetUnitConstructionOptionalResources	= GetUnitConstructionOptionalResources
-	ExposedMembers.GCO.CleanUnitData 						= CleanUnitData
+	ExposedMembers.GCO.UpdateUnitsData 						= UpdateUnitsData
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end

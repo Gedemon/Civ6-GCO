@@ -229,7 +229,7 @@ for row in GameInfo.Unit_RealBuildingPrereqsAND() do
 	UnitPrereqBuildingAND[unitID][buildingID] = true
 end
 
-local BuildingPrereqBuildingOR		= {} -- cached table for buiding prerequired (Any) for an unit
+local BuildingPrereqBuildingOR		= {} -- cached table for buiding prerequired (Any) for a building
 for row in GameInfo.BuildingRealPrereqsOR() do
 	local buildingID	= GameInfo.Buildings[row.Building].Index
 	local prereqID	 	= GameInfo.Buildings[row.PrereqBuilding].Index
@@ -237,7 +237,7 @@ for row in GameInfo.BuildingRealPrereqsOR() do
 	BuildingPrereqBuildingOR[buildingID][prereqID] = true
 end
 
-local BuildingPrereqBuildingAND		= {} -- cached table for buiding prerequired (All) for an unit
+local BuildingPrereqBuildingAND		= {} -- cached table for buiding prerequired (All) for a building
 for row in GameInfo.BuildingRealPrereqsAND() do
 	local buildingID	= GameInfo.Buildings[row.Building].Index
 	local prereqID	 	= GameInfo.Buildings[row.PrereqBuilding].Index
@@ -402,7 +402,6 @@ LuaEvents.InitializeGCO.Add( InitializeCheck )
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.CityData 		= GCO.LoadTableFromSlot("CityData") or {}
-	--ExposedMembers.CityCachedData	= {}	-- cached table to reduce calculations
 end
 
 function Initialize() -- called immediatly after loading this file
@@ -504,7 +503,7 @@ function RegisterNewCity(playerID, city)
 	LuaEvents.NewCityCreated()
 end
 
-function InitializeCity(playerID, cityID) -- add to Events.CityAddedToMap in initialize()
+function InitializeCity(playerID, cityID) -- added to Events.CityAddedToMap in initialize()
 
 	--local DEBUG_CITY_SCRIPT = true
 
@@ -742,7 +741,7 @@ function IsCoastal(self)
 	if not _cached[cityKey].Coastal then
 		local plot = Map.GetPlot(self:GetX(), self:GetY())
 		if plot:IsCoastalLand() then
-			_cached[cityKey].Coastal = 1 -- we're not using false/true as the point is to avoid to check the plot everytime, which would happens if _cached[cityKey].Coastal = false
+			_cached[cityKey].Coastal = 1 -- we're not using false/true as the point is to avoid to check the plot everytime, which would happens at the 3rd line in this function if _cached[cityKey].Coastal = false
 		else
 			_cached[cityKey].Coastal = 0
 		end

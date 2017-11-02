@@ -239,6 +239,9 @@ function UpdateDataOnNewTurn(self)
 end
 
 
+-----------------------------------------------------------------------------------------
+-- DoTurn Functions
+-----------------------------------------------------------------------------------------
 function DoPlayerTurn( playerID )
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	
@@ -348,6 +351,11 @@ function DoTurnForNextPlayerFromLocal( playerID )
 end
 Events.LocalPlayerTurnEnd.Add( DoTurnForNextPlayerFromLocal )
 
+
+-----------------------------------------------------------------------------------------
+-- Events Functions
+-----------------------------------------------------------------------------------------
+
 function OnResearchCompleted(playerID)
 	local player = Players[playerID]
 	local playerCities = player:GetCities()
@@ -360,6 +368,23 @@ function OnResearchCompleted(playerID)
 end
 Events.ResearchCompleted.Add(OnResearchCompleted)
 
+local OrganizationLevelCivics = {
+		[GameInfo.Civics["CIVIC_MILITARY_TRADITION"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
+		[GameInfo.Civics["CIVIC_MILITARY_TRAINING"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
+		[GameInfo.Civics["CIVIC_FEUDALISM"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
+		[GameInfo.Civics["CIVIC_MERCENARIES"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
+		[GameInfo.Civics["CIVIC_NATIONALISM"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
+		[GameInfo.Civics["CIVIC_MOBILIZATION"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
+		[GameInfo.Civics["CIVIC_COLD_WAR"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
+		[GameInfo.Civics["CIVIC_RAPID_DEPLOYMENT"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
+}
+function OnCivicCompleted(playerID, civicID)
+	if OrganizationLevelCivics[civicID] then
+		local player = Players[playerID]
+		player:SetMilitaryOrganizationLevel(OrganizationLevelCivics[civicID])
+	end
+end
+Events.CivicCompleted.Add(OnCivicCompleted)
 
 -----------------------------------------------------------------------------------------
 -- Shared Functions
@@ -385,6 +410,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.InitializeData							= InitializeData
 	p.IsResourceVisible							= IsResourceVisible
 	p.CanTrain									= CanTrain
+	p.SetMilitaryOrganizationLevel				= SetMilitaryOrganizationLevel
 	p.GetMilitaryOrganizationLevel				= GetMilitaryOrganizationLevel
 	p.IsKnownTech								= IsKnownTech
 	p.SetKnownTech								= SetKnownTech

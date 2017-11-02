@@ -28,6 +28,7 @@
 		</UpdateIcons>
 		<ImportFiles id="GCO_IMPORT">
 			<File>UI/UnitFlagManager.lua</File>
+			<File>UI/UnitFlagManager.xml</File>
 			<File>UI/CityBannerManager.lua</File>
 			<File>UI/PlotToolTip.lua</File>
 			<File>UI/ToolTipHelper.lua</File>
@@ -157,6 +158,7 @@
 		<File>InGame/GCO_ModInGame.lua</File>
 		<File>InGame/GCO_ModInGame.xml</File>
 		<File>UI/UnitFlagManager.lua</File>
+		<File>UI/UnitFlagManager.xml</File>
 		<File>UI/CityBannerManager.lua</File>
 		<File>UI/PlotToolTip.lua</File>
 		<File>UI/ToolTipHelper.lua</File>

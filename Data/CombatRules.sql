@@ -37,6 +37,16 @@ INSERT OR REPLACE INTO UnitFormationClasses (FormationClassType, Name) VALUES ('
 UPDATE Units SET FormationClass = 'FORMATION_CLASS_RANGED' WHERE (RangedCombat > 0 OR Bombard > 0) AND (Domain = 'DOMAIN_LAND');
 UPDATE Units SET FormationClass = 'FORMATION_CLASS_RECON' WHERE PromotionClass = 'PROMOTION_CLASS_RECON' AND Domain = 'DOMAIN_LAND';
 
+/* Apply the new Promotion Classes */
+UPDATE Units SET PromotionClass ='PROMOTION_CLASS_CAVALRY' WHERE PromotionClass ='PROMOTION_CLASS_LIGHT_CAVALRY' OR PromotionClass ='PROMOTION_CLASS_HEAVY_CAVALRY';
+UPDATE Units SET PromotionClass ='PROMOTION_CLASS_SKIRMISHER' WHERE PromotionClass ='PROMOTION_CLASS_RANGED';
+UPDATE Units SET PromotionClass ='PROMOTION_CLASS_SKIRMISHER' WHERE PromotionClass ='PROMOTION_CLASS_RECON';
+UPDATE Units SET PromotionClass ='PROMOTION_CLASS_MELEE' WHERE PromotionClass ='PROMOTION_CLASS_ANTI_CAVALRY';
+
+/* Field Cannon is now a siege weapon */
+UPDATE Units SET PromotionClass ='PROMOTION_CLASS_SIEGE' WHERE  UnitType = 'UNIT_FIELD_CANNON';
+UPDATE Units SET RangedCombat ='0', Combat ='65' WHERE UnitType = 'UNIT_FIELD_CANNON';
+
 /* Apply new AI */
 /*
 -- to do ?

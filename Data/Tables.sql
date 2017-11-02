@@ -415,6 +415,7 @@ CREATE TABLE IF NOT EXISTS MilitaryFormationStructures (
 		OrganisationLevelType TEXT NOT NULL,
 		PromotionClassType TEXT NOT NULL, 		--
 		MilitaryFormationType TEXT NOT NULL, 	-- 
+		SizeString TEXT,						-- text to be displayed above the unit flag to show its maximum number of personnel
 		FrontLinePersonnel INTEGER NOT NULL,	-- max number of personnel in Frontline
 		ReservePersonnel INTEGER NOT NULL,		-- max number of personnel in Reserve (added to the default value which is the number of personnel missing in frontline)
 		PRIMARY KEY(OrganisationLevelType, PromotionClassType),

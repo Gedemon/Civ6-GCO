@@ -632,7 +632,7 @@
       <Text>[COLOR_Grey]--------------- Morale --------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_ANCIENT_FRONTLINE_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]--------- Ready for Battle --------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]--------- Ready for Action --------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_ANCIENT_RESERVE_TITLE" Language="en_US">
       <Text>[COLOR_Grey]-------------- In Camp -------------[ENDCOLOR]</Text>
