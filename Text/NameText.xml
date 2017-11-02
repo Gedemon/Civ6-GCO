@@ -89,6 +89,7 @@
 	
 	<LocalizedText> <!-- Promotions -->	
 		<Replace Tag="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 		Text="Strength in Numbers" 		Language="en_US" /> 
+		<Replace Tag="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 		Text="Organization Type" 		Language="en_US" /> 
 		<Replace Tag="LOC_PROMOTION_REMOVE_RANGED_ATTACK_NAME" 		Text="Can't fire" 				Language="en_US" /> 		
 	</LocalizedText>	
 	

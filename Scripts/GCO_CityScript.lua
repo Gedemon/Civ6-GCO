@@ -9,7 +9,7 @@ print("Loading CityScript.lua...")
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_CITY_SCRIPT			= true
+DEBUG_CITY_SCRIPT			= false
 
 function ToggleCityDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -1337,7 +1337,7 @@ end
 
 function TransferToCities(self)
 	Dlog("TransferToCities ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = true
 	Dprint( DEBUG_CITY_SCRIPT, "Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTransferDemand[selfKey]
@@ -1623,7 +1623,7 @@ function GetRouteEfficiencyTo(self, city)
 end
 
 function GetRequirements(self, fromCity)
-	local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = true
 	local selfKey 				= self:GetKey()
 	--local player 				= GCO.GetPlayer(self:GetOwner())
 	local cityName	 			= Locale.Lookup(self:GetName())
@@ -1866,7 +1866,7 @@ end
 
 function GetNumRequiredInQueue(self, resourceID)
 
-	local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = true
 	
 	local cityKey 		= self:GetKey()
 	local cityData 		= ExposedMembers.CityData[cityKey]
@@ -4490,7 +4490,7 @@ end
 function CleanCityData() -- called in GCO_GameScript.lua
 
 	-- remove old data from the table
-	Dprint( DEBUG_CITY_SCRIPT, "-----------------------------------------------------------------------------------------")
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")
 	
 	local DEBUG_CITY_SCRIPT = false

@@ -965,7 +965,7 @@ function UnitFlag.UpdateName( self )
 		end
 
 		function ShowSupplyLine()
-			if not unitData then print("WTF ???") return end
+			if not unitData then print("WTF ??? unitData[unitkey] is nil in ShowSupplyLine for key = "..tostring(unitKey)) return end
 			if not unitData.SupplyLineCityKey then return end
 			--if bShownSupplyLine then return end
 			UILens.SetActive("TradeRoute")

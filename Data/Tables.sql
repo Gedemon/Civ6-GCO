@@ -398,10 +398,12 @@ CREATE TABLE IF NOT EXISTS PromotionClassEquipmentClasses (
 CREATE TABLE IF NOT EXISTS MilitaryOrganisationLevels (
 		OrganisationLevelType TEXT NOT NULL,				--
 		Name TEXT,											-- 
+		PromotionType TEXT,			 						-- promotion given to units of that OrganisationLevelType
 		SupplyLineLengthFactor REAL NOT NULL,				-- SupplyLineEfficiency = ( 100 - math.pow(distance * SupplyLineLengthFactor,2) ) at 0.3 max distance = 33, at 0.85 max distance = 11, at 1.80 max distance = 5
 		MaxPersonnelPercentFromReserve INTEGER NOT NULL,	-- Percentage of max personnel in frontline that can be transfered from reserve when healing
 		MaxmaterielPercentFromReserve INTEGER NOT NULL,		-- Percentage of max materiel in frontline that can be transfered from reserve when healing
 		MaxHealingPerTurn INTEGER NOT NULL,					-- Max HP per turn when healing
+		FOREIGN KEY (PromotionType) REFERENCES UnitPromotions(UnitPromotionType) ON DELETE CASCADE ON UPDATE CASCADE,
 		PRIMARY KEY(OrganisationLevelType)
 	);
 	
@@ -413,13 +415,15 @@ CREATE TABLE IF NOT EXISTS MilitaryFormations (
 	
 CREATE TABLE IF NOT EXISTS MilitaryFormationStructures (
 		OrganisationLevelType TEXT NOT NULL,
-		PromotionClassType TEXT NOT NULL, 		--
+		PromotionClassType TEXT NOT NULL, 		-- unit lines are defined by promotion classes
 		MilitaryFormationType TEXT NOT NULL, 	-- 
+		PromotionType TEXT, 					-- promotion given to units of that MilitaryFormationType & OrganisationLevelType ("strength in number")
 		SizeString TEXT,						-- text to be displayed above the unit flag to show its maximum number of personnel
 		FrontLinePersonnel INTEGER NOT NULL,	-- max number of personnel in Frontline
 		ReservePersonnel INTEGER NOT NULL,		-- max number of personnel in Reserve (added to the default value which is the number of personnel missing in frontline)
 		PRIMARY KEY(OrganisationLevelType, PromotionClassType),
 		FOREIGN KEY (PromotionClassType) REFERENCES UnitPromotionClasses(PromotionClassType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (PromotionType) REFERENCES UnitPromotions(UnitPromotionType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (MilitaryFormationType) REFERENCES MilitaryFormations(MilitaryFormationType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (OrganisationLevelType) REFERENCES MilitaryOrganisationLevels(OrganisationLevelType) ON DELETE CASCADE ON UPDATE CASCADE
 	);	

@@ -267,15 +267,15 @@
 	</GameSpeed_Turns>
 	
 	<MilitaryOrganisationLevels>
-		<Row OrganisationLevelType="LEVEL0" 	SupplyLineLengthFactor="1.80" MaxPersonnelPercentFromReserve="10" MaxmaterielPercentFromReserve="15" MaxHealingPerTurn="10" /> <!-- Ancient  		SupplyLine = 5 -->
-		<Row OrganisationLevelType="LEVEL1" 	SupplyLineLengthFactor="1.40" MaxPersonnelPercentFromReserve="12" MaxmaterielPercentFromReserve="17" MaxHealingPerTurn="11" /> <!-- Classical  	SupplyLine = 7 	Military Tradition -->
-		<Row OrganisationLevelType="LEVEL2" 	SupplyLineLengthFactor="1.20" MaxPersonnelPercentFromReserve="14" MaxmaterielPercentFromReserve="19" MaxHealingPerTurn="12" /> <!-- Classical  	SupplyLine = 8 	Military Training -->
-		<Row OrganisationLevelType="LEVEL3" 	SupplyLineLengthFactor="1.00" MaxPersonnelPercentFromReserve="16" MaxmaterielPercentFromReserve="21" MaxHealingPerTurn="14" /> <!-- Medieval  		SupplyLine = 9 	Feudalism -->
-		<Row OrganisationLevelType="LEVEL4" 	SupplyLineLengthFactor="0.80" MaxPersonnelPercentFromReserve="18" MaxmaterielPercentFromReserve="23" MaxHealingPerTurn="16" /> <!-- Renaissance	SupplyLine = 12 Mercenaries -->
-		<Row OrganisationLevelType="LEVEL5" 	SupplyLineLengthFactor="0.50" MaxPersonnelPercentFromReserve="20" MaxmaterielPercentFromReserve="25" MaxHealingPerTurn="18" /> <!-- Industrial		SupplyLine = 20 Nationalism -->
-		<Row OrganisationLevelType="LEVEL6" 	SupplyLineLengthFactor="0.40" MaxPersonnelPercentFromReserve="22" MaxmaterielPercentFromReserve="27" MaxHealingPerTurn="20" /> <!-- Modern  		SupplyLine = 26 Mobilization -->
-		<Row OrganisationLevelType="LEVEL7" 	SupplyLineLengthFactor="0.30" MaxPersonnelPercentFromReserve="25" MaxmaterielPercentFromReserve="30" MaxHealingPerTurn="25" /> <!-- Atomic  		SupplyLine = 33 Cold War -->
-		<Row OrganisationLevelType="LEVEL8" 	SupplyLineLengthFactor="0.25" MaxPersonnelPercentFromReserve="30" MaxmaterielPercentFromReserve="35" MaxHealingPerTurn="30" /> <!-- Information 	SupplyLine = 39 Rapid Deployment -->
+		<Row OrganisationLevelType="LEVEL0" 													SupplyLineLengthFactor="1.80" MaxPersonnelPercentFromReserve="10" MaxmaterielPercentFromReserve="15" MaxHealingPerTurn="10" /> <!-- Ancient  		SupplyLine = 5 -->
+		<Row OrganisationLevelType="LEVEL1" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_1"	SupplyLineLengthFactor="1.40" MaxPersonnelPercentFromReserve="12" MaxmaterielPercentFromReserve="17" MaxHealingPerTurn="11" /> <!-- Classical  	SupplyLine = 7 	Military Tradition -->
+		<Row OrganisationLevelType="LEVEL2" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_2"	SupplyLineLengthFactor="1.20" MaxPersonnelPercentFromReserve="14" MaxmaterielPercentFromReserve="19" MaxHealingPerTurn="12" /> <!-- Classical  	SupplyLine = 8 	Military Training -->
+		<Row OrganisationLevelType="LEVEL3" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_3"	SupplyLineLengthFactor="1.00" MaxPersonnelPercentFromReserve="16" MaxmaterielPercentFromReserve="21" MaxHealingPerTurn="14" /> <!-- Medieval  		SupplyLine = 9 	Feudalism -->
+		<Row OrganisationLevelType="LEVEL4" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_4"	SupplyLineLengthFactor="0.80" MaxPersonnelPercentFromReserve="18" MaxmaterielPercentFromReserve="23" MaxHealingPerTurn="16" /> <!-- Renaissance	SupplyLine = 12 Mercenaries -->
+		<Row OrganisationLevelType="LEVEL5" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_5"	SupplyLineLengthFactor="0.50" MaxPersonnelPercentFromReserve="20" MaxmaterielPercentFromReserve="25" MaxHealingPerTurn="18" /> <!-- Industrial		SupplyLine = 20 Nationalism -->
+		<Row OrganisationLevelType="LEVEL6" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_6"	SupplyLineLengthFactor="0.40" MaxPersonnelPercentFromReserve="22" MaxmaterielPercentFromReserve="27" MaxHealingPerTurn="20" /> <!-- Modern  		SupplyLine = 26 Mobilization -->
+		<Row OrganisationLevelType="LEVEL7" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_7"	SupplyLineLengthFactor="0.30" MaxPersonnelPercentFromReserve="25" MaxmaterielPercentFromReserve="30" MaxHealingPerTurn="25" /> <!-- Atomic  		SupplyLine = 33 Cold War -->
+		<Row OrganisationLevelType="LEVEL8" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_8"	SupplyLineLengthFactor="0.25" MaxPersonnelPercentFromReserve="30" MaxmaterielPercentFromReserve="35" MaxHealingPerTurn="30" /> <!-- Information 	SupplyLine = 39 Rapid Deployment -->
 	</MilitaryOrganisationLevels>
 	
 	<MilitaryFormations>
@@ -289,45 +289,45 @@
 	</MilitaryFormations>
 	
 	<MilitaryFormationStructures>	
-		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_PARTY" 	SizeString="I"		FrontLinePersonnel="400" 	ReservePersonnel="0" />
-		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_HORDE" 	SizeString="II"		FrontLinePersonnel="700" 	ReservePersonnel="0" />
-		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_COHORTE" 	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="100" />
-		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_COMPANY" 	SizeString="III"	FrontLinePersonnel="1500" 	ReservePersonnel="500" />
-		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_BRIGADE" 	SizeString="X"		FrontLinePersonnel="3000" 	ReservePersonnel="1000" />
-		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_DIVISION" 	SizeString="XX"		FrontLinePersonnel="5000" 	ReservePersonnel="2000" />
-		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_DIVISION" 	SizeString="XX"		FrontLinePersonnel="6000" 	ReservePersonnel="4000" />
-		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_DIVISION" 	SizeString="XX"		FrontLinePersonnel="5000" 	ReservePersonnel="5000" />
-		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_BRIGADE" 	SizeString="X"		FrontLinePersonnel="4000" 	ReservePersonnel="4000" />
+		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_PARTY" 													SizeString="I"		FrontLinePersonnel="400" 	ReservePersonnel="0" />
+		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_HORDE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="II"		FrontLinePersonnel="700" 	ReservePersonnel="0" />
+		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="100" />
+		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="III"	FrontLinePersonnel="1500" 	ReservePersonnel="500" />
+		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="3000" 	ReservePersonnel="1000" />
+		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_DIVISION" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="XX"		FrontLinePersonnel="5000" 	ReservePersonnel="2000" />
+		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_DIVISION" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_6"	SizeString="XX"		FrontLinePersonnel="6000" 	ReservePersonnel="4000" />
+		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_DIVISION" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="XX"		FrontLinePersonnel="5000" 	ReservePersonnel="5000" />
+		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="4000" 	ReservePersonnel="4000" />
 		
-		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_PARTY" 	SizeString="I"		FrontLinePersonnel="200" 	ReservePersonnel="0" />
-		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_PARTY" 	SizeString="I"		FrontLinePersonnel="300" 	ReservePersonnel="0" />
-		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_COHORTE" 	SizeString="II"		FrontLinePersonnel="500" 	ReservePersonnel="50" />
-		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_COMPANY" 	SizeString="II"		FrontLinePersonnel="700" 	ReservePersonnel="200" />
-		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_COMPANY" 	SizeString="II"		FrontLinePersonnel="800" 	ReservePersonnel="250" />
-		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_REGIMENT" 	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="400" />
-		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_REGIMENT" 	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="750" />
-		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_REGIMENT" 	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="1000" />
-		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_REGIMENT" 	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="1000" />
+		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_PARTY" 													SizeString="I"		FrontLinePersonnel="200" 	ReservePersonnel="0" />
+		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_PARTY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="I"		FrontLinePersonnel="300" 	ReservePersonnel="0" />
+		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	SizeString="II"		FrontLinePersonnel="500" 	ReservePersonnel="50" />
+		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="II"		FrontLinePersonnel="700" 	ReservePersonnel="200" />
+		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="II"		FrontLinePersonnel="800" 	ReservePersonnel="250" />
+		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="400" />
+		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="750" />
+		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="1000" />
+		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_SKIRMISHER" MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="III"	FrontLinePersonnel="1000" 	ReservePersonnel="1000" />
 		
-		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_PARTY" 	SizeString="I"		FrontLinePersonnel="200" 	ReservePersonnel="0" />
-		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_HORDE" 	SizeString="II"		FrontLinePersonnel="300" 	ReservePersonnel="0" />
-		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="50" />
-		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COMPANY" 	SizeString="III"	FrontLinePersonnel="700" 	ReservePersonnel="200" />
-		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	SizeString="X"		FrontLinePersonnel="800" 	ReservePersonnel="250" />
-		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	SizeString="XX"		FrontLinePersonnel="1000" 	ReservePersonnel="400" />
-		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_DIVISION" 	SizeString="XX"		FrontLinePersonnel="1000" 	ReservePersonnel="750" />
-		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_DIVISION" 	SizeString="XX"		FrontLinePersonnel="1200" 	ReservePersonnel="1200" /> 	<!-- Division = 200-300 tanks -->
-		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	SizeString="X"		FrontLinePersonnel="600" 	ReservePersonnel="600" /> 	<!-- Brigade = 150-200 tanks -->
+		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_PARTY" 													SizeString="I"		FrontLinePersonnel="200" 	ReservePersonnel="0" />
+		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_HORDE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="II"		FrontLinePersonnel="300" 	ReservePersonnel="0" />
+		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="50" />
+		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="III"	FrontLinePersonnel="700" 	ReservePersonnel="200" />
+		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="800" 	ReservePersonnel="250" />
+		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="XX"		FrontLinePersonnel="1000" 	ReservePersonnel="400" />
+		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_DIVISION" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="XX"		FrontLinePersonnel="1000" 	ReservePersonnel="750" />
+		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_DIVISION" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_6"	SizeString="XX"		FrontLinePersonnel="1200" 	ReservePersonnel="1200" /> 	<!-- Division = 200-300 tanks -->
+		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="X"		FrontLinePersonnel="600" 	ReservePersonnel="600" /> 	<!-- Brigade = 150-200 tanks -->
 		
-		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_PARTY" 	SizeString="I"		FrontLinePersonnel="100" 	ReservePersonnel="0" />
-		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_HORDE" 	SizeString="I"		FrontLinePersonnel="150" 	ReservePersonnel="0" />
-		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_COHORTE" 	SizeString="II"		FrontLinePersonnel="250" 	ReservePersonnel="25" />
-		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_COMPANY" 	SizeString="II"		FrontLinePersonnel="350" 	ReservePersonnel="100" />
-		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_COMPANY" 	SizeString="II"		FrontLinePersonnel="400" 	ReservePersonnel="175" />
-		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="200" />
-		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="375" />
-		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="500" />
-		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="500" />
+		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_PARTY" 													SizeString="I"		FrontLinePersonnel="100" 	ReservePersonnel="0" />
+		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_HORDE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="I"		FrontLinePersonnel="150" 	ReservePersonnel="0" />
+		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	SizeString="II"		FrontLinePersonnel="250" 	ReservePersonnel="25" />
+		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="II"		FrontLinePersonnel="350" 	ReservePersonnel="100" />
+		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="II"		FrontLinePersonnel="400" 	ReservePersonnel="175" />
+		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="200" />
+		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="375" />
+		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="500" />
+		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="500" />
 	</MilitaryFormationStructures>	
 	
 	
@@ -339,7 +339,22 @@
 	
 	<Types> <!-- Promotions -->
 		<Row Type="PROMOTION_STRENGTH_IN_NUMBERS_1" 	Kind="KIND_PROMOTION"/>
-		<Row Type="PROMOTION_REMOVE_RANGED_ATTACK" 	Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_STRENGTH_IN_NUMBERS_2" 	Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_STRENGTH_IN_NUMBERS_3" 	Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_STRENGTH_IN_NUMBERS_4" 	Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_STRENGTH_IN_NUMBERS_5" 	Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_STRENGTH_IN_NUMBERS_6" 	Kind="KIND_PROMOTION"/>
+		
+		<Row Type="PROMOTION_ORGANIZATION_LEVEL_1" 		Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_ORGANIZATION_LEVEL_2" 		Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_ORGANIZATION_LEVEL_3" 		Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_ORGANIZATION_LEVEL_4" 		Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_ORGANIZATION_LEVEL_5" 		Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_ORGANIZATION_LEVEL_6" 		Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_ORGANIZATION_LEVEL_7" 		Kind="KIND_PROMOTION"/>
+		<Row Type="PROMOTION_ORGANIZATION_LEVEL_8" 		Kind="KIND_PROMOTION"/>
+		
+		<Row Type="PROMOTION_REMOVE_RANGED_ATTACK" 		Kind="KIND_PROMOTION"/>
 	</Types>
 	
 	<UnitPromotionClasses>
@@ -350,18 +365,42 @@
 	
 	<UnitPromotions>
 		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1" 	Name="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 	Description="LOC_PROMOTION_STRENGTH_IN_NUMBERS_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2" 	Name="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 	Description="LOC_PROMOTION_STRENGTH_IN_NUMBERS_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3" 	Name="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 	Description="LOC_PROMOTION_STRENGTH_IN_NUMBERS_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4" 	Name="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 	Description="LOC_PROMOTION_STRENGTH_IN_NUMBERS_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5" 	Name="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 	Description="LOC_PROMOTION_STRENGTH_IN_NUMBERS_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_6" 	Name="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 	Description="LOC_PROMOTION_STRENGTH_IN_NUMBERS_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_1" 	Name="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 	Description="LOC_PROMOTION_ORGANIZATION_LEVEL_DESCRIPTION" 		Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_2" 	Name="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 	Description="LOC_PROMOTION_ORGANIZATION_LEVEL_DESCRIPTION" 		Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_3" 	Name="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 	Description="LOC_PROMOTION_ORGANIZATION_LEVEL_DESCRIPTION" 		Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_4" 	Name="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 	Description="LOC_PROMOTION_ORGANIZATION_LEVEL_DESCRIPTION" 		Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_5" 	Name="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 	Description="LOC_PROMOTION_ORGANIZATION_LEVEL_DESCRIPTION" 		Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_6" 	Name="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 	Description="LOC_PROMOTION_ORGANIZATION_LEVEL_DESCRIPTION" 		Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_7" 	Name="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 	Description="LOC_PROMOTION_ORGANIZATION_LEVEL_DESCRIPTION" 		Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_8" 	Name="LOC_PROMOTION_ORGANIZATION_LEVEL_NAME" 	Description="LOC_PROMOTION_ORGANIZATION_LEVEL_DESCRIPTION" 		Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
+		
 		<Row UnitPromotionType="PROMOTION_REMOVE_RANGED_ATTACK" 	Name="LOC_PROMOTION_REMOVE_RANGED_ATTACK_NAME" 	Description="LOC_PROMOTION_REMOVE_RANGED_ATTACK_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
 	</UnitPromotions>
 
 	<UnitPromotionModifiers>
-		<Row>
-			<UnitPromotionType>PROMOTION_STRENGTH_IN_NUMBERS_1</UnitPromotionType>
-			<ModifierId>STRENGTH_IN_NUMBERS_1</ModifierId>
-		</Row>
-		<Row>
-			<UnitPromotionType>PROMOTION_REMOVE_RANGED_ATTACK</UnitPromotionType>
-			<ModifierId>REMOVE_RANGED_ATTACK</ModifierId>
-		</Row>	
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	ModifierId="STRENGTH_IN_NUMBERS_1"	/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	ModifierId="STRENGTH_IN_NUMBERS_2"	/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	ModifierId="STRENGTH_IN_NUMBERS_3"	/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	ModifierId="STRENGTH_IN_NUMBERS_4"	/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	ModifierId="STRENGTH_IN_NUMBERS_5"	/>
+		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_6"	ModifierId="STRENGTH_IN_NUMBERS_6"	/>
+		
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_1"		ModifierId="ORGANIZATION_LEVEL_1"	/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_2"		ModifierId="ORGANIZATION_LEVEL_2"	/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_3"		ModifierId="ORGANIZATION_LEVEL_3"	/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_4"		ModifierId="ORGANIZATION_LEVEL_4"	/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_5"		ModifierId="ORGANIZATION_LEVEL_5"	/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_6"		ModifierId="ORGANIZATION_LEVEL_6"	/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_7"		ModifierId="ORGANIZATION_LEVEL_7"	/>
+		<Row UnitPromotionType="PROMOTION_ORGANIZATION_LEVEL_8"		ModifierId="ORGANIZATION_LEVEL_8"	/>
+		
+		<Row UnitPromotionType="PROMOTION_REMOVE_RANGED_ATTACK"		ModifierId="REMOVE_RANGED_ATTACK"	/>
 	</UnitPromotionModifiers>
 	
 	<DynamicModifiers>
@@ -381,7 +420,6 @@
 	</DynamicModifiers>
 
 	<Modifiers>
-
 		<!-- UNIT		
 		MODIFIER_UNIT_ADJUST_ATTACK_RANGE
 		MODIFIER_UNIT_ADJUST_COMBAT_CAPTURE
@@ -482,31 +520,64 @@
 		MODIFIER_PLAYER_UNITS_ADJUST_VALID_TERRAIN
 		MODIFIER_UNITS_ADJUST_GRANT_EXPERIENCE		
 		-->
-		<Row>
-			<ModifierId>STRENGTH_IN_NUMBERS_1</ModifierId>
-			<ModifierType>MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH</ModifierType>
-		</Row>
-		<Row>
-			<ModifierId>REMOVE_RANGED_ATTACK</ModifierId>
-			<ModifierType>MODIFIER_UNIT_ADJUST_ATTACK_RANGE</ModifierType>
-		</Row>
+
+		<Row ModifierId="STRENGTH_IN_NUMBERS_1" 	ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_2" 	ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_3" 	ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_4" 	ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_5" 	ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_6" 	ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		
+		<Row ModifierId="ORGANIZATION_LEVEL_1" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="ORGANIZATION_LEVEL_2" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="ORGANIZATION_LEVEL_3" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="ORGANIZATION_LEVEL_4" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="ORGANIZATION_LEVEL_5" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="ORGANIZATION_LEVEL_6" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="ORGANIZATION_LEVEL_7" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		<Row ModifierId="ORGANIZATION_LEVEL_8" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
+		
+		<Row ModifierId="REMOVE_RANGED_ATTACK" 		ModifierType="MODIFIER_UNIT_ADJUST_ATTACK_RANGE" />
+
 	</Modifiers>
 	
 	<ModifierArguments>
-		<Row>
-			<ModifierId>STRENGTH_IN_NUMBERS_1</ModifierId>
-			<Name>Amount</Name>
-			<Value>5</Value>
-		</Row>
-		<Row>
-			<ModifierId>REMOVE_RANGED_ATTACK</ModifierId>
-			<Name>Amount</Name>
-			<Value>-999</Value>
-		</Row>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_1"	Name="Amount" Value="4"	/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_2"	Name="Amount" Value="5"	/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_3"	Name="Amount" Value="6"	/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_4"	Name="Amount" Value="8" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_5"	Name="Amount" Value="10" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_6"	Name="Amount" Value="12" />
+		
+		<Row ModifierId="ORGANIZATION_LEVEL_1"	Name="Amount" Value="1"	/>
+		<Row ModifierId="ORGANIZATION_LEVEL_2"	Name="Amount" Value="2"	/>
+		<Row ModifierId="ORGANIZATION_LEVEL_3"	Name="Amount" Value="4"	/>
+		<Row ModifierId="ORGANIZATION_LEVEL_4"	Name="Amount" Value="7" />
+		<Row ModifierId="ORGANIZATION_LEVEL_5"	Name="Amount" Value="10" />
+		<Row ModifierId="ORGANIZATION_LEVEL_6"	Name="Amount" Value="13" />
+		<Row ModifierId="ORGANIZATION_LEVEL_7"	Name="Amount" Value="20" />
+		<Row ModifierId="ORGANIZATION_LEVEL_8"	Name="Amount" Value="30" />
+		
+		<Row ModifierId="REMOVE_RANGED_ATTACK"	Name="Amount" Value="-999" />
 	</ModifierArguments>
 	
 	<ModifierStrings>
-		<Row ModifierId="STRENGTH_IN_NUMBERS_1" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME} {LOC_PROMOTION_DESCRIPTOR_PREVIEW_TEXT}"/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_1" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME}"/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_2" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME}"/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_3" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME}"/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_4" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME}"/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_5" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME}"/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_6" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME}"/>
+		
+		<Row ModifierId="ORGANIZATION_LEVEL_1" 		Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_ORGANIZATION_LEVEL_NAME}"/>
+		<Row ModifierId="ORGANIZATION_LEVEL_2" 		Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_ORGANIZATION_LEVEL_NAME}"/>
+		<Row ModifierId="ORGANIZATION_LEVEL_3" 		Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_ORGANIZATION_LEVEL_NAME}"/>
+		<Row ModifierId="ORGANIZATION_LEVEL_4" 		Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_ORGANIZATION_LEVEL_NAME}"/>
+		<Row ModifierId="ORGANIZATION_LEVEL_5" 		Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_ORGANIZATION_LEVEL_NAME}"/>
+		<Row ModifierId="ORGANIZATION_LEVEL_6" 		Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_ORGANIZATION_LEVEL_NAME}"/>
+		<Row ModifierId="ORGANIZATION_LEVEL_7" 		Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_ORGANIZATION_LEVEL_NAME}"/>
+		<Row ModifierId="ORGANIZATION_LEVEL_8" 		Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_ORGANIZATION_LEVEL_NAME}"/>
+		
 		<Row ModifierId="REMOVE_RANGED_ATTACK" 		Context="Preview" Text="{LOC_REMOVE_RANGED_ATTACK_NAME} {LOC_PROMOTION_DESCRIPTOR_PREVIEW_TEXT}"/>
 	</ModifierStrings>
 	
