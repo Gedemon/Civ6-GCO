@@ -342,19 +342,19 @@ CREATE TABLE IF NOT EXISTS EquipmentTypeClasses	(
 	);
 	
 CREATE TABLE IF NOT EXISTS Equipment	(
-		ResourceType TEXT NOT NULL,									-- Equipment are handled as resources
-		Size INTEGER NOT NULL DEFAULT 1,							-- Space taken in a city stockage capacity
-		Desirability INTEGER NOT NULL DEFAULT 0,					-- Units will request ResourceType of higher desirability first
-		Toughness INTEGER NOT NULL CHECK (Toughness > 0) DEFAULT 1,	-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
+		ResourceType TEXT NOT NULL,										-- Equipment are handled as resources
+		Size INTEGER NOT NULL DEFAULT 1,								-- Space taken in a city stockage capacity
+		Desirability INTEGER NOT NULL DEFAULT 0,						-- Units will request ResourceType of higher desirability first
+		Toughness INTEGER NOT NULL CHECK (Toughness > 0) DEFAULT 1,		-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
 		PersonnelArmor INTEGER,
-		AntiPersonnel INTEGER,										-- 0 = no kill, 100 = all killed (if PersonnelArmor = 0)
+		AntiPersonnel INTEGER,											-- 0 = no kill, 100 = all killed (if PersonnelArmor = 0)
 		AntiPersonnelArmor INTEGER,
 		IgnorePersonnelArmor INTEGER,
 		VehicleArmor INTEGER,
 		AntiVehicle INTEGER,
 		AntiVehicleArmor INTEGER,
 		IgnoreVehicleArmor INTEGER,
-		Reliability INTEGER,										-- Percentage, 100 means no loss from breakdown, lower values means possible loss from unreliability ( = captured or destroyed instead of damaged -> in reserve)
+		Reliability INTEGER,											-- Percentage, 100 means no loss from breakdown, lower values means possible loss from unreliability ( = captured or destroyed instead of damaged -> in reserve)
 		FuelConsumption INTEGER,
 		FuelType TEXT,
 		PrereqTech TEXT,
@@ -374,7 +374,7 @@ CREATE TABLE IF NOT EXISTS EquipmentEffects (
 CREATE TABLE IF NOT EXISTS UnitEquipmentClasses (
 		UnitType TEXT NOT NULL,
 		EquipmentClass TEXT, 																	-- 
-		PercentageOfPersonnel INTEGER NOT NULL CHECK (PercentageOfPersonnel > 0) DEFAULT 100,	-- Percentage of equipement for personnel, for examples: 100% for 1:1 personnel:equipment ratio (ie "swords"), 50% for 2:1 (ie "chariot"), 25% for 4:1 (ie "tank")
+		PercentageOfPersonnel INTEGER NOT NULL CHECK (PercentageOfPersonnel >0) DEFAULT 100,	-- Percentage of equipement for personnel, for examples: 100% for 1:1 personnel:equipment ratio (ie "swords"), 50% for 2:1 (ie "chariot"), 25% for 4:1 (ie "tank")
 		IsRequired BOOLEAN NOT NULL CHECK (IsRequired IN (0,1)) DEFAULT 1,						-- If required, the equipement is part of the healing table 
 		CanBeRepaired BOOLEAN NOT NULL CHECK (CanBeRepaired IN (0,1)) DEFAULT 0,				-- Can this equipment be repaired in reserve, or does it need a complete replacement
 		UseInStats BOOLEAN NOT NULL CHECK (UseInStats IN (0,1)) DEFAULT 0,						-- Should we track this equipment losses in unit's statistic
@@ -385,11 +385,12 @@ CREATE TABLE IF NOT EXISTS UnitEquipmentClasses (
 	
 CREATE TABLE IF NOT EXISTS PromotionClassEquipmentClasses (
 		PromotionClassType TEXT NOT NULL,
-		EquipmentClass TEXT, 																	-- 
-		PercentageOfPersonnel INTEGER NOT NULL CHECK (PercentageOfPersonnel >0) DEFAULT 100,	-- Number of personnel per equipment (ie 1 personnel for "sword", 2 personnel for "chariot", 4 personnel for "tank")
-		IsRequired BOOLEAN NOT NULL CHECK (IsRequired IN (0,1)) DEFAULT 1,						-- If required, the equipement is part of the healing table 
-		CanBeRepaired BOOLEAN NOT NULL CHECK (CanBeRepaired IN (0,1)) DEFAULT 0,				-- Can this equipment be repaired in reserve, or does it need a complete replacement
-		UseInStats BOOLEAN NOT NULL CHECK (UseInStats IN (0,1)) DEFAULT 0,						-- Should we track this equipment losses in unit's statistic
+		EquipmentClass TEXT, 															-- 
+		PercentageOfPersonnel INTEGER,													--  If exist, override the value from the UnitEquipmentClasses table
+		VariablePercent BOOLEAN NOT NULL CHECK (VariablePercent IN (0,1)) DEFAULT 0,	-- Override PercentageOfPersonnel with a calculated value
+		IsRequired BOOLEAN NOT NULL CHECK (IsRequired IN (0,1)) DEFAULT 1,				-- If required, the equipement is part of the healing table 
+		CanBeRepaired BOOLEAN NOT NULL CHECK (CanBeRepaired IN (0,1)) DEFAULT 0,		-- Can this equipment be repaired in reserve, or does it need a complete replacement
+		UseInStats BOOLEAN NOT NULL CHECK (UseInStats IN (0,1)) DEFAULT 0,				-- Should we track this equipment losses in unit's statistic
 		PRIMARY KEY(PromotionClassType, EquipmentClass),
 		FOREIGN KEY (PromotionClassType) REFERENCES UnitPromotionClasses(PromotionClassType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (EquipmentClass) REFERENCES EquipmentClasses(EquipmentClass) ON DELETE CASCADE ON UPDATE CASCADE

@@ -131,7 +131,9 @@
 		
 		<Row BuildingType="BUILDING_HERBALIST" 		ResourceType="RESOURCE_PLANTS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="1"/>
 		
-		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2" MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="1" MultiResRequired="1"/>
+		
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 	MaxConverted="20" 	ResourceCreated="EQUIPMENT_WAR_HORSES" 	Ratio="1"/>
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 	MaxConverted="40" 	ResourceCreated="EQUIPMENT_WAR_HORSES" 	Ratio="1"/>
 		

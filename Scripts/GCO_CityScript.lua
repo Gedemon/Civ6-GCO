@@ -9,7 +9,7 @@ print("Loading CityScript.lua...")
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_CITY_SCRIPT			= false
+DEBUG_CITY_SCRIPT			= true
 
 function ToggleCityDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -1927,6 +1927,7 @@ function GetStock(self, resourceID)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
 	local resourceKey 	= tostring(resourceID)
+	if not ExposedMembers.CityData[cityKey] or not ExposedMembers.CityData[cityKey].Stock[turnKey] then return 0 end -- this can happen during city capture
 	return ExposedMembers.CityData[cityKey].Stock[turnKey][resourceKey] or 0
 end
 

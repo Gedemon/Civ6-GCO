@@ -18,13 +18,13 @@
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"			/>
 		
-		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"											Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
-		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="2" 	AntiPersonnel="32" AntiPersonnelArmor="4" />
-		<Row ResourceType="EQUIPMENT_IRON_SPEARS"	PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="3" 	AntiPersonnel="40" AntiPersonnelArmor="6" />
+		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"											Toughness="1"	Desirability="11" 	AntiPersonnel="27" />
+		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="12" 	AntiPersonnel="32" AntiPersonnelArmor="4" />
+		<Row ResourceType="EQUIPMENT_IRON_SPEARS"	PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="13" 	AntiPersonnel="40" AntiPersonnelArmor="6" />
 		
-		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="3"	Desirability="1" 	AntiPersonnel="38" AntiPersonnelArmor="5" />
-		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	PrereqTech="TECH_IRON_WORKING"			Toughness="5"	Desirability="2" 	AntiPersonnel="42" AntiPersonnelArmor="7" />
-		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	PrereqTech="TECH_CASTLES"				Toughness="7"	Desirability="3" 	AntiPersonnel="46" AntiPersonnelArmor="10" />
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="3"	Desirability="21" 	AntiPersonnel="38" AntiPersonnelArmor="5" />
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	PrereqTech="TECH_IRON_WORKING"			Toughness="5"	Desirability="22" 	AntiPersonnel="42" AntiPersonnelArmor="7" />
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	PrereqTech="TECH_CASTLES"				Toughness="7"	Desirability="23" 	AntiPersonnel="46" AntiPersonnelArmor="10" />
 	</Equipment>
 	
 	<Equipment>  <!-- Personnel Armor -->
@@ -36,16 +36,16 @@
 	</Equipment>
 	
 	<Equipment>  <!-- "Vehicle" -->
-		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Size="20"/>
-		<Row ResourceType="EQUIPMENT_WAR_HORSES"		Size="10" />
+		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Desirability="1" 	Size="20" />
+		<Row ResourceType="EQUIPMENT_WAR_HORSES"		PrereqTech="TECH_HORSEBACK_RIDING"	Desirability="10" 	Size="10" />
 	</Equipment>
 	
-	<EquipmentClasses>
+	<EquipmentClasses> <!-- Specific to Unit types -->
 		<Row EquipmentClass="EQUIPMENTCLASS_MATERIEL"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BOWS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_CHARIOT"		/>
-		<Row EquipmentClass="EQUIPMENTCLASS_HORSES"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"		/>
@@ -55,7 +55,18 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"			/>
 	</EquipmentClasses>
 	
-	<EquipmentTypeClasses>
+	<EquipmentClasses> <!-- Specific to promotion Class -->
+		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_SHIELD"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_HELMET"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
+		<Row EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_ARMOR"	/>
+		<Row EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPON"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_CAVALRY_VEHICLE"	/>
+	</EquipmentClasses>
+	
+	<EquipmentTypeClasses> <!-- Specific to Unit types -->
 		<Row ResourceType="RESOURCE_MATERIEL"			EquipmentClass="EQUIPMENTCLASS_MATERIEL"	/>
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
@@ -68,7 +79,7 @@
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"		EquipmentClass="EQUIPMENTCLASS_BOWS"			/>
 		
 		<Row ResourceType="EQUIPMENT_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CHARIOT"			/>
-		<Row ResourceType="EQUIPMENT_WAR_HORSES"		EquipmentClass="EQUIPMENTCLASS_HORSES"			/>
+		<Row ResourceType="EQUIPMENT_WAR_HORSES"		EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"		/>
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
 		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_SPEARS"			/>
@@ -84,6 +95,33 @@
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 	</EquipmentTypeClasses>
 	
+	
+	<EquipmentTypeClasses> <!-- Specific to promotion Class -->
+		
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_STONE_AXE"			EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		
+		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"		EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
+		
+		<Row ResourceType="EQUIPMENT_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_VEHICLE"		/>
+		<Row ResourceType="EQUIPMENT_WAR_HORSES"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_VEHICLE"		/>
+		
+		
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
+		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
+		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_ARMOR"	/>
+	</EquipmentTypeClasses>
+	
 	<EquipmentEffects> <!-- Not coded yet -->
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="50" />
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="100" />
@@ -97,7 +135,7 @@
 		
 		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
-		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		IsRequired="0" />
+		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
 		<Row UnitType="UNIT_SLINGER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="6" />
@@ -107,17 +145,21 @@
 		
 		<Row UnitType="UNIT_HEAVY_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="15" />
 		<Row UnitType="UNIT_HEAVY_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CHARIOT" 		PercentageOfPersonnel="25" />
-		<Row UnitType="UNIT_HEAVY_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_HORSES" 			PercentageOfPersonnel="50" />
+		
 		<Row UnitType="UNIT_BARBARIAN_HORSE_ARCHER"	EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_BARBARIAN_HORSE_ARCHER"	EquipmentClass="EQUIPMENTCLASS_HORSES" />
+		<Row UnitType="UNIT_BARBARIAN_HORSE_ARCHER"	EquipmentClass="EQUIPMENTCLASS_WAR_HORSES" />
+		
 		<Row UnitType="UNIT_BARBARIAN_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_BARBARIAN_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_HORSES" />
+		<Row UnitType="UNIT_BARBARIAN_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_WAR_HORSES" />
+		
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_HORSES" />
+		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_WAR_HORSES" />
+		
 		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_SPEARS" />
-		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		IsRequired="0" />
+		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SWORDS" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
@@ -126,17 +168,16 @@
 	</UnitEquipmentClasses>
 	
 	<PromotionClassEquipmentClasses> <!-- Equipment Classes representing an Upgrade Line -->
-		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
-		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_SWORDS" />
-		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_SHIELDS"		IsRequired="0" />
-		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
-		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"	IsRequired="0" />
-		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
-		<Row PromotionClassType="PROMOTION_CLASS_RANGED"		EquipmentClass="EQUIPMENTCLASS_BOWS" />
-		<Row PromotionClassType="PROMOTION_CLASS_HEAVY_CAVALRY"	EquipmentClass="EQUIPMENTCLASS_CHARIOT" 	PercentageOfPersonnel="25"/>
-		<Row PromotionClassType="PROMOTION_CLASS_ANTI_CAVALRY"	EquipmentClass="EQUIPMENTCLASS_SPEARS" />
-		<Row PromotionClassType="PROMOTION_CLASS_ANTI_CAVALRY"	EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"	IsRequired="0" />
-		<Row PromotionClassType="PROMOTION_CLASS_ANTI_CAVALRY"	EquipmentClass="EQUIPMENTCLASS_HELMET"		IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON" 		/>
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_SHIELD"		IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_HELMET"		IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_SKIRMISHER"	EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
+		<Row PromotionClassType="PROMOTION_CLASS_SKIRMISHER"	EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON" 	/>
+		<Row PromotionClassType="PROMOTION_CLASS_SKIRMISHER"	EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_ARMOR"	IsRequired="0" />
+		<Row PromotionClassType="PROMOTION_CLASS_CAVALRY"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
+		<Row PromotionClassType="PROMOTION_CLASS_CAVALRY"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_VEHICLE" 	/>
 	</PromotionClassEquipmentClasses>
 	
 </GameInfo>

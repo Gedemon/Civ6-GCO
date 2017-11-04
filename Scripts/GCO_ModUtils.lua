@@ -197,6 +197,9 @@ function Error(...)
 	local str = string.match(err, '\'Error.-$')
 	print(str)
 	LuaEvents.StopAuToPlay()
+	ExposedMembers.UI.PlaySound("Alert_Negative")
+	ExposedMembers.UI.PlaySound("Alert_Negative")
+	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
 
@@ -207,11 +210,17 @@ function ErrorWithLog(...)
 	print(str)
 	LuaEvents.StopAuToPlay()
 	LuaEvents.ShowLastLog()
+	ExposedMembers.UI.PlaySound("Alert_Negative")
+	ExposedMembers.UI.PlaySound("Alert_Negative")
+	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
 
 function Warning(...)
-	print("WARNING : ", select(1,...))
+	print("WARNING : ", select(1,...))	
+	ExposedMembers.UI.PlaySound("Alert_Neutral")
+	ExposedMembers.UI.PlaySound("Alert_Neutral")
+	ExposedMembers.UI.PlaySound("Alert_Neutral")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
 
@@ -332,6 +341,18 @@ function Dump(t,i)
 	end
 end
 
+local bSafeToCallFlagUpdate = true
+function CanCallFlagUpdate()
+	return bSafeToCallFlagUpdate
+end
+function MarkFlagUpdateUnsafe()
+	bSafeToCallFlagUpdate = false
+end
+GameEvents.OnGameTurnStarted.Add(MarkFlagUpdateUnsafe)
+function MarkFlagUpdateSafe()
+	bSafeToCallFlagUpdate = true
+end
+LuaEvents.StartPlayerTurn.Add(MarkFlagUpdateSafe)
 
 ----------------------------------------------
 -- Timer
@@ -636,6 +657,7 @@ function Initialize()
 	ExposedMembers.GCO.Dline 			= Dline
 	ExposedMembers.GCO.Dlog 			= Dlog
 	ExposedMembers.GCO.DfullLog 		= DfullLog
+	ExposedMembers.GCO.CanCallFlagUpdate= CanCallFlagUpdate
 	-- "globals"
 	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations
