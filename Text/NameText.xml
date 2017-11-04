@@ -43,7 +43,8 @@
 	<LocalizedText> <!-- Equipment -->
 		
 		<Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 					Text="Chariot" 				Language="en_US" />
-		<Replace Tag="LOC_EQUIPMENT_WAR_HORSES_NAME" 				Text="War Horses" 			Language="en_US" /> 	
+		<Replace Tag="LOC_EQUIPMENT_WAR_HORSES_NAME" 				Text="War Horses" 			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_ARMORED_HORSES_NAME" 			Text="Armored Horses" 		Language="en_US" /> 	
 		
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 				Text="Wooden Clubs" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_STONE_AXE_NAME" 				Text="Stone Axes"			Language="en_US" /> 
@@ -51,10 +52,14 @@
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_SPEARS_NAME"				Text="Wooden Spears" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_BRONZE_SPEARS_NAME" 			Text="Bronze Spears" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_IRON_SPEARS_NAME" 				Text="Iron Spears"			Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_WOODEN_BOWS_NAME"				Text="Wooden Bows" 			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_SLINGS_NAME"					Text="Slings" 				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_WOODEN_BOWS_NAME"				Text="Wooden Bows" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENT_CROSSBOWS_NAME"					Text="Crossbows" 			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" 			Text="Bronze Swords" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_IRON_SWORDS_NAME" 				Text="Iron Swords"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_STEEL_SWORDS_NAME" 				Text="Steel Swords"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_IRON_PIKES_NAME" 				Text="Iron Pikes"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_STEEL_PIKES_NAME" 				Text="Steel Pikes"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_LEATHER_ARMOR_NAME" 			Text="Leather Armor" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_BRONZE_ARMOR_NAME" 				Text="Bronze Armor"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_IRON_ARMOR_NAME" 				Text="Iron Armor"			Language="en_US" /> 
@@ -63,11 +68,15 @@
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_MATERIEL_NAME" 			Text="Materiel" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BLUNT_WEAPONS_NAME" 		Text="Blunt Weapons" 		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_SLINGS_NAME" 				Text="Slings"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BOWS_NAME" 				Text="Bows"					Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_CROSSBOWS_NAME"			Text="Crossbows"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CHARIOT_NAME" 				Text="Chariot"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_WAR_HORSES_NAME" 			Text="War Horses"			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_ARMORED_HORSES_NAME" 		Text="Armored Horses"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SWORDS_NAME" 				Text="Swords"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SPEARS_NAME" 				Text="Spears"				Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_PIKES_NAME" 				Text="Pikes"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SHIELDS_NAME" 				Text="Shield"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BODYARMOR_NAME" 			Text="Body Armor" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_LIGHTARMOR_NAME" 			Text="Light Armor"			Language="en_US" />

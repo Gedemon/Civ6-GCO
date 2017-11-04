@@ -1061,6 +1061,108 @@ function GetNeighbors(node)
 end
 
 -----------------------------------------------------------------------------------------
+-- Goody Huts
+-----------------------------------------------------------------------------------------
+
+local GoodyHutID 	= GameInfo.Improvements["IMPROVEMENT_GOODY_HUT"].Index
+local minRange 		= 4
+function CanPlaceGoodyAt(plot)
+
+	local improvementID = GoodyHutID
+	local NO_TEAM = -1;
+	local NO_RESOURCE = -1;
+	local NO_IMPROVEMENT = -1;
+
+	if (plot:IsWater()) then
+		return false;
+	end
+
+	if (not ImprovementBuilder.CanHaveImprovement(plot, improvementID, NO_TEAM)) then
+		return false;
+	end
+	
+
+	if (plot:GetImprovementType() ~= NO_IMPROVEMENT) then
+		return false;
+	end
+
+	if (plot:GetResourceType() ~= NO_RESOURCE) then
+		return false;
+	end
+
+	if (plot:IsImpassable()) then
+		return false;
+	end
+
+	if (plot:IsMountain()) then
+		return false;
+	end
+
+	-- Check for being too close from somethings.
+	local uniqueRange = minRange
+	local plotX = plot:GetX();
+	local plotY = plot:GetY();
+	for dx = -uniqueRange, uniqueRange - 1, 1 do
+		for dy = -uniqueRange, uniqueRange - 1, 1 do
+			local otherPlot = Map.GetPlotXYWithRangeCheck(plotX, plotY, dx, dy, uniqueRange);
+			if(otherPlot) then
+				if (otherPlot:GetImprovementType() == improvementID) then
+					return false;
+				end
+				if otherPlot:IsOwned() then
+					return false
+				end
+				local aUnits = Units.GetUnitsInPlot(otherPlot);
+				for i, pUnit in ipairs(aUnits) do
+					if not Players[pUnit:GetOwner()]:IsBarbarian() then
+						return false
+					end
+				end
+			end
+		end
+	end
+	return true;
+end
+
+
+function AddGoody()
+	local NO_PLAYER = -1;
+	print("-------------------------------");
+	print("-- Adding New Goody");
+	local iW, iH 	= Map.GetGridSize()
+	local plotList 	= {}
+	for x = 0, iW - 1 do
+		for y = 0, iH - 1 do
+			local i = y * iW + x;
+			local pPlot = Map.GetPlotByIndex(i);
+			local bGoody = CanPlaceGoodyAt(pPlot);
+			if (bGoody) then			
+				table.insert(plotList, pPlot)
+			end
+		end
+	end
+	local numPossiblePlots = #plotList
+	local randomPlot = plotList[Automation.GetRandomNumber(numPossiblePlots)+1]
+	if randomPlot then
+		ImprovementBuilder.SetImprovementType(randomPlot, GoodyHutID, NO_PLAYER);
+		print("-- found new position at ", randomPlot:GetX(), randomPlot:GetY());
+	else
+		print("-- can't found new position for goody");
+	end
+	print("-------------------------------");
+end
+
+function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
+	--print(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
+	if( GameInfo.Improvements[improvementType].Goody ) then -- create a new goody hut somewhere else
+		if GCO.GetGameEra() < 5 then
+			AddGoody()
+		end
+	end
+end
+Events.ImprovementActivated.Add( OnImprovementActivated )
+
+-----------------------------------------------------------------------------------------
 -- UI Functions
 -----------------------------------------------------------------------------------------
 --ContextPtr:RequestRefresh()
