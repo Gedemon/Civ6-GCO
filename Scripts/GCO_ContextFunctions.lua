@@ -173,6 +173,7 @@ function Initialize()
 	ExposedMembers.GCO.SetUnitName					= SetUnitName
 	-- others
 	ExposedMembers.UI 								= UI
+	ExposedMembers.GCO.Network 						= Network
 	ExposedMembers.Calendar							= Calendar
 	ExposedMembers.CombatTypes 						= CombatTypes
 	

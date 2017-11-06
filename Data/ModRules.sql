@@ -27,7 +27,7 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 /* Improvements */
 UPDATE Improvements 	SET PrereqTech ='TECH_CASTLES' WHERE ImprovementType ='IMPROVEMENT_FORT';
 
-/* Technologies */
+/* Technologies & Civics*/
 UPDATE Technologies SET Cost = 25 WHERE TechnologyType ='TECH_THE_WHEEL';
 UPDATE Technologies SET UITreeRow = 3 WHERE TechnologyType ='TECH_MACHINERY';
 DELETE FROM Technologies WHERE TechnologyType ='TECH_MILITARY_TACTICS';
@@ -45,6 +45,29 @@ INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_EN
 
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CONSTRUCTION', 'TECH_IRON_WORKING');
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STIRRUPS', 'TECH_APPRENTICESHIP');
+
+-- Reduce boost
+UPDATE Boosts SET Boost = 30; -- Default = 50
+
+-- Technology cost
+UPDATE Technologies SET Cost = Cost*1.00 WHERE EraType ='ERA_ANCIENT'; -- just for reference
+UPDATE Technologies SET Cost = Cost*1.10 WHERE EraType ='ERA_CLASSICAL';
+UPDATE Technologies SET Cost = Cost*1.20 WHERE EraType ='ERA_MEDIEVAL';
+UPDATE Technologies SET Cost = Cost*1.30 WHERE EraType ='ERA_RENAISSANCE';
+UPDATE Technologies SET Cost = Cost*1.45 WHERE EraType ='ERA_INDUSTRIAL';
+UPDATE Technologies SET Cost = Cost*1.60 WHERE EraType ='ERA_MODERN';
+UPDATE Technologies SET Cost = Cost*1.80 WHERE EraType ='ERA_ATOMIC';
+UPDATE Technologies SET Cost = Cost*2.00 WHERE EraType ='ERA_INFORMATION';
+
+-- Civics cost
+UPDATE Civics SET Cost = Cost*1.00 WHERE EraType ='ERA_ANCIENT'; -- just for reference
+UPDATE Civics SET Cost = Cost*1.10 WHERE EraType ='ERA_CLASSICAL';
+UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_MEDIEVAL';
+UPDATE Civics SET Cost = Cost*1.30 WHERE EraType ='ERA_RENAISSANCE';
+UPDATE Civics SET Cost = Cost*1.45 WHERE EraType ='ERA_INDUSTRIAL';
+UPDATE Civics SET Cost = Cost*1.60 WHERE EraType ='ERA_MODERN';
+UPDATE Civics SET Cost = Cost*1.80 WHERE EraType ='ERA_ATOMIC';
+UPDATE Civics SET Cost = Cost*2.00 WHERE EraType ='ERA_INFORMATION';
 
 
 /* Districts & Buildings */
@@ -100,7 +123,7 @@ UPDATE Improvements SET Housing = 0;
 --*/
 
 /* Start */
-UPDATE StartEras SET Tiles = '0';
+UPDATE StartEras SET Tiles = '0', Gold = Gold * 100;
 
 /* Remove Faith */
 --/* 

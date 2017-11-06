@@ -19,7 +19,17 @@
 	
   <LocalizedText> <!-- Common -->
 	
-    <Replace Tag="LOC_TOOLTIP_SEPARATOR"	Text="[NEWLINE][COLOR_Grey]------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" /> 
+    <Replace Tag="LOC_TOOLTIP_SEPARATOR"	Text="[NEWLINE][COLOR_Grey]------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" /> 	
+
+  </LocalizedText>
+  
+  <LocalizedText> <!-- Treasury -->
+		
+	<Replace Tag="LOC_TOP_PANEL_IMPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from Importations taxes"		Language="en_US" /> 
+	<Replace Tag="LOC_TOP_PANEL_EXPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from Exportations taxes"		Language="en_US" /> 
+	<Replace Tag="LOC_TOP_PANEL_PLUDERING_INCOME"		Text="{1_Num : number +#.#;-#.#} from Plundering"				Language="en_US" /> 
+	<Replace Tag="LOC_TOP_PANEL_PRODUCTION_EXPENSE"		Text="{1_Num : number +#.#;-#.#} from Production in Cities"		Language="en_US" /> 
+	<Replace Tag="LOC_TOP_PANEL_REINFORCEMENT_EXPENSE"	Text="{1_Num : number +#.#;-#.#} from Reinforcements to units"	Language="en_US" /> 
 	
   </LocalizedText>	
 	
@@ -570,19 +580,19 @@
   <LocalizedText> <!-- Production Panel Texts -->	
 
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_NO_STOCK" Language="en_US">
-      <Text>[ICON_Bullet] [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {1_Name} {2_Name}, [COLOR_Civ6Red]{4_Num}[ENDCOLOR] left in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied.</Text>
+      <Text>[ICON_Bullet] [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {1_Name} {2_Name}, [COLOR_Civ6Red]{4_Num}[ENDCOLOR] left in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied. {6_Name}</Text>
     </Replace>
 	
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_LIMITED_STOCK" Language="en_US">
-      <Text>[ICON_Bullet] [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {1_Name} {2_Name}, {4_Num} available in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied.</Text>
+      <Text>[ICON_Bullet] [COLOR_Civ6Red]{3_Num}[ENDCOLOR] {1_Name} {2_Name}, {4_Num} available in stock, [COLOR_Civ6Red]{5_Num}[ENDCOLOR] supplied. {6_Name}</Text>
     </Replace>
 	
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_ENOUGH_STOCK" Language="en_US">
-      <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name}, {4_Num} available in stock, {5_Num} supplied.</Text>
+      <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name}, {4_Num} available in stock, {5_Num} supplied. {6_Name}</Text>
     </Replace>
 	
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_TOTAL" Language="en_US">
-      <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name}  (including reserve)</Text>
+      <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name} {4_Name}</Text>
     </Replace>
 	
 	<Replace Tag="LOC_PRODUCTION_REQUIRES_ANY_BUILDING" Language="en_US">

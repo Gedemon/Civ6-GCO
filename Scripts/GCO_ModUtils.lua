@@ -6,6 +6,13 @@
 print ("Loading ModUtils.lua...")
 
 -----------------------------------------------------------------------------------------
+-- Includes
+-----------------------------------------------------------------------------------------
+include( "GCO_TypeEnum" )
+include( "GCO_SmallUtils" )
+
+
+-----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
 
@@ -21,6 +28,7 @@ ExposedMembers.CityScript_Initialized 		= nil
 ExposedMembers.UnitScript_Initialized		= nil
 ExposedMembers.PlayerScript_Initialized 	= nil
 ExposedMembers.GameScript_Initialized		= nil
+ExposedMembers.GCO_Initialized 				= nil 
 
 	
 local ResourceValue = {			-- cached table with value of resources type
@@ -95,7 +103,7 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 		print("ExposedMembers.PlayerScript_Initialized-----",ExposedMembers.PlayerScript_Initialized       )
 		print("ExposedMembers.GameScript_Initialized-------",ExposedMembers.GameScript_Initialized       )
 	end
-		
+	if bIsInitialized then ExposedMembers.GCO_Initialized = true end -- to check initialization from other contexts
 	return bIsInitialized
 end
 
@@ -114,7 +122,7 @@ Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 
 -----------------------------------------------------------------------------------------
--- Maths
+-- Maths/Tables
 -----------------------------------------------------------------------------------------
 function Round(num)
     under = math.floor(num)
@@ -172,6 +180,9 @@ function TableSummation(data) -- return the Summation of all values in a table f
 	return total
 end
 
+function IsEmpty(testTable)
+	return (next(testTable) == nil)
+end
 
 ----------------------------------------------
 -- Debug
@@ -198,8 +209,6 @@ function Error(...)
 	print(str)
 	LuaEvents.StopAuToPlay()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
-	ExposedMembers.UI.PlaySound("Alert_Negative")
-	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
 
@@ -211,15 +220,11 @@ function ErrorWithLog(...)
 	LuaEvents.StopAuToPlay()
 	LuaEvents.ShowLastLog()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
-	ExposedMembers.UI.PlaySound("Alert_Negative")
-	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
 
 function Warning(...)
 	print("WARNING : ", select(1,...))	
-	ExposedMembers.UI.PlaySound("Alert_Neutral")
-	ExposedMembers.UI.PlaySound("Alert_Neutral")
 	ExposedMembers.UI.PlaySound("Alert_Neutral")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
@@ -341,6 +346,7 @@ function Dump(t,i)
 	end
 end
 
+-- Check if we can call flag update (ie we are outside OnGameTurnStarted() tick)
 local bSafeToCallFlagUpdate = true
 function CanCallFlagUpdate()
 	return bSafeToCallFlagUpdate
@@ -643,6 +649,7 @@ function Initialize()
 	ExposedMembers.GCO.GetSize 			= GetSize
 	ExposedMembers.GCO.ToDecimals 		= ToDecimals
 	ExposedMembers.GCO.TableSummation 	= TableSummation
+	ExposedMembers.GCO.IsEmpty 			= IsEmpty
 	-- timers
 	ExposedMembers.GCO.StartTimer 		= StartTimer
 	ExposedMembers.GCO.ShowTimer 		= ShowTimer
@@ -706,6 +713,7 @@ function Cleaning()
 	ExposedMembers.CityScript_Initialized 		= nil
 	ExposedMembers.UnitScript_Initialized		= nil
 	ExposedMembers.PlayerScript_Initialized 	= nil
+	ExposedMembers.GCO_Initialized 				= nil 
 	--
 	ExposedMembers.UnitHitPointsTable 			= nil
 	--
@@ -715,6 +723,7 @@ function Cleaning()
 	ExposedMembers.CultureMap 					= nil
 	ExposedMembers.PreviousCultureMap 			= nil
 	ExposedMembers.GCO 							= nil
+	ExposedMembers.lastCombat					= nil
 	--
 	ExposedMembers.UI 							= nil
 	ExposedMembers.Calendar 					= nil

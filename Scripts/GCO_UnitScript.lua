@@ -6,6 +6,13 @@
 print("Loading UnitScript.lua...")
 
 -----------------------------------------------------------------------------------------
+-- Includes
+-----------------------------------------------------------------------------------------
+include( "GCO_TypeEnum" )
+include( "GCO_SmallUtils" )
+
+
+-----------------------------------------------------------------------------------------
 -- Debug
 -----------------------------------------------------------------------------------------
 
@@ -13,6 +20,16 @@ DEBUG_UNIT_SCRIPT			= true
 
 function ToggleUnitDebug()
 	DEBUG_UNIT_SCRIPT = not DEBUG_UNIT_SCRIPT
+end
+
+local indentationString	= ".............................."
+function Indentation20(str)
+	local length = string.len(str)
+	if length < 19 then
+		return str.. " " .. string.sub(indentationString, 1, 20 - length) .. " "
+	else
+		return str
+	end
 end
 
 
@@ -261,7 +278,7 @@ for row in GameInfo.Units() do
 										if promotionEquipmentData.EquipmentID == unitEquipmentData.EquipmentID then
 											equipmentClassLink[unitType][unitEquipmentClass] 		= promotionEquipmentClass
 											equipmentClassLink[unitType][promotionEquipmentClass] 	= unitEquipmentClass
-											print("Linking "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClass].Name), "", " with "..Locale.Lookup(GameInfo.EquipmentClasses[promotionEquipmentClass].Name), ""," ("..Locale.Lookup(GameInfo.Resources[promotionEquipmentData.EquipmentID].Name)..")", ""," for unitType =  "..Locale.Lookup(row.Name))
+											print("Linking "..Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClass].Name)).."with "..Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[promotionEquipmentClass].Name))..Indentation20("("..Locale.Lookup(GameInfo.Resources[promotionEquipmentData.EquipmentID].Name)..")").." for unitType =  "..Locale.Lookup(row.Name))
 										end
 									end
 								end
@@ -405,7 +422,7 @@ local unitTableEnum = {
 	Personnel					= 5,
 	Equipment					= 6,
 	UniqueID					= 7, 
-	--Materiel					= 8,
+	Account						= 8,
 	PersonnelReserve			= 9,
 	EquipmentReserve			= 10,
 	--HorsesReserve				= 11,
@@ -606,6 +623,7 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizati
 	local unitType 			= unit:GetType()
 	local unitID 			= unit:GetID()
 	local unitKey 			= unit:GetKey()
+	local turnKey 			= GCO.GetTurnKey()
 	local food 				= SetBaseFoodStock(unitType, organizationLevel)	
 	local player 			= GCO.GetPlayer(unit:GetOwner())
 	local organizationLevel	= organizationLevel or player:GetMilitaryOrganizationLevel()
@@ -664,6 +682,7 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizati
 		TotalShipSunk			= 0,
 		TotalTankDestroyed		= 0,
 		TotalAircraftKilled		= 0,
+		Account					= { [turnKey] = {} }, -- [TransactionType] = { [refKey] = value }
 		-- Others		
 		LastX					= unit:GetX(), -- may be usefull to check the last position of a dead/removed unit.
 		LastY					= unit:GetY(),
@@ -846,7 +865,7 @@ function StopDelayedEquipmentInitialization()
 		saveGame.Type= SaveTypes.SINGLE_PLAYER
 		saveGame.IsAutosave = false
 		saveGame.IsQuicksave = false
-		Network.SaveGame(saveGame)
+		GCO.Network.SaveGame(saveGame)
 		GCO.Warning("The game was (auto?) saved in the last few seconds[NEWLINE]before some new units were equipped[NEWLINE][NEWLINE]A new (fixed) save was created: "..saveGame.Name.."[NEWLINE]You can also make a quick or manual save now")
 		bNeedToSaveGame = false
 	end
@@ -870,8 +889,14 @@ function CheckEquipmentInitializationTimer()
 end
 
 local bNeedToSaveGame = false
-function OnGameSaved()
+function OnGameSaved(...)
+	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Events.SaveComplete")
+	local args = {...}
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Args = " .. unpack({...}))
+	
 	if initializeEquipmentCo then
+		GCO.Warning("Event.SaveComplete() called while initializeEquipmentCo is true")
 		bNeedToSaveGame = true
 	else
 		bNeedToSaveGame = false
@@ -1133,7 +1158,7 @@ function UpdateFrontLineData(self) -- that function will have to be called after
 		end
 	end
 	if maxUnitHP == 0 then
-		GCO.Error("UpdateFrontLineData() is trying to murder that innocent unit :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+		GCO.Error("UpdateFrontLineData() is trying to murder an unit :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
 		ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
 		return
 	end
@@ -1263,6 +1288,21 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 	else
 		GCO.Error("Failed to replace unit unitKey#"..tostring(oldUnitKey).." by unit type = "..tostring(newUnitType).." player ID#"..tostring(playerID))
 	end
+end
+
+function RecordTransaction(self, accountType, value, refKey, turnKey) --turnKey optionnal
+	local cityData 	= self:GetData()
+	local turnKey 	= turnKey or GCO.GetTurnKey()
+	if not cityData.Account[turnKey] then cityData.Account[turnKey] = {} end
+	if not cityData.Account[turnKey][accountType] then cityData.Account[turnKey][accountType] = {} end
+	cityData.Account[turnKey][accountType][refKey] = (cityData.Account[turnKey][accountType][refKey] or 0) + value
+end
+
+function GetTransactionValue(self, accountType, refKey, turnKey)
+	local cityData 	= self:GetData()	
+	if not cityData.Account[turnKey] then return 0 end
+	if not cityData.Account[turnKey][accountType] then return 0 end
+	return cityData.Account[turnKey][accountType][refKey] or 0
 end
 
 
@@ -1652,34 +1692,40 @@ function GetStock(self, resourceID) -- "stock" means "reserve" or "rear" for uni
 	end
 end
 
-function GetAllExcedent(self) -- Return all resources that can be transfered back to a city (or a nearby unit/improvement ?)
+function GetAllSurplus(self) -- Return all resources that can be transfered back to a city (or a nearby unit/improvement ?)
 
 	--local DEBUG_UNIT_SCRIPT = true
-	Dprint( DEBUG_UNIT_SCRIPT, "- check excedent for : ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_UNIT_SCRIPT, "- check surplus for : ".. Locale.Lookup(self:GetName()))
 	
 	local unitKey 	= self:GetKey()
 	local unitData 	= ExposedMembers.UnitData[unitKey]
 	local excedent	= {}
 	
 	if not unitData then
-		print("WARNING, unitData[unitKey] is nil in GetAllExcedent() for " .. self:GetName(), unitKey)
+		print("WARNING, unitData[unitKey] is nil in GetAllSurplus() for " .. self:GetName(), unitKey)
 		return excedent
 	end
 	
 	-- get excedent from reserve
-	excedent[personnelResourceID]	= math.max(0, self:GetStock(personnelResourceKey) - self:GetMaxPersonnelReserve())
-	excedent[foodResourceID]		= math.max(0, self:GetStock(foodResourceKey) - self:GetMaxFoodStock())
+	local personnelSurplus	= math.max(0, self:GetStock(personnelResourceKey) - self:GetMaxPersonnelReserve())
+	local foodSurplus		= math.max(0, self:GetStock(foodResourceKey) - self:GetMaxFoodStock())
+	if personnelSurplus > 0 then excedent[personnelResourceID]	= personnelSurplus end
+	if foodSurplus 		> 0 then excedent[foodResourceID]	= foodSurplus end
 
 	-- all resource in "stock" (ie not "reserve") can be send to city
 	for resourceKey, value in pairs(unitData.Stock) do
-		excedent[tonumber(resourceKey)]	= math.max(0, value)
+		local resourceID = tonumber(resourceKey)
+		if value > 0 then 
+			excedent[resourceID] = value
+			Dprint( DEBUG_UNIT_SCRIPT, "       - resource .................... : ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. ", resourceID = ", resourceID, ", num = ", value, " marked as surplus")
+		end
 	end
 
 	-- get excedent from equipment in reserve
 	local equipmentClasses = self:GetEquipmentClasses()
 	for classType, classData in pairs(equipmentClasses) do
 		local classExcedent 	= math.max(0, self:GetEquipmentClassReserve(classType) - self:GetMaxEquipmentReserve(classType))
-		Dprint( DEBUG_UNIT_SCRIPT, "   - check excedent for equipment class : ".. Locale.Lookup(GameInfo.EquipmentClasses[classType].Name), " = ", classExcedent)
+		Dprint( DEBUG_UNIT_SCRIPT, "   - check surplus for equipment class : ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)), " = ", classExcedent)
 		if classExcedent > 0 then
 			local equipmentTypes 	= GetEquipmentTypes(classType)
 			local bestNum 			= 0
@@ -1689,9 +1735,10 @@ function GetAllExcedent(self) -- Return all resources that can be transfered bac
 				
 				-- we want the least wanted available, and we increment the number of least wanted equipment already set as excedent for the next loop...
 				bestNum = bestNum + num
-				excedent[equipmentID] = math.min(bestNum, classExcedent )
-				Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", num = ", num, ", class excedent left = ", classExcedent, ", total equipment checked = ", bestNum, ", excedent removed = ", excedent[equipmentID])
-				classExcedent = math.max(0, classExcedent - excedent[equipmentID])
+				local surplus = math.min(bestNum, classExcedent )
+				if surplus > 0 then excedent[equipmentID] = surplus end
+				Dprint( DEBUG_UNIT_SCRIPT, "       - equipment ................... : ".. Indentation20(Locale.Lookup(GameInfo.Resources[equipmentID].Name)).. ", equipmentID = ", equipmentID, ", num = ", num, ", class surplus left = ", classExcedent, ", total equipment checked = ", bestNum, ", surplus detected = ", surplus)
+				classExcedent = math.max(0, classExcedent - surplus)
 			end
 		end
 	end
@@ -1746,11 +1793,11 @@ function GetRequirements(self)
 	
 	for _, resourceID in ipairs(listResources) do
 		requirements.Resources[resourceID] = self:GetNumResourceNeeded(resourceID)
-		Dprint( DEBUG_UNIT_SCRIPT, " - ".. Locale.Lookup(GameInfo.Resources[resourceID].Name).." = ".. tostring(requirements.Resources[resourceID]))
+		Dprint( DEBUG_UNIT_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ".. tostring(requirements.Resources[resourceID]))
 	end
 	for equipmentID, value in pairs(listEquipment) do
 		requirements.Resources[equipmentID] = value
-		Dprint( DEBUG_UNIT_SCRIPT, " - ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name).." = ".. tostring(value))
+		Dprint( DEBUG_UNIT_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[equipmentID].Name)).." = ".. tostring(value))
 	end
 
 	return requirements
@@ -2922,6 +2969,7 @@ function AddCombatInfoTo(Opponent)
 	if Opponent.unit then
 		Opponent.unitType 	= Opponent.unit:GetType()
 		Opponent.unitKey 	= Opponent.unit:GetKey()
+		Opponent.unitData 	= ExposedMembers.UnitData[Opponent.unitKey]
 		
 		if UnitWithoutEquipment[Opponent.unitKey] then
 			print("WARNING: Unit no equiped yet in AddCombatInfoTo, forcing initialization for ".. Locale.Lookup(Opponent.unit:GetName()) .." of player #".. tostring(Opponent.unit:GetOwner()).. " id#" .. tostring(Opponent.unit:GetKey()))
@@ -2942,11 +2990,27 @@ function AddCombatInfoTo(Opponent)
 		Opponent.PromotionClass		= Opponent.unit:GetPromotionClassID()
 		Opponent.OrganizationLevel	= Opponent.unit:GetOrganizationLevel()
 	else
-		Opponent.unitKey 	= GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)
-	end
-	
-	Opponent.unitData = ExposedMembers.UnitData[Opponent.unitKey]
-	if not Opponent.unitType then Opponent.unitType = Opponent.unitData.unitType end
+		Opponent.unitKey 	= GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)		
+		Opponent.unitData 	= ExposedMembers.UnitData[Opponent.unitKey]
+		if not Opponent.unitData then
+			GCO.Warning("unitData is nil in AddCombatInfoTo for [NEWLINE](unit ???) key = "..tostring(Opponent.unitID)..","..tostring(Opponent.playerID))
+			local playerID 	= Opponent.playerID
+			local unitID 	= Opponent.unitID
+			local key		= tostring(unitID)..","..tostring(playerID)
+			local unitData 	= ExposedMembers.UnitData[key]
+			local unit		= GetUnit(playerID, unitID)
+			if not unitData then -- hackfix
+				InitializeUnit(playerID, unitID)
+			end			
+			Opponent.unitData 	= ExposedMembers.UnitData[key]
+			if not Opponent.unitData then GCO.Error("unitData is still nil in AddCombatInfoTo for [NEWLINE](unit ???) key = "..tostring(key)) end
+		end
+		Opponent.unitType 	= Opponent.unitData.unitType
+		if UnitWithoutEquipment[Opponent.unitKey] then
+			print("WARNING: Unit no equiped yet in AddCombatInfoTo, forcing initialization for ".. Locale.Lookup(Opponent.unit:GetName()) .." of player #".. tostring(Opponent.unit:GetOwner()).. " id#" .. tostring(Opponent.unit:GetKey()))
+			Opponent.unit:InitializeEquipment() 
+		end
+	end	
 	
 	local pendingHeal = UnitLastHealingValue[Opponent.unitKey]
 	if pendingHeal and Opponent.InitialHP ~= Opponent.unitData.HP then
@@ -3144,7 +3208,9 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	if Opponent.Damage > 0 then UnitData.HP = Opponent.FinalHP end
 end
 
-local combatCount = 0
+local combatCount 	= 0
+local combatStart 	= {}
+local combatEnd		= {}
 function OnCombat( combatResult )
 
 	--local DEBUG_UNIT_SCRIPT = true
@@ -3153,6 +3219,7 @@ function OnCombat( combatResult )
 	ExposedMembers.lastCombat = combatResult
 	
 	combatCount = combatCount + 1
+	combatStart[combatCount] = true
 	Dprint( DEBUG_UNIT_SCRIPT, "--============================================--")
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Starting Combat #"..tostring(combatCount))
 	Dprint( DEBUG_UNIT_SCRIPT, "--============================================--")
@@ -3428,9 +3495,17 @@ function OnCombat( combatResult )
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	--]]
 	
+	combatEnd[combatCount] = true
 end
 Events.Combat.Add( OnCombat )
 
+function CheckCombat()
+	if combatEnd[combatCount] ~= combatStart[combatCount] then
+		GCO.Error("Handling result for Combat#"..tostring().." was not completed")
+		GCO.Dump(ExposedMembers.lastCombat)
+	end
+end
+Events.Combat.Add( CheckCombat )
 
 -----------------------------------------------------------------------------------------
 -- Healing
@@ -3594,7 +3669,7 @@ function Heal(self)
 	if finalHP < initialHP then
 		GCO.Error("finalHP < initialHP for ", unitKey, " initialHP:", initialHP , " finalHP:", finalHP, " restoredHP :", restoredHP)
 	end		
-	Dprint( DEBUG_UNIT_SCRIPT, "initialHP = ", initialHP , " finalHP = ", finalHP, " restoredHP = ", restoredHP, " core initialHP = ", maxHP - damage, " core finalHP = ", maxHP - damage + restoredHP)
+	Dprint( DEBUG_UNIT_SCRIPT, " Healing : initialHP = ", initialHP , " finalHP = ", finalHP, " restoredHP = ", restoredHP, " core initialHP = ", maxHP - damage, " core finalHP = ", maxHP - damage + restoredHP)
 				
 	self:SetDamage(damage-restoredHP)
 	
@@ -3605,14 +3680,14 @@ function Heal(self)
 	unitData.PersonnelReserve 	= unitData.PersonnelReserve - reqPersonnel
 	unitData.Personnel 			= unitData.Personnel 		+ reqPersonnel
 	
-	Dprint( DEBUG_UNIT_SCRIPT, "Moved from reserve to FrontLine = ", reqPersonnel, " Personnel")
+	Dprint( DEBUG_UNIT_SCRIPT, " - Moved from reserve to FrontLine = ", reqPersonnel, " Personnel")
 	
 	for equipmentClassID, equipmentClassData in pairs(self:GetEquipmentClasses()) do
 		if equipmentClassData.IsRequired then
 			local required	 			= self:GetEquipmentAtHP(equipmentClassID, finalHP) - self:GetEquipmentAtHP(equipmentClassID, initialHP)
 			local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)
 			local numEquipmentToProvide	= required
-			Dprint( DEBUG_UNIT_SCRIPT, "Requiring to FrontLine ........ = ", required, " " ..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+			Dprint( DEBUG_UNIT_SCRIPT, " - Requiring to FrontLine ........ = ", required, " " ..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 			for i, data in ipairs(equipmentTypes) do
 				if numEquipmentToProvide > 0 then
 					local equipmentID 		= data.EquipmentID
@@ -3630,7 +3705,7 @@ function Heal(self)
 						self:ChangeReserveEquipment(equipmentID, -equipmentUsed)
 						self:ChangeFrontLineEquipment(equipmentID, equipmentUsed)
 						
-						Dprint( DEBUG_UNIT_SCRIPT, "Moved from reserve to FrontLine = ", equipmentUsed, " " ..Locale.Lookup(GameInfo.Resources[equipmentID].Name))
+						Dprint( DEBUG_UNIT_SCRIPT, " - Moved from reserve to FrontLine = ", equipmentUsed, " " ..Locale.Lookup(GameInfo.Resources[equipmentID].Name))
 						
 						alreadyUsed[equipmentClassID] = (alreadyUsed[equipmentClassID] or 0) + equipmentUsed
 					end
@@ -3705,7 +3780,7 @@ function Heal(self)
 	--]]
 	
 	-- Transfer equipment
-	Dprint( DEBUG_UNIT_SCRIPT, "Checking to transfer equipment from reserve...")
+	Dprint( DEBUG_UNIT_SCRIPT, " - Checking to transfer equipment from reserve...")
 	for equipmentClassID, equipmentClassData in pairs(self:GetEquipmentClasses()) do
 		local alreadyUsed			= alreadyUsed[equipmentClassID] or 0
 		local current				= self:GetEquipmentClassFrontLine(equipmentClassID)
@@ -3716,7 +3791,7 @@ function Heal(self)
 		local bTransferDone			= false
 		local bFrontLineFilled		= false
 		
-		Dprint( DEBUG_UNIT_SCRIPT, "Transfer START ... AlreadyUsed ........ = ", alreadyUsed, " Current = ", current, " CurrentMax = ", currentMax, " TransferMax = ", transferMax, " MaxLeftToTranfer = ", maxLeftToTranfer, " IsRequired = ", equipmentClassData.IsRequired, " for "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer START ... AlreadyUsed ........ = ", alreadyUsed, " Current = ", current, " CurrentMax = ", currentMax, " TransferMax = ", transferMax, " MaxLeftToTranfer = ", maxLeftToTranfer, " IsRequired = ", equipmentClassData.IsRequired, " for "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 
 		while (maxLeftToTranfer > 0) and (not bTransferDone) do
 			local lowerTypeID, lowerDesirability	= GetLowerAvailableEquipmentTypeInList(equipmentClassID, unitData.Equipment)
@@ -3724,8 +3799,8 @@ function Heal(self)
 			if lowerTypeID and bestTypeID then -- Must check in case that equipmentClass is still empty
 				local loopTransfer	= 0
 				
-				Dprint( DEBUG_UNIT_SCRIPT, "Transfer values .. LowerDesirability .. = ", lowerDesirability, " for "..Locale.Lookup(GameInfo.Resources[lowerTypeID].Name))
-				Dprint( DEBUG_UNIT_SCRIPT, "Transfer values .. BestDesirability ... = ", bestDesirability, " for "..Locale.Lookup(GameInfo.Resources[bestTypeID].Name))
+				Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. LowerDesirability .. = ", lowerDesirability, " for "..Locale.Lookup(GameInfo.Resources[lowerTypeID].Name))
+				Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. BestDesirability ... = ", bestDesirability, " for "..Locale.Lookup(GameInfo.Resources[bestTypeID].Name))
 			
 				if equipmentClassData.IsRequired then -- exchange 1:1 in that case
 					if lowerDesirability < bestDesirability then				
@@ -3737,7 +3812,7 @@ function Heal(self)
 							self:ChangeFrontLineEquipment(lowerTypeID, -toTransfer)
 							maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
 							loopTransfer		= loopTransfer + toTransfer
-							Dprint( DEBUG_UNIT_SCRIPT, "Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
+							Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
 						end
 					else
 						bTransferDone = true
@@ -3752,7 +3827,7 @@ function Heal(self)
 							self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
 							maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
 							loopTransfer		= loopTransfer + toTransfer
-							Dprint( DEBUG_UNIT_SCRIPT, "Transfer values .. Filling FrontLine .. = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
+							Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Filling FrontLine .. = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
 						else
 							bFrontLineFilled = true
 						end
@@ -3767,7 +3842,7 @@ function Heal(self)
 							self:ChangeFrontLineEquipment(lowerTypeID, -toTransfer)
 							maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
 							loopTransfer		= loopTransfer + toTransfer
-							Dprint( DEBUG_UNIT_SCRIPT, "Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
+							Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
 						end
 					else
 						bTransferDone = true
@@ -3778,7 +3853,7 @@ function Heal(self)
 				bTransferDone = true
 			end
 		end
-		Dprint( DEBUG_UNIT_SCRIPT, "Transfer END ..... TransferDone ....... = ", bTransferDone, " MaxLeftToTranfer = ", maxLeftToTranfer, " for "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer END ..... TransferDone ....... = ", bTransferDone, " MaxLeftToTranfer = ", maxLeftToTranfer, " for "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 	end	
 
 	-- Visualize healing
@@ -4243,8 +4318,100 @@ function DoFuel(self)
 	Dlog("DoFuel /END")
 end
 
+function DoExchange(self)
+	Dlog("DoExchange for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
+
+	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_UNIT_SCRIPT, "Looking to exchange equipment for " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
+
+	local surplus
+	local maxDamage	= 66 -- Don't transfer to units at more than 33% damage (assuming 100HP max here, to do : something better)
+	local unitPlot 	= Map.GetPlot(self:GetX(), self:GetY())
+	if unitPlot then
+	
+		-- private
+		function TransferSurplus(listUnit, surplus)			
+			table.sort(listUnit, function(a, b) return a.Damage < b.Damage; end)	
+			for i, row in ipairs(listUnit) do
+				local unit = row.Unit
+				if (not unit:IsWaitingForEquipment()) and (unit:GetOwner() == self:GetOwner()) then
+					Dprint( DEBUG_UNIT_SCRIPT, " - Check with ...... " .. Indentation15(Locale.Lookup(unit:GetName())).." id#".. tostring(unit:GetKey()))
+					if not surplus then surplus = self:GetAllSurplus() end
+					if not GCO.IsEmpty(surplus) then
+Dline()
+						local toTransfer = {}
+						for resourceID, value in pairs( surplus ) do
+							local needed 	= unit:GetNumResourceNeeded(resourceID)
+							local transfer	= math.min(value, needed)
+							if transfer > 0 then
+								toTransfer[resourceID] = transfer
+							end
+						end
+Dline()
+						
+						for resourceID, value in pairs( toTransfer ) do
+							Dprint( DEBUG_UNIT_SCRIPT, "   - Transferring .. " .. tostring(value), " ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
+							self:ChangeStock(resourceID, -value)
+							unit:ChangeStock(resourceID, value)
+							surplus[resourceID] = surplus[resourceID] - value
+							if surplus[resourceID] < 0 then
+								GCO.Error("Trying to transfer more equipment than available for[NEWLINE]"..Locale.Lookup(GameInfo.Resources[resourceID].Name).." from [NEWLINE]" .. Locale.Lookup(self:GetName()).."  key#".. tostring(self:GetKey()).."  to [NEWLINE]" .. Locale.Lookup(unit:GetName()).."  key#".. tostring(unit:GetKey()))
+							end
+							if surplus[resourceID] == 0 then surplus[resourceID] = nil end
+						end
+					end
+				end
+			end
+		end
+Dline()
+		
+		local listUnit = {}
+		-- try with units on the same plot first
+		if unitPlot:GetUnitCount() > 1 then
+			local aUnits = Units.GetUnitsInPlot(unitPlot)
+			for i, unit in ipairs(aUnits) do
+				if unit ~= self then
+					local damage = unit:GetDamage()
+					if damage < maxDamage then -- to do : remove that magic number
+						table.insert(listUnit, {Unit = unit, Damage = unit:GetDamage()})
+					end
+				end
+			end
+		end
+Dline()
+		if #listUnit > 0 then TransferSurplus(listUnit, surplus) end
+Dline()
+		
+		local listUnit = {}
+		-- Try with adjacent units
+		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+			adjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction);
+			if (adjacentPlot ~= nil) and (adjacentPlot:GetUnitCount() > 0) then
+				local aUnits = Units.GetUnitsInPlot(adjacentPlot)
+				for i, unit in ipairs(aUnits) do
+					if unit ~= self then
+						local damage = unit:GetDamage()
+						if damage < maxDamage then -- to do : remove that magic number
+							table.insert(listUnit, {Unit = unit, Damage = unit:GetDamage()})
+						end
+					end
+				end				
+			end
+		end	
+Dline()
+		if #listUnit > 0 then TransferSurplus(listUnit, surplus) end
+Dline()
+	end
+	--local unitData 	= self:GetData()
+	--local surplus	= self:GetAllSurplus()
+	
+	--GetNumResourceNeeded(self, resourceID) GetAllSurplus(self)
+	
+	Dlog("DoExchange /END")
+end
+
 function DoTurn(self)
-	local key = self:GetKey()
+	local unitData = self:GetData()
 	if not unitData then
 		return
 	end
@@ -4253,6 +4420,7 @@ function DoTurn(self)
 	self:DoFood()
 	self:DoMorale()
 	self:DoFuel()
+	self:DoExchange()
 	self:SetSupplyLine()
 end
 
@@ -4588,6 +4756,9 @@ function AttachUnitFunctions(unit)
 		u.GetKey								= GetKey
 		u.UpdateFrontLineData					= UpdateFrontLineData
 		u.GetData								= GetData
+		--
+		u.RecordTransaction						= RecordTransaction
+		u.GetTransactionValue					= GetTransactionValue
 		--		
 		u.GetPromotionClassID					= GetPromotionClassID
 		u.GetMilitaryOrganization				= GetMilitaryOrganization
@@ -4607,7 +4778,7 @@ function AttachUnitFunctions(unit)
 		u.GetNumResourceNeeded					= GetNumResourceNeeded
 		u.GetRequirements						= GetRequirements
 		u.GetStock								= GetStock
-		u.GetAllExcedent						= GetAllExcedent
+		u.GetAllSurplus							= GetAllSurplus
 		--
 		u.GetComponent							= GetComponent
 		u.SetComponent							= SetComponent
@@ -4668,6 +4839,7 @@ function AttachUnitFunctions(unit)
 		u.DoMorale 								= DoMorale
 		u.DoFuel 								= DoFuel
 		u.DoTurn 								= DoTurn
+		u.DoExchange							= DoExchange
 		--
 		
 		-- flag strings

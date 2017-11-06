@@ -6,6 +6,13 @@
 print("Loading PlayerScript.lua...")
 
 -----------------------------------------------------------------------------------------
+-- Includes
+-----------------------------------------------------------------------------------------
+include( "GCO_TypeEnum" )
+include( "GCO_SmallUtils" )
+
+
+-----------------------------------------------------------------------------------------
 -- Debug
 -----------------------------------------------------------------------------------------
 
@@ -58,7 +65,7 @@ end
 
 
 -----------------------------------------------------------------------------------------
--- Player functions
+-- PlayerData functions
 -----------------------------------------------------------------------------------------
 --[[
 function UpdatePopulationNeeds(self)
@@ -117,16 +124,28 @@ end
 --]]
 
 function InitializeData(self)
-	local playerKey = self:GetKey()
+	local playerKey 	= self:GetKey()
+	local turnKey 		= GCO.GetTurnKey()
 	ExposedMembers.PlayerData[playerKey] = {
 		CurrentTurn 		= Game.GetCurrentGameTurn(),
 		OrganizationLevel 	= 0,
+		Account				= { [turnKey] = {} }, -- [turnKey] = {[AccountType] = value}
 	}
 end
 
 function GetKey(self)
 	return tostring(self:GetID())
 end
+
+function GetData(self)
+	local playerKey  = tostring(self:GetKey())
+	local playerData = ExposedMembers.PlayerData[playerKey]
+	return playerData
+end
+
+-----------------------------------------------------------------------------------------
+-- General functions
+-----------------------------------------------------------------------------------------	
 
 function CanTrain(self, unitType)
 	local row 	= GameInfo.Units[unitType]
@@ -144,6 +163,15 @@ function CanTrain(self, unitType)
 	return true
 end
 
+function IsResourceVisible(self, resourceID)
+	return GCO.IsResourceVisibleFor(self, resourceID)
+end
+
+
+-----------------------------------------------------------------------------------------
+-- Research functions
+-----------------------------------------------------------------------------------------	
+-- Player function
 function IsKnownTech(self, techID)
 	local selfID = self:GetID()
 	if not _cached.KnownTech then self:SetKnownTech() end
@@ -171,20 +199,24 @@ function SetKnownTech(self)
 	end
 end
 
-function IsResourceVisible(self, resourceID)
-	return GCO.IsResourceVisibleFor(self, resourceID)
+--Events
+function OnResearchCompleted(playerID)
+	local player = Players[playerID]
+	local playerCities = player:GetCities()
+	if playerCities then
+		for i, city in playerCities:Members() do
+			GCO.AttachCityFunctions(city)
+			city:SetUnlockers()
+		end
+	end	
 end
-	
-function SetCurrentTurn(self)
-	local playerKey = self:GetKey()
-	ExposedMembers.PlayerData[playerKey].CurrentTurn = Game.GetCurrentGameTurn()
-end
+Events.ResearchCompleted.Add(OnResearchCompleted)
 
-function HasStartedTurn(self)
-	local playerKey = self:GetKey()
-	return (ExposedMembers.PlayerData[playerKey].CurrentTurn == Game.GetCurrentGameTurn())
-end
 
+-----------------------------------------------------------------------------------------
+-- Military Organization functions
+-----------------------------------------------------------------------------------------
+-- Player function
 function SetMilitaryOrganizationLevel(self, OrganizationLevelID)
 	local playerKey = self:GetKey()
 	ExposedMembers.PlayerData[playerKey].OrganizationLevel = OrganizationLevelID
@@ -194,6 +226,68 @@ function GetMilitaryOrganizationLevel(self)
 	local playerKey = self:GetKey()
 	return ExposedMembers.PlayerData[playerKey].OrganizationLevel or 0
 end
+
+-- Events
+local OrganizationLevelCivics = {
+		[GameInfo.Civics["CIVIC_MILITARY_TRADITION"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
+		[GameInfo.Civics["CIVIC_MILITARY_TRAINING"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
+		[GameInfo.Civics["CIVIC_FEUDALISM"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
+		[GameInfo.Civics["CIVIC_MERCENARIES"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
+		[GameInfo.Civics["CIVIC_NATIONALISM"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
+		[GameInfo.Civics["CIVIC_MOBILIZATION"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
+		[GameInfo.Civics["CIVIC_COLD_WAR"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
+		[GameInfo.Civics["CIVIC_RAPID_DEPLOYMENT"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
+}
+function OnCivicCompleted(playerID, civicID)
+	if OrganizationLevelCivics[civicID] then
+		local player = Players[playerID]
+		player:SetMilitaryOrganizationLevel(OrganizationLevelCivics[civicID])
+	end
+end
+Events.CivicCompleted.Add(OnCivicCompleted)
+
+
+-----------------------------------------------------------------------------------------
+-- Treasury functions
+-----------------------------------------------------------------------------------------
+
+-- Proceed with a transaction (update player's gold)
+function ProceedTransaction(self, accountType, value)
+	local playerData 		= self:GetData()
+	local turnKey 			= GCO.GetTurnKey()
+	local playerTreasury	= self:GetTreasury()
+	if not playerData.Account[turnKey] then playerData.Account[turnKey] = {} end
+	playerData.Account[turnKey][accountType] = (playerData.Account[turnKey][accountType] or 0) + value
+	playerTreasury:ChangeGoldBalance(value)
+end
+
+-- Record a transaction already proceeded (do not update player's gold)
+function RecordTransaction(self, accountType, value, turnKey) --turnKey optionnal
+	local playerData 		= self:GetData()
+	local turnKey 			= turnKey or GCO.GetTurnKey()
+	if not playerData.Account[turnKey] then playerData.Account[turnKey] = {} end
+	playerData.Account[turnKey][accountType] = (playerData.Account[turnKey][accountType] or 0) + value
+end
+
+function GetTransactionBalance(self, turnKey) --turnKey optionnal
+	if not ExposedMembers.GCO_Initialized then return 0 end -- return 0 when called from UI scripts on load, before the mod's initialization
+	local playerData 		= self:GetData()
+	local turnKey 			= turnKey or GCO.GetTurnKey()
+	if not playerData.Account[turnKey] then return 0 end
+	return GCO.TableSummation(playerData.Account[turnKey])
+end
+
+function GetTransactionType(self, accountType, turnKey) --turnKey optionnal
+	if not ExposedMembers.GCO_Initialized then return 0 end -- return 0 when called from UI scripts on load, before the mod's initialization
+	local playerData 		= self:GetData()
+	local turnKey 			= turnKey or GCO.GetTurnKey()
+	if not playerData.Account[turnKey] then return 0 end
+	return playerData.Account[turnKey][accountType] or 0
+end
+
+-----------------------------------------------------------------------------------------
+-- Updates functions
+-----------------------------------------------------------------------------------------
 
 function UpdateUnitsFlags(self)
 	local playerUnits = self:GetUnits()
@@ -242,6 +336,16 @@ end
 -----------------------------------------------------------------------------------------
 -- DoTurn Functions
 -----------------------------------------------------------------------------------------
+function SetCurrentTurn(self)
+	local playerKey = self:GetKey()
+	ExposedMembers.PlayerData[playerKey].CurrentTurn = Game.GetCurrentGameTurn()
+end
+
+function HasStartedTurn(self)
+	local playerKey = self:GetKey()
+	return (ExposedMembers.PlayerData[playerKey].CurrentTurn == Game.GetCurrentGameTurn())
+end
+
 function DoPlayerTurn( playerID )
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	
@@ -356,35 +460,6 @@ Events.LocalPlayerTurnEnd.Add( DoTurnForNextPlayerFromLocal )
 -- Events Functions
 -----------------------------------------------------------------------------------------
 
-function OnResearchCompleted(playerID)
-	local player = Players[playerID]
-	local playerCities = player:GetCities()
-	if playerCities then
-		for i, city in playerCities:Members() do
-			GCO.AttachCityFunctions(city)
-			city:SetUnlockers()
-		end
-	end	
-end
-Events.ResearchCompleted.Add(OnResearchCompleted)
-
-local OrganizationLevelCivics = {
-		[GameInfo.Civics["CIVIC_MILITARY_TRADITION"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
-		[GameInfo.Civics["CIVIC_MILITARY_TRAINING"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
-		[GameInfo.Civics["CIVIC_FEUDALISM"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
-		[GameInfo.Civics["CIVIC_MERCENARIES"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
-		[GameInfo.Civics["CIVIC_NATIONALISM"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
-		[GameInfo.Civics["CIVIC_MOBILIZATION"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
-		[GameInfo.Civics["CIVIC_COLD_WAR"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
-		[GameInfo.Civics["CIVIC_RAPID_DEPLOYMENT"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
-}
-function OnCivicCompleted(playerID, civicID)
-	if OrganizationLevelCivics[civicID] then
-		local player = Players[playerID]
-		player:SetMilitaryOrganizationLevel(OrganizationLevelCivics[civicID])
-	end
-end
-Events.CivicCompleted.Add(OnCivicCompleted)
 
 -----------------------------------------------------------------------------------------
 -- Shared Functions
@@ -407,18 +482,30 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	local p = getmetatable(player).__index
 	
 	p.GetKey									= GetKey
+	p.GetData									= GetData
 	p.InitializeData							= InitializeData
+	--
+	p.ProceedTransaction						= ProceedTransaction
+	p.RecordTransaction							= RecordTransaction
+	p.GetTransactionType						= GetTransactionType
+	p.GetTransactionBalance						= GetTransactionBalance
+	--
 	p.IsResourceVisible							= IsResourceVisible
 	p.CanTrain									= CanTrain
+	--
 	p.SetMilitaryOrganizationLevel				= SetMilitaryOrganizationLevel
 	p.GetMilitaryOrganizationLevel				= GetMilitaryOrganizationLevel
+	--
 	p.IsKnownTech								= IsKnownTech
 	p.SetKnownTech								= SetKnownTech
+	--
 	p.UpdateUnitsFlags							= UpdateUnitsFlags
 	p.UpdateCitiesBanners						= UpdateCitiesBanners
+	--
 	p.SetCurrentTurn							= SetCurrentTurn
 	p.HasStartedTurn							= HasStartedTurn
 	p.UpdateDataOnNewTurn						= UpdateDataOnNewTurn
+	--
 	--p.UpdatePopulationNeeds						= UpdatePopulationNeeds
 	p.GetPopulationNeeds						= GetPopulationNeeds
 	p.GetResourcesNeededForPopulations			= GetResourcesNeededForPopulations

@@ -31,13 +31,17 @@
 			<File>UI/UnitFlagManager.xml</File>
 			<File>UI/CityBannerManager.lua</File>
 			<File>UI/PlotToolTip.lua</File>
+			<File>UI/TopPanel.lua</File>
 			<File>UI/ToolTipHelper.lua</File>
+			<File>UI/ToolTipHelper_PlayerYields.lua</File>
 			<File>UI/WorldViewIconsManager.lua</File>
 			<File>UI/CityPanelOverview.lua</File>
 			<File>UI/CityPanelOverview.xml</File>
 			<File>UI/CityPanel.lua</File>
 			<File>UI/CitySupport.lua</File>
 			<File>UI/ProductionPanel.lua</File>
+            <File>Scripts/GCO_SmallUtils.lua</File>
+            <File>Scripts/GCO_TypeEnum.lua</File>
 			<File>GCO_FontIcons.dds</File>
 		</ImportFiles>
 		
@@ -155,13 +159,17 @@
 		<File>Scripts/GCO_RouteConnections.lua</File>
 		<File>Scripts/GCO_PlotIterators.lua</File>
 		<File>Scripts/GCO_AIUnitScript.lua</File>
+        <File>Scripts/GCO_SmallUtils.lua</File>
+        <File>Scripts/GCO_TypeEnum.lua</File>
 		<File>InGame/GCO_ModInGame.lua</File>
 		<File>InGame/GCO_ModInGame.xml</File>
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/UnitFlagManager.xml</File>
 		<File>UI/CityBannerManager.lua</File>
 		<File>UI/PlotToolTip.lua</File>
+		<File>UI/TopPanel.lua</File>
 		<File>UI/ToolTipHelper.lua</File>
+		<File>UI/ToolTipHelper_PlayerYields.lua</File>
 		<File>UI/WorldViewIconsManager.lua</File>
 		<File>UI/CityPanelOverview.lua</File>
 		<File>UI/CityPanelOverview.xml</File>

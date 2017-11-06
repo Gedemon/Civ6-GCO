@@ -6,6 +6,13 @@
 print ("Loading GameScript.lua...")
 
 -----------------------------------------------------------------------------------------
+-- Includes
+-----------------------------------------------------------------------------------------
+include( "GCO_TypeEnum" )
+include( "GCO_SmallUtils" )
+
+
+-----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
 
@@ -130,8 +137,19 @@ function InitializeNewTurn()
 		end
 	end
 	GCO.UpdateUnitsData()
-	GCO.CleanCityData()
+	GCO.CleanCitiesData()
 	--LuaEvents.StartPlayerTurn(0) -- calling that here makes the game crash (tested 25-Oct-17)
+	
+	-- Making our own auto save...
+	LuaEvents.SaveTables()
+	local saveGame = {};
+	saveGame.Name = "GCO-Autosave"--..os.date("%d-%b-%Y-%Hh%M")
+	saveGame.Location = SaveLocations.LOCAL_STORAGE
+	saveGame.Type= SaveTypes.SINGLE_PLAYER
+	saveGame.IsAutosave = false
+	saveGame.IsQuicksave = false
+	GCO.Network.SaveGame(saveGame)
+	
 end
 GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)
 
