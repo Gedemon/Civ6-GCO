@@ -141,7 +141,7 @@ local RefPopulationAll		= "POPULATION_ALL"
 for row in GameInfo.BuildingResourcesConverted() do
 	--print( DEBUG_CITY_SCRIPT, row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	if row.MultiResRequired and  row.MultiResCreated then
-		GCO.Error("BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
+		print("ERROR: BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	end
 end
 
@@ -2034,10 +2034,12 @@ end
 
 function GetResourceCost(self, resourceID)
 	if resourceID == personnelResourceID then return 0 end
-	local cityKey 		= self:GetKey()
+	local cityData 		= self:GetData()
+	local baseCost		= GCO.GetBaseResourceCost(resourceID)
 	local turnKey 		= GCO.GetTurnKey()
+	if not cityData or not cityData.Stock[turnKey] then return baseCost end -- this can happen during city capture ?
 	local resourceKey 	= tostring(resourceID)
-	local resourceCost	= (ExposedMembers.CityData[cityKey].ResourceCost[turnKey][resourceKey] or GCO.GetBaseResourceCost(resourceID))
+	local resourceCost	= (cityData.ResourceCost[turnKey][resourceKey] or baseCost)
 	resourceCost		= GCO.ToDecimals(resourceCost)
 	return resourceCost
 end
@@ -3213,7 +3215,7 @@ function UpdateCosts(self)
 			local maxCost		= self:GetMaximumResourceCost(resourceID)
 			local newCost 		= actualCost
 
-			Dprint( DEBUG_CITY_SCRIPT, "- Actualising cost of "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name))," actual cost",actualCost,"stock",stock,"maxStock",maxStock,"demand",demand,"supply",supply)
+			Dprint( DEBUG_CITY_SCRIPT, "- Actualising cost of "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name))," actual cost.. ".. tostring(actualCost)," stock ",stock," maxStock ",maxStock," demand ",demand," supply ",supply)
 
 			if supply > demand or stock == maxStock then
 
@@ -3224,10 +3226,9 @@ function UpdateCosts(self)
 					varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilFull / (maxStock / 2)))
 				end
 				local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
-				newCost = actualCost - variation
+				newCost = math.max(minCost, math.min(maxCost, actualCost - variation))
 				self:SetResourceCost(resourceID, newCost)
-				Dprint( DEBUG_CITY_SCRIPT, "      New cost of "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)),"  ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until full",turnUntilFull,"variation",variation)
-
+				Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...")," new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until full ".. Indentation8(turnUntilFull).." variation ".. Indentation8(variation))
 			elseif demand > supply then
 
 				local turnUntilEmpty = stock / (demand - supply)
@@ -3237,9 +3238,9 @@ function UpdateCosts(self)
 					varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilEmpty / (maxStock / 2)))
 				end
 				local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)
-				newCost = actualCost + variation
+				newCost = math.max(minCost, math.min(maxCost, actualCost + variation))
 				self:SetResourceCost(resourceID, newCost)
-				Dprint( DEBUG_CITY_SCRIPT, "      New cost of "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)),"  ".. tostring(newCost), "  max cost",maxCost,"min cost",minCost,"turn until empty",turnUntilEmpty,"variation",variation)
+				Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...")," new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until empty ".. Indentation8(turnUntilEmpty).." variation ".. Indentation8(variation))
 
 			end
 		end
@@ -3798,6 +3799,7 @@ function DoIndustries(self)
 					local ratio 				= row.Ratio
 					local amountUsed 			= GCO.Round(amountCreated / ratio) -- we shouldn't be here if ratio = 0, and the rounded value should be < maxAmountUsed
 					local resourceCost 			= (self:GetResourceCost(resourceRequiredID) / ratio) * row.CostFactor
+Dline(self:GetResourceCost(resourceRequiredID), ratio, row.CostFactor)
 					requiredResourceCost = requiredResourceCost + resourceCost
 					totalRatio = totalRatio + ratio
 					Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountUsed) .." ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)) .." used at ".. tostring(GCO.ToDecimals(resourceCost)), " cost/unit, ratio = " .. tostring(ratio))

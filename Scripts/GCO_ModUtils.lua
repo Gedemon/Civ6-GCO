@@ -223,10 +223,16 @@ function ErrorWithLog(...)
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
 
-function Warning(...)
-	print("WARNING : ", select(1,...))	
+function Warning(str, seconds)
+	local seconds = seconds or 7
+	local status, err = pcall(function () error("custom error") end)
+	local line = string.match(err, 'Warning.-$')
+	local line = string.match(line, 'GCO_.-$')
+	local line = string.match(line, ':.-\'')
+	local line = string.match(line, '%d+')
+	print("WARNING : ".. str .. " at line "..line )	
 	ExposedMembers.UI.PlaySound("Alert_Neutral")
-	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
+	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
 end
 
 function Dline(...)

@@ -40,10 +40,12 @@ local FLAGSTYLE_CIVILIAN		:number= 1;
 local FLAGSTYLE_SUPPORT			:number= 2;
 local FLAGSTYLE_TRADE			:number= 3;
 local FLAGSTYLE_NAVAL			:number= 4;
+local FLAGSTYLE_RELIGION		:number= 5;
 local FLAGTYPE_UNIT				:number= 0;
 local ZOOM_MULT_DELTA			:number = .01;
 local TEXTURE_BASE				:string = "UnitFlagBase.dds";
 local TEXTURE_CIVILIAN			:string = "UnitFlagCivilian.dds";
+local TEXTURE_RELIGION			:string = "UnitFlagReligion.dds";
 local TEXTURE_EMBARK			:string = "UnitFlagEmbark.dds";
 local TEXTURE_FORTIFY			:string = "UnitFlagFortify.dds";
 local TEXTURE_NAVAL				:string = "UnitFlagNaval.dds";
@@ -51,6 +53,7 @@ local TEXTURE_SUPPORT			:string = "UnitFlagSupport.dds";
 local TEXTURE_TRADE				:string = "UnitFlagTrade.dds";
 local TEXTURE_MASK_BASE			:string = "UnitFlagBaseMask.dds";
 local TEXTURE_MASK_CIVILIAN		:string = "UnitFlagCivilianMask.dds";
+local TEXTURE_MASK_RELIGION		:string = "UnitFlagReligionMask.dds";
 local TEXTURE_MASK_EMBARK		:string = "UnitFlagEmbarkMask.dds";
 local TEXTURE_MASK_FORTIFY		:string = "UnitFlagFortifyMask.dds";
 local TEXTURE_MASK_NAVAL		:string = "UnitFlagNavalMask.dds";
@@ -92,6 +95,7 @@ local m_CivilianInstanceManager		:table = InstanceManager:new( "UnitFlag",	"Anch
 local m_SupportInstanceManager		:table = InstanceManager:new( "UnitFlag",	"Anchor", Controls.SupportFlags );
 local m_TradeInstanceManager		:table = InstanceManager:new( "UnitFlag",	"Anchor", Controls.TradeFlags );
 local m_NavalInstanceManager		:table = InstanceManager:new( "UnitFlag",	"Anchor", Controls.NavalFlags );
+local m_AttentionMarkerIM		:table = InstanceManager:new( "AttentionMarkerInstance", "Top" );
 
 local m_cameraFocusX				:number = -1;
 local m_cameraFocusY				:number = -1;
@@ -251,6 +255,7 @@ function UnitFlag.Initialize( self, playerID: number, unitID : number, flagType 
 		self:UpdateFlagType();
 		self:UpdateHealth();
 		self:UpdateName();
+		self:UpdateReligion();
 		self:UpdatePosition();
 	    self:UpdateVisibility();
 		self:UpdateStats();
@@ -300,7 +305,7 @@ function OnUnitFlagClick( playerID : number, unitID : number )
 			tParameters[UnitOperationTypes.PARAM_MODIFIERS] = UnitOperationMoveModifiers.ATTACK;
 			if (UnitManager.CanStartOperation( pSelectedUnit, UnitOperationTypes.RANGE_ATTACK, nil, tParameters) ) then
 				UnitManager.RequestOperation(pSelectedUnit, UnitOperationTypes.RANGE_ATTACK, tParameters);
-			else
+			elseif (UnitManager.CanStartOperation( pSelectedUnit, UnitOperationTypes.MOVE_TO, nil, tParameters) ) then
 				UnitManager.RequestOperation(pSelectedUnit, UnitOperationTypes.MOVE_TO, tParameters);
 			end
 		end		
@@ -394,7 +399,7 @@ function UnitFlag.UpdateAircraftCounter( self )
 					unitEntry.UnitName:SetText( Locale.ToUpper(unit:GetName()) );
 
 					-- Update icon
-					local iconInfo:table, iconShadowInfo:table = GetUnitIconAndIconShadow(unit, 22, true);
+					local iconInfo:table, iconShadowInfo:table = GetUnitIcon(unit, 22, true);
 					if iconInfo.textureSheet then
 						unitEntry.UnitTypeIcon:SetTexture( iconInfo.textureOffsetX, iconInfo.textureOffsetY, iconInfo.textureSheet );
 					end
@@ -493,9 +498,20 @@ end
 ------------------------------------------------------------------
 -- Set the flag texture based on the unit's type
 function UnitFlag.SetFlagUnitEmblem( self )      
-	local pUnit = self:GetUnit();
-	local iconInfo = "ICON_"..GameInfo.Units[pUnit:GetUnitType()].UnitType;
-	self.m_Instance.UnitIcon:SetIcon(iconInfo);
+	local icon:string = nil;
+	local pUnit:table = self:GetUnit();
+	local individual:number = pUnit:GetGreatPerson():GetIndividual();
+	if individual >= 0 then
+		local individualType:string = GameInfo.GreatPersonIndividuals[individual].GreatPersonIndividualType;
+		local iconModifier:table = GameInfo.GreatPersonIndividualIconModifiers[individualType];
+		if iconModifier then
+			icon = iconModifier.OverrideUnitIcon;
+		end 
+	end
+	if not icon then
+		icon = "ICON_"..GameInfo.Units[pUnit:GetUnitType()].UnitType;
+	end
+	self.m_Instance.UnitIcon:SetIcon(icon);
 end
 
 ------------------------------------------------------------------
@@ -582,6 +598,9 @@ function UnitFlag.UpdateFlagType( self )
     elseif( self.m_Style == FLAGSTYLE_CIVILIAN ) then
         textureName = TEXTURE_CIVILIAN;
         maskName	= TEXTURE_MASK_CIVILIAN;
+	elseif( self.m_Style == FLAGSTYLE_RELIGION ) then
+        textureName = TEXTURE_RELIGION;
+        maskName	= TEXTURE_MASK_RELIGION;
 	elseif( self.m_Style == FLAGSTYLE_NAVAL) then
 		textureName = TEXTURE_NAVAL;
         maskName	= TEXTURE_MASK_NAVAL;
@@ -770,6 +789,27 @@ function UnitFlag.UpdatePromotions( self )
 end
 
 ------------------------------------------------------------------
+-- Update the unit religion indicator icon
+function UnitFlag.UpdateReligion( self )
+	local pUnit : table = self:GetUnit();
+	if pUnit ~= nil then
+		local religionType = pUnit:GetReligionType();
+		if (religionType > 0 and pUnit:GetReligiousStrength() > 0) then
+			local religion:table = GameInfo.Religions[religionType];
+			local religionIcon:string = "ICON_" .. religion.ReligionType;
+			local religionColor:number = UI.GetColorValue(religion.Color);
+
+			self.m_Instance.ReligionIcon:SetIcon(religionIcon);
+			self.m_Instance.ReligionIcon:SetColor(religionColor);
+			self.m_Instance.ReligionIconBacking:LocalizeAndSetToolTip(religion.Name);
+			self.m_Instance.ReligionIconBacking:SetHide(false);
+		else
+			self.m_Instance.ReligionIconBacking:SetHide(true);
+		end
+	end
+end
+
+------------------------------------------------------------------
 -- Update the unit name / tooltip
 function UnitFlag.UpdateName( self )
 	local pUnit : table = self:GetUnit();
@@ -778,7 +818,7 @@ function UnitFlag.UpdateName( self )
 		local pPlayerCfg = PlayerConfigurations[ self.m_Player:GetID() ];
 		local nameString : string;
 		if(GameConfiguration.IsAnyMultiplayer() and pPlayerCfg:IsHuman()) then
-			nameString = Locale.Lookup( pPlayerCfg:GetCivilizationShortDescription() ) .. " (" .. pPlayerCfg:GetPlayerName() .. ") - " .. Locale.Lookup( unitName );
+			nameString = Locale.Lookup( pPlayerCfg:GetCivilizationShortDescription() ) .. " (" .. Locale.Lookup(pPlayerCfg:GetPlayerName()) .. ") - " .. Locale.Lookup( unitName );
 		else
 			nameString = Locale.Lookup( pPlayerCfg:GetCivilizationShortDescription() ) .. " - " .. Locale.Lookup( unitName );
 		end
@@ -1188,6 +1228,8 @@ function CreateUnitFlag( playerID: number, unitID : number, unitX : number, unit
 				UnitFlag:new( playerID, unitID, FLAGTYPE_UNIT, FLAGSTYLE_TRADE );
 			elseif "FORMATION_CLASS_SUPPORT" == GameInfo.Units[pUnit:GetUnitType()].FormationClass then
 				UnitFlag:new( playerID, unitID, FLAGTYPE_UNIT, FLAGSTYLE_SUPPORT );
+			elseif pUnit:GetReligiousStrength() > 0 then
+				UnitFlag:new( playerID, unitID, FLAGTYPE_UNIT, FLAGSTYLE_RELIGION );
 			else
 				UnitFlag:new( playerID, unitID, FLAGTYPE_UNIT, FLAGSTYLE_CIVILIAN );
 			end
@@ -1436,6 +1478,12 @@ function ShouldHideFlag(pUnit:table)
 
 	-- If we're an air unit then check if we should hide the unit flag due to being based in a stacked tile
 	local shouldHideFlag:boolean = false;
+
+	local activityType = UnitManager.GetActivityType(pUnit);
+	if (activityType == ActivityTypes.ACTIVITY_INTERCEPT) then
+		return false;
+	end
+
 	if	unitInfo.Domain == "DOMAIN_AIR" then
 		-- Hide air unit if we're stationed at a airstrip
 		local tPlotAirUnits = unitPlot:GetAirUnits();
@@ -1517,8 +1565,7 @@ function OnPlayerTurnActivated( ePlayer:number, bFirstTimeThisTurn:boolean )
 		return;
 	end
 
-	local pPlayer = Players[ ePlayer ];
-	if pPlayer == nil then
+	if Players[ ePlayer ] == nil then
 		return;
 	end
 	
@@ -1536,29 +1583,48 @@ function OnPlayerTurnActivated( ePlayer:number, bFirstTimeThisTurn:boolean )
 				flag:UpdateReadyState();
 			end
 		end
-	else
-		-- If a barbarian, update any scout units that have been alerted.
+
+		-- Hide all attention icons
+		m_AttentionMarkerIM:ResetInstances();
+
+		-- Iterate through barbarian units to determine if they should show an attention icon
+		for _, pPlayer in ipairs(Players) do
 		if pPlayer:IsBarbarian() then			
+				local iPlayerID:number = pPlayer:GetID();
 			local pPlayerUnits:table = pPlayer:GetUnits();
+
 			for i, pUnit in pPlayerUnits:Members() do	
+					local flag:table = GetUnitFlag(iPlayerID, pUnit:GetID());
+
+					if flag ~= nil then
 				local targetPlayer	:number		= pUnit:GetBarbarianTargetPlayer();
-				local unitID		:number		= pUnit:GetID();
-				local unitOwnerID	:number		= pUnit:GetOwner();
-				local flag				= GetUnitFlag( unitOwnerID, unitID );
 
 				if targetPlayer ~= -1 and targetPlayer == idLocalPlayer then				
-					if flag.m_Instance.FlagRoot["AttentionInstance"] == nil then
-						local pInstance		:table = {};
-						ContextPtr:BuildInstanceForControl( "AttentionMarkerInstance", pInstance, flag.m_Instance.FlagRoot );
-						flag.m_Instance.FlagRoot["AttentionInstance"] = pInstance;
-					end
+							m_AttentionMarkerIM:GetInstance(flag.m_Instance.FlagRoot);
+							flag.bHasAttentionMarker = true;
 				else
-					if flag.m_Instance.FlagRoot["AttentionInstance"] ~= nil then
-						flag.m_Instance.FlagRoot:DestroyChild( flag.m_Instance.FlagRoot["AttentionInstance"] );
-						flag.m_Instance.FlagRoot["AttentionInstance"] = nil;
+							flag.bHasAttentionMarker = false;
 					end					
 				end
 			end
+		end
+	end
+end
+end
+
+------------------------------------------------------------------
+function OnBarbarianSpottedCity(iPlayerID:number, iUnitID:number, cityOwner:number, cityID:number)
+	local flag:table = GetUnitFlag(iPlayerID, iUnitID);
+
+	if flag ~= nil and flag.bHasAttentionMarker ~= true then
+		local pPlayer:table = Players[iPlayerID];
+		local pPlayerUnits:table = pPlayer:GetUnits();
+		local pUnit:table = pPlayerUnits:FindID(iUnitID);
+		local targetPlayer:number = pUnit and pUnit:GetBarbarianTargetPlayer() or -1;
+
+		if targetPlayer ~= -1 and targetPlayer == Game.GetLocalPlayer() then
+			m_AttentionMarkerIM:GetInstance(flag.m_Instance.FlagRoot);
+			flag.bHasAttentionMarker = true;
 		end
 	end
 end
@@ -1616,6 +1682,8 @@ function OnUnitAbilityGained( playerID : number, unitID : number, eAbilityType :
 				local flag = GetUnitFlag(playerID, pUnit:GetID());
 				if (flag ~= nil) then
 					if (flag.m_eVisibility == RevealedState.VISIBLE) then
+						local abilityInfo = GameInfo.UnitAbilities[eAbilityType];
+						if (abilityInfo ~= nil and abilityInfo.ShowFloatTextWhenEarned) then
 						local sAbilityName = GameInfo.UnitAbilities[eAbilityType].Name;
 						if (sAbilityName ~= nil) then
 							local floatText = Locale.Lookup(sAbilityName);
@@ -1626,6 +1694,7 @@ function OnUnitAbilityGained( playerID : number, unitID : number, eAbilityType :
 			end
 		end
 	end
+end
 end
 
 ------------------------------------------------------------------
@@ -1818,6 +1887,7 @@ function OnMilitaryFormationChanged( playerID : number, unitID : number )
 		local pUnit = pPlayer:GetUnits():FindID(unitID);
 		if (pUnit ~= nil) then
 			local flagInstance = GetUnitFlag( playerID, unitID );
+			if flagInstance ~= nil then
 			local militaryFormation = pUnit:GetMilitaryFormation();
 			if (militaryFormation == MilitaryFormationTypes.CORPS_FORMATION) then
 				flagInstance.m_Instance.CorpsMarker:SetHide(false);
@@ -1831,6 +1901,7 @@ function OnMilitaryFormationChanged( playerID : number, unitID : number )
 			end
 		end
 	end
+end
 end
 
 ------------------------------------------------- 
@@ -2018,6 +2089,7 @@ function Initialize()
 	Events.WorldRenderViewChanged.Add(PositionFlagsToView);
 	Events.UnitPromoted.Add(OnUnitPromotionChanged);
 	Events.UnitAbilityGained.Add(OnUnitAbilityGained);
+	Events.BarbarianSpottedCity.Add(OnBarbarianSpottedCity);
 	--Events.UnitActivityChanged.Add(OnUnitActivityChanged); --Currently only needed for debugging.
 
 	LuaEvents.Tutorial_DisableMapSelect.Add( OnTutorial_DisableMapSelect );

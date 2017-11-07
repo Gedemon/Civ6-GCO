@@ -176,6 +176,12 @@ function LoadTableFromSlot(sSlotName)
 	end
 end
 
+function SaveGameGCO(saveGame)
+	print("GCO Saving Game... " .. tostring(saveGame.Name))
+	Network.SaveGame(saveGame)
+end
+LuaEvents.SaveGameGCO.Add(SaveGameGCO)
+
 ----------------------------------------------
 -- Initialize functions for other contexts
 ----------------------------------------------

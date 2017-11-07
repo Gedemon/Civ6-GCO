@@ -126,6 +126,7 @@ function EndingTurn()
 end
 Events.PreTurnBegin.Add(EndingTurn)
 
+local autoSaveNum = 0
 function InitializeNewTurn()
 	print("---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
 	print("---+                                                                    STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()))
@@ -142,13 +143,15 @@ function InitializeNewTurn()
 	
 	-- Making our own auto save...
 	LuaEvents.SaveTables()
+	autoSaveNum = autoSaveNum + 1
+	if autoSaveNum > 5 then autoSaveNum = 1 end
 	local saveGame = {};
-	saveGame.Name = "GCO-Autosave"--..os.date("%d-%b-%Y-%Hh%M")
+	saveGame.Name = "GCO-Autosave"..tostring(autoSaveNum)
 	saveGame.Location = SaveLocations.LOCAL_STORAGE
 	saveGame.Type= SaveTypes.SINGLE_PLAYER
 	saveGame.IsAutosave = false
 	saveGame.IsQuicksave = false
-	GCO.Network.SaveGame(saveGame)
+	LuaEvents.SaveGameGCO(saveGame)
 	
 end
 GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)

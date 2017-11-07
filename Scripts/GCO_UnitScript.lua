@@ -22,16 +22,6 @@ function ToggleUnitDebug()
 	DEBUG_UNIT_SCRIPT = not DEBUG_UNIT_SCRIPT
 end
 
-local indentationString	= ".............................."
-function Indentation20(str)
-	local length = string.len(str)
-	if length < 19 then
-		return str.. " " .. string.sub(indentationString, 1, 20 - length) .. " "
-	else
-		return str
-	end
-end
-
 
 -----------------------------------------------------------------------------------------
 -- Defines
@@ -865,7 +855,7 @@ function StopDelayedEquipmentInitialization()
 		saveGame.Type= SaveTypes.SINGLE_PLAYER
 		saveGame.IsAutosave = false
 		saveGame.IsQuicksave = false
-		GCO.Network.SaveGame(saveGame)
+		LuaEvents.SaveGameGCO(saveGame)
 		GCO.Warning("The game was (auto?) saved in the last few seconds[NEWLINE]before some new units were equipped[NEWLINE][NEWLINE]A new (fixed) save was created: "..saveGame.Name.."[NEWLINE]You can also make a quick or manual save now")
 		bNeedToSaveGame = false
 	end
@@ -903,6 +893,17 @@ function OnGameSaved(...)
 	end
 end
 Events.SaveComplete(OnGameSaved)
+
+function ResumeEquipmentInitialization(playerID, bFirstTimeThisTurn)
+	-- Resume Coroutine now if it was waiting...
+	if initializeEquipmentCo and not coroutine.status(initializeEquipmentCo)=="dead" then
+		Dprint( DEBUG_UNIT_SCRIPT, "- Resuming Initialize Equipment Coroutine on Event call")	
+		InitializeEquipmentTimer = Automation.GetTime()
+		coroutine.resume(initializeEquipmentCo)
+	end
+end
+Events.PlayerTurnActivated.Add(	ResumeEquipmentInitialization )	-- PlayerTurnActivated is the first general event called after all CityProductionCompleted for a player, it should be safe to resume delayed equipment initialization by then...
+Events.RemotePlayerTurnEnd.Add(	ResumeEquipmentInitialization )
 
 -----------------------------------------------------------------------------------------
 -- Barbarian Functions
@@ -1115,7 +1116,7 @@ function GetData(self)
 	if unitData then
 		return unitData
 	else
-		GCO.Warning("GetData() is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+		GCO.Warning("GetData() is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()), 5)
 	end
 end
 
@@ -1158,14 +1159,14 @@ function UpdateFrontLineData(self) -- that function will have to be called after
 		end
 	end
 	if maxUnitHP == 0 then
-		GCO.Error("UpdateFrontLineData() is trying to murder an unit :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
+		GCO.Warning("UpdateFrontLineData() is trying to murder an unit :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
 		ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
 		return
 	end
 	if personnelSurplus > 0 then	
+		Dprint( DEBUG_UNIT_SCRIPT, "Removing " .. Indentation20("personnel") .. " surplus : Current = "..Indentation8(unitData.Personnel)..", surplus removed = " .. Indentation8(personnelSurplus))
 		unitData.PersonnelReserve 	= unitData.PersonnelReserve + personnelSurplus
 		unitData.Personnel 			= unitData.Personnel 		- personnelSurplus
-		Dprint( DEBUG_UNIT_SCRIPT, "Removing personnel surplus = ", personnelSurplus)
 	end
 	for classID, surplus in pairs(equipmentSurplus) do
 		if surplus > 0 then
@@ -1177,9 +1178,9 @@ function UpdateFrontLineData(self) -- that function will have to be called after
 				local num = self:GetFrontLineEquipment(equipmentID)				
 				-- we want the least wanted available, and we increment the number of least wanted equipment already set as surplus for the next loop...
 				bestNum = bestNum + num
-				equipmentToRemove[equipmentID] = math.min(bestNum, surplus )
-				Dprint( DEBUG_UNIT_SCRIPT, "Removing equipment surplus = ", num, ", class surplus left = ", surplus, ", total equipment checked = ", bestNum, ", surplus removed = ", equipmentToRemove[equipmentID], " for ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID)
-				surplus = math.max(0, surplus - equipmentToRemove[equipmentID])
+				equipmentToRemove[equipmentID] = math.min(num, surplus )
+				Dprint( DEBUG_UNIT_SCRIPT, "Removing " .. Indentation20(Locale.Lookup(GameInfo.Resources[equipmentID].Name)) .. " surplus : Current = "..Indentation8(num)..", surplus removed = "..Indentation8(equipmentToRemove[equipmentID])..", class surplus left = "..Indentation8(surplus)..", total equipment checked = "..Indentation8(bestNum))
+				surplus = surplus - equipmentToRemove[equipmentID]
 			end
 			for equipmentID, surplus in pairs(equipmentToRemove) do
 				self:ChangeReserveEquipment(equipmentID, surplus)
@@ -1749,8 +1750,11 @@ end
 
 function GetNumResourceNeeded(self, resourceID)
 	local resourceKey 	= tostring(resourceID)
-	local unitKey 		= self:GetKey()
-	local unitData 		= ExposedMembers.UnitData[unitKey]
+	local unitData = self:GetData()
+	if not unitData then
+		GCO.Warning("unitData is nil for " .. self:GetName(), unitKey)
+		return 0
+	end
 	local unitType 		= self:GetType()
 	local equipmentNeed = self:GetEquipmentReserveNeed()
 	
@@ -1804,12 +1808,12 @@ function GetRequirements(self)
 end
 
 function GetComponent(self, component)
-	local unitKey = self:GetKey()
-	if not ExposedMembers.UnitData[unitKey] then
-		GCO.Error("ExposedMembers.UnitData[unitKey] is nil for " .. self:GetName(), unitKey)
+	local unitData = self:GetData()
+	if not unitData then
+		GCO.Warning("unitData is nil for " .. self:GetName(), unitKey)
 		return 0
 	end
-	return ExposedMembers.UnitData[unitKey][component]
+	return unitData[component]
 end
 
 function SetComponent(self, component, value)
@@ -2219,7 +2223,7 @@ end
 function GetReserveEquipment(self, equipmentType) 				-- get current number of this equipment type in reserve
 	local unitData = self:GetData()
 	if not unitData then
-		GCO.Error("unitData is nil for " .. self:GetName(), self:GetKey())
+		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())
 		return 0
 	end
 	local equipmentTypeKey 	= tostring(equipmentType)
@@ -2993,17 +2997,7 @@ function AddCombatInfoTo(Opponent)
 		Opponent.unitKey 	= GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)		
 		Opponent.unitData 	= ExposedMembers.UnitData[Opponent.unitKey]
 		if not Opponent.unitData then
-			GCO.Warning("unitData is nil in AddCombatInfoTo for [NEWLINE](unit ???) key = "..tostring(Opponent.unitID)..","..tostring(Opponent.playerID))
-			local playerID 	= Opponent.playerID
-			local unitID 	= Opponent.unitID
-			local key		= tostring(unitID)..","..tostring(playerID)
-			local unitData 	= ExposedMembers.UnitData[key]
-			local unit		= GetUnit(playerID, unitID)
-			if not unitData then -- hackfix
-				InitializeUnit(playerID, unitID)
-			end			
-			Opponent.unitData 	= ExposedMembers.UnitData[key]
-			if not Opponent.unitData then GCO.Error("unitData is still nil in AddCombatInfoTo for [NEWLINE](unit ???) key = "..tostring(key)) end
+			GCO.Warning("unit and unitData is nil in AddCombatInfoTo for [NEWLINE](not an unit ???) key = "..tostring(Opponent.unitID)..","..tostring(Opponent.playerID), 15)
 		end
 		Opponent.unitType 	= Opponent.unitData.unitType
 		if UnitWithoutEquipment[Opponent.unitKey] then
@@ -3611,7 +3605,7 @@ function Heal(self)
 	local unitKey 	= self:GetKey()	
 	local unitData 	= ExposedMembers.UnitData[unitKey]
 	if not unitData then
-		print ("WARNING, no entry for " .. Locale.Lookup(self:GetName()) .. " id#" .. tostring(self:GetKey()))
+		GCO.Warning("unitData is nil for " .. Locale.Lookup(self:GetName()) .. " id#" .. tostring(self:GetKey()))
 		return
 	end
 	
@@ -3626,7 +3620,6 @@ function Heal(self)
 	local maxMaterielTransfer 	= self:GetMaxFrontLineMateriel() * self:GetMaxMaterielPercentFromReserve() / 100 	-- Materiel may also be used to repair/build equipment, up to a limit
 	local maxHealedHP			= self:GetMaxHealingPerTurn()
 
-	
 	-- try to reinforce the selected Units (move personnel and equipment from reserve to frontline)
 	-- up to MAX_HP_HEALED (or an unit component limit), 1hp per loop
 	for healHP = 1, maxHealedHP do -- to do : add limit by Units in the loop
@@ -4338,7 +4331,6 @@ function DoExchange(self)
 					Dprint( DEBUG_UNIT_SCRIPT, " - Check with ...... " .. Indentation15(Locale.Lookup(unit:GetName())).." id#".. tostring(unit:GetKey()))
 					if not surplus then surplus = self:GetAllSurplus() end
 					if not GCO.IsEmpty(surplus) then
-Dline()
 						local toTransfer = {}
 						for resourceID, value in pairs( surplus ) do
 							local needed 	= unit:GetNumResourceNeeded(resourceID)
@@ -4347,7 +4339,6 @@ Dline()
 								toTransfer[resourceID] = transfer
 							end
 						end
-Dline()
 						
 						for resourceID, value in pairs( toTransfer ) do
 							Dprint( DEBUG_UNIT_SCRIPT, "   - Transferring .. " .. tostring(value), " ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
@@ -4363,7 +4354,6 @@ Dline()
 				end
 			end
 		end
-Dline()
 		
 		local listUnit = {}
 		-- try with units on the same plot first
@@ -4378,9 +4368,7 @@ Dline()
 				end
 			end
 		end
-Dline()
 		if #listUnit > 0 then TransferSurplus(listUnit, surplus) end
-Dline()
 		
 		local listUnit = {}
 		-- Try with adjacent units
@@ -4398,14 +4386,8 @@ Dline()
 				end				
 			end
 		end	
-Dline()
 		if #listUnit > 0 then TransferSurplus(listUnit, surplus) end
-Dline()
 	end
-	--local unitData 	= self:GetData()
-	--local surplus	= self:GetAllSurplus()
-	
-	--GetNumResourceNeeded(self, resourceID) GetAllSurplus(self)
 	
 	Dlog("DoExchange /END")
 end
@@ -4414,9 +4396,7 @@ function DoTurn(self)
 	local unitData = self:GetData()
 	if not unitData then
 		return
-	end
-	local playerID = self:GetOwner()
-	
+	end	
 	self:DoFood()
 	self:DoMorale()
 	self:DoFuel()
@@ -4456,7 +4436,6 @@ function DoUnitsTurn( playerID )
 	Dprint( DEBUG_UNIT_SCRIPT, "Units turn")
 	
 	HealingUnits( playerID )
-
 	local player = GCO.GetPlayer(playerID)
 	local playerConfig = PlayerConfigurations[playerID]
 	local playerUnits = player:GetUnits()
@@ -4537,6 +4516,7 @@ function OnUnitProductionCompleted(playerID, cityID, productionID, objectID, bCa
 	end
 	Dprint( DEBUG_UNIT_SCRIPT, "- Clearing BuildingQueueStock...")
 	city:ClearBuildingQueueStock(unitTypeName)
+	
 	Dlog("OnUnitProductionCompleted /END")
 end
 Events.CityProductionCompleted.Add(	OnUnitProductionCompleted)
