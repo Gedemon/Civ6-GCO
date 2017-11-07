@@ -13,6 +13,7 @@ UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_CAPTURED_DAMAGE_PERCEN
 UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_AMENITIES_FOR_FREE';						-- default = 1
 UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_POP_PER_AMENITY';						-- default = 2
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_POPULATION_LOSS_TO_CONQUEST_PERCENTAGE';	-- default = 0.25
+UPDATE GlobalParameters SET Value = 65534	WHERE Name = 'GOLD_PURCHASE_MULTIPLIER';					-- default = 2
 
 
 UPDATE GlobalParameters SET Value = -1000		WHERE Name = 'CITY_HOUSING_LEFT_25PCT_GROWTH';				-- default = 0

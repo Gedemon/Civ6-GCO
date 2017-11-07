@@ -3228,7 +3228,7 @@ function UpdateCosts(self)
 				local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
 				newCost = math.max(minCost, math.min(maxCost, actualCost - variation))
 				self:SetResourceCost(resourceID, newCost)
-				Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...")," new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until full ".. Indentation8(turnUntilFull).." variation ".. Indentation8(variation))
+				Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...").." new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until full ".. Indentation8(turnUntilFull).." variation ".. Indentation8(variation))
 			elseif demand > supply then
 
 				local turnUntilEmpty = stock / (demand - supply)
@@ -3240,7 +3240,7 @@ function UpdateCosts(self)
 				local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)
 				newCost = math.max(minCost, math.min(maxCost, actualCost + variation))
 				self:SetResourceCost(resourceID, newCost)
-				Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...")," new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until empty ".. Indentation8(turnUntilEmpty).." variation ".. Indentation8(variation))
+				Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...").." new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until empty ".. Indentation8(turnUntilEmpty).." variation ".. Indentation8(variation))
 
 			end
 		end
