@@ -113,9 +113,10 @@
 	</LocalizedText>	
 	
 	<LocalizedText> <!-- Formations -->	
-		<Replace Tag="LOC_FORMATION_PARTY_NAME"         Text="Party" 		Language="en_US" />
-		<Replace Tag="LOC_FORMATION_HORDE_NAME"			Text="Horde" 		Language="en_US" />
+		<Replace Tag="LOC_FORMATION_BAND_NAME"        	Text="Band" 		Language="en_US" />
 		<Replace Tag="LOC_FORMATION_COHORTE_NAME"		Text="Cohorte" 		Language="en_US" />
+		<Replace Tag="LOC_FORMATION_MILIARIA_NAME"		Text="Miliaria" 	Language="en_US" />
+		<Replace Tag="LOC_FORMATION_BATTLE_NAME"		Text="Battle" 		Language="en_US" />
 		<Replace Tag="LOC_FORMATION_COMPANY_NAME"		Text="Company" 		Language="en_US" />
 		<Replace Tag="LOC_FORMATION_BRIGADE_NAME"		Text="Brigade" 		Language="en_US" />
 		<Replace Tag="LOC_FORMATION_REGIMENT_NAME"		Text="Regiment" 	Language="en_US" />
