@@ -184,41 +184,6 @@ for row in GameInfo.Building_CustomYieldChanges() do
 	BuildingYields[buildingID][YieldID] = row.YieldChange
 end
 
-local IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resource
-local ResourceImprovementID			= {} -- cached table with improvementID meant for resourceID
-for row in GameInfo.Improvement_ValidResources() do
-	local improvementID = GameInfo.Improvements[row.ImprovementType].Index
-	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
-	if not IsImprovementForResource[improvementID] then IsImprovementForResource[improvementID] = {} end
-	if not ResourceImprovementID[resourceID] then ResourceImprovementID[resourceID] = {} end
-	IsImprovementForResource[improvementID][resourceID] = true
-	ResourceImprovementID[resourceID] = improvementID
-end
-
-local IsImprovementForFeature		= {} -- cached table to check if an improvement is meant for a feature
-for row in GameInfo.Improvement_ValidFeatures() do
-	local improvementID = GameInfo.Improvements[row.ImprovementType].Index
-	local featureID 	= GameInfo.Features[row.FeatureType].Index
-	if not IsImprovementForFeature[improvementID] then IsImprovementForFeature[improvementID] = {} end
-	IsImprovementForFeature[improvementID][featureID] = true
-end
-
-local FeatureResources				= {} -- cached table to list resources produced by a feature
-for row in GameInfo.FeatureResourcesProduced() do
-	local featureID		= GameInfo.Features[row.FeatureType].Index
-	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
-	if not FeatureResources[featureID] then FeatureResources[featureID] = {} end
-	table.insert(FeatureResources[featureID], {[resourceID] = row.NumPerFeature})
-end
-
-local TerrainResources				= {} -- cached table to list resources available on a terrain
-for row in GameInfo.TerrainResourcesProduced() do
-	local terrainID		= GameInfo.Terrains[row.TerrainType].Index
-	local resourceID 	= GameInfo.Resources[row.ResourceType].Index
-	if not TerrainResources[terrainID] then TerrainResources[terrainID] = {} end
-	table.insert(TerrainResources[terrainID], {[resourceID] = row.NumPerTerrain})
-end
-
 local UnitPrereqBuildingOR			= {} -- cached table for buiding prerequired (Any) for an unit
 for row in GameInfo.Unit_RealBuildingPrereqsOR() do
 	local unitID 		= GameInfo.Units[row.Unit].Index
@@ -363,6 +328,7 @@ local MinCostFromBaseFactor 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST
 local ResourceTransportMaxCost	= tonumber(GameInfo.GlobalParameters["RESOURCE_TRANSPORT_MAX_COST_RATIO"].Value)
 
 local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
+local populationPerSizepower	= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value)
 
 local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 local mediumRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
@@ -485,8 +451,8 @@ function RegisterNewCity(playerID, city)
 	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID) / 100) -- can't use city:GetMaxUpperClass() before filling ExposedMembers.CityData[cityKey]
 	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID) / 100)
 	local lowerClass		= totalPopulation - (upperClass + middleClass)
-	local startingFood		= GCO.Round(tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value) / 2)
-	local startingMateriel	= GCO.Round(tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value) * city:GetSize() / 2)
+	local startingFood		= GCO.Round(baseFoodStock / 2)
+	local startingMateriel	= GCO.Round(ResourceStockPerSize * city:GetSize() / 2)
 	local baseFoodCost 		= GCO.GetBaseResourceCost(foodResourceID)
 	local turnKey 			= GCO.GetTurnKey()
 
@@ -694,8 +660,12 @@ end
 -----------------------------------------------------------------------------------------
 -- Utils functions
 -----------------------------------------------------------------------------------------
+_cached.CityPopulationAtSize = {}
 function GetPopulationPerSize(size)
-	return GCO.Round(math.pow(size, 2.8) * 1000)
+	if not _cached.CityPopulationAtSize[size] then
+		_cached.CityPopulationAtSize[size] = GCO.Round(math.pow(size, populationPerSizepower) * 1000)
+	end
+	return _cached.CityPopulationAtSize[size]
 end
 
 

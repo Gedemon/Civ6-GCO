@@ -587,6 +587,9 @@ function View(data:table, bIsUpdate:boolean)
 		end
 		if other > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER", other)) end
 	end	
+	for key, value in pairs(plot:GetAvailableEmployment()) do
+		table.insert(details, tostring(key) .. " = " .. tostring(value))
+	end
 	-- GCO >>>>>
 	
 	-- Set the control values

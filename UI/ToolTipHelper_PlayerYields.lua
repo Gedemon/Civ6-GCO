@@ -72,10 +72,10 @@ function GetGoldTooltip()
 		end
 		
 		-- GCO <<<<<
-		local player 				= GCO.GetPlayer(localPlayerID)
+		local player 				= GCO.GetPlayer(localPlayerID) 
 		--local balance = player:GetTransactionBalance()
 		local baseIncome			= playerTreasury:GetGoldYield() -- vanilla yield
-		local importTaxesIncome		= player:GetTransactionType(AccountType.ImportTaxes)
+		local importTaxesIncome		= player:GetTransactionType(AccountType.ImportTaxes, GCO.GetPreviousTurnKey()) -- to do : by player playing order, not just assuming local = first
 		local exportTaxesIncome		= player:GetTransactionType(AccountType.ExportTaxes)
 		local plunderingIncome		= player:GetTransactionType(AccountType.Plundering)
 		

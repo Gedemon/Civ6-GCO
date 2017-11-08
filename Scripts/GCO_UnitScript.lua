@@ -771,7 +771,7 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional, equ
 		end	
 	end
 	
-	-- complete (or set) basic equipment
+	-- complete (or set) basic equipment	
 	Dprint( DEBUG_UNIT_SCRIPT, "  - complete (or set) basic equipment")
 	local requiredEquipmentClasses = self:GetSpecificRequiredEquipmentClasses()
 	for equipmentClass, data in pairs(requiredEquipmentClasses) do
@@ -784,8 +784,8 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional, equ
 		self:ChangeFrontLineEquipment( equipmentID, frontLineNeed )
 		
 		-- now that frontline is set, get requirement for reserve...
-		local reserveNeed	= self:GetEquipmentClassReserveNeed( equipmentClass )
-		self:ChangeReserveEquipment( equipmentID, reserveNeed )
+		local reserveNeed	= 0--self:GetEquipmentClassReserveNeed( equipmentClass )
+		--self:ChangeReserveEquipment( equipmentID, reserveNeed )
 		
 		Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", frontline = ", frontLineNeed, ", reserve = ", reserveNeed)
 	end
@@ -1160,7 +1160,7 @@ function UpdateFrontLineData(self) -- that function will have to be called after
 	end
 	if maxUnitHP == 0 then
 		GCO.Warning("UpdateFrontLineData() is trying to murder an unit :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
-		ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3)
+		--ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3) -- if the unit was killed, then this will crash...
 		return
 	end
 	if personnelSurplus > 0 then	

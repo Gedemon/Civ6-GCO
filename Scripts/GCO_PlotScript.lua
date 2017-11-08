@@ -1131,7 +1131,6 @@ function CanPlaceGoodyAt(plot)
 	return true;
 end
 
-
 function AddGoody()
 	local NO_PLAYER = -1;
 	print("-------------------------------");
@@ -1168,6 +1167,122 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 	end
 end
 Events.ImprovementActivated.Add( OnImprovementActivated )
+
+
+-----------------------------------------------------------------------------------------
+-- Plot Activities
+-----------------------------------------------------------------------------------------
+
+---[[
+
+-- vegetal resource = activity farmer (crop)
+-- wood resource = activity woodcutter
+-- games resource = activity hunter
+-- mineral/metal resource = activity miner
+-- "food" = activity farmer (crop)
+-- animal resource = activity farmer (breeder)
+
+-- employment available = pop for plot size at city size
+
+local populationPerSizepower = tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value) - 1 -- number of worked plots being equal to city size, using (popPerSizePower - 1) for tiles means that the sum of all population on worked tiles at size n will not be > to the total city population at that size 
+
+local resourceActivities = {
+	[GameInfo.Resources["RESOURCE_ALUMINUM"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_BANANAS"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_CATTLE"].Index]		= "Cattle Farmers",
+	[GameInfo.Resources["RESOURCE_CITRUS"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_COAL"].Index]			= "Miners",
+	[GameInfo.Resources["RESOURCE_COCOA"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_COFFEE"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_COPPER"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_COTTON"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_DEER"].Index]			= "Hunters",
+	[GameInfo.Resources["RESOURCE_DIAMONDS"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_DYES"].Index]			= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_FURS"].Index]			= "Hunters",
+	[GameInfo.Resources["RESOURCE_GYPSUM"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_HORSES"].Index]		= "Cattle Farmers",
+	[GameInfo.Resources["RESOURCE_INCENSE"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_IRON"].Index]			= "Miners",
+	[GameInfo.Resources["RESOURCE_IVORY"].Index]		= "Hunters",
+	[GameInfo.Resources["RESOURCE_JADE"].Index]			= "Miners",
+	[GameInfo.Resources["RESOURCE_MARBLE"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_MERCURY"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_NITER"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_OIL"].Index]			= "Miners",
+	[GameInfo.Resources["RESOURCE_RICE"].Index]			= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_SALT"].Index]			= "Miners",
+	[GameInfo.Resources["RESOURCE_SHEEP"].Index]		= "Cattle Farmers",
+	[GameInfo.Resources["RESOURCE_SILK"].Index]			= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_SILVER"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_SPICES"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_STONE"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_SUGAR"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_TEA"].Index]			= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_TOBACCO"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_TRUFFLES"].Index]		= "Cattle Farmers",
+	[GameInfo.Resources["RESOURCE_URANIUM"].Index]		= "Miners",
+	[GameInfo.Resources["RESOURCE_WHEAT"].Index]		= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_WINE"].Index]			= "Crop Farmers",
+	[GameInfo.Resources["RESOURCE_WOOD"].Index]			= "Wood Cutters",
+	[GameInfo.Resources["RESOURCE_PLANTS"].Index]		= "Crop Farmers",
+
+}
+function GetAvailableEmployment(self)
+	local EmploymentString = ""
+	local Employment = {}
+
+	local bWorked 		= (self:GetWorkerCount() > 0)
+	local bImproved		= (self:GetImprovementType() ~= NO_IMPROVEMENT)
+	local bSeaResource 	= (self:IsWater() or self:IsLake())
+	
+	local player = Players[self:GetOwner()]
+	if player then
+	--if bWorked or bImproved or bSeaResource then
+
+		local improvementID = self:GetImprovementType()
+		if self:GetResourceCount() > 0 then
+			local resourceID 	= self:GetResourceType()
+			local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
+			if player:IsResourceVisible(resourceID) then
+				local collected 			= self:GetResourceCount()
+				local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+				if resourceActivities[resourceID] then Employment[resourceActivities[resourceID]] = (Employment[resourceActivities[resourceID]] or 0) + 1 end
+			end
+		end
+
+		local featureID = self:GetFeatureType()
+		if FeatureResources[featureID] then
+			for _, data in pairs(FeatureResources[featureID]) do
+				for resourceID, value in pairs(data) do
+					if player:IsResourceVisible(resourceID) then
+						local collected 	= value
+						local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
+						local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
+						if resourceActivities[resourceID] then Employment[resourceActivities[resourceID]] = (Employment[resourceActivities[resourceID]] or 0) + 1 end
+					end
+				end
+			end
+		end
+
+		--TerrainResources
+		local terrainID = self:GetTerrainType()
+		if TerrainResources[terrainID] then
+			for _, data in pairs(TerrainResources[terrainID]) do
+				for resourceID, value in pairs(data) do
+					if player:IsResourceVisible(resourceID) then
+						local collected 	= value
+						local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
+						local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+						if resourceActivities[resourceID] then Employment[resourceActivities[resourceID]] = (Employment[resourceActivities[resourceID]] or 0) + 1 end
+					end
+				end
+			end
+		end
+	end
+	return Employment
+end
+--]]
 
 -----------------------------------------------------------------------------------------
 -- UI Functions
@@ -1223,6 +1338,8 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.UpdateCulture					= UpdateCulture
 	p.UpdateOwnership				= UpdateOwnership
 	p.DiffuseCulture				= DiffuseCulture
+	--
+	p.GetAvailableEmployment		= GetAvailableEmployment
 	--
 	p.IsEOfRiver					= IsEOfRiver
 	p.IsSEOfRiver					= IsSEOfRiver

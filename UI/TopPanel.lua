@@ -161,6 +161,7 @@ function RefreshYields()
 		-- GCO <<<<<
 		GCO.InitializePlayerFunctions(localPlayer)
 		goldYield = goldYield + localPlayer:GetTransactionBalance()
+		goldYield = goldYield + localPlayer:GetTransactionType(AccountType.ImportTaxes, GCO.GetPreviousTurnKey()) -- to do : by player playing order, not just assuming local = first
 		-- GCO >>>>>
 		m_GoldYieldButton.YieldBalance:SetText( Locale.ToNumber(goldBalance, "#,###.#") );
 		m_GoldYieldButton.YieldBalance:SetColorByName("ResGoldLabelCS");	

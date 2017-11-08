@@ -32,6 +32,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_CONSTRUCTION
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PER_SIZE', 				250);	-- base housing for personnel 	= CITY_PERSONNEL_PER_SIZE + CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		2500);	-- value added to the starting population of a new city (to do : Settlers with different size for late game)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_STOCK', 					100);	-- bonus food stock added to base resource stock
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_PER_SIZE_POWER',			2.8);	-- CityPopulation = math.pow(citySize, CITY_POPULATION_PER_SIZE_POWER) * 1000)
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_UPPER_CLASS_PERCENT', 			5);		-- Used during city creation, before there is a base populatin to refer to.
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_MIDDLE_CLASS_PERCENT', 		30);	--
