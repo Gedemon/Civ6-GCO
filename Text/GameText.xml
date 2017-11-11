@@ -68,6 +68,18 @@
     <Replace Tag="LOC_CITYBANNER_STOCK_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------------- Stock -------------------------[ENDCOLOR]</Text>
     </Replace>
+    <Replace Tag="LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------------ Equipment Stock ------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_STRATEGIC_STOCK_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------------- Strategic Stock -------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_FOOD_STOCK_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]---------------------- Food Stock ---------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_OTHER_STOCK_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]--------------------- Other Stock ---------------------[ENDCOLOR]</Text>
+    </Replace>
     <Replace Tag="LOC_CITYBANNER_CONSUMPTION_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------- Consumption -------------------[ENDCOLOR]</Text>
     </Replace>

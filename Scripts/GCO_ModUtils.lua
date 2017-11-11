@@ -37,11 +37,23 @@ local ResourceValue = {			-- cached table with value of resources type
 }
 local equipmentCostRatio = tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EQUIPMENT_RATIO"].Value)
 
-local IsEquipment	= {}		-- cached table to check if ResourceID is an Equipment
-for row in GameInfo.Resources() do
-	local resourceType	= row.ResourceType
+local IsEquipment		= {}		-- cached table to check if ResourceID is an Equipment
+local IsFood			= {}
+local IsEquipmentMaker 	= {}
+for resourceRow in GameInfo.Resources() do
+	local resourceType	= resourceRow.ResourceType
 	if GameInfo.Equipment[resourceType] then
-		IsEquipment[row.Index] = true
+		IsEquipment[resourceRow.Index] = true
+	end
+	for productionRow in GameInfo.BuildingResourcesConverted() do
+		if resourceType == productionRow.ResourceType then
+			if productionRow.ResourceCreated == "RESOURCE_FOOD" then
+				IsFood[resourceRow.Index] = true
+			end
+			if GameInfo.Equipment[productionRow.ResourceCreated] then
+				IsEquipmentMaker[resourceRow.Index] = true
+			end
+		end
 	end
 end
 
@@ -241,6 +253,12 @@ function Dline(...)
 	local str = string.match(str, ':.-\'')
 	local str = string.match(str, '%d+')
 	print("at line "..str, select(1,...))
+end
+
+function DlineFull(...)
+	local status, err = pcall(function () error("custom error") end)
+	local str = string.match(err, 'DlineFull.-$')
+	print(str)
 end
 
 function DfullLog()
@@ -559,6 +577,15 @@ function IsResourceEquipment(resourceID)
 	return IsEquipment[resourceID]
 end
 
+function IsResourceFood(resourceID)
+	return IsFood[resourceID]
+end
+
+function IsResourceEquipmentMaker(resourceID)
+	return IsEquipmentMaker[resourceID]
+end
+
+
 function GetResourceIcon(resourceID)
 	if not resourceID then return "[ICON_Production]" end -- allow call with no argument to return default icon
 	local iconStr = ""
@@ -667,6 +694,7 @@ function Initialize()
 	ExposedMembers.GCO.ErrorWithLog 	= ErrorWithLog
 	ExposedMembers.GCO.Warning			= Warning
 	ExposedMembers.GCO.Dline 			= Dline
+	ExposedMembers.GCO.DlineFull 		= DlineFull
 	ExposedMembers.GCO.Dlog 			= Dlog
 	ExposedMembers.GCO.DfullLog 		= DfullLog
 	ExposedMembers.GCO.CanCallFlagUpdate= CanCallFlagUpdate
@@ -689,6 +717,8 @@ function Initialize()
 	-- Resources
 	ExposedMembers.GCO.GetBaseResourceCost 			= GetBaseResourceCost
 	ExposedMembers.GCO.IsResourceEquipment			= IsResourceEquipment
+	ExposedMembers.GCO.IsResourceFood 				= IsResourceFood
+	ExposedMembers.GCO.IsResourceEquipmentMaker		= IsResourceEquipmentMaker
 	ExposedMembers.GCO.GetResourceIcon				= GetResourceIcon
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv

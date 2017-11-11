@@ -1370,7 +1370,7 @@ function CityBanner.UpdateName( self : CityBanner )
 					-- Stock
 					local resourcesStockStr = city:GetResourcesStockString()
 					if string.len(resourcesStockStr) > 1 then
-						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STOCK_TITLE")
+						--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STOCK_TITLE")
 						cityString = cityString .. resourcesStockStr
 					end
 					

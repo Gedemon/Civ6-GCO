@@ -135,14 +135,6 @@ for row in GameInfo.PromotionClassEquipmentClasses() do
 	end
 end
 
--- Helper to get equipment info from Resource ID
-local EquipmentInfo = {}
-for row in GameInfo.Equipment() do
-	local equipmentType = row.ResourceType
-	local equipmentID	= GameInfo.Resources[equipmentType].Index
-	EquipmentInfo[equipmentID] = row
-end
-
 local equipmentTypeClasses	= {}
 local equipmentIsClass		= {}
 for row in GameInfo.EquipmentTypeClasses() do
@@ -1306,6 +1298,10 @@ function GetTransactionValue(self, accountType, refKey, turnKey)
 	return cityData.Account[turnKey][accountType][refKey] or 0
 end
 
+function IsCombat(self)
+	local row = GameInfo.Units[self:GetType()] 
+	return (row.Combat > 0 or row.RangedCombat > 0)
+end
 
 -----------------------------------------------------------------------------------------
 -- Military Organization Level function
@@ -1411,7 +1407,7 @@ function SetOrganizationLevel(self, organizationLevel)
 
 			if oldLevelPromotionType ~= newLevelPromotionType then
 				if oldLevelPromotionType then
-					promotionToRemove[GameInfo.UnitPromotions[newLevelPromotionType].Index] = true
+					promotionToRemove[GameInfo.UnitPromotions[oldLevelPromotionType].Index] = true
 					bNeedToRemovePromotions = true
 				end
 				experienceManager:SetPromotion(newLevelPromotionID)
@@ -1493,7 +1489,8 @@ function GetMaxFrontLinePersonnel(self)
 end
 
 function GetMaxFrontLineMateriel(self) -- still used, helper to limit HP / turn when healing
-	local equipmentClass = self:GetEquipmentClass(materielResourceID)	
+	local equipmentClass = self:GetEquipmentClass(materielResourceID)
+	if not equipmentClass then return 0 end -- some units doesn't require materiel (yet ?)
 	return self:GetMaxEquipmentFrontLine(equipmentClass)	
 end
 
@@ -1945,12 +1942,18 @@ function GetUnitEquipmentClass(unitTypeID, equipmentClassID)
 	end
 end
 
-function GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, equipmentClassID) -- to do : cached table with values per equipment/unit updated on organization/type change
+function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID) -- to do : cached table with values per unitTypeID
+
+	local equipmentClassID = tonumber(equipmentClassID)
+	
+	if not _cached.UnitEquipmentClassRatio then _cached.UnitEquipmentClassRatio = {} end
+	if not _cached.UnitEquipmentClassRatio[unitTypeID] then _cached.UnitEquipmentClassRatio[unitTypeID] = {} end
+	if _cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] then return _cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] end
+	
 	local percentageOfPersonnel = 0
 	local promotionID = GetUnitPromotionClassID(unitTypeID)
-	local equipmentClassID = tonumber(equipmentClassID)
 	local linkedClass = GetLinkedEquipmentClass(unitTypeID, equipmentClassID)
-
+	
 	--Dline(GameInfo.Units[unitTypeID].UnitType, unitTypeID, promotionID, personnel, GameInfo.EquipmentClasses[equipmentClassID].EquipmentClass, equipmentClassID, linkedClass, promotionClassEquipmentClasses, unitEquipmentClasses)
 
 	-- try to use PromotionClassEquipmentClasses value if it exists
@@ -1965,7 +1968,7 @@ function GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, equipmen
 				percentageOfPersonnel = promotionClassEquipmentClasses[promotionID][linkedClass].PercentageOfPersonnel or percentageOfPersonnel
 			end
 		end
-	end	
+	end
 	
 	-- else use the unit type value if it exists
 	if percentageOfPersonnel == 0 then
@@ -1979,8 +1982,14 @@ function GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, equipmen
 			end
 		end
 	end
-	
-	return GCO.Round(personnel * percentageOfPersonnel / 100)
+
+	local ratio = percentageOfPersonnel / 100
+	_cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] = ratio
+	return ratio
+end
+
+function GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, equipmentClassID) -- to do : cached table with values per equipment/unit updated on organization/type change
+	return GCO.Round(personnel * GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID))
 end
 
 function GetUnitEquipmentClassBaseAmount(unitTypeID, equipmentClassID, organizationLevelID)
@@ -2071,9 +2080,10 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList)
 				local unitEquipmentClassID = GetLinkedEquipmentClass(unitType, equipmentClassID)
 				if unitEquipmentClassID then
 					local num 		= GetNumEquipmentOfClassInList(unitEquipmentClassID, equipmentList)
-					local percent 	= GCO.ToDecimals(num / total * 100)
+					local ratio 	= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
+					local percent 	= GCO.ToDecimals((num * ratio) / total * 100)
 					totalPercent 	= totalPercent + percent
-					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = ", num, " ("..tostring(percent).." percent)", " for "..Locale.Lookup(GameInfo.Units[unitType].Name), " equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), " equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 				end
 			end
 			if numRequiredClasses > 0 then
@@ -4736,6 +4746,7 @@ function AttachUnitFunctions(unit)
 		u.GetKey								= GetKey
 		u.UpdateFrontLineData					= UpdateFrontLineData
 		u.GetData								= GetData
+		u.IsCombat								= IsCombat
 		--
 		u.RecordTransaction						= RecordTransaction
 		u.GetTransactionValue					= GetTransactionValue

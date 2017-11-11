@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_CITY_SCRIPT			= true
+DEBUG_CITY_SCRIPT			= false
 
 function ToggleCityDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -346,6 +346,11 @@ local deathRateLightRationing 	= tonumber(GameInfo.GlobalParameters["CITY_LIGHT_
 local deathRateMediumRationing 	= tonumber(GameInfo.GlobalParameters["CITY_MEDIUM_RATIONING_DEATH_PERCENT"].Value)
 local deathRateHeavyRationing	= tonumber(GameInfo.GlobalParameters["CITY_HEAVY_RATIONING_DEATH_PERCENT"].Value)
 local deathRateStarvation		= tonumber(GameInfo.GlobalParameters["CITY_STARVATION_DEATH_PERCENT"].Value)
+
+local healGarrisonMaxPerTurn		= tonumber(GameInfo.GlobalParameters["CITY_HEAL_GARRISON_MAX_PER_TURN"].Value)
+local healGarrisonBaseMateriel		= tonumber(GameInfo.GlobalParameters["CITY_HEAL_GARRISON_BASE_MATERIEL"].Value)
+local healOuterDefensesMaxPerTurn	= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN"].Value)
+local healOuterDefensesBaseMateriel	= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL"].Value)
 
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
@@ -1641,7 +1646,7 @@ end
 function GetRequirements(self, fromCity)
 	--local DEBUG_CITY_SCRIPT = true
 	local selfKey 				= self:GetKey()
-	--local player 				= GCO.GetPlayer(self:GetOwner())
+	local player 				= GCO.GetPlayer(self:GetOwner())
 	local cityName	 			= Locale.Lookup(self:GetName())
 	local bExternalRoute 		= (self:GetOwner() ~= fromCity:GetOwner())
 	local requirements 			= {}
@@ -1655,7 +1660,7 @@ function GetRequirements(self, fromCity)
 		local bCanRequest 			= false
 		local bCanTradeResource 	= not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute)))
 		--Dprint( DEBUG_CITY_SCRIPT, "can trade = ", bCanTradeResource,"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
-		if bCanTradeResource then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources
+		if bCanTradeResource and not player:IsObsoleteEquipment(resourceCreatedID) then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources, do not ask for obsolete resource
 			local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
 			if numResourceNeeded > 0 then
 				local bPriorityRequest	= false
@@ -3021,35 +3026,64 @@ function GetResourcesStockString(self)
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey	= GCO.GetPreviousTurnKey()
 	local data 				= ExposedMembers.CityData[cityKey]
-	local str 				= ""
+	local strFull			= ""
+	local equipmentList		= {}
+	local foodList			= {}
+	local strategicList		= {}
+	local otherList			= {}
 	if not data.Stock[turnKey] then return end
 	for resourceKey, value in pairs(data.Stock[turnKey]) do
 		local resourceID 		= tonumber(resourceKey)
-		if (value + self:GetSupplyAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetSupplyAtTurn(resourceID, turnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= foodResourceKey and resourceKey ~= personnelResourceKey) then
+		if (value + self:GetSupplyAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetSupplyAtTurn(resourceID, turnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
 
 			local stockVariation 	= self:GetStockVariation(resourceID)
 			local resourceCost 		= self:GetResourceCost(resourceID)
 			local costVariation 	= self:GetResourceCostVariation(resourceID)
 			local resRow 			= GameInfo.Resources[resourceID]
-
-			--[[
-			if ResourceTempIcons[resourceID] then
-				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, ResourceTempIcons[resourceID])
-			else
-				str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, resRow.ResourceType)
-			end
-			--]]
+			local str 				= ""
+			local bIsEquipmentMaker = GCO.IsResourceEquipmentMaker(resourceID)
+			
 			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))
-
 			str = str .. GCO.GetVariationString(stockVariation)
-
 			local costVarStr = GCO.GetVariationStringRedPositive(costVariation)
 			if resourceCost > 0 then
 				str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
 			end
+			
+			if GCO.IsResourceEquipment(resourceID) then
+				table.insert(equipmentList, { String = str, Order = EquipmentInfo[resourceID].Desirability })
+			elseif resRow.ResourceClassType == "RESOURCECLASS_STRATEGIC" or bIsEquipmentMaker then
+				local equipmentMaker = 0
+				if bIsEquipmentMaker then equipmentMaker = 1 end
+				table.insert(strategicList, { String = str, Order = equipmentMaker })
+			elseif GCO.IsResourceFood(resourceID) or resourceKey == foodResourceKey then
+				table.insert(foodList, { String = str, Order = value })
+			else
+				table.insert(otherList, { String = str, Order = value })
+			end			
 		end
 	end
-	return str
+	table.sort(equipmentList, function(a, b) return a.Order > b.Order; end)
+	table.sort(strategicList, function(a, b) return a.Order > b.Order; end)
+	table.sort(foodList, function(a, b) return a.Order > b.Order; end)
+	table.sort(otherList, function(a, b) return a.Order > b.Order; end)
+	strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE")
+	for i, data in ipairs(equipmentList) do
+		strFull = strFull .. data.String
+	end
+	strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE")
+	for i, data in ipairs(strategicList) do
+		strFull = strFull .. data.String
+	end
+	strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_TITLE")
+	for i, data in ipairs(foodList) do
+		strFull = strFull .. data.String
+	end
+	strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_OTHER_STOCK_TITLE")
+	for i, data in ipairs(otherList) do
+		strFull = strFull .. data.String
+	end
+	return strFull
 end
 
 function GetFoodStockString(self)
@@ -3580,7 +3614,7 @@ function DoIndustries(self)
 			local resourceRequiredID 	= GameInfo.Resources[row.ResourceType].Index
 			local resourceCreatedID 	= GameInfo.Resources[row.ResourceCreated].Index
 
-			if player:IsResourceVisible(resourceCreatedID) then -- don't create resources we don't have the tech for...
+			if player:IsResourceVisible(resourceCreatedID) and not player:IsObsoleteEquipment(resourceCreatedID) then -- don't create resources we don't have the tech for or that are obsolete...
 				if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
 				ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + row.MaxConverted
 				ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + row.MaxConverted
@@ -3769,7 +3803,6 @@ function DoIndustries(self)
 					local ratio 				= row.Ratio
 					local amountUsed 			= GCO.Round(amountCreated / ratio) -- we shouldn't be here if ratio = 0, and the rounded value should be < maxAmountUsed
 					local resourceCost 			= (self:GetResourceCost(resourceRequiredID) / ratio) * row.CostFactor
-Dline(self:GetResourceCost(resourceRequiredID), ratio, row.CostFactor)
 					requiredResourceCost = requiredResourceCost + resourceCost
 					totalRatio = totalRatio + ratio
 					Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountUsed) .." ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)) .." used at ".. tostring(GCO.ToDecimals(resourceCost)), " cost/unit, ratio = " .. tostring(ratio))
@@ -3777,7 +3810,7 @@ Dline(self:GetResourceCost(resourceRequiredID), ratio, row.CostFactor)
 					resPerBuilding[buildingID][resourceRequiredID] = resPerBuilding[buildingID][resourceRequiredID] - amountUsed
 				end
 				local baseRatio = totalRatio / totalResourcesRequired
-				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth * costFactor) + requiredResourceCost
+				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth ) + requiredResourceCost
 				Dprint( DEBUG_CITY_SCRIPT, "    - " ..  Indentation20(Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)).. " cost per unit  = ".. tostring(resourceCost), ", limited by excedent = ".. tostring(bLimitedByExcedent))
 				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 			end
@@ -3975,6 +4008,7 @@ function DoExcedents(self)
 	local cityKey 	= self:GetKey()
 	local cityData 	= ExposedMembers.CityData[cityKey]
 	local turnKey 	= GCO.GetTurnKey()
+	local player 	= GCO.GetPlayer(self:GetOwner())
 
 	-- surplus personnel is sent back to civil life... (to do : send them to another location if available)
 	local excedentalPersonnel = self:GetPersonnel() - self:GetMaxPersonnel()
@@ -4001,6 +4035,7 @@ function DoExcedents(self)
 	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
 		local resourceID = tonumber(resourceKey)
 		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
+		if player:IsObsoleteEquipment(resourceID) then excedent = self:GetStock(resourceID) end
 		if excedent > 0 then
 			Dprint( DEBUG_CITY_SCRIPT, " - Surplus destroyed = ".. tostring(excedent).." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
 			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
@@ -4356,6 +4391,71 @@ function DoSocialClassStratification(self)
 	end
 end
 
+function Heal(self)
+	local DEBUG_CITY_SCRIPT = true
+
+--local healGarrisonMaxPerTurn			= tonumber(GameInfo.GlobalParameters["CITY_HEAL_GARRISON_MAX_PER_TURN"].Value)
+--local healGarrisonBaseMateriel		= tonumber(GameInfo.GlobalParameters["CITY_HEAL_GARRISON_BASE_MATERIEL"].Value)
+--local healOuterDefensesMaxPerTurn		= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN"].Value)
+--local healOuterDefensesBaseMateriel	= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL"].Value)
+
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_CITY_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
+
+	local playerID		= self:GetOwner()
+	local cityCenter 	= self:GetDistricts():GetDistrict("DISTRICT_CITY_CENTER")
+	local cityDamage	= cityCenter:GetDamage(DefenseTypes.DISTRICT_GARRISON)
+	local wallDamage	= cityCenter:GetDamage(DefenseTypes.DISTRICT_OUTER)
+	
+	if cityDamage > 0 then
+		local requiredMaterielPerHP = healGarrisonBaseMateriel * self:GetSize()
+		local availableMateriel 	= self:GetStock(materielResourceID)
+		local maxHealed				= math.min(cityDamage, healGarrisonMaxPerTurn, math.floor(availableMateriel / requiredMaterielPerHP))
+		local materielUsed			= maxHealed * requiredMaterielPerHP
+		
+		self:ChangeStock(materielResourceID, -materielUsed, ResourceUseType.Consume, self:GetKey())	--to do : repair usage	
+		local cost 		= self:GetResourceCost(materielResourceID) * materielUsed
+		local player 	= GCO.GetPlayer(playerID)
+		player:ProceedTransaction(AccountType.Production, -cost) --to do : repair account
+		cityCenter:ChangeDamage(DefenseTypes.DISTRICT_GARRISON, - maxHealed)
+		
+		Dprint( DEBUG_CITY_SCRIPT, "  - Used ".. Indentation8(materielUsed) .." ".. Indentation20(Locale.Lookup(GameInfo.Resources[materielResourceID].Name)) .." to heal ".. tostring(maxHealed), " HP for City Center, cost = "..tostring(cost))
+	end
+	
+	if wallDamage > 0 then
+		local bEnemyNear 	= false
+		local pDiplomacy	= Players[playerID]:GetDiplomacy()
+		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+			adjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction);
+			if (adjacentPlot ~= nil) and (adjacentPlot:GetUnitCount() > 0) then
+				local aUnits = Units.GetUnitsInPlot(adjacentPlot)
+				for i, unit in ipairs(aUnits) do
+					GCO.AttachUnitFunctions(unit)
+					if unit:IsCombat() and pDiplomacy:IsAtWarWith(unit:GetOwner()) then
+						bEnemyNear = true
+					end
+				end
+			end
+		end
+		if not bEnemyNear then
+		
+			local requiredMaterielPerHP = healOuterDefensesBaseMateriel * self:GetSize()
+			local availableMateriel 	= self:GetStock(materielResourceID)
+			local maxHealed				= math.min(wallDamage, healOuterDefensesMaxPerTurn, math.floor(availableMateriel / requiredMaterielPerHP))
+			local materielUsed			= maxHealed * requiredMaterielPerHP
+			
+			self:ChangeStock(materielResourceID, -materielUsed, ResourceUseType.Consume, self:GetKey())	--to do : repair usage	
+			local cost 		= self:GetResourceCost(materielResourceID) * materielUsed
+			local player 	= GCO.GetPlayer(playerID)
+			player:ProceedTransaction(AccountType.Production, -cost) --to do : repair account
+			cityCenter:ChangeDamage(DefenseTypes.DISTRICT_OUTER, - maxHealed)
+			
+			Dprint( DEBUG_CITY_SCRIPT, "  - Used ".. Indentation8(materielUsed) .." ".. Indentation20(Locale.Lookup(GameInfo.Resources[materielResourceID].Name)) .." to heal ".. tostring(maxHealed), " HP for City Wall, cost = "..tostring(cost))
+		
+		end
+	end
+end
+
 function DoTurnFirstPass(self)
 	Dlog("DoTurnFirstPass ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
@@ -4455,7 +4555,7 @@ function DoTurnFourthPass(self)
 	self:DoSocialClassStratification()
 	self:SetWealth()
 	self:ChangeSize()
-	-- self:Heal() -- to implement
+	self:Heal()
 
 	-- last...
 	self:DoExcedents()
@@ -4493,7 +4593,6 @@ LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 -----------------------------------------------------------------------------------------
 -- Events
 -----------------------------------------------------------------------------------------
-
 
 function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCanceled, typeModifier)
 	local city = CityManager.GetCity(playerID, cityID)
@@ -4720,6 +4819,7 @@ function AttachCityFunctions(city)
 	c.DoIndustries						= DoIndustries
 	c.DoConstruction					= DoConstruction
 	c.DoNeeds							= DoNeeds
+	c.Heal								= Heal
 	c.DoTurnFirstPass					= DoTurnFirstPass
 	c.DoTurnSecondPass					= DoTurnSecondPass
 	c.DoTurnThirdPass					= DoTurnThirdPass

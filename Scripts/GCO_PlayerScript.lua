@@ -167,6 +167,15 @@ function IsResourceVisible(self, resourceID)
 	return GCO.IsResourceVisibleFor(self, resourceID)
 end
 
+function IsObsoleteEquipment(self, equipmentTypeID)
+	if not GCO.IsResourceEquipment(equipmentTypeID) then return false end
+	local ObsoleteTech = EquipmentInfo[equipmentTypeID].ObsoleteTech
+	if not ObsoleteTech then return false end
+	local pScience = self:GetTechs()
+	local iTech	= GameInfo.Technologies[ObsoleteTech].Index
+	return pScience:HasTech(iTech)
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Research functions
@@ -491,6 +500,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.GetTransactionBalance						= GetTransactionBalance
 	--
 	p.IsResourceVisible							= IsResourceVisible
+	p.IsObsoleteEquipment						= IsObsoleteEquipment
 	p.CanTrain									= CanTrain
 	--
 	p.SetMilitaryOrganizationLevel				= SetMilitaryOrganizationLevel

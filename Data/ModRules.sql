@@ -25,7 +25,7 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 --*/
 
 /* Improvements */
-UPDATE Improvements 	SET PrereqTech ='TECH_CASTLES' WHERE ImprovementType ='IMPROVEMENT_FORT';
+UPDATE Improvements 	SET PrereqTech ='TECH_CONSTRUCTION' WHERE ImprovementType ='IMPROVEMENT_FORT';
 
 /* Technologies & Civics*/
 UPDATE Technologies SET Cost = 25 WHERE TechnologyType ='TECH_THE_WHEEL';

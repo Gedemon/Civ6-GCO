@@ -60,3 +60,13 @@ for row in GameInfo.TerrainResourcesProduced() do
 	table.insert(TerrainResources[terrainID], {[resourceID] = row.NumPerTerrain})
 end
 
+
+-----------------------------------------------------------------------------------------
+-- Equipment - to do : those are helpers, to move to mod utils with related functions
+-----------------------------------------------------------------------------------------
+EquipmentInfo = {}	-- Helper to get equipment info from Resource ID
+for row in GameInfo.Equipment() do
+	local equipmentType = row.ResourceType
+	local equipmentID	= GameInfo.Resources[equipmentType].Index
+	EquipmentInfo[equipmentID] = row
+end

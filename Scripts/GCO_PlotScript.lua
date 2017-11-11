@@ -1073,6 +1073,8 @@ end
 
 local GoodyHutID 	= GameInfo.Improvements["IMPROVEMENT_GOODY_HUT"].Index
 local minRange 		= 4
+local lastGoodyPlot	= nil
+
 function CanPlaceGoodyAt(plot)
 
 	local improvementID = GoodyHutID
@@ -1103,6 +1105,10 @@ function CanPlaceGoodyAt(plot)
 
 	if (plot:IsMountain()) then
 		return false;
+	end
+	
+	if lastGoodyPlot and Map.GetPlotDistance(lastGoodyPlot:GetX(), lastGoodyPlot:GetY(), plot:GetX(), plot:GetY()) < (minRange * 3) then
+		return false
 	end
 
 	-- Check for being too close from somethings.
@@ -1161,6 +1167,7 @@ end
 function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
 	--print(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
 	if( GameInfo.Improvements[improvementType].Goody ) then -- create a new goody hut somewhere else
+		lastGoodyPlot = Map.GetPlot(locationX, locationY)
 		if GCO.GetGameEra() < 5 then
 			AddGoody()
 		end
@@ -1183,6 +1190,8 @@ Events.ImprovementActivated.Add( OnImprovementActivated )
 -- animal resource = activity farmer (breeder)
 
 -- employment available = pop for plot size at city size
+
+-- GCO.Round(math.pow(size, populationPerSizepower) * 1000)
 
 local populationPerSizepower = tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value) - 1 -- number of worked plots being equal to city size, using (popPerSizePower - 1) for tiles means that the sum of all population on worked tiles at size n will not be > to the total city population at that size 
 

@@ -38,6 +38,11 @@ UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_DI
 /* Defines */
 
 -- city
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_MAX_PER_TURN', 		10);	-- default = 20
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_BASE_MATERIEL',		10);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN',	5);		-- default = 10
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL',	25);
+
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					40);	-- base stock for resource 			= CITY_STOCK_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 			= CITY_FOOD_STOCK_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					1000);	-- base stock for equipment 		(not related to city size)

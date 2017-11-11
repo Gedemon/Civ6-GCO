@@ -110,7 +110,7 @@ UPDATE GlobalParameters SET Value = 6		WHERE Name = 'COMBAT_MAX_EXTRA_DAMAGE';	-
 
 /* remove healing (handled in Lua) */
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_CITY_GARRISON';		-- default = 20
-UPDATE GlobalParameters SET Value = 5		WHERE Name = 'COMBAT_HEAL_CITY_OUTER_DEFENSES';	-- default = 10
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_CITY_OUTER_DEFENSES';	-- default = 10
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_LAND_ENEMY';			-- default = 5
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_LAND_FRIENDLY';		-- default = 15
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_HEAL_LAND_NEUTRAL';		-- default = 10

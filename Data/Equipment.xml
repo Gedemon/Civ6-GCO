@@ -12,13 +12,13 @@
 	</Equipment>
 	
 	<Equipment> <!-- Melee Weapons -->
-		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"											Toughness="1"	Desirability="1" 	AntiPersonnel="27" />
-		<Row ResourceType="EQUIPMENT_STONE_AXE"												Toughness="1"	Desirability="2" 	AntiPersonnel="27" />
-		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="3" 	AntiPersonnel="32" AntiPersonnelArmor="10" />
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"											Toughness="1"	Desirability="1" 	AntiPersonnel="27" ObsoleteTech="TECH_IRON_WORKING"	/>
+		<Row ResourceType="EQUIPMENT_STONE_AXE"												Toughness="1"	Desirability="2" 	AntiPersonnel="27" ObsoleteTech="TECH_IRON_WORKING"	/>
+		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="3" 	AntiPersonnel="32" AntiPersonnelArmor="10" ObsoleteTech="TECH_IRON_WORKING"	/>
 		
-		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"											Toughness="1"	Desirability="11" 	AntiPersonnel="27" />
-		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="12" 	AntiPersonnel="32" AntiPersonnelArmor="4" />
-		<Row ResourceType="EQUIPMENT_IRON_SPEARS"	PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="13" 	AntiPersonnel="40" AntiPersonnelArmor="6" />
+		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"											Toughness="1"	Desirability="11" 	AntiPersonnel="27" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="12" 	AntiPersonnel="32" AntiPersonnelArmor="4" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
+		<Row ResourceType="EQUIPMENT_IRON_SPEARS"	PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="13" 	AntiPersonnel="40" AntiPersonnelArmor="6" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
 		
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="3"	Desirability="21" 	AntiPersonnel="38" AntiPersonnelArmor="5" />
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	PrereqTech="TECH_IRON_WORKING"			Toughness="5"	Desirability="22" 	AntiPersonnel="42" AntiPersonnelArmor="7" />
@@ -29,8 +29,8 @@
 	</Equipment>
 	
 	<Equipment> <!-- Skirmisher Weapons -->		
-		<Row ResourceType="EQUIPMENT_SLINGS"												Desirability="1" 	/>
-		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"				Desirability="10" 	/>
+		<Row ResourceType="EQUIPMENT_SLINGS"												Desirability="1" 	ObsoleteTech="TECH_ARCHERY"		/>
+		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"				Desirability="10" 	ObsoleteTech="TECH_MACHINERY"	/>
 		<Row ResourceType="EQUIPMENT_CROSSBOWS"		PrereqTech="TECH_MACHINERY"				Desirability="20" 	/>
 	</Equipment>
 	
@@ -43,7 +43,7 @@
 	</Equipment>
 	
 	<Equipment>  <!-- "Vehicle" -->
-		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Desirability="1" 	Size="20" />
+		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Desirability="1" 	Size="20" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
 		<Row ResourceType="EQUIPMENT_WAR_HORSES"		PrereqTech="TECH_HORSEBACK_RIDING"	Desirability="10" 	Size="10" />
 		<Row ResourceType="EQUIPMENT_ARMORED_HORSES"	PrereqTech="TECH_STIRRUPS"			Desirability="20" 	Size="10" />
 	</Equipment>

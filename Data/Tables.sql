@@ -358,6 +358,7 @@ CREATE TABLE IF NOT EXISTS Equipment	(
 		FuelConsumption INTEGER,
 		FuelType TEXT,
 		PrereqTech TEXT,
+		ObsoleteTech TEXT,
 		RevealedEra INTEGER NOT NULL DEFAULT 1,
 		PRIMARY KEY(ResourceType),
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,
