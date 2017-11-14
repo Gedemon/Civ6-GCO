@@ -249,7 +249,7 @@ ALTER TABLE Buildings ADD COLUMN MaterielPerProduction 	INTEGER DEFAULT '4'; 		-
 -----------------------------------------------
 
 -- Create a version of the LocalizedText table in GameData, the Mod text will be copied there, then the SQL
-CREATE TABLE IF NOT EXISTS LocalizedText(
+CREATE TABLE IF NOT EXISTS LocalizedText (
 	Language TEXT NOT NULL,
 	Tag TEXT NOT NULL,
 	Text TEXT,
@@ -257,6 +257,15 @@ CREATE TABLE IF NOT EXISTS LocalizedText(
 	Plurality TEXT,
 	PRIMARY KEY (Language, Tag));
 
+CREATE TABLE IF NOT EXISTS BuildingConstructionResources (
+		BuildingType TEXT NOT NULL,
+		ResourceType TEXT NOT NULL,
+		Quantity INTEGER NOT NULL DEFAULT 0,
+		PRIMARY KEY(BuildingType, ResourceType),
+		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
 CREATE TABLE IF NOT EXISTS BuildingResourcesConverted (
 		BuildingType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,
@@ -341,7 +350,7 @@ CREATE TABLE IF NOT EXISTS EquipmentTypeClasses	(
 		PRIMARY KEY(ResourceType, EquipmentClass)	-- an equipment could belong to multiple classes
 	);
 	
-CREATE TABLE IF NOT EXISTS Equipment	(
+CREATE TABLE IF NOT EXISTS Equipment (
 		ResourceType TEXT NOT NULL,										-- Equipment are handled as resources
 		Size INTEGER NOT NULL DEFAULT 1,								-- Space taken in a city stockage capacity
 		Desirability INTEGER NOT NULL DEFAULT 0,						-- Units will request ResourceType of higher desirability first
@@ -382,6 +391,15 @@ CREATE TABLE IF NOT EXISTS UnitEquipmentClasses (
 		PRIMARY KEY(UnitType, EquipmentClass),
 		FOREIGN KEY (UnitType) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (EquipmentClass) REFERENCES EquipmentClasses(EquipmentClass) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
+CREATE TABLE IF NOT EXISTS UnitConstructionResources ( -- Resources needed for an unit construction (but not for reinforcement), added to the required equipment
+		UnitType TEXT NOT NULL,
+		ResourceType TEXT NOT NULL,
+		Quantity INTEGER NOT NULL DEFAULT 0,
+		PRIMARY KEY(UnitType, ResourceType),
+		FOREIGN KEY (UnitType) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
 CREATE TABLE IF NOT EXISTS PromotionClassEquipmentClasses (
@@ -492,6 +510,14 @@ CREATE TABLE UnitUpgradesGCO (
 		PRIMARY KEY(Unit),
 		FOREIGN KEY (UpgradeUnit) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (Unit) REFERENCES Units(UnitType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
+CREATE TABLE BuildingUpgrades (
+		BuildingType TEXT NOT NULL UNIQUE,
+		UpgradeType TEXT NOT NULL,
+		PRIMARY KEY(Unit),
+		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (UpgradeType) REFERENCES Buildings(UpgradeType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
 -----------------------------------------------

@@ -113,7 +113,6 @@
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 	</EquipmentTypeClasses>
 	
-	
 	<EquipmentTypeClasses> <!-- Specific to promotion Class -->
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
@@ -149,7 +148,7 @@
 	<EquipmentEffects> <!-- Not coded yet -->
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="50" />
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"	EquipmentEffect="COMBAT_STRENGTH"	EffectMaxStrength="100" />
-	</EquipmentEffects>
+	</EquipmentEffects>	
 	
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type -->
 		<Row UnitType="UNIT_SETTLER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="30" />
@@ -201,7 +200,38 @@
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_PIKES" />
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		
+		<Row UnitType="UNIT_GALLEY" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="100" />
+		<Row UnitType="UNIT_QUADRIREME" 			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="105" />
+		<Row UnitType="UNIT_CARAVEL" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="150" />
+		<Row UnitType="UNIT_PRIVATEER" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="155" />
+		<Row UnitType="UNIT_FRIGATE" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="160" />
+		<Row UnitType="UNIT_IRONCLAD" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="175" />
+		<Row UnitType="UNIT_DESTROYER" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="200" />
+		<Row UnitType="UNIT_SUBMARINE" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="200" />
+		<Row UnitType="UNIT_NUCLEAR_SUBMARINE"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="300" />
+		<Row UnitType="UNIT_BATTLESHIP" 			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="350" />
+		<Row UnitType="UNIT_AIRCRAFT_CARRIER" 		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="350" />
+		<Row UnitType="UNIT_MISSILE_CRUISER" 		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="375" />
+		
 	</UnitEquipmentClasses>
+	
+	<UnitConstructionResources>
+		
+		<Row UnitType="UNIT_GALLEY" 			ResourceType="RESOURCE_WOOD" 	Quantity="200" />
+		<Row UnitType="UNIT_QUADRIREME" 		ResourceType="RESOURCE_WOOD" 	Quantity="300" />
+		<Row UnitType="UNIT_CARAVEL" 			ResourceType="RESOURCE_WOOD" 	Quantity="400" />
+		<Row UnitType="UNIT_PRIVATEER" 			ResourceType="RESOURCE_WOOD" 	Quantity="450" />
+		<Row UnitType="UNIT_FRIGATE" 			ResourceType="RESOURCE_WOOD" 	Quantity="600" />
+		<Row UnitType="UNIT_IRONCLAD" 			ResourceType="RESOURCE_STEEL" 	Quantity="100" />
+		<Row UnitType="UNIT_DESTROYER" 			ResourceType="RESOURCE_STEEL" 	Quantity="300" />
+		<Row UnitType="UNIT_SUBMARINE" 			ResourceType="RESOURCE_STEEL" 	Quantity="300" />
+		<Row UnitType="UNIT_NUCLEAR_SUBMARINE"	ResourceType="RESOURCE_STEEL" 	Quantity="900" />
+		<Row UnitType="UNIT_BATTLESHIP" 		ResourceType="RESOURCE_STEEL" 	Quantity="1200" />
+		<Row UnitType="UNIT_AIRCRAFT_CARRIER" 	ResourceType="RESOURCE_STEEL" 	Quantity="1500" />
+		<Row UnitType="UNIT_MISSILE_CRUISER" 	ResourceType="RESOURCE_STEEL" 	Quantity="1000" />
+		
+	</UnitConstructionResources>
 	
 	<PromotionClassEquipmentClasses> <!-- Equipment Classes representing an Upgrade Line -->
 		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>

@@ -41,6 +41,16 @@
 	<!---->
 	</BuildingsGCO>
 
+	<BuildingConstructionResources>
+		
+		<Row BuildingType="BUILDING_STONEHENGE"	ResourceType="RESOURCE_STONE" 	Quantity="500" />
+		
+		<Row BuildingType="BUILDING_WALLS" 		ResourceType="RESOURCE_STONE" 	Quantity="300" />
+		<Row BuildingType="BUILDING_CASTLE" 	ResourceType="RESOURCE_STONE" 	Quantity="900" />
+		<Row BuildingType="BUILDING_STAR_FORT" 	ResourceType="RESOURCE_STONE" 	Quantity="1800" />
+		
+	</BuildingConstructionResources>
+	
 	<BuildingModifiers>
 		<Row BuildingType="BUILDING_MARKET"			ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
 		<Row BuildingType="BUILDING_BANK"			ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
