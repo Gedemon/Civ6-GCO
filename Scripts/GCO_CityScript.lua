@@ -216,6 +216,17 @@ for row in GameInfo.BuildingRealPrereqsAND() do
 	BuildingPrereqBuildingAND[buildingID][prereqID] = true
 end
 
+-- Helper to get the resource list required by a building for its construction (but not for repairs, if/when implemented)
+local buildingConstructionResources = {}
+for row in GameInfo.BuildingConstructionResources() do
+	local buildingType 	= row.BuildingType
+	local resourceType 	= row.ResourceType
+	local buildingID 	= GameInfo.Buildings[buildingType].Index
+	local resourceID	= GameInfo.Resources[resourceType].Index
+	if not buildingConstructionResources[buildingID] then buildingConstructionResources[buildingID] = {} end
+	table.insert(buildingConstructionResources[buildingID], {ResourceID = resourceID, Quantity = row.Quantity})
+end
+
 local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)
 
@@ -1902,7 +1913,7 @@ function GetNumRequiredInQueue(self, resourceID)
 		if data[resourceKey] then
 			if GameInfo.Units[itemBuild] then
 				local unitID		= GameInfo.Units[itemBuild].Index
-				local resTable 		= GCO.GetUnitConstructionResources(unitID, organizationLevel) -- this only give the personnel value now, to do: replace with a call to player function returning personnel value from military organization level
+				local resTable 		= GCO.GetUnitConstructionResources(unitID, organizationLevel)
 				local resOrTable 	= GCO.GetUnitConstructionOrResources(unitID, organizationLevel)
 				local resNeeded		= 0
 				if resTable[resourceKey] then
@@ -2729,6 +2740,13 @@ function GetBuildingConstructionResources(buildingType)
 	local resTable 	= {}
 	local materiel 	= GameInfo.Buildings[buildingType].Cost * GameInfo.Buildings[buildingType].MaterielPerProduction
 	if materiel 	> 0 then resTable[materielResourceID]	= materiel end
+		
+	if buildingConstructionResources[buildingType] then
+		for _, row in ipairs(buildingConstructionResources[buildingType]) do
+			resTable[row.ResourceID]	= row.Quantity
+		end
+	end
+	
 	return resTable
 end
 
@@ -2779,7 +2797,7 @@ function CanTrain(self, unitType)
 	local production 		= self:GetProductionYield()
 	local turnsToBuild 		= math.max(1, math.ceil(GameInfo.Units[unitType].Cost / production))
 	local turnsLeft 		= self:GetProductionTurnsLeft(unitType) or turnsToBuild
-	local resTable 			= GCO.GetUnitConstructionResources(unitID, organizationLevel)  -- this only give the personnel value now, to do: replace with a call to player function returning personnel value from military organization level
+	local resTable 			= GCO.GetUnitConstructionResources(unitID, organizationLevel)
 	local resOrTable 		= GCO.GetUnitConstructionOrResources(unitID, organizationLevel)
 	local requirementStr 	= Locale.Lookup("LOC_PRODUCTION_PER_TURN_REQUIREMENT")
 	local reservedStr		= Locale.Lookup("LOC_ALREADY_RESERVED_RESOURCE")
@@ -3853,7 +3871,7 @@ function DoConstruction(self)
 		local player			= GCO.GetPlayer(self:GetOwner())	
 		local organizationLevel = player:GetMilitaryOrganizationLevel()
 
-		if bIsUnit 		then resTable 			= GCO.GetUnitConstructionResources(row.Index, organizationLevel) end  -- this only give the personnel value now, to do: replace with a call to player function returning personnel value from military organization level
+		if bIsUnit 		then resTable 			= GCO.GetUnitConstructionResources(row.Index, organizationLevel) end
 		if bIsUnit 		then resOrTable 		= GCO.GetUnitConstructionOrResources(row.Index, organizationLevel) end
 		if bIsUnit 		then resOptionalTable 	= GCO.GetUnitConstructionOptionalResources(row.Index, organizationLevel) end
 		if bIsBuilding 	then resTable 			= GCO.GetBuildingConstructionResources(row.Index) end

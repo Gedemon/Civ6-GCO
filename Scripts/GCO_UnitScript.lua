@@ -29,7 +29,7 @@ end
 
 local GCO = ExposedMembers.GCO or {}
 
-local _cached				= {} -- cached table to reduce calculations and call
+local _cached				= {} -- cached table to reduce calculations and functions call
 
 local UnitHitPointsTable 	= {} -- cached table to store the required values of an unit components based on it's HP
 local UnitWithoutEquipment	= {} -- cached table to store units requiring equipment initialization
@@ -88,6 +88,16 @@ for row in GameInfo.Units() do
 end
 --]]
 
+-- Helper to get the resource list required by an unit for its construction (but not for reinforcement)
+local unitConstructionResources = {}
+for row in GameInfo.UnitConstructionResources() do
+	local unitType 		= row.UnitType
+	local resourceType 	= row.ResourceType
+	local unitID 		= GameInfo.Units[unitType].Index
+	local resourceID	= GameInfo.Resources[resourceType].Index
+	if not unitConstructionResources[unitID] then unitConstructionResources[unitID] = {} end
+	table.insert(unitConstructionResources[unitID], {ResourceID = resourceID, Quantity = row.Quantity})
+end
 
 local promotionClassUnits 	= {} -- Helper to get all units for a PromotionClassID
 local unitPromotionClass	= {} -- Helper to get the PromotionClassID of an UnitType
@@ -1470,6 +1480,12 @@ function GetUnitConstructionResources(unitType, organizationLevel)
 	local personnel = GetUnitMaxFrontLinePersonnel(unitType, organizationLevel) 		
 	
 	if personnel 	> 0 then resTable[personnelResourceID]	= personnel end
+	
+	if unitConstructionResources[unitType] then
+		for _, row in ipairs(unitConstructionResources[unitType]) do
+			resTable[row.ResourceID]	= row.Quantity
+		end
+	end
 	
 	return resTable
 
@@ -4687,20 +4703,22 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 				ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
 			end
 			
-			local player 					= GCO.GetPlayer(unit:GetOwner())
-			local playerOrganizationLevel 	= player:GetMilitaryOrganizationLevel()
+			if unit:GetDamage() < maxHP then
+				local player 					= GCO.GetPlayer(unit:GetOwner())
+				local playerOrganizationLevel 	= player:GetMilitaryOrganizationLevel()
+				
+				if playerOrganizationLevel ~= unit:GetOrganizationLevel() and unitData.CanChangeOrganization and unit:GetSupplyLineEfficiency() > 0 then
+					unit:SetOrganizationLevel(playerOrganizationLevel)
+				end
 			
-			if playerOrganizationLevel ~= unit:GetOrganizationLevel() and unitData.CanChangeOrganization and unit:GetSupplyLineEfficiency() > 0 then
-				unit:SetOrganizationLevel(playerOrganizationLevel)
-			end
-			
-			local promotionClassID	= unit:GetPromotionClassID()
-			
-			if promotionClassID then
-				local equipmentList	= unitData.Equipment
-				local newUnitType 	= GetUnitTypeFromEquipmentList(promotionClassID, equipmentList)			
-				if newUnitType and newUnitType ~= unit:GetType() then
-					unit = ChangeUnitTo(unit, newUnitType)
+				local promotionClassID	= unit:GetPromotionClassID()
+				
+				if promotionClassID then
+					local equipmentList	= unitData.Equipment
+					local newUnitType 	= GetUnitTypeFromEquipmentList(promotionClassID, equipmentList)			
+					if newUnitType and newUnitType ~= unit:GetType() then
+						unit = ChangeUnitTo(unit, newUnitType)
+					end
 				end
 			end
 		end
