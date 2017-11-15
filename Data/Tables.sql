@@ -515,6 +515,7 @@ CREATE TABLE UnitUpgradesGCO (
 CREATE TABLE BuildingUpgrades (
 		BuildingType TEXT NOT NULL UNIQUE,
 		UpgradeType TEXT NOT NULL,
+		ProductionBonus INTEGER,
 		PRIMARY KEY(Unit),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (UpgradeType) REFERENCES Buildings(UpgradeType) ON DELETE CASCADE ON UPDATE CASCADE
