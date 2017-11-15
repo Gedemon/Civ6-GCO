@@ -13,7 +13,7 @@
 	
 	<Equipment> <!-- Melee Weapons -->
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"											Toughness="1"	Desirability="1" 	AntiPersonnel="27" ObsoleteTech="TECH_IRON_WORKING"	/>
-		<Row ResourceType="EQUIPMENT_STONE_AXE"												Toughness="1"	Desirability="2" 	AntiPersonnel="27" ObsoleteTech="TECH_IRON_WORKING"	/>
+		<Row ResourceType="EQUIPMENT_STONE_AXES"												Toughness="1"	Desirability="2" 	AntiPersonnel="27" ObsoleteTech="TECH_IRON_WORKING"	/>
 		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"	PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="3" 	AntiPersonnel="32" AntiPersonnelArmor="10" ObsoleteTech="TECH_IRON_WORKING"	/>
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"											Toughness="1"	Desirability="11" 	AntiPersonnel="27" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
@@ -68,7 +68,7 @@
 	</EquipmentClasses>
 	
 	<EquipmentClasses> <!-- Specific to promotion Class -->
-		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_SHIELD"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_HELMET"		/>
@@ -82,7 +82,7 @@
 		<Row ResourceType="RESOURCE_MATERIEL"			EquipmentClass="EQUIPMENTCLASS_MATERIEL"	/>
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
-		<Row ResourceType="EQUIPMENT_STONE_AXE"			EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
+		<Row ResourceType="EQUIPMENT_STONE_AXES"			EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
@@ -115,17 +115,17 @@
 	
 	<EquipmentTypeClasses> <!-- Specific to promotion Class -->
 		
-		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_STONE_AXE"			EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_IRON_PIKES"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
-		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON"		/>
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_STONE_AXES"			EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_IRON_PIKES"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
@@ -235,7 +235,7 @@
 	
 	<PromotionClassEquipmentClasses> <!-- Equipment Classes representing an Upgrade Line -->
 		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
-		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPON" 		/>
+		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS" 		/>
 		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_SHIELD"		IsRequired="0" />
 		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			IsRequired="0" />
 		<Row PromotionClassType="PROMOTION_CLASS_MELEE"			EquipmentClass="EQUIPMENTCLASS_MELEE_HELMET"		IsRequired="0" />

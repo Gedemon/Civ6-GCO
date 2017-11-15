@@ -57,22 +57,28 @@ for resourceRow in GameInfo.Resources() do
 	end
 end
 
-local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
-local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
-local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
-local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
-local warHorsesResourceID		= GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index
-local medicineResourceID		= GameInfo.Resources["RESOURCE_MEDICINE"].Index
-local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
-local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 
 local ResourceTempIcons = {		-- Table to store temporary icons for resources until new FontIcons could be added...
-		[materielResourceID] 	= "[ICON_RESOURCE_MATERIEL]",
-		[steelResourceID] 		= "[ICON_New]",
-		[medicineResourceID] 	= "[ICON_Damaged]",
-		[foodResourceID] 		= "[ICON_Food]",
-		[personnelResourceID]	= "[ICON_Position]",
-		[warHorsesResourceID]	= "[ICON_RESOURCE_HORSES]",
+		[GameInfo.Resources["RESOURCE_MATERIEL"].Index] 		= "[ICON_RESOURCE_MATERIEL]",
+		[GameInfo.Resources["RESOURCE_STEEL"].Index] 			= "[ICON_New]",
+		[GameInfo.Resources["RESOURCE_MEDICINE"].Index] 		= "[ICON_Damaged]",
+		[GameInfo.Resources["RESOURCE_FOOD"].Index] 			= "[ICON_Food]",
+		[GameInfo.Resources["RESOURCE_PERSONNEL"].Index]		= "[ICON_Position]",
+		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]		= "[ICON_EQUIPMENT_WAR_HORSES]",
+		[GameInfo.Resources["EQUIPMENT_ARMORED_HORSES"].Index]	= "[ICON_EQUIPMENT_ARMORED_HORSES]",
+		[GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Index]		= "[ICON_EQUIPMENT_BOWS]",
+		[GameInfo.Resources["EQUIPMENT_CROSSBOWS"].Index]		= "[ICON_EQUIPMENT_CROSSBOWS]",
+		[GameInfo.Resources["EQUIPMENT_WOODEN_CLUB"].Index]		= "[ICON_EQUIPMENT_CLUB]",
+		[GameInfo.Resources["EQUIPMENT_STONE_AXES"].Index]		= "[ICON_EQUIPMENT_CLUB]",
+		[GameInfo.Resources["EQUIPMENT_SPIKED_CLUB"].Index]		= "[ICON_EQUIPMENT_CLUB]",
+		[GameInfo.Resources["EQUIPMENT_WOODEN_SPEARS"].Index]	= "[ICON_EQUIPMENT_SPEARS]",
+		[GameInfo.Resources["EQUIPMENT_BRONZE_SPEARS"].Index]	= "[ICON_EQUIPMENT_SPEARS]",
+		[GameInfo.Resources["EQUIPMENT_IRON_SPEARS"].Index]		= "[ICON_EQUIPMENT_SPEARS]",
+		[GameInfo.Resources["EQUIPMENT_BRONZE_SWORDS"].Index]	= "[ICON_EQUIPMENT_SWORDS]",
+		[GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Index]		= "[ICON_EQUIPMENT_SWORDS]",
+		[GameInfo.Resources["EQUIPMENT_STEEL_SWORDS"].Index]	= "[ICON_EQUIPMENT_SWORDS]",
+		[GameInfo.Resources["EQUIPMENT_IRON_PIKES"].Index]		= "[ICON_EQUIPMENT_PIKES]",
+		[GameInfo.Resources["EQUIPMENT_STEEL_PIKES"].Index]		= "[ICON_EQUIPMENT_PIKES]",
 	}
 
 -- Floating Texts LOD
@@ -587,7 +593,7 @@ end
 
 
 function GetResourceIcon(resourceID)
-	if not resourceID then return "[ICON_Production]" end -- allow call with no argument to return default icon
+	if not resourceID then return "[ICON_EQUIPMENT_CRATES]" end -- allow call with no argument to return default icon
 	local iconStr = ""
 	if ResourceTempIcons[resourceID] then
 		iconStr = ResourceTempIcons[resourceID]

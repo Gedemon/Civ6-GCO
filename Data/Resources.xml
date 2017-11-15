@@ -23,8 +23,8 @@
 	</ResourceStockUsage>
 
 	<FeatureResourcesProduced>
-		<Row FeatureType="FEATURE_JUNGLE" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="3"/>
-		<Row FeatureType="FEATURE_FOREST" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="5"/>
+		<Row FeatureType="FEATURE_JUNGLE" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="6"/>
+		<Row FeatureType="FEATURE_FOREST" 	ResourceType="RESOURCE_WOOD" 	NumPerFeature="9"/>
 		<Row FeatureType="FEATURE_JUNGLE" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="6"/>
 		<Row FeatureType="FEATURE_FOREST" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="3"/>
 		<Row FeatureType="FEATURE_MARSH" 	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="8"/>

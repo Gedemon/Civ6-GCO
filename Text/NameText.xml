@@ -47,7 +47,7 @@
 		<Replace Tag="LOC_EQUIPMENT_ARMORED_HORSES_NAME" 			Text="Armored Horses" 		Language="en_US" /> 	
 		
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 				Text="Wooden Clubs" 		Language="en_US" /> 
-		<Replace Tag="LOC_EQUIPMENT_STONE_AXE_NAME" 				Text="Stone Axes"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_STONE_AXES_NAME" 				Text="Stone Axes"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_SPIKED_CLUB_NAME" 				Text="Spiked Clubs"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_SPEARS_NAME"				Text="Wooden Spears" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_BRONZE_SPEARS_NAME" 			Text="Bronze Spears" 		Language="en_US" /> 
@@ -82,7 +82,7 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_LIGHTARMOR_NAME" 			Text="Light Armor"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_HELMET_NAME" 				Text="Helmets"				Language="en_US" />
 		
-		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_WEAPON_NAME" 		Text="Infantry Weapons"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_WEAPONS_NAME" 		Text="Infantry Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SKIRMISHER_WEAPON_NAME" 	Text="Skirmisher Weapons"	Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_VEHICLE_NAME" 		Text="Cavalry Equipment"	Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_ARMOR_NAME" 			Text="Infantry Armor"		Language="en_US" />

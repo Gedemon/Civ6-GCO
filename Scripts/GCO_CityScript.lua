@@ -2737,12 +2737,14 @@ end
 -- Construction function
 ----------------------------------------------
 function GetBuildingConstructionResources(buildingType)
-	local resTable 	= {}
-	local materiel 	= GameInfo.Buildings[buildingType].Cost * GameInfo.Buildings[buildingType].MaterielPerProduction
+	local resTable 		= {}
+	local row			= GameInfo.Buildings[buildingType]
+	local buildingID	= row.Index
+	local materiel 		= row.Cost * row.MaterielPerProduction
 	if materiel 	> 0 then resTable[materielResourceID]	= materiel end
 		
-	if buildingConstructionResources[buildingType] then
-		for _, row in ipairs(buildingConstructionResources[buildingType]) do
+	if buildingConstructionResources[buildingID] then
+		for _, row in ipairs(buildingConstructionResources[buildingID]) do
 			resTable[row.ResourceID]	= row.Quantity
 		end
 	end
