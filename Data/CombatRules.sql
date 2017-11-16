@@ -178,9 +178,10 @@ UPDATE Units SET Personnel = 500,	Materiel = 20 	Where UnitType = "UNIT_SLINGER"
 UPDATE Units SET Personnel = 600,	Materiel = 30, 	PrereqTech = NULL 	Where UnitType = "UNIT_ARCHER";
 UPDATE Units SET Personnel = 1200,	Materiel = 50, 	PrereqTech = NULL 	Where UnitType = "UNIT_CROSSBOWMAN";
 UPDATE Units SET Personnel = 500, 	Materiel = 200  Where UnitType = "UNIT_AT_CREW" OR UnitType = "UNIT_MACHINE_GUN" OR UnitType = "UNIT_MODERN_AT";
-UPDATE Units SET Personnel = 100, 	Materiel = 200  Where UnitType = "UNIT_CATAPULT";
-UPDATE Units SET Personnel = 100, 	Materiel = 250  Where UnitType = "UNIT_BOMBARD" OR UnitType = "UNIT_FIELD_CANNON";
-UPDATE Units SET Personnel = 100, 	Materiel = 300  Where UnitType = "UNIT_ARTILLERY" OR UnitType = "UNIT_ANTIAIR_GUN";
+UPDATE Units SET Personnel = 100, 	Materiel = 200, PrereqTech = NULL  Where UnitType = "UNIT_CATAPULT";
+UPDATE Units SET Personnel = 100, 	Materiel = 250, PrereqTech = NULL  Where UnitType = "UNIT_BOMBARD" OR UnitType = "UNIT_FIELD_CANNON";
+UPDATE Units SET Personnel = 100, 	Materiel = 300, PrereqTech = NULL  Where UnitType = "UNIT_ARTILLERY";
+UPDATE Units SET Personnel = 100, 	Materiel = 300	Where UnitType = "UNIT_ANTIAIR_GUN";
 
 /* Land infantry */
 UPDATE Units SET Personnel = 800,	Materiel = 30 	Where UnitType = "UNIT_WARRIOR" OR UnitType = "UNIT_AZTEC_EAGLE_WARRIOR";
@@ -198,9 +199,10 @@ UPDATE Units SET Personnel = 300,	Materiel = 100, Horses = 300, 	PrereqTech = NU
 UPDATE Units SET Personnel = 300,	Materiel = 75, 	Horses = 300, 	PrereqTech = NULL 	Where UnitType = "UNIT_CAVALRY" OR UnitType = "UNIT_RUSSIAN_COSSACK";
 
 /* Mechanized */
-UPDATE Units SET Personnel = 800, 	Materiel = 1000 Where UnitType = "UNIT_TANK" OR UnitType = "UNIT_MODERN_ARMOR";
+UPDATE Units SET Personnel = 800, 	Materiel = 1000,PrereqTech = NULL 	Where UnitType = "UNIT_TANK" OR UnitType = "UNIT_MODERN_ARMOR";
 UPDATE Units SET Personnel = 2500, 	Materiel = 500 	Where UnitType = "UNIT_MECHANIZED_INFANTRY";
-UPDATE Units SET Personnel = 100, 	Materiel = 500 	Where UnitType = "UNIT_ROCKET_ARTILLERY" OR UnitType = "UNIT_MOBILE_SAM";
+UPDATE Units SET Personnel = 100, 	Materiel = 500, PrereqTech = NULL 	Where UnitType = "UNIT_ROCKET_ARTILLERY";
+UPDATE Units SET Personnel = 100, 	Materiel = 500 	Where UnitType = "UNIT_MOBILE_SAM";
 UPDATE Units SET Personnel = 150, 	Materiel = 250 	Where UnitType = "UNIT_HELICOPTER";
 
 /* Sea */

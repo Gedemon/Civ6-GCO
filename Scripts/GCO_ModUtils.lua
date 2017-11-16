@@ -580,15 +580,15 @@ function GetBaseResourceCost(resourceID)
 end
 
 function IsResourceEquipment(resourceID)
-	return IsEquipment[resourceID]
+	return (IsEquipment[resourceID] == true)
 end
 
 function IsResourceFood(resourceID)
-	return IsFood[resourceID]
+	return (IsFood[resourceID] == true)
 end
 
 function IsResourceEquipmentMaker(resourceID)
-	return IsEquipmentMaker[resourceID]
+	return (IsEquipmentMaker[resourceID] == true)
 end
 
 

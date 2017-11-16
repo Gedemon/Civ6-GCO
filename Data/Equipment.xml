@@ -54,9 +54,9 @@
 		<Row ResourceType="EQUIPMENT_MODERN_ARMORS"		PrereqTech="TECH_COMPOSITES"		Desirability="50" 	Size="40" />
 	</Equipment>
 	<Equipment> <!-- Siege Weapons -->
-		<Row ResourceType="EQUIPMENT_CATAPULT"			PrereqTech="TECH_ENGINEERING"		Desirability="1" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
-		<Row ResourceType="EQUIPMENT_BOMBARD"			PrereqTech="TECH_METAL_CASTING"		Desirability="10" 	Size="10" ObsoleteTech="TECH_STEEL" />
-		<Row ResourceType="EQUIPMENT_CANNON"			PrereqTech="TECH_BALLISTICS"		Desirability="20" 	Size="10" ObsoleteTech="TECH_GUIDANCE_SYSTEMS" />
+		<Row ResourceType="EQUIPMENT_CATAPULTS"			PrereqTech="TECH_ENGINEERING"		Desirability="1" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
+		<Row ResourceType="EQUIPMENT_BOMBARDS"			PrereqTech="TECH_METAL_CASTING"		Desirability="10" 	Size="10" ObsoleteTech="TECH_STEEL" />
+		<Row ResourceType="EQUIPMENT_CANNONS"			PrereqTech="TECH_BALLISTICS"		Desirability="20" 	Size="10" ObsoleteTech="TECH_GUIDANCE_SYSTEMS" />
 		<Row ResourceType="EQUIPMENT_HOWITZER"			PrereqTech="TECH_STEEL"				Desirability="30" 	Size="10" />
 		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	PrereqTech="TECH_GUIDANCE_SYSTEMS"	Desirability="40" 	Size="40" />
 	</Equipment>
@@ -83,9 +83,9 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_RIFLES"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES"	/>
 		
-		<Row EquipmentClass="EQUIPMENTCLASS_CATAPULT"			/>
-		<Row EquipmentClass="EQUIPMENTCLASS_BOMBARD"			/>
-		<Row EquipmentClass="EQUIPMENTCLASS_CANNON"				/>
+		<Row EquipmentClass="EQUIPMENTCLASS_CATAPULTS"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_BOMBARDS"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_CANNONS"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HOWITZER"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_ROCKET_ARTILLERY"	/>
 		
@@ -149,9 +149,9 @@
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 		
-		<Row ResourceType="EQUIPMENT_CATAPULT"			EquipmentClass="EQUIPMENTCLASS_CATAPULT"		/>
-		<Row ResourceType="EQUIPMENT_BOMBARD"			EquipmentClass="EQUIPMENTCLASS_BOMBARD"			/>
-		<Row ResourceType="EQUIPMENT_CANNON"			EquipmentClass="EQUIPMENTCLASS_CANNON"			/>
+		<Row ResourceType="EQUIPMENT_CATAPULTS"			EquipmentClass="EQUIPMENTCLASS_CATAPULTS"		/>
+		<Row ResourceType="EQUIPMENT_BOMBARDS"			EquipmentClass="EQUIPMENTCLASS_BOMBARDS"		/>
+		<Row ResourceType="EQUIPMENT_CANNONS"			EquipmentClass="EQUIPMENTCLASS_CANNONS"			/>
 		<Row ResourceType="EQUIPMENT_HOWITZER"			EquipmentClass="EQUIPMENTCLASS_HOWITZER"		/>
 		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	EquipmentClass="EQUIPMENTCLASS_ROCKET_ARTILLERY"/>
 	</EquipmentTypeClasses>
@@ -199,9 +199,9 @@
 		<Row ResourceType="EQUIPMENT_LANCES"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>		
 		
-		<Row ResourceType="EQUIPMENT_CATAPULT"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
-		<Row ResourceType="EQUIPMENT_BOMBARD"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
-		<Row ResourceType="EQUIPMENT_CANNON"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_CATAPULTS"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_BOMBARDS"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_CANNONS"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_HOWITZER"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
 		
@@ -282,8 +282,8 @@
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"	/>
 		
 		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="15" />
-		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_LANCES"		/>
-		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENT_ARMORED_HORSES"	/>
+		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_LANCES"			/>
+		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_ARMORED_HORSES"	/>
 		
 		<Row UnitType="UNIT_CAVALRY"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="20" />
 		<Row UnitType="UNIT_CAVALRY"				EquipmentClass="EQUIPMENTCLASS_RIFLES"		/>
@@ -312,13 +312,13 @@
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type (Siege) -->
 
 		<Row UnitType="UNIT_CATAPULT" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="150" />
-		<Row UnitType="UNIT_CATAPULT" 				EquipmentClass="EQUIPMENTCLASS_CATAPULT" 			PercentageOfPersonnel="25" />
+		<Row UnitType="UNIT_CATAPULT" 				EquipmentClass="EQUIPMENTCLASS_CATAPULTS" 			PercentageOfPersonnel="25" />
 		
 		<Row UnitType="UNIT_BOMBARD"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="200" />
-		<Row UnitType="UNIT_BOMBARD"				EquipmentClass="EQUIPMENTCLASS_BOMBARD" 			PercentageOfPersonnel="25" />
+		<Row UnitType="UNIT_BOMBARD"				EquipmentClass="EQUIPMENTCLASS_BOMBARDS" 			PercentageOfPersonnel="25" />
 		
 		<Row UnitType="UNIT_FIELD_CANNON" 			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="200" />
-		<Row UnitType="UNIT_FIELD_CANNON" 			EquipmentClass="EQUIPMENTCLASS_CANNON" 				PercentageOfPersonnel="25" />
+		<Row UnitType="UNIT_FIELD_CANNON" 			EquipmentClass="EQUIPMENTCLASS_CANNONS" 			PercentageOfPersonnel="25" />
 		
 		<Row UnitType="UNIT_ARTILLERY" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="250" />
 		<Row UnitType="UNIT_ARTILLERY" 				EquipmentClass="EQUIPMENTCLASS_HOWITZER" 			PercentageOfPersonnel="25" />

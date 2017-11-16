@@ -1922,8 +1922,9 @@ function Refresh()
 				sToolTip = sToolTip .. ComposeProductionCostString( iProductionProgress, iProductionCost );
 				
 				-- GCO <<<<<
-				local bCanConstruct, requirementStr, prereqStr = selectedCity:CanConstruct(row.BuildingType)
-				sToolTip = ToolTipHelper.GetBuildingToolTip( row.Hash, playerID, selectedCity ) .. prereqStr .. ComposeProductionCostString( iProductionProgress, iProductionCost ) .. requirementStr
+				if isCanStart then
+					local bCanConstruct, requirementStr, prereqStr = selectedCity:CanConstruct(row.BuildingType)
+					sToolTip = ToolTipHelper.GetBuildingToolTip( row.Hash, playerID, selectedCity ) .. prereqStr .. ComposeProductionCostString( iProductionProgress, iProductionCost ) .. requirementStr
 				-- GCO >>>>>
 			
 				local iPrereqDistrict = "";
@@ -1945,6 +1946,10 @@ function Refresh()
 					IsWonder		= row.IsWonder,
 					PrereqDistrict	= iPrereqDistrict }
 				);
+				
+				-- GCO <<<<<
+				end
+				-- GCO >>>>>
 			end
 			
 			-- Can it be purchased with gold?
@@ -1983,8 +1988,9 @@ function Refresh()
 				sToolTip = sToolTip .. ComposeProductionCostString( nProductionProgress, nProductionCost );
 				
 				-- GCO <<<<<
-				local bCanTrain, requirementStr = selectedCity:CanTrain(row.UnitType)
-				sToolTip = sToolTip .. requirementStr
+				if isCanProduceExclusion then
+					local bCanTrain, requirementStr = selectedCity:CanTrain(row.UnitType)
+					sToolTip = sToolTip .. requirementStr
 				-- GCO >>>>>
 				
 				local kUnit :table = {
@@ -2028,6 +2034,10 @@ function Refresh()
 				end
 				
 				table.insert(new_data.UnitItems, kUnit );
+				
+				-- GCO <<<<<
+				end
+				-- GCO >>>>>
 			end
 			
 			-- Can it be purchased with gold?

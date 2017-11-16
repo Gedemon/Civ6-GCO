@@ -215,7 +215,9 @@ function OnResearchCompleted(playerID)
 	if playerCities then
 		for i, city in playerCities:Members() do
 			GCO.AttachCityFunctions(city)
-			city:SetUnlockers()
+			if city:IsInitialized() then
+				city:SetUnlockers()
+			end
 		end
 	end	
 end

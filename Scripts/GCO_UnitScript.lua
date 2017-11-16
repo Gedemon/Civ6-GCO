@@ -2076,7 +2076,7 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList)
 	local equipmentClassList = {}
 	if promotionClassEquipmentClasses[promotionClassID] then
 		for equipmentClassID, equipmentClassData in pairs(promotionClassEquipmentClasses[promotionClassID]) do
-			if equipmentClassData.IsRequired then
+			if equipmentClassID ~= materielEquipmentClassID and equipmentClassData.IsRequired then
 				local total = GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)
 				if total > 0 then
 					equipmentClassList[equipmentClassID] = total

@@ -37,30 +37,30 @@
 		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	Cost="30" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 	/>
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_POTTERY" 	/>
 		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_POTTERY" 	/>
-		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	Cost="30" 	MaterielPerProduction="2" PrereqTech="TECH_BRONZE_WORKING" 	/>
-		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_BRONZE_WORKING" 	/>
-		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING" 	/>
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	Cost="30" 	MaterielPerProduction="2" PrereqTech="TECH_MASONRY" 	/>
+		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_MASONRY" 	/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_MASONRY" 	/>
 		
-		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_MACHINERY" />
-		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_MACHINERY" />
-		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_MACHINERY" />
-		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_MACHINERY" />
-		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_MACHINERY" />
-		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_MACHINERY" />
+		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_APPRENTICESHIP" />
+		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_APPRENTICESHIP" />
+		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_APPRENTICESHIP" />
+		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	Cost="120" 	MaterielPerProduction="3" />
+		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	Cost="180" 	MaterielPerProduction="4" />
+		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="6" />
 		
-		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_REPLACEABLE_PARTS"	/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_REPLACEABLE_PARTS"	/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_REPLACEABLE_PARTS"	/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_REPLACEABLE_PARTS"	/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_REPLACEABLE_PARTS"	/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_REPLACEABLE_PARTS"	/>		
+		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	Cost="240" 	MaterielPerProduction="3" PrereqTech="TECH_SANITATION"	/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	Cost="300" 	MaterielPerProduction="4" PrereqTech="TECH_SANITATION"	/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	Cost="340" 	MaterielPerProduction="6" PrereqTech="TECH_SANITATION"	/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="3" />
+		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	Cost="300" 	MaterielPerProduction="4" />
+		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	Cost="340" 	MaterielPerProduction="6" />		
 		
-		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_1" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_COMBUSTION"	/>
-		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_COMBUSTION"	/>
-		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_1" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_COMBUSTION"	/>
-		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_2" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_COMBUSTION"	/>
-		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_COMBUSTION"	/>
-		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_COMBUSTION"	/>
+		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_1" 	Cost="420" 	MaterielPerProduction="3" PrereqTech="TECH_PLASTICS"	/>
+		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	Cost="580" 	MaterielPerProduction="4" PrereqTech="TECH_PLASTICS"	/>
+		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_1" 	Cost="740" 	MaterielPerProduction="6" PrereqTech="TECH_PLASTICS"	/>
+		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_2" 	Cost="420" 	MaterielPerProduction="3" />
+		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	Cost="580" 	MaterielPerProduction="4" />
+		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	Cost="740" 	MaterielPerProduction="6" />
 	<!---->
 	</BuildingsGCO>
 
@@ -131,6 +131,18 @@
 		<Row Building="BUILDING_ANCIENT_LOWER_HOUSING_3" 	PrereqBuilding="BUILDING_ANCIENT_LOWER_HOUSING_2" 	/>
 		<Row Building="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	PrereqBuilding="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	/>
 		<Row Building="BUILDING_ANCIENT_UPPER_HOUSING_3" 	PrereqBuilding="BUILDING_ANCIENT_UPPER_HOUSING_2" 	/>
+		
+		<Row Building="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	/>
+		<Row Building="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	/>
+		<Row Building="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	/>
+		
+		<Row Building="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	/>
+		<Row Building="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	/>
+		<Row Building="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	/>
+		
+		<Row Building="BUILDING_ATOMIC_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_LOWER_HOUSING_1" 	/>
+		<Row Building="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	/>
+		<Row Building="BUILDING_ATOMIC_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_UPPER_HOUSING_1" 	/>
 	<!---->
 	</BuildingPrereqs>
 	
@@ -152,7 +164,7 @@
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="25"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="2"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_SPEARS" 	Ratio="10"	MultiResCreated="1" CostFactor="0.25" />
-		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_CATAPULT" 		Ratio="1"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_CATAPULTS" 		Ratio="1"	MultiResCreated="1" />
 		
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_STONE_AXES" 	Ratio="20"	MultiResCreated="1" CostFactor="1.1" />		
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"	MultiResCreated="1" />
@@ -231,16 +243,17 @@
 		<Row BuildingType="BUILDING_MARKET"			ResourceType="RESOURCE_CRABS" 		MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="1"/>
 		
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_COAL" 		MaxConverted="20" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="4"	MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_IRON" 		MaxConverted="40" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="2"	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_IRON" 		MaxConverted="40" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="2"	MultiResRequired="1"/>		
 		
-		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_ARTILLERY" 	Ratio="2"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_TANKS" 		Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_HOWITZER" 			Ratio="2"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_TANKS" 				Ratio="1"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_AUTOMATIC_RIFLES" 	Ratio="50"	MultiResCreated="1"/>
 		
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_ROCKET_ARTILLERY" 	Ratio="1"	MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_ALUMINUM"	MaxConverted="5" 	ResourceCreated="EQUIPMENT_ROCKET_ARTILLERY" 	Ratio="1"	MultiResRequired="1"/>
 		
-		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_MODERN_ARMOR" 		Ratio="1"	MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_ALUMINUM"	MaxConverted="5" 	ResourceCreated="EQUIPMENT_MODERN_ARMOR" 		Ratio="1"	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_MODERN_ARMORS" 		Ratio="1"	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_ALUMINUM"	MaxConverted="5" 	ResourceCreated="EQUIPMENT_MODERN_ARMORS" 		Ratio="1"	MultiResRequired="1"/>
 		
 	</BuildingResourcesConverted>
 
