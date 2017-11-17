@@ -22,6 +22,18 @@ AccountType	= {	-- ENUM for treasury changes (string as it it used as a key for 
 		CityTaxes			= "10",	-- Income from City Taxes (vanilla)
 }
 
+
+-----------------------------------------------------------------------------------------
+-- Trade
+-----------------------------------------------------------------------------------------
+TradeLevelType	= {	-- ENUM for trade route level types
+
+		Limited 	= 1,	-- Trade Limited to non-luxury food
+		Neutral		= 2,	-- No strategic resources or equipment trade
+		Friend		= 3,	-- Trade All except equipment
+		Allied		= 4,	-- Trade All
+}
+
 -----------------------------------------------------------------------------------------
 -- Resources - to do : those are helpers, to move to mod utils with related functions
 -----------------------------------------------------------------------------------------

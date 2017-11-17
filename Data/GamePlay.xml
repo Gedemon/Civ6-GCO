@@ -142,46 +142,41 @@
 			<TurnsPerIncrement>220</TurnsPerIncrement>
 		</Row>
 		
-		<!-- Standard is using Marathon Timeline -->
+		<!-- Standard is using Epic Timeline -->
+		<Row>
+			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
+			<MonthIncrement>300</MonthIncrement>
+			<TurnsPerIncrement>140</TurnsPerIncrement>
+		</Row>
 		<Row>
 			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
 			<MonthIncrement>180</MonthIncrement>
-			<TurnsPerIncrement>100</TurnsPerIncrement>
+			<TurnsPerIncrement>90</TurnsPerIncrement>
 		</Row>
 		<Row>
 			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
 			<MonthIncrement>120</MonthIncrement>
-			<TurnsPerIncrement>300</TurnsPerIncrement>
+			<TurnsPerIncrement>40</TurnsPerIncrement>
 		</Row>
 		<Row>
 			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
 			<MonthIncrement>60</MonthIncrement>
-			<TurnsPerIncrement>170</TurnsPerIncrement>
+			<TurnsPerIncrement>90</TurnsPerIncrement>
 		</Row>
 		<Row>
 			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
 			<MonthIncrement>24</MonthIncrement>
-			<TurnsPerIncrement>201</TurnsPerIncrement>
+			<TurnsPerIncrement>70</TurnsPerIncrement>
 		</Row>
 		<Row>
 			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
 			<MonthIncrement>12</MonthIncrement>
-			<TurnsPerIncrement>129</TurnsPerIncrement>
+			<TurnsPerIncrement>100</TurnsPerIncrement>
 		</Row>
 		<Row>
 			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
 			<MonthIncrement>6</MonthIncrement>
-			<TurnsPerIncrement>180</TurnsPerIncrement>
-		</Row>
-		<Row>
-			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
-			<MonthIncrement>3</MonthIncrement>
-			<TurnsPerIncrement>264</TurnsPerIncrement>
-		</Row>
-		<Row>
-			<GameSpeedType>GAMESPEED_STANDARD</GameSpeedType>
-			<MonthIncrement>1</MonthIncrement>
-			<TurnsPerIncrement>156</TurnsPerIncrement>
+			<TurnsPerIncrement>220</TurnsPerIncrement>
 		</Row>
 		<!-- Original timeline -->
 		<Row>

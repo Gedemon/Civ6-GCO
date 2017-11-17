@@ -516,9 +516,9 @@ CREATE TABLE BuildingUpgrades (
 		BuildingType TEXT NOT NULL UNIQUE,
 		UpgradeType TEXT NOT NULL,
 		ProductionBonus INTEGER,
-		PRIMARY KEY(Unit),
+		PRIMARY KEY(BuildingType, UpgradeType),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
-		FOREIGN KEY (UpgradeType) REFERENCES Buildings(UpgradeType) ON DELETE CASCADE ON UPDATE CASCADE
+		FOREIGN KEY (UpgradeType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
 -----------------------------------------------

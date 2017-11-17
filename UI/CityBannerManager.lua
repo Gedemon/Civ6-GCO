@@ -8,6 +8,12 @@ include( "Civ6Common" );
 
 -- GCO <<<<<
 -----------------------------------------------------------------------------------------
+-- Includes
+-----------------------------------------------------------------------------------------
+include( "GCO_TypeEnum" )
+
+
+-----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
@@ -1388,8 +1394,12 @@ function CityBanner.UpdateName( self : CityBanner )
 						if localPlayer == -1 then localPlayer = 0 end
 						local localPlayerVis:table = PlayersVisibility[localPlayer]
 									
-						local transferColor = RGBAValuesToABGRHex(0.3, 0.3, 0.3, 0.75) --RGBAValuesToABGRHex(1, 1, 1, 1)
+						local transferColor 	= RGBAValuesToABGRHex(0.3, 0.3, 0.3, 0.75) --RGBAValuesToABGRHex(1, 1, 1, 1)
 						local foreignTradeColor = RGBAValuesToABGRHex(1, 1, 1, 0.75)
+						local limitedTradeColor = RGBAValuesToABGRHex(0.6, 0.4, 0, 0.75)
+						local neutralTradeColor = RGBAValuesToABGRHex(1, 1, 1, 0.75)
+						local friendTradeColor 	= RGBAValuesToABGRHex(0.3, 1, 0.3, 0.75)
+						local alliedTradeColor 	= RGBAValuesToABGRHex(0.3, 0.3, 1, 0.75)
 						
 						if not (linkedCities or exportCities) then return end
 						UILens.SetActive("TradeRoute")
@@ -1463,8 +1473,12 @@ function CityBanner.UpdateName( self : CityBanner )
 										local lastElement : number = table.count(pathPlots)
 										local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
 										if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
+											local tradeColor = foreignTradeColor
+											if data.TradeRouteLevel == TradeLevelType.Limited 	then tradeColor = limitedTradeColor end
+											if data.TradeRouteLevel == TradeLevelType.Friend 	then tradeColor = friendTradeColor end
+											if data.TradeRouteLevel == TradeLevelType.Allied 	then tradeColor = alliedTradeColor end						
 											table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-											UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, foreignTradeColor )
+											UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, tradeColor )
 											bShownSupplyLine = true
 										end
 									end
