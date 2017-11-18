@@ -82,9 +82,11 @@ function GetGoldTooltip()
 		local baseExpense			= -playerTreasury:GetTotalMaintenance()
 		local productionExpense		= player:GetTransactionType(AccountType.Production)
 		local reinforcementExpense	= player:GetTransactionType(AccountType.Reinforce)
+		local repairExpense			= player:GetTransactionType(AccountType.Repair)
+		local repayExpense			= player:GetTransactionType(AccountType.Repay)
 		
 		local totalIncome 			= baseIncome + importTaxesIncome + exportTaxesIncome + plunderingIncome
-		local totalExpense 			= baseExpense + productionExpense + reinforcementExpense
+		local totalExpense 			= baseExpense + productionExpense + reinforcementExpense + repairExpense + repayExpense
 		
 		--	szReturnValue = szReturnValue .. "[NEWLINE][NEWLINE]Extra = " .. tostring(balance) .. "[ICON_Gold]";
 		
@@ -101,7 +103,9 @@ function GetGoldTooltip()
 		szReturnValue = szReturnValue .. Locale.Lookup("LOC_TOP_PANEL_GOLD_EXPENSE", totalExpense)
 		if(#expense_tt_details > 0) then szReturnValue = szReturnValue .. "[NEWLINE]" .. expense_tt_details	end
 		if productionExpense < 0 	then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_PRODUCTION_EXPENSE", productionExpense) end
-		if reinforcementExpense < 0 then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_REINFORCEMENT_EXPENSE", reinforcementExpense) end
+		if reinforcementExpense < 0 then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_REINFORCEMENT_EXPENSE", reinforcementExpense) end		
+		if repairExpense < 0 		then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_REPAIR_EXPENSE", repairExpense) end
+		if repayExpense < 0 		then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_REPAY_EXPENSE", repayExpense) end
 			
 		-- GCO >>>>>
 	end

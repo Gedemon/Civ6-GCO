@@ -262,6 +262,7 @@
 	</IconTextureAtlases>
 
 	<IconDefinitions> <!-- FONT ICONS -->
+		<Row Name="INDENT"	 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="264"/>
 		<Row Name="Wounded" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="20"/>
 		<Row Name="Kill" 						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="90"/>
 		<Row Name="Death" 						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="92"/>

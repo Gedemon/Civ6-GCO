@@ -34,6 +34,9 @@ local m_CultureYieldButton:table = nil;
 local m_GoldYieldButton:table = nil;
 local m_TourismYieldButton:table = nil;
 local m_FaithYieldButton:table = nil;
+-- GCO <<<<<
+local m_DebtYieldButton:table = nil;
+-- GCO >>>>>
 
 -- ===========================================================================
 --	Game Engine Event
@@ -117,6 +120,9 @@ function RefreshYields()
 	else
 		return;
 	end
+	-- GCO <<<<<
+	if ExposedMembers.GCO_Initialized then GCO.InitializePlayerFunctions(localPlayer) end
+	-- GCO >>>>>
 
 	---- SCIENCE ----
 	m_ScienceYieldButton = m_ScienceYieldButton or m_YieldButtonSingleManager:GetInstance();
@@ -150,7 +156,10 @@ function RefreshYields()
 	m_FaithYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(faithYield) );
 	m_FaithYieldButton.YieldBacking:SetToolTipString( GetFaithTooltip() );
 	m_FaithYieldButton.YieldIconString:SetText("[ICON_FaithLarge]");
-	m_FaithYieldButton.YieldButtonStack:CalculateSize();	
+	m_FaithYieldButton.YieldButtonStack:CalculateSize();
+	-- GCO <<<<<
+	m_FaithYieldButton.Top:SetHide(true)
+	-- GCO >>>>>
 
 	---- GOLD ----
 	if GameCapabilities.HasCapability("CAPABILITY_GOLD") then
@@ -159,9 +168,10 @@ function RefreshYields()
 		local goldYield		:number = playerTreasury:GetGoldYield() - playerTreasury:GetTotalMaintenance();
 		local goldBalance	:number = math.floor(playerTreasury:GetGoldBalance());
 		-- GCO <<<<<
-		GCO.InitializePlayerFunctions(localPlayer)
-		goldYield = goldYield + localPlayer:GetTransactionBalance()
-		goldYield = goldYield + localPlayer:GetTransactionType(AccountType.ImportTaxes, GCO.GetPreviousTurnKey()) -- to do : by player playing order, not just assuming local = first
+		if ExposedMembers.GCO_Initialized then
+			goldYield = goldYield + localPlayer:GetTransactionBalance()
+			goldYield = goldYield + localPlayer:GetTransactionType(AccountType.ImportTaxes, GCO.GetPreviousTurnKey()) -- to do : by player playing order, not just assuming local = first
+		end
 		-- GCO >>>>>
 		m_GoldYieldButton.YieldBalance:SetText( Locale.ToNumber(goldBalance, "#,###.#") );
 		m_GoldYieldButton.YieldBalance:SetColorByName("ResGoldLabelCS");	
@@ -171,10 +181,32 @@ function RefreshYields()
 
 		m_GoldYieldButton.YieldBacking:SetToolTipString( GetGoldTooltip() );
 		m_GoldYieldButton.YieldBacking:SetColorByName("ResGoldLabelCS");
-		m_GoldYieldButton.YieldButtonStack:CalculateSize();	
+		m_GoldYieldButton.YieldButtonStack:CalculateSize();		
+		
+		-- GCO <<<<<
+		---- DEBT ----
+		m_DebtYieldButton 	= m_DebtYieldButton or m_YieldButtonSingleManager:GetInstance()
+		if ExposedMembers.GCO_Initialized then
+			local playerData 	= localPlayer:GetData()
+			local debt 			= playerData.Debt
+			if (debt < 0) then
+				local debtYield	= goldBalance + goldYield
+				m_DebtYieldButton.YieldPerTurn:SetText( Locale.ToNumber(debt, "#,###.#") );
+				m_DebtYieldButton.YieldIconString:SetText("[ICON_GoldLarge]");
+				m_DebtYieldButton.YieldPerTurn:SetColorByName("ModStatusRedCS");
+
+				m_DebtYieldButton.YieldBacking:SetToolTipString( Locale.Lookup("LOC_TOP_PANEL_DEBT_TOOLTIP") );
+				m_DebtYieldButton.YieldBacking:SetColorByName("ModStatusRedCS");
+				m_DebtYieldButton.YieldButtonStack:CalculateSize();
+			
+				m_DebtYieldButton.Top:SetHide(false);
+			else
+				m_DebtYieldButton.Top:SetHide(true);
+			end
+		end
+		-- GCO >>>>>
+		
 	end
-
-
 
 	---- TOURISM ----
 	if GameCapabilities.HasCapability("CAPABILITY_TOURISM") then

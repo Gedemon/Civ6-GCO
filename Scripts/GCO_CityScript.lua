@@ -3440,7 +3440,9 @@ function DoReinforceUnits(self)
 	local cityKey 				= self:GetKey()
 	local cityData 				= ExposedMembers.CityData[cityKey]
 	local supplyDemand 			= UnitsSupplyDemand[cityKey]
+	local player 				= GCO.GetPlayer(self:GetOwner())
 	local reinforcements 		= {Resources = {}, ResPerUnit = {}}	
+	local pendingTransaction	= {}
 	
 	if not LinkedUnits[cityKey] then self:UpdateLinkedUnits() end
 
@@ -3469,11 +3471,11 @@ function DoReinforceUnits(self)
 						reqValue[unit][resourceID] = reqValue[unit][resourceID] - send
 
 						unit:ChangeStock(resourceID, send)
-						self:ChangeStock(resourceID, -send, ResourceUseType.Supply, unit:GetKey())
+						self:ChangeStock(resourceID, -send, ResourceUseType.Supply, unit:GetKey())						
 						
-						local cost 		= self:GetResourceCost(resourceID) * send
-						local player 	= GCO.GetPlayer(self:GetOwner())
-						player:ProceedTransaction(AccountType.Reinforce, -cost)
+						-- todo : stock cost/units in a table and do only one transaction after the loop + visualization on map
+						local cost 		= self:GetResourceCost(resourceID) * send						
+						pendingTransaction[unit] = (pendingTransaction[unit] or 0) + cost
 						
 						Dprint( DEBUG_CITY_SCRIPT, "  - send ".. tostring(send)," ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (@ ".. tostring(efficiency), " percent efficiency), cost = "..tostring(cost), " to unit key#".. tostring(unit:GetKey()), Locale.Lookup(UnitManager.GetTypeName(unit)))
 					end
@@ -3482,24 +3484,49 @@ function DoReinforceUnits(self)
 			loop = loop + 1
 		end
 	end
+	
+	local totalCost = 0
+	for unit, cost in pairs(pendingTransaction) do
+		if cost > 0 then -- personnel is free, some other resources maybe.
+			totalCost = totalCost + cost		
+			--self:RecordTransaction(AccountType.Reinforce, cost, unitKey)
+			--unit:RecordTransaction(AccountType.Reinforce, -cost, cityKey)
+			local sText = Locale.Lookup("LOC_GOLD_FOR_REINFORCEMENT", GCO.ToDecimals(cost))
+			if Game.GetLocalPlayer() == unit:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, unit:GetX(), unit:GetY(), 0) end
+		end
+	end
+	if totalCost > 0 then
+		player:ProceedTransaction(AccountType.Reinforce, -totalCost)
+	end
 
 	-- Now remove excedent from units
+	local totalIncome = 0
 	for unitKey, _ in pairs(LinkedUnits[cityKey]) do
 		local unit = GCO.GetUnitFromKey ( unitKey )
 		if unit then
 			local unitExcedent 	= unit:GetAllSurplus()
-			local unitKey		= unit:GetKey()
 			local unitData 		= ExposedMembers.UnitData[unitKey]
 			if unitData then
 				-- Send excedent back to city
+				local income = 0
 				for resourceID, value in pairs(unitExcedent) do
 					local toTransfert = math.min(self:GetMaxStock(resourceID) - self:GetStock(resourceID), value)
 					if resourceID == personnelResourceID then toTransfert = value end -- city can convert surplus in personnel to population
 					if toTransfert > 0 then
+						local sellPrice = math.max(self:GetMinimumResourceCost(resourceID), self:GetResourceCost(resourceID) / 2)
+						income		= income + (sellPrice * toTransfert)
 						unit:ChangeStock(resourceID, -toTransfert)
-						self:ChangeStock(resourceID, toTransfert, ResourceUseType.Pillage, unit:GetKey(), 0)
+						self:ChangeStock(resourceID, toTransfert, ResourceUseType.Pillage, unitKey, sellPrice)
+						
 						Dprint( DEBUG_CITY_SCRIPT, "  - received " .. tostring(toTransfert) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." from ".. Locale.Lookup(unit:GetName()) .." that had an excedent of ".. tostring(value))
 					end
+				end
+				if income > 0 then
+					totalIncome = totalIncome + income
+					--self:RecordTransaction(AccountType.Plundering, -income, unitKey)
+					--unit:RecordTransaction(AccountType.Plundering, income, cityKey)					
+					local sText = Locale.Lookup("LOC_GOLD_FROM_PLUNDERING", GCO.ToDecimals(income))
+					if Game.GetLocalPlayer() == unit:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, unit:GetX(), unit:GetY(), 0) end
 				end
 				-- Send prisoners to city
 				local cityData = ExposedMembers.CityData[cityKey]
@@ -3512,6 +3539,10 @@ function DoReinforceUnits(self)
 				end
 			end
 		end
+	end
+	
+	if totalIncome > 0 then
+		player:ProceedTransaction(AccountType.Plundering, totalIncome)	
 	end
 
 	Dlog("DoReinforceUnits ".. Locale.Lookup(self:GetName()).." /END")
@@ -4461,7 +4492,7 @@ function Heal(self)
 		self:ChangeStock(materielResourceID, -materielUsed, ResourceUseType.Consume, self:GetKey())	--to do : repair usage	
 		local cost 		= self:GetResourceCost(materielResourceID) * materielUsed
 		local player 	= GCO.GetPlayer(playerID)
-		player:ProceedTransaction(AccountType.Production, -cost) --to do : repair account
+		player:ProceedTransaction(AccountType.Repair, -cost)
 		cityCenter:ChangeDamage(DefenseTypes.DISTRICT_GARRISON, - maxHealed)
 		
 		Dprint( DEBUG_CITY_SCRIPT, "  - Used ".. Indentation8(materielUsed) .." ".. Indentation20(Locale.Lookup(GameInfo.Resources[materielResourceID].Name)) .." to heal ".. tostring(maxHealed), " HP for City Center, cost = "..tostring(cost))
@@ -4492,7 +4523,7 @@ function Heal(self)
 			self:ChangeStock(materielResourceID, -materielUsed, ResourceUseType.Consume, self:GetKey())	--to do : repair usage	
 			local cost 		= self:GetResourceCost(materielResourceID) * materielUsed
 			local player 	= GCO.GetPlayer(playerID)
-			player:ProceedTransaction(AccountType.Production, -cost) --to do : repair account
+			player:ProceedTransaction(AccountType.Repair, -cost)
 			cityCenter:ChangeDamage(DefenseTypes.DISTRICT_OUTER, - maxHealed)
 			
 			Dprint( DEBUG_CITY_SCRIPT, "  - Used ".. Indentation8(materielUsed) .." ".. Indentation20(Locale.Lookup(GameInfo.Resources[materielResourceID].Name)) .." to heal ".. tostring(maxHealed), " HP for City Wall, cost = "..tostring(cost))

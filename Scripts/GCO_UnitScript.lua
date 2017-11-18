@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_UNIT_SCRIPT			= true
+DEBUG_UNIT_SCRIPT			= false
 
 function ToggleUnitDebug()
 	DEBUG_UNIT_SCRIPT = not DEBUG_UNIT_SCRIPT
@@ -1674,7 +1674,7 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 	elseif resourceKey == medicineResourceKey then
 		unitData.MedicineStock = math.max(0, unitData.MedicineStock + value)
 	
-	elseif self:IsEquipment(resourceID) then
+	elseif self:IsEquipment(resourceID) or self:IsSpecificEquipment(resourceID) then
 		self:ChangeReserveEquipment( resourceID, value )
 		
 	else
@@ -3810,28 +3810,36 @@ function Heal(self)
 		local bTransferDone			= false
 		local bFrontLineFilled		= false
 		
-		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer START ... AlreadyUsed ........ = ", alreadyUsed, " Current = ", current, " CurrentMax = ", currentMax, " TransferMax = ", transferMax, " MaxLeftToTranfer = ", maxLeftToTranfer, " IsRequired = ", equipmentClassData.IsRequired, " for "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name)) .. " " .. Indentation20("START <<<<<"), " AlreadyUsed = ", alreadyUsed, " Current = ", current, " CurrentMax = ", currentMax, " TransferMax = ", transferMax, " MaxLeftToTranfer = ", maxLeftToTranfer, " IsRequired = ", equipmentClassData.IsRequired)
 
 		while (maxLeftToTranfer > 0) and (not bTransferDone) do
 			local lowerTypeID, lowerDesirability	= GetLowerAvailableEquipmentTypeInList(equipmentClassID, unitData.Equipment)
-			local bestTypeID, bestDesirability 		= GetBestAvailableEquipmentTypeInList(equipmentClassID, unitData.EquipmentReserve)
-			if lowerTypeID and bestTypeID then -- Must check in case that equipmentClass is still empty
+			local bestTypeID, bestDesirability 		= GetBestAvailableEquipmentTypeInList(equipmentClassID, unitData.EquipmentReserve)			
+	
+			if bestTypeID then -- Must check in case that equipmentClass is still empty
 				local loopTransfer	= 0
 				
-				Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. LowerDesirability .. = ", lowerDesirability, " for "..Locale.Lookup(GameInfo.Resources[lowerTypeID].Name))
-				Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. BestDesirability ... = ", bestDesirability, " for "..Locale.Lookup(GameInfo.Resources[bestTypeID].Name))
-			
+				Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. BestDesirability ... = ", bestDesirability, " for "..Locale.Lookup(GameInfo.Resources[bestTypeID].Name))				
+				if lowerTypeID then
+					Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. LowerDesirability .. = ", lowerDesirability, " for "..Locale.Lookup(GameInfo.Resources[lowerTypeID].Name))
+				end
+				
 				if equipmentClassData.IsRequired then -- exchange 1:1 in that case
-					if lowerDesirability < bestDesirability then				
-						local toTransfer = math.min(maxLeftToTranfer, self:GetFrontLineEquipment(lowerTypeID), self:GetReserveEquipment(bestTypeID))
-						if toTransfer > 0 then
-							self:ChangeReserveEquipment(bestTypeID, -toTransfer)
-							self:ChangeReserveEquipment(lowerTypeID, toTransfer)
-							self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
-							self:ChangeFrontLineEquipment(lowerTypeID, -toTransfer)
-							maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
-							loopTransfer		= loopTransfer + toTransfer
-							Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
+					if lowerTypeID then
+						
+						if lowerDesirability < bestDesirability then				
+							local toTransfer = math.min(maxLeftToTranfer, self:GetFrontLineEquipment(lowerTypeID), self:GetReserveEquipment(bestTypeID))
+							if toTransfer > 0 then
+								self:ChangeReserveEquipment(bestTypeID, -toTransfer)
+								self:ChangeReserveEquipment(lowerTypeID, toTransfer)
+								self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
+								self:ChangeFrontLineEquipment(lowerTypeID, -toTransfer)
+								maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
+								loopTransfer		= loopTransfer + toTransfer
+								Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
+							end
+						else
+							bTransferDone = true
 						end
 					else
 						bTransferDone = true
@@ -3852,7 +3860,7 @@ function Heal(self)
 						end
 					end
 					-- Then exchange...
-					if maxLeftToTranfer > 0 and lowerDesirability < bestDesirability then				
+					if lowerTypeID and maxLeftToTranfer > 0 and lowerDesirability < bestDesirability then				
 						local toTransfer = math.min(maxLeftToTranfer, self:GetFrontLineEquipment(lowerTypeID), self:GetReserveEquipment(bestTypeID))
 						if toTransfer > 0 then
 							self:ChangeReserveEquipment(bestTypeID, -toTransfer)
@@ -3872,7 +3880,7 @@ function Heal(self)
 				bTransferDone = true
 			end
 		end
-		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer END ..... TransferDone ....... = ", bTransferDone, " MaxLeftToTranfer = ", maxLeftToTranfer, " for "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name)) .. " " .. Indentation20("END >>>>>")," TransferDone =", bTransferDone, " MaxLeftToTranfer = ", maxLeftToTranfer)
 	end	
 
 	-- Visualize healing
@@ -4557,7 +4565,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 		end
 		if( GameInfo.Improvements[improvementType].BarbarianCamp ) then
 			Dprint( DEBUG_UNIT_SCRIPT, "Barbarian Village Cleaned, Era = "..tostring(gameEra));
-			if gameEra < 2 then -- to do : table by era
+			if gameEra < 3 then -- to do : table by era
 				local food 		= GetNum(200)
 				local bows 		= GetNum(1000)
 				local spears 	= GetNum(1000)
@@ -4592,7 +4600,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)					
 					end
 				end
-			elseif gameEra < 4 then -- to do : table by era
+			elseif gameEra < 5 then -- to do : table by era
 				local food 		= GetNum(300)
 				local crossbows	= GetNum(600)
 				local ipikes 	= GetNum(600)

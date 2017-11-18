@@ -130,6 +130,8 @@ function InitializeData(self)
 		CurrentTurn 		= Game.GetCurrentGameTurn(),
 		OrganizationLevel 	= 0,
 		Account				= { [turnKey] = {} }, -- [turnKey] = {[AccountType] = value}
+		Debt			 	= 0,
+		DebtUpdateTurn 		= Game.GetCurrentGameTurn(),
 	}
 end
 
@@ -264,12 +266,41 @@ Events.CivicCompleted.Add(OnCivicCompleted)
 
 -- Proceed with a transaction (update player's gold)
 function ProceedTransaction(self, accountType, value)
+
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLAYER_SCRIPT, "Proceeding transaction for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))
 	local playerData 		= self:GetData()
 	local turnKey 			= GCO.GetTurnKey()
 	local playerTreasury	= self:GetTreasury()
+	local goldBalance		= playerTreasury:GetGoldBalance()
+	local currentBalance	= math.max(0, goldBalance) -- When negative, GoldBalance is set back to 0 at some point in Core, but it can be < 0 when processing transactions, so assume 0 when negative.
+	local afterBalance		= currentBalance + value
+	
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("transaction value") .. tostring(value))
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("realBalance") .. tostring(goldBalance))
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("virtualBalance") .. tostring(currentBalance))
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("afterBalance") .. tostring(afterBalance))
+
 	if not playerData.Account[turnKey] then playerData.Account[turnKey] = {} end
 	playerData.Account[turnKey][accountType] = (playerData.Account[turnKey][accountType] or 0) + value
+
+	if afterBalance < 0 then
+	
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt before") .. tostring(playerData.Debt))
+		
+		playerData.Debt = playerData.Debt + afterBalance
+		
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt after") .. tostring(playerData.Debt))
+		
+		-- Core will add the base game income to the treasury before setting back the GoldBalance to 0
+		-- To prevent any loss, we do not remove from the treasury what has been added to the debt
+		value = value - afterBalance
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Value after") .. tostring(value))
+	end	
+	
 	playerTreasury:ChangeGoldBalance(value)
+	
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 end
 
 -- Record a transaction already proceeded (do not update player's gold)
@@ -295,6 +326,76 @@ function GetTransactionType(self, accountType, turnKey) --turnKey optionnal
 	if not playerData.Account[turnKey] then return 0 end
 	return playerData.Account[turnKey][accountType] or 0
 end
+
+function UpdateDebt(self)
+
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLAYER_SCRIPT, "Updating Civilization Debt...")
+	
+	local playerData 		:table	= self:GetData()
+	local playerTreasury	:table	= self:GetTreasury();
+	local goldYield			:number = playerTreasury:GetGoldYield() - playerTreasury:GetTotalMaintenance()	
+	local goldBalance		:number = playerTreasury:GetGoldBalance()
+	local afterBalance		:number = goldBalance + goldYield
+	
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("goldBalance") .. tostring(goldBalance))
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("goldYield") .. tostring(goldYield))	
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("afterBalance") .. tostring(afterBalance))
+	
+	if afterBalance < 0 then
+	
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt before") .. tostring(playerData.Debt))
+		
+		playerData.Debt = playerData.Debt + goldYield
+		
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt after") .. tostring(playerData.Debt))
+		
+	end
+	
+	if playerData.Debt < 0 and goldYield > 0 then
+	
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Current Debt") .. tostring(playerData.Debt))
+		
+		local maxRepay			= math.min(goldYield, goldBalance) -- if gold yield is negative after adding the TransactionBalance, use all of the initial value for repayment as it may have been added to the gold balance after core has reset its value to 0
+		local extraGoldYield 	= self:GetTransactionBalance()
+		goldYield 				= goldYield + extraGoldYield
+		
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("extraGoldYield") .. tostring(extraGoldYield))		
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("finalGoldYield") .. tostring(goldYield))	
+		
+		if goldYield > 0 then -- if gold yield is still positive, then gold balance was positive (and core did not reset it  to 0)
+			maxRepay = math.min(goldYield / 2, goldBalance) -- 50% of net income used to repay the debt (to do: change by era/techs/policies)
+		end
+
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("maxRepay") .. tostring(maxRepay))
+		
+		if maxRepay > 0 then
+		
+			maxRepay = math.min(maxRepay, -playerData.Debt)
+			Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("maxRepay") .. tostring(maxRepay))
+			
+			playerData.Debt = playerData.Debt + maxRepay
+			self:ProceedTransaction(AccountType.Repay, -maxRepay)
+			
+			Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("New Debt") .. tostring(playerData.Debt))
+			Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("New Balance") .. tostring(playerTreasury:GetGoldBalance()))
+		end
+	end
+end
+
+function OnTreasuryChanged(playerID, yield, balance)
+	Dprint( DEBUG_PLAYER_SCRIPT, "OnTreasuryChanged", playerID, yield, balance)
+	local player = Players[playerID]
+	if player then
+		local playerData 	= player:GetData()
+		local currentTurn	= Game.GetCurrentGameTurn()
+		if playerData.DebtUpdateTurn ~= currentTurn then
+			player:UpdateDebt()
+			playerData.DebtUpdateTurn = currentTurn
+		end
+	end
+end
+Events.TreasuryChanged.Add(OnTreasuryChanged)
 
 -----------------------------------------------------------------------------------------
 -- Updates functions
@@ -371,7 +472,7 @@ function DoPlayerTurn( playerID )
 		
 		--player:UpdatePopulationNeeds()
 		LuaEvents.DoUnitsTurn( playerID )
-		LuaEvents.DoCitiesTurn( playerID )	
+		LuaEvents.DoCitiesTurn( playerID )
 		
 		-- update flags after resources transfers
 		player:UpdateUnitsFlags()
@@ -500,6 +601,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.RecordTransaction							= RecordTransaction
 	p.GetTransactionType						= GetTransactionType
 	p.GetTransactionBalance						= GetTransactionBalance
+	p.UpdateDebt								= UpdateDebt
 	--
 	p.IsResourceVisible							= IsResourceVisible
 	p.IsObsoleteEquipment						= IsObsoleteEquipment

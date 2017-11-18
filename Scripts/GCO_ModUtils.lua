@@ -473,12 +473,15 @@ function SupplyPathBlocked(pPlot, pPlayer)
 
 	local ownerID = pPlot:GetOwner()
 	local playerID = pPlayer:GetID()
+	
+	if pPlayer:GetDiplomacy():IsAtWarWith( ownerID ) then return true end -- path blocked
 
 	local aUnits = Units.GetUnitsInPlot(pPlot);
 	for i, pUnit in ipairs(aUnits) do
 		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
 	end
-		
+	
+	--[[
 	if ( ownerID == playerID or ownerID == -1 ) then
 		return false
 	end
@@ -488,6 +491,8 @@ function SupplyPathBlocked(pPlot, pPlayer)
 	end	
 
 	return true -- return true if the path is blocked...
+	--]]
+	return false
 end
 
 

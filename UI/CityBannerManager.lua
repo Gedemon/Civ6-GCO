@@ -1396,10 +1396,10 @@ function CityBanner.UpdateName( self : CityBanner )
 									
 						local transferColor 	= RGBAValuesToABGRHex(0.3, 0.3, 0.3, 0.75) --RGBAValuesToABGRHex(1, 1, 1, 1)
 						local foreignTradeColor = RGBAValuesToABGRHex(1, 1, 1, 0.75)
-						local limitedTradeColor = RGBAValuesToABGRHex(0.6, 0.4, 0, 0.75)
+						local limitedTradeColor = RGBAValuesToABGRHex(1, 0.15, 0, 0.75)
 						local neutralTradeColor = RGBAValuesToABGRHex(1, 1, 1, 0.75)
 						local friendTradeColor 	= RGBAValuesToABGRHex(0.3, 1, 0.3, 0.75)
-						local alliedTradeColor 	= RGBAValuesToABGRHex(0.3, 0.3, 1, 0.75)
+						local alliedTradeColor 	= RGBAValuesToABGRHex(0, 0.25, 1, 0.75)
 						
 						if not (linkedCities or exportCities) then return end
 						UILens.SetActive("TradeRoute")

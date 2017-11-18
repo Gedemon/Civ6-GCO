@@ -24,6 +24,11 @@ DELETE FROM Resource_Harvests;
 DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='DEAL_ITEM_RESOURCES';
 --*/
 
+
+/* Diplomacy */
+UPDATE DiplomaticActions SET InitiatorPrereqCivic ='CIVIC_EARLY_EMPIRE', TargetPrereqCivic ='CIVIC_EARLY_EMPIRE' WHERE DiplomaticActionType ='DIPLOACTION_ALLIANCE';
+
+
 /* Improvements */
 UPDATE Improvements 	SET PrereqTech ='TECH_CONSTRUCTION' WHERE ImprovementType ='IMPROVEMENT_FORT';
 
@@ -137,6 +142,7 @@ DELETE FROM Units WHERE PurchaseYield='YIELD_FAITH';
 
 --/* 
 DELETE FROM Feature_YieldChanges WHERE YieldType ='YIELD_FAITH';
+DELETE FROM Feature_AdjacentYields WHERE YieldType ='YIELD_FAITH';
 UPDATE GreatWork_YieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';
 DELETE FROM Improvement_YieldChanges WHERE YieldType ='YIELD_FAITH';
 UPDATE Improvement_BonusYieldChanges SET YieldType = 'YIELD_CULTURE' WHERE YieldType ='YIELD_FAITH';

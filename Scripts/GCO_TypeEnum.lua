@@ -16,6 +16,9 @@ AccountType	= {	-- ENUM for treasury changes (string as it it used as a key for 
 		BuildingMaintenance	= "4",	-- Expense for buildings Maintenance (vanilla)
 		UnitMaintenance		= "5",	-- Expense for units Maintenance (vanilla)
 		DistrictMaintenance	= "6",	-- Expense for district Maintenance (vanilla)
+		Repair				= "11",	-- Expense for healing city garrison or walls
+		Repay				= "12",	-- Expense for repaying the debt
+		
 		ImportTaxes			= "7",	-- Income from Import Taxes
 		ExportTaxes			= "8",	-- Income from Export Taxes
 		Plundering			= "9",	-- Income from units Plundering

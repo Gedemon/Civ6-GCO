@@ -25,11 +25,15 @@
   
   <LocalizedText> <!-- Treasury -->
 		
-	<Replace Tag="LOC_TOP_PANEL_IMPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from Importations taxes"		Language="en_US" /> 
-	<Replace Tag="LOC_TOP_PANEL_EXPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from Exportations taxes"		Language="en_US" /> 
-	<Replace Tag="LOC_TOP_PANEL_PLUDERING_INCOME"		Text="{1_Num : number +#.#;-#.#} from Plundering"				Language="en_US" /> 
-	<Replace Tag="LOC_TOP_PANEL_PRODUCTION_EXPENSE"		Text="{1_Num : number +#.#;-#.#} from Production in Cities"		Language="en_US" /> 
-	<Replace Tag="LOC_TOP_PANEL_REINFORCEMENT_EXPENSE"	Text="{1_Num : number +#.#;-#.#} from Reinforcements to units"	Language="en_US" /> 
+	<Replace Tag="LOC_TOP_PANEL_IMPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from Importations taxes"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_EXPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from Exportations taxes"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_PLUDERING_INCOME"		Text="{1_Num : number +#.#;-#.#} from Plundering"				Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_PRODUCTION_EXPENSE"		Text="{1_Num : number +#.#;-#.#} from Production in Cities"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_REINFORCEMENT_EXPENSE"	Text="{1_Num : number +#.#;-#.#} from Reinforcements to units"	Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_REPAIR_EXPENSE"			Text="{1_Num : number +#.#;-#.#} from city reparations"			Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_REPAY_EXPENSE"			Text="{1_Num : number +#.#;-#.#} from repaying the Debt"		Language="en_US" />
+	
+	<Replace Tag="LOC_TOP_PANEL_DEBT_TOOLTIP"			Text="The value of your Debt[NEWLINE][NEWLINE]Repayment is taken from your net income.[NEWLINE]A large debt may lower your Empire stability." Language="en_US" />
 	
   </LocalizedText>	
 	
@@ -513,6 +517,13 @@
     </Replace>
     <Replace Tag="LOC_GOLD_FROM_EXPORT" Language="en_US">
       <Text>[COLOR_FLOAT_GOLD]+{1_Num} [ICON_Gold][ENDCOLOR] from Export</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_GOLD_FOR_REINFORCEMENT" Language="en_US">
+      <Text>[COLOR_Civ6Red]-{1_Num} [ICON_Gold][ENDCOLOR] buying reinforcement</Text>
+    </Replace>
+    <Replace Tag="LOC_GOLD_FROM_PLUNDERING" Language="en_US">
+      <Text>[COLOR_FLOAT_GOLD]+{1_Num} [ICON_Gold][ENDCOLOR] selling loot</Text>
     </Replace>
 	
   </LocalizedText>
