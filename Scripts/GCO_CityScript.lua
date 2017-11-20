@@ -4985,7 +4985,7 @@ function CleanCitiesData() -- called in GCO_GameScript.lua
 		local toClean 	= {"Stock","ResourceCost","ResourceUse","Population"}
 		local maxTurn	= 3
 		local player 	= Players[data1.playerID]
-		if player and player:isHuman() then
+		if player and player:IsHuman() then
 			maxTurn = 10
 		end
 		for i, dataToClean in ipairs(toClean) do
