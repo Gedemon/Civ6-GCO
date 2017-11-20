@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_UNIT_SCRIPT			= false
+DEBUG_UNIT_SCRIPT = "UnitScript"
 
 function ToggleUnitDebug()
 	DEBUG_UNIT_SCRIPT = not DEBUG_UNIT_SCRIPT
@@ -65,28 +65,6 @@ local horsesEquipmentClassKey 	= tostring(horsesEquipmentClassID)
 local attackerMaterielGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value)
 local attackerMaterielKillPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value)
 local defenderMaterielGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_DEFENDER_MATERIEL_GAIN_PERCENT"].Value)
-
---[[
-local unitEquipment			= {}
-for row in GameInfo.Units() do
-	local unitType 	= row.UnitType
-	local unitID 	= row.Index
-	if row.EquipmentType then
-		local equipmentID 	= GameInfo.Resources[row.EquipmentType].Index	-- equipment are special resources		
-		if not unitEquipment[unitType] then unitEquipment[unitType] = {} end
-		unitEquipment[unitType] = equipmentID
-		-- This is to handle index, as pUnit:GetUnitType() returns an index...
-		if not unitEquipment[unitID] then unitEquipment[unitID] = {} end
-		unitEquipment[unitID] = equipmentID
-		-- This is to accept hash like ToolTipHelper
-		if not unitEquipment[row.Hash] then unitEquipment[row.Hash] = {} end
-		unitEquipment[row.Hash] = equipmentID		
-	end
-	if row.Equipment > 0 and not row.EquipmentType then
-		print("WARNING: Equipment required without EquipmentType for "..tostring(row.UnitType))
-	end
-end
---]]
 
 -- Helper to get the resource list required by an unit for its construction (but not for reinforcement)
 local unitConstructionResources = {}
@@ -469,7 +447,7 @@ local unitTableEnum = {
 
 function SaveUnitTable()
 	local UnitData = ExposedMembers.UnitData
-	print("--------------------------- UnitData: Save w/Enum ---------------------------")
+	Dprint( DEBUG_UNIT_SCRIPT, "--------------------------- UnitData: Save w/Enum ---------------------------")
 	GCO.StartTimer("Saving And Checking UnitData")
 	local t = {}
 	for key, data in pairs(UnitData) do
@@ -506,7 +484,7 @@ end
 LuaEvents.SaveTables.Add(SaveTables)
 
 function CheckSave()
-	print("Checking Saved Table...")
+	Dprint( DEBUG_UNIT_SCRIPT, "Checking Saved Table...")
 	local unitData = {}
 	local loadedTable = GCO.LoadTableFromSlot("UnitData")
 	if loadedTable then
@@ -518,7 +496,7 @@ function CheckSave()
 		end
 	end
 	if GCO.AreSameTables(ExposedMembers.UnitData, unitData) then
-		print("- Tables are identical")
+		Dprint( DEBUG_UNIT_SCRIPT, "- Tables are identical")
 	else
 		GCO.Error("reloading saved table show differences with actual table !")
 		LuaEvents.StopAuToPlay()
@@ -598,7 +576,7 @@ end
 -----------------------------------------------------------------------------------------
 function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizationLevel) -- use partialHP to initialize incomplete unit, use personnelReserve to initialize unit with reserve
 
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	--[[ Current HP (ie unit:GetMaxDamage() - unit:GetDamage()) can't be trusted
 	***********
@@ -712,7 +690,7 @@ end
 
 function InitializeUnit(playerID, unitID)
 
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
@@ -733,7 +711,7 @@ function InitializeUnit(playerID, unitID)
 			RegisterNewUnit(playerID, unit)
 		end
 	else
-		print ("- WARNING : tried to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when launching a new game)")
+		Dprint( DEBUG_UNIT_SCRIPT, "WARNING : Trying to initialize nil unit for player #".. tostring(playerID) .." (you can ignore this warning when launching a new game)")
 	end
 
 end
@@ -745,7 +723,7 @@ end
 function InitializeEquipment(self, equipmentList) -- equipmentList optional, equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
 	Dlog("InitializeEquipment /START")
-	--local DEBUG_UNIT_SCRIPT = true	
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"	
 	Dprint( DEBUG_UNIT_SCRIPT, "Initializing equipment for unit (".. Locale.Lookup(self:GetName()) ..") for player #".. tostring(self:GetOwner()).. " id#" .. tostring(self:GetKey()))
 	
 	local unitKey 	= self:GetKey()
@@ -812,7 +790,7 @@ end
 
 function DelayedEquipmentInitialization()
 
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "Starting Delayed Equipment Initialization...")
 	Dprint( DEBUG_UNIT_SCRIPT, "coroutine.status = ", coroutine.status(initializeEquipmentCo))
@@ -844,7 +822,7 @@ function DelayedEquipmentInitialization()
 end
 
 function StopDelayedEquipmentInitialization()
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, "Stopping Delayed Equipment Initialization...")	
 	Events.GameCoreEventPublishComplete.Remove( CheckEquipmentInitializationTimer )	
 	initializeEquipmentCo = false
@@ -864,9 +842,9 @@ function StopDelayedEquipmentInitialization()
 end
 
 function CheckEquipmentInitializationTimer()
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	if not initializeEquipmentCo then
-		print("- WARNING : CheckEquipmentInitializationTimer called but Initialize Equipment Coroutine = false")
+		GCO.Warning("CheckEquipmentInitializationTimer called but Initialize Equipment Coroutine = false")
 		StopDelayedEquipmentInitialization()
 	end
 	if coroutine.status(initializeEquipmentCo)=="dead" then
@@ -913,127 +891,103 @@ Events.RemotePlayerTurnEnd.Add(	ResumeEquipmentInitialization )
 local barbarianUnits = {
 	["ERA_ANCIENT"] 		= 
 		{
-			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
-			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		},
-			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HEAVY_CHARIOT", 	},
-			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_HEAVY_CHARIOT", 	},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_WARRIOR", 			AltType = "UNIT_SWORDSMAN", AltProbability = 30 },
+			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_HEAVY_CHARIOT", 	},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_WARRIOR", 			AltType = "UNIT_SPEARMAN", AltProbability = 30 },
 			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY", 			},
-			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER", },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_GALLEY", 			},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_SLINGER", 			AltType = "UNIT_ARCHER", AltProbability = 40 },
+			["PROMOTION_CLASS_SKIRMISHER"]		= { Type = "UNIT_SLINGER", 			AltType = "UNIT_ARCHER", AltProbability = 30 },
 			--["PROMOTION_CLASS_SIEGE"] 			= { },
 			--["PROMOTION_CLASS_SUPPORT"] 		= { },
 	
 		} ,
 	["ERA_CLASSICAL"] 		=
 		{
-			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
-			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		},
-			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 35 },
-			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
+			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		AltType = "UNIT_SPEARMAN", AltProbability = 35 },
 			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY", 			},
-			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER", },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_GALLEY", 			},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_ARCHER", 			},
+			["PROMOTION_CLASS_SKIRMISHER"] 		= { Type = "UNIT_ARCHER", 			},
 			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
 			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_BATTERING_RAM", 	},	
 		} ,
 	["ERA_MEDIEVAL"] 		=
 		{
-			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
-			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
-			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
-			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
+			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_KNIGHT", AltProbability = 10 },
 			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
-			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY" },
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_NORWEGIAN_LONGSHIP" },
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_NORWEGIAN_LONGSHIP" },
+			["PROMOTION_CLASS_SKIRMISHER"] 		= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
 			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
 			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
 	
 		} ,
 	["ERA_RENAISSANCE"] 	=
 		{
-			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
-			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_PIKEMAN", 			AltType = "UNIT_MUSKETMAN", AltProbability = 35 },
-			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
-			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
-			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
-			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
+			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_PIKEMAN",			AltType = "UNIT_MUSKETMAN", AltProbability = 35 },
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_PRIVATEER", 		},
+			["PROMOTION_CLASS_SKIRMISHER"] 		= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_BOMBARD", 		},
 			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
 	
 		} ,
 	["ERA_INDUSTRIAL"] 		=
 		{
-			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
-			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
-			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
-			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
-			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
-			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
-			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_HORSEMAN", 		},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_MUSKETMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_PRIVATEER", 		},
+			["PROMOTION_CLASS_SKIRMISHER"] 		= { Type = "UNIT_RANGER" },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_FIELD_CANNON", 	},
+			--["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
 	
 		} ,
 	["ERA_MODERN"] 			=
 		{
-			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
-			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
-			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
-			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
-			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
-			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
-			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_CAVALRY", 		},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_INFANTRY", 		AltType = "UNIT_MUSKETMAN", AltProbability = 35 		},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_PRIVATEER", 		},
+			["PROMOTION_CLASS_SKIRMISHER"] 		= { Type = "UNIT_RANGER" },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_FIELD_CANNON", 	},
+			--["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
 	
 		} ,
 	["ERA_ATOMIC"] 			=
 		{
-			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
-			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
-			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
-			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
-			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
-			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
-			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_CAVALRY", 		},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_INFANTRY", 	},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_PRIVATEER", 		},
+			["PROMOTION_CLASS_SKIRMISHER"] 		= { Type = "UNIT_RANGER" },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_ARTILLERY", 	},
+			--["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
 	
 		} ,
 	["ERA_INFORMATION"] 	=
 		{
-			["PROMOTION_CLASS_RECON"] 			= { Type = "UNIT_SCOUT", 			},
-			["PROMOTION_CLASS_ANTI_CAVALRY"] 	= { Type = "UNIT_SPEARMAN", 		AltType = "UNIT_PIKEMAN", AltProbability = 35 },
-			["PROMOTION_CLASS_LIGHT_CAVALRY"] 	= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 10 },
-			["PROMOTION_CLASS_HEAVY_CAVALRY"] 	= { Type = "UNIT_KNIGHT", 			},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		},
-			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_BARBARIAN_RAIDER",	AltType = "UNIT_NORWEGIAN_LONGSHIP", AltProbability = 50 },
-			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_QUADRIREME", 		},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_CROSSBOWMAN", 		AltType = "UNIT_ARCHER", AltProbability = 35 },
-			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
-			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
+			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_CAVALRY", 		},
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_INFANTRY", 	},
+			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_PRIVATEER",		},
+			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_PRIVATEER", 		},
+			["PROMOTION_CLASS_SKIRMISHER"] 		= { Type = "UNIT_RANGER" },
+			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_ARTILLERY", 	},
+			--["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_SIEGE_TOWER", 		},
 	
 		} ,
 }
 
 function CheckAndReplaceBarbarianUnit(unit)
-	local DEBUG_UNIT_SCRIPT = true
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, "Check And Replace Barbarian Unit type...")
 	
 	local eraType			= GameInfo.Eras[GCO.GetGameEra()].EraType
@@ -1104,21 +1058,32 @@ function GetUnitFromKey ( unitKey )
 		if unit then
 			return unit
 		else
-			print ("- WARNING: unit is nil for GetUnitFromKey(".. tostring(unitKey).."), unit type = ".. tostring(GameInfo.Units[ExposedMembers.UnitData[unitKey].unitType].UnitType) )
+			Dprint( DEBUG_UNIT_SCRIPT, "WARNING : Unit is nil for GetUnitFromKey(".. tostring(unitKey).."), unit type = ".. tostring(GameInfo.Units[ExposedMembers.UnitData[unitKey].unitType].UnitType) )
 			--ExposedMembers.UnitData[unitKey].Alive = false
 		end
 	else
-		print ("- WARNING: ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey(".. tostring(unitKey)..")")
+		GCO.Warning("ExposedMembers.UnitData[unitKey] is nil for GetUnitFromKey(".. tostring(unitKey)..")")
 	end
 end
 
+local toRegister = {}
 function GetData(self)
 	local unitKey = self:GetKey()
 	local unitData = ExposedMembers.UnitData[unitKey]
 	if unitData then
 		return unitData
 	else
-		GCO.Warning("GetData() is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()), 5)
+		local currentTurn = Game.GetCurrentGameTurn()
+		if toRegister[unitKey] and toRegister[unitKey] ~= currentTurn then
+			Dprint( DEBUG_UNIT_SCRIPT, "WARNING : is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()).."[NEWLINE]Warning already triggered at turn#"..tostring(toRegister[unitKey]).."[NEWLINE]Forcing registration now", 5)
+			--GCO.DlineFull()
+			RegisterNewUnit(self:GetOwner(), self)
+			toRegister[unitKey] = nil
+		else
+			Dprint( DEBUG_UNIT_SCRIPT, "WARNING : GetData() is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()).."[NEWLINE]First turn triggering the warning[NEWLINE]unit's marked for registration next turn", 5)
+			--GCO.DlineFull()
+			toRegister[unitKey] = currentTurn		
+		end
 	end
 end
 
@@ -1287,6 +1252,8 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 		if organizationLevel 					then newUnitData.OrganizationLevel 		= organizationLevel end		
 		if bTypeChanged or organizationLevel 	then newUnit:UpdateFrontLineData()	end
 		
+		newUnitData.BaseFoodStock = SetBaseFoodStock(newUnitData.unitType, organizationLevel)
+		
 		return newUnit
 	else
 		GCO.Error("Failed to replace unit unitKey#"..tostring(oldUnitKey).." by unit type = "..tostring(newUnitType).." player ID#"..tostring(playerID))
@@ -1400,6 +1367,7 @@ function SetOrganizationLevel(self, organizationLevel)
 
 			-- set new values
 			unitData.OrganizationLevel 	= organizationLevel
+			unitData.BaseFoodStock 		= SetBaseFoodStock(self:GetType(), organizationLevel)
 			self:UpdateFrontLineData()
 			LuaEvents.OrganizationLevelChanged(self:GetOwner(), self:GetID())
 
@@ -1661,7 +1629,7 @@ function ChangeStock(self, resourceID, value) -- "stock" means "reserve" or "rea
 	local unitData = ExposedMembers.UnitData[unitKey]
 	
 	if not unitData then
-		print("WARNING, unitData[unitKey] is nil in ChangeStock() for " .. self:GetName(), unitKey)
+		GCO.Warning("unitData[unitKey] is nil in ChangeStock() for " .. self:GetName(), unitKey)
 		return
 	end
 	
@@ -1688,7 +1656,7 @@ function GetStock(self, resourceID) -- "stock" means "reserve" or "rear" for uni
 	local unitData = ExposedMembers.UnitData[unitKey]
 	
 	if not unitData then
-		print("WARNING, unitData[unitKey] is nil in GetStock() for " .. self:GetName(), unitKey)
+		GCO.Warning("unitData[unitKey] is nil in GetStock() for " .. self:GetName(), unitKey)
 		return 0
 	end
 	
@@ -1708,7 +1676,7 @@ end
 
 function GetAllSurplus(self) -- Return all resources that can be transfered back to a city (or a nearby unit/improvement ?)
 
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, "- check surplus for : ".. Locale.Lookup(self:GetName()))
 	
 	local unitKey 	= self:GetKey()
@@ -1716,7 +1684,7 @@ function GetAllSurplus(self) -- Return all resources that can be transfered back
 	local excedent	= {}
 	
 	if not unitData then
-		print("WARNING, unitData[unitKey] is nil in GetAllSurplus() for " .. self:GetName(), unitKey)
+		GCO.Warning("unitData[unitKey] is nil in GetAllSurplus() for " .. self:GetName(), unitKey)
 		return excedent
 	end
 	
@@ -1765,7 +1733,7 @@ function GetNumResourceNeeded(self, resourceID)
 	local resourceKey 	= tostring(resourceID)
 	local unitData = self:GetData()
 	if not unitData then
-		GCO.Warning("unitData is nil for " .. self:GetName(), unitKey)
+		Dprint("UnitData is nil in GetNumResourceNeeded for " .. Locale.Lookup(self:GetName()), self:GetKey())
 		return 0
 	end
 	local unitType 		= self:GetType()
@@ -1790,12 +1758,12 @@ end
 
 function GetRequirements(self)
 
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	local unitKey 			= self:GetKey()
 	local unitData 			= ExposedMembers.UnitData[unitKey]
 	if not unitData then
-		print("WARNING, unitData[unitKey] is nil in GetRequirements() for " .. self:GetName(), unitKey)
+		GCO.Warning("unitData[unitKey] is nil in GetRequirements() for " .. self:GetName(), unitKey)
 		local requirements 		= {}
 		requirements.Resources 	= {}
 		return requirements
@@ -1823,7 +1791,7 @@ end
 function GetComponent(self, component)
 	local unitData = self:GetData()
 	if not unitData then
-		GCO.Warning("unitData is nil for " .. self:GetName(), unitKey)
+		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())
 		return 0
 	end
 	return unitData[component]
@@ -2069,7 +2037,7 @@ function GetEquipmentOfClassInList(equipmentClassID, equipmentList)
 	return list
 end
 
-function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList)
+function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType)
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name))
 	local bestUnitType
@@ -2104,7 +2072,7 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList)
 			end
 			if numRequiredClasses > 0 then
 				local mediumPercent = totalPercent / numRequiredClasses
-				if mediumPercent > bestValue then
+				if mediumPercent > bestValue or (mediumPercent >= bestValue and unitType == oldUnitType) then -- Return the old type if it's equal to the best possible value, return new type only when it's better.
 					bestValue 		= mediumPercent
 					bestUnitType 	= unitType
 					Dprint( DEBUG_UNIT_SCRIPT, "New best value.. = ", bestValue.." percent for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
@@ -2954,7 +2922,7 @@ end
 
 function GetAntiPersonnelPercent(self)
 	
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	local antiPersonnel = GameInfo.Units[self:GetType()].AntiPersonnel -- 0 = no kill, 100 = all killed
 	local classAP		= {}
@@ -3002,7 +2970,7 @@ function AddCombatInfoTo(Opponent)
 		Opponent.unitData 	= ExposedMembers.UnitData[Opponent.unitKey]
 		
 		if UnitWithoutEquipment[Opponent.unitKey] then
-			print("WARNING: Unit no equiped yet in AddCombatInfoTo, forcing initialization for ".. Locale.Lookup(Opponent.unit:GetName()) .." of player #".. tostring(Opponent.unit:GetOwner()).. " id#" .. tostring(Opponent.unit:GetKey()))
+			Dprint( DEBUG_UNIT_SCRIPT, "Unit no equiped yet in AddCombatInfoTo, forcing initialization for ".. Locale.Lookup(Opponent.unit:GetName()) .." of player #".. tostring(Opponent.unit:GetOwner()).. " id#" .. tostring(Opponent.unit:GetKey()))
 			Opponent.unit:InitializeEquipment() 
 		end
 		
@@ -3027,7 +2995,7 @@ function AddCombatInfoTo(Opponent)
 		end
 		Opponent.unitType 	= Opponent.unitData.unitType
 		if UnitWithoutEquipment[Opponent.unitKey] then
-			print("WARNING: Unit no equiped yet in AddCombatInfoTo, forcing initialization for ".. Locale.Lookup(Opponent.unit:GetName()) .." of player #".. tostring(Opponent.unit:GetOwner()).. " id#" .. tostring(Opponent.unit:GetKey()))
+			Dprint( DEBUG_UNIT_SCRIPT, "Unit no equiped yet in AddCombatInfoTo, forcing initialization for ".. Locale.Lookup(Opponent.unit:GetName()) .." of player #".. tostring(Opponent.unit:GetOwner()).. " id#" .. tostring(Opponent.unit:GetKey()))
 			Opponent.unit:InitializeEquipment() 
 		end
 	end	
@@ -3083,7 +3051,7 @@ end
 
 function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	local UnitData = Opponent.unitData
 	
@@ -3233,7 +3201,7 @@ local combatStart 	= {}
 local combatEnd		= {}
 function OnCombat( combatResult )
 
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	-- for console debugging...
 	ExposedMembers.lastCombat = combatResult
@@ -3298,7 +3266,7 @@ function OnCombat( combatResult )
 		local testHP = attacker.unit:GetMaxDamage() - attacker.unit:GetDamage()
 		if attacker.unitData.HP ~= attacker.InitialHP then -- testHP ~= attacker.FinalHP or 
 			-- this can happen when an unit takes part in multiple combat, the DLL return the HP left after all combat, while combatResult show the HP at the moment of the combat
-			print ("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetKey()).." player#"..tostring(attacker.unit:GetOwner()))
+			Dprint( DEBUG_UNIT_SCRIPT, "WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[attacker.unit:GetType()].UnitType).." id#".. tostring(attacker.unit:GetKey()).." player#"..tostring(attacker.unit:GetOwner()))
 			Dprint( DEBUG_UNIT_SCRIPT, "attacker.FinalHP = MAX_HP - FINAL_DAMAGE_TO .. = ", attacker.FinalHP, "=", attacker[CombatResultParameters.MAX_HIT_POINTS], "-", attacker[CombatResultParameters.FINAL_DAMAGE_TO])
 			Dprint( DEBUG_UNIT_SCRIPT, "gamecore HP = GetMaxDamage() - GetDamage() ... = ", testHP)
 			Dprint( DEBUG_UNIT_SCRIPT, "attacker.InitialHP ........................... = ", attacker.InitialHP)
@@ -3315,7 +3283,7 @@ function OnCombat( combatResult )
 	if defender.unit then
 		local testHP = defender.unit:GetMaxDamage() - defender.unit:GetDamage()
 		if defender.unitData.HP ~= defender.InitialHP then --testHP ~= defender.FinalHP or 
-			print ("WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetKey()).." player#"..tostring(defender.unit:GetOwner()))
+			Dprint( DEBUG_UNIT_SCRIPT, "WARNING: HP not equals to prediction in combatResult for "..tostring(GameInfo.Units[defender.unit:GetType()].UnitType).." id#".. tostring(defender.unit:GetKey()).." player#"..tostring(defender.unit:GetOwner()))
 			Dprint( DEBUG_UNIT_SCRIPT, "defender.FinalHP = MAX_HP - FINAL_DAMAGE_TO .. = ", defender.FinalHP, "=", defender[CombatResultParameters.MAX_HIT_POINTS], "-", defender[CombatResultParameters.FINAL_DAMAGE_TO])
 			Dprint( DEBUG_UNIT_SCRIPT, "gamecore HP = GetMaxDamage() - GetDamage() ... = ", testHP)
 			Dprint( DEBUG_UNIT_SCRIPT, "defender.InitialHP ........................... = ", defender.InitialHP)
@@ -3624,14 +3592,13 @@ function Heal(self)
 
 	--if self:GetDamage() == 0 then return end
 
-	local DEBUG_UNIT_SCRIPT = true
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
 	
 	local unitKey 	= self:GetKey()	
-	local unitData 	= ExposedMembers.UnitData[unitKey]
+	local unitData 	= self:GetData()
 	if not unitData then
-		GCO.Warning("unitData is nil for " .. Locale.Lookup(self:GetName()) .. " id#" .. tostring(self:GetKey()))
 		return
 	end
 	
@@ -3778,7 +3745,7 @@ function Heal(self)
 	
 	-- remove used medicine
 	if unitData.MedicineStock - medicineUsed < 0 then
-		print ("WARNING : used more medicine than available, initial stock = ".. tostring(unitData.MedicineStock) ..", used =".. tostring(medicineUsed)..", wounded to treat = ".. tostring(woundedToHandle))
+		GCO.Warning("used more medicine than available, initial stock = ".. tostring(unitData.MedicineStock) ..", used =".. tostring(medicineUsed)..", wounded to treat = ".. tostring(woundedToHandle))
 		Dprint( DEBUG_UNIT_SCRIPT, "deads = ", deads, " healed = ", healed, " potentialDeads = ", potentialDeads, " savedWithMedicine = ", savedWithMedicine, " potentialHealed = ", potentialHealed, " healedDirectly = ", healedDirectly, " requiredMedicine = ", requiredMedicine)
 	end
 	unitData.MedicineStock = math.max(0, unitData.MedicineStock - medicineUsed)
@@ -3930,10 +3897,10 @@ end
 Events.UnitDamageChanged.Add(HealingControl)
 
 function CheckComponentsHP(unit, str, bNoWarning)
-	local DEBUG_UNIT_SCRIPT = true
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	if not unit then
-		print ("WARNING : unit is nil in CheckComponentsHP() for " .. tostring(str))
+		Dprint( DEBUG_UNIT_SCRIPT, "Unit is nil in CheckComponentsHP() for " .. tostring(str))
 		return
 	end
 	
@@ -3942,11 +3909,11 @@ function CheckComponentsHP(unit, str, bNoWarning)
 	local unitData 	= ExposedMembers.UnitData[key]
 	
 	if UnitWithoutEquipment[key] then
-		print("WARNING: Unit no equiped yet in CheckComponentsHP, forcing initialization for ".. Locale.Lookup(unit:GetName()) .." of player #".. tostring(unit:GetOwner()).. " id#" .. tostring(unit:GetKey()))
+		Dprint( DEBUG_UNIT_SCRIPT, "Unit no equiped yet in CheckComponentsHP, forcing initialization for ".. Locale.Lookup(unit:GetName()) .." of player #".. tostring(unit:GetOwner()).. " id#" .. tostring(unit:GetKey()))
 		unit:InitializeEquipment() 
 	end
 	if not unitData then
-		print ("WARNING : unitData is nil in CheckComponentsHP() for " .. tostring(str))
+		GCO.Warning("unitData is nil in CheckComponentsHP() for " .. tostring(str))
 		return
 	end	
 	
@@ -3959,7 +3926,7 @@ function CheckComponentsHP(unit, str, bNoWarning)
 		if bNoWarning then
 			Dprint( DEBUG_UNIT_SCRIPT, "SHOWING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
 		else
-			print ("WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
+			Dprint( DEBUG_UNIT_SCRIPT, "WARNING : For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
 		end
 		Dprint( DEBUG_UNIT_SCRIPT, "key = ", key, " unitType = ", unitType, " GameCore HP = ", coreHP, " Virtual HP = ", virtualHP, " testing at HP = ", HP, " last Heal = ", unitData.UnitLastHealingValue)
 		Dprint( DEBUG_UNIT_SCRIPT, "unitData =", unitData.Personnel, 	" HitPointsTable[HP] ..................... =", hitPoint.Personnel, " for Personnel")
@@ -4057,8 +4024,8 @@ function GetSupplyPathPlots(self)
 	while not unitData do -- this prevent a "trying to index nil" error on the following line... is it linked to the script/UI not being synchronized ?
 		unitData 	= ExposedMembers.UnitData[unitKey]
 		if Automation.GetTime() + 0.5 > timer then
-			print("- WARNING : unitData= ExposedMembers.UnitData[unitKey] is nil for unit ".. tostring(self:GetName()) .." (key = ".. tostring(unitKey) ..") in GetSupplyPathPlots()")
-			print("- ExposedMembers.UnitData[unitKey] =  ".. tostring(ExposedMembers.UnitData[unitKey]) .." unitData = ".. tostring(unitData))
+			GCO.Warning("unitData= ExposedMembers.UnitData[unitKey] is nil for unit ".. tostring(self:GetName()) .." (key = ".. tostring(unitKey) ..") in GetSupplyPathPlots()")
+			Dprint( DEBUG_UNIT_SCRIPT, "- ExposedMembers.UnitData[unitKey] =  ".. tostring(ExposedMembers.UnitData[unitKey]) .." unitData = ".. tostring(unitData))
 			unitData 	= ExposedMembers.UnitData[unitKey]
 			if not unitData then return else break end
 		end
@@ -4440,7 +4407,7 @@ end
 
 function HealingUnits(playerID)
 	Dlog("HealingUnits /START")
-	local DEBUG_UNIT_SCRIPT = true
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 
 	local player 		= Players[playerID]
 	local playerConfig 	= PlayerConfigurations[playerID]
@@ -4465,7 +4432,7 @@ end
 
 function DoUnitsTurn( playerID )
 	
-	local DEBUG_UNIT_SCRIPT = true	
+	local DEBUG_UNIT_SCRIPT = "UnitScript"	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Units turn")
 	
@@ -4555,92 +4522,133 @@ function OnUnitProductionCompleted(playerID, cityID, productionID, objectID, bCa
 end
 Events.CityProductionCompleted.Add(	OnUnitProductionCompleted)
 
+-- Barbarian Camps and Goody Huts
+local barbarianCamps = {
+	["ERA_ANCIENT"] 		= 
+		{
+			["RESOURCE_FOOD"] 				= 200,
+			["RESOURCE_MATERIEL"] 			= 300,
+			["EQUIPMENT_WOODEN_BOWS"]		= 1000,
+			["EQUIPMENT_BRONZE_SPEARS"]		= 1000,
+			["EQUIPMENT_BRONZE_SWORDS"]		= 800,
+			["EQUIPMENT_IRON_SWORDS"]		= 200,
+			["EQUIPMENT_LEATHER_ARMOR"]		= 80,
+			
+	
+		} ,
+	["ERA_CLASSICAL"] 		=
+		{
+			["RESOURCE_FOOD"] 				= 200,
+			["RESOURCE_MATERIEL"] 			= 300,
+			["EQUIPMENT_WOODEN_BOWS"]		= 1000,
+			["EQUIPMENT_BRONZE_SPEARS"]		= 1000,
+			["EQUIPMENT_BRONZE_SWORDS"]		= 800,
+			["EQUIPMENT_IRON_SWORDS"]		= 200,
+			["EQUIPMENT_BRONZE_ARMOR"]		= 80,
+		} ,
+	["ERA_MEDIEVAL"] 		=
+		{
+			["RESOURCE_FOOD"] 				= 200,
+			["RESOURCE_MATERIEL"] 			= 300,
+			["EQUIPMENT_CROSSBOWS"]			= 1000,
+			["EQUIPMENT_STEEL_PIKES"]		= 200,
+			["EQUIPMENT_IRON_PIKES"]		= 800,
+			["EQUIPMENT_STEEL_SWORDS"]		= 200,
+			["EQUIPMENT_CHAINMAIL_ARMOR"]	= 80,
+	
+		} ,
+	["ERA_RENAISSANCE"] 	=
+		{
+			["RESOURCE_FOOD"] 				= 200,
+			["RESOURCE_MATERIEL"] 			= 300,
+			["EQUIPMENT_MUSKETS"]			= 600,
+			["EQUIPMENT_STEEL_PIKES"]		= 400,
+			["EQUIPMENT_PLATE_ARMOR"]		= 80,
+	
+		} ,
+	["ERA_INDUSTRIAL"] 		=
+		{
+			["RESOURCE_FOOD"] 				= 200,
+			["RESOURCE_MATERIEL"] 			= 300,
+			["EQUIPMENT_MUSKETS"]			= 600,
+			["EQUIPMENT_RIFLES"]			= 400,
+	
+		} ,
+	["ERA_MODERN"] 			=
+		{
+			["RESOURCE_FOOD"] 				= 200,
+			["RESOURCE_MATERIEL"] 			= 300,
+			["EQUIPMENT_MUSKETS"]			= 600,
+			["EQUIPMENT_RIFLES"]			= 400,
+	
+		} ,
+	["ERA_ATOMIC"] 			=
+		{
+			["RESOURCE_FOOD"] 				= 200,
+			["RESOURCE_MATERIEL"] 			= 300,
+			["EQUIPMENT_AUTOMATIC_RIFLES"]	= 600,
+	
+		} ,
+	["ERA_INFORMATION"] 	=
+		{
+			["RESOURCE_FOOD"] 				= 200,
+			["RESOURCE_MATERIEL"] 			= 300,
+			["EQUIPMENT_AUTOMATIC_RIFLES"]	= 600,	
+		} ,
+}
+local IsFirstLineResource = {
+	[foodResourceID] = true,
+	[materielResourceID] = true,
+	[personnelResourceID] = true,
+}
+local IsSecondLineResource = {
+	[medicineResourceID] 							= true,
+	[GameInfo.Resources["RESOURCE_WHEAT"].Index] 	= true,
+	[GameInfo.Resources["RESOURCE_RICE"].Index] 	= true,
+}
 function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
 	--print(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)
 	local unit = UnitManager.GetUnit(unitOwner, unitID)
 	if unit then
-		local gameEra = GCO.GetGameEra()
+		local gameEra 	= GCO.GetGameEra()		
+		local eraType	= GameInfo.Eras[gameEra].EraType
+			
 		function GetNum(num)
 			return GCO.Round(Automation.GetRandomNumber(num) * (gameEra+1) * 0.35)
 		end
 		if( GameInfo.Improvements[improvementType].BarbarianCamp ) then
-			Dprint( DEBUG_UNIT_SCRIPT, "Barbarian Village Cleaned, Era = "..tostring(gameEra));
-			if gameEra < 3 then -- to do : table by era
-				local food 		= GetNum(200)
-				local bows 		= GetNum(1000)
-				local spears 	= GetNum(1000)
-				local bswords 	= GetNum(1000)
-				local iswords 	= GetNum(200)
-				local materiel 	= GetNum(300)
-				unit:ChangeStock(foodResourceID, food)
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Index, bows)
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_BRONZE_SPEARS"].Index, spears)
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_BRONZE_SWORDS"].Index, bswords)	
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Index, iswords)
-				unit:ChangeStock(materielResourceID, materiel)
-
-				LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)			
-				
-				local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
-				if (pLocalPlayerVis ~= nil) then
-					if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
-						local sText = "+" .. tostring(bows).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(spears).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_BRONZE_SPEARS"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(bswords).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_BRONZE_SWORDS"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(iswords).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(food).." "..GCO.GetResourceIcon(foodResourceID) ..", +" .. tostring(materiel).." "..GCO.GetResourceIcon(materielResourceID)
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)					
+			Dprint( DEBUG_UNIT_SCRIPT, "Barbarian Village Cleaned, Era = "..tostring(eraType));
+			
+			local pLocalPlayerVis 	= PlayersVisibility[Game.GetLocalPlayer()]
+			local bIsVisible		= (pLocalPlayerVis ~= nil) and (pLocalPlayerVis:IsVisible(locationX, locationY))			
+			local sOneLineText	 	= ""
+			for resourceType, value in pairs(barbarianCamps[eraType]) do
+				local resRow	= GameInfo.Resources[resourceType]
+				if resRow then
+					local loot 			= GetNum(value)
+					local name 			= Locale.Lookup(resRow.Name)
+					local resourceID 	= resRow.Index
+					unit:ChangeStock(resourceID, loot)
+					if bIsVisible then
+						if IsFirstLineResource[resourceID] then
+							if string.len(sOneLineText) > 0 then
+								sOneLineText = sOneLineText .. ", +" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
+							else
+								sOneLineText = "+" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
+							end
+						else						
+							local sText = "+" .. tostring(loot).." ".. name
+							Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)						
+						end
 					end
+				else
+					GCO.Warning("No entry in Resources table for Type = " .. tostring(resourceType))
 				end
-			elseif gameEra < 5 then -- to do : table by era
-				local food 		= GetNum(300)
-				local crossbows	= GetNum(600)
-				local ipikes 	= GetNum(600)
-				local iswords 	= GetNum(600)
-				local sswords 	= GetNum(150)
-				local spikes 	= GetNum(150)
-				local materiel 	= GetNum(500)
-				unit:ChangeStock(foodResourceID, food)
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_CROSSBOWS"].Index, crossbows)
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_IRON_PIKES"].Index, ipikes)	
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_STEEL_PIKES"].Index, spikes)	
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Index, iswords)
-				unit:ChangeStock(GameInfo.Resources["EQUIPMENT_STEEL_SWORDS"].Index, sswords)
-				unit:ChangeStock(materielResourceID, materiel)
-
-				LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)			
-				
-				local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
-				if (pLocalPlayerVis ~= nil) then
-					if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
-						local sText = "+" .. tostring(crossbows).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_CROSSBOWS"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(ipikes).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_IRON_PIKES"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(spikes).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_STEEL_PIKES"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(iswords).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_IRON_SWORDS"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(sswords).." ".. Locale.Lookup(GameInfo.Resources["EQUIPMENT_STEEL_SWORDS"].Name) 
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
-						
-						local sText = "+" .. tostring(food).." "..GCO.GetResourceIcon(foodResourceID) ..", +" .. tostring(materiel).." "..GCO.GetResourceIcon(materielResourceID)
-						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)					
-					end
-				end			
 			end
+			if string.len(sOneLineText) > 0 then
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sOneLineText, locationX, locationY, 0)
+			end
+			LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)
 		end
 		if( GameInfo.Improvements[improvementType].Goody ) then
 			Dprint( DEBUG_UNIT_SCRIPT, "GoodyHut Activated, Game Era = "..tostring(gameEra)); 
@@ -4695,7 +4703,7 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Updating UnitData...")
 	
-	--local DEBUG_UNIT_SCRIPT = true
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	for unitKey, unitData in pairs(ExposedMembers.UnitData) do
 		local unit = GetUnitFromKey ( unitKey )
@@ -4723,8 +4731,9 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 				
 				if promotionClassID then
 					local equipmentList	= unitData.Equipment
-					local newUnitType 	= GetUnitTypeFromEquipmentList(promotionClassID, equipmentList)			
-					if newUnitType and newUnitType ~= unit:GetType() then
+					local oldUnitType	= unit:GetType()
+					local newUnitType 	= GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType)			
+					if newUnitType and newUnitType ~= oldUnitType then
 						unit = ChangeUnitTo(unit, newUnitType)
 					end
 				end

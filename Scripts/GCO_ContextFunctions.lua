@@ -105,6 +105,13 @@ function GetCityProductionProgress(city, productionType, objetID)
 end
 
 ----------------------------------------------
+-- Game functions
+----------------------------------------------
+function GetTradeManager()
+	return Game.GetTradeManager()
+end
+
+----------------------------------------------
 -- Players functions
 ----------------------------------------------
 function HasPlayerOpenBordersFrom(Player, otherPlayerID)
@@ -161,6 +168,8 @@ function Initialize()
 	ExposedMembers.GCO.GetCityProductionTurnsLeft	= GetCityProductionTurnsLeft
 	ExposedMembers.GCO.GetCityProductionYield		= GetCityProductionYield
 	ExposedMembers.GCO.GetCityProductionProgress	= GetCityProductionProgress
+	-- Game
+	ExposedMembers.GCO.GetTradeManager 				= GetTradeManager
 	-- players
 	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
 	ExposedMembers.GCO.IsResourceVisibleFor 		= IsResourceVisibleFor

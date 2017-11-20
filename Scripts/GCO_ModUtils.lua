@@ -5,16 +5,16 @@
 
 print ("Loading ModUtils.lua...")
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Includes
------------------------------------------------------------------------------------------
+--=====================================================================================--
 include( "GCO_TypeEnum" )
 include( "GCO_SmallUtils" )
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Defines
------------------------------------------------------------------------------------------
+--=====================================================================================--
 
 -- This file is the first to load, do some cleaning here just in case Events.LeaveGameComplete() hasn't fired on returning to main menu or loading a game...
 ExposedMembers.SaveLoad_Initialized 		= nil
@@ -98,9 +98,9 @@ local FLOATING_TEXT_SHORT 	= 1
 local FLOATING_TEXT_LONG 	= 2
 local floatingTextLevel 	= FLOATING_TEXT_SHORT
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Initialize Functions
------------------------------------------------------------------------------------------
+--=====================================================================================--
 local g_Timer = Automation.GetTime()
 function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFunctionsInitialized.TestAll() because it will be called before all required test are added to the event...
 	local bIsInitialized = 	(	ExposedMembers.SaveLoad_Initialized 
@@ -149,9 +149,9 @@ end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Maths/Tables
------------------------------------------------------------------------------------------
+--=====================================================================================--
 function Round(num)
     under = math.floor(num)
     upper = math.floor(num) + 1
@@ -212,9 +212,9 @@ function IsEmpty(testTable)
 	return (next(testTable) == nil)
 end
 
-----------------------------------------------
+--=====================================================================================--
 -- Debug
-----------------------------------------------
+--=====================================================================================--
 local lastLog			= {}
 local bNoOutput 		= false
 local bErrorToScreen 	= true
@@ -223,11 +223,57 @@ function ToggleOutput()
 	print("Spam control = " .. tostring(bNoOutput))
 end
 
+local debugPrint = {}
 function Dprint(...)
     local args = {...}
 	if args.n == 1 then print(args[1]) end 							-- if called with one argument only, print it
 	if args.n == 0 or bNoOutput or args[1] == false then return end	-- don't print if the first argument is false (= debug off)
-	print(select(2,...)) 											-- print everything else after the first argument
+	--print(select(2,...)) -- print everything else after the first argument
+	table.insert(debugPrint, {...})
+end
+
+local lastDebugPrintLine 	= 1
+local lastRemovedLine 		= 1
+function ShowDebugPrint(numEntriesToDisplay)
+	if not numEntriesToDisplay then numEntriesToDisplay = 50000 end
+	local numEntries	= #debugPrint
+	numEntriesToDisplay = math.min(#debugPrint-1, numEntriesToDisplay)
+	lastDebugPrintLine	= math.max(lastDebugPrintLine, lastRemovedLine + numEntries - 1)
+	local startPos 		= lastDebugPrintLine - numEntriesToDisplay
+	local endPos		= lastDebugPrintLine
+	print("=========================================================================================================================================")
+	print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< DEBUG <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+	print("=========================================================================================================================================")
+	print("Showing " .. tostring(numEntriesToDisplay+1) .. " lines / "..tostring(numEntries))
+	print("lastDebugPrintLine .. = ", lastDebugPrintLine)
+	print("lastRemovedLine ..... = ", lastRemovedLine)
+	print("startPos ............ = ", startPos)
+	print("endPos .............. = ", endPos)
+	print("=========================================================================================================================================")
+	if #debugPrint > 0 then
+		for i = startPos, endPos do
+			print(unpack(debugPrint[i]))
+		end
+	end	
+	print("=========================================================================================================================================")
+	print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DEBUG >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+	print("=========================================================================================================================================")
+	--debugPrint = {}
+end
+
+local lastRemovedLine = 1
+function CleanDebugPrint()
+	local maxEntries 	= 100000
+	local numEntries	= #debugPrint
+	if numEntries > maxEntries then
+		local toRemove = numEntries - maxEntries
+		print("removing " .. tostring(toRemove) .. " lines from DebugPrint table at size " .. #debugPrint )
+		for i = lastRemovedLine, toRemove do
+			debugPrint[i] = nil
+		end
+		lastRemovedLine = lastRemovedLine + toRemove
+		print("lastRemovedLine = ", lastRemovedLine)
+	end
 end
 
 function Error(...)
@@ -238,6 +284,7 @@ function Error(...)
 	LuaEvents.StopAuToPlay()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
+	ShowDebugPrint()
 end
 
 function ErrorWithLog(...)
@@ -249,6 +296,7 @@ function ErrorWithLog(...)
 	LuaEvents.ShowLastLog()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
+	ShowDebugPrint()
 end
 
 function Warning(str, seconds)
@@ -260,7 +308,8 @@ function Warning(str, seconds)
 	local line = string.match(line, '%d+')
 	print("WARNING : ".. str .. " at line "..line )	
 	ExposedMembers.UI.PlaySound("Alert_Neutral")
-	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
+	--if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
+	--ShowDebugPrint()
 end
 
 function Dline(...)
@@ -311,6 +360,17 @@ function ShowLastLog(n)
 	lastLog = {}
 end
 LuaEvents.ShowLastLog.Add( ShowLastLog )
+
+function Monitor(f, arguments, name) -- doesn't work as intended, fail on pcall when used like this GCO.Monitor(self.SetCityRationing, {self}, "SetCityRationing for ".. name)
+	StartTimer(name)
+	print(f, name)
+	local status, err = pcall(f(unpack(arguments)))	
+	print(status, err)
+	if not status then
+		Error(err)
+	end
+	ShowTimer(name)
+end
 
 -- Compare tables
 local function internalProtectedEquals(o1, o2, ignore_mt, callList)
@@ -400,26 +460,44 @@ function MarkFlagUpdateSafe()
 end
 LuaEvents.StartPlayerTurn.Add(MarkFlagUpdateSafe)
 
-----------------------------------------------
+--=====================================================================================--
 -- Timer
-----------------------------------------------
+--=====================================================================================--
 local Timer = {}
 function StartTimer(name)
-	Timer[name] = Automation.GetTime()
+	Timer[name] = { Start = Automation.GetTime() }
 end
-function ShowTimer(name)
+function StopTimer(name)
+	if Timer[name] then Timer[name].Stop = Automation.GetTime() end
+end
+function ShowTimer(name) -- bShowInGame, seconds are optionnal
 	if bNoOutput then -- spam control
 		return
 	end
-	if Timer[name] then
-		print("- "..tostring(name) .." timer = " .. tostring(Automation.GetTime()-Timer[name]) .. " seconds")
+	local diff = 0
+	if Timer[name] and Timer[name].Start and Timer[name].Stop then
+		diff = Timer[name].Stop-Timer[name].Start
+	elseif Timer[name] and Timer[name].Start then
+		diff = Automation.GetTime()-Timer[name].Start
+	end	
+	local str = tostring(name) .." timer = " .. tostring(diff) .. " seconds"
+	Dprint(str)
+	if diff > 0.5 then
+		if diff < 2 then
+			GCO.Warning(str, 2)
+		elseif diff < 5 then
+			GCO.Warning(str, 4)
+		else
+			GCO.Error(str)		
+		end
 	end
+	return str
 end
 
 
-----------------------------------------------
+--=====================================================================================--
 -- Civilizations
-----------------------------------------------
+--=====================================================================================--
 function CreateEverAliveTableWithDefaultValue(value)
 	local t = {}
 	for i, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
@@ -437,9 +515,9 @@ function CreateEverAliveTableWithEmptyTable()
 end
 
 
-----------------------------------------------
+--=====================================================================================--
 -- Map
-----------------------------------------------
+--=====================================================================================--
 function FindNearestPlayerCity( eTargetPlayer, iX, iY )
 
 	local pCity = nil
@@ -496,13 +574,13 @@ function SupplyPathBlocked(pPlot, pPlayer)
 end
 
 
-----------------------------------------------
+--=====================================================================================--
 -- Cities
-----------------------------------------------
+--=====================================================================================--
 -- City Capture Events
 local cityCaptureTest = {}
 function CityCaptureDistrictRemoved(playerID, districtID, cityID, iX, iY)
-print("Calling CityCaptureDistrictRemoved (", playerID, districtID, cityID, iX, iY,")")
+Dprint("Calling CityCaptureDistrictRemoved (", playerID, districtID, cityID, iX, iY,")")
 	local key = iX..","..iY
 	cityCaptureTest[key]			= {}
 	cityCaptureTest[key].Turn 		= Game.GetCurrentGameTurn()
@@ -511,7 +589,7 @@ print("Calling CityCaptureDistrictRemoved (", playerID, districtID, cityID, iX, 
 end
 Events.DistrictRemovedFromMap.Add(CityCaptureDistrictRemoved)
 function CityCaptureCityAddedToMap(playerID, cityID, iX, iY)
-print("Calling CityCaptureCityAddedToMap (", playerID, cityID, iX, iY,")")
+Dprint("Calling CityCaptureCityAddedToMap (", playerID, cityID, iX, iY,")")
 	local key = iX..","..iY
 	if (	cityCaptureTest[key]
 		and cityCaptureTest[key].Turn 	== Game.GetCurrentGameTurn()
@@ -524,14 +602,14 @@ print("Calling CityCaptureCityAddedToMap (", playerID, cityID, iX, iY,")")
 		local newOwnerID 		= playerID
 		local newCityID			= cityID
 		if cityCaptureTest[key].PlayerID == originalOwnerID then
-			print("Calling LuaEvents.CapturedCityAddedToMap (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
+			Dprint("Calling LuaEvents.CapturedCityAddedToMap (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
 			LuaEvents.CapturedCityAddedToMap(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
 		end
 	end
 end
 Events.CityAddedToMap.Add(CityCaptureCityAddedToMap)
 function CityCaptureCityInitialized(playerID, cityID, iX, iY)
-print("Calling CityCaptureCityInitialized (", playerID, cityID, iX, iY,")")
+Dprint("Calling CityCaptureCityInitialized (", playerID, cityID, iX, iY,")")
 	local key = iX..","..iY
 	if (	cityCaptureTest[key]
 		and cityCaptureTest[key].Turn 	== Game.GetCurrentGameTurn() )
@@ -543,7 +621,7 @@ print("Calling CityCaptureCityInitialized (", playerID, cityID, iX, iY,")")
 		local newOwnerID 		= playerID
 		local newCityID			= cityID
 		if cityCaptureTest[key].PlayerID == originalOwnerID then
-			print("Calling LuaEvents.CapturedCityInitialized (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
+			Dprint("Calling LuaEvents.CapturedCityInitialized (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
 			LuaEvents.CapturedCityInitialized(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
 			cityCaptureTest[key] = {}
 		end
@@ -552,9 +630,9 @@ end
 Events.CityInitialized.Add(CityCaptureCityInitialized)
 
 
-----------------------------------------------
+--=====================================================================================--
 -- Common
-----------------------------------------------
+--=====================================================================================--
 function GetTotalPrisoners(data) -- works for cityData and unitData
 	return TableSummation(data.Prisoners)
 end
@@ -568,9 +646,9 @@ function GetPreviousTurnKey()
 end
 
 
-----------------------------------------------
+--=====================================================================================--
 -- Players
-----------------------------------------------
+--=====================================================================================--
 function GetPlayerUpperClassPercent( playerID )
 	return tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_PERCENT"].Value)
 end
@@ -580,9 +658,9 @@ function GetPlayerMiddleClassPercent( playerID )
 end
 
 
-----------------------------------------------
+--=====================================================================================--
 -- Resources
-----------------------------------------------
+--=====================================================================================--
 function GetBaseResourceCost(resourceID)
 	local resourceID = tonumber(resourceID)
 	local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
@@ -622,14 +700,14 @@ function GetResourceIcon(resourceID)
 	return iconStr
 end
 
-----------------------------------------------
+--=====================================================================================--
 -- Units
-----------------------------------------------
+--=====================================================================================--
 
 
-----------------------------------------------
+--=====================================================================================--
 -- Texts function
-----------------------------------------------
+--=====================================================================================--
 
 function GetPrisonersStringByCiv(data) -- works for unitData and cityData
 	local sortedPrisoners = {}
@@ -691,9 +769,9 @@ function GetVariationStringRedPositive(variation)
 	return ""
 end
 
-----------------------------------------------
+--=====================================================================================--
 -- Share functions for other contexts
-----------------------------------------------
+--=====================================================================================--
 
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
@@ -707,6 +785,7 @@ function Initialize()
 	-- timers
 	ExposedMembers.GCO.StartTimer 		= StartTimer
 	ExposedMembers.GCO.ShowTimer 		= ShowTimer
+	ExposedMembers.GCO.StopTimer 		= StopTimer
 	-- debug
 	ExposedMembers.GCO.ToggleOutput 	= ToggleOutput
 	ExposedMembers.GCO.Dprint			= Dprint
@@ -720,6 +799,7 @@ function Initialize()
 	ExposedMembers.GCO.Dlog 			= Dlog
 	ExposedMembers.GCO.DfullLog 		= DfullLog
 	ExposedMembers.GCO.CanCallFlagUpdate= CanCallFlagUpdate
+	ExposedMembers.GCO.Monitor 			= Monitor
 	-- "globals"
 	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations
@@ -754,9 +834,9 @@ end
 Initialize()
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Cleaning on exit
------------------------------------------------------------------------------------------
+--=====================================================================================--
 function Cleaning()
 	print ("Cleaning GCO stuff on LeaveGameComplete...")
 	-- 
@@ -790,9 +870,9 @@ Events.LeaveGameComplete.Add(Cleaning)
 LuaEvents.RestartGame.Add(Cleaning)
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Testing...
------------------------------------------------------------------------------------------
+--=====================================================================================--
 
 local currentTurn = -1
 local playerMadeTurn = {}
@@ -802,23 +882,23 @@ function GetPlayerTurn(playerID)
 		playerMadeTurn = {}
 	end
 	if not playerMadeTurn[playerID] then		
-		print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-		print("-- Events.GameCoreEventPublishComplete -> Testing Start Turn for player#"..tostring(playerID))
-		print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+		Dprint("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+		Dprint("-- Events.GameCoreEventPublishComplete -> Testing Start Turn for player#"..tostring(playerID))
+		Dprint("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 		LuaEvents.StartPlayerTurn(playerID)
 		playerMadeTurn[playerID] = true
 	end
 end
 function OnUnitMovementPointsChanged(playerID)
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-	print("-- Test Start Turn On UnitMovementPointsChanged player#"..tostring(playerID))
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint("-- Test Start Turn On UnitMovementPointsChanged player#"..tostring(playerID))
+	Dprint("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	GetPlayerTurn(playerID)
 end
 function OnAiAdvisorUpdated(playerID)
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-	print("-- Test Start Turn On AiAdvisorUpdated player#"..tostring(playerID))
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint("-- Test Start Turn On AiAdvisorUpdated player#"..tostring(playerID))
+	Dprint("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	GetPlayerTurn(playerID)
 end
 function FindActivePlayer()

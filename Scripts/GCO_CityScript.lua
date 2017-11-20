@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_CITY_SCRIPT			= false
+DEBUG_CITY_SCRIPT = "CityScript"
 
 function ToggleCityDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -93,6 +93,7 @@ local CitiesForTransfer 		= {}	-- temporary table to list all cities connected v
 local CitiesForTrade			= {}	-- temporary table to list all cities connected via (external) trade routes to a city
 local CitiesTransferDemand		= {}	-- temporary table to list all resources required by own cities
 local CitiesTradeDemand			= {}	-- temporary table to list all resources required by other civilizations cities
+local CitiesOutOfReach			= {}	-- temporary table to list all cities out of reach of another city (and turns left before next attempt)
 local CitiesToIgnoreThisTurn	= {}	-- temporary table to list all cities to ignore during the current "DoTurn"
 
 local BaseCityYields			= {
@@ -399,7 +400,7 @@ function Initialize() -- called immediatly after loading this file
 end
 
 function SaveTables()
-	print("--------------------------- Saving CityData ---------------------------")
+	Dprint("--------------------------- Saving CityData ---------------------------")
 
 	GCO.CityDataSavingCheck = nil
 
@@ -409,9 +410,9 @@ end
 LuaEvents.SaveTables.Add(SaveTables)
 
 function CheckSave()
-	print("Checking Saved Table...")
+	Dprint( DEBUG_CITY_SCRIPT, "Checking Saved Table...")
 	if GCO.AreSameTables(ExposedMembers.CityData, GCO.LoadTableFromSlot("CityData")) then
-		print("- Tables are identical")
+		Dprint("- Tables are identical")
 	else
 		GCO.ErrorWithLog("reloading saved table show differences with actual table !")
 		CompareData(ExposedMembers.CityData, GCO.LoadTableFromSlot("CityData"))
@@ -435,25 +436,25 @@ function CompareData(data1, data2, tab)
 	for key, data in pairs(data1) do
 		for k, v in pairs (data) do
 		print(k, v)
-		print("A")
+		print( "A")
 			if not data2[key] then
 				print(tab,"- reloaded table is nil for key = ", key)
 			end
-		print("B")
+		print( "B")
 			if data2[key] and not data2[key][k] then
 				print(tab,"- no value for key = ", key, " entry =", k)
 			end
-		print("C")
+		print( "C")
 			if data2[key] and type(v) ~= "table" and v ~= data2[key][k] then
 				print(tab,"- different value for key = ", key, " entry =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]) )
 			end
-		print("D")
+		print( "D")
 			if type(v) == "table" then
 				CompareData(v, data2[key][k], tab.."\t")
 			end
 		end
 	end
-	print("no more data to compare...")
+	print( "no more data to compare...")
 end
 
 -----------------------------------------------------------------------------------------
@@ -494,7 +495,7 @@ end
 
 function InitializeCity(playerID, cityID) -- added to Events.CityAddedToMap in initialize()
 
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	local city = CityManager.GetCity(playerID, cityID)
 	if city then
@@ -526,7 +527,7 @@ end
 
 function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
 
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	--LuaEvents.StopAuToPlay()
 
@@ -714,11 +715,12 @@ function GetCityFromKey ( cityKey )
 		if city then
 			return city
 		else
-			print("- WARNING: city is nil for GetCityFromKey(".. tostring(cityKey)..")")
-			print("--- UnitId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID)
+			GCO.Warning("city is nil for GetCityFromKey(".. tostring(cityKey)..")")
+			DlineFull()
+			Dprint( DEBUG_CITY_SCRIPT, "--- CityId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID)
 		end
 	else
-		print("- WARNING: ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")")
+		GCO.Warning("ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")")
 	end
 end
 
@@ -1136,7 +1138,7 @@ end
 function UpdateLinkedUnits(self)
 
 	Dlog("UpdateLinkedUnits ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = true
+	local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Linked Units...")
 	local selfKey 				= self:GetKey()
@@ -1174,11 +1176,11 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 
 	local DEBUG_CITY_SCRIPT = false
 
-	GCO.StartTimer("UpdateCitiesConnection")
 	local selfKey 		= self:GetKey()
 	local transferKey 	= transferCity:GetKey()
 	local selfPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
 	local transferPlot	= GCO.GetPlot(transferCity:GetX(), transferCity:GetY())
+	local currentTurn 	= Game.GetCurrentGameTurn()
 
 	-- Convert "Coastal" to "Ocean" with required tech for navigation on Ocean
 	-- to do check for docks to allow transfert by sea/rivers
@@ -1214,15 +1216,18 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 
 	local bIsPlotConnected 	= false
 	local routeLength		= 0
+	local pathPlots			= {}
 	if sRouteType == "River" then
 		local path = selfPlot:GetRiverPath(transferPlot)
 		if path then
 			bIsPlotConnected 	= true
 			routeLength 		= #path
+			pathPlots			= path
 		end
 	else
 		bIsPlotConnected 	= GCO.IsPlotConnected(Players[self:GetOwner()], selfPlot, transferPlot, sRouteType, true, nil, GCO.SupplyPathBlocked)
 		routeLength 		= GCO.GetRouteLength()
+		pathPlots 			= GCO.GetRoutePlots()
 	end
 	if bIsPlotConnected then
 		local efficiency 	= GCO.GetRouteEfficiency( routeLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
@@ -1230,18 +1235,17 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 			Dprint( DEBUG_CITY_SCRIPT, " - Found route at " .. tostring(efficiency).." % efficiency, bInternalRoute = ", tostring(bInternalRoute))
 			if bInternalRoute then
 				if (not CitiesForTransfer[selfKey][transferKey]) or (CitiesForTransfer[selfKey][transferKey].Efficiency < efficiency) then
-					CitiesForTransfer[selfKey][transferKey] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency }
+					CitiesForTransfer[selfKey][transferKey] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency, PathPlots = pathPlots, LastUpdate = currentTurn }
 				end
 			else
 				if (not CitiesForTrade[selfKey][transferKey]) or (CitiesForTrade[selfKey][transferKey].Efficiency < efficiency) then
-					CitiesForTrade[selfKey][transferKey] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency, TradeRouteLevel = tradeRouteLevel }
+					CitiesForTrade[selfKey][transferKey] = { RouteType = SupplyRouteType[sRouteType], Efficiency = efficiency, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn }
 				end
 			end
 		else
 			Dprint( DEBUG_CITY_SCRIPT, " - Can't register route, too far away " .. tostring(efficiency).." % efficiency")
 		end
 	end
-	--GCO.ShowTimer("UpdateCitiesConnection")
 end
 
 function GetMaxRouteLength(self, sRouteType)
@@ -1274,7 +1278,7 @@ function GetTransferCities(self)
 --GCO.StartTimer("GetTransferCities")
 	local selfKey = self:GetKey()
 	if not CitiesForTransfer[selfKey] then
-		self:UpdateTransferCities()
+		return {} --self:UpdateTransferCities() -- UpdateTransferCities() must not be called from the UI, it affect gameplay and would lead to desync.
 	end
 --GCO.ShowTimer("GetTransferCities")
 	return CitiesForTransfer[selfKey]
@@ -1284,7 +1288,7 @@ function GetExportCities(self)
 --GCO.StartTimer("GetExportCities")
 	local selfKey = self:GetKey()
 	if not CitiesForTrade[selfKey] then
-		self:UpdateExportCities()
+		return {} --self:UpdateExportCities() -- UpdateExportCities() must not be called from the UI, it affect gameplay and would lead to desync.
 	end
 --GCO.ShowTimer("GetExportCities")
 	return CitiesForTrade[selfKey]
@@ -1294,68 +1298,119 @@ function UpdateTransferCities(self)
 	local selfKey = self:GetKey()
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Routes to same Civilization Cities for ".. Locale.Lookup(self:GetName()))
 	-- reset entries for that city
-	CitiesForTransfer[selfKey] 		= {}	-- Internal transfert to own cities
+	--CitiesForTransfer[selfKey] 		= {}	-- Internal transfert to own cities
 	CitiesTransferDemand[selfKey] 	= { Resources = {}, NeedResources = {}, ReservedResources = {}, HasPrecedence = {} } -- NeedResources : Number of cities requesting a resource type
 
+	local currentTurn 	= Game.GetCurrentGameTurn()
 	local hasRouteTo 	= {}
 	local ownerID 		= self:GetOwner()
 	local player 		= Players[ownerID] --GCO.GetPlayer(ownerID) --<-- player:GetCities() sometime don't give the city objects from this script context
 	local playerCities 	= player:GetCities()
+
+	if not CitiesForTransfer[selfKey] 	then CitiesForTransfer[selfKey] = {} end	-- Export to other civilizations cities
+	if not CitiesOutOfReach[selfKey] 	then CitiesOutOfReach[selfKey] = {} end	-- Cities we can't reach at this moment
+	
 	for i, transferCity in playerCities:Members() do
-		AttachCityFunctions(transferCity) -- because UpdateExportCities() can be called from an UI context
+		--AttachCityFunctions(transferCity) -- because UpdateExportCities() can be called from an UI context <- No more 20-Nov-2017
 		local transferKey = transferCity:GetKey()
 		if transferKey ~= selfKey and not CitiesToIgnoreThisTurn[transferKey] then
-			-- search for trader routes first
-			local trade = GCO.GetCityTrade(transferCity)
-			local outgoingRoutes = trade:GetOutgoingRoutes()
-			for j,route in ipairs(outgoingRoutes) do
-				if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
-					Dprint( DEBUG_CITY_SCRIPT, " - Found trader for transfer from ".. Locale.Lookup(transferCity:GetName()))
-					CitiesForTransfer[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
-					hasRouteTo[transferKey] = true
+		
+			if CitiesOutOfReach[selfKey][transferKey] then
+				-- Update rate is relative to route length
+				local distance			= Map.GetPlotDistance(self:GetX(), self:GetY(), transferCity:GetX(), transferCity:GetY())
+				local turnSinceUpdate	= currentTurn - CitiesOutOfReach[selfKey][transferKey]
+				if turnSinceUpdate > distance / 2 then
+					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." was marked out of reach ".. tostring(turnSinceUpdate) .." turns ago, unmarking for next turn...")
+					CitiesOutOfReach[selfKey][transferKey] = nil
+				else
+					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach ".. tostring(turnSinceUpdate) .." turns")
 				end
-			end
-
-			if not hasRouteTo[transferKey] then
-				for j,route in ipairs(trade:GetIncomingRoutes()) do
-					if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
-						Dprint( DEBUG_CITY_SCRIPT, " - Found trader for transfer to ".. Locale.Lookup(transferCity:GetName()))
-						CitiesForTransfer[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100 }
-						hasRouteTo[transferKey] = true
+			else
+				-- do we need to update the route ?
+				local bNeedUpdate 	= false
+				local tradeRoute	= CitiesForTransfer[selfKey][transferKey]
+				if tradeRoute then
+				
+					-- Update rate is relative to route length
+					local routeLength 		= #tradeRoute.PathPlots
+					local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
+					if turnSinceUpdate > routeLength / 2 then
+						bNeedUpdate = true								
 					end
-				end
-			end
-
-			-- search for other types or routes
-			local bInternalRoute = true
-			if not hasRouteTo[transferKey] then
-
-				self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
-				self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
-				self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
-
-			end
-
-			if CitiesForTransfer[selfKey][transferKey] and CitiesForTransfer[selfKey][transferKey].Efficiency > 0 then
-
-				local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
-				local efficiency	= CitiesForTransfer[selfKey][transferKey].Efficiency
-
-				CitiesForTransfer[selfKey][transferKey].Resources 		= {}
-				CitiesForTransfer[selfKey][transferKey].HasPrecedence 	= {}
-
-				for resourceID, value in pairs(requirements.Resources) do
-					if value > 0 then
-						value = GCO.Round(value*efficiency/100)
-						CitiesForTransfer[selfKey][transferKey].Resources[resourceID] 	= ( CitiesForTransfer[selfKey][transferKey].Resources[resourceID]	or 0 ) + value
-						CitiesTransferDemand[selfKey].Resources[resourceID] 			= ( CitiesTransferDemand[selfKey].Resources[resourceID] 			or 0 ) + value
-						CitiesTransferDemand[selfKey].NeedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].NeedResources[resourceID] 		or 0 ) + 1
-						if requirements.HasPrecedence[resourceID] then
-							CitiesTransferDemand[selfKey].HasPrecedence[resourceID]				= true
-							CitiesForTransfer[selfKey][transferKey].HasPrecedence[resourceID]	= true
-							CitiesTransferDemand[selfKey].ReservedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].ReservedResources[resourceID] or 0 ) + value
+					
+					-- check for blockade
+					if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
+						for i=1, #tradeRoute.PathPlots do
+							local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
+							if GCO.SupplyPathBlocked(plot, Players[self:GetOwner()]) then
+								bNeedUpdate = true
+								break
+							end
 						end
 					end
+				else
+					bNeedUpdate = true
+				end		
+		
+				if bNeedUpdate then
+					-- search for trader routes first
+					local trade 				= GCO.GetCityTrade(transferCity)
+					local tradeManager:table 	= GCO.GetTradeManager()
+					local outgoingRoutes 		= trade:GetOutgoingRoutes()
+					for j,route in ipairs(outgoingRoutes) do
+						if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
+							Dprint( DEBUG_CITY_SCRIPT, " - Found trader for transfer from ".. Locale.Lookup(transferCity:GetName()))
+							local pathPlots 						= tradeManager:GetTradeRoutePath(transferCity:GetOwner(), transferCity:GetID(), self:GetOwner(), self:GetID() )
+							CitiesForTransfer[selfKey][transferKey] = { RouteType = SupplyRouteType.Trader, Efficiency = 100, PathPlots = pathPlots, LastUpdate = currentTurn }
+							hasRouteTo[transferKey] 				= true
+						end
+					end
+
+					if not hasRouteTo[transferKey] then
+						for j,route in ipairs(trade:GetIncomingRoutes()) do
+							if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
+								Dprint( DEBUG_CITY_SCRIPT, " - Found trader for transfer to ".. Locale.Lookup(transferCity:GetName()))
+								local pathPlots 						= tradeManager:GetTradeRoutePath(self:GetOwner(), self:GetID(), transferCity:GetOwner(), transferCity:GetID() )
+								CitiesForTransfer[selfKey][transferKey] = { RouteType = SupplyRouteType.Trader, Efficiency = 100, PathPlots = pathPlots, LastUpdate = currentTurn }
+								hasRouteTo[transferKey] 				= true
+							end
+						end
+					end
+
+					-- search for other types or routes
+					local bInternalRoute = true
+					if not hasRouteTo[transferKey] then
+
+						self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
+						self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
+						self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
+
+					end
+				end
+
+				if CitiesForTransfer[selfKey][transferKey] and CitiesForTransfer[selfKey][transferKey].Efficiency > 0 then
+
+					local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
+					local efficiency	= CitiesForTransfer[selfKey][transferKey].Efficiency
+
+					CitiesForTransfer[selfKey][transferKey].Resources 		= {}
+					CitiesForTransfer[selfKey][transferKey].HasPrecedence 	= {}
+
+					for resourceID, value in pairs(requirements.Resources) do
+						if value > 0 then
+							value = GCO.Round(value*efficiency/100)
+							CitiesForTransfer[selfKey][transferKey].Resources[resourceID] 	= ( CitiesForTransfer[selfKey][transferKey].Resources[resourceID]	or 0 ) + value
+							CitiesTransferDemand[selfKey].Resources[resourceID] 			= ( CitiesTransferDemand[selfKey].Resources[resourceID] 			or 0 ) + value
+							CitiesTransferDemand[selfKey].NeedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].NeedResources[resourceID] 		or 0 ) + 1
+							if requirements.HasPrecedence[resourceID] then
+								CitiesTransferDemand[selfKey].HasPrecedence[resourceID]				= true
+								CitiesForTransfer[selfKey][transferKey].HasPrecedence[resourceID]	= true
+								CitiesTransferDemand[selfKey].ReservedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].ReservedResources[resourceID] or 0 ) + value
+							end
+						end
+					end
+				else
+					CitiesOutOfReach[selfKey][transferKey] = currentTurn
 				end
 			end
 		end
@@ -1364,7 +1419,7 @@ end
 
 function TransferToCities(self)
 	Dlog("TransferToCities ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Transfering to other cities for ".. Locale.Lookup(self:GetName()))
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTransferDemand[selfKey]
@@ -1437,14 +1492,18 @@ end
 
 function UpdateExportCities(self)
 	Dlog("UpdateExportCities ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
 	local selfKey 				= self:GetKey()
-	CitiesForTrade[selfKey] 	= {}	-- Export to other civilizations cities
+	--CitiesForTrade[selfKey] 	= {}	-- Export to other civilizations cities	
 	CitiesTradeDemand[selfKey] 	= { Resources = {}, NeedResources = {}}
 	local hasRouteTo 			= {}
 	local ownerID 				= self:GetOwner()
+	local currentTurn 			= Game.GetCurrentGameTurn()
+	
+	if not CitiesForTrade[selfKey] 		then CitiesForTrade[selfKey] = {} end	-- Export to other civilizations cities
+	if not CitiesOutOfReach[selfKey] 	then CitiesOutOfReach[selfKey] = {} end	-- Cities we can't reach at this moment
 
 	for iPlayer = 0, PlayerManager.GetWasEverAliveCount() - 1 do
 		local player 			= Players[iPlayer] --GCO.GetPlayer(iPlayer) --<-- player:GetCities() sometime don't give the city object from this script context
@@ -1455,65 +1514,116 @@ function UpdateExportCities(self)
 			local bIsFriend			= (pDiploAI:GetDiplomaticState(ownerID) == "DIPLO_STATE_DECLARED_FRIEND") or (pDiploAI:GetDiplomaticState(ownerID) == "DIPLO_STATE_ALLIED")
 			local bIsAllied			= (pDiploAI:GetDiplomaticState(ownerID) == "DIPLO_STATE_ALLIED")
 			local bIsEmbargo		= (pDiploAI:GetDiplomaticState(ownerID) == "DIPLO_STATE_DENOUNCED")
+			local playerConfig 		= PlayerConfigurations[iPlayer]
 			
 			if bIsFriend 	then tradeRouteLevel = TradeLevelType.Friend end
 			if bIsAllied 	then tradeRouteLevel = TradeLevelType.Allied end
 			if bIsEmbargo 	then tradeRouteLevel = TradeLevelType.Limited end
 			
-			if iPlayer ~= ownerID and pDiplo:HasMet( ownerID ) and (not pDiplo:IsAtWarWith( ownerID )) then
-				local playerConfig 		= PlayerConfigurations[iPlayer]
-				Dprint( DEBUG_CITY_SCRIPT, "- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
-				local playerCities 	= player:GetCities()
-				for i, transferCity in playerCities:Members() do
-					AttachCityFunctions(transferCity) -- because UpdateExportCities() can be called from an UI context
-					local transferKey = transferCity:GetKey()
-					if transferKey ~= selfKey and transferCity:IsInitialized() then
-						-- search for trader routes first
-						local trade = GCO.GetCityTrade(transferCity)
-						local outgoingRoutes = trade:GetOutgoingRoutes()
-						for j,route in ipairs(outgoingRoutes) do
-							if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
-								Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade from ".. Locale.Lookup(transferCity:GetName()))
-								CitiesForTrade[selfKey][transferKey] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel }
-								hasRouteTo[transferKey] = true
-							end
-						end
-						
-						if not hasRouteTo[transferKey] then
-							for j,route in ipairs(trade:GetIncomingRoutes()) do
-								if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
-									Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade to ".. Locale.Lookup(transferCity:GetName()))
-									CitiesForTrade[selfKey][transferKey] 		= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel }
-									hasRouteTo[transferKey] = true
+			if iPlayer ~= ownerID and pDiplo:HasMet( ownerID ) then
+				if (not pDiplo:IsAtWarWith( ownerID )) then
+					Dprint( DEBUG_CITY_SCRIPT, "- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+					local playerCities 	= player:GetCities()
+					for i, transferCity in playerCities:Members() do
+						--AttachCityFunctions(transferCity) -- because UpdateExportCities() can be called from an UI context <- No more 20-Nov-2017
+						local transferKey = transferCity:GetKey()
+						if transferKey ~= selfKey and transferCity:IsInitialized() then
+							if CitiesOutOfReach[selfKey][transferKey] then
+								-- Update rate is relative to route length
+								local distance			= Map.GetPlotDistance(self:GetX(), self:GetY(), transferCity:GetX(), transferCity:GetY())
+								local turnSinceUpdate	= currentTurn - CitiesOutOfReach[selfKey][transferKey]
+								if turnSinceUpdate > distance / 2 then
+									Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." was marked out of reach ".. tostring(turnSinceUpdate) .." turns ago, unmarking for next turn...")
+									CitiesOutOfReach[selfKey][transferKey] = nil
+								else
+									Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach ".. tostring(turnSinceUpdate) .." turns")
+								end
+							else
+								-- do we need to update the route ?
+								local bNeedUpdate 	= false
+								local tradeRoute	= CitiesForTrade[selfKey][transferKey]
+								if tradeRoute then
+								
+									-- Update rate is relative to route length
+									local routeLength 		= #tradeRoute.PathPlots
+									local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
+									if turnSinceUpdate > routeLength / 2 then
+										bNeedUpdate = true								
+									end
+									
+									-- check for blockade
+									if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
+										for i=1, #tradeRoute.PathPlots do
+											local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
+											if GCO.SupplyPathBlocked(plot, Players[self:GetOwner()]) then
+												bNeedUpdate = true
+												break
+											end
+										end
+									end
+								else
+									bNeedUpdate = true
+								end
+								
+								if bNeedUpdate then
+									-- search for trader routes first
+									local trade 				= GCO.GetCityTrade(transferCity)
+									local tradeManager:table 	= GCO.GetTradeManager()
+									local outgoingRoutes 		= trade:GetOutgoingRoutes()
+									for j,route in ipairs(outgoingRoutes) do
+										if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
+											Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade from ".. Locale.Lookup(transferCity:GetName()))
+											local pathPlots 						= tradeManager:GetTradeRoutePath(transferCity:GetOwner(), transferCity:GetID(), self:GetOwner(), self:GetID() )
+											CitiesForTrade[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn}
+											hasRouteTo[transferKey] 				= true
+										end
+									end
+
+									if not hasRouteTo[transferKey] then
+										for j,route in ipairs(trade:GetIncomingRoutes()) do
+											if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
+												Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade to ".. Locale.Lookup(transferCity:GetName()))
+												local pathPlots 						= tradeManager:GetTradeRoutePath(self:GetOwner(), self:GetID(), transferCity:GetOwner(), transferCity:GetID() )
+												CitiesForTrade[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn }
+												hasRouteTo[transferKey] 				= true
+											end
+										end
+									end
+									
+									-- search for other types or routes
+									local bInternalRoute = false
+									if not hasRouteTo[transferKey] then
+
+										self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute, tradeRouteLevel)
+										self:UpdateCitiesConnection(transferCity, "River", bInternalRoute, tradeRouteLevel)
+										self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute, tradeRouteLevel)
+
+									end
+								end
+									
+								if CitiesForTrade[selfKey][transferKey] and CitiesForTrade[selfKey][transferKey].Efficiency > 0 then
+
+									local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
+									local efficiency	= CitiesForTrade[selfKey][transferKey].Efficiency
+
+									for resourceID, value in pairs(requirements.Resources) do
+										if value > 0 then
+											CitiesTradeDemand[selfKey].Resources[resourceID] 		= ( CitiesTradeDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+											CitiesTradeDemand[selfKey].NeedResources[resourceID] 	= ( CitiesTradeDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
+										end
+									end
+								else
+									CitiesOutOfReach[selfKey][transferKey] = currentTurn
 								end
 							end
 						end
-						
-						-- search for other types or routes
-						--local bHasOpenMarket = GCO.HasPlayerOpenBordersFrom(player, ownerID) -- to do : real diplomatic deal for international trade over normal routes
-						local bInternalRoute = false
-						--if bHasOpenMarket then
-							if not hasRouteTo[transferKey] then
-
-								self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute, tradeRouteLevel)
-								self:UpdateCitiesConnection(transferCity, "River", bInternalRoute, tradeRouteLevel)
-								self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute, tradeRouteLevel)
-
-							end
-						--end
-						
-						if CitiesForTrade[selfKey][transferKey] and CitiesForTrade[selfKey][transferKey].Efficiency > 0 then
-
-							local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
-							local efficiency	= CitiesForTrade[selfKey][transferKey].Efficiency
-
-							for resourceID, value in pairs(requirements.Resources) do
-								if value > 0 then
-									CitiesTradeDemand[selfKey].Resources[resourceID] 		= ( CitiesTradeDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
-									CitiesTradeDemand[selfKey].NeedResources[resourceID] 	= ( CitiesTradeDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
-								end
-							end
-						end
+					end
+				else -- remove route if exist
+					Dprint( DEBUG_CITY_SCRIPT, "- removing possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+					local playerCities 	= player:GetCities()
+					for i, transferCity in playerCities:Members() do
+						local transferKey = transferCity:GetKey()
+						CitiesForTrade[selfKey][transferKey] = nil
 					end
 				end
 			end
@@ -1524,7 +1634,7 @@ end
 
 function ExportToForeignCities(self)
 	Dlog("ExportToForeignCities ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
 	local selfKey 			= self:GetKey()
@@ -1666,7 +1776,7 @@ function GetRouteEfficiencyTo(self, city)
 end
 
 function GetRequirements(self, fromCity)
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 	local selfKey 				= self:GetKey()
 	local player 				= GCO.GetPlayer(self:GetOwner())
 	local fromplayerID			= fromCity:GetOwner()
@@ -1807,7 +1917,7 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 	local DEBUG_CITY_SCRIPT = false
 	
 	if not resourceID then
-		print("WARNING : resourceID is nil or false in ChangeStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
+		GCO.Warning("resourceID is nil or false in ChangeStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
 		return
 	end
 
@@ -1882,7 +1992,7 @@ end
 function ChangeBuildingQueueStock(self, resourceID, currentlyBuilding, value)
 
 	if not resourceID then
-		print("WARNING : resourceID is nil or false in ChangeBuildingQueueStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
+		GCO.Warning("resourceID is nil or false in ChangeBuildingQueueStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
 		return
 	end
 
@@ -1925,7 +2035,7 @@ end
 
 function GetNumRequiredInQueue(self, resourceID)
 
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 	
 	local cityKey 		= self:GetKey()
 	local cityData 		= ExposedMembers.CityData[cityKey]
@@ -2268,10 +2378,10 @@ function GetResourceUseToolTipStringForTurn(self, resourceID, useTypeKey, turn)
 	local selfName		= Locale.Lookup(self:GetName())
 	local bNotUnitUse	= (ResourceUseTypeReference[useTypeKey] ~= ReferenceType.Unit)
 
-	local MakeString	= function(key, value) return tostring(key) .. " = " .. tostring(value) end
+	local MakeString	= function(key, value) return Indentation20(key) .. tostring(value) end
 
 	function SelfString(value)
-		return tostring(selfName) .. " = " .. tostring(value)
+		return Indentation20(selfName) .. tostring(value)
 	end
 
 	if ResourceUseTypeReference[useTypeKey] == ReferenceType.Plot then
@@ -2287,34 +2397,34 @@ function GetResourceUseToolTipStringForTurn(self, resourceID, useTypeKey, turn)
 				name = name .. ", ".. Locale.Lookup(GameInfo.Improvements[improvementID].Name)
 			end
 			name = name.. " @(".. tostring(plot:GetX())..",".. tostring(plot:GetY())..")"
-			return tostring(name) .. " = " ..  tostring(value)
+			return tostring(name) .. " = " .. tostring(value)
 		end
 	elseif ResourceUseTypeReference[useTypeKey] == ReferenceType.City then
 		MakeString	= function(key, value)
 			local city 	= GetCityFromKey ( key )
 			local name	= Locale.Lookup(city:GetName())
-			return tostring(name) .. " = " .. tostring(value)
+			return Indentation20(name) .. tostring(value)
 		end
 	elseif ResourceUseTypeReference[useTypeKey] == ReferenceType.Unit then
 		MakeString	= function(key, value)
 			local unit 	= GCO.GetUnitFromKey ( key )
 			if unit then
 				local name	= Locale.Lookup(unit:GetName())
-				return tostring(name) .. " = " .. tostring(value)
+				return Indentation20(name) .. tostring(value)
 			else
-				return "Dead unit = " .. tostring(value)
+				return Indentation20("Dead unit") .. tostring(value)
 			end
 		end
 	elseif ResourceUseTypeReference[useTypeKey] == ReferenceType.Population then
 		MakeString	= function(key, value)
 			local name	= Locale.Lookup(GameInfo.Populations[key].Name)
-			return tostring(name) .. " = " .. tostring(value)
+			return Indentation20(name) .. tostring(value)
 		end
 	elseif ResourceUseTypeReference[useTypeKey] == ReferenceType.Building then
 		MakeString	= function(key, value)
 			local buildingID 	= tonumber ( key )
 			local name			= Locale.Lookup(GameInfo.Buildings[buildingID].Name)
-			return tostring(name) .. " = " .. tostring(value)
+			return Indentation20(name) .. tostring(value)
 		end
 	elseif ResourceUseTypeReference[useTypeKey] == ReferenceType.PopOrBuilding then
 		MakeString	= function(key, value)
@@ -2328,7 +2438,7 @@ function GetResourceUseToolTipStringForTurn(self, resourceID, useTypeKey, turn)
 				local buildingID 	= tonumber ( key )
 				name				= Locale.Lookup(GameInfo.Buildings[buildingID].Name)
 			end
-			return tostring(name) .. " = " .. tostring(value)
+			return Indentation20(name) .. tostring(value)
 		end
 	end
 
@@ -3190,7 +3300,7 @@ end
 -----------------------------------------------------------------------------------------
 function SetCityRationing(self)
 	Dlog("SetCityRationing ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Set Rationing...")
 	local cityKey 				= self:GetKey()
@@ -3201,7 +3311,7 @@ function SetCityRationing(self)
 	local previousTurnSupply 	= self:GetSupplyAtTurn(foodResourceID, previousTurn)
 	local foodSent 				= GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.Export, previousTurn)) +  GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.TransferOut, previousTurn))
 	local normalRatio 			= 1
-	local foodVariation 		=  previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
+	local foodVariation 		= previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
 	local consumptionRatio		= math.min(normalRatio, previousTurnSupply / self:GetFoodConsumption(normalRatio)) -- GetFoodConsumption returns a value >= 1
 
 	Dprint( DEBUG_CITY_SCRIPT, " Food stock = ", foodStock," Variation = ",foodVariation, " Previous turn supply = ", previousTurnSupply, " Wanted = ", self:GetFoodConsumption(normalRatio), " Actual Consumption = ", self:GetFoodConsumption(), " Export+Transfer = ", foodSent, " Actual ratio = ", ratio, " Turn(s) locked left = ", (RationingTurnsLocked - (Game.GetCurrentGameTurn() - cityData.FoodRatioTurn)), " Consumption ratio = ",  consumptionRatio)
@@ -3294,6 +3404,8 @@ function UpdateCosts(self)
 			end
 		end
 	end
+	
+	Dlog("UpdateCosts ".. Locale.Lookup(self:GetName()).." /STOP")
 end
 
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
@@ -3394,6 +3506,7 @@ function SetUnlockers(self)
 		end
 	end
 
+	Dlog("SetUnlockers ".. Locale.Lookup(self:GetName()).." /STOP")
 end
 
 function DoRecruitPersonnel(self)
@@ -3432,9 +3545,8 @@ function DoRecruitPersonnel(self)
 end
 
 function DoReinforceUnits(self)
-
 	Dlog("DoReinforceUnits ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Reinforcing units...")
 	local cityKey 				= self:GetKey()
@@ -3473,9 +3585,8 @@ function DoReinforceUnits(self)
 						unit:ChangeStock(resourceID, send)
 						self:ChangeStock(resourceID, -send, ResourceUseType.Supply, unit:GetKey())						
 						
-						-- todo : stock cost/units in a table and do only one transaction after the loop + visualization on map
-						local cost 		= self:GetResourceCost(resourceID) * send						
-						pendingTransaction[unit] = (pendingTransaction[unit] or 0) + cost
+						local cost 					= self:GetResourceCost(resourceID) * send						
+						pendingTransaction[unit] 	= (pendingTransaction[unit] or 0) + cost
 						
 						Dprint( DEBUG_CITY_SCRIPT, "  - send ".. tostring(send)," ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (@ ".. tostring(efficiency), " percent efficiency), cost = "..tostring(cost), " to unit key#".. tostring(unit:GetKey()), Locale.Lookup(UnitManager.GetTypeName(unit)))
 					end
@@ -3665,7 +3776,7 @@ end
 function DoIndustries(self)
 
 	Dlog("DoIndustries ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
@@ -3898,7 +4009,7 @@ end
 function DoConstruction(self)
 
 	Dlog("DoConstruction ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Getting resources for Constructions...")
 
 	local cityKey			= self:GetKey()
@@ -4124,7 +4235,7 @@ end
 function DoGrowth(self)
 
 	Dlog("DoGrowth ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	if Game.GetCurrentGameTurn() < 2 and bUseRealYears then return end -- we need to know the previous year turn to calculate growth rate...
 	Dprint( DEBUG_CITY_SCRIPT, "Calculate city growth for ".. Locale.Lookup(self:GetName()))
@@ -4182,7 +4293,7 @@ end
 function DoNeeds(self)
 
 	Dlog("DoNeeds ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "handling Population needs...")
 
@@ -4468,7 +4579,7 @@ function DoSocialClassStratification(self)
 end
 
 function Heal(self)
-	local DEBUG_CITY_SCRIPT = true
+	local DEBUG_CITY_SCRIPT = "CityScript"
 
 --local healGarrisonMaxPerTurn			= tonumber(GameInfo.GlobalParameters["CITY_HEAL_GARRISON_MAX_PER_TURN"].Value)
 --local healGarrisonBaseMateriel		= tonumber(GameInfo.GlobalParameters["CITY_HEAL_GARRISON_BASE_MATERIEL"].Value)
@@ -4536,44 +4647,69 @@ function DoTurnFirstPass(self)
 	Dlog("DoTurnFirstPass ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "First Pass on ".. Locale.Lookup(self:GetName()))
-	local cityKey = self:GetKey()
-	local cityData = ExposedMembers.CityData[cityKey]
+	local cityKey 	= self:GetKey()
+	local name 		= Locale.Lookup(self:GetName())
+	local cityData 	= ExposedMembers.CityData[cityKey]
 	if not cityData then -- this can happen when using Autoplay, so just output a warning
-		print("WARNING : cityData is nil in DoTurnFirstPass, force initialization...")
+		GCO.Warning("cityData is nil in DoTurnFirstPass, force initialization...")
 		InitializeCity(playerID, cityID)
 		CitiesToIgnoreThisTurn[cityKey] = true
 		return
 	end
 
 	-- set food rationing
+	GCO.StartTimer("SetCityRationing for ".. name)
 	self:SetCityRationing()
+	GCO.ShowTimer("SetCityRationing for ".. name)
 
 	-- get linked units and supply demand
+	GCO.StartTimer("UpdateLinkedUnits for ".. name)
 	self:UpdateLinkedUnits()
+	GCO.ShowTimer("UpdateLinkedUnits for ".. name)
 
 	-- get Resources (allow excedents)
+	GCO.StartTimer("DoCollectResources for ".. name)
 	self:DoCollectResources()
+	GCO.ShowTimer("DoCollectResources for ".. name)
+	
+	GCO.StartTimer("DoRecruitPersonnel for ".. name)
 	self:DoRecruitPersonnel()
+	GCO.ShowTimer("DoRecruitPersonnel for ".. name)
 
 	-- feed population
+	GCO.StartTimer("DoFood for ".. name)
 	self:DoFood()
+	GCO.ShowTimer("DoFood for ".. name)
+	
+	GCO.StartTimer("DoNeeds for ".. name)
 	self:DoNeeds()
+	GCO.ShowTimer("DoNeeds for ".. name)
 
 	-- sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
+	GCO.StartTimer("DoIndustries for ".. name)
 	self:DoIndustries()
-	self:DoConstruction()
+	GCO.ShowTimer("DoIndustries for ".. name)
+	
+	GCO.StartTimer("DoConstruction for ".. name)
+	self:DoConstruction()	
+	GCO.ShowTimer("DoConstruction for ".. name)
+	
+	GCO.StartTimer("DoReinforceUnits for ".. name)
 	self:DoReinforceUnits()
+	GCO.ShowTimer("DoReinforceUnits for ".. name)
+	
 	Dlog("DoTurnFirstPass ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoTurnSecondPass(self)
 
-	local cityKey = self:GetKey()
+	local cityKey 	= self:GetKey()
+	local name 		= Locale.Lookup(self:GetName())
 	if CitiesToIgnoreThisTurn[cityKey] then return end
 	
-	Dlog("DoTurnSecondPass ".. Locale.Lookup(self:GetName()).." /START")
+	Dlog("DoTurnSecondPass ".. name.." /START")
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Second Pass on ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Second Pass on ".. name)
 
 	local cityData = ExposedMembers.CityData[cityKey]
 	if not cityData then -- this should not happen
@@ -4582,18 +4718,22 @@ function DoTurnSecondPass(self)
 	end
 
 	-- get linked cities and supply demand
+	GCO.StartTimer("UpdateTransferCities for ".. name)
 	self:UpdateTransferCities()
-	Dlog("DoTurnSecondPass ".. Locale.Lookup(self:GetName()).." /END")
+	GCO.ShowTimer("UpdateTransferCities for ".. name)
+	
+	Dlog("DoTurnSecondPass ".. name.." /END")
 end
 
 function DoTurnThirdPass(self)
 
-	local cityKey = self:GetKey()
+	local cityKey 	= self:GetKey()
+	local name 		= Locale.Lookup(self:GetName())
 	if CitiesToIgnoreThisTurn[cityKey] then return end
 	
-	Dlog("DoTurnThirdPass ".. Locale.Lookup(self:GetName()).." /START")
+	Dlog("DoTurnThirdPass ".. name.." /START")
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Third Pass on ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Third Pass on ".. name)
 	
 	local cityData = ExposedMembers.CityData[cityKey]
 	if not cityData then -- this should not happen
@@ -4602,22 +4742,31 @@ function DoTurnThirdPass(self)
 	end
 
 	-- diffuse to other cities, now that all of them have made their request after servicing industries and units
+	GCO.StartTimer("TransferToCities for ".. name)
 	self:TransferToCities()
+	GCO.ShowTimer("TransferToCities for ".. name)
 
 	-- now export what's still available
+	GCO.StartTimer("UpdateExportCities for ".. name)
 	self:UpdateExportCities()
+	GCO.ShowTimer("UpdateExportCities for ".. name)
+	
+	GCO.StartTimer("ExportToForeignCities for ".. name)
 	self:ExportToForeignCities()
-	Dlog("DoTurnThirdPass ".. Locale.Lookup(self:GetName()).." /END")
+	GCO.ShowTimer("ExportToForeignCities for ".. name)
+	
+	Dlog("DoTurnThirdPass ".. name.." /END")
 end
 
 function DoTurnFourthPass(self)
 
-	local cityKey = self:GetKey()
+	local cityKey 	= self:GetKey()
+	local name 		= Locale.Lookup(self:GetName())
 	if CitiesToIgnoreThisTurn[cityKey] then return end
 	
-	Dlog("DoTurnFourthPass ".. Locale.Lookup(self:GetName()).." /START")
+	Dlog("DoTurnFourthPass ".. name.." /START")
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass on ".. Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass on ".. name)
 	
 	local cityData = ExposedMembers.CityData[cityKey]
 	if not cityData then -- this should not happen
@@ -4626,23 +4775,30 @@ function DoTurnFourthPass(self)
 	end
 
 	-- Update City Size / social classes
+	GCO.StartTimer("CitySize/SocialClasses for ".. name)
 	self:DoGrowth()
 	self:SetRealPopulation()
 	self:DoSocialClassStratification()
 	self:SetWealth()
 	self:ChangeSize()
 	self:Heal()
+	GCO.ShowTimer("CitySize/SocialClasses for ".. name)
 
 	-- last...
+	GCO.StartTimer("DoExcedents for ".. name)
 	self:DoExcedents()
+	GCO.ShowTimer("DoExcedents for ".. name)
+	
+	GCO.StartTimer("SetUnlockers for ".. name)
 	self:SetUnlockers()
+	GCO.ShowTimer("SetUnlockers for ".. name)
 
-	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass done for ".. Locale.Lookup(self:GetName()))
-	Dlog("DoTurnFourthPass ".. Locale.Lookup(self:GetName()).." /END")
+	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass done for ".. name)
+	Dlog("DoTurnFourthPass ".. name.." /END")
 end
 
 function DoCitiesTurn( playerID )
-	local DEBUG_CITY_SCRIPT = true
+	local DEBUG_CITY_SCRIPT = "CityScript"
 	CitiesToIgnoreThisTurn = {}
 	Dlog("DoCitiesTurn /START")
 	local player = Players[playerID]
@@ -4682,7 +4838,7 @@ Events.CityProductionCompleted.Add(	OnCityProductionCompleted)
 
 function OnCityProductionUpdated( playerID, cityID, objectID, productionID)
 
-	--local DEBUG_CITY_SCRIPT = true
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	local city = CityManager.GetCity(playerID, cityID)
 	if productionID == ProductionTypes.BUILDING then

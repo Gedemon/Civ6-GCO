@@ -49,7 +49,7 @@ end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
-	print("--------------------------- Saving CultureMap ---------------------------")	
+	Dprint( DEBUG_PLOT_SCRIPT, "--------------------------- Saving CultureMap ---------------------------")	
 	GCO.StartTimer("Saving And Checking CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.CultureMap, "CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.PreviousCultureMap, "PreviousCultureMap")
@@ -57,16 +57,16 @@ end
 LuaEvents.SaveTables.Add(SaveTables)
 
 function CheckSave()
-	print("Checking Saved Table...")
+	Dprint( DEBUG_PLOT_SCRIPT, "Checking Saved Table...")
 	if GCO.AreSameTables(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap")) then
-		print("- Tables are identical")
+		Dprint( DEBUG_PLOT_SCRIPT, "- Tables are identical")
 	else
 		GCO.Error("reloading saved CultureMap table show differences with actual table !")
 		CompareData(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap"))
 	end
 	
 	if GCO.AreSameTables(ExposedMembers.PreviousCultureMap, GCO.LoadTableFromSlot("PreviousCultureMap")) then
-		print("- Tables are identical")
+		Dprint( DEBUG_PLOT_SCRIPT, "- Tables are identical")
 	else
 		GCO.Error("reloading saved PreviousCultureMap table show differences with actual table !")
 		LuaEvents.StopAuToPlay()
@@ -658,29 +658,29 @@ function ShowDebug()
 end
 
 function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY )
-	print("-----------------------------------------------------------------------------------------")
-	print("Update Culture On City Capture")
+	Dprint( DEBUG_PLOT_SCRIPT, "-----------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLOT_SCRIPT, "Update Culture On City Capture")
 	local city 		= GCO.GetCity(newOwnerID, newCityID)
 	local cityPlots = GCO.GetCityPlots(city)
 	for _, plotID in ipairs(cityPlots) do
 		local plot	= Map.GetPlotByIndex(plotID)
-		print(" - Plot at :", plot:GetX(), plot:GetY())
+		Dprint( DEBUG_PLOT_SCRIPT, " - Plot at :", plot:GetX(), plot:GetY())
 		local totalCultureLoss = 0
 		local plotCulture = plot:GetCultureTable()
 		for playerID, value in pairs (plotCulture) do
 			local cultureLoss = GCO.Round(plot:GetCulture(playerID) * tonumber(GameInfo.GlobalParameters["CULTURE_LOST_CITY_CONQUEST"].Value) / 100)
-			print("   - player#"..tostring(playerID).." lost culture = ", cultureLoss)
+			Dprint( DEBUG_PLOT_SCRIPT, "   - player#"..tostring(playerID).." lost culture = ", cultureLoss)
 			if cultureLoss > 0 then
 				totalCultureLoss = totalCultureLoss + cultureLoss
 				plot:ChangeCulture(playerID, -cultureLoss)
 			end
 		end
 		local cultureGained = GCO.Round(totalCultureLoss * tonumber(GameInfo.GlobalParameters["CULTURE_GAIN_CITY_CONQUEST"].Value) / 100)
-		print("   - player#"..tostring(newOwnerID).." gain culture = ", cultureGained)
+		Dprint( DEBUG_PLOT_SCRIPT, "   - player#"..tostring(newOwnerID).." gain culture = ", cultureGained)
 		plot:ChangeCulture(newOwnerID, cultureGained)
 		local distance = Map.GetPlotDistance(iX, iY, plot:GetX(), plot:GetY())
 		local bRemoveOwnership = (tonumber(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value == 1 and distance > tonumber(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value)))
-		print("   - check for changing owner: CULTURE_REMOVE_PLOT_CITY_CONQUEST ="..tostring(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value)..", distance["..tostring(distance).."] >  CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST["..tostring(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value).."]")
+		Dprint( DEBUG_PLOT_SCRIPT, "   - check for changing owner: CULTURE_REMOVE_PLOT_CITY_CONQUEST ="..tostring(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value)..", distance["..tostring(distance).."] >  CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST["..tostring(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value).."]")
 		if bRemoveOwnership then
 			WorldBuilder.CityManager():SetPlotOwner( plot:GetX(), plot:GetY(), false )
 		end
@@ -706,10 +706,10 @@ function SetCultureDiffusionRatePer1000()
 	iSettingFactor = iSettingFactor * iSizeFactor
 	
 	iDiffusionRatePer1000 = (tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_RATE"].Value) * iSettingFactor / 100) / 10
-	print ("iSettingFactor = ".. tostring(iSettingFactor))
-	print ("iDiffusionRatePer1000 = ".. tostring(iDiffusionRatePer1000))
+	Dprint( DEBUG_PLOT_SCRIPT, "iSettingFactor = ".. tostring(iSettingFactor))
+	Dprint( DEBUG_PLOT_SCRIPT, "iDiffusionRatePer1000 = ".. tostring(iDiffusionRatePer1000))
 	iDiffusionRatePer1000 = tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_RATE"].Value) / 10
-	print ("iDiffusionRatePer1000 = ".. tostring(iDiffusionRatePer1000))
+	Dprint( DEBUG_PLOT_SCRIPT, "iDiffusionRatePer1000 = ".. tostring(iDiffusionRatePer1000))
 end
 
 function OnNewTurn()
@@ -738,8 +738,8 @@ Events.TurnBegin.Add(OnNewTurn)
 
 
 function InitializeCityPlots(playerID, cityID, iX, iY)
-	print(GCO.Separator)
-	print("Initializing New City Plots...")
+	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLOT_SCRIPT, "Initializing New City Plots...")
 	local city 		= CityManager.GetCity(playerID, cityID)
 	local cityPlot 	= Map.GetPlot(iX, iY)
 	local cityPlots	= GCO.GetCityPlots(city)
@@ -755,13 +755,13 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 			counter = counter + 1
 		end
 	end
-	print("- plots to replace = ", counter)
+	Dprint( DEBUG_PLOT_SCRIPT, "- plots to replace = ", counter)
 	function ReplacePlots()
 		local plotList = {}
 		if counter > 0 then
 			for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
 				if not ((pEdgePlot:IsWater() or ( pEdgePlot:GetArea():GetID() ~= cityPlot:GetArea():GetID() ))) and (pEdgePlot:GetOwner() == NO_OWNER) and pEdgePlot:IsAdjacentPlayer(playerID) then
-					print("   adding to list :", pEdgePlot:GetX(), pEdgePlot:GetY(), "on ring :", ring)
+					Dprint( DEBUG_PLOT_SCRIPT, "   adding to list :", pEdgePlot:GetX(), pEdgePlot:GetY(), "on ring :", ring)
 					local totalYield = 0
 					for row in GameInfo.Yields() do
 						local yield = pEdgePlot:GetYield(row.Index);
@@ -781,7 +781,7 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 		end
 		table.sort(plotList, function(a, b) return a.yield > b.yield; end)
 		for _, data in ipairs(plotList) do
-			print("   replacing at : ", data.plot:GetX(), data.plot:GetY())
+			Dprint( DEBUG_PLOT_SCRIPT, "   replacing at : ", data.plot:GetX(), data.plot:GetY())
 			WorldBuilder.CityManager():SetPlotOwner( data.plot:GetX(), data.plot:GetY(), playerID, cityID )
 			counter = counter - 1
 			if counter == 0 then
@@ -791,7 +791,7 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 	end
 	local loop = 0
 	while (counter > 0 and loop < 4) do
-		print(" - loop =", loop, "plots to replace left =", counter )
+		Dprint( DEBUG_PLOT_SCRIPT, " - loop =", loop, "plots to replace left =", counter )
 		ReplacePlots()
 		ring = ring + 1
 		ReplacePlots()
@@ -801,7 +801,7 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 		loop = loop + 1
 	end
 	
-	print("- check city ownership")	
+	Dprint( DEBUG_PLOT_SCRIPT, "- check city ownership")	
 	for ring = 1, 3 do
 		for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
 			local OwnerCity	= Cities.GetPlotPurchaseCity(pEdgePlot)
@@ -809,7 +809,7 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 				local cityDistance 		= Map.GetPlotDistance(pEdgePlot:GetX(), pEdgePlot:GetY(), city:GetX(), city:GetY())
 				local ownerCityDistance = Map.GetPlotDistance(pEdgePlot:GetX(), pEdgePlot:GetY(), OwnerCity:GetX(), OwnerCity:GetY())
 				if (cityDistance < ownerCityDistance) and (pEdgePlot:GetWorkerCount() == 0 or cityDistance == 1) then
-					print("   change city ownership at : ", pEdgePlot:GetX(), pEdgePlot:GetY(), " city distance = ", cityDistance, " previous city = ", Locale.Lookup(OwnerCity:GetName()), " previous city distance = ", ownerCityDistance)
+					Dprint( DEBUG_PLOT_SCRIPT, "   change city ownership at : ", pEdgePlot:GetX(), pEdgePlot:GetY(), " city distance = ", cityDistance, " previous city = ", Locale.Lookup(OwnerCity:GetName()), " previous city distance = ", ownerCityDistance)
 					WorldBuilder.CityManager():SetPlotOwner( pEdgePlot, false ) -- must remove previous city ownership first, else the UI context doesn't update
 					WorldBuilder.CityManager():SetPlotOwner( pEdgePlot, city, true )
 					--LuaEvents.UpdatePlotTooltip(  pEdgePlot:GetIndex() )
@@ -1139,8 +1139,8 @@ end
 
 function AddGoody()
 	local NO_PLAYER = -1;
-	print("-------------------------------");
-	print("-- Adding New Goody");
+	Dprint( DEBUG_PLOT_SCRIPT, "-------------------------------");
+	Dprint( DEBUG_PLOT_SCRIPT, "-- Adding New Goody");
 	local iW, iH 	= Map.GetGridSize()
 	local plotList 	= {}
 	for x = 0, iW - 1 do
@@ -1157,11 +1157,11 @@ function AddGoody()
 	local randomPlot = plotList[Automation.GetRandomNumber(numPossiblePlots)+1]
 	if randomPlot then
 		ImprovementBuilder.SetImprovementType(randomPlot, GoodyHutID, NO_PLAYER);
-		print("-- found new position at ", randomPlot:GetX(), randomPlot:GetY());
+		Dprint( DEBUG_PLOT_SCRIPT, "-- found new position at ", randomPlot:GetX(), randomPlot:GetY());
 	else
-		print("-- can't found new position for goody");
+		Dprint( DEBUG_PLOT_SCRIPT, "-- can't found new position for goody");
 	end
-	print("-------------------------------");
+	Dprint( DEBUG_PLOT_SCRIPT, "-------------------------------");
 end
 
 function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improvementType, improvementOwner,	activationType, activationValue)

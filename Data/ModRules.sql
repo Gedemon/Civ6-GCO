@@ -65,14 +65,14 @@ UPDATE Technologies SET Cost = Cost*1.80 WHERE EraType ='ERA_ATOMIC';
 UPDATE Technologies SET Cost = Cost*2.00 WHERE EraType ='ERA_INFORMATION';
 
 -- Civics cost
-UPDATE Civics SET Cost = Cost*1.00 WHERE EraType ='ERA_ANCIENT'; -- just for reference
-UPDATE Civics SET Cost = Cost*1.10 WHERE EraType ='ERA_CLASSICAL';
-UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_MEDIEVAL';
-UPDATE Civics SET Cost = Cost*1.30 WHERE EraType ='ERA_RENAISSANCE';
-UPDATE Civics SET Cost = Cost*1.45 WHERE EraType ='ERA_INDUSTRIAL';
-UPDATE Civics SET Cost = Cost*1.60 WHERE EraType ='ERA_MODERN';
-UPDATE Civics SET Cost = Cost*1.80 WHERE EraType ='ERA_ATOMIC';
-UPDATE Civics SET Cost = Cost*2.00 WHERE EraType ='ERA_INFORMATION';
+UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_ANCIENT'; -- just for reference
+UPDATE Civics SET Cost = Cost*1.50 WHERE EraType ='ERA_CLASSICAL';
+UPDATE Civics SET Cost = Cost*1.60 WHERE EraType ='ERA_MEDIEVAL';
+UPDATE Civics SET Cost = Cost*1.70 WHERE EraType ='ERA_RENAISSANCE';
+UPDATE Civics SET Cost = Cost*1.80 WHERE EraType ='ERA_INDUSTRIAL';
+UPDATE Civics SET Cost = Cost*2.00 WHERE EraType ='ERA_MODERN';
+UPDATE Civics SET Cost = Cost*2.20 WHERE EraType ='ERA_ATOMIC';
+UPDATE Civics SET Cost = Cost*2.40 WHERE EraType ='ERA_INFORMATION';
 
 
 /* Districts & Buildings */

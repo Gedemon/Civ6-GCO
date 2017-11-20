@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_PLAYER_SCRIPT			= true
+DEBUG_PLAYER_SCRIPT	= "PlayerScript"
 
 function TogglePlayerDebug()
 	DEBUG_PLAYER_SCRIPT = not DEBUG_PLAYER_SCRIPT
@@ -35,15 +35,17 @@ local _cached				= {}	-- cached table to reduce calculations
 
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	GCO 	= ExposedMembers.GCO
-	Dprint 	= GCO.Dprint
+	GCO 		= ExposedMembers.GCO
+	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
+	Dline		= GCO.Dline					-- output current code line number to firetuner/log
+	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
-	print("--------------------------- Saving PlayerData ---------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "--------------------------- Saving PlayerData ---------------------------")
 	GCO.SaveTableToSlot(ExposedMembers.PlayerData, "PlayerData")
 end
 LuaEvents.SaveTables.Add(SaveTables)
@@ -267,8 +269,8 @@ Events.CivicCompleted.Add(OnCivicCompleted)
 -- Proceed with a transaction (update player's gold)
 function ProceedTransaction(self, accountType, value)
 
-	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_PLAYER_SCRIPT, "Proceeding transaction for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))
+	--Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	--Dprint( DEBUG_PLAYER_SCRIPT, "Proceeding transaction for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))
 	local playerData 		= self:GetData()
 	local turnKey 			= GCO.GetTurnKey()
 	local playerTreasury	= self:GetTreasury()
@@ -276,31 +278,31 @@ function ProceedTransaction(self, accountType, value)
 	local currentBalance	= math.max(0, goldBalance) -- When negative, GoldBalance is set back to 0 at some point in Core, but it can be < 0 when processing transactions, so assume 0 when negative.
 	local afterBalance		= currentBalance + value
 	
-	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("transaction value") .. tostring(value))
-	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("realBalance") .. tostring(goldBalance))
-	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("virtualBalance") .. tostring(currentBalance))
-	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("afterBalance") .. tostring(afterBalance))
+	--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("transaction value") .. tostring(value))
+	--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("realBalance") .. tostring(goldBalance))
+	--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("virtualBalance") .. tostring(currentBalance))
+	--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("afterBalance") .. tostring(afterBalance))
 
 	if not playerData.Account[turnKey] then playerData.Account[turnKey] = {} end
 	playerData.Account[turnKey][accountType] = (playerData.Account[turnKey][accountType] or 0) + value
 
 	if afterBalance < 0 then
 	
-		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt before") .. tostring(playerData.Debt))
+		--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt before") .. tostring(playerData.Debt))
 		
 		playerData.Debt = playerData.Debt + afterBalance
 		
-		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt after") .. tostring(playerData.Debt))
+		--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt after") .. tostring(playerData.Debt))
 		
 		-- Core will add the base game income to the treasury before setting back the GoldBalance to 0
 		-- To prevent any loss, we do not remove from the treasury what has been added to the debt
 		value = value - afterBalance
-		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Value after") .. tostring(value))
+		--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Value after") .. tostring(value))
 	end	
 	
 	playerTreasury:ChangeGoldBalance(value)
 	
-	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	--Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 end
 
 -- Record a transaction already proceeded (do not update player's gold)
@@ -330,7 +332,7 @@ end
 function UpdateDebt(self)
 
 	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_PLAYER_SCRIPT, "Updating Civilization Debt...")
+	Dprint( DEBUG_PLAYER_SCRIPT, "Updating Debt for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))
 	
 	local playerData 		:table	= self:GetData()
 	local playerTreasury	:table	= self:GetTreasury();
@@ -386,7 +388,7 @@ end
 function OnTreasuryChanged(playerID, yield, balance)
 	Dprint( DEBUG_PLAYER_SCRIPT, "OnTreasuryChanged", playerID, yield, balance)
 	local player = Players[playerID]
-	if player then
+	if player and player:IsTurnActive() then
 		local playerData 	= player:GetData()
 		local currentTurn	= Game.GetCurrentGameTurn()
 		if playerData.DebtUpdateTurn ~= currentTurn then
@@ -444,6 +446,31 @@ function UpdateDataOnNewTurn(self)
 	
 end
 
+function UpdateDataOnLoad(self)
+
+	local playerConfig = PlayerConfigurations[self:GetID()]
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on (re)Loading for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+
+	local playerCities = self:GetCities()
+	if playerCities then
+		for i, city in playerCities:Members() do
+			GCO.AttachCityFunctions(city)
+			city:UpdateTransferCities()
+			city:UpdateExportCities()
+		end
+	end
+	
+	local playerUnits = self:GetUnits()
+	if playerUnits then
+		for j, unit in playerUnits:Members() do
+			GCO.AttachUnitFunctions(unit)
+			--
+		end
+	end
+
+end
+
 
 -----------------------------------------------------------------------------------------
 -- DoTurn Functions
@@ -465,14 +492,19 @@ function DoPlayerTurn( playerID )
 	if player and not player:HasStartedTurn() then
 		local playerConfig						= PlayerConfigurations[playerID]
 		GCO.PlayerTurnsDebugChecks[playerID]	= {}
-		
-		print("---============================================================================================================================================================================---")
-		print("--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))) .." )")
-		print("---============================================================================================================================================================================---")
+		local playerName						= Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+		Dprint( DEBUG_PLAYER_SCRIPT, "---============================================================================================================================================================================---")
+		Dprint( DEBUG_PLAYER_SCRIPT, "--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(playerName) .." )")
+		Dprint( DEBUG_PLAYER_SCRIPT, "---============================================================================================================================================================================---")
 		
 		--player:UpdatePopulationNeeds()
+		GCO.StartTimer("DoUnitsTurn for ".. tostring(playerName))
 		LuaEvents.DoUnitsTurn( playerID )
+		GCO.ShowTimer("DoUnitsTurn for ".. tostring(playerName))
+		
+		--GCO.StartTimer("DoCitiesTurn for ".. tostring(playerName))
 		LuaEvents.DoCitiesTurn( playerID )
+		--GCO.ShowTimer("DoCitiesTurn for ".. tostring(playerName))
 		
 		-- update flags after resources transfers
 		player:UpdateUnitsFlags()
@@ -513,9 +545,9 @@ LuaEvents.StartPlayerTurn.Add(CheckPlayerTurn)
 
 function DoTurnForLocal() -- The Error reported on the line below is triggered by something else.
 	local playerID = Game.GetLocalPlayer()
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-	print("-- Events.LocalPlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "-- Events.LocalPlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
+	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	local player = Players[playerID]
 	if player and not player:HasStartedTurn() then	
 		--DoPlayerTurn(playerID)
@@ -526,9 +558,9 @@ end
 Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
 
 function DoTurnForRemote( playerID )
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-	print("-- Events.RemotePlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "-- Events.RemotePlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
+	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	--DoPlayerTurn(playerID)	
 	--CheckPlayerTurn(playerID)
 	LuaEvents.StartPlayerTurn(playerID)
@@ -545,9 +577,9 @@ function DoTurnForNextPlayerFromRemote( playerID )
 	
 	if playerID > 63 then playerID = 0 end
 	
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-	print("-- Events.RemotePlayerTurnEnd -> Testing Start Turn for player#"..tostring(playerID))
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "-- Events.RemotePlayerTurnEnd -> Testing Start Turn for player#"..tostring(playerID))
+	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	LuaEvents.StartPlayerTurn(playerID)
 end
 Events.RemotePlayerTurnEnd.Add( DoTurnForNextPlayerFromRemote )
@@ -560,9 +592,9 @@ function DoTurnForNextPlayerFromLocal( playerID )
 	until((player and player:WasEverAlive()) or playerID > 63)
 	
 	if playerID > 63 then playerID = 0 end
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-	print("-- Events.LocalPlayerTurnEnd -> Testing Start Turn for player#"..tostring(playerID))
-	print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLAYER_SCRIPT, "-- Events.LocalPlayerTurnEnd -> Testing Start Turn for player#"..tostring(playerID))
+	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	LuaEvents.StartPlayerTurn(playerID)
 end
 Events.LocalPlayerTurnEnd.Add( DoTurnForNextPlayerFromLocal )
@@ -619,6 +651,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.SetCurrentTurn							= SetCurrentTurn
 	p.HasStartedTurn							= HasStartedTurn
 	p.UpdateDataOnNewTurn						= UpdateDataOnNewTurn
+	p.UpdateDataOnLoad							= UpdateDataOnLoad
 	--
 	--p.UpdatePopulationNeeds						= UpdatePopulationNeeds
 	p.GetPopulationNeeds						= GetPopulationNeeds

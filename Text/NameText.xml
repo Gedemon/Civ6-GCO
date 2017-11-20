@@ -18,6 +18,7 @@
 		<Replace Tag="LOC_BUILDING_ARTILLATOR_NAME"					Text="Artillator"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_ARMORER_NAME"					Text="Armorer"	 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FOUNDRY_NAME"					Text="Foundry"	 				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_MARKET_EXTENSION_NAME"			Text="Market Extension"			Language="en_US" />
 							
 		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_NAME" 			Text="Central Square"			Language="en_US" />
 		

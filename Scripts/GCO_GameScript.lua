@@ -15,6 +15,7 @@ include( "GCO_SmallUtils" )
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
+DEBUG_GAME_SCRIPT = "GameScript"
 
 local ResClassCount = {
 		["RESOURCECLASS_LUXURY"] 	= 2,
@@ -33,11 +34,15 @@ local ResTypeBonus = {
 
 local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	GCO = ExposedMembers.GCO			-- contains functions from other contexts 
+	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts 
+	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
+	Dline		= GCO.Dline					-- output current code line number to firetuner/log
+	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
 	LuaEvents.InitializeGCO.Remove( InitializeUtilityFunctions )
 	print ("Exposed Functions from other contexts initialized...")
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+
 
 -----------------------------------------------------------------------------------------
 -- Remove CS on game start
@@ -61,6 +66,18 @@ function KillAllCS()
 	end
 end
 
+-----------------------------------------------------------------------------------------
+-- Update Cached Data on Load
+-----------------------------------------------------------------------------------------
+function UpdateCachedData()
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		local player = GCO.GetPlayer(playerID)
+		if player then
+			player:UpdateDataOnLoad()
+		end
+	end
+end
+Events.LoadGameViewStateDone.Add( UpdateCachedData )
 
 -----------------------------------------------------------------------------------------
 -- Resources
@@ -120,25 +137,35 @@ end
 -- Initializing new turn
 -----------------------------------------------------------------------------------------
 function EndingTurn()
-	print("---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
-	print("---+                                                                     ENDING TURN # ".. tostring(Game.GetCurrentGameTurn()))
-	print("---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
+	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
+	Dprint( DEBUG_GAME_SCRIPT, "---+                                                                     ENDING TURN # ".. tostring(Game.GetCurrentGameTurn()))
+	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
 end
 Events.PreTurnBegin.Add(EndingTurn)
 
 local autoSaveNum = 0
 function InitializeNewTurn()
-	print("---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
-	print("---+                                                                    STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()))
-	print("---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
+	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
+	Dprint( DEBUG_GAME_SCRIPT, "---+                                                                    STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()))
+	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
+	
+	GCO.StartTimer("UpdateDataOnNewTurn")
 	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
 		local player = GCO.GetPlayer(playerID)
 		if player then
 			player:UpdateDataOnNewTurn()
 		end
 	end
+	GCO.ShowTimer("UpdateDataOnNewTurn")
+	
+	GCO.StartTimer("UpdateUnitsData")
 	GCO.UpdateUnitsData()
+	GCO.ShowTimer("UpdateUnitsData")	
+	
+	GCO.StartTimer("CleanCitiesData")
 	GCO.CleanCitiesData()
+	GCO.ShowTimer("CleanCitiesData")
+	
 	--LuaEvents.StartPlayerTurn(0) -- calling that here makes the game crash (tested 25-Oct-17)
 	
 	-- Making our own auto save...
