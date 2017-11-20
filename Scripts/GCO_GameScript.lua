@@ -121,11 +121,14 @@ function UpdateGameEra()
 		end	
 	end
 	if count > 0 then 
-		averageEra = math.ceil(totalEra / count)
+		averageEra = math.floor(totalEra / count)
 	else 
 		averageEra = 0
 	end
-	gameEra = averageEra
+	if averageEra ~= gameEra then
+		gameEra = averageEra
+		LuaEvents.GCO_Message("[COLOR:Blue]Global Era changed to [ENDCOLOR] ".. Locale.Lookup(GameInfo.Eras[gameEra].Name), 6)
+	end
 end
 GameEvents.OnGameTurnStarted.Add(UpdateGameEra)
 

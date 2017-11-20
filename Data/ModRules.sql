@@ -3,9 +3,7 @@
 	Mod Rules
 	Gedemon (2017)
 */
- 
-/* New Parameters */
---INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('GCO_VERSION', 'Alpha .1');
+
 
 /* Remove GoodyHuts bonuses */
 --/* 
@@ -13,7 +11,7 @@ UPDATE GoodyHuts 			SET Weight = 0 WHERE GoodyHutType 		<> 'GOODYHUT_GOLD';
 UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMALL_GOLD';
 --*/
 
-/* Change speed */
+/* Change speed (doesn't work ?) */
 --UPDATE GameSpeed_Turns SET MonthIncrement = MonthIncrement * 0.5, TurnsPerIncrement = TurnsPerIncrement * 2;
 
 /* No resources harvesting */

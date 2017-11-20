@@ -318,13 +318,13 @@ function Dline(...)
 	local str = string.match(str, 'GCO_.-$')
 	local str = string.match(str, ':.-\'')
 	local str = string.match(str, '%d+')
-	print("at line "..str, select(1,...))
+	Dprint("at line "..str, select(1,...))
 end
 
 function DlineFull(...)
 	local status, err = pcall(function () error("custom error") end)
 	local str = string.match(err, 'DlineFull.-$')
-	print(str)
+	Dprint(str)
 end
 
 function DfullLog()

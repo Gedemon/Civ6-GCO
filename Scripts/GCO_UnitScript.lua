@@ -1254,6 +1254,7 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 		
 		newUnitData.BaseFoodStock = SetBaseFoodStock(newUnitData.unitType, organizationLevel)
 		
+		Dprint( DEBUG_UNIT_SCRIPT, "Returning new unit: "..Locale.Lookup(newUnit:GetName()).." id#".. tostring(newUnit:GetKey()).." player#"..tostring(newUnit:GetOwner()))
 		return newUnit
 	else
 		GCO.Error("Failed to replace unit unitKey#"..tostring(oldUnitKey).." by unit type = "..tostring(newUnitType).." player ID#"..tostring(playerID))
@@ -2682,13 +2683,13 @@ function ShowCasualtiesFloatingText(CombatData) -- need complete rework with equ
 end
 
 function ShowCombatPlunderingFloatingText(CombatData) -- need complete rework with equipment
-	if true then return end
 	if floatingTextLevel == FLOATING_TEXT_NONE then
 		return
 	end
 	local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
 	if (pLocalPlayerVis ~= nil) then
 		if (pLocalPlayerVis:IsVisible(CombatData.unit:GetX(), CombatData.unit:GetY())) then
+			--[[  -- need complete rework with equipment
 			local sText = ""
 			if floatingTextLevel == FLOATING_TEXT_SHORT then
 				-- Show everything in one call to AddWorldViewText
@@ -2737,6 +2738,11 @@ function ShowCombatPlunderingFloatingText(CombatData) -- need complete rework wi
 					sText = Locale.Lookup("LOC_FRONTLINE_FOOD_CAPTURED", CombatData.FoodGained)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
 				end
+			end
+			--]]
+			
+			if CombatData.DistrictLootText then
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, CombatData.DistrictLootText, CombatData.unit:GetX(), CombatData.unit:GetY(), 0)
 			end
 		end
 	end
@@ -3217,8 +3223,9 @@ function OnCombat( combatResult )
 
 	local combatType = combatResult[CombatResultParameters.COMBAT_TYPE]
 
-	attacker.IsUnit = attacker[CombatResultParameters.ID].type == ComponentType.UNIT
-	defender.IsUnit = defender[CombatResultParameters.ID].type == ComponentType.UNIT
+	attacker.IsUnit 	= attacker[CombatResultParameters.ID].type == ComponentType.UNIT
+	defender.IsUnit 	= defender[CombatResultParameters.ID].type == ComponentType.UNIT
+	defender.IsDistrict = defender[CombatResultParameters.ID].type == ComponentType.DISTRICT
 
 	local componentString = { [ComponentType.UNIT] = "UNIT", [ComponentType.CITY] = "CITY", [ComponentType.DISTRICT] = "DISTRICT"}
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Attacker is " .. tostring(componentString[attacker[CombatResultParameters.ID].type]) ..", Damage = " .. attacker[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]))
@@ -3260,6 +3267,16 @@ function OnCombat( combatResult )
 		end
 	end
 
+	if defender.IsDistrict then
+		local district = CityManager.GetDistrict(defender[CombatResultParameters.ID].player, defender[CombatResultParameters.ID].id)
+		if district then
+			defender.district		= district
+			defender.districtType 	= district:GetType()
+			defender.outerHP		= district:GetMaxDamage(DefenseTypes.DISTRICT_OUTER) - district:GetDamage(DefenseTypes.DISTRICT_OUTER)
+			defender.city			= district:GetCity()
+		end
+	end
+	
 	-- Error control
 	---[[
 	if attacker.unit then
@@ -3442,6 +3459,52 @@ function OnCombat( combatResult )
 			end
 		end
 
+	end
+
+	-- Plundering city resources
+	if defender.district and combatType == CombatTypes.MELEE and attacker.unit then
+		local districtRow	= GameInfo.Districts[defender.districtType]
+		Dprint( DEBUG_UNIT_SCRIPT, "Check to Plunder a District...")		
+		Dprint( DEBUG_UNIT_SCRIPT, " - District type = " .. tostring(districtRow.DistrictType))
+		-- to do: remove magic numbers
+		if districtRow.DistrictType == "DISTRICT_CITY_CENTER" and defender.outerHP < 100 then
+			local ratio 	= (100 - defender.outerHP) / 100
+			local city		= defender.city
+			if city then
+				GCO.AttachCityFunctions(city)
+				local resourcesList		= city:GetResources()
+				local sortedResources 	= {}
+				for resourceKey, stock in pairs(resourcesList) do
+					local resourceID 	= tonumber(resourceKey)
+					if resourceID ~= personnelResourceID then -- to do : make prisonners, from population too
+						local cost 			= city:GetResourceCost(resourceID)
+						local maxLoot 		= math.min(250, stock/2)
+						local loot			= GCO.Round(maxLoot * ratio)
+						local value			= loot * cost
+						if loot > 0 then
+							table.insert(sortedResources, {ResourceID = resourceID, Loot = loot, Value = value})
+						end
+					end
+				end
+				table.sort(sortedResources, function(a, b) return a.Value > b.Value; end)
+				local maxType 	= math.min(#sortedResources, 4) -- to do: units promotions
+				local sLootText = ""
+				for i = 1, maxType do
+					local resourceRow	= sortedResources[i]
+					local loot			= resourceRow.Loot
+					local resourceID	= resourceRow.ResourceID
+					attacker.unit:ChangeStock(resourceID, loot)
+					city:ChangeStock(resourceID, -loot)
+					if string.len(sLootText) > 0 then
+						sLootText = sLootText .. ", +" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
+					else
+						sLootText = "+" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
+					end
+				end
+				attacker.DistrictLootText = sLootText
+				LuaEvents.CityCompositionUpdated(city:GetOwner(), city:GetID())
+			end
+		end
 	end
 	
 	-- Update unit's flag & visualize for attacker
@@ -3956,7 +4019,7 @@ function CheckComponentsHP(unit, str, bNoWarning)
 		then 
 			debug(unit, HP, str, bNoWarning, hitPoint)
 			return false
-		end		
+		end
 		Dprint( DEBUG_UNIT_SCRIPT, str .. " : OK For "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()))
 		return true
 	end
@@ -4638,7 +4701,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 							end
 						else						
 							local sText = "+" .. tostring(loot).." ".. name
-							Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)						
+							Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
 						end
 					end
 				else

@@ -186,20 +186,40 @@ UPDATE GlobalParameters SET Value = 14		WHERE Name = 'COMBAT_RANGED_VS_DISTRICT_
 
 /* Garrison (inner) & Outer Defense */
 
-UPDATE GlobalParameters SET Value = 75		WHERE Name = 'COMBAT_CITY_RANGED_DAMAGE_THRESHOLD';	-- default = 50
+UPDATE GlobalParameters SET Value = 50		WHERE Name = 'COMBAT_CITY_RANGED_DAMAGE_THRESHOLD';	-- default = 50
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_MINIMUM_CITY_STRIKE_STRENGTH';	-- default = 3
 
-UPDATE Districts SET HitPoints = 200 WHERE DistrictType = 'DISTRICT_CITY_CENTER';					-- default = 200
-UPDATE ModifierArguments SET Value = 200 WHERE ModifierID = 'CIVIL_ENGINEERING_URBAN_DEFENSES';		-- default = 200
+UPDATE Districts 			SET HitPoints 	= 200 WHERE DistrictType 	= 'DISTRICT_CITY_CENTER';					-- default = 200
+UPDATE ModifierArguments 	SET Value 		= 300 WHERE ModifierID 		= 'CIVIL_ENGINEERING_URBAN_DEFENSES';		-- default = 200
 
-UPDATE Buildings SET OuterDefenseHitPoints = 0 WHERE BuildingType ='BUILDING_PALACE';		-- default = 0
-UPDATE Buildings SET OuterDefenseHitPoints = 50 WHERE BuildingType ='BUILDING_WALLS';		-- default = 50
-UPDATE Buildings SET OuterDefenseHitPoints = 50 WHERE BuildingType ='BUILDING_CASTLE';		-- default = 50
-UPDATE Buildings SET OuterDefenseHitPoints = 50 WHERE BuildingType ='BUILDING_STAR_FORT';	-- default = 50
+UPDATE Buildings SET OuterDefenseHitPoints = 50		WHERE BuildingType ='BUILDING_PALACE';		-- default = 0
+UPDATE Buildings SET OuterDefenseHitPoints = 100 	WHERE BuildingType ='BUILDING_WALLS';		-- default = 50
+UPDATE Buildings SET OuterDefenseHitPoints = 200 	WHERE BuildingType ='BUILDING_CASTLE';		-- default = 50
+UPDATE Buildings SET OuterDefenseHitPoints = 300 	WHERE BuildingType ='BUILDING_STAR_FORT';	-- default = 50
 
 UPDATE Buildings SET OuterDefenseStrength = 2 WHERE BuildingType ='BUILDING_WALLS';		-- default = 2
-UPDATE Buildings SET OuterDefenseStrength = 2 WHERE BuildingType ='BUILDING_CASTLE';	-- default = 2
-UPDATE Buildings SET OuterDefenseStrength = 2 WHERE BuildingType ='BUILDING_STAR_FORT';	-- default = 2
+UPDATE Buildings SET OuterDefenseStrength = 3 WHERE BuildingType ='BUILDING_CASTLE';	-- default = 2
+UPDATE Buildings SET OuterDefenseStrength = 4 WHERE BuildingType ='BUILDING_STAR_FORT';	-- default = 2
 
+/* Remove City Ranged Attack Value */
+INSERT OR REPLACE INTO Modifiers
+(	ModifierId,							ModifierType,									RunOnce,	Permanent,	SubjectRequirementSetId,	OwnerRequirementSetId	)	VALUES
+(	'GCO_REDUCE_CITY_RANGED_STRIKE',	'MODIFIER_PLAYER_CITIES_ADJUST_RANGED_STRIKE',	'0',		'0',		NULL,						NULL					);
+INSERT OR REPLACE  INTO ModifierArguments
+(	ModifierId,							Name,			Value	)	VALUES
+(	'GCO_REDUCE_CITY_RANGED_STRIKE',	'Amount',		'-999'	);
+
+INSERT OR REPLACE  INTO BuildingModifiers
+(	BuildingType,						ModifierId				)	VALUES
+(	'BUILDING_CENTRAL_SQUARE',			'GCO_REDUCE_CITY_RANGED_STRIKE'	);
+/*
+INSERT OR REPLACE  INTO TechnologyModifiers
+(	TechnologyType,						ModifierId				)	VALUES
+(	'TECH_MASONRY',						'GCO_REDUCE_CITY_RANGED_STRIKE'	);
+INSERT OR REPLACE  INTO CivicModifiers
+(	CivicType,							ModifierId				)	VALUES
+(	'CIVIC_CODE_OF_LAWS',				'GCO_REDUCE_CITY_RANGED_STRIKE'	);
+*/
 
 -----------------------------------------------
 -- Casualties Modifiers

@@ -16,7 +16,7 @@ UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_FOOD_CONSUMPTION_PER_P
 UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_AMENITIES_FOR_FREE';						-- default = 1
 UPDATE GlobalParameters SET Value = 999		WHERE Name = 'CITY_POP_PER_AMENITY';						-- default = 2
 
-UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_CAPTURED_DAMAGE_PERCENTAGE';				-- default = 50
+UPDATE GlobalParameters SET Value = 50		WHERE Name = 'CITY_CAPTURED_DAMAGE_PERCENTAGE';				-- default = 50
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'CITY_POPULATION_LOSS_TO_CONQUEST_PERCENTAGE';	-- default = 0.25
 
 -- Try to prevent AI to buy units/buildings (seems it can do so even when the PurchaseField is empty)
