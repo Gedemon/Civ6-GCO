@@ -1524,7 +1524,7 @@ function UpdateExportCities(self)
 				if (not pDiplo:IsAtWarWith( ownerID )) then
 					Dprint( DEBUG_CITY_SCRIPT, "- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 					local playerCities 	= player:GetCities()
-					for i, transferCity in playerCities:Members() do
+					for _, transferCity in playerCities:Members() do
 						--AttachCityFunctions(transferCity) -- because UpdateExportCities() can be called from an UI context <- No more 20-Nov-2017
 						local transferKey = transferCity:GetKey()
 						if transferKey ~= selfKey and transferCity:IsInitialized() then
@@ -1536,7 +1536,7 @@ function UpdateExportCities(self)
 									Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." was marked out of reach ".. tostring(turnSinceUpdate) .." turns ago, unmarking for next turn...")
 									CitiesOutOfReach[selfKey][transferKey] = nil
 								else
-									Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach ".. tostring(turnSinceUpdate) .." turns")
+									Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach since ".. tostring(turnSinceUpdate) .." turns")
 								end
 							else
 								-- do we need to update the route ?
@@ -1632,6 +1632,79 @@ function UpdateExportCities(self)
 	Dlog("UpdateExportCities "..Locale.Lookup(self:GetName()).." /END")
 end
 
+function OnTradeRouteActivityChanged(routeOwnerID, originalOwnerID, originalCityID, destinationOwnerID, destinationCityID)
+
+	local originalCity 			= GetCity(originalCityID, originalOwnerID)
+	local destinationCity 		= GetCity(destinationCityID, destinationOwnerID)	
+	local originalKey 			= originalCity:GetKey()
+	local destinationKey		= destinationCity:GetKey()	
+	local tradeManager:table 	= GCO.GetTradeManager()
+	local currentTurn 			= Game.GetCurrentGameTurn()
+	
+	if originalOwnerID ~= destinationOwnerID then -- Export route
+	
+		if not CitiesForTrade[originalKey] 		then CitiesForTrade[originalKey] = {} end
+		if not CitiesForTrade[destinationKey] 	then CitiesForTrade[destinationKey] = {} end
+	
+		local tradeRouteLevel 	= TradeLevelType.Neutral
+		local player 			= Players[originalOwnerID]
+		local pDiploAI			= player:GetAi_Diplomacy()
+		if pDiploAI then
+			local bIsFriend			= (pDiploAI:GetDiplomaticState(ownerID) == "DIPLO_STATE_DECLARED_FRIEND") or (pDiploAI:GetDiplomaticState(ownerID) == "DIPLO_STATE_ALLIED")
+			local bIsAllied			= (pDiploAI:GetDiplomaticState(ownerID) == "DIPLO_STATE_ALLIED")
+			local bIsEmbargo		= (pDiploAI:GetDiplomaticState(ownerID) == "DIPLO_STATE_DENOUNCED")
+			local playerConfig 		= PlayerConfigurations[iPlayer]
+			
+			if bIsFriend 	then tradeRouteLevel = TradeLevelType.Friend end
+			if bIsAllied 	then tradeRouteLevel = TradeLevelType.Allied end
+			if bIsEmbargo 	then tradeRouteLevel = TradeLevelType.Limited end
+		end
+
+		local tradeRoute = CitiesForTrade[originalKey][destinationKey]		
+		if tradeRoute and tradeRoute.RouteType == SupplyRouteType.Trader then	-- remove old route
+			CitiesForTrade[originalKey][destinationKey] = nil
+		else 																	-- new trade route
+			local pathPlots 							= tradeManager:GetTradeRoutePath(originalCity:GetOwner(), originalCity:GetID(), destinationCity:GetOwner(), destinationCity:GetID() )
+			CitiesForTrade[originalKey][destinationKey] = { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn}
+		end
+		
+		local tradeRoute = CitiesForTrade[destinationKey][originalKey]
+		if tradeRoute and tradeRoute.RouteType == SupplyRouteType.Trader then	-- remove old route
+			CitiesForTrade[destinationKey][originalKey] = nil
+		else 																	-- new trade route		
+			local pathPlots 							= tradeManager:GetTradeRoutePath(destinationCity:GetOwner(), destinationCity:GetID(), originalCity:GetOwner(), originalCity:GetID() )
+			CitiesForTrade[destinationKey][originalKey] = { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn}
+		end
+	else		-- Internal Route
+	
+		if not CitiesForTransfer[originalKey] 		then CitiesForTransfer[originalKey] = {} end
+		if not CitiesForTransfer[destinationKey] 	then CitiesForTransfer[destinationKey] = {} end
+		
+		local tradeRoute = CitiesForTransfer[originalKey][destinationKey]		
+		if tradeRoute and tradeRoute.RouteType == SupplyRouteType.Trader then	-- remove old route
+			CitiesForTransfer[originalKey][destinationKey] = nil
+		else 																	-- new trade route
+			local pathPlots 								= tradeManager:GetTradeRoutePath(originalCity:GetOwner(), originalCity:GetID(), destinationCity:GetOwner(), destinationCity:GetID() )
+			CitiesForTransfer[originalKey][destinationKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn}
+			if CitiesOutOfReach[originalKey] and CitiesOutOfReach[originalKey][destinationKey] then
+				CitiesOutOfReach[originalKey][destinationKey] = nil
+			end
+		end
+		
+		local tradeRoute = CitiesForTransfer[destinationKey][originalKey]
+		if tradeRoute and tradeRoute.RouteType == SupplyRouteType.Trader then	-- remove old route
+			CitiesForTransfer[destinationKey][originalKey] = nil
+		else 																	-- new trade route		
+			local pathPlots 								= tradeManager:GetTradeRoutePath(destinationCity:GetOwner(), destinationCity:GetID(), originalCity:GetOwner(), originalCity:GetID() )
+			CitiesForTransfer[destinationKey][originalKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn}
+			if CitiesOutOfReach[destinationKey] and CitiesOutOfReach[destinationKey][originalKey] then
+				CitiesOutOfReach[destinationKey][originalKey] = nil
+			end
+		end
+	end
+end
+Events.TradeRouteActivityChanged.Add(OnTradeRouteActivityChanged)
+
 function ExportToForeignCities(self)
 	Dlog("ExportToForeignCities ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = "CityScript"
@@ -1640,7 +1713,7 @@ function ExportToForeignCities(self)
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTradeDemand[selfKey]
 	local transfers 		= {Resources = {}, ResPerCity = {}}
-	local cityToSupply 		= CitiesForTrade[selfKey]
+	local cityToSupply 		= CitiesForTransfer[selfKey]
 	local bExternalRoute 	= true
 
 	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
@@ -4909,12 +4982,17 @@ function CleanCitiesData() -- called in GCO_GameScript.lua
 	local DEBUG_CITY_SCRIPT = false
 	
 	for cityKey, data1 in pairs(ExposedMembers.CityData) do
-		local toClean = {"Stock","ResourceCost","ResourceUse","Population"}
+		local toClean 	= {"Stock","ResourceCost","ResourceUse","Population"}
+		local maxTurn	= 3
+		local player 	= Players[data1.playerID]
+		if player and player:isHuman() then
+			maxTurn = 10
+		end
 		for i, dataToClean in ipairs(toClean) do
 			turnTable = {}
 			for turnkey, data2 in pairs(data1[dataToClean]) do
 				local turn = tonumber(turnkey)
-				if turn <= (Game.GetCurrentGameTurn() - 10) then
+				if turn <= (Game.GetCurrentGameTurn() - maxTurn) then
 
 					Dprint( DEBUG_CITY_SCRIPT, "Removing entry : ", cityKey, dataToClean, " turn = ", turn)
 					table.insert(turnTable, turn)
