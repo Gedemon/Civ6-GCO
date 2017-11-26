@@ -994,8 +994,6 @@ function UnitFlag.UpdateName( self )
 						else
 							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR", city:GetName())
 						end
-					else
-						print("WARNING : city is nil for SupplyLineCityKey("..tostring(unitData.SupplyLineCityKey)..") for " .. pUnit:GetName() .." - ID# " .. tostring(pUnit:GetID()) )
 					end
 				else
 					nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_NO_SUPPLY_LINE")

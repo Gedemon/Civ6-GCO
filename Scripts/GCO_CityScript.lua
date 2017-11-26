@@ -391,6 +391,9 @@ LuaEvents.InitializeGCO.Add( InitializeCheck )
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.CityData 		= GCO.LoadTableFromSlot("CityData") or {}
+	CitiesOutOfReach				= GCO.LoadTableFromSlot("CitiesOutOfReach") or {}
+	CitiesTransferDemand			= GCO.LoadTableFromSlot("CitiesTransferDemand") or {}
+	CitiesTradeDemand				= GCO.LoadTableFromSlot("CitiesTradeDemand") or {}
 end
 
 function Initialize() -- called immediatly after loading this file
@@ -406,6 +409,9 @@ function SaveTables()
 
 	GCO.StartTimer("Saving And Checking CityData")
 	GCO.SaveTableToSlot(ExposedMembers.CityData, "CityData")
+	GCO.SaveTableToSlot(CitiesOutOfReach, "CitiesOutOfReach")
+	GCO.SaveTableToSlot(CitiesTransferDemand, "CitiesTransferDemand")
+	GCO.SaveTableToSlot(CitiesTradeDemand, "CitiesTradeDemand")
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
@@ -1225,7 +1231,7 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 			pathPlots			= path
 		end
 	else
-		bIsPlotConnected 	= GCO.IsPlotConnected(Players[self:GetOwner()], selfPlot, transferPlot, sRouteType, true, nil, GCO.SupplyPathBlocked)
+		bIsPlotConnected 	= GCO.IsPlotConnected(Players[self:GetOwner()], selfPlot, transferPlot, sRouteType, true, nil, GCO.TradePathBlocked)
 		routeLength 		= GCO.GetRouteLength()
 		pathPlots 			= GCO.GetRoutePlots()
 	end
@@ -1295,10 +1301,13 @@ function GetExportCities(self)
 end
 
 function UpdateTransferCities(self)
-	local selfKey = self:GetKey()
-	Dprint( DEBUG_CITY_SCRIPT, "Updating Routes to same Civilization Cities for ".. Locale.Lookup(self:GetName()))
+	local name 		= Locale.Lookup(self:GetName())
+	GCO.StartTimer("UpdateTransferCities for ".. name)
+	Dlog("UpdateTransferCities ".. name.." /START")
+	Dprint( DEBUG_CITY_SCRIPT, "Updating Routes to same Civilization Cities for ".. name)
+	
 	-- reset entries for that city
-	--CitiesForTransfer[selfKey] 		= {}	-- Internal transfert to own cities
+	local selfKey 					= self:GetKey()
 	CitiesTransferDemand[selfKey] 	= { Resources = {}, NeedResources = {}, ReservedResources = {}, HasPrecedence = {} } -- NeedResources : Number of cities requesting a resource type
 
 	local currentTurn 	= Game.GetCurrentGameTurn()
@@ -1342,7 +1351,7 @@ function UpdateTransferCities(self)
 					if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
 						for i=1, #tradeRoute.PathPlots do
 							local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
-							if GCO.SupplyPathBlocked(plot, Players[self:GetOwner()]) then
+							if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
 								bNeedUpdate = true
 								break
 							end
@@ -1415,6 +1424,8 @@ function UpdateTransferCities(self)
 			end
 		end
 	end
+	Dlog("UpdateTransferCities "..name.." /END")
+	GCO.ShowTimer("UpdateTransferCities for ".. name)
 end
 
 function TransferToCities(self)
@@ -1463,26 +1474,28 @@ function TransferToCities(self)
 			for _, data in ipairs(cityToSupply) do
 				local cityKey			= data.CityKey
 				local city				= GCO.GetCityFromKey(cityKey)
-				local requiredValue		= city:GetNumResourceNeeded(resourceID)
-				local bCityPrecedence	= data.HasPrecedence[resourceID]
+				
+				-- check for city = nil (could have been captured and key has changed)
+				if city then
+					local requiredValue		= city:GetNumResourceNeeded(resourceID)
+					local bCityPrecedence	= data.HasPrecedence[resourceID]
 
-				if PrecedenceLeft > 0 and bResourcePrecedence and not bCityPrecedence then
-					requiredValue = 0
-				end
-	Dline(Locale.Lookup(GameInfo.Resources[resourceID].Name), " requiredValue ", requiredValue, " resourceLeft ",resourceLeft," loop ", loop)
-				if requiredValue > 0 then
-					local efficiency	= data.Efficiency
-					local send 			= math.min(transfers.ResPerCity[resourceID], requiredValue, resourceLeft)
-					local costPerUnit	= (resourceCost * self:GetTransportCostTo(city)) + resourceCost -- to do : cache transport cost
-					
-					if (costPerUnit < city:GetResourceCost(resourceID)) or (bCityPrecedence and PrecedenceLeft > 0) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost here again before sending the resource...
-						resourceLeft = resourceLeft - send
-						if bCityPrecedence then
-							PrecedenceLeft = PrecedenceLeft - send
+					if PrecedenceLeft > 0 and bResourcePrecedence and not bCityPrecedence then
+						requiredValue = 0
+					end
+					if requiredValue > 0 then
+						local efficiency	= data.Efficiency
+						local send 			= math.min(transfers.ResPerCity[resourceID], requiredValue, resourceLeft)
+						local costPerUnit	= (resourceCost * self:GetTransportCostTo(city)) + resourceCost -- to do : cache transport cost ?
+						if (costPerUnit < city:GetResourceCost(resourceID)) or (bCityPrecedence and PrecedenceLeft > 0) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost here again before sending the resource...
+							resourceLeft = resourceLeft - send
+							if bCityPrecedence then
+								PrecedenceLeft = PrecedenceLeft - send
+							end
+							city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, selfKey, costPerUnit)
+							self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut, cityKey)
+							Dprint( DEBUG_CITY_SCRIPT, "  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .." percent efficiency) to ".. Locale.Lookup(city:GetName()))
 						end
-						city:ChangeStock(resourceID, send, ResourceUseType.TransferIn, selfKey, costPerUnit)
-						self:ChangeStock(resourceID, -send, ResourceUseType.TransferOut, cityKey)
-						Dprint( DEBUG_CITY_SCRIPT, "  - send " .. tostring(send) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." (".. tostring(efficiency) .." percent efficiency) to ".. Locale.Lookup(city:GetName()))
 					end
 				end
 			end
@@ -1493,7 +1506,9 @@ function TransferToCities(self)
 end
 
 function UpdateExportCities(self)
-	Dlog("UpdateExportCities ".. Locale.Lookup(self:GetName()).." /START")
+	local name 		= Locale.Lookup(self:GetName())
+	GCO.StartTimer("UpdateTransferCities for ".. name)
+	Dlog("UpdateExportCities ".. name.." /START")
 	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
@@ -1553,15 +1568,21 @@ function UpdateExportCities(self)
 										bNeedUpdate = true								
 									end
 									
-									-- check for blockade
+									-- check for blockade on path
 									if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
 										for i=1, #tradeRoute.PathPlots do
 											local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
-											if GCO.SupplyPathBlocked(plot, Players[self:GetOwner()]) then
+											if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
 												bNeedUpdate = true
 												break
 											end
 										end
+									end									
+									
+									-- Update Diplomatic relations (That shouldn't require to update the Route itself)
+									if tradeRouteLevel ~= tradeRoute.TradeRouteLevel then
+										--tradeRoute.TradeRouteLevel = tradeRouteLevel
+										bNeedUpdate = true
 									end
 								else
 									bNeedUpdate = true
@@ -1631,7 +1652,8 @@ function UpdateExportCities(self)
 			end
 		end
 	end
-	Dlog("UpdateExportCities "..Locale.Lookup(self:GetName()).." /END")
+	Dlog("UpdateExportCities "..name.." /END")
+	GCO.ShowTimer("UpdateExportCities for ".. name)
 end
 
 function OnTradeRouteActivityChanged(routeOwnerID, originalOwnerID, originalCityID, destinationOwnerID, destinationCityID)
@@ -1717,7 +1739,7 @@ function ExportToForeignCities(self)
 	local selfKey 			= self:GetKey()
 	local supplyDemand 		= CitiesTradeDemand[selfKey]
 	local transfers 		= {Resources = {}, ResPerCity = {}}
-	local cityToSupply 		= CitiesForTransfer[selfKey]
+	local cityToSupply 		= CitiesForTrade[selfKey]
 	local bExternalRoute 	= true
 
 	table.sort(cityToSupply, function(a, b) return a.Efficiency > b.Efficiency; end)
@@ -1738,21 +1760,24 @@ function ExportToForeignCities(self)
 			for cityKey, data in pairs(cityToSupply) do
 
 				local city		= GCO.GetCityFromKey(cityKey)
-				local reqValue 	= city:GetNumResourceNeeded(resourceID, bExternalRoute)
-				if reqValue > 0 then
-					local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
-					local efficiency		= data.Efficiency
-					local send 				= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
-					local localCost			= self:GetResourceCost(resourceID)
-					local costPerUnit		= (localCost * self:GetTransportCostTo(city)) + localCost
-					if costPerUnit < city:GetResourceCost(resourceID) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost and stock here again before sending the resource... to do : track value per city
-						local transactionIncome = send * self:GetResourceCost(resourceID) -- * costPerUnit
-						resLeft = resLeft - send
-						city:ChangeStock(resourceID, send, ResourceUseType.Import, selfKey, costPerUnit)
-						self:ChangeStock(resourceID, -send, ResourceUseType.Export, cityKey)
-						importIncome[city] = (importIncome[city] or 0) + transactionIncome
-						exportIncome = exportIncome + transactionIncome
-						Dprint( DEBUG_CITY_SCRIPT, "  - Generating ", transactionIncome, " golds for ", send, " ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (".. tostring(efficiency) .." percent efficiency) send to ".. Locale.Lookup(city:GetName()))
+				if city then
+					local reqValue 	= city:GetNumResourceNeeded(resourceID, bExternalRoute)
+					Dprint( DEBUG_CITY_SCRIPT, " - Check route to ".. Indentation20(Locale.Lookup(city:GetName())) .." require = ".. tostring(value), " unit of " .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)))
+					if reqValue > 0 then
+						local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
+						local efficiency		= data.Efficiency
+						local send 				= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
+						local localCost			= self:GetResourceCost(resourceID)
+						local costPerUnit		= (localCost * self:GetTransportCostTo(city)) + localCost
+						if costPerUnit < city:GetResourceCost(resourceID) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost and stock here again before sending the resource... to do : track value per city
+							local transactionIncome = send * self:GetResourceCost(resourceID) -- * costPerUnit
+							resLeft = resLeft - send
+							city:ChangeStock(resourceID, send, ResourceUseType.Import, selfKey, costPerUnit)
+							self:ChangeStock(resourceID, -send, ResourceUseType.Export, cityKey)
+							importIncome[city] = (importIncome[city] or 0) + transactionIncome
+							exportIncome = exportIncome + transactionIncome
+							Dprint( DEBUG_CITY_SCRIPT, "   - Generating ", transactionIncome, " golds for ", send, " ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (".. tostring(efficiency) .." percent efficiency) send to ".. Locale.Lookup(city:GetName()))
+						end
 					end
 				end
 			end
@@ -2486,7 +2511,8 @@ function GetResourceUseToolTipStringForTurn(self, resourceID, useTypeKey, turn)
 	elseif ResourceUseTypeReference[useTypeKey] == ReferenceType.City then
 		MakeString	= function(key, value)
 			local city 	= GetCityFromKey ( key )
-			local name	= Locale.Lookup(city:GetName())
+			local name	= "a city"
+			if city then name = Locale.Lookup(city:GetName()) end
 			return Indentation20(name) .. tostring(value)
 		end
 	elseif ResourceUseTypeReference[useTypeKey] == ReferenceType.Unit then
@@ -2496,7 +2522,7 @@ function GetResourceUseToolTipStringForTurn(self, resourceID, useTypeKey, turn)
 				local name	= Locale.Lookup(unit:GetName())
 				return Indentation20(name) .. tostring(value)
 			else
-				return Indentation20("Dead unit") .. tostring(value)
+				return Indentation20("an unit") .. tostring(value)
 			end
 		end
 	elseif ResourceUseTypeReference[useTypeKey] == ReferenceType.Population then
@@ -2782,20 +2808,22 @@ function GetExportCitiesTable(self)
 
 		local rowTable 			= {}
 		local city				= GCO.GetCityFromKey(routeCityKey)
+		if city then
+			rowTable.Name 			= Locale.Lookup(city:GetName())
+			rowTable.NameToolTip	= Locale.Lookup(PlayerConfigurations[city:GetOwner()]:GetCivilizationShortDescription())
+			rowTable.RouteType 		= GetSupplyRouteString(routeData.RouteType)
+			rowTable.Efficiency 	= routeData.Efficiency
 
-		rowTable.Name 			= Locale.Lookup(city:GetName())
-		rowTable.NameToolTip	= Locale.Lookup(PlayerConfigurations[city:GetOwner()]:GetCivilizationShortDescription())
-		rowTable.RouteType 		= GetSupplyRouteString(routeData.RouteType)
-		rowTable.Efficiency 	= routeData.Efficiency
+			local transportCost		= self:GetTransportCostTo(city)
+			if transportCost == 0 then
+				rowTable.TransportCost 	= Locale.Lookup("LOC_HUD_CITY_NO_COST")
+			else
+				rowTable.TransportCost 	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_COST", transportCost)
+			end
 
-		local transportCost		= self:GetTransportCostTo(city)
-		if transportCost == 0 then
-			rowTable.TransportCost 	= Locale.Lookup("LOC_HUD_CITY_NO_COST")
-		else
-			rowTable.TransportCost 	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_COST", transportCost)
+			table.insert(citiesTable, rowTable)
+			
 		end
-
-		table.insert(citiesTable, rowTable)
 	end
 
 	table.sort(citiesTable, function(a, b) return a.Efficiency > b.Efficiency; end)
@@ -2811,25 +2839,26 @@ function GetTransferCitiesTable(self)
 
 		local rowTable 			= {}
 		local city				= GCO.GetCityFromKey(routeCityKey)
+		if city then
+			if city:GetOwner() ~= self:GetOwner() then
+				Dprint( DEBUG_CITY_SCRIPT, "WARNING : foreign city found in internal transfer list : " ..city:GetName())
+				Dprint( DEBUG_CITY_SCRIPT, "WARNING : key = " ..routeCityKey)
+			end
 
-		if city:GetOwner() ~= self:GetOwner() then
-			Dprint( DEBUG_CITY_SCRIPT, "WARNING : foreign city found in internal transfer list : " ..city:GetName())
-			Dprint( DEBUG_CITY_SCRIPT, "WARNING : key = " ..routeCityKey)
+			rowTable.Name 			= Locale.Lookup(city:GetName())
+			--rowTable.NameToolTip	= Locale.Lookup(PlayerConfigurations[city:GetOwner()]:GetCivilizationShortDescription())
+			rowTable.RouteType 		= GetSupplyRouteString(routeData.RouteType)
+			rowTable.Efficiency 	= routeData.Efficiency
+
+			local transportCost		= self:GetTransportCostTo(city)
+			if transportCost == 0 then
+				rowTable.TransportCost 	= Locale.Lookup("LOC_HUD_CITY_NO_COST")
+			else
+				rowTable.TransportCost 	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_COST", transportCost)
+			end
+
+			table.insert(citiesTable, rowTable)
 		end
-
-		rowTable.Name 			= Locale.Lookup(city:GetName())
-		--rowTable.NameToolTip	= Locale.Lookup(PlayerConfigurations[city:GetOwner()]:GetCivilizationShortDescription())
-		rowTable.RouteType 		= GetSupplyRouteString(routeData.RouteType)
-		rowTable.Efficiency 	= routeData.Efficiency
-
-		local transportCost		= self:GetTransportCostTo(city)
-		if transportCost == 0 then
-			rowTable.TransportCost 	= Locale.Lookup("LOC_HUD_CITY_NO_COST")
-		else
-			rowTable.TransportCost 	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_COST", transportCost)
-		end
-
-		table.insert(citiesTable, rowTable)
 	end
 
 	table.sort(citiesTable, function(a, b) return a.Efficiency > b.Efficiency; end)
@@ -3783,7 +3812,7 @@ function DoCollectResources(self)
 			for ring = 1, seaRange do
 				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
 					if (pEdgePlot:IsWater() or pEdgePlot:IsLake()) and pEdgePlot:GetResourceCount() > 0 then
-						local bIsPlotConnected 	= GCO.IsPlotConnected(pPlayer, cityPlot, pEdgePlot, sRouteType, true, nil, GCO.SupplyPathBlocked)
+						local bIsPlotConnected 	= GCO.IsPlotConnected(pPlayer, cityPlot, pEdgePlot, sRouteType, true, nil, GCO.TradePathBlocked)
 						if bIsPlotConnected then
 							local routeLength = GCO.GetRouteLength()
 							if routeLength <= seaRange then
@@ -4802,9 +4831,7 @@ function DoTurnSecondPass(self)
 	end
 
 	-- get linked cities and supply demand
-	GCO.StartTimer("UpdateTransferCities for ".. name)
 	self:UpdateTransferCities()
-	GCO.ShowTimer("UpdateTransferCities for ".. name)
 	
 	Dlog("DoTurnSecondPass ".. name.." /END")
 end
@@ -4831,9 +4858,7 @@ function DoTurnThirdPass(self)
 	GCO.ShowTimer("TransferToCities for ".. name)
 
 	-- now export what's still available
-	GCO.StartTimer("UpdateExportCities for ".. name)
 	self:UpdateExportCities()
-	GCO.ShowTimer("UpdateExportCities for ".. name)
 	
 	GCO.StartTimer("ExportToForeignCities for ".. name)
 	self:ExportToForeignCities()

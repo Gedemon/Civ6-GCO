@@ -1087,7 +1087,7 @@ function GetData(self)
 	end
 end
 
-function UpdateFrontLineData(self) -- that function will have to be called after we change the structure of an unit (upgrading, downgrading, new military organization level, ...)
+function UpdateFrontLineData(self, bForceSynchronization) -- that function will have to be called after we change the structure of an unit (upgrading, downgrading, new military organization level, ...)
 	Dlog("UpdateFrontLineData for "..Locale.Lookup(self:GetName())..", key = "..tostring(self:GetKey()).." /START")
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
@@ -1098,6 +1098,12 @@ function UpdateFrontLineData(self) -- that function will have to be called after
 	-- When updating, we'll set the HP based on what's available in frontline, no healing here...
 	local currentDamage = self:GetDamage()
 	local maxUnitHP 	= maxHP - currentDamage
+	
+	-- If we want to force synchronization, use the mod's value, not core value
+	if bForceSynchronization then
+		maxUnitHP = unitData.HP
+	end
+	
 	-- We need to be sure that the call is made while the core HP is synchronized with the virtuel HP
 	if (maxUnitHP ~= unitData.HP) then
 		GCO.Error("Calling UpdateFrontLineData() while HP is not synchronized for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
@@ -1161,7 +1167,8 @@ function UpdateFrontLineData(self) -- that function will have to be called after
 		unitData.HP = maxUnitHP
 	end
 	
-	CheckComponentsHP(self, "after UpdateFrontLineData")
+	local bCheck = not bForceSynchronization -- CheckComponentsHP may call UpdateFrontLineData to force synchronization, don't do an infinite loop here...
+	if bCheck then CheckComponentsHP(self, "after UpdateFrontLineData") end
 	
 	Dlog("UpdateFrontLineData /END")
 end
@@ -1549,6 +1556,7 @@ function GetUnitTypeFoodConsumption(unitData) -- local
 	local foodConsumption1000 = 0
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value))
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value))
+Dline("GetUnitTypeFoodConsumption for type ".. tostring(unitData.unitType) .. ", foodConsumption1000 = " ..tostring(foodConsumption1000))
 	return math.max(1, GCO.Round( foodConsumption1000 / 1000 ))
 end
 
@@ -1559,7 +1567,8 @@ function SetBaseFoodStock(unitType, organizationLevel) -- local, organizationLev
 	unitData.Horses 			= GetUnitEquipmentClassBaseAmount(unitType, horsesEquipmentClassID, organizationLevel)
 	unitData.PersonnelReserve	= GetBasePersonnelReserve(unitType, organizationLevel)
 	unitData.HorsesReserve 		= GetBaseEquipmentClassReserve(unitType, horsesEquipmentClassID, organizationLevel)
-	return GetUnitTypeFoodConsumption(unitData)*5 -- set enough stock for 5 turns
+Dline("SetBaseFoodStock for type ".. tostring(unitType) .. ", organizationLevel = " ..tostring(organizationLevel).. ", Personnel = " ..tostring(unitData.Personnel).. ", PersonnelReserve = " ..tostring(unitData.PersonnelReserve).. ", Horses = " ..tostring(unitData.Horses).. ", HorsesReserve = " ..tostring(unitData.HorsesReserve))
+	return GetUnitTypeFoodConsumption(unitData) * 5 -- set enough stock for 5 turns
 end
 
 function GetFuelConsumptionRatio(unitData) -- local
@@ -4027,9 +4036,16 @@ function CheckComponentsHP(unit, str, bNoWarning)
 	local bIsCoreSynchronized = CheckComponentsSynchronizedHP(unit, coreHP, str .. 		" for Core synchronization ..", bNoWarning)
 	local bIsDataSynchronized = CheckComponentsSynchronizedHP(unit, virtualHP, str .. 	" for Data consistency ......", bNoWarning)
 	
-	if not bIsDataSynchronized then GCO.Error("Data inconsistency detected for :[NEWLINE] "..Locale.Lookup(unit:GetName()).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner())) end
+	if not bIsDataSynchronized then
+		local correctionStr = ""
+		if math.abs(coreHP-virtualHP) < 15 then 
+			unit:UpdateFrontLineData(true)
+			correctionStr = "[NEWLINE]Trying to synchronize for next check..."
+		end
+		GCO.Error("Data inconsistency detected for :[NEWLINE] "..Locale.Lookup(unit:GetName()).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr)
+	end
 	
-	return bIsCoreSynchronized and bIsDataSynchronized
+	return (bIsCoreSynchronized and bIsDataSynchronized), bIsCoreSynchronized, bIsDataSynchronized
 end
 
 
@@ -4777,8 +4793,30 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 			Dprint( DEBUG_UNIT_SCRIPT, "KEEPING.... unit ID#"..unit:GetKey(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
 
 			-- Check data syncronization
-			if (not CheckComponentsHP(unit, "UpdateUnitsData")) then
-				GCO.Error("desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()))
+			local bCheck, bIsCoreSynchronized, bIsDataSynchronized = CheckComponentsHP(unit, "UpdateUnitsData")
+			if (not bCheck) then
+
+				local coreHP 	= unit:GetMaxDamage() - unit:GetDamage()
+				local virtualHP = unit:GetHP()
+				local correctionStr = "[NEWLINE]Delta HP is too high, not synchronizing..."
+				
+				if bIsDataSynchronized then
+					local damageChange = virtualHP-coreHP
+					if math.abs(damageChange) < 15 then
+						correctionStr = "[NEWLINE]Applying Virtual HP to unit..."
+						if damageChange > 0 then
+							UnitLastHealingValue[unitKey] = damageChange
+						end
+						unit:SetDamage(unit:GetMaxDamage() - virtualHP)
+					end
+					GCO.Error("Desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr)
+				else
+					if math.abs(coreHP-virtualHP) < 15 then 
+						unit:UpdateFrontLineData(true)
+						correctionStr = "[NEWLINE]Trying to synchronize by updating FrontLine..."
+					end
+					GCO.Error("Desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr)
+				end
 				ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
 			end
 			

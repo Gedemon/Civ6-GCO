@@ -40,8 +40,13 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
 	LuaEvents.InitializeGCO.Remove( InitializeUtilityFunctions )
 	print ("Exposed Functions from other contexts initialized...")
+	PostInitialize()
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+
+function PostInitialize() -- everything that may require other context to be loaded first	
+	UpdateGameEra()
+end
 
 
 -----------------------------------------------------------------------------------------
@@ -70,12 +75,14 @@ end
 -- Update Cached Data on Load
 -----------------------------------------------------------------------------------------
 function UpdateCachedData()
+	GCO.StartTimer("UpdateCachedData for All Players")
 	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
 		local player = GCO.GetPlayer(playerID)
 		if player then
 			player:UpdateDataOnLoad()
 		end
 	end
+	GCO.ShowTimer("UpdateCachedData for All Players")
 end
 Events.LoadGameViewStateDone.Add( UpdateCachedData )
 
@@ -110,6 +117,8 @@ end
 -----------------------------------------------------------------------------------------
 local gameEra = 0
 function UpdateGameEra()
+	Dprint( DEBUG_GAME_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_GAME_SCRIPT, "Setting Game Era...")
 	local averageEra 	= 0
 	local totalEra		= 0
 	local count 		= 0
@@ -125,9 +134,10 @@ function UpdateGameEra()
 	else 
 		averageEra = 0
 	end
+	Dprint( DEBUG_GAME_SCRIPT, "- averageEra = ", averageEra)
 	if averageEra ~= gameEra then
 		gameEra = averageEra
-		LuaEvents.GCO_Message("[COLOR:Blue]Global Era changed to [ENDCOLOR] ".. Locale.Lookup(GameInfo.Eras[gameEra].Name), 6)
+		LuaEvents.GCO_Message("[COLOR:Blue]Global Era is [ENDCOLOR] ".. Locale.Lookup(GameInfo.Eras[gameEra].Name), 6)
 	end
 end
 GameEvents.OnGameTurnStarted.Add(UpdateGameEra)
@@ -146,7 +156,6 @@ function EndingTurn()
 end
 Events.PreTurnBegin.Add(EndingTurn)
 
-local autoSaveNum = 0
 function InitializeNewTurn()
 	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
 	Dprint( DEBUG_GAME_SCRIPT, "---+                                                                    STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()))
@@ -170,19 +179,6 @@ function InitializeNewTurn()
 	GCO.ShowTimer("CleanCitiesData")
 	
 	--LuaEvents.StartPlayerTurn(0) -- calling that here makes the game crash (tested 25-Oct-17)
-	
-	-- Making our own auto save...
-	LuaEvents.SaveTables()
-	autoSaveNum = autoSaveNum + 1
-	if autoSaveNum > 5 then autoSaveNum = 1 end
-	local saveGame = {};
-	saveGame.Name = "GCO-Autosave"..tostring(autoSaveNum)
-	saveGame.Location = SaveLocations.LOCAL_STORAGE
-	saveGame.Type= SaveTypes.SINGLE_PLAYER
-	saveGame.IsAutosave = false
-	saveGame.IsQuicksave = false
-	LuaEvents.SaveGameGCO(saveGame)
-	
 end
 GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)
 
@@ -194,7 +190,6 @@ GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)
 function Initialize()
 	KillAllCS()
 	SetResourcesCount()
-	UpdateGameEra()
 	
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	-- Era

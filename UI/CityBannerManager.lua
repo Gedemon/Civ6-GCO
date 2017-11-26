@@ -1410,35 +1410,37 @@ function CityBanner.UpdateName( self : CityBanner )
 						}
 						for destCityKey, data in pairs(linkedCities) do
 							local destCity			= GCO.GetCityFromKey(destCityKey)
-							local sRouteType 		= GCO.GetSupplyRouteString(data.RouteType)
-							local bIsTraderRoute 	= (sRouteType == "Trader") -- active traders means connection
-							if IsAllowedRouteType[sRouteType] or bIsTraderRoute then
-								local bIsPlotConnected = false
-								if not bIsPlotConnected then
-									bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
-								end
-								if bIsPlotConnected or bIsTraderRoute then
-									local pathPlots = {}
-									if bIsTraderRoute then
-										local tradeManager:table = Game.GetTradeManager()
-										pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
-									else
-										if sRouteType == "River" then
-											local cityPlot 	= GCO.GetPlot(city:GetX(), city:GetY())
-											local destPlot 	= GCO.GetPlot(destCity:GetX(), destCity:GetY())
-											local newPath 	= cityPlot:GetRiverPath(destPlot)
-											pathPlots 		= newPath or {}
-										else
-											pathPlots = GCO.GetRoutePlots()
-										end
+							if destCity then
+								local sRouteType 		= GCO.GetSupplyRouteString(data.RouteType)
+								local bIsTraderRoute 	= (sRouteType == "Trader") -- active traders means connection
+								if IsAllowedRouteType[sRouteType] or bIsTraderRoute then
+									local bIsPlotConnected = false
+									if not bIsPlotConnected then
+										bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.TradePathBlocked)
 									end
-									local kVariations:table = {}
-									local lastElement : number = table.count(pathPlots)
-									local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
-									if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
-										table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-										UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, transferColor )
-										bShownSupplyLine = true
+									if bIsPlotConnected or bIsTraderRoute then
+										local pathPlots = {}
+										if bIsTraderRoute then
+											local tradeManager:table = Game.GetTradeManager()
+											pathPlots = tradeManager:GetTradeRoutePath(city:GetOwner(), city:GetID(), destCity:GetOwner(), destCity:GetID() )
+										else
+											if sRouteType == "River" then
+												local cityPlot 	= GCO.GetPlot(city:GetX(), city:GetY())
+												local destPlot 	= GCO.GetPlot(destCity:GetX(), destCity:GetY())
+												local newPath 	= cityPlot:GetRiverPath(destPlot)
+												pathPlots 		= newPath or {}
+											else
+												pathPlots = GCO.GetRoutePlots()
+											end
+										end
+										local kVariations:table = {}
+										local lastElement : number = table.count(pathPlots)
+										local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
+										if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
+											table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
+											UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, transferColor )
+											bShownSupplyLine = true
+										end
 									end
 								end
 							end
@@ -1446,13 +1448,13 @@ function CityBanner.UpdateName( self : CityBanner )
 						
 						for destCityKey, data in pairs(exportCities) do
 							local destCity = GCO.GetCityFromKey(destCityKey)
-							if destCity then -- this city may not exist anymore at this point in the code
+							if destCity then -- this city may have been captured or razed
 								local sRouteType 		= GCO.GetSupplyRouteString(data.RouteType)
 								local bIsTraderRoute 	= (sRouteType == "Trader") -- active traders means connection
 								if IsAllowedRouteType[sRouteType] or bIsTraderRoute then
 									local bIsPlotConnected = false
 									if not bIsPlotConnected then
-										bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.SupplyPathBlocked)
+										bIsPlotConnected = GCO.IsPlotConnected(Players[city:GetOwner()], Map.GetPlot(city:GetX(), city:GetY()), Map.GetPlot(destCity:GetX(), destCity:GetY()), sRouteType, true, nil, GCO.TradePathBlocked)
 									end
 									if bIsPlotConnected or bIsTraderRoute then
 										local pathPlots = {}

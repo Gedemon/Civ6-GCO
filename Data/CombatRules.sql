@@ -189,7 +189,7 @@ UPDATE GlobalParameters SET Value = 14		WHERE Name = 'COMBAT_RANGED_VS_DISTRICT_
 UPDATE GlobalParameters SET Value = 50		WHERE Name = 'COMBAT_CITY_RANGED_DAMAGE_THRESHOLD';	-- default = 50
 UPDATE GlobalParameters SET Value = 0		WHERE Name = 'COMBAT_MINIMUM_CITY_STRIKE_STRENGTH';	-- default = 3
 
-UPDATE Districts 			SET HitPoints 	= 200 WHERE DistrictType 	= 'DISTRICT_CITY_CENTER';					-- default = 200
+UPDATE Districts 			SET HitPoints 	= 300 WHERE DistrictType 	= 'DISTRICT_CITY_CENTER';					-- default = 200
 UPDATE ModifierArguments 	SET Value 		= 300 WHERE ModifierID 		= 'CIVIL_ENGINEERING_URBAN_DEFENSES';		-- default = 200
 
 UPDATE Buildings SET OuterDefenseHitPoints = 50		WHERE BuildingType ='BUILDING_PALACE';		-- default = 0

@@ -4,7 +4,7 @@
 --=====================================================================================--
 
 print ("Loading ModUtils.lua...")
-
+local LoadTimer = Automation.GetTime()
 --=====================================================================================--
 -- Includes
 --=====================================================================================--
@@ -139,6 +139,7 @@ local GCO = {}
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if IsInitializedGCO() then 	
 		print ("All GCO script files loaded...")
+		print ("Game loading time for all scripts = "..tostring(Automation.GetTime() - LoadTimer))
 		GCO = ExposedMembers.GCO					-- contains functions from other contexts
 		print ("Exposed Functions from other contexts initialized...")
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
@@ -147,6 +148,11 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	end
 end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+
+function OnLoadGameViewStateDone()
+	print ("Game loading time (not counting map creation) = "..tostring(Automation.GetTime() - LoadTimer))
+end
+Events.LoadGameViewStateDone.Add( OnLoadGameViewStateDone )
 
 
 --=====================================================================================--
@@ -224,57 +230,53 @@ function ToggleOutput()
 end
 
 local debugPrint = {}
+local bLogToTunerConsole 	= false
+local bLogToDebugTable	 	= not bLogToTunerConsole
 function Dprint(...)
     local args = {...}
 	if args.n == 1 then print(args[1]) end 							-- if called with one argument only, print it
 	if args.n == 0 or bNoOutput or args[1] == false then return end	-- don't print if the first argument is false (= debug off)
-	--print(select(2,...)) -- print everything else after the first argument
-	table.insert(debugPrint, {...})
+	if bLogToTunerConsole then print(select(2,...)) end 			-- print everything else after the first argument
+	if bLogToDebugTable then table.insert(debugPrint, {...}) end	-- log into debug table, output on error only
 end
 
-local lastDebugPrintLine 	= 1
-local lastRemovedLine 		= 1
+local lastLine = 1
 function ShowDebugPrint(numEntriesToDisplay)
 	if not numEntriesToDisplay then numEntriesToDisplay = 50000 end
 	local numEntries	= #debugPrint
-	numEntriesToDisplay = math.min(#debugPrint-1, numEntriesToDisplay)
-	lastDebugPrintLine	= math.max(lastDebugPrintLine, lastRemovedLine + numEntries - 1)
-	local startPos 		= lastDebugPrintLine - numEntriesToDisplay
-	local endPos		= lastDebugPrintLine
+	local startPos		= math.max(1, lastLine, numEntries - numEntriesToDisplay)
+	local endPos		= numEntries --math.min(numEntries, numEntriesToDisplay)
 	print("=========================================================================================================================================")
 	print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< DEBUG <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 	print("=========================================================================================================================================")
-	print("Showing " .. tostring(numEntriesToDisplay+1) .. " lines / "..tostring(numEntries))
-	print("lastDebugPrintLine .. = ", lastDebugPrintLine)
-	print("lastRemovedLine ..... = ", lastRemovedLine)
-	print("startPos ............ = ", startPos)
-	print("endPos .............. = ", endPos)
+	print("Showing " .. tostring(endPos-startPos) .. " lines / "..tostring(numEntries))
+	print("startPos = " .. tostring(startPos))
 	print("=========================================================================================================================================")
-	if #debugPrint > 0 then
+	if numEntries > 0 then
 		for i = startPos, endPos do
 			print(unpack(debugPrint[i]))
 		end
-	end	
+	end
+	lastLine = endPos
 	print("=========================================================================================================================================")
 	print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DEBUG >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 	print("=========================================================================================================================================")
 	--debugPrint = {}
 end
 
-local lastRemovedLine = 1
 function CleanDebugPrint()
 	local maxEntries 	= 100000
 	local numEntries	= #debugPrint
 	if numEntries > maxEntries then
 		local toRemove = numEntries - maxEntries
 		print("removing " .. tostring(toRemove) .. " lines from DebugPrint table at size " .. #debugPrint )
-		for i = lastRemovedLine, toRemove do
+		for i = 1, toRemove do
 			debugPrint[i] = nil
 		end
-		lastRemovedLine = lastRemovedLine + toRemove
-		print("lastRemovedLine = ", lastRemovedLine)
+		lastLine = 1
 	end
 end
+GameEvents.OnGameTurnStarted.Add(CleanDebugPrint)
 
 function Error(...)
 	print("ERROR : ", select(1,...))
@@ -488,7 +490,7 @@ function ShowTimer(name) -- bShowInGame, seconds are optionnal
 		elseif diff < 5 then
 			GCO.Warning(str, 4)
 		else
-			GCO.Error(str)		
+			GCO.Warning(str,8)		
 		end
 	end
 	return str
@@ -547,7 +549,7 @@ function GetRouteEfficiency(length)
 	return GCO.Round( 100 - math.pow(length,2) )
 end
 
-function SupplyPathBlocked(pPlot, pPlayer)
+function TradePathBlocked(pPlot, pPlayer) -- check for trade path (doesn't require open border, but blocked by enemy units/territory)
 
 	local ownerID = pPlot:GetOwner()
 	local playerID = pPlayer:GetID()
@@ -558,21 +560,33 @@ function SupplyPathBlocked(pPlot, pPlayer)
 	for i, pUnit in ipairs(aUnits) do
 		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
 	end
+
+	return false
+end
+
+function SupplyPathBlocked(pPlot, pPlayer) -- check for supply path (requires open border and blocked by enemy units/territory)
+
+	local ownerID = pPlot:GetOwner()
+	local playerID = pPlayer:GetID()	
+
+	-- check for enemy units first
+	local aUnits = Units.GetUnitsInPlot(pPlot);
+	for i, pUnit in ipairs(aUnits) do
+		if pPlayer:GetDiplomacy():IsAtWarWith( pUnit:GetOwner() ) then return true end -- path blocked
+	end
 	
-	--[[
+	-- then own territory is open
 	if ( ownerID == playerID or ownerID == -1 ) then
 		return false
 	end
 
+	-- then open border in foreign territory
 	if GCO.HasPlayerOpenBordersFrom(pPlayer, ownerID) then
 		return false
 	end	
 
 	return true -- return true if the path is blocked...
-	--]]
-	return false
 end
-
 
 --=====================================================================================--
 -- Cities
@@ -704,6 +718,10 @@ end
 -- Units
 --=====================================================================================--
 
+function KillUnit(unitID,playerID)
+	local unit = UnitManager.GetUnit(playerID, unitID)
+	UnitManager.Kill(unit)
+end
 
 --=====================================================================================--
 -- Texts function
@@ -813,6 +831,7 @@ function Initialize()
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
 	ExposedMembers.GCO.GetRouteEfficiency 			= GetRouteEfficiency
 	ExposedMembers.GCO.SupplyPathBlocked 			= SupplyPathBlocked
+	ExposedMembers.GCO.TradePathBlocked 			= TradePathBlocked
 	-- player
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent

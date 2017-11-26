@@ -75,8 +75,7 @@ Events.InputActionTriggered.Add( OnInputAction )
 ----------------------------------------------
 -- save
 function SaveTableToSlot(t, sSlotName)
-	GCO.StartTimer("serialize")
-	local startTime = Automation.GetTime()
+	GCO.StartTimer("Serialize and Save "..sSlotName)
 	if type(t) ~= "table" then 
 		GCO.Error("SaveTableToSlot(t, sSlotName), parameter #1 must be a table, nothing saved to slot ".. tostring(sSlotName))
 		return
@@ -89,7 +88,7 @@ function SaveTableToSlot(t, sSlotName)
 	local s = GCO.serialize(t)
 	local size = string.len(s)
 	GameConfiguration.SetValue(sSlotName, s)
-	GCO.ShowTimer("serialize")
+	GCO.ShowTimer("Serialize and Save "..sSlotName)
 
 	-- test saved value
 	---[[
@@ -98,15 +97,15 @@ function SaveTableToSlot(t, sSlotName)
 		local s2 = GameConfiguration.GetValue(sSlotName)
 		local size2 = string.len(s2)
 		if s2 ~= s then
-			GCO.Error("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring(sSlotName))
 			GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "ERROR: String to save length = " .. tostring(size).. ", saved string length = " .. tostring(size2))
 			GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------")
 			GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, s)
 			GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------")
 			GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, s2)
 			GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------")
+			GCO.Error("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring(sSlotName))
 		end
-		local t2 = GCO.deserialize(s2)
+		--local t2 = GCO.deserialize(s2)
 	end
 	
 end
@@ -116,14 +115,16 @@ function LoadTableFromSlot(sSlotName)
 	if not GameConfiguration.GetValue then
 		GCO.Error("GameConfiguration.GetValue is null when trying to load from slot ".. tostring(sSlotName))
 	end
-	local sTimer = "GameConfiguration.GetValue for "..tostring(sSlotName)
+	local sTimer = "Load "..tostring(sSlotName)
 	GCO.StartTimer(sTimer)
 	local s = GameConfiguration.GetValue(sSlotName)
 	GCO.ShowTimer(sTimer)
-	if s then	
+	if s then
 		local size = string.len(s)
-		GCO.StartTimer("GCO.deserialize(s)")
-		local t = GCO.deserialize(s)		
+		local sTimer = "Deserialize "..tostring(sSlotName).." ("..tostring(size).." chars)"
+		GCO.StartTimer(sTimer)
+		local t = GCO.deserialize(s)
+		GCO.ShowTimer(sTimer)
 		return t
 	else
 		GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "WARNING: No saved data table in slot ".. tostring(sSlotName) .." (this happens when initializing the table, you can ignore this warning when launching a new game)") 

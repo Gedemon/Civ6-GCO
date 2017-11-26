@@ -225,7 +225,7 @@ function OnResearchCompleted(playerID)
 		end
 	end	
 end
-Events.ResearchCompleted.Add(OnResearchCompleted)
+
 
 
 -----------------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ function OnCivicCompleted(playerID, civicID)
 		player:SetMilitaryOrganizationLevel(OrganizationLevelCivics[civicID])
 	end
 end
-Events.CivicCompleted.Add(OnCivicCompleted)
+
 
 
 -----------------------------------------------------------------------------------------
@@ -397,7 +397,7 @@ function OnTreasuryChanged(playerID, yield, balance)
 		end
 	end
 end
-Events.TreasuryChanged.Add(OnTreasuryChanged)
+
 
 -----------------------------------------------------------------------------------------
 -- Updates functions
@@ -448,9 +448,11 @@ end
 
 function UpdateDataOnLoad(self)
 
-	local playerConfig = PlayerConfigurations[self:GetID()]
+	local playerConfig 	= PlayerConfigurations[self:GetID()]
+	local name 			= Locale.Lookup(playerConfig:GetCivilizationShortDescription())
+	GCO.StartTimer("UpdateCachedData for "..name)
 	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on (re)Loading for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on (re)Loading for "..name)
 
 	local playerCities = self:GetCities()
 	if playerCities then
@@ -467,8 +469,8 @@ function UpdateDataOnLoad(self)
 			GCO.AttachUnitFunctions(unit)
 			--
 		end
-	end
-
+	end	
+	GCO.ShowTimer("UpdateCachedData for "..name)
 end
 
 
@@ -485,6 +487,7 @@ function HasStartedTurn(self)
 	return (ExposedMembers.PlayerData[playerKey].CurrentTurn == Game.GetCurrentGameTurn())
 end
 
+local startTurnAutoSaveNum = 0
 function DoPlayerTurn( playerID )
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	
@@ -512,11 +515,25 @@ function DoPlayerTurn( playerID )
 		player:SetCurrentTurn()
 		
 		if playerID == Game.GetLocalPlayer() then		
+			--LuaEvents.SaveTables()
+		end
+		
+		if playerID == 0 and  Automation.IsActive() then
+			-- Making our own auto save...
 			LuaEvents.SaveTables()
+			startTurnAutoSaveNum = startTurnAutoSaveNum + 1
+			if startTurnAutoSaveNum > 5 then startTurnAutoSaveNum = 1 end
+			local saveGame = {};
+			saveGame.Name = "GCO-StartTurnAutosave"..tostring(startTurnAutoSaveNum)
+			saveGame.Location = SaveLocations.LOCAL_STORAGE
+			saveGame.Type= SaveTypes.SINGLE_PLAYER
+			saveGame.IsAutosave = false
+			saveGame.IsQuicksave = false
+			LuaEvents.SaveGameGCO(saveGame)
 		end
 	end
 end
-LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
+
 
 function CheckPlayerTurn(playerID)
 	local playerConfig	= PlayerConfigurations[playerID]
@@ -536,7 +553,7 @@ function CheckPlayerTurn(playerID)
 		GCO.PlayerTurnsDebugChecks[playerID] = nil
 	end
 end
-LuaEvents.StartPlayerTurn.Add(CheckPlayerTurn)
+
 
 -- can't use those, they makes the game crash at self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) ) in UnitFlagManager, and some other unidentified parts of the code...
 --GameEvents.PlayerTurnStarted.Add(DoPlayerTurn)
@@ -555,7 +572,7 @@ function DoTurnForLocal() -- The Error reported on the line below is triggered b
 		LuaEvents.StartPlayerTurn(playerID)
 	end
 end
-Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
+
 
 function DoTurnForRemote( playerID )
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -565,7 +582,7 @@ function DoTurnForRemote( playerID )
 	--CheckPlayerTurn(playerID)
 	LuaEvents.StartPlayerTurn(playerID)
 end
-Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
+
 
 --
 function DoTurnForNextPlayerFromRemote( playerID )
@@ -582,7 +599,7 @@ function DoTurnForNextPlayerFromRemote( playerID )
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	LuaEvents.StartPlayerTurn(playerID)
 end
-Events.RemotePlayerTurnEnd.Add( DoTurnForNextPlayerFromRemote )
+
 
 function DoTurnForNextPlayerFromLocal( playerID )
 	if not playerID then playerID = 0 end
@@ -597,13 +614,25 @@ function DoTurnForNextPlayerFromLocal( playerID )
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	LuaEvents.StartPlayerTurn(playerID)
 end
-Events.LocalPlayerTurnEnd.Add( DoTurnForNextPlayerFromLocal )
 
 
 -----------------------------------------------------------------------------------------
 -- Events Functions
 -----------------------------------------------------------------------------------------
-
+local autoSaveNum = 0
+function LocalPlayerEndTurnSave()
+	-- Making our own auto save...
+	LuaEvents.SaveTables()
+	autoSaveNum = autoSaveNum + 1
+	if autoSaveNum > 5 then autoSaveNum = 1 end
+	local saveGame = {};
+	saveGame.Name = "GCO-EndTurnAutosave"..tostring(autoSaveNum)
+	saveGame.Location = SaveLocations.LOCAL_STORAGE
+	saveGame.Type= SaveTypes.SINGLE_PLAYER
+	saveGame.IsAutosave = false
+	saveGame.IsQuicksave = false
+	LuaEvents.SaveGameGCO(saveGame)
+end
 
 -----------------------------------------------------------------------------------------
 -- Shared Functions
@@ -662,13 +691,26 @@ end
 
 
 ----------------------------------------------
--- Share functions for other contexts
+-- Initialize
 ----------------------------------------------
 function Initialize()
+	-- Sharing Functions for other contexts
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.GetPlayer 					= GetPlayer
 	ExposedMembers.GCO.InitializePlayerFunctions 	= InitializePlayerFunctions
 	ExposedMembers.GCO.PlayerTurnsDebugChecks 		= {}
 	ExposedMembers.PlayerScript_Initialized 		= true
+	
+	-- Register Events (order matters for same events)
+	Events.ResearchCompleted.Add(OnResearchCompleted)
+	Events.CivicCompleted.Add(OnCivicCompleted)
+	Events.TreasuryChanged.Add(OnTreasuryChanged)
+	LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
+	LuaEvents.StartPlayerTurn.Add(CheckPlayerTurn)
+	Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
+	Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
+	Events.RemotePlayerTurnEnd.Add( DoTurnForNextPlayerFromRemote )
+	Events.LocalPlayerTurnEnd.Add( LocalPlayerEndTurnSave )
+	Events.LocalPlayerTurnEnd.Add( DoTurnForNextPlayerFromLocal )
 end
 Initialize()
