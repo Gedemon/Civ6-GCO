@@ -29,6 +29,10 @@ UPDATE DiplomaticActions SET InitiatorPrereqCivic ='CIVIC_EARLY_EMPIRE', TargetP
 
 /* Improvements */
 UPDATE Improvements 	SET PrereqTech ='TECH_CONSTRUCTION' WHERE ImprovementType ='IMPROVEMENT_FORT';
+INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_FORT', 'UNIT_BUILDER');
+
+/* Features */
+DELETE FROM Feature_Removes;
 
 /* Technologies & Civics*/
 UPDATE Technologies SET Cost = 25 WHERE TechnologyType ='TECH_THE_WHEEL';
@@ -53,7 +57,7 @@ INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STIRRUPS', 
 UPDATE Boosts SET Boost = 30; -- Default = 50
 
 -- Technology cost
-UPDATE Technologies SET Cost = Cost*1.00 WHERE EraType ='ERA_ANCIENT'; -- just for reference
+UPDATE Technologies SET Cost = Cost*1.00 WHERE EraType ='ERA_ANCIENT';
 UPDATE Technologies SET Cost = Cost*1.10 WHERE EraType ='ERA_CLASSICAL';
 UPDATE Technologies SET Cost = Cost*1.20 WHERE EraType ='ERA_MEDIEVAL';
 UPDATE Technologies SET Cost = Cost*1.30 WHERE EraType ='ERA_RENAISSANCE';
@@ -63,7 +67,7 @@ UPDATE Technologies SET Cost = Cost*1.80 WHERE EraType ='ERA_ATOMIC';
 UPDATE Technologies SET Cost = Cost*2.00 WHERE EraType ='ERA_INFORMATION';
 
 -- Civics cost
-UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_ANCIENT'; -- just for reference
+UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_ANCIENT';
 UPDATE Civics SET Cost = Cost*1.50 WHERE EraType ='ERA_CLASSICAL';
 UPDATE Civics SET Cost = Cost*1.60 WHERE EraType ='ERA_MEDIEVAL';
 UPDATE Civics SET Cost = Cost*1.70 WHERE EraType ='ERA_RENAISSANCE';

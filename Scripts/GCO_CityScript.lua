@@ -3811,19 +3811,22 @@ function DoCollectResources(self)
 			local cityPlot 	= Map.GetPlot(self:GetX(), self:GetY())
 			for ring = 1, seaRange do
 				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
-					if (pEdgePlot:IsWater() or pEdgePlot:IsLake()) and pEdgePlot:GetResourceCount() > 0 then
-						local bIsPlotConnected 	= GCO.IsPlotConnected(pPlayer, cityPlot, pEdgePlot, sRouteType, true, nil, GCO.TradePathBlocked)
-						if bIsPlotConnected then
-							local routeLength = GCO.GetRouteLength()
-							if routeLength <= seaRange then
-								local resourceID = pEdgePlot:GetResourceType()
-								if player:IsResourceVisible(resourceID) then
-									table.insert(cityPlots, pEdgePlot:GetIndex())
-									Dprint( DEBUG_CITY_SCRIPT, "-- Adding Sea plots for resource collection, route length = ", routeLength, " sea range = ", seaRange, " resource = ", Locale.Lookup(GameInfo.Resources[resourceID].Name), " at ", pEdgePlot:GetX(), pEdgePlot:GetY() )
-									if (pEdgePlot:GetImprovementType() == NO_IMPROVEMENT) and self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then
-										local improvementID = ResourceImprovementID[resourceID]
-										if improvementID then
-											ImprovementBuilder.SetImprovementType(pEdgePlot, improvementID, NO_PLAYER)
+					local plotOwner = pEdgePlot:GetOwner()
+					if (plotOwner == self:GetOwner()) or (plotOwner == NO_PLAYER) then
+						if (pEdgePlot:IsWater() or pEdgePlot:IsLake()) and pEdgePlot:GetResourceCount() > 0 then
+							local bIsPlotConnected 	= GCO.IsPlotConnected(pPlayer, cityPlot, pEdgePlot, sRouteType, true, nil, GCO.TradePathBlocked)
+							if bIsPlotConnected then
+								local routeLength = GCO.GetRouteLength()
+								if routeLength <= seaRange then
+									local resourceID = pEdgePlot:GetResourceType()
+									if player:IsResourceVisible(resourceID) then
+										table.insert(cityPlots, pEdgePlot:GetIndex())
+										Dprint( DEBUG_CITY_SCRIPT, "-- Adding Sea plots for resource collection, route length = ", routeLength, " sea range = ", seaRange, " resource = ", Locale.Lookup(GameInfo.Resources[resourceID].Name), " at ", pEdgePlot:GetX(), pEdgePlot:GetY() )
+										if (pEdgePlot:GetImprovementType() == NO_IMPROVEMENT) and self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then
+											local improvementID = ResourceImprovementID[resourceID]
+											if improvementID then
+												ImprovementBuilder.SetImprovementType(pEdgePlot, improvementID, NO_PLAYER)
+											end
 										end
 									end
 								end

@@ -320,6 +320,39 @@ function GetPotentialOwner( self )
 	return bestPlayer
 end
 
+function IsTerritorialWaterOf( self, playerID )
+	if not (self:IsAdjacentOwned() and self:IsAdjacentToLand()) then return false end
+	local adjacentTerritoryLand	= 0
+	local minimumCulture		= GetCultureMinimumForAcquisition( playerID )
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		local adjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction);
+		if (adjacentPlot ~= nil) and (not adjacentPlot:IsWater()) and (adjacentPlot:GetOwner() == playerID) and self:GetCulture( playerID ) >= minimumCulture then
+			adjacentTerritoryLand = adjacentTerritoryLand + 1
+		end
+	end	
+	return (adjacentTerritoryLand >= 3)
+end
+
+function GetTerritorialWaterOwner( self )
+	local potentialOwner 		= {}
+	local bestAdjacentLandOwner	= 0
+	local territorialWaterOwner = nil
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		local adjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction);
+		if (adjacentPlot ~= nil) and (not adjacentPlot:IsWater()) then
+			local ownerID = adjacentPlot:GetOwner()
+			if (ownerID ~= NO_OWNER) and self:GetCulture( ownerID ) >= GetCultureMinimumForAcquisition( ownerID ) then
+				potentialOwner[ownerID] = (potentialOwner[ownerID] or 0) + 1
+				if potentialOwner[ownerID] >= 3 and potentialOwner[ownerID] > bestAdjacentLandOwner then
+					bestAdjacentLandOwner = potentialOwner[ownerID]
+					territorialWaterOwner = ownerID
+				end
+			end
+		end
+	end	
+	return territorialWaterOwner
+end
+
 local debugTable = {}
 local bshowDebug = false
 function UpdateCulture( self )
@@ -327,10 +360,20 @@ function UpdateCulture( self )
 	bshowDebug = false
 	--table.insert(debugTable, "-------------------------------- UPDATE CULTURE FOR PLOT (".. tostring(self:GetX()) .. "," .. tostring(self:GetY()) ..") --------------------------------" )
 
-	-- No culture on water
+	-- Limited culture on water
 	if self:IsWater() then
-		if self:GetOwner() ~= NO_OWNER then
+		local ownerID = self:GetOwner()
+		if (ownerID ~= NO_OWNER) and (self:GetDistrictType() == -1) and (not self:IsTerritorialWaterOf(ownerID)) then
 			WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), false )
+		end
+		if (ownerID == NO_OWNER) and self:IsAdjacentOwned() and self:IsAdjacentToLand() then
+			local potentialOwnerID = self:GetTerritorialWaterOwner()
+			if potentialOwnerID then			
+				local city, distance = GCO.FindNearestPlayerCity(potentialOwnerID, self:GetX(), self:GetY())
+				if not city then return end
+				if distance > GetCultureFlippingMaxDistance(potentialOwnerID) then return end
+				WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), potentialOwnerID, city:GetID() )
+			end
 		end
 		return
 	end
@@ -1344,6 +1387,8 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.IsLockedByFortification		= IsLockedByFortification
 	p.IsLockedByCitadelForPlayer 	= IsLockedByCitadelForPlayer
 	p.GetPotentialOwner				= GetPotentialOwner
+	p.IsTerritorialWaterOf			= IsTerritorialWaterOf
+	p.GetTerritorialWaterOwner		= GetTerritorialWaterOwner
 	p.UpdateCulture					= UpdateCulture
 	p.UpdateOwnership				= UpdateOwnership
 	p.DiffuseCulture				= DiffuseCulture
