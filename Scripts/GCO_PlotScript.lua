@@ -40,9 +40,11 @@ DEBUG_PLOT_SCRIPT			= false
 -- Initialize
 -----------------------------------------------------------------------------------------
 local GCO = {}
+local pairs = pairs
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	GCO = ExposedMembers.GCO
+	GCO 	= ExposedMembers.GCO
 	Dprint 	= GCO.Dprint
+	--pairs 	= GCO.OrderedPairs
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
@@ -1197,7 +1199,7 @@ function AddGoody()
 		end
 	end
 	local numPossiblePlots = #plotList
-	local randomPlot = plotList[Automation.GetRandomNumber(numPossiblePlots)+1]
+	local randomPlot = plotList[TerrainBuilder.GetRandomNumber(numPossiblePlots, "Add New Goody")+1]
 	if randomPlot then
 		ImprovementBuilder.SetImprovementType(randomPlot, GoodyHutID, NO_PLAYER);
 		Dprint( DEBUG_PLOT_SCRIPT, "-- found new position at ", randomPlot:GetX(), randomPlot:GetY());

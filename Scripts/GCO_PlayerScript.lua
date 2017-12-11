@@ -33,12 +33,14 @@ local _cached				= {}	-- cached table to reduce calculations
 -- Initialize
 -----------------------------------------------------------------------------------------
 
-local GCO = {}
+local GCO 	= {}
+local pairs = pairs
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO 		= ExposedMembers.GCO
 	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	pairs 		= GCO.OrderedPairs
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end

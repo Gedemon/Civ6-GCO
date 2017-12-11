@@ -271,12 +271,14 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -- Initialize 
 -----------------------------------------------------------------------------------------
 local CombatTypes = {}
+local pairs = pairs
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO			-- contains functions from other contexts
 	CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
 	Dprint 		= GCO.Dprint					-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline						-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog						-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	pairs 		= GCO.OrderedPairs
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
@@ -1000,7 +1002,7 @@ function CheckAndReplaceBarbarianUnit(unit)
 	if barbarianUnits[eraType] and barbarianUnits[eraType][promotionClass] then
 		local row = barbarianUnits[eraType][promotionClass]
 		if row.AltType then
-			local prob = Automation.GetRandomNumber(100)
+			local prob = TerrainBuilder.GetRandomNumber(100, "CheckAndReplaceBarbarianUnit")
 			Dprint( DEBUG_UNIT_SCRIPT, " - AltType = ", row.AltType, ", Probability = ", row.AltProbability, ", rng = ", prob )
 			if row.AltProbability and row.AltProbability > prob then
 				local newTypeID = GameInfo.Units[row.AltType].Index
@@ -4693,7 +4695,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 		local eraType	= GameInfo.Eras[gameEra].EraType
 			
 		function GetNum(num)
-			return GCO.Round(Automation.GetRandomNumber(num) * (gameEra+1) * 0.35)
+			return GCO.Round(TerrainBuilder.GetRandomNumber(num, "OnImprovementActivated GetNum") * (gameEra+1) * 0.35)
 		end
 		if( GameInfo.Improvements[improvementType].BarbarianCamp ) then
 			Dprint( DEBUG_UNIT_SCRIPT, "Barbarian Village Cleaned, Era = "..tostring(eraType));

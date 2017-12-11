@@ -156,6 +156,55 @@ Events.LoadGameViewStateDone.Add( OnLoadGameViewStateDone )
 
 
 --=====================================================================================--
+-- http://lua-users.org/wiki/SortedIteration
+-- Ordered table iterator, allow to iterate on the natural order of the keys of a table.
+--=====================================================================================--
+function __genOrderedIndex( t )
+    local orderedIndex = {}
+    for key in pairs (t) do
+        table.insert ( orderedIndex, key )
+    end
+    table.sort ( orderedIndex )
+    return orderedIndex
+end
+
+function orderedNext(t, state)
+    -- Equivalent of the next function, but returns the keys in the alphabetic
+    -- order.  We use a temporary ordered key table that is stored in the
+    -- table being iterated.
+
+    local key = nil
+    --print("orderedNext: state = "..tostring(state) )
+    if state == nil then
+        -- the first time, generate the index
+        t.__orderedIndex = __genOrderedIndex( t )
+        key = t.__orderedIndex[1]
+    else
+        -- fetch the next value
+        for i = 1, #t.__orderedIndex do
+            if t.__orderedIndex[i] == state then
+                key = t.__orderedIndex[i+1]
+            end
+        end
+    end
+
+    if key then
+        return key, t[key]
+    end
+
+    -- no more value to return, cleanup
+    t.__orderedIndex = nil
+    return
+end
+
+function orderedPairs(t)
+    -- Equivalent of the pairs() function on tables.  Allows to iterate
+    -- in order
+    return orderedNext, t, nil
+end
+
+
+--=====================================================================================--
 -- Maths/Tables
 --=====================================================================================--
 function Round(num)
@@ -175,7 +224,7 @@ function Shuffle(t)
  
   while n >= 2 do
     -- n is now the last pertinent index
-    local k = Automation.GetRandomNumber(n)+1 --math.random(n) -- 1 <= k <= n
+    local k = TerrainBuilder.GetRandomNumber(n, "shuffle table")+1 --math.random(n) -- 1 <= k <= n
     -- Quick swap
     t[n], t[k] = t[k], t[n]
     n = n - 1
@@ -793,6 +842,8 @@ end
 
 function Initialize()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
+	-- utils
+	ExposedMembers.GCO.OrderedPairs 	= orderedPairs
 	-- maths
 	ExposedMembers.GCO.Round 			= Round
 	ExposedMembers.GCO.Shuffle 			= Shuffle

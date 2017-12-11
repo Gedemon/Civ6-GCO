@@ -374,12 +374,14 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -- Initialize
 -----------------------------------------------------------------------------------------
 local GCO 	= {}
+local pairs = pairs
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts
 	Calendar 	= ExposedMembers.Calendar	-- required for city growth (when based on real calendar)
 	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	pairs 		= GCO.OrderedPairs
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
