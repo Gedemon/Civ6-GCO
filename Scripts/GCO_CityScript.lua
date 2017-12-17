@@ -1776,8 +1776,8 @@ function ExportToForeignCities(self)
 							resLeft = resLeft - send
 							city:ChangeStock(resourceID, send, ResourceUseType.Import, selfKey, costPerUnit)
 							self:ChangeStock(resourceID, -send, ResourceUseType.Export, cityKey)
-							importIncome[city] = (importIncome[city] or 0) + transactionIncome
-							exportIncome = exportIncome + transactionIncome
+							importIncome[cityKey] 	= (importIncome[cityKey] or 0) + transactionIncome
+							exportIncome 			= exportIncome + transactionIncome
 							Dprint( DEBUG_CITY_SCRIPT, "   - Generating ", transactionIncome, " golds for ", send, " ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (".. tostring(efficiency) .." percent efficiency) send to ".. Locale.Lookup(city:GetName()))
 						end
 					end
@@ -1798,16 +1798,19 @@ function ExportToForeignCities(self)
 		--Players[self:GetOwner()]:GetTreasury():ChangeGoldBalance(exportIncome)
 	end
 
-	for city, income in pairs(importIncome) do
+	for cityKey, income in pairs(importIncome) do
 		income = GCO.ToDecimals(income * IncomeImportPercent / 100)
 		if income > 0 then
-			Dprint( DEBUG_CITY_SCRIPT, "Total gold from Import income = " .. income .." gold for ".. Locale.Lookup(city:GetName()))
-			local sText = Locale.Lookup("LOC_GOLD_FROM_IMPORT", income)
-			if Game.GetLocalPlayer() == city:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, city:GetX(), city:GetY(), 0) end
-			
-			local player = GCO.GetPlayer(city:GetOwner())
-			player:ProceedTransaction(AccountType.ImportTaxes, income)
-			--Players[city:GetOwner()]:GetTreasury():ChangeGoldBalance(income)
+			local city = GetCityFromKey(cityKey)
+			if city then
+				Dprint( DEBUG_CITY_SCRIPT, "Total gold from Import income = " .. income .." gold for ".. Locale.Lookup(city:GetName()))
+				local sText = Locale.Lookup("LOC_GOLD_FROM_IMPORT", income)
+				if Game.GetLocalPlayer() == city:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, city:GetX(), city:GetY(), 0) end
+				
+				local player = GCO.GetPlayer(city:GetOwner())
+				player:ProceedTransaction(AccountType.ImportTaxes, income)
+				--Players[city:GetOwner()]:GetTreasury():ChangeGoldBalance(income)
+			end
 		end
 	end
 	Dlog("ExportToForeignCities "..Locale.Lookup(self:GetName()).." /END")
@@ -3701,8 +3704,8 @@ function DoReinforceUnits(self)
 						self:ChangeStock(resourceID, -send, ResourceUseType.Supply, unit:GetKey())						
 						
 						local cost 					= self:GetResourceCost(resourceID) * send						
-						pendingTransaction[unit] 	= (pendingTransaction[unit] or 0) + cost
-						
+						pendingTransaction[unitKey] 	= (pendingTransaction[unitKey] or 0) + cost
+
 						Dprint( DEBUG_CITY_SCRIPT, "  - send ".. tostring(send)," ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (@ ".. tostring(efficiency), " percent efficiency), cost = "..tostring(cost), " to unit key#".. tostring(unit:GetKey()), Locale.Lookup(UnitManager.GetTypeName(unit)))
 					end
 				end
@@ -3710,21 +3713,26 @@ function DoReinforceUnits(self)
 			loop = loop + 1
 		end
 	end
-	
+Dline(pendingTransaction)	
 	local totalCost = 0
-	for unit, cost in pairs(pendingTransaction) do
+	for unitKey, cost in pairs(pendingTransaction) do
+Dline()
 		if cost > 0 then -- personnel is free, some other resources maybe.
-			totalCost = totalCost + cost		
-			--self:RecordTransaction(AccountType.Reinforce, cost, unitKey)
-			--unit:RecordTransaction(AccountType.Reinforce, -cost, cityKey)
-			local sText = Locale.Lookup("LOC_GOLD_FOR_REINFORCEMENT", GCO.ToDecimals(cost))
-			if Game.GetLocalPlayer() == unit:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, unit:GetX(), unit:GetY(), 0) end
+			totalCost = totalCost + cost
+			local unit = GCO.GetUnitFromKey(unitKey)
+			if unit then			
+				--self:RecordTransaction(AccountType.Reinforce, cost, unitKey)
+				--unit:RecordTransaction(AccountType.Reinforce, -cost, cityKey)
+				local sText = Locale.Lookup("LOC_GOLD_FOR_REINFORCEMENT", GCO.ToDecimals(cost))
+				if Game.GetLocalPlayer() == unit:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, unit:GetX(), unit:GetY(), 0) end
+			end
 		end
 	end
+	
 	if totalCost > 0 then
 		player:ProceedTransaction(AccountType.Reinforce, -totalCost)
 	end
-
+	
 	-- Now remove excedent from units
 	local totalIncome = 0
 	for unitKey, _ in pairs(LinkedUnits[cityKey]) do
