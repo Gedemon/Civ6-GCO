@@ -71,10 +71,10 @@ local NO_IMPROVEMENT 	= -1
 local NO_FEATURE 		= -1
 local NO_PLAYER			= -1
 
-YieldHealthID			= GameInfo.CustomYields["YIELD_HEALTH"].Index
-YieldUpperHousingID		= GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index
-YieldMiddleHousingID	= GameInfo.CustomYields["YIELD_MIDDLE_HOUSING"].Index
-YieldLowerHousingID		= GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index
+local YieldHealthID			= GameInfo.CustomYields["YIELD_HEALTH"].Index
+local YieldUpperHousingID	= GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index
+local YieldMiddleHousingID	= GameInfo.CustomYields["YIELD_MIDDLE_HOUSING"].Index
+local YieldLowerHousingID	= GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index
 
 local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
 	DeathRate	= 1,
@@ -1282,23 +1282,43 @@ function SetMaxRouteLength(self, sRouteType)
 	_cached[cityKey].MaxRouteLength[sRouteType] = maxRouteLength
 end
 
+function GetMaxInternalLandRoutes( self )
+	return 1
+end
+
+function GetMaxInternalRiverRoutes( self )
+	return 1
+end
+
+function GetMaxInternalSeaRoutes( self )
+	return 1
+end
+
+function GetMaxExternalLandRoutes( self )
+	return 1
+end
+
+function GetMaxExternalRiverRoutes( self )
+	return 1
+end
+
+function GetMaxExternalSeaRoutes( self )
+	return 1
+end
+
 function GetTransferCities(self)
---GCO.StartTimer("GetTransferCities")
 	local selfKey = self:GetKey()
 	if not CitiesForTransfer[selfKey] then
 		return {} --self:UpdateTransferCities() -- UpdateTransferCities() must not be called from the UI, it affect gameplay and would lead to desync.
 	end
---GCO.ShowTimer("GetTransferCities")
 	return CitiesForTransfer[selfKey]
 end
 
 function GetExportCities(self)
---GCO.StartTimer("GetExportCities")
 	local selfKey = self:GetKey()
 	if not CitiesForTrade[selfKey] then
 		return {} --self:UpdateExportCities() -- UpdateExportCities() must not be called from the UI, it affect gameplay and would lead to desync.
 	end
---GCO.ShowTimer("GetExportCities")
 	return CitiesForTrade[selfKey]
 end
 
@@ -1318,17 +1338,28 @@ function UpdateTransferCities(self)
 	local player 		= Players[ownerID] --GCO.GetPlayer(ownerID) --<-- player:GetCities() sometime don't give the city objects from this script context
 	local playerCities 	= player:GetCities()
 
-	if not CitiesForTransfer[selfKey] 	then CitiesForTransfer[selfKey] = {} end	-- Export to other civilizations cities
-	if not CitiesOutOfReach[selfKey] 	then CitiesOutOfReach[selfKey] = {} end	-- Cities we can't reach at this moment
+	if not CitiesForTransfer[selfKey] 	then CitiesForTransfer[selfKey] = {} end	-- Internal transfer cities
+	if not CitiesOutOfReach[selfKey] 	then CitiesOutOfReach[selfKey] = {} end		-- Cities we can't reach at this moment
 	
+	local citiesList = {}
 	for i, transferCity in playerCities:Members() do
-		--AttachCityFunctions(transferCity) -- because UpdateExportCities() can be called from an UI context <- No more 20-Nov-2017
-		local transferKey = transferCity:GetKey()
+		local distance = Map.GetPlotDistance(self:GetX(), self:GetY(), transferCity:GetX(), transferCity:GetY())
+		table.insert(citiesList, { TransferCity = transferCity, Distance = distance })
+	end
+	table.sort(citiesList, function(a, b) return a.Distance < b.Distance; end)
+	
+	-- try to create routes until the max possible number of routes is reached (or there is no cities left to iterate), starting by closest cities first
+	local availableLandRoutes 	= self:GetMaxInternalLandRoutes()
+	local availableRiverRoutes	= self:GetMaxInternalRiverRoutes()
+	local availableSeaRoutes	= self:GetMaxInternalSeaRoutes()
+	for _, cityData in ipairs(citiesList) do
+		local transferCity	= cityData.TransferCity
+		local transferKey 	= transferCity:GetKey()
 		if transferKey ~= selfKey and not CitiesToIgnoreThisTurn[transferKey] then
 		
 			if CitiesOutOfReach[selfKey][transferKey] then
 				-- Update rate is relative to route length
-				local distance			= Map.GetPlotDistance(self:GetX(), self:GetY(), transferCity:GetX(), transferCity:GetY())
+				local distance			= cityData.Distance
 				local turnSinceUpdate	= currentTurn - CitiesOutOfReach[selfKey][transferKey]
 				if turnSinceUpdate > distance / 2 then
 					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." was marked out of reach ".. tostring(turnSinceUpdate) .." turns ago, unmarking for next turn...")
@@ -1337,6 +1368,9 @@ function UpdateTransferCities(self)
 					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach since ".. tostring(turnSinceUpdate) .." turns")
 				end
 			else
+				-- check if the other city of the route is already maintening it
+				local bFreeRoute 	= (CitiesForTransfer[transferKey][selfKey] and CitiesForTransfer[transferKey][selfKey].MaintainedRoute)
+					
 				-- do we need to update the route ?
 				local bNeedUpdate 	= false
 				local tradeRoute	= CitiesForTransfer[selfKey][transferKey]
@@ -1387,36 +1421,83 @@ function UpdateTransferCities(self)
 							end
 						end
 					end
-
+				
 					-- search for other types or routes
 					local bInternalRoute = true
 					if not hasRouteTo[transferKey] then
 
-						self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
-						self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
-						self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
+						-- to do : in case of a route maintained by the other city, match the route type, or mark it as not "free"
+					
+						if (availableLandRoutes > 0) or (bFreeRoute and CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Road) then
+							self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
+						elseif (availableRiverRoutes > 0) or (bFreeRoute and CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.River) then
+							self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
+						elseif (availableSeaRoutes > 0) or (bFreeRoute and (CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Coastal) or CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Ocean)) then
+							self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
+						end
 
 					end
 				end
 
 				if CitiesForTransfer[selfKey][transferKey] and CitiesForTransfer[selfKey][transferKey].Efficiency > 0 then
+					local routeType = CitiesForTransfer[selfKey][transferKey].RouteType
+					local bAbort 	= false
+					if (routeType ~= SupplyRouteType.Trader) then
 
-					local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
-					local efficiency	= CitiesForTransfer[selfKey][transferKey].Efficiency
+						-- check if the city can still maintain that route or update the number of route slots left
+						-- a closer city may have replaced it, or an event may have removed some available route slots
+						if not bFreeRoute then
+							if routeType == SupplyRouteType.Road 	then
+								if availableLandRoutes > 0 then
+									availableLandRoutes = availableLandRoutes - 1
+								else
+									bAbort = true
+								end
+							end
+							if routeType == SupplyRouteType.River 	then
+								if availableRiverRoutes > 0 then
+									availableRiverRoutes = availableRiverRoutes - 1
+								else
+									bAbort = true
+								end
+							end
+							if routeType == SupplyRouteType.Coastal or routeType == SupplyRouteType.Ocean then
+								if availableSeaRoutes > 0 then
+									availableSeaRoutes = availableSeaRoutes - 1
+								else
+									bAbort = true
+								end
+							end
+							
+							if bAbort then
+								-- that routes is not valid anymore 
+								CitiesForTransfer[selfKey][transferKey] = nil
+							else
+								-- mark that this city is maintaining the route 
+								CitiesForTransfer[selfKey][transferKey].MaintainedRoute = true
+							end
+						end
+						
+					end
 
-					CitiesForTransfer[selfKey][transferKey].Resources 		= {}
-					CitiesForTransfer[selfKey][transferKey].HasPrecedence 	= {}
+					if not bAbort then
+						local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
+						local efficiency	= CitiesForTransfer[selfKey][transferKey].Efficiency
 
-					for resourceID, value in pairs(requirements.Resources) do
-						if value > 0 then
-							value = GCO.Round(value*efficiency/100)
-							CitiesForTransfer[selfKey][transferKey].Resources[resourceID] 	= ( CitiesForTransfer[selfKey][transferKey].Resources[resourceID]	or 0 ) + value
-							CitiesTransferDemand[selfKey].Resources[resourceID] 			= ( CitiesTransferDemand[selfKey].Resources[resourceID] 			or 0 ) + value
-							CitiesTransferDemand[selfKey].NeedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].NeedResources[resourceID] 		or 0 ) + 1
-							if requirements.HasPrecedence[resourceID] then
-								CitiesTransferDemand[selfKey].HasPrecedence[resourceID]				= true
-								CitiesForTransfer[selfKey][transferKey].HasPrecedence[resourceID]	= true
-								CitiesTransferDemand[selfKey].ReservedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].ReservedResources[resourceID] or 0 ) + value
+						CitiesForTransfer[selfKey][transferKey].Resources 		= {}
+						CitiesForTransfer[selfKey][transferKey].HasPrecedence 	= {}
+
+						for resourceID, value in pairs(requirements.Resources) do
+							if value > 0 then
+								value = GCO.Round(value*efficiency/100)
+								CitiesForTransfer[selfKey][transferKey].Resources[resourceID] 	= ( CitiesForTransfer[selfKey][transferKey].Resources[resourceID]	or 0 ) + value
+								CitiesTransferDemand[selfKey].Resources[resourceID] 			= ( CitiesTransferDemand[selfKey].Resources[resourceID] 			or 0 ) + value
+								CitiesTransferDemand[selfKey].NeedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].NeedResources[resourceID] 		or 0 ) + 1
+								if requirements.HasPrecedence[resourceID] then
+									CitiesTransferDemand[selfKey].HasPrecedence[resourceID]				= true
+									CitiesForTransfer[selfKey][transferKey].HasPrecedence[resourceID]	= true
+									CitiesTransferDemand[selfKey].ReservedResources[resourceID] 		= ( CitiesTransferDemand[selfKey].ReservedResources[resourceID] or 0 ) + value
+								end
 							end
 						end
 					end
@@ -1514,8 +1595,7 @@ function UpdateExportCities(self)
 	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
-	local selfKey 				= self:GetKey()
-	--CitiesForTrade[selfKey] 	= {}	-- Export to other civilizations cities	
+	local selfKey 				= self:GetKey()	
 	CitiesTradeDemand[selfKey] 	= { Resources = {}, NeedResources = {}}
 	local hasRouteTo 			= {}
 	local ownerID 				= self:GetOwner()
@@ -5148,6 +5228,13 @@ function AttachCityFunctions(city)
 	c.GetPersonnel						= GetPersonnel
 	c.GetPreviousPersonnel				= GetPreviousPersonnel
 	c.ChangePersonnel					= ChangePersonnel
+	--	
+	c.GetMaxInternalLandRoutes   		= GetMaxInternalLandRoutes
+	c.GetMaxInternalRiverRoutes  		= GetMaxInternalRiverRoutes
+	c.GetMaxInternalSeaRoutes    		= GetMaxInternalSeaRoutes
+	c.GetMaxExternalLandRoutes   		= GetMaxExternalLandRoutes
+	c.GetMaxExternalRiverRoutes  		= GetMaxExternalRiverRoutes
+	c.GetMaxExternalSeaRoutes    		= GetMaxExternalSeaRoutes
 	--
 	c.UpdateLinkedUnits					= UpdateLinkedUnits
 	c.GetLinkedUnits					= GetLinkedUnits
