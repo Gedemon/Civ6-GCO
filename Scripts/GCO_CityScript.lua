@@ -772,6 +772,7 @@ function IsCoastal(self)
 end
 
 function GetSeaRange(self)
+	if not self:IsCoastal() then return 0 end -- to do: harbor
 	local range = 0
 	local pTech = Players[self:GetOwner()]:GetTechs()
 	if pTech then
@@ -1369,7 +1370,7 @@ function UpdateTransferCities(self)
 				end
 			else
 				-- check if the other city of the route is already maintening it
-				local bFreeRoute 	= (CitiesForTransfer[transferKey][selfKey] and CitiesForTransfer[transferKey][selfKey].MaintainedRoute)
+				local bFreeRoute 	= (CitiesForTransfer[transferKey] and CitiesForTransfer[transferKey][selfKey] and CitiesForTransfer[transferKey][selfKey].MaintainedRoute)
 					
 				-- do we need to update the route ?
 				local bNeedUpdate 	= false
@@ -1395,7 +1396,7 @@ function UpdateTransferCities(self)
 					end
 				else
 					bNeedUpdate = true
-				end		
+				end
 		
 				if bNeedUpdate then
 					-- search for trader routes first
@@ -1430,9 +1431,11 @@ function UpdateTransferCities(self)
 					
 						if (availableLandRoutes > 0) or (bFreeRoute and CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Road) then
 							self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
-						elseif (availableRiverRoutes > 0) or (bFreeRoute and CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.River) then
+						end
+						if (availableRiverRoutes > 0) or (bFreeRoute and CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.River) then
 							self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
-						elseif (availableSeaRoutes > 0) or (bFreeRoute and (CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Coastal) or CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Ocean)) then
+						end
+						if (availableSeaRoutes > 0) or (bFreeRoute and (CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Coastal) or CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Ocean) then
 							self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
 						end
 
@@ -1476,8 +1479,7 @@ function UpdateTransferCities(self)
 								-- mark that this city is maintaining the route 
 								CitiesForTransfer[selfKey][transferKey].MaintainedRoute = true
 							end
-						end
-						
+						end						
 					end
 
 					if not bAbort then
@@ -3793,10 +3795,9 @@ function DoReinforceUnits(self)
 			loop = loop + 1
 		end
 	end
-Dline(pendingTransaction)	
+
 	local totalCost = 0
 	for unitKey, cost in pairs(pendingTransaction) do
-Dline()
 		if cost > 0 then -- personnel is free, some other resources maybe.
 			totalCost = totalCost + cost
 			local unit = GCO.GetUnitFromKey(unitKey)

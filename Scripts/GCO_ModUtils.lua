@@ -279,7 +279,7 @@ function ToggleOutput()
 end
 
 local debugPrint = {}
-local bLogToTunerConsole 	= false
+local bLogToTunerConsole 	= true
 local bLogToDebugTable	 	= not bLogToTunerConsole
 function Dprint(...)
     local args = {...}
@@ -369,7 +369,8 @@ function Dline(...)
 	local str = string.match(str, 'GCO_.-$')
 	local str = string.match(str, ':.-\'')
 	local str = string.match(str, '%d+')
-	Dprint("at line "..str, select(1,...))
+	--Dprint(true, "at line "..str, select(1,...))	
+	print("at line "..str, select(1,...))
 end
 
 function DlineFull(...)
