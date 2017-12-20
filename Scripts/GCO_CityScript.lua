@@ -1327,6 +1327,7 @@ function UpdateTransferCities(self)
 	local name 		= Locale.Lookup(self:GetName())
 	GCO.StartTimer("UpdateTransferCities for ".. name)
 	Dlog("UpdateTransferCities ".. name.." /START")
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Routes to same Civilization Cities for ".. name)
 	
 	-- reset entries for that city
@@ -1447,7 +1448,7 @@ function UpdateTransferCities(self)
 					local bAbort 	= false
 					if (routeType ~= SupplyRouteType.Trader) then
 
-						-- check if the city can still maintain that route or update the number of route slots left
+						-- check if the city can (still) maintain that route or update the number of route slots left
 						-- a closer city may have replaced it, or an event may have removed some available route slots
 						if not bFreeRoute then
 							if routeType == SupplyRouteType.Road 	then
@@ -1473,7 +1474,7 @@ function UpdateTransferCities(self)
 							end
 							
 							if bAbort then
-								-- that routes is not valid anymore 
+								-- that route is not valid anymore 
 								CitiesForTransfer[selfKey][transferKey] = nil
 							else
 								-- mark that this city is maintaining the route 
@@ -1592,7 +1593,7 @@ end
 
 function UpdateExportCities(self)
 	local name 		= Locale.Lookup(self:GetName())
-	GCO.StartTimer("UpdateTransferCities for ".. name)
+	GCO.StartTimer("UpdateExportCities for ".. name)
 	Dlog("UpdateExportCities ".. name.." /START")
 	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
@@ -1606,8 +1607,9 @@ function UpdateExportCities(self)
 	if not CitiesForTrade[selfKey] 		then CitiesForTrade[selfKey] = {} end	-- Export to other civilizations cities
 	if not CitiesOutOfReach[selfKey] 	then CitiesOutOfReach[selfKey] = {} end	-- Cities we can't reach at this moment
 
+	local citiesList = {}
 	for iPlayer = 0, PlayerManager.GetWasEverAliveCount() - 1 do
-		local player 			= Players[iPlayer] --GCO.GetPlayer(iPlayer) --<-- player:GetCities() sometime don't give the city object from this script context
+		local player 			= Players[iPlayer]
 		local pDiplo 			= player:GetDiplomacy()
 		local pDiploAI			= player:GetAi_Diplomacy()
 		if pDiplo and pDiploAI then
@@ -1626,109 +1628,13 @@ function UpdateExportCities(self)
 					Dprint( DEBUG_CITY_SCRIPT, "- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 					local playerCities 	= player:GetCities()
 					for _, transferCity in playerCities:Members() do
-						--AttachCityFunctions(transferCity) -- because UpdateExportCities() can be called from an UI context <- No more 20-Nov-2017
-						local transferKey = transferCity:GetKey()
-						if transferKey ~= selfKey and transferCity:IsInitialized() then
-							if CitiesOutOfReach[selfKey][transferKey] then
-								-- Update rate is relative to route length
-								local distance			= Map.GetPlotDistance(self:GetX(), self:GetY(), transferCity:GetX(), transferCity:GetY())
-								local turnSinceUpdate	= currentTurn - CitiesOutOfReach[selfKey][transferKey]
-								if turnSinceUpdate > distance / 2 then
-									Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." was marked out of reach ".. tostring(turnSinceUpdate) .." turns ago, unmarking for next turn...")
-									CitiesOutOfReach[selfKey][transferKey] = nil
-								else
-									Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach since ".. tostring(turnSinceUpdate) .." turns")
-								end
-							else
-								-- do we need to update the route ?
-								local bNeedUpdate 	= false
-								local tradeRoute	= CitiesForTrade[selfKey][transferKey]
-								if tradeRoute then
-								
-									-- Update rate is relative to route length
-									local routeLength 		= #tradeRoute.PathPlots
-									local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
-									if turnSinceUpdate > routeLength / 2 then
-										bNeedUpdate = true								
-									end
-									
-									-- check for blockade on path
-									if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
-										for i=1, #tradeRoute.PathPlots do
-											local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
-											if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
-												bNeedUpdate = true
-												break
-											end
-										end
-									end									
-									
-									-- Update Diplomatic relations (That shouldn't require to update the Route itself)
-									if tradeRouteLevel ~= tradeRoute.TradeRouteLevel then
-										--tradeRoute.TradeRouteLevel = tradeRouteLevel
-										bNeedUpdate = true
-									end
-								else
-									bNeedUpdate = true
-								end
-								
-								if bNeedUpdate then
-									-- search for trader routes first
-									local trade 				= GCO.GetCityTrade(transferCity)
-									local tradeManager:table 	= GCO.GetTradeManager()
-									local outgoingRoutes 		= trade:GetOutgoingRoutes()
-									for j,route in ipairs(outgoingRoutes) do
-										if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
-											Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade from ".. Locale.Lookup(transferCity:GetName()))
-											local pathPlots 						= tradeManager:GetTradeRoutePath(transferCity:GetOwner(), transferCity:GetID(), self:GetOwner(), self:GetID() )
-											CitiesForTrade[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn}
-											hasRouteTo[transferKey] 				= true
-										end
-									end
-
-									if not hasRouteTo[transferKey] then
-										for j,route in ipairs(trade:GetIncomingRoutes()) do
-											if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
-												Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade to ".. Locale.Lookup(transferCity:GetName()))
-												local pathPlots 						= tradeManager:GetTradeRoutePath(self:GetOwner(), self:GetID(), transferCity:GetOwner(), transferCity:GetID() )
-												CitiesForTrade[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn }
-												hasRouteTo[transferKey] 				= true
-											end
-										end
-									end
-									
-									-- search for other types or routes
-									local bInternalRoute = false
-									if not hasRouteTo[transferKey] then
-
-										self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute, tradeRouteLevel)
-										self:UpdateCitiesConnection(transferCity, "River", bInternalRoute, tradeRouteLevel)
-										self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute, tradeRouteLevel)
-
-									end
-								end
-									
-								if CitiesForTrade[selfKey][transferKey] and CitiesForTrade[selfKey][transferKey].Efficiency > 0 then
-
-									local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
-									local efficiency	= CitiesForTrade[selfKey][transferKey].Efficiency
-
-									for resourceID, value in pairs(requirements.Resources) do
-										if value > 0 then
-											CitiesTradeDemand[selfKey].Resources[resourceID] 		= ( CitiesTradeDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
-											CitiesTradeDemand[selfKey].NeedResources[resourceID] 	= ( CitiesTradeDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
-										end
-									end
-								else
-									CitiesOutOfReach[selfKey][transferKey] = currentTurn
-								end
-							end
-						end
+						local distance = Map.GetPlotDistance(self:GetX(), self:GetY(), transferCity:GetX(), transferCity:GetY())
+						table.insert(citiesList, { TransferCity = transferCity, Distance = distance, TradeRouteLevel = tradeRouteLevel })
 					end
-				else -- remove route if exist
+				else -- remove routes if exist
 					Dprint( DEBUG_CITY_SCRIPT, "- removing possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 					local playerCities 	= player:GetCities()
-					for i, transferCity in playerCities:Members() do
+					for _, transferCity in playerCities:Members() do
 						local transferKey = transferCity:GetKey()
 						CitiesForTrade[selfKey][transferKey] = nil
 					end
@@ -1736,6 +1642,166 @@ function UpdateExportCities(self)
 			end
 		end
 	end
+	table.sort(citiesList, function(a, b) return a.Distance < b.Distance; end)
+
+	-- try to create routes until the max possible number of routes is reached (or there is no cities left to iterate), starting by closest cities first
+	local availableLandRoutes 	= self:GetMaxExternalLandRoutes()
+	local availableRiverRoutes	= self:GetMaxExternalRiverRoutes()
+	local availableSeaRoutes	= self:GetMaxExternalSeaRoutes()
+	for _, cityData in ipairs(citiesList) do
+		local transferCity	= cityData.TransferCity
+		local transferKey 	= transferCity:GetKey()	
+		
+		if transferKey ~= selfKey and transferCity:IsInitialized() then
+			if CitiesOutOfReach[selfKey][transferKey] then
+				-- Update rate is relative to route length
+				local distance			= cityData.Distance
+				local turnSinceUpdate	= currentTurn - CitiesOutOfReach[selfKey][transferKey]
+				if turnSinceUpdate > distance / 2 then
+					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." was marked out of reach ".. tostring(turnSinceUpdate) .." turns ago, unmarking for next turn...")
+					CitiesOutOfReach[selfKey][transferKey] = nil
+				else
+					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach since ".. tostring(turnSinceUpdate) .." turns")
+				end
+			else
+				local tradeRouteLevel = cityData.TradeRouteLevel
+				-- check if the other city of the route is already maintening it
+				local bFreeRoute 	= CitiesForTrade[transferKey] and CitiesForTrade[transferKey][selfKey] and CitiesForTrade[transferKey][selfKey].MaintainedRoute)
+				
+				-- do we need to update the route ?
+				local bNeedUpdate 	= false
+				local tradeRoute	= CitiesForTrade[selfKey][transferKey]
+				if tradeRoute then
+				
+					-- Update rate is relative to route length
+					local routeLength 		= #tradeRoute.PathPlots
+					local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
+					if turnSinceUpdate > routeLength / 2 then
+						bNeedUpdate = true								
+					end
+					
+					-- check for blockade on path
+					if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
+						for i=1, #tradeRoute.PathPlots do
+							local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
+							if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
+								bNeedUpdate = true
+								break
+							end
+						end
+					end									
+					
+					-- Update Diplomatic relations (That shouldn't require to update the Route itself)
+					if tradeRouteLevel ~= tradeRoute.TradeRouteLevel then
+						--tradeRoute.TradeRouteLevel = tradeRouteLevel
+						bNeedUpdate = true
+					end
+				else
+					bNeedUpdate = true
+				end
+				
+				if bNeedUpdate then
+					-- search for trader routes first
+					local trade 				= GCO.GetCityTrade(transferCity)
+					local tradeManager:table 	= GCO.GetTradeManager()
+					local outgoingRoutes 		= trade:GetOutgoingRoutes()
+					for j,route in ipairs(outgoingRoutes) do
+						if route ~= nil and route.DestinationCityPlayer == ownerID and route.DestinationCityID == self:GetID() then
+							Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade from ".. Locale.Lookup(transferCity:GetName()))
+							local pathPlots 						= tradeManager:GetTradeRoutePath(transferCity:GetOwner(), transferCity:GetID(), self:GetOwner(), self:GetID() )
+							CitiesForTrade[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn}
+							hasRouteTo[transferKey] 				= true
+						end
+					end
+
+					if not hasRouteTo[transferKey] then
+						for j,route in ipairs(trade:GetIncomingRoutes()) do
+							if route ~= nil and route.OriginCityPlayer == ownerID and route.OriginCityID == self:GetID() then
+								Dprint( DEBUG_CITY_SCRIPT, " - Found trader for international trade to ".. Locale.Lookup(transferCity:GetName()))
+								local pathPlots 						= tradeManager:GetTradeRoutePath(self:GetOwner(), self:GetID(), transferCity:GetOwner(), transferCity:GetID() )
+								CitiesForTrade[selfKey][transferKey] 	= { RouteType = SupplyRouteType.Trader, Efficiency = 100, TradeRouteLevel = tradeRouteLevel, PathPlots = pathPlots, LastUpdate = currentTurn }
+								hasRouteTo[transferKey] 				= true
+							end
+						end
+					end
+					
+					-- search for other types or routes
+					local bInternalRoute = false
+					if not hasRouteTo[transferKey] then
+					
+						-- to do : in case of a route maintained by the other city, match the route type, or mark it as not "free"
+					
+						if (availableLandRoutes > 0) or (bFreeRoute and CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.Road) then
+							self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute, tradeRouteLevel)
+						end
+						if (availableRiverRoutes > 0) or (bFreeRoute and CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.River) then
+							self:UpdateCitiesConnection(transferCity, "River", bInternalRoute, tradeRouteLevel)
+						end
+						if (availableSeaRoutes > 0) or (bFreeRoute and ( CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.Coastal) or CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.Ocean ) then
+							self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute, tradeRouteLevel)
+						end
+						
+					end
+				end
+					
+				if CitiesForTrade[selfKey][transferKey] and CitiesForTrade[selfKey][transferKey].Efficiency > 0 then
+					local routeType = CitiesForTrade[selfKey][transferKey].RouteType
+					local bAbort 	= false
+					if (routeType ~= SupplyRouteType.Trader) then
+
+						-- check if the city can (still) maintain that route or update the number of route slots left
+						-- a closer city may have replaced it, or an event may have removed some available route slots
+						if not bFreeRoute then
+							if routeType == SupplyRouteType.Road 	then
+								if availableLandRoutes > 0 then
+									availableLandRoutes = availableLandRoutes - 1
+								else
+									bAbort = true
+								end
+							end
+							if routeType == SupplyRouteType.River 	then
+								if availableRiverRoutes > 0 then
+									availableRiverRoutes = availableRiverRoutes - 1
+								else
+									bAbort = true
+								end
+							end
+							if routeType == SupplyRouteType.Coastal or routeType == SupplyRouteType.Ocean then
+								if availableSeaRoutes > 0 then
+									availableSeaRoutes = availableSeaRoutes - 1
+								else
+									bAbort = true
+								end
+							end
+							
+							if bAbort then
+								-- that route is not valid anymore 
+								CitiesForTrade[selfKey][transferKey] = nil
+							else
+								-- mark that this city is maintaining the route 
+								CitiesForTrade[selfKey][transferKey].MaintainedRoute = true
+							end
+						end						
+					end
+
+					if not bAbort then
+						local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
+						local efficiency	= CitiesForTrade[selfKey][transferKey].Efficiency
+
+						for resourceID, value in pairs(requirements.Resources) do
+							if value > 0 then
+								CitiesTradeDemand[selfKey].Resources[resourceID] 		= ( CitiesTradeDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+								CitiesTradeDemand[selfKey].NeedResources[resourceID] 	= ( CitiesTradeDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
+							end
+						end
+					end
+				else
+					CitiesOutOfReach[selfKey][transferKey] = currentTurn
+				end
+			end
+		end
+	end
+	
 	Dlog("UpdateExportCities "..name.." /END")
 	GCO.ShowTimer("UpdateExportCities for ".. name)
 end
