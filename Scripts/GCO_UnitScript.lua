@@ -596,9 +596,9 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizati
 	local unitID 			= unit:GetID()
 	local unitKey 			= unit:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
-	local food 				= SetBaseFoodStock(unitType, organizationLevel)	
 	local player 			= GCO.GetPlayer(unit:GetOwner())
 	local organizationLevel	= organizationLevel or player:GetMilitaryOrganizationLevel()
+	local food 				= GetUnitTypeBaseFoodStock(unitType, organizationLevel)	
 	
 	local personnel 		= unit:GetPersonnelAtHP(hp) --UnitHitPointsTable[unitType][hp].Personnel	
 	local personnelReserve	= personnelReserve or 0
@@ -1257,11 +1257,16 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 			newUnitExperience:SetPromotion(promotionID)
 		end
 		
+		-- set specific organization level if provided
 		if bLockedOrganizationLevel 			then newUnitData.CanChangeOrganization 	= false end
 		if organizationLevel 					then newUnitData.OrganizationLevel 		= organizationLevel end		
 		if bTypeChanged or organizationLevel 	then newUnit:UpdateFrontLineData()	end
 		
-		newUnitData.BaseFoodStock = SetBaseFoodStock(newUnitData.unitType, organizationLevel)
+		-- else get previous unit value
+		if not organizationLevel then organizationLevel = newUnitData.OrganizationLevel end
+		
+		-- update base food stock value
+		newUnitData.BaseFoodStock = GetUnitTypeBaseFoodStock(newUnitData.unitType, organizationLevel)
 		
 		Dprint( DEBUG_UNIT_SCRIPT, "Returning new unit: "..Locale.Lookup(newUnit:GetName()).." id#".. tostring(newUnit:GetKey()).." player#"..tostring(newUnit:GetOwner()))
 		return newUnit
@@ -1376,8 +1381,9 @@ function SetOrganizationLevel(self, organizationLevel)
 			local oldUnitOrganization 	= self:GetMilitaryOrganization()
 
 			-- set new values
-			unitData.OrganizationLevel 	= organizationLevel
-			unitData.BaseFoodStock 		= SetBaseFoodStock(self:GetType(), organizationLevel)
+			unitData.OrganizationLevel 	= organizationLevel			
+			unitData.BaseFoodStock 		= GetUnitTypeBaseFoodStock(self:GetType(), organizationLevel)
+
 			self:UpdateFrontLineData()
 			LuaEvents.OrganizationLevelChanged(self:GetOwner(), self:GetID())
 
@@ -1511,7 +1517,7 @@ function GetBaseFoodStock(self)
 end
 
 function GetMaxFoodStock(self)
-	return GetBaseFoodStock(self)
+	return self:GetBaseFoodStock()
 end
 
 function GetMaxMedicineStock(self)
@@ -1551,26 +1557,26 @@ function GetFoodConsumption(self)
 	if unitData.Prisoners then	
 		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisoners(unitData) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) * ratio )
 	end	
-	return math.max(1, GCO.ToDecimals( foodConsumption1000 / 1000 ))
+	return math.max(0.1, GCO.ToDecimals( foodConsumption1000 / 1000 ))
 end
 
 function GetUnitTypeFoodConsumption(unitData) -- local
 	local foodConsumption1000 = 0
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value))
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value))
-Dline("GetUnitTypeFoodConsumption for type ".. tostring(unitData.unitType) .. ", foodConsumption1000 = " ..tostring(foodConsumption1000))
-	return math.max(1, GCO.Round( foodConsumption1000 / 1000 ))
+	local foodConsumption = math.max(0.1, GCO.ToDecimals( foodConsumption1000 / 1000 ))
+	return foodConsumption
 end
 
-function SetBaseFoodStock(unitType, organizationLevel) -- local, organizationLevel optional
+function GetUnitTypeBaseFoodStock(unitType, organizationLevel) -- local, organizationLevel optional
 	local unitData = {}
 	unitData.unitType 			= unitType
 	unitData.Personnel 			= GetUnitMaxFrontLinePersonnel(unitType, organizationLevel)--GameInfo.Units[unitType].Personnel
 	unitData.Horses 			= GetUnitEquipmentClassBaseAmount(unitType, horsesEquipmentClassID, organizationLevel)
 	unitData.PersonnelReserve	= GetBasePersonnelReserve(unitType, organizationLevel)
 	unitData.HorsesReserve 		= GetBaseEquipmentClassReserve(unitType, horsesEquipmentClassID, organizationLevel)
-Dline("SetBaseFoodStock for type ".. tostring(unitType) .. ", organizationLevel = " ..tostring(organizationLevel).. ", Personnel = " ..tostring(unitData.Personnel).. ", PersonnelReserve = " ..tostring(unitData.PersonnelReserve).. ", Horses = " ..tostring(unitData.Horses).. ", HorsesReserve = " ..tostring(unitData.HorsesReserve))
-	return GetUnitTypeFoodConsumption(unitData) * 5 -- set enough stock for 5 turns
+	local baseFoodStock 		= math.ceil(GetUnitTypeFoodConsumption(unitData) * 5) -- set enough stock for 5 turns
+	return baseFoodStock
 end
 
 function GetFuelConsumptionRatio(unitData) -- local

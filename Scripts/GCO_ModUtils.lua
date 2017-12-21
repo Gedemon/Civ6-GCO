@@ -279,7 +279,7 @@ function ToggleOutput()
 end
 
 local debugPrint = {}
-local bLogToTunerConsole 	= true
+local bLogToTunerConsole 	= false
 local bLogToDebugTable	 	= not bLogToTunerConsole
 function Dprint(...)
     local args = {...}
@@ -291,7 +291,7 @@ end
 
 local lastLine = 1
 function ShowDebugPrint(numEntriesToDisplay)
-	if not numEntriesToDisplay then numEntriesToDisplay = 50000 end
+	if not numEntriesToDisplay then numEntriesToDisplay = 99000 end
 	local numEntries	= #debugPrint
 	local startPos		= math.max(1, lastLine, numEntries - numEntriesToDisplay)
 	local endPos		= numEntries --math.min(numEntries, numEntriesToDisplay)
@@ -369,7 +369,7 @@ function Dline(...)
 	local str = string.match(str, 'GCO_.-$')
 	local str = string.match(str, ':.-\'')
 	local str = string.match(str, '%d+')
-	--Dprint(true, "at line "..str, select(1,...))	
+	Dprint("debug", "at line "..str, select(1,...))	
 	print("at line "..str, select(1,...))
 end
 

@@ -328,7 +328,7 @@ function IsTerritorialWaterOf( self, playerID )
 	local minimumCulture		= GetCultureMinimumForAcquisition( playerID )
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		local adjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction);
-		if (adjacentPlot ~= nil) and (not adjacentPlot:IsWater()) and (adjacentPlot:GetOwner() == playerID) and self:GetCulture( playerID ) >= minimumCulture then
+		if (adjacentPlot ~= nil) and (not adjacentPlot:IsWater()) and (adjacentPlot:GetOwner() == playerID) and adjacentPlot:GetCulture( playerID ) >= minimumCulture then
 			adjacentTerritoryLand = adjacentTerritoryLand + 1
 		end
 	end	
@@ -343,7 +343,7 @@ function GetTerritorialWaterOwner( self )
 		local adjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction);
 		if (adjacentPlot ~= nil) and (not adjacentPlot:IsWater()) then
 			local ownerID = adjacentPlot:GetOwner()
-			if (ownerID ~= NO_OWNER) and self:GetCulture( ownerID ) >= GetCultureMinimumForAcquisition( ownerID ) then
+			if (ownerID ~= NO_OWNER) and adjacentPlot:GetCulture( ownerID ) >= GetCultureMinimumForAcquisition( ownerID ) then
 				potentialOwner[ownerID] = (potentialOwner[ownerID] or 0) + 1
 				if potentialOwner[ownerID] >= 3 and potentialOwner[ownerID] > bestAdjacentLandOwner then
 					bestAdjacentLandOwner = potentialOwner[ownerID]

@@ -1370,12 +1370,17 @@ function UpdateTransferCities(self)
 					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach since ".. tostring(turnSinceUpdate) .." turns")
 				end
 			else
-				-- check if the other city of the route is already maintening it
-				local bFreeRoute 	= (CitiesForTransfer[transferKey] and CitiesForTransfer[transferKey][selfKey] and CitiesForTransfer[transferKey][selfKey].MaintainedRoute)
+				-- link table
+				local tradeRoute	= CitiesForTransfer[selfKey][transferKey]				
+				local tradeRouteFrom
+				
+				if CitiesForTransfer[transferKey] then tradeRouteFrom = CitiesForTransfer[transferKey][selfKey] end
+				
+				-- check if the city at the other side of the route is already maintening it
+				local bFreeRoute 	= (tradeRouteFrom and tradeRouteFrom.MaintainedRoute)
 					
 				-- do we need to update the route ?
 				local bNeedUpdate 	= false
-				local tradeRoute	= CitiesForTransfer[selfKey][transferKey]
 				if tradeRoute then
 				
 					-- Update rate is relative to route length
@@ -1430,21 +1435,24 @@ function UpdateTransferCities(self)
 
 						-- to do : in case of a route maintained by the other city, match the route type, or mark it as not "free"
 					
-						if (availableLandRoutes > 0) or (bFreeRoute and CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Road) then
+						if (availableLandRoutes > 0) or (bFreeRoute and tradeRouteFrom.RouteType == SupplyRouteType.Road) then
 							self:UpdateCitiesConnection(transferCity, "Road", bInternalRoute)
 						end
-						if (availableRiverRoutes > 0) or (bFreeRoute and CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.River) then
+						if (availableRiverRoutes > 0) or (bFreeRoute and tradeRouteFrom.RouteType == SupplyRouteType.River) then
 							self:UpdateCitiesConnection(transferCity, "River", bInternalRoute)
 						end
-						if (availableSeaRoutes > 0) or (bFreeRoute and (CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Coastal) or CitiesForTransfer[transferKey][selfKey].RouteType == SupplyRouteType.Ocean) then
+						if (availableSeaRoutes > 0) or (bFreeRoute and (tradeRouteFrom.RouteType == SupplyRouteType.Coastal or tradeRouteFrom.RouteType == SupplyRouteType.Ocean)) then
 							self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
 						end
 
 					end
 				end
 
-				if CitiesForTransfer[selfKey][transferKey] and CitiesForTransfer[selfKey][transferKey].Efficiency > 0 then
-					local routeType = CitiesForTransfer[selfKey][transferKey].RouteType
+				-- if the route was nil, it may now have been set in UpdateCitiesConnection()
+				local tradeRoute	= CitiesForTransfer[selfKey][transferKey]
+				
+				if tradeRoute and tradeRoute.Efficiency > 0 then
+					local routeType = tradeRoute.RouteType
 					local bAbort 	= false
 					if (routeType ~= SupplyRouteType.Trader) then
 
@@ -1485,7 +1493,7 @@ function UpdateTransferCities(self)
 
 					if not bAbort then
 						local requirements 	= transferCity:GetRequirements(self) -- Get the resources required by transferCity and available in current city (self)...
-						local efficiency	= CitiesForTransfer[selfKey][transferKey].Efficiency
+						local efficiency	= tradeRoute.Efficiency
 
 						CitiesForTransfer[selfKey][transferKey].Resources 		= {}
 						CitiesForTransfer[selfKey][transferKey].HasPrecedence 	= {}
@@ -1666,7 +1674,7 @@ function UpdateExportCities(self)
 			else
 				local tradeRouteLevel = cityData.TradeRouteLevel
 				-- check if the other city of the route is already maintening it
-				local bFreeRoute 	= CitiesForTrade[transferKey] and CitiesForTrade[transferKey][selfKey] and CitiesForTrade[transferKey][selfKey].MaintainedRoute)
+				local bFreeRoute 	= (CitiesForTrade[transferKey] and CitiesForTrade[transferKey][selfKey] and CitiesForTrade[transferKey][selfKey].MaintainedRoute)
 				
 				-- do we need to update the route ?
 				local bNeedUpdate 	= false
@@ -1737,7 +1745,8 @@ function UpdateExportCities(self)
 						if (availableRiverRoutes > 0) or (bFreeRoute and CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.River) then
 							self:UpdateCitiesConnection(transferCity, "River", bInternalRoute, tradeRouteLevel)
 						end
-						if (availableSeaRoutes > 0) or (bFreeRoute and ( CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.Coastal) or CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.Ocean ) then
+						
+						if (availableSeaRoutes > 0) or (bFreeRoute and ( CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.Coastal or CitiesForTrade[transferKey][selfKey].RouteType == SupplyRouteType.Ocean )) then
 							self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute, tradeRouteLevel)
 						end
 						
