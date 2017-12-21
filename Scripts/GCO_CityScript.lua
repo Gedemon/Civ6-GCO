@@ -1715,8 +1715,8 @@ function UpdateExportCities(self)
 						
 						-- Update Diplomatic relations (That shouldn't require to update the Route itself)
 						if tradeRouteLevel ~= tradeRoute.TradeRouteLevel then
-							--tradeRoute.TradeRouteLevel = tradeRouteLevel
-							bNeedUpdate = true
+							tradeRoute.TradeRouteLevel = tradeRouteLevel
+							--bNeedUpdate = true
 						end
 					else	-- trader routes are updated on change
 						bNeedUpdate = false
