@@ -396,6 +396,8 @@ function PostInitialize() -- everything that may require other context to be loa
 	CitiesOutOfReach				= GCO.LoadTableFromSlot("CitiesOutOfReach") or {}
 	CitiesTransferDemand			= GCO.LoadTableFromSlot("CitiesTransferDemand") or {}
 	CitiesTradeDemand				= GCO.LoadTableFromSlot("CitiesTradeDemand") or {}
+	CitiesForTransfer				= GCO.LoadTableFromSlot("CitiesForTransfer") or {}
+	CitiesForTrade					= GCO.LoadTableFromSlot("CitiesForTrade") or {}
 end
 
 function Initialize() -- called immediatly after loading this file
@@ -414,6 +416,8 @@ function SaveTables()
 	GCO.SaveTableToSlot(CitiesOutOfReach, "CitiesOutOfReach")
 	GCO.SaveTableToSlot(CitiesTransferDemand, "CitiesTransferDemand")
 	GCO.SaveTableToSlot(CitiesTradeDemand, "CitiesTradeDemand")
+	GCO.SaveTableToSlot(CitiesForTransfer, "CitiesForTransfer")
+	GCO.SaveTableToSlot(CitiesForTrade, "CitiesForTrade")
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
@@ -1382,29 +1386,33 @@ function UpdateTransferCities(self)
 				-- do we need to update the route ?
 				local bNeedUpdate 	= false
 				if tradeRoute then
-				
-					-- Update rate is relative to route length
-					local routeLength 		= #tradeRoute.PathPlots
-					local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
-					if turnSinceUpdate > routeLength / 2 then
-						bNeedUpdate = true								
-					end
-					
-					-- check for blockade
-					if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
-						for i=1, #tradeRoute.PathPlots do
-							local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
-							if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
-								bNeedUpdate = true
-								break
+					if tradeRoute.RouteType ~= SupplyRouteType.Trader then
+						-- Update rate is relative to route length
+						local routeLength 		= #tradeRoute.PathPlots
+						local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
+						if turnSinceUpdate > routeLength / 2 then
+							bNeedUpdate = true								
+						end
+						
+						-- check for blockade
+						if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
+							for i=1, #tradeRoute.PathPlots do
+								local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
+								if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
+									bNeedUpdate = true
+									break
+								end
 							end
 						end
+					else	-- trader routes are updated on change
+						bNeedUpdate = false
 					end
 				else
 					bNeedUpdate = true
 				end
 		
 				if bNeedUpdate then
+					--[[ -- now updated on route change
 					-- search for trader routes first
 					local trade 				= GCO.GetCityTrade(transferCity)
 					local tradeManager:table 	= GCO.GetTradeManager()
@@ -1428,10 +1436,11 @@ function UpdateTransferCities(self)
 							end
 						end
 					end
+					--]]
 				
 					-- search for other types or routes
 					local bInternalRoute = true
-					if not hasRouteTo[transferKey] then
+					--if not hasRouteTo[transferKey] then
 
 						-- to do : in case of a route maintained by the other city, match the route type, or mark it as not "free"
 					
@@ -1445,7 +1454,7 @@ function UpdateTransferCities(self)
 							self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute)
 						end
 
-					end
+					--end
 				end
 
 				-- if the route was nil, it may now have been set in UpdateCitiesConnection()
@@ -1517,7 +1526,11 @@ function UpdateTransferCities(self)
 				end
 			end
 		end
+		if availableLandRoutes + availableRiverRoutes + availableSeaRoutes <= 0 then
+			--break() -- we need to continue to iterate for the "free" routes 
+		end
 	end
+	
 	Dlog("UpdateTransferCities "..name.." /END")
 	GCO.ShowTimer("UpdateTransferCities for ".. name)
 end
@@ -1680,35 +1693,40 @@ function UpdateExportCities(self)
 				local bNeedUpdate 	= false
 				local tradeRoute	= CitiesForTrade[selfKey][transferKey]
 				if tradeRoute then
+					if tradeRoute.RouteType ~= SupplyRouteType.Trader then
 				
-					-- Update rate is relative to route length
-					local routeLength 		= #tradeRoute.PathPlots
-					local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
-					if turnSinceUpdate > routeLength / 2 then
-						bNeedUpdate = true								
-					end
-					
-					-- check for blockade on path
-					if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
-						for i=1, #tradeRoute.PathPlots do
-							local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
-							if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
-								bNeedUpdate = true
-								break
-							end
+						-- Update rate is relative to route length
+						local routeLength 		= #tradeRoute.PathPlots
+						local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
+						if turnSinceUpdate > routeLength / 2 then
+							bNeedUpdate = true								
 						end
-					end									
-					
-					-- Update Diplomatic relations (That shouldn't require to update the Route itself)
-					if tradeRouteLevel ~= tradeRoute.TradeRouteLevel then
-						--tradeRoute.TradeRouteLevel = tradeRouteLevel
-						bNeedUpdate = true
+						
+						-- check for blockade on path
+						if not bNeedUpdate and tradeRoute.RouteType ~= SupplyRouteType.Trader then 
+							for i=1, #tradeRoute.PathPlots do
+								local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
+								if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
+									bNeedUpdate = true
+									break
+								end
+							end
+						end									
+						
+						-- Update Diplomatic relations (That shouldn't require to update the Route itself)
+						if tradeRouteLevel ~= tradeRoute.TradeRouteLevel then
+							--tradeRoute.TradeRouteLevel = tradeRouteLevel
+							bNeedUpdate = true
+						end
+					else	-- trader routes are updated on change
+						bNeedUpdate = false
 					end
 				else
 					bNeedUpdate = true
 				end
 				
 				if bNeedUpdate then
+					--[[ -- now updated on route change
 					-- search for trader routes first
 					local trade 				= GCO.GetCityTrade(transferCity)
 					local tradeManager:table 	= GCO.GetTradeManager()
@@ -1732,10 +1750,11 @@ function UpdateExportCities(self)
 							end
 						end
 					end
+					--]]
 					
 					-- search for other types or routes
 					local bInternalRoute = false
-					if not hasRouteTo[transferKey] then
+					--if not hasRouteTo[transferKey] then
 					
 						-- to do : in case of a route maintained by the other city, match the route type, or mark it as not "free"
 					
@@ -1750,7 +1769,7 @@ function UpdateExportCities(self)
 							self:UpdateCitiesConnection(transferCity, "Coastal", bInternalRoute, tradeRouteLevel)
 						end
 						
-					end
+					--end
 				end
 					
 				if CitiesForTrade[selfKey][transferKey] and CitiesForTrade[selfKey][transferKey].Efficiency > 0 then
@@ -1808,6 +1827,9 @@ function UpdateExportCities(self)
 					CitiesOutOfReach[selfKey][transferKey] = currentTurn
 				end
 			end
+		end
+		if availableLandRoutes + availableRiverRoutes + availableSeaRoutes <= 0 then
+			--break() -- we need to continue to iterate for the "free" routes 
 		end
 	end
 	
