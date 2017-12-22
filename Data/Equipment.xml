@@ -30,14 +30,17 @@
 		
 		<Row ResourceType="EQUIPMENT_MUSKETS"			PrereqTech="TECH_GUNPOWDER"				Toughness="7"	Desirability="40" 	AntiPersonnel="50" AntiPersonnelArmor="25" 	ObsoleteTech="TECH_REPLACEABLE_PARTS" />
 		
-		<Row ResourceType="EQUIPMENT_RIFLES"			PrereqTech="TECH_RIFLING"				Toughness="7"	Desirability="50" 	AntiPersonnel="55" AntiPersonnelArmor="40" />
+		<Row ResourceType="EQUIPMENT_RIFLES"			PrereqTech="TECH_RIFLING"				Toughness="7"	Desirability="50" 	AntiPersonnel="55" AntiPersonnelArmor="40"  ObsoleteTech="TECH_COMPOSITES" />
 		
 		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	PrereqTech="TECH_REPLACEABLE_PARTS"		Toughness="7"	Desirability="60" 	AntiPersonnel="60" AntiPersonnelArmor="50" />
+		
+		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	PrereqTech="TECH_COMPOSITES"			Toughness="7"	Desirability="70" 	AntiPersonnel="65" AntiPersonnelArmor="55" />
 	</Equipment>
 	<Equipment> <!-- Skirmisher Weapons -->		
 		<Row ResourceType="EQUIPMENT_SLINGS"												Desirability="1" 	ObsoleteTech="TECH_ARCHERY"		/>
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"				Desirability="10" 	ObsoleteTech="TECH_MACHINERY"	/>
-		<Row ResourceType="EQUIPMENT_CROSSBOWS"		PrereqTech="TECH_MACHINERY"				Desirability="20" 	/>
+		<Row ResourceType="EQUIPMENT_LONGBOWS"		PrereqTech="TECH_ENGINEERING"			Desirability="20" 	ObsoleteTech="TECH_GUNPOWDER"	/>		
+		<Row ResourceType="EQUIPMENT_CROSSBOWS"		PrereqTech="TECH_MACHINERY"				Desirability="30" 	/>
 	</Equipment>
 	<Equipment> <!-- Personnel Armor -->
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" />
@@ -61,11 +64,22 @@
 		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	PrereqTech="TECH_GUIDANCE_SYSTEMS"	Desirability="40" 	Size="40" />
 	</Equipment>
 	
+	
+	<!--
+		There are two types of Equipment classes:
+			- Specific to Unit types
+			- Specific to promotion Class (ie "upgrade path")
+		
+		An unit will always request the best available equipment (higher "Desirability") for its promotion class (set in <EquipmentTypeClasses> and <PromotionClassEquipmentClasses>)
+		The unit type is determined by the highest percentage of equipment belonging to a type's equipment classes (set in <EquipmentTypeClasses> and <UnitEquipmentClasses>)
+	-->
+	
 	<EquipmentClasses> <!-- Specific to Unit types -->
 		<Row EquipmentClass="EQUIPMENTCLASS_MATERIEL"			/>
 		
 		<Row EquipmentClass="EQUIPMENTCLASS_SLINGS"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BOWS"				/>
+		<Row EquipmentClass="EQUIPMENTCLASS_LONGBOWS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_CROSSBOWS"			/>
 		
 		<Row EquipmentClass="EQUIPMENTCLASS_CHARIOT"			/>
@@ -82,10 +96,11 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_MUSKETS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_RIFLES"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES"	/>
+		<Row EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES"		/>
 		
 		<Row EquipmentClass="EQUIPMENTCLASS_CATAPULTS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BOMBARDS"			/>
-		<Row EquipmentClass="EQUIPMENTCLASS_CANNONS"				/>
+		<Row EquipmentClass="EQUIPMENTCLASS_CANNONS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HOWITZER"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_ROCKET_ARTILLERY"	/>
 		
@@ -119,6 +134,7 @@
 		
 		<Row ResourceType="EQUIPMENT_SLINGS"			EquipmentClass="EQUIPMENTCLASS_SLINGS"			/>
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"		EquipmentClass="EQUIPMENTCLASS_BOWS"			/>
+		<Row ResourceType="EQUIPMENT_LONGBOWS"			EquipmentClass="EQUIPMENTCLASS_LONGBOWS"		/>		
 		<Row ResourceType="EQUIPMENT_CROSSBOWS"			EquipmentClass="EQUIPMENTCLASS_CROSSBOWS"		/>
 		
 		<Row ResourceType="EQUIPMENT_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CHARIOT"			/>
@@ -136,9 +152,10 @@
 		<Row ResourceType="EQUIPMENT_IRON_PIKES"		EquipmentClass="EQUIPMENTCLASS_PIKES"			/>
 		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		EquipmentClass="EQUIPMENTCLASS_PIKES"			/>
 		
-		<Row ResourceType="EQUIPMENT_MUSKETS"			EquipmentClass="EQUIPMENTCLASS_MUSKETS"			/>		
-		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_RIFLES"			/>		
+		<Row ResourceType="EQUIPMENT_MUSKETS"			EquipmentClass="EQUIPMENTCLASS_MUSKETS"			/>
+		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_RIFLES"			/>
 		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES"/>
+		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES"	/>
 		
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
@@ -154,7 +171,8 @@
 		<Row ResourceType="EQUIPMENT_CANNONS"			EquipmentClass="EQUIPMENTCLASS_CANNONS"			/>
 		<Row ResourceType="EQUIPMENT_HOWITZER"			EquipmentClass="EQUIPMENTCLASS_HOWITZER"		/>
 		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	EquipmentClass="EQUIPMENTCLASS_ROCKET_ARTILLERY"/>
-	</EquipmentTypeClasses>
+	</EquipmentTypeClasses>	
+	
 	<EquipmentTypeClasses> <!-- Specific to promotion Class -->
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
@@ -171,6 +189,7 @@
 		<Row ResourceType="EQUIPMENT_MUSKETS"			EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>		
 		
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
@@ -180,10 +199,12 @@
 		
 		<Row ResourceType="EQUIPMENT_SLINGS"			EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"		EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
+		<Row ResourceType="EQUIPMENT_LONGBOWS"			EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>		
 		<Row ResourceType="EQUIPMENT_CROSSBOWS"			EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
 		<Row ResourceType="EQUIPMENT_MUSKETS"			EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
 		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
 		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
+		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>		
 		
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_ARMOR"	/>
 		
@@ -230,7 +251,21 @@
 		<Row UnitType="UNIT_CROSSBOWMAN"			EquipmentClass="EQUIPMENTCLASS_CROSSBOWS" />
 		
 		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_MUSKETS" />
+		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_RIFLES" />		
+		
+		<!--
+		<Row UnitType="UNIT_LONGBOWMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_LONGBOWMAN"				EquipmentClass="EQUIPMENTCLASS_LONGBOWS" />
+		
+		<Row UnitType="UNIT_EXPLORER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_EXPLORER"				EquipmentClass="EQUIPMENTCLASS_MUSKETS" />	
+		
+		<Row UnitType="UNIT_SNIPER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_SNIPER"					EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES" />
+		
+		<Row UnitType="UNIT_MODERN_SNIPER"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_MODERN_SNIPER"			EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES" />
+		-->
 		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type (Melee) -->
