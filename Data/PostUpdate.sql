@@ -72,9 +72,6 @@ UPDATE MilitaryFormations			SET Name = 'LOC_' || MilitaryFormations.MilitaryForm
 /* temporary for testing before removing completely those columns from the Units table */
 UPDATE Units SET Materiel = 0, Horses = 0;
 
-/* no civ-specific units */
-UPDATE Units SET TraitType = NULL;
-
 -- Replace Unit Upgrade table by custom version (deprecated by new upgrade mechanism)
 /*
 INSERT OR REPLACE INTO UnitUpgradesGCO (Unit, UpgradeUnit)
@@ -182,17 +179,17 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 
 -- from Moar Units
 (	'UNIT_SNIPER'							), -- Commandos
---(	'UNIT_MODERN_SNIPER'					), -- Special Forces
---(	'UNIT_MACEMAN'							), -- LongSwordsman
+(	'UNIT_MODERN_SNIPER'					), -- Special Forces
+(	'UNIT_MACEMAN'							), -- LongSwordsman
 (	'UNIT_EXPLORER'							), -- Skirmisher
---(	'UNIT_TREBUCHET'						),
+(	'UNIT_TREBUCHET'						),
 (	'UNIT_TERCIO'							),
 (	'UNIT_RIFLEMAN'							),
 --(	'UNIT_PHALANX'							),
 --(	'UNIT_PELTAST'							),
 (	'UNIT_LONGBOWMAN'						),
---(	'UNIT_MEDIEVAL_HORSEMAN'				),
---(	'UNIT_CUIRASSIER'						),
+(	'UNIT_MEDIEVAL_HORSEMAN'				),
+(	'UNIT_CUIRASSIER'						),
 
 (	'END_OF_INSERT'							);
 

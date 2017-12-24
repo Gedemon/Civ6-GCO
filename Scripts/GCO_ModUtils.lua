@@ -67,6 +67,7 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]			= "[ICON_EQUIPMENT_WAR_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_ARMORED_HORSES"].Index]		= "[ICON_EQUIPMENT_ARMORED_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Index]			= "[ICON_EQUIPMENT_BOWS]",
+		[GameInfo.Resources["EQUIPMENT_LONGBOWS"].Index]			= "[ICON_EQUIPMENT_BOWS]",
 		[GameInfo.Resources["EQUIPMENT_CROSSBOWS"].Index]			= "[ICON_EQUIPMENT_CROSSBOWS]",
 		[GameInfo.Resources["EQUIPMENT_WOODEN_CLUB"].Index]			= "[ICON_EQUIPMENT_CLUB]",
 		[GameInfo.Resources["EQUIPMENT_STONE_AXES"].Index]			= "[ICON_EQUIPMENT_CLUB]",
@@ -83,13 +84,22 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_SLINGS"].Index]				= "[ICON_EQUIPMENT_SLINGS]",
 		[GameInfo.Resources["EQUIPMENT_MUSKETS"].Index]				= "[ICON_EQUIPMENT_MUSKETS]",
 		[GameInfo.Resources["EQUIPMENT_RIFLES"].Index]				= "[ICON_EQUIPMENT_MUSKETS]",
+		[GameInfo.Resources["EQUIPMENT_ASSAULT_RIFLES"].Index]		= "[ICON_EQUIPMENT_ASSAULT_RIFLES]",
 		[GameInfo.Resources["EQUIPMENT_AUTOMATIC_RIFLES"].Index]	= "[ICON_EQUIPMENT_MUSKETS]",
 		[GameInfo.Resources["EQUIPMENT_CATAPULTS"].Index]			= "[ICON_EQUIPMENT_CATAPULTS]",
+		[GameInfo.Resources["EQUIPMENT_TREBUCHETS"].Index]			= "[ICON_EQUIPMENT_CATAPULTS]",
 		[GameInfo.Resources["EQUIPMENT_BOMBARDS"].Index]			= "[ICON_EQUIPMENT_BOMBARDS]",
 		[GameInfo.Resources["EQUIPMENT_CANNONS"].Index]				= "[ICON_EQUIPMENT_CANNONS]",
 		[GameInfo.Resources["EQUIPMENT_HOWITZER"].Index]			= "[ICON_EQUIPMENT_HOWITZER]",
-		[GameInfo.Resources["EQUIPMENT_TANKS"].Index]				= "[ICON_EQUIPMENT_TANKS]",
+		[GameInfo.Resources["EQUIPMENT_TANKS"].Index]				= "[ICON_EQUIPMENT_TANKS]",		
 		
+		[GameInfo.Resources["EQUIPMENT_LEATHER_ARMOR"].Index]		= "[ICON_EQUIPMENT_LEATHER_ARMOR]",
+		[GameInfo.Resources["EQUIPMENT_LINOTHORAX"].Index]			= "[ICON_EQUIPMENT_LINOTHORAX]",
+		[GameInfo.Resources["EQUIPMENT_GAMBESON"].Index]			= "[ICON_EQUIPMENT_GAMBESON]",
+		[GameInfo.Resources["EQUIPMENT_BRONZE_ARMOR"].Index]		= "[ICON_EQUIPMENT_BRONZE_ARMOR]",
+		[GameInfo.Resources["EQUIPMENT_IRON_ARMOR"].Index]			= "[ICON_EQUIPMENT_IRON_ARMOR]",
+		[GameInfo.Resources["EQUIPMENT_CHAINMAIL_ARMOR"].Index]		= "[ICON_EQUIPMENT_CHAINMAIL_ARMOR]",
+		[GameInfo.Resources["EQUIPMENT_PLATE_ARMOR"].Index]			= "[ICON_EQUIPMENT_PLATE_ARMOR]",		
 	}
 
 -- Floating Texts LOD

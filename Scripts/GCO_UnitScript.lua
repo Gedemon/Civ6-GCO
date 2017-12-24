@@ -2055,11 +2055,14 @@ function GetEquipmentOfClassInList(equipmentClassID, equipmentList)
 	return list
 end
 
-function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType)
+function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType, HP, organizationLevel)
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name))
-	local bestUnitType
-	local equipmentClassList = {}
+	
+	if not HP then HP = maxHP end
+	if not organizationLevel then organizationLevel = 0 end	
+	
+	local equipmentClassList 	= {}
 	if promotionClassEquipmentClasses[promotionClassID] then
 		for equipmentClassID, equipmentClassData in pairs(promotionClassEquipmentClasses[promotionClassID]) do
 			if equipmentClassID ~= materielEquipmentClassID and equipmentClassData.IsRequired then
@@ -2072,25 +2075,46 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 		end
 	end
 	
-	local bestValue = 0
+	local bestUnitType
+	local bestValue 			= 0
+	local percentageTable		= {}
 	if promotionClassUnits[promotionClassID] then
 		for unitType, _ in pairs(promotionClassUnits[promotionClassID]) do
+			local bEnoughEquipmentForHP	= true
 			local numRequiredClasses	= 0
 			local totalPercent			= 0
+			
+			local specificEquipmentClasses = GetUnitSpecificEquipmentClasses(unitType) --  { [equipmentClassID] = {PercentageOfPersonnel = integer, IsRequired = boolean} }
+			for equipmentClassID, classData in pairs(specificEquipmentClasses) do
+				if equipmentClassID ~= materielEquipmentClassID and classData.IsRequired then
+					numRequiredClasses = numRequiredClasses + 1
+					local promotionClassEquipmentClassID = GetLinkedEquipmentClass(unitType, equipmentClassID)
+					local num 			= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
+					local unitHitPoints = GetUnitHitPointTable(unitType, promotionClassID, organizationLevel )
+					local personelAtHP 	= unitHitPoints[HP].Personnel
+					local requiredNum	= GetUnitEquipmentClassNumberForPersonnel(unitType, personelAtHP, equipmentClassID)
+					if num < requiredNum then
+						bEnoughEquipmentForHP = false
+					end					
+				end
+			end			
+			
 			for equipmentClassID, total in pairs(equipmentClassList) do
-				numRequiredClasses = numRequiredClasses + 1
+				--numRequiredClasses = numRequiredClasses + 1
 				local unitEquipmentClassID = GetLinkedEquipmentClass(unitType, equipmentClassID)
 				if unitEquipmentClassID then
-					local num 		= GetNumEquipmentOfClassInList(unitEquipmentClassID, equipmentList)
-					local ratio 	= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
-					local percent 	= GCO.ToDecimals((num * ratio) / total * 100)
-					totalPercent 	= totalPercent + percent
-					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), " equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+					local num 			= GetNumEquipmentOfClassInList(unitEquipmentClassID, equipmentList)
+					local ratio 		= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
+					local percent 		= (num * ratio) / total * 100
+					totalPercent 		= totalPercent + percent					
+						
+					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 				end
 			end
-			if numRequiredClasses > 0 then
+			if numRequiredClasses > 0 and totalPercent > 0 then
 				local mediumPercent = totalPercent / numRequiredClasses
-				if mediumPercent > bestValue or (mediumPercent >= bestValue and unitType == oldUnitType) then -- Return the old type if it's equal to the best possible value, return new type only when it's better.
+				table.insert(percentageTable, { Name = Locale.Lookup(GameInfo.Units[unitType].Name), Percent = GCO.ToDecimals(mediumPercent), EnoughEquipmentForHP = bEnoughEquipmentForHP })
+				if bEnoughEquipmentForHP and mediumPercent > bestValue or (mediumPercent >= bestValue and unitType == oldUnitType) then -- Return the old type if it's equal to the best possible value, return new type only when it's better.
 					bestValue 		= mediumPercent
 					bestUnitType 	= unitType
 					Dprint( DEBUG_UNIT_SCRIPT, "New best value.. = ", bestValue.." percent for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
@@ -2098,7 +2122,19 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 			end
 		end
 	end
-	return bestUnitType
+
+	table.sort(percentageTable, function(a, b) return a.Percent > b.Percent; end)
+	local sortedStringTable = {}
+	for _, data in ipairs(percentageTable) do
+		if data.EnoughEquipmentForHP then
+			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_MATCH_TYPE", data.Percent, data.Name))
+		else
+			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_NOT_ENOUGH_EQUIPMENT_MATCH_TYPE", data.Percent, data.Name))
+		end
+	end	
+	local percentageStr = table.concat(sortedStringTable, "[NEWLINE]")
+	
+	return bestUnitType, percentageStr
 end
 
 function IsUnitRequiringSpecificEquipmentClass(unitTypeID, equipmentClassID)
@@ -2300,6 +2336,19 @@ function ChangeFrontLineEquipment(self, equipmentID, value)  	-- change number o
 	unitData.Equipment[equipmentTypeKey] = math.max(0, (unitData.Equipment[equipmentTypeKey] or 0) + value)
 end
 
+function GetTypesFromEquipmentList(self)
+	local unitData = self:GetData()
+	if not unitData then
+		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())
+		return
+	end
+	local equipmentList		= unitData.Equipment
+	local promotionClassID	= self:GetPromotionClassID()
+	if promotionClassID then 
+		local bestUnitType, percentageStr = GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, self:GetType(), self:GetHP(), self:GetOrganizationLevel())
+		return bestUnitType, percentageStr
+	end
+end
 
 ----------------------------------------------
 -- Morale function
@@ -4620,6 +4669,7 @@ local barbarianCamps = {
 			["EQUIPMENT_BRONZE_SWORDS"]		= 800,
 			["EQUIPMENT_IRON_SWORDS"]		= 200,
 			["EQUIPMENT_LEATHER_ARMOR"]		= 80,
+			["EQUIPMENT_LINOTHORAX"]		= 100,
 			
 	
 		} ,
@@ -4632,16 +4682,19 @@ local barbarianCamps = {
 			["EQUIPMENT_BRONZE_SWORDS"]		= 800,
 			["EQUIPMENT_IRON_SWORDS"]		= 200,
 			["EQUIPMENT_BRONZE_ARMOR"]		= 80,
+			["EQUIPMENT_LINOTHORAX"]		= 100,
 		} ,
 	["ERA_MEDIEVAL"] 		=
 		{
 			["RESOURCE_FOOD"] 				= 200,
 			["RESOURCE_MATERIEL"] 			= 300,
 			["EQUIPMENT_CROSSBOWS"]			= 1000,
+			["EQUIPMENT_LONGBOWS"]			= 1000,
 			["EQUIPMENT_STEEL_PIKES"]		= 200,
 			["EQUIPMENT_IRON_PIKES"]		= 800,
 			["EQUIPMENT_STEEL_SWORDS"]		= 200,
 			["EQUIPMENT_CHAINMAIL_ARMOR"]	= 80,
+			["EQUIPMENT_GAMBESON"]			= 100,
 	
 		} ,
 	["ERA_RENAISSANCE"] 	=
@@ -4699,6 +4752,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 	if unit then
 		local gameEra 	= GCO.GetGameEra()		
 		local eraType	= GameInfo.Eras[gameEra].EraType
+		local player 	= GCO.GetPlayer(unitOwner)
 			
 		function GetNum(num)
 			return GCO.Round(TerrainBuilder.GetRandomNumber(num, "OnImprovementActivated GetNum") * (gameEra+1) * 0.35)
@@ -4708,24 +4762,30 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 			
 			local pLocalPlayerVis 	= PlayersVisibility[Game.GetLocalPlayer()]
 			local bIsVisible		= (pLocalPlayerVis ~= nil) and (pLocalPlayerVis:IsVisible(locationX, locationY))			
-			local sOneLineText	 	= ""
+			local sOneLineText	 	= ""			
+			local factor			= 1
+			
+			if player:HasPolicyActive(GameInfo.Policies["POLICY_RAID"].Index) then factor = 2 end
+			
 			for resourceType, value in pairs(barbarianCamps[eraType]) do
 				local resRow	= GameInfo.Resources[resourceType]
 				if resRow then
-					local loot 			= GetNum(value)
-					local name 			= Locale.Lookup(resRow.Name)
-					local resourceID 	= resRow.Index
-					unit:ChangeStock(resourceID, loot)
-					if bIsVisible then
-						if IsFirstLineResource[resourceID] then
-							if string.len(sOneLineText) > 0 then
-								sOneLineText = sOneLineText .. ", +" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
-							else
-								sOneLineText = "+" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
+					local loot 			= GetNum(value) * factor
+					if loot > (value / 2) then
+						local name 			= Locale.Lookup(resRow.Name)
+						local resourceID 	= resRow.Index
+						unit:ChangeStock(resourceID, loot)
+						if bIsVisible then
+							if IsFirstLineResource[resourceID] then
+								if string.len(sOneLineText) > 0 then
+									sOneLineText = sOneLineText .. ", +" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
+								else
+									sOneLineText = "+" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
+								end
+							else						
+								local sText = "+" .. tostring(loot).." ".. name
+								Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
 							end
-						else						
-							local sText = "+" .. tostring(loot).." ".. name
-							Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
 						end
 					end
 				else
@@ -4738,14 +4798,19 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 			LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)
 		end
 		if( GameInfo.Improvements[improvementType].Goody ) then
-			Dprint( DEBUG_UNIT_SCRIPT, "GoodyHut Activated, Game Era = "..tostring(gameEra)); 
-			local food 		= GetNum(100)
-			local materiel 	= GetNum(300)
-			local personnel	= GetNum(1000)
-			local medicine 	= GetNum(500)
-			local wheat 	= GetNum(500)
-			local rice 		= GetNum(500)
-			local materiel 	= GetNum(300)
+			Dprint( DEBUG_UNIT_SCRIPT, "GoodyHut Activated, Game Era = "..tostring(gameEra))
+			
+			local factor	= 1
+			if player:HasPolicyActive(GameInfo.Policies["POLICY_SURVEY"].Index) then factor = 2 end
+			
+			local food 		= GetNum(100)	* factor
+			local materiel 	= GetNum(300)   * factor
+			local personnel	= GetNum(1000)  * factor
+			local medicine 	= GetNum(500)   * factor
+			local wheat 	= GetNum(500)   * factor
+			local rice 		= GetNum(500)   * factor
+			local materiel 	= GetNum(300)   * factor
+			
 			unit:ChangeStock(foodResourceID, food)
 			unit:ChangeStock(materielResourceID, materiel)
 			unit:ChangeStock(personnelResourceID, personnel)
@@ -4836,15 +4901,9 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 					unit:SetOrganizationLevel(playerOrganizationLevel)
 				end
 			
-				local promotionClassID	= unit:GetPromotionClassID()
-				
-				if promotionClassID then
-					local equipmentList	= unitData.Equipment
-					local oldUnitType	= unit:GetType()
-					local newUnitType 	= GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType)			
-					if newUnitType and newUnitType ~= oldUnitType then
-						unit = ChangeUnitTo(unit, newUnitType)
-					end
+				local newUnitType 	= unit:GetTypesFromEquipmentList()			
+				if newUnitType and newUnitType ~= unit:GetType() then
+					unit = ChangeUnitTo(unit, newUnitType)
 				end
 			end
 		end
@@ -4968,6 +5027,7 @@ function AttachUnitFunctions(unit)
 		u.ChangeReserveEquipment				= ChangeReserveEquipment
 		u.ChangeFrontLineEquipment				= ChangeFrontLineEquipment
 		u.IsWaitingForEquipment					= IsWaitingForEquipment
+		u.GetTypesFromEquipmentList				= GetTypesFromEquipmentList
 		--
 		u.UpdateDataOnNewTurn					= UpdateDataOnNewTurn
 		u.DoFood 								= DoFood

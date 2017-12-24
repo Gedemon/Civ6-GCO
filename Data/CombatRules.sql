@@ -14,9 +14,6 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CSO_VERSION', 'GC
 /* # types of units per tile (some checks to prevent more than 1UPT seems harcoded) */
 UPDATE GlobalParameters SET Value = 1 WHERE Name = 'PLOT_UNIT_LIMIT';	-- default = 1
 
-/* More units on map */
-UPDATE Units SET Cost = Cost * 0.75 WHERE Cost > 1 AND (Domain = 'DOMAIN_LAND' or Domain = 'DOMAIN_SEA') AND NOT FormationClass = 'FORMATION_CLASS_CIVILIAN';
-UPDATE Units SET Cost = Cost * 0.85 WHERE Cost > 1 AND (Domain = 'DOMAIN_AIR');
 -- Balance : Combat bonus is less required if AI can put twice more units in an area as it already has a production bonus from difficulty
 DELETE FROM Modifiers WHERE ModifierId ='HIGH_DIFFICULTY_COMBAT_SCALING'; 
 
@@ -95,6 +92,8 @@ INSERT OR REPLACE INTO TypeTags(Type, Tag) VALUES ('UNIT_GALLEY', 'CLASS_BARBARI
 INSERT OR REPLACE INTO TypeTags(Type, Tag) VALUES ('UNIT_GALLEY', 'CLASS_BARBARIAN_NAVAL_RANGED');
 INSERT OR REPLACE INTO TypeTags(Type, Tag) VALUES ('UNIT_GALLEY', 'CLASS_BARBARIAN_NAVAL_MELEE');
 
+/* Longship is a Barbarian units */
+UPDATE Units SET TraitType = 'TRAIT_BARBARIAN' WHERE TraitType = 'TRAIT_LEADER_UNIT_NORWEGIAN_LONGSHIP';
 
 /* Field Cannon is now a siege weapon */
 UPDATE Units SET PromotionClass ='PROMOTION_CLASS_SIEGE' WHERE  UnitType = 'UNIT_FIELD_CANNON';
@@ -120,6 +119,12 @@ INSERT INTO UnitAiInfos
 (	'UNIT_JET_FIGHTER', 	'UNITTYPE_RANGED');
 */
 
+/* Balance */
+UPDATE Units SET RangedCombat ='50' WHERE UnitType = 'UNIT_RANGER'; -- default RangedCombat = 60
+UPDATE Units SET Cost = '110', Combat ='20', RangedCombat ='35' WHERE UnitType = 'UNIT_LONGBOWMAN'; -- from Moar Units
+UPDATE Units SET Combat ='40', RangedCombat ='45' WHERE UnitType = 'UNIT_EXPLORER'; -- from Moar Units
+UPDATE Units SET CanTrain ='0' WHERE UnitType = 'UNIT_OBSERVATION_BALLOON';
+
 /* Range = 1 for all Ranged Land/Sea unit */
 UPDATE Units SET Range ='1' WHERE (RangedCombat > 0 OR Bombard > 0) AND (Domain = 'DOMAIN_LAND' OR Domain = 'DOMAIN_SEA');
 
@@ -132,9 +137,6 @@ UPDATE Units SET Range ='3' WHERE UnitType = 'UNIT_ROCKET_ARTILLERY';
 /* Range = 4 for some units */
 UPDATE Units SET Range ='4' WHERE UnitType = 'UNIT_MISSILE_CRUISER' OR UnitType = 'UNIT_NUCLEAR_SUBMARINE';
 
-/* Balance */
-UPDATE Units SET RangedCombat ='50' WHERE UnitType = 'UNIT_RANGER'; -- default RangedCombat = 60
-UPDATE Units SET CanTrain ='0' WHERE UnitType = 'UNIT_OBSERVATION_BALLOON';
 
 /* Air Combat */
 UPDATE Districts SET AirSlots = 3 WHERE DistrictType = 'DISTRICT_CITY_CENTER';	-- default = 1
@@ -152,6 +154,10 @@ INSERT OR REPLACE INTO UnitUpgrades (Unit, UpgradeUnit) VALUES ('UNIT_BATTERING_
 INSERT OR REPLACE INTO UnitUpgrades (Unit, UpgradeUnit) VALUES ('UNIT_SIEGE_TOWER','UNIT_MILITARY_ENGINEER');
 INSERT OR REPLACE INTO TypeTags (Type, Tag)	VALUES ('UNIT_MILITARY_ENGINEER', 'CLASS_SIEGE_TOWER');
 
+
+/* More units on map */
+UPDATE Units SET Cost = Cost * 0.75 WHERE Cost > 1 AND (Domain = 'DOMAIN_LAND' or Domain = 'DOMAIN_SEA') AND NOT FormationClass = 'FORMATION_CLASS_CIVILIAN';
+UPDATE Units SET Cost = Cost * 0.85 WHERE Cost > 1 AND (Domain = 'DOMAIN_AIR');
 
 -----------------------------------------------
 -- Combats
@@ -234,6 +240,10 @@ UPDATE Units SET AntiPersonnel = 25 Where UnitType = "UNIT_SLINGER";
 -- Units Requirements
 -----------------------------------------------
 
+
+/* no civ-specific units */
+UPDATE Units SET TraitType = NULL WHERE TraitType != 'TRAIT_BARBARIAN';
+
 /* Air */
 UPDATE Units SET Personnel = 75, 	Materiel = 250 Where UnitType = "UNIT_BIPLANE" OR UnitType = "UNIT_FIGHTER" OR UnitType = "UNIT_AMERICAN_P51" OR UnitType = "UNIT_JET_FIGHTER";
 UPDATE Units SET Personnel = 160, 	Materiel = 400 Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
@@ -289,3 +299,15 @@ UPDATE Units SET Personnel = 150, 	Materiel = 750  Where UnitType = "UNIT_SUBMAR
 UPDATE Units SET Personnel = 2500, 	Materiel = 7500 Where UnitType = "UNIT_AIRCRAFT_CARRIER";
 UPDATE Units SET Personnel = 250, 	Materiel = 900  Where UnitType = "UNIT_DESTROYER";
 UPDATE Units SET Personnel = 400, 	Materiel = 2000 Where UnitType = "UNIT_MISSILE_CRUISER";
+
+/* Moar Units */
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_LONGBOWMAN";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_TREBUCHET";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_MEDIEVAL_HORSEMAN";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_MACEMAN";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_EXPLORER";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_TERCIO";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_RIFLEMAN";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_CUIRASSIER";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_SNIPER";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_MODERN_SNIPER";

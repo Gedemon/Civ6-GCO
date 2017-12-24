@@ -927,6 +927,14 @@ function UnitFlag.UpdateName( self )
 				nameString = nameString .. pUnit:GetFrontLineEquipmentString()
 				--if unitInfo.Horses 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES", unitData.Horses, unitInfo.Horses) .. GCO.GetVariationString(pUnit:GetComponentVariation("Horses")) end
 				--if unitInfo.Materiel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MATERIEL", unitData.Materiel, unitInfo.Materiel) .. GCO.GetVariationString(pUnit:GetComponentVariation("Materiel")) end
+
+				local bestUnitType, percentageStr = pUnit:GetTypesFromEquipmentList()
+				if bestUnitType and (bestUnitType ~= unitType) then 
+					nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PENDING_TYPE_CHANGE", GameInfo.Units[bestUnitType].Name) -- Locale.Lookup(GameInfo.Units[bestUnitType].Name))
+				end
+				if percentageStr then
+					nameString = nameString .. "[NEWLINE]" .. percentageStr
+				end
 				
 				-- "Reserve" (show even when = 0 if it's a component required in front line)
 				local reserveStr = ""

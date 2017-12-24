@@ -18,12 +18,19 @@
 			<en_US>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, ...</en_US>
 		</Text>
 	</LocalizedText>
+	
+	<Dependencies>
+		<Mod id="8342b98d-80c7-4002-87bb-419646bd9b54" title="MOAR Units" />
+	</Dependencies>
 
 	<InGameActions>
 		<UpdateArt id="GCO_ConfigArt">
 			<File>GCO.dep</File>
 		</UpdateArt>
 		<UpdateIcons id="GCO_ICONS">
+		    <Properties>
+				<LoadOrder>100</LoadOrder>
+		    </Properties>
 			<File>Data/Icons.xml</File>
 		</UpdateIcons>
 		<ImportFiles id="GCO_IMPORT">

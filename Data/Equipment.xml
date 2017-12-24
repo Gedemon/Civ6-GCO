@@ -21,7 +21,7 @@
 		
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		PrereqTech="TECH_BRONZE_WORKING"		Toughness="3"	Desirability="21" 	AntiPersonnel="38" AntiPersonnelArmor="5" 	ObsoleteTech="TECH_GUNPOWDER"	/>
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		PrereqTech="TECH_IRON_WORKING"			Toughness="5"	Desirability="22" 	AntiPersonnel="42" AntiPersonnelArmor="7" 	ObsoleteTech="TECH_GUNPOWDER"	/>
-		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		PrereqTech="TECH_CASTLES"				Toughness="7"	Desirability="23" 	AntiPersonnel="46" AntiPersonnelArmor="10" 	ObsoleteTech="TECH_GUNPOWDER"	/>
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		PrereqTech="TECH_CONSTRUCTION"			Toughness="7"	Desirability="23" 	AntiPersonnel="46" AntiPersonnelArmor="10" 	ObsoleteTech="TECH_GUNPOWDER"	/>
 		
 		<Row ResourceType="EQUIPMENT_LANCES"			PrereqTech="TECH_STIRRUPS"				Toughness="7"	Desirability="25" 	AntiPersonnel="46" AntiPersonnelArmor="10" 	ObsoleteTech="TECH_RIFLING"	/>
 		
@@ -34,20 +34,22 @@
 		
 		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	PrereqTech="TECH_REPLACEABLE_PARTS"		Toughness="7"	Desirability="60" 	AntiPersonnel="60" AntiPersonnelArmor="50" />
 		
-		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	PrereqTech="TECH_COMPOSITES"			Toughness="7"	Desirability="70" 	AntiPersonnel="65" AntiPersonnelArmor="55" />
+		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	PrereqTech="TECH_SYNTHETIC_MATERIALS"	Toughness="7"	Desirability="70" 	AntiPersonnel="65" AntiPersonnelArmor="55" />
 	</Equipment>
 	<Equipment> <!-- Skirmisher Weapons -->		
 		<Row ResourceType="EQUIPMENT_SLINGS"												Desirability="1" 	ObsoleteTech="TECH_ARCHERY"		/>
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"				Desirability="10" 	ObsoleteTech="TECH_MACHINERY"	/>
-		<Row ResourceType="EQUIPMENT_LONGBOWS"		PrereqTech="TECH_ENGINEERING"			Desirability="20" 	ObsoleteTech="TECH_GUNPOWDER"	/>		
+		<Row ResourceType="EQUIPMENT_LONGBOWS"		PrereqTech="TECH_CONSTRUCTION"			Desirability="20" 	ObsoleteTech="TECH_GUNPOWDER"	/>		
 		<Row ResourceType="EQUIPMENT_CROSSBOWS"		PrereqTech="TECH_MACHINERY"				Desirability="30" 	/>
 	</Equipment>
 	<Equipment> <!-- Personnel Armor -->
-		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" />
-		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		PrereqTech="TECH_BRONZE_WORKING"	Toughness="5"	Desirability="20" 	PersonnelArmor="25" />
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" ObsoleteTech="TECH_MACHINERY" />
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" ObsoleteTech="TECH_ENGINEERING" />
+		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		PrereqTech="TECH_BRONZE_WORKING"	Toughness="5"	Desirability="20" 	PersonnelArmor="25" ObsoleteTech="TECH_ENGINEERING" />
+		<Row ResourceType="EQUIPMENT_GAMBESON"			PrereqTech="TECH_MACHINERY"			Toughness="6"	Desirability="25" 	PersonnelArmor="30" />
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		PrereqTech="TECH_IRON_WORKING"		Toughness="15"	Desirability="30" 	PersonnelArmor="35" />
-		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			Toughness="20"	Desirability="40" 	PersonnelArmor="40" />
-		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_CASTLES"			Toughness="30"	Desirability="50" 	PersonnelArmor="50" />
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_ENGINEERING"		Toughness="20"	Desirability="40" 	PersonnelArmor="40" />
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_MACHINERY"			Toughness="30"	Desirability="50" 	PersonnelArmor="50" />
 	</Equipment>
 	<Equipment> <!-- "Vehicle" -->
 		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Desirability="1" 	Size="20" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
@@ -57,11 +59,12 @@
 		<Row ResourceType="EQUIPMENT_MODERN_ARMORS"		PrereqTech="TECH_COMPOSITES"		Desirability="50" 	Size="40" />
 	</Equipment>
 	<Equipment> <!-- Siege Weapons -->
-		<Row ResourceType="EQUIPMENT_CATAPULTS"			PrereqTech="TECH_ENGINEERING"		Desirability="1" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
-		<Row ResourceType="EQUIPMENT_BOMBARDS"			PrereqTech="TECH_METAL_CASTING"		Desirability="10" 	Size="10" ObsoleteTech="TECH_STEEL" />
-		<Row ResourceType="EQUIPMENT_CANNONS"			PrereqTech="TECH_BALLISTICS"		Desirability="20" 	Size="10" ObsoleteTech="TECH_GUIDANCE_SYSTEMS" />
-		<Row ResourceType="EQUIPMENT_HOWITZER"			PrereqTech="TECH_STEEL"				Desirability="30" 	Size="10" />
-		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	PrereqTech="TECH_GUIDANCE_SYSTEMS"	Desirability="40" 	Size="40" />
+		<Row ResourceType="EQUIPMENT_CATAPULTS"			PrereqTech="TECH_IRON_WORKING"			Desirability="1" 	Size="10" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
+		<Row ResourceType="EQUIPMENT_TREBUCHETS"		PrereqTech="TECH_MILITARY_ENGINEERING"	Desirability="10" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
+		<Row ResourceType="EQUIPMENT_BOMBARDS"			PrereqTech="TECH_METAL_CASTING"			Desirability="20" 	Size="10" ObsoleteTech="TECH_STEEL" />
+		<Row ResourceType="EQUIPMENT_CANNONS"			PrereqTech="TECH_BALLISTICS"			Desirability="30" 	Size="10" ObsoleteTech="TECH_GUIDANCE_SYSTEMS" />
+		<Row ResourceType="EQUIPMENT_HOWITZER"			PrereqTech="TECH_STEEL"					Desirability="40" 	Size="10" />
+		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	PrereqTech="TECH_GUIDANCE_SYSTEMS"		Desirability="50" 	Size="40" />
 	</Equipment>
 	
 	
@@ -99,6 +102,7 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES"		/>
 		
 		<Row EquipmentClass="EQUIPMENTCLASS_CATAPULTS"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_TREBUCHETS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BOMBARDS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_CANNONS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HOWITZER"			/>
@@ -107,6 +111,7 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_PLATEARMOR"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"				/>
 	</EquipmentClasses>
@@ -157,16 +162,25 @@
 		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES"/>
 		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES"	/>
 		
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
+		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
+		
 		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
+		
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_PLATE_ARMOR"		/>
+		
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
+		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 		
 		<Row ResourceType="EQUIPMENT_CATAPULTS"			EquipmentClass="EQUIPMENTCLASS_CATAPULTS"		/>
+		<Row ResourceType="EQUIPMENT_TREBUCHETS"		EquipmentClass="EQUIPMENTCLASS_TREBUCHETS"		/>
 		<Row ResourceType="EQUIPMENT_BOMBARDS"			EquipmentClass="EQUIPMENTCLASS_BOMBARDS"		/>
 		<Row ResourceType="EQUIPMENT_CANNONS"			EquipmentClass="EQUIPMENTCLASS_CANNONS"			/>
 		<Row ResourceType="EQUIPMENT_HOWITZER"			EquipmentClass="EQUIPMENTCLASS_HOWITZER"		/>
@@ -191,6 +205,8 @@
 		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>		
 		
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
+		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
@@ -206,6 +222,8 @@
 		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
 		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>		
 		
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_ARMOR"	/>
+		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_ARMOR"	/>
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_ARMOR"	/>
 		
 		<Row ResourceType="EQUIPMENT_CHARIOT"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_VEHICLE"		/>
@@ -218,9 +236,18 @@
 		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_LANCES"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
-		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>		
+		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
+		
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
+		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
+		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
+		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
 		
 		<Row ResourceType="EQUIPMENT_CATAPULTS"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_TREBUCHETS"		EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_BOMBARDS"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_CANNONS"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_HOWITZER"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
@@ -247,25 +274,23 @@
 		<Row UnitType="UNIT_ARCHER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="7" />
 		<Row UnitType="UNIT_ARCHER"					EquipmentClass="EQUIPMENTCLASS_BOWS" />
 		
-		<Row UnitType="UNIT_CROSSBOWMAN"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_CROSSBOWMAN"			EquipmentClass="EQUIPMENTCLASS_CROSSBOWS" />
-		
-		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_RIFLES" />		
-		
-		<!--
 		<Row UnitType="UNIT_LONGBOWMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_LONGBOWMAN"				EquipmentClass="EQUIPMENTCLASS_LONGBOWS" />
 		
+		<Row UnitType="UNIT_CROSSBOWMAN"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_CROSSBOWMAN"			EquipmentClass="EQUIPMENTCLASS_CROSSBOWS" />
+		
 		<Row UnitType="UNIT_EXPLORER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_EXPLORER"				EquipmentClass="EQUIPMENTCLASS_MUSKETS" />	
+		<Row UnitType="UNIT_EXPLORER"				EquipmentClass="EQUIPMENTCLASS_MUSKETS" />
+		
+		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_RIFLES" />
 		
 		<Row UnitType="UNIT_SNIPER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_SNIPER"					EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES" />
 		
 		<Row UnitType="UNIT_MODERN_SNIPER"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_MODERN_SNIPER"			EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES" />
-		-->
 		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type (Melee) -->
@@ -286,15 +311,31 @@
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
+		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_SWORDS" />
+		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
+		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR" />
+		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_PIKES" />
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
+		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_PIKES" 			PercentageOfPersonnel="50" />
+		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_MUSKETS" 		PercentageOfPersonnel="50" />
+		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
+		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_MUSKETS" />
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		
+		<Row UnitType="UNIT_RIFLEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_RIFLEMAN"				EquipmentClass="EQUIPMENTCLASS_RIFLES" />
+		<Row UnitType="UNIT_RIFLEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
 		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES" />
@@ -316,12 +357,21 @@
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_SPEARS"		/>
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"	/>
 		
+		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="12" />
+		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_LANCES"		/>
+		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"	/>
+		
 		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="15" />
 		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_LANCES"			/>
-		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_ARMORED_HORSES"	/>
+		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR" 		/>
+		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"		/>
+		
+		<Row UnitType="UNIT_CUIRASSIER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="20" />
+		<Row UnitType="UNIT_CUIRASSIER"				EquipmentClass="EQUIPMENTCLASS_RIFLES"		/>
+		<Row UnitType="UNIT_CUIRASSIER"				EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"	/>
 		
 		<Row UnitType="UNIT_CAVALRY"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="20" />
-		<Row UnitType="UNIT_CAVALRY"				EquipmentClass="EQUIPMENTCLASS_RIFLES"		/>
+		<Row UnitType="UNIT_CAVALRY"				EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES"		/>
 		<Row UnitType="UNIT_CAVALRY"				EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"	/>
 		
 		<Row UnitType="UNIT_TANK"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="200" />
@@ -348,6 +398,9 @@
 
 		<Row UnitType="UNIT_CATAPULT" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="150" />
 		<Row UnitType="UNIT_CATAPULT" 				EquipmentClass="EQUIPMENTCLASS_CATAPULTS" 			PercentageOfPersonnel="25" />
+		
+		<Row UnitType="UNIT_TREBUCHET" 				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="175" />
+		<Row UnitType="UNIT_TREBUCHET" 				EquipmentClass="EQUIPMENTCLASS_TREBUCHETS" 			PercentageOfPersonnel="25" />
 		
 		<Row UnitType="UNIT_BOMBARD"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="200" />
 		<Row UnitType="UNIT_BOMBARD"				EquipmentClass="EQUIPMENTCLASS_BOMBARDS" 			PercentageOfPersonnel="25" />

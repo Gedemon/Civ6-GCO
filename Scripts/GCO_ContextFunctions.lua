@@ -114,14 +114,26 @@ end
 ----------------------------------------------
 -- Players functions
 ----------------------------------------------
-function HasPlayerOpenBordersFrom(Player, otherPlayerID)
-	local contextPlayer = Players[Player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
+function HasPlayerOpenBordersFrom(player, otherPlayerID)
+	local contextPlayer = Players[player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
 	return contextPlayer:GetDiplomacy():HasOpenBordersFrom( otherPlayerID )
 end
 
-function IsResourceVisibleFor(Player, resourceID)
-	local contextPlayer = Players[Player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
+function IsResourceVisibleFor(player, resourceID)
+	local contextPlayer = Players[player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
 	return contextPlayer:GetResources():IsResourceVisible( resourceID )
+end
+
+function HasPolicyActive(player, policyID)
+	local contextPlayer 	= Players[player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
+	local kPlayerCulture	= contextPlayer:GetCulture()
+	local numSlots:number 	= kPlayerCulture:GetNumPolicySlots();
+	for i = 0, numSlots-1, 1 do
+		if policyID == kPlayerCulture:GetSlotPolicy(i) then
+			return true
+		end			
+	end
+	return false
 end
 
 ----------------------------------------------
@@ -173,6 +185,7 @@ function Initialize()
 	-- players
 	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
 	ExposedMembers.GCO.IsResourceVisibleFor 		= IsResourceVisibleFor
+	ExposedMembers.GCO.HasPolicyActive 				= HasPolicyActive
 	-- plots
 	--local p = getmetatable(Map.GetPlot(1,1)).__index
 	--ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged -- attaching this in script context doesn't work as the plot object from script miss other elements required for this by the plot object in UI context 

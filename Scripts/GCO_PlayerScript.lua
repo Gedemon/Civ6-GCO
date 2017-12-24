@@ -173,6 +173,11 @@ function IsResourceVisible(self, resourceID)
 	return GCO.IsResourceVisibleFor(self, resourceID)
 end
 
+function HasPolicyActive(self, policyID)
+	return GCO.HasPolicyActive(self, policyID)
+end
+
+
 function IsObsoleteEquipment(self, equipmentTypeID)
 	if not GCO.IsResourceEquipment(equipmentTypeID) then return false end
 	local ObsoleteTech = EquipmentInfo[equipmentTypeID].ObsoleteTech
@@ -667,6 +672,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.UpdateDebt								= UpdateDebt
 	--
 	p.IsResourceVisible							= IsResourceVisible
+	p.HasPolicyActive							= HasPolicyActive
 	p.IsObsoleteEquipment						= IsObsoleteEquipment
 	p.CanTrain									= CanTrain
 	--

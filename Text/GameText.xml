@@ -9,6 +9,38 @@
 	<!--  -->	
 	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION"	Language="en_US">
 		<Text>May create new cities.</Text>
+	</Replace>	
+	
+	<Replace Tag="LOC_POLICY_SURVEY_DESCRIPTION"	Language="en_US">
+		<Text>Double Loots from Tribal Villages.</Text>
+	</Replace>
+	<Replace Tag="LOC_POLICY_RAID_DESCRIPTION"	Language="en_US">
+		<Text>Double Loots from pillaging Improvments and cleaning Barbarian Camps.</Text>
+	</Replace>
+	
+	<Replace Tag="LOC_CIVIC_MILITARY_TRADITION_DESCRIPTION"	Language="en_US">
+		<Text>Grants flanking and support combat bonuses to all combat units.[NEWLINE]Unlock Military Organization Level 1</Text>
+	</Replace>
+	<Replace Tag="LOC_CIVIC_MILITARY_TRAINING_DESCRIPTION"	Language="en_US">
+		<Text>Unlock Military Organization Level 2</Text>
+	</Replace>
+	<Replace Tag="LOC_CIVIC_FEUDALISM_DESCRIPTION"	Language="en_US">
+		<Text>Farm improvements now gain +1 [ICON_Food] Food for each adjacent Farm improvement when 3 Farm improvements are adjacent to each other.[NEWLINE]Unlock Military Organization Level 3</Text>
+	</Replace>
+	<Replace Tag="LOC_CIVIC_MERCENARIES_DESCRIPTION"	Language="en_US">
+		<Text>Unlock Military Organization Level 4</Text>
+	</Replace>
+	<Replace Tag="LOC_CIVIC_NATIONALISM_DESCRIPTION"	Language="en_US">
+		<Text>Grants the ability to construct an additional Spy. Allows forming two identical units into a Corps or Fleet. Allows one new Casus Belli that can be used to justify wars: Colonial War.[NEWLINE]Unlock Military Organization Level 5</Text>
+	</Replace>
+	<Replace Tag="LOC_CIVIC_MOBILIZATION_DESCRIPTION"	Language="en_US">
+		<Text>Allows formation of Defensive Pacts. Allows forming three identical units into an Army or Armada. Allows one new Casus Belli that can be used to justify wars: War of Territorial Expansion.[NEWLINE]Unlock Military Organization Level 6</Text>
+	</Replace>
+	<Replace Tag="LOC_CIVIC_COLD_WAR_DESCRIPTION"	Language="en_US">
+		<Text>Grants the ability to construct an additional Spy.[NEWLINE]Unlock Military Organization Level 7</Text>
+	</Replace>
+	<Replace Tag="LOC_CIVIC_RAPID_DEPLOYMENT_DESCRIPTION"	Language="en_US">
+		<Text>Allows for the transport of land units between Aerodrome districts that contain Airports.[NEWLINE]Unlock Military Organization Level 8</Text>
 	</Replace>
 
   </LocalizedText>
@@ -870,6 +902,16 @@
     </Replace>
 	<Replace Tag="LOC_UNITFLAG_EQUIPMENT_RESERVE" Language="en_US">
       <Text>{3_Name} {1_Num} {2_Name}</Text>
+    </Replace>
+
+	<Replace Tag="LOC_UNITFLAG_EQUIPMENT_MATCH_TYPE" Language="en_US">
+      <Text>Equipment matching {2_Name} at {1_Num}%</Text>
+    </Replace>
+	<Replace Tag="LOC_UNITFLAG_NOT_ENOUGH_EQUIPMENT_MATCH_TYPE" Language="en_US">
+      <Text>Not enough equipment for {2_Name} (match {1_Num}%)</Text>
+    </Replace>	
+	<Replace Tag="LOC_UNITFLAG_PENDING_TYPE_CHANGE" Language="en_US">
+      <Text>Pending change : {1_Name}</Text>
     </Replace>
 
   </LocalizedText>

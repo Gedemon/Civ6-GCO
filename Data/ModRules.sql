@@ -53,6 +53,11 @@ INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_EN
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CONSTRUCTION', 'TECH_IRON_WORKING');
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STIRRUPS', 'TECH_APPRENTICESHIP');
 
+--DELETE FROM CivicModifiers WHERE ModifierId='CIVIC_AWARD_ONE_INFLUENCE_TOKEN'; -- no use for token yet
+
+UPDATE Civics SET Description = 'LOC_CIVIC_MILITARY_TRAINING_DESCRIPTION' 	WHERE CivicType ='CIVIC_MILITARY_TRAINING';
+UPDATE Civics SET Description = 'LOC_CIVIC_MERCENARIES_DESCRIPTION' 		WHERE CivicType ='CIVIC_MERCENARIES';
+
 -- Reduce boost
 UPDATE Boosts SET Boost = 30; -- Default = 50
 
@@ -80,25 +85,32 @@ UPDATE Civics SET Cost = Cost*2.40 WHERE EraType ='ERA_INFORMATION';
 /* Districts & Buildings */
 --/*
 
-UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER', Coast = '1' WHERE PrereqDistrict ='DISTRICT_HARBOR';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_THEATER';
 
-UPDATE Buildings SET PrereqTech = 'TECH_ENGINEERING' 	WHERE BuildingType ='BUILDING_WATER_MILL';
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE BuildingType ='BUILDING_WORKSHOP';
 
---UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_SCIENCE' 	WHERE BuildingType ='DISTRICT_ENCAMPMENT';
---UPDATE Buildings SET PrereqTech = 'TECH_INDUSTRIALIZATION' 	WHERE BuildingType ='DISTRICT_INDUSTRIAL_ZONE';
---UPDATE Buildings SET PrereqTech = 'TECH_MASS_PRODUCTION' 	WHERE BuildingType ='BUILDING_SHIPYARD';
+UPDATE Buildings SET PrereqDistrict 	= 'DISTRICT_CITY_CENTER', Coast = '1' WHERE BuildingType ='BUILDING_LIGHTHOUSE';
+UPDATE Buildings SET AdjacentDistrict 	= 'DISTRICT_CITY_CENTER' WHERE BuildingType ='BUILDING_GREAT_LIGHTHOUSE';
+UPDATE Buildings SET AdjacentDistrict 	= 'DISTRICT_CITY_CENTER' WHERE BuildingType ='BUILDING_COLOSSUS';
+
+UPDATE Buildings SET PrereqTech = 'TECH_ENGINEERING' 			WHERE BuildingType ='BUILDING_WATER_MILL';
+UPDATE Buildings SET PrereqTech = 'TECH_GUNPOWDER' 				WHERE BuildingType ='BUILDING_ARMORY';
+UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING' 	WHERE BuildingType ='BUILDING_BARRACKS';
+UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING' 	WHERE BuildingType ='BUILDING_STABLE';
+
+UPDATE Buildings SET PrereqTech = 'TECH_COMPUTERS', TraitType = NULL WHERE BuildingType ='BUILDING_ELECTRONICS_FACTORY';
+DELETE FROM BuildingReplaces WHERE CivUniqueBuildingType ='BUILDING_ELECTRONICS_FACTORY';
 
 UPDATE Buildings SET MaterielPerProduction = '3' WHERE BuildingType ='BUILDING_GRANARY';
 
 UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT_CITY_CENTER';
 
-UPDATE Districts SET PrereqTech = 'TECH_MILITARY_SCIENCE' 	WHERE DistrictType ='DISTRICT_ENCAMPMENT';
-UPDATE Districts SET PrereqTech = 'TECH_INDUSTRIALIZATION' 	WHERE DistrictType ='DISTRICT_INDUSTRIAL_ZONE';
-UPDATE Districts SET PrereqTech = 'TECH_MASS_PRODUCTION' 	WHERE DistrictType ='DISTRICT_HARBOR';
+UPDATE Districts SET PrereqTech = 'TECH_MILITARY_ENGINEERING' 	WHERE DistrictType ='DISTRICT_ENCAMPMENT';
+UPDATE Districts SET PrereqTech = 'TECH_INDUSTRIALIZATION' 		WHERE DistrictType ='DISTRICT_INDUSTRIAL_ZONE';
+UPDATE Districts SET PrereqTech = 'TECH_MASS_PRODUCTION' 		WHERE DistrictType ='DISTRICT_HARBOR';
 --*/
 
 -- Update projects before removing the distric themselves because of the cascade update...

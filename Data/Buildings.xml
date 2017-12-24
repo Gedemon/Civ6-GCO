@@ -169,9 +169,10 @@
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="2"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_SPEARS" 	Ratio="10"	MultiResCreated="1" CostFactor="0.25" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_CATAPULTS" 		Ratio="1"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_TREBUCHETS" 		Ratio="1"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="15" 	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="15" 	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_CROSSBOWS" 		Ratio="15" 	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="12" 	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_CROSSBOWS" 		Ratio="10" 	MultiResCreated="1" />
 		
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_STONE_AXES" 	Ratio="20"	MultiResCreated="1" CostFactor="1.1" />		
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"	MultiResCreated="1" />
@@ -229,6 +230,8 @@
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_BOMBARDS" 		Ratio="1"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_CANNONS" 		Ratio="1"	MultiResCreated="1" />
 		
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_LINOTHORAX" 		Ratio="3"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_GAMBESON" 		Ratio="3"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_LEATHER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_LEATHER_ARMOR" 	Ratio="5"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_COPPER" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_ARMOR" 	Ratio="5"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="7"	MultiResCreated="1" />
@@ -239,8 +242,8 @@
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON"		MaxConverted="10" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="2"	MultiResRequired="1" />
 		
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="15" />
-		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="15" />
-		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_CROSSBOWS" 		Ratio="15" />
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="12" />
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_CROSSBOWS" 		Ratio="10" />
 	<!---->
 		
 		<Row BuildingType="BUILDING_MARKET" 		ResourceType="RESOURCE_RICE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1.5"/>
@@ -273,6 +276,7 @@
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_HOWITZER" 			Ratio="2"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_TANKS" 				Ratio="1"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_AUTOMATIC_RIFLES" 	Ratio="50"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_ASSAULT_RIFLES" 		Ratio="50"	MultiResCreated="1"/>
 		
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_STEEL" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_ROCKET_ARTILLERY" 	Ratio="1"	MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_FACTORY" 		ResourceType="RESOURCE_ALUMINUM"	MaxConverted="5" 	ResourceCreated="EQUIPMENT_ROCKET_ARTILLERY" 	Ratio="1"	MultiResRequired="1"/>

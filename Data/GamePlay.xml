@@ -577,5 +577,17 @@
 		<Row ModifierId="REMOVE_RANGED_ATTACK" 		Context="Preview" Text="{LOC_REMOVE_RANGED_ATTACK_NAME} {LOC_PROMOTION_DESCRIPTOR_PREVIEW_TEXT}"/>
 	</ModifierStrings>
 	
+	<!-- 
+		POLICIES
+		
+	<Types>
+		<Row Type="POLICY_SI_VIS_PACEM" Kind="KIND_POLICY"/>
+	</Types>
+	
+	<Policies>
+		<Row PolicyType="POLICY_SI_VIS_PACEM" Name="LOC_POLICY_SI_VIS_PACEM_NAME" Description="LOC_POLICY_SI_VIS_PACEM_DESCRIPTION" PrereqCivic="CIVIC_DEFENSIVE_TACTICS" GovernmentSlotType="SLOT_MILITARY"/>
+	</Policies>
+	-->
+	
 	
 </GameInfo>

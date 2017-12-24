@@ -72,6 +72,7 @@
 		<Replace Tag="LOC_EQUIPMENT_MODERN_ARMORS_NAME" 			Text="Modern Armors" 		Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENT_CATAPULTS_NAME"					Text="Catapults" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENT_TREBUCHETS_NAME"				Text="Trebuchets" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENT_BOMBARDS_NAME"					Text="Bombards" 			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_CANNONS_NAME"					Text="Cannons" 				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENT_HOWITZER_NAME"					Text="Howitzer" 			Language="en_US" />
@@ -80,6 +81,7 @@
 		<Replace Tag="LOC_EQUIPMENT_MUSKETS_NAME"					Text="Muskets"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENT_RIFLES_NAME"					Text="Rifles"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENT_AUTOMATIC_RIFLES_NAME"			Text="Automatic Rifles"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENT_ASSAULT_RIFLES_NAME"			Text="Assault Rifles"		Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 				Text="Wooden Clubs" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_STONE_AXES_NAME" 				Text="Stone Axes"			Language="en_US" /> 
@@ -89,6 +91,7 @@
 		<Replace Tag="LOC_EQUIPMENT_IRON_SPEARS_NAME" 				Text="Iron Spears"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_SLINGS_NAME"					Text="Slings" 				Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_BOWS_NAME"				Text="Wooden Bows" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENT_LONGBOWS_NAME"					Text="Longbows"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENT_CROSSBOWS_NAME"					Text="Crossbows" 			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_BRONZE_SWORDS_NAME" 			Text="Bronze Swords" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_IRON_SWORDS_NAME" 				Text="Iron Swords"			Language="en_US" /> 
@@ -96,6 +99,9 @@
 		<Replace Tag="LOC_EQUIPMENT_IRON_PIKES_NAME" 				Text="Iron Pikes"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_STEEL_PIKES_NAME" 				Text="Steel Pikes"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_LANCES_NAME" 					Text="Lances"				Language="en_US" />
+		
+		<Replace Tag="LOC_EQUIPMENT_LINOTHORAX_NAME" 				Text="Linothorax" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENT_GAMBESON_NAME" 					Text="Gambeson" 			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_LEATHER_ARMOR_NAME" 			Text="Leather Armor" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_BRONZE_ARMOR_NAME" 				Text="Bronze Armor"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_IRON_ARMOR_NAME" 				Text="Iron Armor"			Language="en_US" /> 
@@ -106,6 +112,7 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_BLUNT_WEAPONS_NAME" 		Text="Blunt Weapons" 		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SLINGS_NAME" 				Text="Slings"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BOWS_NAME" 				Text="Bows"					Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_LONGBOWS_NAME"				Text="Longbows"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CROSSBOWS_NAME"			Text="Crossbows"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CHARIOT_NAME" 				Text="Chariot"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_WAR_HORSES_NAME" 			Text="War Horses"			Language="en_US" />
@@ -120,13 +127,17 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_MUSKETS_NAME"				Text="Muskets"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_RIFLES_NAME"				Text="Rifles"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_AUTOMATIC_RIFLES_NAME"		Text="Automatic Rifles"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_ASSAULT_RIFLES_NAME"		Text="Assault Rifles"		Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_SHIELDS_NAME" 				Text="Shield"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BODYARMOR_NAME" 			Text="Body Armor" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_HEAVYARMOR_NAME" 			Text="Heavy Armor" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_PLATEARMOR_NAME" 			Text="Plate Armor" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_LIGHTARMOR_NAME" 			Text="Light Armor"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_HELMET_NAME" 				Text="Helmets"				Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_CATAPULTS_NAME"			Text="Catapults" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_TREBUCHETS_NAME"			Text="Trebuchets" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BOMBARDS_NAME"				Text="Bombards" 			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENTCLASS_CANNONS_NAME"				Text="Cannons" 				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_HOWITZER_NAME"				Text="Howitzer" 			Language="en_US" />
@@ -153,6 +164,12 @@
 		<Replace Tag="LOC_RESOURCE_PLANTS_NAME" 	Text="Plants" 		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_LEATHER_NAME" 	Text="Leather" 		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 	Text="Medicine" 	Language="en_US" /> 		
+	</LocalizedText>
+
+	<LocalizedText> <!-- Units -->	
+		<Replace Tag="LOC_UNIT_EXPLORER_NAME" 		Text="Skirmisher" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_SNIPER_NAME" 		Text="Commando" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_MODERN_SNIPER_NAME" 	Text="Special Forces" 	Language="en_US" />
 	</LocalizedText>
 	
 	<LocalizedText> <!-- Promotions -->	
