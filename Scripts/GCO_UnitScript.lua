@@ -4771,21 +4771,19 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 				local resRow	= GameInfo.Resources[resourceType]
 				if resRow then
 					local loot 			= GetNum(value) * factor
-					if loot > (value / 2) then
-						local name 			= Locale.Lookup(resRow.Name)
-						local resourceID 	= resRow.Index
-						unit:ChangeStock(resourceID, loot)
-						if bIsVisible then
-							if IsFirstLineResource[resourceID] then
-								if string.len(sOneLineText) > 0 then
-									sOneLineText = sOneLineText .. ", +" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
-								else
-									sOneLineText = "+" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
-								end
-							else						
-								local sText = "+" .. tostring(loot).." ".. name
-								Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
+					local name 			= Locale.Lookup(resRow.Name)
+					local resourceID 	= resRow.Index
+					unit:ChangeStock(resourceID, loot)
+					if bIsVisible then
+						if IsFirstLineResource[resourceID] then
+							if string.len(sOneLineText) > 0 then
+								sOneLineText = sOneLineText .. ", +" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
+							else
+								sOneLineText = "+" .. tostring(loot).." "..GCO.GetResourceIcon(resourceID)
 							end
+						else						
+							local sText = "+" .. tostring(loot).." ".. name
+							Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
 						end
 					end
 				else
