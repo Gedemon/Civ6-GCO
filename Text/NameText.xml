@@ -148,6 +148,7 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_WEAPONS_NAME" 		Text="Cavalry Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_VEHICLE_NAME" 		Text="Cavalry Equipment"	Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_ARMOR_NAME" 			Text="Infantry Armor"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_ARMOR_NAME" 		Text="Cavalry Armor"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SKIRMISHER_ARMOR_NAME" 	Text="Skirmisher Armor"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SIEGE_WEAPONS_NAME" 		Text="Siege Weapons"		Language="en_US" />
 		

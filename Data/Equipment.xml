@@ -123,6 +123,7 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_WEAPON"	/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SKIRMISHER_ARMOR"	/>
 		<Row EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"	/>
+		<Row EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_CAVALRY_VEHICLE"	/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS"		/>
 	</EquipmentClasses>
@@ -357,10 +358,12 @@
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_SPEARS"		/>
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"	/>
+		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		
 		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="12" />
 		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_LANCES"		/>
 		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"	/>
+		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		
 		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="15" />
 		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_LANCES"			/>
@@ -448,6 +451,7 @@
 		<Row PromotionClassType="PROMOTION_CLASS_CAVALRY"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
 		<Row PromotionClassType="PROMOTION_CLASS_CAVALRY"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_VEHICLE" 	/>
 		<Row PromotionClassType="PROMOTION_CLASS_CAVALRY"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS" 	/>
+		<Row PromotionClassType="PROMOTION_CLASS_CAVALRY"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		IsRequired="0" />
 		
 		<Row PromotionClassType="PROMOTION_CLASS_SIEGE"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
 		<Row PromotionClassType="PROMOTION_CLASS_SIEGE"			EquipmentClass="EQUIPMENTCLASS_SIEGE_WEAPONS" 		/>
