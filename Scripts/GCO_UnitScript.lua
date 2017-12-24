@@ -2095,17 +2095,21 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 					local total 							= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
 					
 					if total == 0 then break end
-					--local num 			= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
 					
 					local unitHitPoints = GetUnitHitPointTable(unitType, promotionClassID, organizationLevel )
 					local personelAtHP 	= unitHitPoints[HP].Personnel
 					local requiredNum	= GetUnitEquipmentClassNumberForPersonnel(unitType, personelAtHP, equipmentClassID)
+					
+					-- check if we have enough equipment of that class to keep the unit's health level after upgrade
 					if total < requiredNum then
-						bEnoughEquipmentForHP = false
+						if total < GetUnitEquipmentClassNumberForPersonnel(oldUnitType, personelAtHP, equipmentClassID) then -- allow health damage if the unit can't get more of that equipment class in frontline
+							bEnoughEquipmentForHP = false
+						elseif HP < maxHP then -- but only do the upgrade when at full health
+							bEnoughEquipmentForHP = false						
+						end
 					end
 										
-					local num 			= GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)
-					
+					local num 			= GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)					
 					local ratio 		= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
 					local percent 		= (num * ratio) / total * 100
 					totalPercent 		= totalPercent + percent					
