@@ -291,6 +291,9 @@ end
 local debugPrint = {}
 local bLogToTunerConsole 	= false
 local bLogToDebugTable	 	= not bLogToTunerConsole
+function SetDebugToConsole(bValue)
+	bLogToTunerConsole = bValue
+end
 function Dprint(...)
     local args = {...}
 	if args.n == 1 then print(args[1]) end 							-- if called with one argument only, print it
@@ -867,19 +870,20 @@ function Initialize()
 	ExposedMembers.GCO.ShowTimer 		= ShowTimer
 	ExposedMembers.GCO.StopTimer 		= StopTimer
 	-- debug
-	ExposedMembers.GCO.ToggleOutput 	= ToggleOutput
-	ExposedMembers.GCO.Dprint			= Dprint
-	ExposedMembers.GCO.AreSameTables	= AreSameTables
-	ExposedMembers.GCO.Dump				= Dump
-	ExposedMembers.GCO.Error			= Error
-	ExposedMembers.GCO.ErrorWithLog 	= ErrorWithLog
-	ExposedMembers.GCO.Warning			= Warning
-	ExposedMembers.GCO.Dline 			= Dline
-	ExposedMembers.GCO.DlineFull 		= DlineFull
-	ExposedMembers.GCO.Dlog 			= Dlog
-	ExposedMembers.GCO.DfullLog 		= DfullLog
-	ExposedMembers.GCO.CanCallFlagUpdate= CanCallFlagUpdate
-	ExposedMembers.GCO.Monitor 			= Monitor
+	ExposedMembers.GCO.ToggleOutput 		= ToggleOutput
+	ExposedMembers.GCO.SetDebugToConsole 	= SetDebugToConsole
+	ExposedMembers.GCO.Dprint				= Dprint
+	ExposedMembers.GCO.AreSameTables		= AreSameTables
+	ExposedMembers.GCO.Dump					= Dump
+	ExposedMembers.GCO.Error				= Error
+	ExposedMembers.GCO.ErrorWithLog 		= ErrorWithLog
+	ExposedMembers.GCO.Warning				= Warning
+	ExposedMembers.GCO.Dline 				= Dline
+	ExposedMembers.GCO.DlineFull 			= DlineFull
+	ExposedMembers.GCO.Dlog 				= Dlog
+	ExposedMembers.GCO.DfullLog 			= DfullLog
+	ExposedMembers.GCO.CanCallFlagUpdate	= CanCallFlagUpdate
+	ExposedMembers.GCO.Monitor 				= Monitor
 	-- "globals"
 	ExposedMembers.GCO.Separator		= "---------------------------------------------------------------------------"
 	-- civilizations

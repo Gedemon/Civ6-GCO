@@ -111,7 +111,7 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"			/>
-		<Row EquipmentClass="EQUIPMENTCLASS_PLATEARMOR"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"				/>
 	</EquipmentClasses>
@@ -173,7 +173,8 @@
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		
-		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_PLATE_ARMOR"		/>
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR"		/>
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR"		/>
 		
 		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
 		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"		/>
@@ -314,7 +315,7 @@
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_SWORDS" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
-		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR" />
+		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
@@ -363,7 +364,7 @@
 		
 		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="15" />
 		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_LANCES"			/>
-		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR" 		/>
+		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR" 	/>
 		<Row UnitType="UNIT_KNIGHT"					EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"		/>
 		
 		<Row UnitType="UNIT_CUIRASSIER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="20" />

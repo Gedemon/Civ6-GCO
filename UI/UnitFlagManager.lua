@@ -917,16 +917,14 @@ function UnitFlag.UpdateName( self )
 			nameString = nameString .. "[NEWLINE]" .. pUnit:GetMoraleString()
 		
 			--local bHasComponents = (unitInfo.Personnel + unitInfo.Equipment + unitInfo.Horses + unitInfo.Materiel > 0)
-			local bHasComponents = (unitInfo.Personnel + unitInfo.Horses + unitInfo.Materiel > 0)
+			local personnel = pUnit:GetComponent("Personnel")
+			local bHasComponents = personnel > 0
 			if bHasComponents then
 				
 				-- "Frontline"
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_ANCIENT_FRONTLINE_TITLE") --Locale.Lookup("LOC_UNITFLAG_FRONTLINE_TITLE")
-				if unitInfo.Personnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL", pUnit:GetComponent("Personnel"), pUnit:GetMaxFrontLinePersonnel()) .. GCO.GetVariationString(pUnit:GetComponentVariation("Personnel")) end
-				--if unitInfo.Equipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT", unitData.Equipment, unitInfo.Equipment, GCO.GetEquipmentName(unitType)) .. GCO.GetVariationString(pUnit:GetComponentVariation("Equipment")) end
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL", personnel, pUnit:GetMaxFrontLinePersonnel()) .. GCO.GetVariationString(pUnit:GetComponentVariation("Personnel"))
 				nameString = nameString .. pUnit:GetFrontLineEquipmentString()
-				--if unitInfo.Horses 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES", unitData.Horses, unitInfo.Horses) .. GCO.GetVariationString(pUnit:GetComponentVariation("Horses")) end
-				--if unitInfo.Materiel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MATERIEL", unitData.Materiel, unitInfo.Materiel) .. GCO.GetVariationString(pUnit:GetComponentVariation("Materiel")) end
 
 				local bestUnitType, percentageStr = pUnit:GetTypesFromEquipmentList()
 				if bestUnitType and (bestUnitType ~= unitType) then 

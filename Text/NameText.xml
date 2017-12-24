@@ -132,7 +132,7 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_SHIELDS_NAME" 				Text="Shield"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BODYARMOR_NAME" 			Text="Body Armor" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_HEAVYARMOR_NAME" 			Text="Heavy Armor" 			Language="en_US" />
-		<Replace Tag="LOC_EQUIPMENTCLASS_PLATEARMOR_NAME" 			Text="Plate Armor" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_KNIGHTARMOR_NAME" 			Text="Knight Armor" 		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_LIGHTARMOR_NAME" 			Text="Light Armor"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_HELMET_NAME" 				Text="Helmets"				Language="en_US" />
 		

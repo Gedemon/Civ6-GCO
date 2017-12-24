@@ -2056,8 +2056,11 @@ function GetEquipmentOfClassInList(equipmentClassID, equipmentList)
 end
 
 function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType, HP, organizationLevel)
+
+	GCO.SetDebugToConsole(true)
+	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name))
+	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name) .. " current type = " ..GameInfo.Units[oldUnitType].Name)
 	
 	if not HP then HP = maxHP end
 	if not organizationLevel then organizationLevel = 0 end	
@@ -2087,37 +2090,42 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 			local specificEquipmentClasses = GetUnitSpecificEquipmentClasses(unitType) --  { [equipmentClassID] = {PercentageOfPersonnel = integer, IsRequired = boolean} }
 			for equipmentClassID, classData in pairs(specificEquipmentClasses) do
 				if equipmentClassID ~= materielEquipmentClassID and classData.IsRequired then
-					numRequiredClasses = numRequiredClasses + 1
-					local promotionClassEquipmentClassID = GetLinkedEquipmentClass(unitType, equipmentClassID)
-					local num 			= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
+					numRequiredClasses 						= numRequiredClasses + 1
+					local promotionClassEquipmentClassID 	= GetLinkedEquipmentClass(unitType, equipmentClassID)
+					local total 							= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
+					
+					if total == 0 then break end
+					--local num 			= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
+					
 					local unitHitPoints = GetUnitHitPointTable(unitType, promotionClassID, organizationLevel )
 					local personelAtHP 	= unitHitPoints[HP].Personnel
 					local requiredNum	= GetUnitEquipmentClassNumberForPersonnel(unitType, personelAtHP, equipmentClassID)
-					if num < requiredNum then
+					if total < requiredNum then
 						bEnoughEquipmentForHP = false
-					end					
-				end
-			end			
-			
-			for equipmentClassID, total in pairs(equipmentClassList) do
-				--numRequiredClasses = numRequiredClasses + 1
-				local unitEquipmentClassID = GetLinkedEquipmentClass(unitType, equipmentClassID)
-				if unitEquipmentClassID then
-					local num 			= GetNumEquipmentOfClassInList(unitEquipmentClassID, equipmentList)
+					end
+										
+					local num 			= GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)
+					
 					local ratio 		= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
 					local percent 		= (num * ratio) / total * 100
 					totalPercent 		= totalPercent + percent					
 						
-					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+					--Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[promotionClassEquipmentClassID].Name))
 				end
 			end
 			if numRequiredClasses > 0 and totalPercent > 0 then
 				local mediumPercent = totalPercent / numRequiredClasses
 				table.insert(percentageTable, { Name = Locale.Lookup(GameInfo.Units[unitType].Name), Percent = GCO.ToDecimals(mediumPercent), EnoughEquipmentForHP = bEnoughEquipmentForHP })
-				if bEnoughEquipmentForHP and mediumPercent > bestValue or (mediumPercent >= bestValue and unitType == oldUnitType) then -- Return the old type if it's equal to the best possible value, return new type only when it's better.
-					bestValue 		= mediumPercent
-					bestUnitType 	= unitType
-					Dprint( DEBUG_UNIT_SCRIPT, "New best value.. = ", bestValue.." percent for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
+				--if bEnoughEquipmentForHP and (mediumPercent > bestValue or (mediumPercent >= bestValue and (unitType == oldUnitType))) then -- Return the old type if it's equal to the best possible value, return new type only when it's better.
+				if bEnoughEquipmentForHP and mediumPercent >= bestValue then -- check if we should replace the current best choice
+					-- always replace if percentage match is superior
+					-- replace with the unit with the one at the higher construction cost (assuming it means better unit) when percentage match is egal
+					if (mediumPercent > bestValue) or (GameInfo.Units[unitType].Cost > GameInfo.Units[bestUnitType].Cost) then
+						bestValue 		= mediumPercent
+						bestUnitType 	= unitType
+						Dprint( DEBUG_UNIT_SCRIPT, "New best value.. = ", bestValue.." percent for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
+					end
 				end
 			end
 		end
@@ -2133,6 +2141,8 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 		end
 	end	
 	local percentageStr = table.concat(sortedStringTable, "[NEWLINE]")
+	
+	GCO.SetDebugToConsole(false)
 	
 	return bestUnitType, percentageStr
 end
