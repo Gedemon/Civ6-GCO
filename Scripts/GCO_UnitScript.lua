@@ -558,6 +558,7 @@ end
 
 function CompareData(data1, data2)
 	print("comparing...")
+	local count = 0
 	for key, data in pairs(data1) do
 		for k, v in pairs (data) do
 			if not data2[key] then
@@ -566,10 +567,12 @@ function CompareData(data1, data2)
 				print("- no value for key = ", key, " entry =", k)
 			elseif data2[key] and type(v) ~= "table" and v ~= data2[key][k] then
 				print("- different value for key = ", key, " entry =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]) )
+			else
+				count = count + 1
 			end
 		end
 	end
-	print("no more data to compare...")
+	print("no more data to compare, total entries = " .. tostring(count))
 end
 
 
@@ -2056,8 +2059,6 @@ function GetEquipmentOfClassInList(equipmentClassID, equipmentList)
 end
 
 function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType, HP, organizationLevel)
-
-	GCO.SetDebugToConsole(true)
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name) .. " current type = " ..GameInfo.Units[oldUnitType].Name)
@@ -2094,7 +2095,10 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 					local promotionClassEquipmentClassID 	= GetLinkedEquipmentClass(unitType, equipmentClassID)
 					local total 							= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
 					
-					if total == 0 then break end
+					if total == 0 then
+						if specificEquipmentClasses.__orderedIndex then specificEquipmentClasses.__orderedIndex = nil end
+						break
+					end
 					
 					local unitHitPoints = GetUnitHitPointTable(unitType, promotionClassID, organizationLevel )
 					local personelAtHP 	= unitHitPoints[HP].Personnel
@@ -2144,9 +2148,7 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_NOT_ENOUGH_EQUIPMENT_MATCH_TYPE", data.Percent, data.Name))
 		end
 	end	
-	local percentageStr = table.concat(sortedStringTable, "[NEWLINE]")
-	
-	GCO.SetDebugToConsole(false)
+	local percentageStr = table.concat(sortedStringTable, "[NEWLINE]")	
 	
 	return bestUnitType, percentageStr
 end

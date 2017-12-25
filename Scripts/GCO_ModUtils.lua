@@ -64,8 +64,10 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["RESOURCE_MEDICINE"].Index] 			= "[ICON_Damaged]",
 		[GameInfo.Resources["RESOURCE_FOOD"].Index] 				= "[ICON_Food]",
 		[GameInfo.Resources["RESOURCE_PERSONNEL"].Index]			= "[ICON_Position]",
+		[GameInfo.Resources["EQUIPMENT_CHARIOT"].Index]				= "[ICON_EQUIPMENT_CHARIOT]",
 		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]			= "[ICON_EQUIPMENT_WAR_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_ARMORED_HORSES"].Index]		= "[ICON_EQUIPMENT_ARMORED_HORSES]",
+		[GameInfo.Resources["EQUIPMENT_LANCES"].Index]				= "[ICON_EQUIPMENT_LANCES]",
 		[GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Index]			= "[ICON_EQUIPMENT_BOWS]",
 		[GameInfo.Resources["EQUIPMENT_LONGBOWS"].Index]			= "[ICON_EQUIPMENT_BOWS]",
 		[GameInfo.Resources["EQUIPMENT_CROSSBOWS"].Index]			= "[ICON_EQUIPMENT_CROSSBOWS]",
@@ -198,10 +200,15 @@ function orderedNext(t, state)
         end
     end
 
-    if key then
+    if key and type(key) ~= "table" then
         return key, t[key]
     end
 
+	if key and type(key) == "table" then
+		print("WARNING: key = table in orderedPairs")
+		for k, v in pairs(key) do print(k,v) end
+	end
+	
     -- no more value to return, cleanup
     t.__orderedIndex = nil
     return

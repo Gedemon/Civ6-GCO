@@ -1559,9 +1559,10 @@ function TransferToCities(self)
 		if supplyDemand.HasPrecedence[resourceID] then -- one city has made a prioritary request for that resource
 			local bHasLocalPrecedence = (UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID]) or self:GetNumRequiredInQueue(resourceID) > 0  -- to do : a function to test all precedence, and another to return the number of unit of resource required, separate build queue / units
 			if bHasLocalPrecedence then
-				availableStock = math.max(availableStock, GCO.Round(self:GetAvailableStockForUnits(resourceID)/2)) -- sharing unit stock when both city rquires it 
+				availableStock = math.max(availableStock, GCO.Round(self:GetAvailableStockForUnits(resourceID)*0.5)) -- sharing 50% of unit stock when both city requires it 
 			else
-				availableStock = math.max(availableStock, GCO.Round(self:GetStock(resourceID)/2))
+				--availableStock = math.max(availableStock, GCO.Round(self:GetStock(resourceID)/2))
+				availableStock = math.max(availableStock, GCO.Round(self:GetAvailableStockForUnits(resourceID)*0.75)) -- sharing 75% of unit stock when only the city to supply requires it
 			end
 		end
 		transfers.Resources[resourceID] = math.min(value, availableStock)
@@ -2143,35 +2144,39 @@ end
 -- Resources Stock
 -----------------------------------------------------------------------------------------
 function GetAvailableStockForUnits(self, resourceID)
-	--[[
-	if self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, GCO.GetTurnKey()) == 0 then -- temporary, assume industries are first called
-		return self:GetStock(resourceID)
-	end
-	--]]
-	local minPercentLeft = MinPercentLeftToSupply
-	if ResourceUsage[resourceID] then
-		minPercentLeft = ResourceUsage[resourceID].MinPercentLeftToSupply
-	end
-	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
-	return math.max(0, self:GetStock(resourceID)-minStockLeft)
+
+	local turnKey 			= GCO.GetPreviousTurnKey()
+	local supply		= self:GetSupplyAtTurn(resourceID, turnKey)
+	local sharedSupply	= GCO.Round(supply / 4)
+	local minStockLeft 	= self:GetMinimalStockForUnits(resourceID)--GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
+	local stock			= self:GetStock(resourceID)
+	return math.min(stock, math.max(0, stock-minStockLeft, sharedSupply))
 end
 
 function GetAvailableStockForCities(self, resourceID)
-	local minPercentLeft = MinPercentLeftToTransfer
+	local turnKey 			= GCO.GetPreviousTurnKey()
+	local minPercentLeft 	= MinPercentLeftToTransfer
 	if ResourceUsage[resourceID] then
 		minPercentLeft = ResourceUsage[resourceID].MinPercentLeftToTransfer
 	end
-	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
-	return math.max(0, self:GetStock(resourceID)-minStockLeft)
+	local supply		= self:GetSupplyAtTurn(resourceID, turnKey)
+	local sharedSupply	= GCO.Round(supply / 4)
+	local minStockLeft 	= GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
+	local stock			= self:GetStock(resourceID)
+	return math.min(stock, math.max(0, stock-minStockLeft, sharedSupply))
 end
 
 function GetAvailableStockForIndustries(self, resourceID)
+	local turnKey 			= GCO.GetPreviousTurnKey()
 	local minPercentLeft = MinPercentLeftToConvert
 	if ResourceUsage[resourceID] then
 		minPercentLeft = ResourceUsage[resourceID].MinPercentLeftToConvert
 	end
+	local supply		= self:GetSupplyAtTurn(resourceID, turnKey)
+	local sharedSupply	= GCO.Round(supply / 2)
 	local minStockLeft = GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
-	return math.max(0, self:GetStock(resourceID)-minStockLeft)
+	local stock			= self:GetStock(resourceID)
+	return math.min(stock, math.max(0, stock-minStockLeft, sharedSupply))
 end
 
 function GetMinimalStockForUnits(self, resourceID)
@@ -3245,7 +3250,7 @@ function CanTrain(self, unitType)
 	local bAddStr 			= false
 	for resourceKey, value in pairs(reservedResource) do
 		bAddStr = true
-		break
+		--break
 	end
 
 	-- check components needed
@@ -3428,7 +3433,7 @@ function CanConstruct(self, buildingType)
 	local bAddStr 			= false
 	for resourceKey, value in pairs(reservedResource) do
 		bAddStr = true
-		break
+		--break -- to do : use table.next
 	end
 
 	for resourceID, value in pairs(resTable) do
@@ -3484,8 +3489,17 @@ function GetResourcesStockString(self)
 	local strategicList		= {}
 	local otherList			= {}
 	if not data.Stock[turnKey] then return end
+local count = 0
 	for resourceKey, value in pairs(data.Stock[turnKey]) do
 		local resourceID 		= tonumber(resourceKey)
+		---[[
+--Dline(count)
+count = count + 1
+--Dline(resourceKey, type(resourceKey))
+--Dline(value, type(value))
+if type(value) == "table" then for k, v in pairs(value) do print(k,v) end
+else 
+--]]
 		if (value + self:GetSupplyAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetSupplyAtTurn(resourceID, turnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
 
 			local stockVariation 	= self:GetStockVariation(resourceID)
@@ -3514,6 +3528,7 @@ function GetResourcesStockString(self)
 				table.insert(otherList, { String = str, Order = value })
 			end			
 		end
+end
 	end
 	table.sort(equipmentList, function(a, b) return a.Order > b.Order; end)
 	table.sort(strategicList, function(a, b) return a.Order > b.Order; end)
@@ -4525,8 +4540,18 @@ function DoExcedents(self)
 	-- surplus resources are lost
 	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
 		local resourceID = tonumber(resourceKey)
-		local excedent = self:GetStock(resourceID) - self:GetMaxStock(resourceID)
-		if player:IsObsoleteEquipment(resourceID) then excedent = self:GetStock(resourceID) end
+		local excedent = 0
+		local stock = self:GetStock(resourceID)
+		
+		if not GCO.IsResourceEquipment(resourceID) then
+			excedent = stock - self:GetMaxStock(resourceID)
+		end
+			
+		if player:IsObsoleteEquipment(resourceID) then
+			if self:GetNumRequiredInQueue(resourceID) == 0 then
+				excedent = math.floor(stock / 2)
+			end
+		end
 		if excedent > 0 then
 			Dprint( DEBUG_CITY_SCRIPT, " - Surplus destroyed = ".. tostring(excedent).." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
 			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
