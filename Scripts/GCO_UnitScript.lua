@@ -500,8 +500,7 @@ function CheckSave()
 	if GCO.AreSameTables(ExposedMembers.UnitData, unitData) then
 		Dprint( DEBUG_UNIT_SCRIPT, "- Tables are identical")
 	else
-		GCO.Error("reloading saved table show differences with actual table !")
-		LuaEvents.StopAuToPlay()
+		GCO.Warning("reloading saved table show differences with actual table !")
 		CompareData(ExposedMembers.UnitData, unitData)
 	end	
 	GCO.ShowTimer("Saving And Checking UnitData")
@@ -562,11 +561,11 @@ function CompareData(data1, data2)
 	for key, data in pairs(data1) do
 		for k, v in pairs (data) do
 			if not data2[key] then
-				print("- reloaded table is nil for key = ", key)
+				GCO.Error("- reloaded table is nil for key = ", key)
 			elseif data2[key] and not data2[key][k] then			
-				print("- no value for key = ", key, " entry =", k)
+				GCO.Error("- no value for key = ", key, " entry =", k)
 			elseif data2[key] and type(v) ~= "table" and v ~= data2[key][k] then
-				print("- different value for key = ", key, " entry =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]) )
+				GCO.Error("- different value for key = ", key, " entry =", k, " Data1 value = ", v, type(v), " Data2 value = ", data2[key][k], type(data2[key][k]) )
 			else
 				count = count + 1
 			end

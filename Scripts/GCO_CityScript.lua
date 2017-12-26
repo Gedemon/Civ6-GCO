@@ -4543,9 +4543,9 @@ function DoExcedents(self)
 		local excedent = 0
 		local stock = self:GetStock(resourceID)
 		
-		if not GCO.IsResourceEquipment(resourceID) then
+		--if not GCO.IsResourceEquipment(resourceID) then
 			excedent = stock - self:GetMaxStock(resourceID)
-		end
+		--end
 			
 		if player:IsObsoleteEquipment(resourceID) then
 			if self:GetNumRequiredInQueue(resourceID) == 0 then
