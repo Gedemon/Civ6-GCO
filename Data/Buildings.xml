@@ -22,6 +22,10 @@
 		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2" />
 		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2" />
 		
+		<Row BuildingType="BUILDING_WEAPONSMITH"				Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_CONSTRUCTION" 		EquipmentStock="250" />
+		<Row BuildingType="BUILDING_ARMORSMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_ENGINEERING" 		EquipmentStock="250" />
+		<Row BuildingType="BUILDING_FARRIER"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_STIRRUPS" 			EquipmentStock="250" />
+		
 		<Row BuildingType="BUILDING_TREADMILL" 					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_THE_WHEEL" />
 		<Row BuildingType="BUILDING_WINDMILL" 					Cost="195" 	MaterielPerProduction="3" PrereqTech="TECH_MACHINERY" />
 		
@@ -140,6 +144,10 @@
 		
 		<Row Building="BUILDING_MARKET_EXTENSION"			PrereqBuilding="BUILDING_MARKET" 	/>
 		
+		<Row Building="BUILDING_WEAPONSMITH"				PrereqBuilding="BUILDING_BLACKSMITH" 	/>
+		<Row Building="BUILDING_ARMORSMITH"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
+		<Row Building="BUILDING_FARRIER"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
+		
 		<Row Building="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	/>
 		<Row Building="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	/>
@@ -212,10 +220,8 @@
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_WAR_HORSES" 	Ratio="1"/>
 		
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SWORDS" 	Ratio="6" 	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_STEEL_SWORDS" 	Ratio="1.5"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SPEARS" 	Ratio="12"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_PIKES" 		Ratio="5"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_STEEL_PIKES" 	Ratio="1"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_LANCES" 			Ratio="6"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_MUSKETS" 		Ratio="2.5"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="5" 	MultiResCreated="1"/>
@@ -225,6 +231,20 @@
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_SPEARS" 	Ratio="8"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_WOOD" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_WOODEN_SPEARS" 	Ratio="10"	CostFactor="0.35" />
 
+		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_STEEL_SWORDS" 	Ratio="1.5"		MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_WEAPONSMITH"	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_STEEL_PIKES" 	Ratio="1.25"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_IRON_SWORDS" 	Ratio="6" 	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_IRON_SPEARS" 	Ratio="12"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_IRON_PIKES" 		Ratio="5"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_LANCES" 			Ratio="6"	MultiResCreated="1"/>
+	
+		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.5"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_PLATE_ARMOR" 	Ratio="1"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="7"	MultiResCreated="1" />
+		
+		<Row BuildingType="BUILDING_FARRIER" 		ResourceType="EQUIPMENT_WAR_HORSES"	MaxConverted="20" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="1"	MultiResRequired="1" />
+		<Row BuildingType="BUILDING_FARRIER" 		ResourceType="RESOURCE_IRON"		MaxConverted="10" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="2"	MultiResRequired="1" />
+		
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_MUSKETS" 		Ratio="20"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_RIFLES" 			Ratio="20"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_BOMBARDS" 		Ratio="1"	MultiResCreated="1" />
@@ -235,11 +255,8 @@
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_LEATHER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_LEATHER_ARMOR" 	Ratio="5"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_COPPER" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_ARMOR" 	Ratio="5"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="7"	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="2"	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_PLATE_ARMOR" 	Ratio="1"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.5"	MultiResCreated="1" />
 		
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="EQUIPMENT_WAR_HORSES"	MaxConverted="20" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="1"	MultiResRequired="1" />
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON"		MaxConverted="10" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="2"	MultiResRequired="1" />
 		
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="15" />
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="12" />
@@ -438,6 +455,15 @@
 	<MutuallyExclusiveBuildings>
 		<Row Building="BUILDING_SMALL_STABLE" 	MutuallyExclusiveBuilding="BUILDING_SMALL_BARRACKS"/>
 		<Row Building="BUILDING_SMALL_BARRACKS" MutuallyExclusiveBuilding="BUILDING_SMALL_STABLE"/>
+		
+		<Row Building="BUILDING_WEAPONSMITH"	MutuallyExclusiveBuilding="BUILDING_ARMORSMITH" 	/>
+		<Row Building="BUILDING_WEAPONSMITH"	MutuallyExclusiveBuilding="BUILDING_FARRIER" 		/>
+		
+		<Row Building="BUILDING_ARMORSMITH"		MutuallyExclusiveBuilding="BUILDING_WEAPONSMITH" 	/>
+		<Row Building="BUILDING_ARMORSMITH"		MutuallyExclusiveBuilding="BUILDING_FARRIER" 		/>
+		
+		<Row Building="BUILDING_FARRIER"		MutuallyExclusiveBuilding="BUILDING_WEAPONSMITH" 	/>
+		<Row Building="BUILDING_FARRIER"		MutuallyExclusiveBuilding="BUILDING_ARMORSMITH" 	/>
 	</MutuallyExclusiveBuildings>
 	
 </GameInfo>
