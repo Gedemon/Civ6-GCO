@@ -2103,6 +2103,11 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 					local personelAtHP 	= unitHitPoints[HP].Personnel
 					local requiredNum	= GetUnitEquipmentClassNumberForPersonnel(unitType, personelAtHP, equipmentClassID)
 					
+					if requiredNum == 0 then
+						if specificEquipmentClasses.__orderedIndex then specificEquipmentClasses.__orderedIndex = nil end
+						break
+					end
+					
 					-- check if we have enough equipment of that class to keep the unit's health level after upgrade
 					if total < requiredNum then
 						if total < GetUnitEquipmentClassNumberForPersonnel(oldUnitType, personelAtHP, equipmentClassID) then -- allow health damage if the unit can't get more of that equipment class in frontline
@@ -2114,7 +2119,7 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 										
 					local num 			= GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)					
 					local ratio 		= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
-					local percent 		= (num * ratio) / total * 100
+					local percent 		= (num) / (requiredNum) * 100 --(num*ratio) / (total) * 100
 					totalPercent 		= totalPercent + percent					
 						
 					--Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
@@ -4077,6 +4082,7 @@ function CheckComponentsHP(unit, str, bNoWarning)
 		
 		for equipmentClassID, _ in pairs(unit:GetEquipmentClasses()) do
 			if unit:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the UnitHitPoints table
+				--local promotionEquipmentClassID = GetLinkedEquipmentClass(unit:GetType(), equipmentClassID)
 				Dprint( DEBUG_UNIT_SCRIPT, "unitData =", unit:GetEquipmentClassFrontLine(equipmentClassID), " EquipmentClassNumberForPersonnel at [HP] = ", GetUnitEquipmentClassNumberForPersonnel(unit:GetType(), hitPoint.Personnel, equipmentClassID), " for ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 			end
 		end
@@ -4869,8 +4875,19 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 	Dprint( DEBUG_UNIT_SCRIPT, "Updating UnitData...")
 	
 	--local DEBUG_UNIT_SCRIPT = "UnitScript"
-	
+	local count = 0
 	for unitKey, unitData in pairs(ExposedMembers.UnitData) do
+		count = count + 1
+	end
+	Dprint( DEBUG_UNIT_SCRIPT, "Counting " .. tostring(count) .. " unit entries" )
+	
+	
+	local count = 0
+	for unitKey, unitData in pairs(ExposedMembers.UnitData) do
+		Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
+		count = count + 1
+		Dprint( DEBUG_UNIT_SCRIPT, "UNIT ENTRY #" .. tostring(count) .. " unitkey = ", unitKey ," unitData = ", unitData ," START <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+		Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 		local unit = GetUnitFromKey ( unitKey )
 		if (not unit) then		
 			Dprint( DEBUG_UNIT_SCRIPT, "REMOVING... unit ID#"..tostring(unitData.unitID).." from player ID#"..tostring(unitData.playerID), "unit type = ".. tostring(GameInfo.Units[unitData.unitType].UnitType))
@@ -4920,6 +4937,9 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 				end
 			end
 		end
+		Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
+		Dprint( DEBUG_UNIT_SCRIPT, "UNIT ENTRY #" .. tostring(count).. " unitkey = ", unitKey ," END   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	end
 end
 --Events.TurnBegin.Add(UpdateUnitsData)

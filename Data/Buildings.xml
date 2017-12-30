@@ -308,7 +308,10 @@
 		<Row BuildingType="BUILDING_PALACE" 		ResourceType="RESOURCE_PERSONNEL" 	Stock="500"/>
 		
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_MATERIEL" 	Stock="100"/>
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		Stock="100"/>
+		
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_MATERIEL" 	Stock="100"/>
+		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 		Stock="100"/>
 		
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_RICE" 		Stock="200"/>
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_WHEAT" 		Stock="200"/>
@@ -367,8 +370,22 @@
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="500"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="100"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="100"/>
-		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_MATERIEL" 		Stock="100"/>
 		<Row BuildingType="BUILDING_SMALL_BARRACKS" ResourceType="RESOURCE_PERSONNEL" 		Stock="1000"/>
+		
+		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 			Stock="250"/>
+		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 			Stock="250"/>
+		
+		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_IRON" 			Stock="500"/>
+		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_COPPER" 			Stock="500"/>
+		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_WOOD" 			Stock="500"/>
+		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_STONE" 			Stock="500"/>
+		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_MATERIEL" 		Stock="500"/>
+		
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_STEEL" 			Stock="1000"/>
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_IRON" 			Stock="1000"/>
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_ALUMINUM" 		Stock="1000"/>
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_COAL" 			Stock="1000"/>
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_MATERIEL" 		Stock="1000"/>
 		
 	<!---->
 	</BuildingStock>

@@ -3418,10 +3418,10 @@ function CanConstruct(self, buildingType)
 	end
 
 	-- check components
-	local bHasComponents = true
+	local bHasComponents 	= true
 
 	local production 		= self:GetProductionYield()
-	local turnsToBuild = math.max(1, math.ceil(row.Cost / production))
+	local turnsToBuild 		= math.max(1, math.ceil(row.Cost / production))
 
 	local resTable 			= GCO.GetBuildingConstructionResources(buildingType)
 	local requirementStr 	= Locale.Lookup("LOC_PRODUCTION_PER_TURN_REQUIREMENT")
@@ -4549,7 +4549,7 @@ function DoExcedents(self)
 			
 		if player:IsObsoleteEquipment(resourceID) then
 			if self:GetNumRequiredInQueue(resourceID) == 0 then
-				excedent = math.floor(stock / 2)
+				excedent = math.ceil(stock / 2)
 			end
 		end
 		if excedent > 0 then
