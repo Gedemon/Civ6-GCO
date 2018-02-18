@@ -2083,7 +2083,7 @@ function GetRequirements(self, fromCity)
 
 	for row in GameInfo.Resources() do
 		local resourceID 			= row.Index
-		if (not bIsEmbargo) or (GCO.IsResourceFood(resourceID) and not row.ResourceClassType ~= "RESOURCECLASS_LUXURY" ) then
+		if (not bIsEmbargo) or (GCO.IsResourceFood(resourceID) and row.ResourceClassType ~= "RESOURCECLASS_LUXURY" ) then
 			if ((row.ResourceClassType ~= "RESOURCECLASS_STRATEGIC" and not GCO.IsResourceEquipmentMaker(resourceID)) or bIsFriend) then
 				--Dprint( DEBUG_CITY_SCRIPT, Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .. " strategic = ", (row.ResourceClassType == "RESOURCECLASS_STRATEGIC"),"bIsFriend",bIsFriend)
 

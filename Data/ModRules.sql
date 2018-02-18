@@ -22,11 +22,6 @@ DELETE FROM Resource_Harvests;
 DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='DEAL_ITEM_RESOURCES';
 --*/
 
-
-/* Diplomacy */
-UPDATE DiplomaticActions SET InitiatorPrereqCivic ='CIVIC_EARLY_EMPIRE', TargetPrereqCivic ='CIVIC_EARLY_EMPIRE' WHERE DiplomaticActionType ='DIPLOACTION_ALLIANCE';
-
-
 /* Improvements */
 UPDATE Improvements 	SET PrereqTech ='TECH_CONSTRUCTION' WHERE ImprovementType ='IMPROVEMENT_FORT';
 INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_FORT', 'UNIT_BUILDER');
@@ -198,6 +193,22 @@ UPDATE Buildings SET PurchaseYield = NULL;
 
 /* Diplomacy */
 
+-- more spies, sooner
+INSERT OR REPLACE INTO CivicModifiers (CivicType, ModifierId) VALUES ('CIVIC_EARLY_EMPIRE','CIVIC_GRANT_SPY');
+INSERT OR REPLACE INTO CivicModifiers (CivicType, ModifierId) VALUES ('CIVIC_FEUDALISM','CIVIC_GRANT_SPY');
+
+-- Alliance at Feudalism, Defensive Pact at Early Empire
+UPDATE DiplomaticActions SET InitiatorPrereqCivic ='CIVIC_FEUDALISM', TargetPrereqCivic ='CIVIC_FEUDALISM' WHERE DiplomaticActionType ='DIPLOACTION_ALLIANCE';
+UPDATE DiplomaticActions SET InitiatorPrereqCivic ='CIVIC_EARLY_EMPIRE', TargetPrereqCivic ='CIVIC_EARLY_EMPIRE', RequiresAlliance =0 WHERE DiplomaticActionType ='DIPLOACTION_DEFENSIVE_PACT';
+
+-- Research Agrement requires Alliance
+UPDATE DiplomaticActions SET RequiresAlliance =1 WHERE DiplomaticActionType ='DIPLOACTION_RESEARCH_AGREEMENT';
+DELETE FROM DiplomaticStateActions WHERE StateType='DIPLO_STATE_DECLARED_FRIEND' AND DiplomaticActionType='DIPLOACTION_RESEARCH_AGREEMENT';
+
+-- Defensive pact start at friendly relation, now included in Alliance
+DELETE FROM DiplomaticStateActions WHERE StateType='DIPLO_STATE_ALLIED' AND DiplomaticActionType='DIPLOACTION_DEFENSIVE_PACT';
+INSERT OR REPLACE INTO DiplomaticStateActions (StateType, DiplomaticActionType, Worth, Cost) VALUES ('DIPLO_STATE_FRIENDLY','DIPLOACTION_DEFENSIVE_PACT','-30','30');
+
 -- Reduce Warmongering
 UPDATE Eras SET WarmongerPoints = 0 	WHERE EraType='ERA_ANCIENT'; 		-- Default = 0
 UPDATE Eras SET WarmongerPoints = 2 	WHERE EraType='ERA_CLASSICAL';  	-- Default = 4
@@ -220,7 +231,7 @@ UPDATE DiplomaticActions SET WarmongerPercent = 35 	WHERE DiplomaticActionType='
 UPDATE DiplomaticActions SET WarmongerPercent = 50 	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_TERRITORIAL_WAR'; 	-- Default = 75
 
 -- Reduce Warmongering
-UPDATE GlobalParameters SET Value = 100 		WHERE Name='WARMONGER_CITY_PERCENT_OF_DOW'; 				-- Default = 50
+UPDATE GlobalParameters SET Value = 100 	WHERE Name='WARMONGER_CITY_PERCENT_OF_DOW'; 				-- Default = 50
 UPDATE GlobalParameters SET Value = 50 		WHERE Name='WARMONGER_FINAL_MAJOR_CITY_MULTIPLIER'; 		-- Default = 200
 UPDATE GlobalParameters SET Value = 100		WHERE Name='WARMONGER_FINAL_MINOR_CITY_MULTIPLIER'; 		-- Default = 100
 UPDATE GlobalParameters SET Value = 50 		WHERE Name='DIPLOMACY_WARMONGER_POINT_PERCENT_DECAY'; 		-- Default = 50

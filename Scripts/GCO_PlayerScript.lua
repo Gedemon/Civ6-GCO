@@ -406,6 +406,84 @@ function OnTreasuryChanged(playerID, yield, balance)
 end
 
 
+
+-----------------------------------------------------------------------------------------
+-- Diplomacy functions
+-----------------------------------------------------------------------------------------
+
+function OnDiplomacyDeclareWar(attackerPlayerID, defenderPlayerID)
+
+	local attacker 			= Players[attackerPlayerID]
+	local defender 			= Players[defenderPlayerID]
+	local attackerName		= Locale.Lookup(PlayerConfigurations[attackerPlayerID]:GetCivilizationShortDescription())
+	local defenderName		= Locale.Lookup(PlayerConfigurations[defenderPlayerID]:GetCivilizationShortDescription())
+	local defenderDiploAI 	= defender:GetAi_Diplomacy()
+	local attackerDiploAI 	= attacker:GetAi_Diplomacy()
+	local defenderDiplo		= defender:GetDiplomacy()
+	local attackerDiplo		= attacker:GetDiplomacy()
+	
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLAYER_SCRIPT, attackerName .. " Has declared war to " .. defenderName)
+	
+	Dprint( DEBUG_PLAYER_SCRIPT, "...Listing Allies of " .. defenderName)	
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
+		if playerID ~= attackerPlayerID and playerID ~= defenderPlayerID then
+			if (defenderDiploAI:GetDiplomaticState(playerID) == "DIPLO_STATE_ALLIED") then
+				local ally 		= Players[playerID]
+				local allyName 	= Locale.Lookup(PlayerConfigurations[playerID]:GetCivilizationShortDescription())
+				Dprint( DEBUG_PLAYER_SCRIPT, "......"..allyName)
+				if (not attackerDiplo:IsAtWarWith( playerID )) then
+					if attackerDiplo:CanDeclareWarOn( playerID ) then
+						Dprint( DEBUG_PLAYER_SCRIPT, ".........Receive DoW from " .. attackerName)
+						attackerDiplo:DeclareWarOn(playerID)
+						local allyMilitaryAI = ally:GetAi_Military()
+						Dprint( DEBUG_PLAYER_SCRIPT, ".........allyMilitaryAI = ", allyMilitaryAI);
+						allyMilitaryAI:PrepareForWarWith(attackerPlayerID);
+						if ( allyMilitaryAI:HasOperationAgainst( attackerPlayerID, true ) ) then
+							Dprint( DEBUG_PLAYER_SCRIPT, ".........Has Military operation against " .. attackerName)
+						end
+					else
+						Dprint( DEBUG_PLAYER_SCRIPT, ".........Can't receive DoW from " .. attackerName)
+					end
+				else
+					Dprint( DEBUG_PLAYER_SCRIPT, ".........Already at war with " .. attackerName)
+				end
+			end
+		end	
+	end
+	
+	Dprint( DEBUG_PLAYER_SCRIPT, "...Listing Allies of " .. attackerName)	
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
+		if playerID ~= attackerPlayerID and playerID ~= defenderPlayerID then
+			if (attackerDiploAI:GetDiplomaticState(playerID) == "DIPLO_STATE_ALLIED") then
+				local ally 		= Players[playerID]
+				local allyName 	= Locale.Lookup(PlayerConfigurations[playerID]:GetCivilizationShortDescription())
+				local allyDiplo	= ally:GetDiplomacy()
+				Dprint( DEBUG_PLAYER_SCRIPT, "......"..allyName)
+				if (not allyDiplo:IsAtWarWith( playerID )) then
+					if allyDiplo:CanDeclareWarOn( playerID ) then
+						Dprint( DEBUG_PLAYER_SCRIPT, ".........Can Declare War on " .. defenderName)
+						local allyMilitaryAI = ally:GetAi_Military()
+						Dprint( DEBUG_PLAYER_SCRIPT, ".........allyMilitaryAI = ", allyMilitaryAI);
+						allyMilitaryAI:PrepareForWarWith(defenderPlayerID);
+						if ( allyMilitaryAI:HasOperationAgainst( defenderPlayerID, true ) ) then
+							Dprint( DEBUG_PLAYER_SCRIPT, ".........Has Military operation against " .. defenderName)
+						end
+						Dprint( DEBUG_PLAYER_SCRIPT, ".........Declare War against " .. defenderName)
+						allyDiplo:DeclareWarOn(playerID)
+					else
+						Dprint( DEBUG_PLAYER_SCRIPT, ".........Can't Declare War on " .. defenderName)
+					end
+				else
+					Dprint( DEBUG_PLAYER_SCRIPT, ".........Already at war with " .. defenderName)
+				end
+			end
+		end	
+	end
+end
+
+
+
 -----------------------------------------------------------------------------------------
 -- Updates functions
 -----------------------------------------------------------------------------------------
@@ -712,6 +790,7 @@ function Initialize()
 	-- Register Events (order matters for same events)
 	Events.ResearchCompleted.Add(OnResearchCompleted)
 	Events.CivicCompleted.Add(OnCivicCompleted)
+	Events.DiplomacyDeclareWar.Add(OnDiplomacyDeclareWar)
 	Events.TreasuryChanged.Add(OnTreasuryChanged)
 	LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
 	LuaEvents.StartPlayerTurn.Add(CheckPlayerTurn)

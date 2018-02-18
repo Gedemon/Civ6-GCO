@@ -34,6 +34,8 @@ UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_SU
 UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_SUBSEQUENT_DISBAND_UNIT';	-- default = -10
 UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_DISBAND_UNIT_LINE';			-- default = -10
 
+-- Buff Research Agreement
+UPDATE GlobalParameters SET Value = 25		WHERE Name = 'DIPLOMACY_RESEARCH_AGREEMENT_BEAKER_PERCENTAGE';	-- default = 10
  
 /* Defines */
 
