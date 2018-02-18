@@ -681,13 +681,17 @@ Dprint("Calling CityCaptureCityAddedToMap (", playerID, cityID, iX, iY,")")
 	then
 		cityCaptureTest[key].CityAddedXY = true
 		local city = CityManager.GetCity(playerID, cityID)
-		local originalOwnerID 	= city:GetOriginalOwner()
-		local originalCityID	= cityCaptureTest[key].CityID
-		local newOwnerID 		= playerID
-		local newCityID			= cityID
-		if cityCaptureTest[key].PlayerID == originalOwnerID then
-			Dprint("Calling LuaEvents.CapturedCityAddedToMap (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
-			LuaEvents.CapturedCityAddedToMap(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+		if city then
+			local originalOwnerID 	= city:GetOriginalOwner()
+			local originalCityID	= cityCaptureTest[key].CityID
+			local newOwnerID 		= playerID
+			local newCityID			= cityID
+			if cityCaptureTest[key].PlayerID == originalOwnerID then
+				Dprint("Calling LuaEvents.CapturedCityAddedToMap (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
+				LuaEvents.CapturedCityAddedToMap(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+			end
+		else
+			GCO.Warning("City is nil in CityCaptureCityAddedToMap for cityID, playerID "..tostring(cityID)..","..tostring(playerID))
 		end
 	end
 end
@@ -700,14 +704,18 @@ Dprint("Calling CityCaptureCityInitialized (", playerID, cityID, iX, iY,")")
 	then
 		cityCaptureTest[key].CityInitializedXY = true
 		local city = CityManager.GetCity(playerID, cityID)
-		local originalOwnerID 	= city:GetOriginalOwner()
-		local originalCityID	= cityCaptureTest[key].CityID
-		local newOwnerID 		= playerID
-		local newCityID			= cityID
-		if cityCaptureTest[key].PlayerID == originalOwnerID then
-			Dprint("Calling LuaEvents.CapturedCityInitialized (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
-			LuaEvents.CapturedCityInitialized(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
-			cityCaptureTest[key] = {}
+		if city then
+			local originalOwnerID 	= city:GetOriginalOwner()
+			local originalCityID	= cityCaptureTest[key].CityID
+			local newOwnerID 		= playerID
+			local newCityID			= cityID
+			if cityCaptureTest[key].PlayerID == originalOwnerID then
+				Dprint("Calling LuaEvents.CapturedCityInitialized (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
+				LuaEvents.CapturedCityInitialized(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+				cityCaptureTest[key] = {}
+			end
+		else
+			GCO.Warning("City is nil in CityCaptureCityInitialized for cityID, playerID "..tostring(cityID)..","..tostring(playerID))			
 		end
 	end
 end

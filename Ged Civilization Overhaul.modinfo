@@ -132,6 +132,7 @@
 				<LoadOrder>100050</LoadOrder>
            	</Properties>
 			<File>Config/Config.xml</File>
+			<File>Config/Config.sql</File>
 		</UpdateDatabase>
 	</FrontEndActions>
 
@@ -152,6 +153,7 @@
 		<File>Data/Resources.xml</File>
 		<File>Text/ConfigText.xml</File>
 		<File>Config/Config.xml</File>
+		<File>Config/Config.sql</File>
 		<File>Scripts/GCO_ModUtils.lua</File>
 		<File>Scripts/GCO_PlayerScript.lua</File>
 		<File>Scripts/GCO_CityScript.lua</File>

@@ -196,6 +196,115 @@ UPDATE Buildings SET PurchaseYield = NULL;
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY_DEALS";
 
 
+/* Diplomacy */
+
+-- Reduce Warmongering
+UPDATE Eras SET WarmongerPoints = 0 	WHERE EraType='ERA_ANCIENT'; 		-- Default = 0
+UPDATE Eras SET WarmongerPoints = 2 	WHERE EraType='ERA_CLASSICAL';  	-- Default = 4
+UPDATE Eras SET WarmongerPoints = 4 	WHERE EraType='ERA_MEDIEVAL';  		-- Default = 8
+UPDATE Eras SET WarmongerPoints = 6 	WHERE EraType='ERA_RENAISSANCE';  	-- Default = 12
+UPDATE Eras SET WarmongerPoints = 9 	WHERE EraType='ERA_INDUSTRIAL';  	-- Default = 18
+UPDATE Eras SET WarmongerPoints = 12 	WHERE EraType='ERA_MODERN';  		-- Default = 24
+UPDATE Eras SET WarmongerPoints = 16 	WHERE EraType='ERA_ATOMIC';  		-- Default = 24
+UPDATE Eras SET WarmongerPoints = 24 	WHERE EraType='ERA_INFORMATION';  	-- Default = 24
+
+-- Reduce Warmongering
+UPDATE DiplomaticActions SET WarmongerPercent = 50 	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_FORMAL_WAR'; 		-- Default = 100
+UPDATE DiplomaticActions SET WarmongerPercent = 35 	WHERE DiplomaticActionType='DIPLOACTION_JOINT_WAR'; 				-- Default = 100
+UPDATE DiplomaticActions SET WarmongerPercent = 100	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_SURPRISE_WAR'; 		-- Default = 150
+UPDATE DiplomaticActions SET WarmongerPercent = 35 	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_HOLY_WAR';			-- Default = 50
+UPDATE DiplomaticActions SET WarmongerPercent = 0 	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_LIBERATION_WAR';	-- Default = 0
+UPDATE DiplomaticActions SET WarmongerPercent = 0 	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_RECONQUEST_WAR'; 	-- Default = 0
+UPDATE DiplomaticActions SET WarmongerPercent = 0 	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_PROTECTORATE_WAR'; 	-- Default = 0
+UPDATE DiplomaticActions SET WarmongerPercent = 35 	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_COLONIAL_WAR'; 		-- Default = 50
+UPDATE DiplomaticActions SET WarmongerPercent = 50 	WHERE DiplomaticActionType='DIPLOACTION_DECLARE_TERRITORIAL_WAR'; 	-- Default = 75
+
+-- Reduce Warmongering
+UPDATE GlobalParameters SET Value = 100 		WHERE Name='WARMONGER_CITY_PERCENT_OF_DOW'; 				-- Default = 50
+UPDATE GlobalParameters SET Value = 50 		WHERE Name='WARMONGER_FINAL_MAJOR_CITY_MULTIPLIER'; 		-- Default = 200
+UPDATE GlobalParameters SET Value = 100		WHERE Name='WARMONGER_FINAL_MINOR_CITY_MULTIPLIER'; 		-- Default = 100
+UPDATE GlobalParameters SET Value = 50 		WHERE Name='DIPLOMACY_WARMONGER_POINT_PERCENT_DECAY'; 		-- Default = 50
+UPDATE GlobalParameters SET Value = 32 		WHERE Name='WARMONGER_LIBERATE_POINTS'; 					-- Default = 32
+UPDATE GlobalParameters SET Value = 200 	WHERE Name='WARMONGER_RAZE_PENALTY_PERCENT'; 				-- Default = 200
+UPDATE GlobalParameters SET Value = 100 	WHERE Name='WARMONGER_REDUCTION_IF_AT_WAR'; 				-- Default = 40
+UPDATE GlobalParameters SET Value = 85	 	WHERE Name='WARMONGER_REDUCTION_IF_DENOUNCED'; 				-- Default = 20
+
+-- allow Joint War when declared friends or allied only...
+DELETE FROM DiplomaticStateActions WHERE StateType='DIPLO_STATE_NEUTRAL' AND DiplomaticActionType='DIPLOACTION_JOINT_WAR';
+DELETE FROM DiplomaticStateActions WHERE StateType='DIPLO_STATE_FRIENDLY' AND DiplomaticActionType='DIPLOACTION_JOINT_WAR';
+
+-- ...but finally remove all war except "surprise war", as it's the only one than affect diplomatic values
+DELETE FROM DiplomaticStateActions WHERE DiplomaticActionType='DIPLOACTION_JOINT_WAR';
+
+DELETE FROM DiplomacyStatementTypes WHERE Type='DECLARE_FORMAL_WAR';
+DELETE FROM DiplomacyStatementTypes WHERE Type='DECLARE_HOLY_WAR';
+DELETE FROM DiplomacyStatementTypes WHERE Type='DECLARE_RECONQUEST_WAR';
+DELETE FROM DiplomacyStatementTypes WHERE Type='DECLARE_LIBERATION_WAR';
+DELETE FROM DiplomacyStatementTypes WHERE Type='DECLARE_PROTECTORATE_WAR';
+DELETE FROM DiplomacyStatementTypes WHERE Type='DECLARE_COLONIAL_WAR';
+DELETE FROM DiplomacyStatementTypes WHERE Type='DECLARE_TERRITORIAL_WAR';
+
+DELETE FROM DiplomacyStatements WHERE Type='DECLARE_FORMAL_WAR';
+DELETE FROM DiplomacyStatements WHERE Type='DECLARE_HOLY_WAR';
+DELETE FROM DiplomacyStatements WHERE Type='DECLARE_RECONQUEST_WAR';
+DELETE FROM DiplomacyStatements WHERE Type='DECLARE_LIBERATION_WAR';
+DELETE FROM DiplomacyStatements WHERE Type='DECLARE_PROTECTORATE_WAR';
+DELETE FROM DiplomacyStatements WHERE Type='DECLARE_COLONIAL_WAR';
+DELETE FROM DiplomacyStatements WHERE Type='DECLARE_TERRITORIAL_WAR';
+
+DELETE FROM DiplomaticActions WHERE DiplomaticActionType LIKE '%_WAR' and DiplomaticActionType <> 'DIPLOACTION_DECLARE_SURPRISE_WAR';
+
+-- Remove near border warning when having open border agreement
+INSERT INTO RequirementSetRequirements (RequirementSetId, RequirementId) VALUES ('PLAYER_NEAR_CULTURE_BORDER', 'REQUIRES_PLAYER_NO_OPEN_BORDERS');
+
+-- Remove "close to victory" non-sense
+DELETE FROM TraitModifiers WHERE TraitType='TRAIT_LEADER_MAJOR_CIV' AND ModifierId='STANDARD_DIPLOMATIC_CLOSE_TO_VICTORY';
+
+-- Remove joint war as you can't get negative modifier with 3rd party civ using that...
+DELETE FROM TraitModifiers WHERE TraitType='TRAIT_LEADER_MAJOR_CIV' AND ModifierId='STANDARD_DIPLOMACY_JOINT_WAR';
+
+UPDATE ModifierArguments SET Value = 10	 	WHERE ModifierID='STANDARD_DIPLOMACY_JOINT_WAR' AND Name='InitialValue'; 		-- Default = 5
+UPDATE ModifierArguments SET Value = 10	 	WHERE ModifierID='STANDARD_DIPLOMACY_JOINT_WAR' AND Name='ReductionTurns'; 		-- Default = 20
+
+UPDATE ModifierArguments SET Value = 36	 	WHERE ModifierID='STANDARD_DIPLOMATIC_ALLY' AND Name='InitialValue'; 		-- Default = 18
+UPDATE ModifierArguments SET Value = 5	 	WHERE ModifierID='STANDARD_DIPLOMATIC_ALLY' AND Name='ReductionTurns'; 		-- Default = 10
+
+UPDATE ModifierArguments SET Value = 18	 	WHERE ModifierID='STANDARD_DIPLOMATIC_DECLARED_FRIEND' AND Name='InitialValue'; 		-- Default = 9
+UPDATE ModifierArguments SET Value = 5	 	WHERE ModifierID='STANDARD_DIPLOMATIC_DECLARED_FRIEND' AND Name='ReductionTurns'; 		-- Default = 10
+
+UPDATE ModifierArguments SET Value = -18	WHERE ModifierID='STANDARD_DIPLOMATIC_DENOUNCED' AND Name='InitialValue'; 			-- Default = -9
+UPDATE ModifierArguments SET Value = 5	 	WHERE ModifierID='STANDARD_DIPLOMATIC_DENOUNCED' AND Name='ReductionTurns'; 		-- Default = 10
+
+UPDATE ModifierArguments SET Value = 40	 	WHERE ModifierID='STANDARD_DIPLOMATIC_LIBERATED_MY_CITY' AND Name='InitialValue'; 		-- Default = 20
+UPDATE ModifierArguments SET Value = 10	 	WHERE ModifierID='STANDARD_DIPLOMATIC_LIBERATED_MY_CITY' AND Name='ReductionTurns'; 	-- Default = 20
+
+UPDATE ModifierArguments SET Value = 1	 	WHERE ModifierID='STANDARD_DIPLOMATIC_WARMONGER' AND Name='ReductionTurns'; 	-- Default = 2
+
+UPDATE ModifierArguments SET Value = -10 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_ALLIED_WITH_ENEMY' AND Name='AmountPerIncident'; 		-- Default = -8
+UPDATE ModifierArguments SET Value = 50 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_ALLIED_WITH_ENEMY' AND Name='MaxEffectMagnitude'; 		-- Default = 8
+
+UPDATE ModifierArguments SET Value = -6 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_FRIENDSHIP_WITH_ENEMY' AND Name='AmountPerIncident'; 		-- Default = -6
+UPDATE ModifierArguments SET Value = 24 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_FRIENDSHIP_WITH_ENEMY' AND Name='MaxEffectMagnitude'; 		-- Default = 8
+
+UPDATE ModifierArguments SET Value = 8 		WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_ALLIED_WITH_FRIEND' AND Name='AmountPerIncident'; 		-- Default = 8
+UPDATE ModifierArguments SET Value = 40	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_ALLIED_WITH_FRIEND' AND Name='MaxEffectMagnitude'; 		-- Default = 8
+
+UPDATE ModifierArguments SET Value = 6 		WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_FRIENDSHIP_WITH_FRIEND' AND Name='AmountPerIncident'; 		-- Default = 6
+UPDATE ModifierArguments SET Value = 24	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_FRIENDSHIP_WITH_FRIEND' AND Name='MaxEffectMagnitude'; 	-- Default = 8
+
+UPDATE ModifierArguments SET Value = 16		WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_ENEMY' AND Name='AmountPerIncident'; 		-- Default = 8
+UPDATE ModifierArguments SET Value = 48	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_ENEMY' AND Name='MaxEffectMagnitude'; 		-- Default = 8
+
+UPDATE ModifierArguments SET Value = -24	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_FRIEND' AND Name='AmountPerIncident'; 		-- Default = -8
+UPDATE ModifierArguments SET Value = 72	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_FRIEND' AND Name='MaxEffectMagnitude'; 	-- Default = 8
+
+UPDATE ModifierArguments SET Value = 6 		WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DENOUNCED_ENEMY' AND Name='AmountPerIncident'; 		-- Default = 6
+UPDATE ModifierArguments SET Value = 24	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DENOUNCED_ENEMY' AND Name='MaxEffectMagnitude'; 	-- Default = 8
+
+UPDATE ModifierArguments SET Value = -12 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DENOUNCED_FRIEND' AND Name='AmountPerIncident'; 		-- Default = -6
+UPDATE ModifierArguments SET Value = 36 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DENOUNCED_FRIEND' AND Name='MaxEffectMagnitude'; 		-- Default = 8
+
+
 /*
 
 	Despecialize

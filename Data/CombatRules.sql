@@ -190,6 +190,10 @@ UPDATE GlobalParameters SET Value = 14		WHERE Name = 'COMBAT_RANGED_VS_DISTRICT_
 --"COMBAT_DEFENSE_DAMAGE_PERCENT_MELEE","15"
 --"COMBAT_DEFENSE_DAMAGE_PERCENT_RANGED","50"
 
+/* No Corps or Armies */
+DELETE FROM UnitCommands WHERE CommandType='UNITCOMMAND_FORM_CORPS';
+DELETE FROM UnitCommands WHERE CommandType='UNITCOMMAND_FORM_ARMY';
+
 
 /* Garrison (inner) & Outer Defense */
 

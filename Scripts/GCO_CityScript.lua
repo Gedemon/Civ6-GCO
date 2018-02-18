@@ -728,7 +728,7 @@ function GetCityFromKey ( cityKey )
 			return city
 		else
 			GCO.Warning("city is nil for GetCityFromKey(".. tostring(cityKey)..")")
-			DlineFull()
+			GCO.DlineFull()
 			Dprint( DEBUG_CITY_SCRIPT, "--- CityId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID)
 		end
 	else
@@ -1581,7 +1581,7 @@ function TransferToCities(self)
 		while (resourceLeft > 0 and loop < maxLoop) do
 			for _, data in ipairs(cityToSupply) do
 				local cityKey			= data.CityKey
-				local city				= GCO.GetCityFromKey(cityKey)
+				local city				= GetCityFromKey(cityKey)
 				
 				-- check for city = nil (could have been captured and key has changed)
 				if city then
@@ -1941,16 +1941,18 @@ function ExportToForeignCities(self)
 		while (resLeft > 0 and loop < maxLoop) do
 			for cityKey, data in pairs(cityToSupply) do
 
-				local city		= GCO.GetCityFromKey(cityKey)
+				local city		= GetCityFromKey(cityKey)
 				if city then
 					local reqValue 	= city:GetNumResourceNeeded(resourceID, bExternalRoute)
 					Dprint( DEBUG_CITY_SCRIPT, " - Check route to ".. Indentation20(Locale.Lookup(city:GetName())) .." require = ".. tostring(value), " unit of " .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)))
+
 					if reqValue > 0 then
 						local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
 						local efficiency		= data.Efficiency
 						local send 				= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
 						local localCost			= self:GetResourceCost(resourceID)
 						local costPerUnit		= (localCost * self:GetTransportCostTo(city)) + localCost
+
 						if costPerUnit < city:GetResourceCost(resourceID) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost and stock here again before sending the resource... to do : track value per city
 							local transactionIncome = send * self:GetResourceCost(resourceID) -- * costPerUnit
 							resLeft = resLeft - send
@@ -2996,7 +2998,7 @@ function GetExportCitiesTable(self)
 	for routeCityKey, routeData in pairs(data) do
 
 		local rowTable 			= {}
-		local city				= GCO.GetCityFromKey(routeCityKey)
+		local city				= GetCityFromKey(routeCityKey)
 		if city then
 			rowTable.Name 			= Locale.Lookup(city:GetName())
 			rowTable.NameToolTip	= Locale.Lookup(PlayerConfigurations[city:GetOwner()]:GetCivilizationShortDescription())
@@ -3027,7 +3029,7 @@ function GetTransferCitiesTable(self)
 	for routeCityKey, routeData in pairs(data) do
 
 		local rowTable 			= {}
-		local city				= GCO.GetCityFromKey(routeCityKey)
+		local city				= GetCityFromKey(routeCityKey)
 		if city then
 			if city:GetOwner() ~= self:GetOwner() then
 				Dprint( DEBUG_CITY_SCRIPT, "WARNING : foreign city found in internal transfer list : " ..city:GetName())
