@@ -33,7 +33,9 @@ ExposedMembers.GCO_Initialized 				= nil
 local ResourceValue = {			-- cached table with value of resources type
 		["RESOURCECLASS_LUXURY"] 	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_LUXURY"].Value),
 		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
-		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value)
+		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value),
+		["RESOURCECLASS_MATERIEL"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_MATERIEL"].Value),
+		["RESOURCECLASS_EQUIPMENT"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_EQUIPMENT"].Value)
 }
 local equipmentCostRatio = tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EQUIPMENT_RATIO"].Value)
 

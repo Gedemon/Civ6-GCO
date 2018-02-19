@@ -334,7 +334,8 @@ local BaseCollectCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_B
 local ImprovementCostRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_IMPROVEMENT_COST_RATIO"].Value)
 local NotWorkedCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_NOT_WORKED_COST_MULTIPLIER"].Value)
 
-local MaxCostVariationPercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_VARIATION_PERCENT"].Value)
+local MaxCostIncreasePercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_INCREASE_PERCENT"].Value)
+local MaxCostReductionPercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_REDUCTION_PERCENT"].Value)
 local MaxCostFromBaseFactor 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_FROM_BASE_FACTOR"].Value)
 local MinCostFromBaseFactor 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MIN_FROM_BASE_FACTOR"].Value)
 local ResourceTransportMaxCost	= tonumber(GameInfo.GlobalParameters["RESOURCE_TRANSPORT_MAX_COST_RATIO"].Value)
@@ -3692,11 +3693,11 @@ function UpdateCosts(self)
 
 			if supply > demand or stock == maxStock then
 
-				local turnUntilFull = (maxStock - stock) / (supply - demand)
+				local turnUntilFull = (maxStock - stock) / (supply - demand) -- (don't worry, supply - demand > 0)
 				if turnUntilFull == 0 then
-					varPercent = MaxCostVariationPercent
+					varPercent = MaxCostReductionPercent
 				else
-					varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilFull / (maxStock / 2)))
+					varPercent = math.min(MaxCostReductionPercent, 1 / (turnUntilFull / (maxStock / 2)))
 				end
 				local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
 				newCost = math.max(minCost, math.min(maxCost, actualCost - variation))
@@ -3706,9 +3707,9 @@ function UpdateCosts(self)
 
 				local turnUntilEmpty = stock / (demand - supply)
 				if turnUntilEmpty == 0 then
-					varPercent = MaxCostVariationPercent
+					varPercent = MaxCostIncreasePercent
 				else
-					varPercent = math.min(MaxCostVariationPercent, 1 / (turnUntilEmpty / (maxStock / 2)))
+					varPercent = math.min(MaxCostIncreasePercent, 1 / (turnUntilEmpty / (maxStock / 2)))
 				end
 				local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)
 				newCost = math.max(minCost, math.min(maxCost, actualCost + variation))
