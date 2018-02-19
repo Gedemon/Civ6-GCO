@@ -38,7 +38,7 @@ UPDATE Buildings SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' |
 		
 /* Create new Resources entries from the Equipment table */
 INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech)
-	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', 'RESOURCECLASS_STRATEGIC', 0, Equipment.PrereqTech
+	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech
 	FROM Equipment;
 	
 /* Create new Resources entries from the temporary ResourcesGCO table */

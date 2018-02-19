@@ -277,13 +277,13 @@ DELETE FROM TraitModifiers WHERE TraitType='TRAIT_LEADER_MAJOR_CIV' AND Modifier
 UPDATE ModifierArguments SET Value = 10	 	WHERE ModifierID='STANDARD_DIPLOMACY_JOINT_WAR' AND Name='InitialValue'; 		-- Default = 5
 UPDATE ModifierArguments SET Value = 10	 	WHERE ModifierID='STANDARD_DIPLOMACY_JOINT_WAR' AND Name='ReductionTurns'; 		-- Default = 20
 
-UPDATE ModifierArguments SET Value = 36	 	WHERE ModifierID='STANDARD_DIPLOMATIC_ALLY' AND Name='InitialValue'; 		-- Default = 18
+UPDATE ModifierArguments SET Value = 20	 	WHERE ModifierID='STANDARD_DIPLOMATIC_ALLY' AND Name='InitialValue'; 		-- Default = 18
 UPDATE ModifierArguments SET Value = 5	 	WHERE ModifierID='STANDARD_DIPLOMATIC_ALLY' AND Name='ReductionTurns'; 		-- Default = 10
 
-UPDATE ModifierArguments SET Value = 18	 	WHERE ModifierID='STANDARD_DIPLOMATIC_DECLARED_FRIEND' AND Name='InitialValue'; 		-- Default = 9
+UPDATE ModifierArguments SET Value = 10	 	WHERE ModifierID='STANDARD_DIPLOMATIC_DECLARED_FRIEND' AND Name='InitialValue'; 		-- Default = 9
 UPDATE ModifierArguments SET Value = 5	 	WHERE ModifierID='STANDARD_DIPLOMATIC_DECLARED_FRIEND' AND Name='ReductionTurns'; 		-- Default = 10
 
-UPDATE ModifierArguments SET Value = -18	WHERE ModifierID='STANDARD_DIPLOMATIC_DENOUNCED' AND Name='InitialValue'; 			-- Default = -9
+UPDATE ModifierArguments SET Value = -16	WHERE ModifierID='STANDARD_DIPLOMATIC_DENOUNCED' AND Name='InitialValue'; 			-- Default = -9
 UPDATE ModifierArguments SET Value = 5	 	WHERE ModifierID='STANDARD_DIPLOMATIC_DENOUNCED' AND Name='ReductionTurns'; 		-- Default = 10
 
 UPDATE ModifierArguments SET Value = 40	 	WHERE ModifierID='STANDARD_DIPLOMATIC_LIBERATED_MY_CITY' AND Name='InitialValue'; 		-- Default = 20
@@ -303,11 +303,11 @@ UPDATE ModifierArguments SET Value = 40	 	WHERE ModifierID='STANDARD_DIPLOMATIC_
 UPDATE ModifierArguments SET Value = 6 		WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_FRIENDSHIP_WITH_FRIEND' AND Name='AmountPerIncident'; 		-- Default = 6
 UPDATE ModifierArguments SET Value = 24	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_FRIENDSHIP_WITH_FRIEND' AND Name='MaxEffectMagnitude'; 	-- Default = 8
 
-UPDATE ModifierArguments SET Value = 16		WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_ENEMY' AND Name='AmountPerIncident'; 		-- Default = 8
+UPDATE ModifierArguments SET Value = 8		WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_ENEMY' AND Name='AmountPerIncident'; 		-- Default = 8
 UPDATE ModifierArguments SET Value = 48	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_ENEMY' AND Name='MaxEffectMagnitude'; 		-- Default = 8
 
-UPDATE ModifierArguments SET Value = -24	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_FRIEND' AND Name='AmountPerIncident'; 		-- Default = -8
-UPDATE ModifierArguments SET Value = 72	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_FRIEND' AND Name='MaxEffectMagnitude'; 	-- Default = 8
+UPDATE ModifierArguments SET Value = -16	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_FRIEND' AND Name='AmountPerIncident'; 		-- Default = -8
+UPDATE ModifierArguments SET Value = 48	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DECLARED_SURPRISE_WAR_ON_FRIEND' AND Name='MaxEffectMagnitude'; 	-- Default = 8
 
 UPDATE ModifierArguments SET Value = 6 		WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DENOUNCED_ENEMY' AND Name='AmountPerIncident'; 		-- Default = 6
 UPDATE ModifierArguments SET Value = 24	 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DENOUNCED_ENEMY' AND Name='MaxEffectMagnitude'; 	-- Default = 8

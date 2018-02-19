@@ -11,7 +11,7 @@
 -- Create temporary Building/Resources/Units tables that will be used to fill all required tables using SQL in PostUpdate.sql
 CREATE TABLE IF NOT EXISTS BuildingsGCO (
 		BuildingType TEXT NOT NULL,
-		Name TEXT NOT NULL DEFAULT 'BUILDING_NAME',
+		Name TEXT NOT NULL DEFAULT 'BUILDING_NAME', -- so we don't have to set the LOC_NAME manually and update the field automatically in PostUpdate.sql
 		PrereqTech TEXT,
 		PrereqCivic TEXT,
 		Cost INTEGER NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS BuildingsGCO (
 
 CREATE TABLE IF NOT EXISTS ResourcesGCO (
 		ResourceType TEXT NOT NULL,
-		Name TEXT NOT NULL DEFAULT 'RESOURCE_NAME',
+		Name TEXT NOT NULL DEFAULT 'RESOURCE_NAME', -- so we don't have to set the LOC_NAME manually and update the field automatically in PostUpdate.sql
 		ResourceClassType TEXT NOT NULL,
 		Happiness INTEGER NOT NULL DEFAULT 0,
 		NoRiver BOOLEAN NOT NULL CHECK (NoRiver IN (0,1)) DEFAULT 0,
@@ -352,6 +352,7 @@ CREATE TABLE IF NOT EXISTS EquipmentTypeClasses	(
 	
 CREATE TABLE IF NOT EXISTS Equipment (
 		ResourceType TEXT NOT NULL,										-- Equipment are handled as resources
+		ResourceClassType TEXT NOT NULL DEFAULT 'RESOURCECLASS_EQUIPMENT',
 		Size INTEGER NOT NULL DEFAULT 1,								-- Space taken in a city stockage capacity
 		Desirability INTEGER NOT NULL DEFAULT 0,						-- Units will request ResourceType of higher desirability first
 		Toughness INTEGER NOT NULL CHECK (Toughness > 0) DEFAULT 1,		-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)

@@ -4,11 +4,11 @@
 	<!--
 		Equipment contains both equipment info and Resources-related info.		
 		PostUpdate.sql add the required entries or rows to various tables like Types, Resources, or Equipment itself (for the <Name> entry)		
-		By default <ResourceClassType> for Equipment is set to "RESOURCECLASS_STRATEGIC"
+		By default <ResourceClassType> for Equipment is set to "RESOURCECLASS_EQUIPMENT"
 	-->
 	
-	<Equipment> <!-- Materiel (can be used as Equipment and Resource) -->
-		<Row ResourceType="RESOURCE_MATERIEL" Size="10" />
+	<Equipment> <!-- Materiel (can be used as Equipment) -->
+		<Row ResourceType="RESOURCE_MATERIEL" ResourceClassType="RESOURCECLASS_MATERIEL" Size="10" /> <!-- Size 10 to compensate CITY_TRADE_INCOME_EQUIPMENT_RATIO (=0.1) applied to all equipment cost -->
 	</Equipment>
 	<Equipment> <!-- Melee/Cavalry Weapons -->
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"												Toughness="1"	Desirability="1" 	AntiPersonnel="27" ObsoleteTech="TECH_IRON_WORKING"	/>
