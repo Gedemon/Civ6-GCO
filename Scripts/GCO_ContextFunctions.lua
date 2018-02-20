@@ -119,6 +119,11 @@ function HasPlayerOpenBordersFrom(player, otherPlayerID)
 	return contextPlayer:GetDiplomacy():HasOpenBordersFrom( otherPlayerID )
 end
 
+function CanPlayerDeclareWarOn(player, otherPlayerID)
+	local contextPlayer = Players[player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
+	return contextPlayer:GetDiplomacy():CanDeclareWarOn( otherPlayerID )
+end
+
 function IsResourceVisibleFor(player, resourceID)
 	local contextPlayer = Players[player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
 	return contextPlayer:GetResources():IsResourceVisible( resourceID )
@@ -184,6 +189,7 @@ function Initialize()
 	ExposedMembers.GCO.GetTradeManager 				= GetTradeManager
 	-- players
 	ExposedMembers.GCO.HasPlayerOpenBordersFrom 	= HasPlayerOpenBordersFrom
+	ExposedMembers.GCO.CanPlayerDeclareWarOn 		= CanPlayerDeclareWarOn
 	ExposedMembers.GCO.IsResourceVisibleFor 		= IsResourceVisibleFor
 	ExposedMembers.GCO.HasPolicyActive 				= HasPolicyActive
 	-- plots

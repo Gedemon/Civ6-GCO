@@ -238,8 +238,8 @@
 		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_IRON_PIKES" 		Ratio="5"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_LANCES" 			Ratio="6"	MultiResCreated="1"/>
 	
-		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.5"	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_PLATE_ARMOR" 	Ratio="1"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="2.5"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_PLATE_ARMOR" 	Ratio="2"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="7"	MultiResCreated="1" />
 		
 		<Row BuildingType="BUILDING_FARRIER" 		ResourceType="EQUIPMENT_WAR_HORSES"	MaxConverted="20" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="1"	MultiResRequired="1" />
@@ -255,7 +255,7 @@
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_LEATHER" 	MaxConverted="10" 	ResourceCreated="EQUIPMENT_LEATHER_ARMOR" 	Ratio="5"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_COPPER" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_BRONZE_ARMOR" 	Ratio="5"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="7"	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.5"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="2.5"	MultiResCreated="1" />
 		
 		
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="15" />

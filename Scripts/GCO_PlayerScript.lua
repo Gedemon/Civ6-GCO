@@ -433,7 +433,7 @@ function OnDiplomacyDeclareWar(attackerPlayerID, defenderPlayerID)
 				local allyName 	= Locale.Lookup(PlayerConfigurations[playerID]:GetCivilizationShortDescription())
 				Dprint( DEBUG_PLAYER_SCRIPT, "......"..allyName)
 				if (not attackerDiplo:IsAtWarWith( playerID )) then
-					if attackerDiplo:CanDeclareWarOn( playerID ) then
+					if attacker:CanDeclareWarOn( playerID ) then
 						Dprint( DEBUG_PLAYER_SCRIPT, ".........Receive DoW from " .. attackerName)
 						attackerDiplo:DeclareWarOn(playerID)
 						local allyMilitaryAI = ally:GetAi_Military()
@@ -460,8 +460,8 @@ function OnDiplomacyDeclareWar(attackerPlayerID, defenderPlayerID)
 				local allyName 	= Locale.Lookup(PlayerConfigurations[playerID]:GetCivilizationShortDescription())
 				local allyDiplo	= ally:GetDiplomacy()
 				Dprint( DEBUG_PLAYER_SCRIPT, "......"..allyName)
-				if (not allyDiplo:IsAtWarWith( playerID )) then
-					if allyDiplo:CanDeclareWarOn( playerID ) then
+				if (not allyDiplo:IsAtWarWith( defenderPlayerID )) then
+					if ally:CanDeclareWarOn( defenderPlayerID ) then
 						Dprint( DEBUG_PLAYER_SCRIPT, ".........Can Declare War on " .. defenderName)
 						local allyMilitaryAI = ally:GetAi_Military()
 						Dprint( DEBUG_PLAYER_SCRIPT, ".........allyMilitaryAI = ", allyMilitaryAI);
@@ -470,7 +470,7 @@ function OnDiplomacyDeclareWar(attackerPlayerID, defenderPlayerID)
 							Dprint( DEBUG_PLAYER_SCRIPT, ".........Has Military operation against " .. defenderName)
 						end
 						Dprint( DEBUG_PLAYER_SCRIPT, ".........Declare War against " .. defenderName)
-						allyDiplo:DeclareWarOn(playerID)
+						allyDiplo:DeclareWarOn(defenderPlayerID)
 					else
 						Dprint( DEBUG_PLAYER_SCRIPT, ".........Can't Declare War on " .. defenderName)
 					end
@@ -719,6 +719,15 @@ function LocalPlayerEndTurnSave()
 	LuaEvents.SaveGameGCO(saveGame)
 end
 
+
+-----------------------------------------------------------------------------------------
+-- Functions passed from UI Context
+-----------------------------------------------------------------------------------------
+function CanDeclareWarOn(self, playerID)
+	return GCO.CanPlayerDeclareWarOn(self, playerID)
+end
+
+
 -----------------------------------------------------------------------------------------
 -- Shared Functions
 -----------------------------------------------------------------------------------------
@@ -772,6 +781,8 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.GetPopulationNeeds						= GetPopulationNeeds
 	p.GetResourcesNeededForPopulations			= GetResourcesNeededForPopulations
 	p.GetResourcesConsumptionRatioForPopulation = GetResourcesConsumptionRatioForPopulation
+	--
+	p.CanDeclareWarOn							= CanDeclareWarOn
 	
 end
 

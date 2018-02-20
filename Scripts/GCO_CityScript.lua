@@ -4854,7 +4854,6 @@ function DoNeeds(self)
 		local resourceID = tonumber(resourceKey)
 		if GCO.IsResourceLuxury(resourceID) and value > 0 then
 			totalLuxuries = totalLuxuries + value
-			print(value, totalLuxuries)
 			luxuryTable[resourceID] = value
 		end
 	end
