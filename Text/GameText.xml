@@ -431,6 +431,14 @@
       <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR] from [ICON_Food] Food Rationing.</Text>
     </Replace>
 	
+    <Replace Tag="LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES" Language="en_US">
+      <Text>[COLOR_Civ6Green]+{1_Num}[ENDCOLOR] Social Stratification from available Luxuries.</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES" Language="en_US">
+      <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR] Social Stratification from lack of Luxuries.</Text>
+    </Replace>
+	
   </LocalizedText>
 
   <LocalizedText> <!-- Floating Texts -->

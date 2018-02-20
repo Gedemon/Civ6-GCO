@@ -42,11 +42,18 @@ local equipmentCostRatio = tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME
 local IsEquipment		= {}		-- cached table to check if ResourceID is an Equipment
 local IsFood			= {}
 local IsEquipmentMaker 	= {}
+local IsLuxury		 	= {}
 for resourceRow in GameInfo.Resources() do
+
+	if resourceRow.ResourceClassType == "RESOURCECLASS_LUXURY" then
+		IsLuxury[resourceRow.Index] = true
+	end
+	
 	local resourceType	= resourceRow.ResourceType
 	if GameInfo.Equipment[resourceType] then
 		IsEquipment[resourceRow.Index] = true
 	end
+	
 	for productionRow in GameInfo.BuildingResourcesConverted() do
 		if resourceType == productionRow.ResourceType then
 			if productionRow.ResourceCreated == "RESOURCE_FOOD" then
@@ -775,6 +782,10 @@ function IsResourceFood(resourceID)
 	return (IsFood[resourceID] == true)
 end
 
+function IsResourceLuxury(resourceID)
+	return (IsLuxury[resourceID] == true)
+end
+
 function IsResourceEquipmentMaker(resourceID)
 	return (IsEquipmentMaker[resourceID] == true)
 end
@@ -922,6 +933,7 @@ function Initialize()
 	ExposedMembers.GCO.GetBaseResourceCost 			= GetBaseResourceCost
 	ExposedMembers.GCO.IsResourceEquipment			= IsResourceEquipment
 	ExposedMembers.GCO.IsResourceFood 				= IsResourceFood
+	ExposedMembers.GCO.IsResourceLuxury 			= IsResourceLuxury
 	ExposedMembers.GCO.IsResourceEquipmentMaker		= IsResourceEquipmentMaker
 	ExposedMembers.GCO.GetResourceIcon				= GetResourceIcon
 	-- texts

@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_CITY_SCRIPT = "CityScript"
+DEBUG_CITY_SCRIPT = false--"CityScript"
 
 function ToggleCityDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -77,8 +77,9 @@ local YieldMiddleHousingID	= GameInfo.CustomYields["YIELD_MIDDLE_HOUSING"].Index
 local YieldLowerHousingID	= GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index
 
 local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
-	DeathRate	= 1,
-	BirthRate	= 2,
+	DeathRate				= 1,
+	BirthRate				= 2,
+	SocialStratification	= 3,
 	}
 
 -----------------------------------------------------------------------------------------
@@ -285,6 +286,9 @@ local WealthMiddleRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_MID
 local WealthLowerRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_LOWER_CLASS_RATIO"].Value)
 local WealthSlaveRatio				= tonumber(GameInfo.GlobalParameters["CITY_WEALTH_SLAVE_CLASS_RATIO"].Value)
 
+local MinNeededLuxuriesPerMil 		= tonumber(GameInfo.GlobalParameters["CITY_MIN_NEEDED_LUXURIES_PER_MIL"].Value)
+local MaxLuxuriesConsumedPerMil 	= tonumber(GameInfo.GlobalParameters["CITY_MAX_LUXURIES_CONSUMED_PER_MIL"].Value)
+
 local UpperClassFoodConsumption 	= tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_UPPER_CLASS_FACTOR"].Value)
 local MiddleClassFoodConsumption 	= tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_MIDDLE_CLASS_FACTOR"].Value)
 local LowerClassFoodConsumption 	= tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_LOWER_CLASS_FACTOR"].Value)
@@ -294,6 +298,7 @@ local PersonnelFoodConsumption 		= tonumber(GameInfo.GlobalParameters["FOOD_CONS
 local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PRODUCTION_PER_SIZE"].Value)
 local ResourceStockPerSize 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
 local FoodStockPerSize 				= tonumber(GameInfo.GlobalParameters["CITY_FOOD_STOCK_PER_SIZE"].Value)
+local LuxuryStockRatio 				= tonumber(GameInfo.GlobalParameters["CITY_LUXURY_STOCK_RATIO"].Value)
 local EquipmentBaseStock 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUIPMENT"].Value)
 local ConstructionMinStockRatio		= tonumber(GameInfo.GlobalParameters["CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO"].Value)
 
@@ -953,6 +958,7 @@ function ChangeSize(self)
 end
 
 function GetMaxUpperClass(self)
+	local cityKey = self:GetKey()
 	local maxPercent = UpperClassMaxPercent
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_UPPER" and row.EffectType == "CLASS_MAX_PERCENT" then
@@ -962,11 +968,18 @@ function GetMaxUpperClass(self)
 			end
 		end
 	end
+	
+	if _cached[cityKey] and _cached[cityKey].NeedsEffects and _cached[cityKey].NeedsEffects[UpperClassID] then
+		local data = _cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]
+		maxPercent = maxPercent + GCO.TableSummation(data)
+	end	
+	
 	Dprint( DEBUG_CITY_SCRIPT, "Max Upper Class %", maxPercent)
 	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
 end
 
 function GetMinUpperClass(self)
+	local cityKey = self:GetKey()
 	local minPercent = UpperClassMinPercent
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_UPPER" and row.EffectType == "CLASS_MIN_PERCENT" then
@@ -976,6 +989,12 @@ function GetMinUpperClass(self)
 			end
 		end
 	end
+	
+	if _cached[cityKey] and _cached[cityKey].NeedsEffects and _cached[cityKey].NeedsEffects[UpperClassID] then
+		local data = _cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]
+		minPercent = minPercent + GCO.TableSummation(data)
+	end
+	
 	Dprint( DEBUG_CITY_SCRIPT, "Min Upper Class %", minPercent)
 	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
 end
@@ -2376,6 +2395,7 @@ function GetMaxStock(self, resourceID)
 	if resourceID == personnelResourceID 	then maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value) end
 	if resourceID == foodResourceID 		then maxStock = (self:GetSize() * FoodStockPerSize) + baseFoodStock end
 	if GCO.IsResourceEquipment(resourceID) 	then maxStock = self:GetMaxEquipmentStock(resourceID) end	-- Equipment stock does not depend of city size, just buildings
+	if GCO.IsResourceLuxury(resourceID) 	then maxStock = GCO.Round(maxStock * LuxuryStockRatio) end
 	if ResourceStockage[resourceID] then
 		for _, buildingID in ipairs(ResourceStockage[resourceID]) do
 			if self:GetBuildings():HasBuilding(buildingID) then
@@ -4631,15 +4651,19 @@ function DoNeeds(self)
 
 	local cityKey = self:GetKey()
 
+	--
 	-- (re)initialize cached table
+	--
 	if not _cached[cityKey] then _cached[cityKey] = {} end
 	_cached[cityKey].NeedsEffects = {
-		[UpperClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},},
-		[MiddleClassID] = { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},},
-		[LowerClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},},
+		[UpperClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},},
+		[MiddleClassID] = { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},},
+		[LowerClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},},
 	}
 
+	--
 	-- Private functions
+	--	
 	function GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue) 	-- Return a higher value lowerValue is high
 		return maxEffectValue*(lowerValue/higherValue)
 	end
@@ -4656,8 +4680,10 @@ function DoNeeds(self)
 	local lowerPopulation		= self:GetPopulationClass(LowerClassID)
 	local slavePopulation		= self:GetPopulationClass(SlaveClassID)
 
+	--
 	-- Handle Death Rate first, Population can compensate with higher birth Rate...
-
+	--
+	
 	Dprint( DEBUG_CITY_SCRIPT, "Eating ----------")
 
 	local rationing 	= self:GetFoodRationing()
@@ -4673,8 +4699,7 @@ function DoNeeds(self)
 	Dprint( DEBUG_CITY_SCRIPT, "Personnel Needs : ")
 	Dprint( DEBUG_CITY_SCRIPT, "food wanted = ", personnelNeed, " ration allowed = ", personnelRation, " food eaten = ", personnelFood, "Available food left = ", availableFood)
 
-	-- Food for upper class
-
+	-- Food for population
 	function GetFoodEaten(classID, population, consumption, maxEffectValue)
 		local need		= GCO.ToDecimals(population * consumption / 1000)
 		local ration	= GCO.ToDecimals(need * rationing)
@@ -4717,8 +4742,10 @@ function DoNeeds(self)
 	self:ChangeStock(foodResourceID, - personnelFood, ResourceUseType.Consume, RefPersonnel	)
 
 
+	--
 	-- Birth Rate Effects
-
+	--
+	
 	Dprint( DEBUG_CITY_SCRIPT, "Housing ----------")
 	-- Upper Class
 	local upperHousingSize		= self:GetCustomYield( YieldUpperHousingID )
@@ -4791,7 +4818,7 @@ function DoNeeds(self)
 		local lowerValue 		= lowerHousingAvailable - (lowerHousing / 2)
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
 		_cached[cityKey].NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
-		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
+		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
 	elseif lowerGrowthRateLeft > 0 and lowerHousingAvailable < lowerHousing * 25 / 100  then -- BirthRate malus from low housing left
 		local maxEffectValue 	= lowerGrowthRateLeft
 		local higherValue 		= lowerHousing * 25 / 100
@@ -4802,12 +4829,69 @@ function DoNeeds(self)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
 		lowerGrowthRateLeft = lowerGrowthRateLeft - effectValue
 	end
-
-
+	
 	self:SetPopulationBirthRate(UpperClassID)
 	self:SetPopulationBirthRate(MiddleClassID)
 	self:SetPopulationBirthRate(LowerClassID)
 	self:SetPopulationBirthRate(SlaveClassID)
+	
+	--
+	-- Social Stratification Effects
+	--
+	
+		
+	-- Luxury Resources	
+		
+	Dprint( DEBUG_CITY_SCRIPT, "Upper class Luxuries effect...")
+	
+	local luxuryTable 				= {}
+	local totalLuxuries				= 0
+	local stock						= self:GetResources()
+	local maxPositiveEffectValue 	= 25
+	local maxNegativeEffectValue 	= 10
+	
+	for resourceKey, value in pairs(stock) do
+		local resourceID = tonumber(resourceKey)
+		if GCO.IsResourceLuxury(resourceID) and value > 0 then
+			totalLuxuries = totalLuxuries + value
+			print(value, totalLuxuries)
+			luxuryTable[resourceID] = value
+		end
+	end
+	
+	local minLuxuriesNeeded 	= math.max(1, GCO.Round(upperPopulation * MinNeededLuxuriesPerMil / 1000))
+	local maxLuxuriesConsumed 	= math.min(totalLuxuries, GCO.Round(upperPopulation * MaxLuxuriesConsumedPerMil / 1000 ))
+	
+	if totalLuxuries > 0 then
+	
+		if totalLuxuries > minLuxuriesNeeded then -- Social Stratification bonus from available luxuries
+			local maxEffectValue 	= maxPositiveEffectValue
+			local higherValue 		= totalLuxuries
+			local lowerValue 		= maxLuxuriesConsumed--minLuxuriesNeeded
+			local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
+			--effectValue				= LimitEffect(maxEffectValue, effectValue)
+			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES"] = effectValue
+			Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES", effectValue))
+		elseif totalLuxuries < minLuxuriesNeeded then -- Social Stratification penalty from not enough luxuries
+			local maxEffectValue 	= maxNegativeEffectValue
+			local higherValue 		= minLuxuriesNeeded
+			local lowerValue 		= totalLuxuries
+			local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
+			--effectValue				= LimitEffect(maxEffectValue, effectValue)
+			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES"] = - effectValue
+			Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", - effectValue))
+		end
+		
+		local ratio = maxLuxuriesConsumed / totalLuxuries
+		for resourceID, value in pairs(luxuryTable) do
+			local consumed = GCO.Round(value * ratio)
+			self:ChangeStock(resourceID, - consumed, ResourceUseType.Consume, RefPopulationUpper)
+		end
+		
+	else
+		_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES"] = -maxNegativeEffectValue
+		Dprint( DEBUG_CITY_SCRIPT, maxNegativeEffectValue, minLuxuriesNeeded, totalLuxuries, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", - maxNegativeEffectValue))
+	end
 
 	--[[
 	local player = GCO.GetPlayer(self:GetOwner())
@@ -4833,6 +4917,8 @@ end
 
 function DoSocialClassStratification(self)
 
+	--local DEBUG_CITY_SCRIPT = "CityScript"
+	
 	Dlog("DoSocialClassStratification ".. Locale.Lookup(self:GetName()).." /START")
 	local totalPopultation = self:GetRealPopulation()
 
