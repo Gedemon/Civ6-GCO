@@ -217,7 +217,7 @@
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="1" MultiResRequired="1"/>
 		
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		MaxConverted="35" 	ResourceCreated="EQUIPMENT_WAR_HORSES" 	Ratio="1"/>
-		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		MaxConverted="75" 	ResourceCreated="EQUIPMENT_WAR_HORSES" 	Ratio="1"/>
+		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 		MaxConverted="100" 	ResourceCreated="EQUIPMENT_WAR_HORSES" 	Ratio="1"/>
 		
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SWORDS" 	Ratio="6" 	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="10" 	ResourceCreated="EQUIPMENT_IRON_SPEARS" 	Ratio="12"	MultiResCreated="1"/>
@@ -363,11 +363,11 @@
 		
 		
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 			Stock="800"/>
-		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="800"/>
-		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="600"/>
+		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="700"/>
+		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="400"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 			Stock="300"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="300"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="200"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="200"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="100"/>
 		
 		<Row BuildingType="BUILDING_SMALL_BARRACKS" ResourceType="RESOURCE_PERSONNEL" 		Stock="2000"/>		
 		<Row BuildingType="BUILDING_BARRACKS" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="15000"/>
