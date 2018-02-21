@@ -433,10 +433,23 @@
 	
     <Replace Tag="LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES" Language="en_US">
       <Text>[COLOR_Civ6Green]+{1_Num}[ENDCOLOR] Social Stratification from available Luxuries.</Text>
-    </Replace>
-	
+    </Replace>	
     <Replace Tag="LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES" Language="en_US">
       <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR] Social Stratification from lack of Luxuries.</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES" Language="en_US">
+      <Text>{1_Num} available Luxuries.</Text>
+    </Replace>
+    <Replace Tag="LOC_SOCIAL_STRATIFICATION_REQUIRED_LUXURIES" Language="en_US">
+      <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR] required Luxuries.</Text>
+    </Replace>
+    <Replace Tag="LOC_SOCIAL_STRATIFICATION_CONSUMED_LUXURIES" Language="en_US">
+      <Text>[COLOR_Civ6Green]{1_Num}[ENDCOLOR] consumed Luxuries.</Text>
+    </Replace>	
+	
+    <Replace Tag="LOC_PERCENTAGE_FROM_BUILDING" Language="en_US">
+      <Text>{1_Name} from {1_Buildings}.</Text>
     </Replace>
 	
   </LocalizedText>
