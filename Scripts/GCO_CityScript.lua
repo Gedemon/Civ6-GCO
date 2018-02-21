@@ -80,6 +80,9 @@ local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
 	DeathRate				= 1,
 	BirthRate				= 2,
 	SocialStratification	= 3,
+	SocialStratificationReq	= 4,
+	DeathRateReq			= 5,
+	BirthRateReq			= 6,
 	}
 
 -----------------------------------------------------------------------------------------
@@ -958,54 +961,66 @@ function ChangeSize(self)
 end
 
 function GetMaxUpperClass(self)
-	local cityKey = self:GetKey()
-	local maxPercent = UpperClassMaxPercent
+	local cityKey 			= self:GetKey()
+	local maxPercent 		= UpperClassMaxPercent
+	local returnStrTable 	= {}
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_UPPER" and row.EffectType == "CLASS_MAX_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
-				maxPercent = maxPercent + row.EffectValue
+				maxPercent 	= maxPercent + row.EffectValue
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
 			end
 		end
 	end
 	
 	if _cached[cityKey] and _cached[cityKey].NeedsEffects and _cached[cityKey].NeedsEffects[UpperClassID] then
 		local data = _cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]
-		maxPercent = maxPercent + GCO.TableSummation(data)
+		for key, value in pairs(data) do		
+			table.insert(returnStrTable, Locale.Lookup(key, value))
+			maxPercent = maxPercent + value
+		end
 	end	
 	
 	Dprint( DEBUG_CITY_SCRIPT, "Max Upper Class %", maxPercent)
-	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
+	return GCO.Round(self:GetRealPopulation() * maxPercent / 100), table.concat(returnStrTable, "[NEWLINE]")
 end
 
 function GetMinUpperClass(self)
-	local cityKey = self:GetKey()
-	local minPercent = UpperClassMinPercent
+	local cityKey 			= self:GetKey()
+	local minPercent 		= UpperClassMinPercent
+	local returnStrTable 	= {}
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_UPPER" and row.EffectType == "CLASS_MIN_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				minPercent = minPercent + row.EffectValue
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
 			end
 		end
 	end
 	
 	if _cached[cityKey] and _cached[cityKey].NeedsEffects and _cached[cityKey].NeedsEffects[UpperClassID] then
 		local data = _cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]
-		minPercent = minPercent + GCO.TableSummation(data)
+		for key, value in pairs(data) do		
+			table.insert(returnStrTable, Locale.Lookup(key, value))
+			minPercent = minPercent + value
+		end
 	end
 	
 	Dprint( DEBUG_CITY_SCRIPT, "Min Upper Class %", minPercent)
-	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
+	return GCO.Round(self:GetRealPopulation() * minPercent / 100), table.concat(returnStrTable, "[NEWLINE]")
 end
 
 function GetMaxMiddleClass(self)
-	local maxPercent = MiddleClassMaxPercent
+	local maxPercent 		= MiddleClassMaxPercent
+	local returnStrTable 	= {}
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_MIDDLE" and row.EffectType == "CLASS_MAX_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				maxPercent = maxPercent + row.EffectValue
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
 			end
 		end
 	end
@@ -1014,45 +1029,51 @@ function GetMaxMiddleClass(self)
 end
 
 function GetMinMiddleClass(self)
-	local minPercent = MiddleClassMinPercent
+	local minPercent 		= MiddleClassMinPercent
+	local returnStrTable 	= {}
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_MIDDLE" and row.EffectType == "CLASS_MIN_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				minPercent = minPercent + row.EffectValue
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
 			end
 		end
 	end
 	Dprint( DEBUG_CITY_SCRIPT, "Min Middle Class %", minPercent)
-	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
+	return GCO.Round(self:GetRealPopulation() * minPercent / 100), table.concat(returnStrTable, "[NEWLINE]")
 end
 
 function GetMaxLowerClass(self)
-	local maxPercent = LowerClassMaxPercent
+	local maxPercent 		= LowerClassMaxPercent
+	local returnStrTable 	= {}
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_LOWER" and row.EffectType == "CLASS_MAX_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				maxPercent = maxPercent + row.EffectValue
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
 			end
 		end
 	end
 	Dprint( DEBUG_CITY_SCRIPT, "Max Lower Class %", maxPercent)
-	return GCO.Round(self:GetRealPopulation() * maxPercent / 100)
+	return GCO.Round(self:GetRealPopulation() * maxPercent / 100), table.concat(returnStrTable, "[NEWLINE]")
 end
 
 function GetMinLowerClass(self)
-	local minPercent = LowerClassMinPercent
+	local minPercent 		= LowerClassMinPercent
+	local returnStrTable 	= {}
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_LOWER" and row.EffectType == "CLASS_MIN_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				minPercent = minPercent + row.EffectValue
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
 			end
 		end
 	end
 	Dprint( DEBUG_CITY_SCRIPT, "Min Lower Class %", minPercent)
-	return GCO.Round(self:GetRealPopulation() * minPercent / 100)
+	return GCO.Round(self:GetRealPopulation() * minPercent / 100), table.concat(returnStrTable, "[NEWLINE]")
 end
 
 function ChangeUpperClass(self, value)
@@ -3629,6 +3650,25 @@ function GetFoodConsumptionString(self)
 	return str
 end
 
+function GetPopulationNeedsEffectsString() -- draft for a global string
+	local returnStrTable 	= {}
+	local cityKey 			= self:GetKey()
+
+	if _cached[cityKey] and _cached[cityKey].NeedsEffects then --and _cached[cityKey].NeedsEffects[populationID] then
+		for populationID, data1 in pairs(_cached[cityKey].NeedsEffects) do
+			table.insert(returnStrTable, Locale.Lookup(GameInfo.Populations[populationID].Name))
+			for needsEffectType, data2 in pairs(data1) do
+				for locString, value in pairs(data2) do
+					table.insert(returnStrTable, Locale.Lookup(locString, value))
+print(Locale.Lookup(locString, value))
+				end
+			end
+		end
+	end		
+
+	return table.concat(returnStrTable, "[NEWLINE]")
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Do Turn for Cities
@@ -4869,7 +4909,9 @@ function DoNeeds(self)
 			local lowerValue 		= maxLuxuriesConsumed--minLuxuriesNeeded
 			local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 			--effectValue				= LimitEffect(maxEffectValue, effectValue)
-			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES"] = effectValue
+			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES"] 		= effectValue
+			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES"] 	= totalLuxuries
+			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_CONSUMED_LUXURIES"] 	= maxLuxuriesConsumed
 			Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES", effectValue))
 		elseif totalLuxuries < minLuxuriesNeeded then -- Social Stratification penalty from not enough luxuries
 			local maxEffectValue 	= maxNegativeEffectValue
@@ -4877,7 +4919,9 @@ function DoNeeds(self)
 			local lowerValue 		= totalLuxuries
 			local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 			--effectValue				= LimitEffect(maxEffectValue, effectValue)
-			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES"] = - effectValue
+			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES"] 	= - effectValue
+			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES"] 	= totalLuxuries
+			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_REQUIRED_LUXURIES"] 	= minLuxuriesNeeded
 			Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", - effectValue))
 		end
 		
@@ -5522,6 +5566,7 @@ function AttachCityFunctions(city)
 	c.GetFoodStockString 				= GetFoodStockString
 	c.GetFoodConsumptionString			= GetFoodConsumptionString
 	c.GetResourceUseToolTipStringForTurn= GetResourceUseToolTipStringForTurn
+	c.GetPopulationNeedsEffectsString	= GetPopulationNeedsEffectsString
 	--
 	c.CanConstruct						= CanConstruct
 	c.CanTrain							= CanTrain
