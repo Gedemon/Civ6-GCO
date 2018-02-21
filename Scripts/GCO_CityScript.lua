@@ -964,12 +964,13 @@ function GetMaxUpperClass(self)
 	local cityKey 			= self:GetKey()
 	local maxPercent 		= UpperClassMaxPercent
 	local returnStrTable 	= {}
+	
 	for row in GameInfo.BuildingPopulationEffect() do
 		if row.PopulationType == "POPULATION_UPPER" and row.EffectType == "CLASS_MAX_PERCENT" then
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				maxPercent 	= maxPercent + row.EffectValue
-				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue), GameInfo.Buildings[row.BuildingType].Name))
 			end
 		end
 	end
@@ -980,7 +981,7 @@ function GetMaxUpperClass(self)
 			table.insert(returnStrTable, Locale.Lookup(key, value))
 			maxPercent = maxPercent + value
 		end
-	end	
+	end
 	
 	Dprint( DEBUG_CITY_SCRIPT, "Max Upper Class %", maxPercent)
 	return GCO.Round(self:GetRealPopulation() * maxPercent / 100), table.concat(returnStrTable, "[NEWLINE]")
@@ -995,7 +996,7 @@ function GetMinUpperClass(self)
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				minPercent = minPercent + row.EffectValue
-				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue), GameInfo.Buildings[row.BuildingType].Name))
 			end
 		end
 	end
@@ -1020,7 +1021,7 @@ function GetMaxMiddleClass(self)
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				maxPercent = maxPercent + row.EffectValue
-				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue), GameInfo.Buildings[row.BuildingType].Name))
 			end
 		end
 	end
@@ -1036,7 +1037,7 @@ function GetMinMiddleClass(self)
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				minPercent = minPercent + row.EffectValue
-				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue), GameInfo.Buildings[row.BuildingType].Name))
 			end
 		end
 	end
@@ -1052,7 +1053,7 @@ function GetMaxLowerClass(self)
 			local buildingID = GameInfo.Buildings[row.BuildingType].Index
 			if self:GetBuildings():HasBuilding(buildingID) then
 				maxPercent = maxPercent + row.EffectValue
-				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue)), GameInfo.Buildings[row.BuildingType].Name)
+				table.insert(returnStrTable, Locale.Lookup("LOC_PERCENTAGE_FROM_BUILDING", GCO.GetVariationStringGreenPositive(row.EffectValue), GameInfo.Buildings[row.BuildingType].Name))
 			end
 		end
 	end
@@ -3650,7 +3651,7 @@ function GetFoodConsumptionString(self)
 	return str
 end
 
-function GetPopulationNeedsEffectsString() -- draft for a global string
+function GetPopulationNeedsEffectsString(self) -- draft for a global string
 	local returnStrTable 	= {}
 	local cityKey 			= self:GetKey()
 
@@ -4696,9 +4697,9 @@ function DoNeeds(self)
 	--
 	if not _cached[cityKey] then _cached[cityKey] = {} end
 	_cached[cityKey].NeedsEffects = {
-		[UpperClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},},
-		[MiddleClassID] = { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},},
-		[LowerClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},},
+		[UpperClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
+		[MiddleClassID] = { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
+		[LowerClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
 	}
 
 	--

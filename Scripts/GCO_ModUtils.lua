@@ -299,6 +299,13 @@ end
 local lastLog			= {}
 local bNoOutput 		= false
 local bErrorToScreen 	= true
+
+local debugFilter = {
+	["debug"] 		= true,
+	["CityScript"] 	= true,
+--	["UnitScript"] 	= true,
+}
+
 function ToggleOutput()
 	bNoOutput = not bNoOutput
 	print("Spam control = " .. tostring(bNoOutput))
@@ -314,6 +321,7 @@ function Dprint(...)
     local args = {...}
 	if args.n == 1 then print(args[1]) end 							-- if called with one argument only, print it
 	if args.n == 0 or bNoOutput or args[1] == false then return end	-- don't print if the first argument is false (= debug off)
+	if not debugFilter[args[1]] then return end						-- filtering...
 	if bLogToTunerConsole then print(select(2,...)) end 			-- print everything else after the first argument
 	if bLogToDebugTable then table.insert(debugPrint, {...}) end	-- log into debug table, output on error only
 end
