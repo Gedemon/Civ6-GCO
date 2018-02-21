@@ -73,7 +73,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_WEALTH_LOWER
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_WEALTH_SLAVE_CLASS_RATIO', 			0.10);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_NEEDED_LUXURIES_PER_MIL', 		2.00);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_LUXURIES_CONSUMED_PER_MIL', 	6.00);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_LUXURIES_CONSUMED_PER_MIL', 	4.00);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_USE_REAL_YEARS_FOR_GROWTH_RATE', 	0);		-- 1 = use real number of years between turns to calculate City Growth Rate (much slower in late game)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_GROWTH_RATE_BASE_YEARS', 			30);	-- use this fixed value to calculate City Growth Rate when CITY_USE_REAL_YEARS_FOR_GROWTH_RATE = 0
