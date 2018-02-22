@@ -41,24 +41,24 @@ local OrganizationLevelCivics 		= {		-- Civics unlocking MilitaryOrganisationLev
 		[GameInfo.Civics["CIVIC_RAPID_DEPLOYMENT"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
 }
 local OrganizationLevelToSmaller 	= {		-- MilitaryOrganisationLevel to use when the Smaller Units Policy is active
-		GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL1B"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL2B"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL3B"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL4B"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL5B"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL6B"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL7B"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL8B"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL1B"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL2B"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL3B"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL4B"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL5B"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL6B"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL7B"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL8B"].Index,
 }
 local OrganizationLevelToStandard 	= {		-- to get the normal MilitaryOrganisationLevel to use when the Smaller Units Policy is active
-		GameInfo.MilitaryOrganisationLevels["LEVEL1B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL2B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL3B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL4B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL5B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL6B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL7B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
-		GameInfo.MilitaryOrganisationLevels["LEVEL8B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL1B"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL2B"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL3B"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL4B"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL5B"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL6B"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL7B"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
+		[GameInfo.MilitaryOrganisationLevels["LEVEL8B"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
 }
 local smallerUnitsPolicyID 			= GameInfo.Policies["POLICY_SMALLER_UNITS"].Index
 

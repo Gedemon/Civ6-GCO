@@ -53,7 +53,7 @@
 	
     <Replace Tag="LOC_POLICY_SMALLER_UNITS_NAME"	Text="Smaller Military Units" 	Language="en_US" />
 	<Replace Tag="LOC_POLICY_SMALLER_UNITS_DESCRIPTION"	Language="en_US">
-		<Text>Your military is organized on smaller units requiring less personnel.[NEWLINE]Combat strenght is lowered but units heal faster with lowered supply and production costs.</Text>
+		<Text>Your military is organized on smaller entities requiring 20% less personnel and supplies.[NEWLINE]Units [ICON_Strength] Combat Strength is reduced but they heal faster.</Text>
 	</Replace>
 
   </LocalizedText>
