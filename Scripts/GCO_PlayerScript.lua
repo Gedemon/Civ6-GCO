@@ -12,6 +12,7 @@ include( "GCO_TypeEnum" )
 include( "GCO_SmallUtils" )
 
 
+
 -----------------------------------------------------------------------------------------
 -- Debug
 -----------------------------------------------------------------------------------------
@@ -22,11 +23,45 @@ function TogglePlayerDebug()
 	DEBUG_PLAYER_SCRIPT = not DEBUG_PLAYER_SCRIPT
 end
 
+
+
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
 
-local _cached				= {}	-- cached table to reduce calculations
+local _cached						= {}	-- cached table to reduce calculations
+local OrganizationLevelCivics 		= {		-- Civics unlocking MilitaryOrganisationLevels
+		[GameInfo.Civics["CIVIC_MILITARY_TRADITION"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
+		[GameInfo.Civics["CIVIC_MILITARY_TRAINING"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
+		[GameInfo.Civics["CIVIC_FEUDALISM"].Index]				= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
+		[GameInfo.Civics["CIVIC_MERCENARIES"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
+		[GameInfo.Civics["CIVIC_NATIONALISM"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
+		[GameInfo.Civics["CIVIC_MOBILIZATION"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
+		[GameInfo.Civics["CIVIC_COLD_WAR"].Index]				= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
+		[GameInfo.Civics["CIVIC_RAPID_DEPLOYMENT"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
+}
+local OrganizationLevelToSmaller 	= {		-- MilitaryOrganisationLevel to use when the Smaller Units Policy is active
+		GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL1B"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL2B"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL3B"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL4B"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL5B"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL6B"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL7B"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index		= GameInfo.MilitaryOrganisationLevels["LEVEL8B"].Index,
+}
+local OrganizationLevelToStandard 	= {		-- to get the normal MilitaryOrganisationLevel to use when the Smaller Units Policy is active
+		GameInfo.MilitaryOrganisationLevels["LEVEL1B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL2B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL3B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL4B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL5B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL6B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL7B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
+		GameInfo.MilitaryOrganisationLevels["LEVEL8B"].Index	= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
+}
+local smallerUnitsPolicyID 			= GameInfo.Policies["POLICY_SMALLER_UNITS"].Index
+
 
 
 -----------------------------------------------------------------------------------------
@@ -66,6 +101,7 @@ function InitializePlayerData()
 		end	
 	end
 end
+
 
 
 -----------------------------------------------------------------------------------------
@@ -149,6 +185,8 @@ function GetData(self)
 	return playerData
 end
 
+
+
 -----------------------------------------------------------------------------------------
 -- General functions
 -----------------------------------------------------------------------------------------	
@@ -177,7 +215,6 @@ function HasPolicyActive(self, policyID)
 	return GCO.HasPolicyActive(self, policyID)
 end
 
-
 function IsObsoleteEquipment(self, equipmentTypeID)
 	if not GCO.IsResourceEquipment(equipmentTypeID) then return false end
 	local ObsoleteTech = EquipmentInfo[equipmentTypeID].ObsoleteTech
@@ -186,6 +223,7 @@ function IsObsoleteEquipment(self, equipmentTypeID)
 	local iTech	= GameInfo.Technologies[ObsoleteTech].Index
 	return pScience:HasTech(iTech)
 end
+
 
 
 -----------------------------------------------------------------------------------------
@@ -250,20 +288,32 @@ function GetMilitaryOrganizationLevel(self)
 end
 
 -- Events
-local OrganizationLevelCivics = {
-		[GameInfo.Civics["CIVIC_MILITARY_TRADITION"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
-		[GameInfo.Civics["CIVIC_MILITARY_TRAINING"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
-		[GameInfo.Civics["CIVIC_FEUDALISM"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
-		[GameInfo.Civics["CIVIC_MERCENARIES"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
-		[GameInfo.Civics["CIVIC_NATIONALISM"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
-		[GameInfo.Civics["CIVIC_MOBILIZATION"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
-		[GameInfo.Civics["CIVIC_COLD_WAR"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
-		[GameInfo.Civics["CIVIC_RAPID_DEPLOYMENT"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
-}
-function OnCivicCompleted(playerID, civicID)
+function OnCivicCompleted(playerID, civicID) -- this function assume that Civics related to Military Organisation Levels are sequential (else the level could downgrade if a later civics is researched before an older)
 	if OrganizationLevelCivics[civicID] then
-		local player = Players[playerID]
-		player:SetMilitaryOrganizationLevel(OrganizationLevelCivics[civicID])
+		local player 			= Players[playerID]
+		local organizationLevel	= OrganizationLevelCivics[civicID]
+		if player:HasPolicyActive(smallerUnitsPolicyID) and OrganizationLevelToSmaller[organizationLevel] then
+			organizationLevel = OrganizationLevelToSmaller[organizationLevel]
+		end
+		player:SetMilitaryOrganizationLevel(organizationLevel)
+	end
+end
+
+function OnPolicyChanged(playerID, policyID)
+
+	if policyID ~= smallerUnitsPolicyID then return end
+
+	local player 			= Players[playerID]	
+	local organizationLevel = player:GetMilitaryOrganizationLevel()
+	
+	if player:HasPolicyActive(smallerUnitsPolicyID) and OrganizationLevelToSmaller[organizationLevel] then
+		organizationLevel = OrganizationLevelToSmaller[organizationLevel]
+		player:SetMilitaryOrganizationLevel(organizationLevel)
+	end
+	
+	if (not player:HasPolicyActive(smallerUnitsPolicyID)) and OrganizationLevelToStandard[organizationLevel] then
+		organizationLevel = OrganizationLevelToStandard[organizationLevel]
+		player:SetMilitaryOrganizationLevel(organizationLevel)
 	end
 end
 
@@ -559,6 +609,7 @@ function UpdateDataOnLoad(self)
 end
 
 
+
 -----------------------------------------------------------------------------------------
 -- DoTurn Functions
 -----------------------------------------------------------------------------------------
@@ -701,6 +752,7 @@ function DoTurnForNextPlayerFromLocal( playerID )
 end
 
 
+
 -----------------------------------------------------------------------------------------
 -- Events Functions
 -----------------------------------------------------------------------------------------
@@ -720,12 +772,14 @@ function LocalPlayerEndTurnSave()
 end
 
 
+
 -----------------------------------------------------------------------------------------
 -- Functions passed from UI Context
 -----------------------------------------------------------------------------------------
 function CanDeclareWarOn(self, playerID)
 	return GCO.CanPlayerDeclareWarOn(self, playerID)
 end
+
 
 
 -----------------------------------------------------------------------------------------
@@ -740,6 +794,8 @@ function GetPlayer(playerID)
 	InitializePlayerFunctions(player)
 	return player
 end
+
+
 
 -----------------------------------------------------------------------------------------
 -- Initialize Player Functions
@@ -787,6 +843,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 end
 
 
+
 ----------------------------------------------
 -- Initialize
 ----------------------------------------------
@@ -800,7 +857,8 @@ function Initialize()
 	
 	-- Register Events (order matters for same events)
 	Events.ResearchCompleted.Add(OnResearchCompleted)
-	Events.CivicCompleted.Add(OnCivicCompleted)
+	Events.CivicCompleted.Add(OnCivicCompleted)	
+	Events.GovernmentPolicyChanged.Add( OnPolicyChanged )
 	Events.DiplomacyDeclareWar.Add(OnDiplomacyDeclareWar)
 	Events.TreasuryChanged.Add(OnTreasuryChanged)
 	LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
