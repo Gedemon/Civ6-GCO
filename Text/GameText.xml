@@ -49,6 +49,15 @@
 		<!-- +       New entries      + -->
 		<!-- ++++++++++++++++++++++++++ -->
 	
+  <LocalizedText> <!-- Policies -->
+	
+    <Replace Tag="LOC_POLICY_SMALLER_UNITS_NAME"	Text="Smaller Military Units" 	Language="en_US" />
+	<Replace Tag="LOC_POLICY_SMALLER_UNITS_DESCRIPTION"	Language="en_US">
+		<Text>Your military is organized on smaller units requiring less personnel.[NEWLINE]Combat strenght is lowered but units heal faster with lowered supply and production costs.</Text>
+	</Replace>
+
+  </LocalizedText>
+  
   <LocalizedText> <!-- Common -->
 	
     <Replace Tag="LOC_TOOLTIP_SEPARATOR"	Text="[NEWLINE][COLOR_Grey]------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" /> 	
