@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_CITY_SCRIPT = false--"CityScript"
+DEBUG_CITY_SCRIPT = "CityScript"
 
 function ToggleCityDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT

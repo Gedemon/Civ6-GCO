@@ -104,7 +104,7 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 (	'UNIT_BIPLANE'							),
 (	'UNIT_BOMBARD'							),
 (	'UNIT_BOMBER'							),
---(	'UNIT_BRAZILIAN_MINAS_GERAES'			),
+(	'UNIT_BRAZILIAN_MINAS_GERAES'			),
 (	'UNIT_BUILDER'							),
 (	'UNIT_CARAVEL'							),
 (	'UNIT_CATAPULT'							),

@@ -249,6 +249,8 @@ UPDATE Units SET AntiPersonnel = 25 Where UnitType = "UNIT_SLINGER";
 /* no civ-specific units */
 UPDATE Units SET TraitType = NULL WHERE TraitType != 'TRAIT_BARBARIAN';
 
+DELETE FROM UnitReplaces;
+
 /* Air */
 UPDATE Units SET Personnel = 75, 	Materiel = 250 Where UnitType = "UNIT_BIPLANE" OR UnitType = "UNIT_FIGHTER" OR UnitType = "UNIT_AMERICAN_P51" OR UnitType = "UNIT_JET_FIGHTER";
 UPDATE Units SET Personnel = 160, 	Materiel = 400 Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
@@ -299,7 +301,8 @@ UPDATE Units SET Personnel = 300, 	Materiel = 70  	Where UnitType = "UNIT_QUADRI
 UPDATE Units SET Personnel = 150, 	Materiel = 50  	Where UnitType = "UNIT_CARAVEL";
 UPDATE Units SET Personnel = 400, 	Materiel = 100  Where UnitType = "UNIT_FRIGATE" or UnitType = "UNIT_PRIVATEER" or UnitType = "UNIT_ENGLISH_SEADOG";
 UPDATE Units SET Personnel = 150, 	Materiel = 250  Where UnitType = "UNIT_IRONCLAD";
-UPDATE Units SET Personnel = 2000, 	Materiel = 5000 Where UnitType = "UNIT_BATTLESHIP" or UnitType = "UNIT_BRAZILIAN_MINAS_GERAES";
+UPDATE Units SET Personnel = 2000, 	Materiel = 5000, PrereqTech = "TECH_ARMORED_WARFARE" Where UnitType = "UNIT_BATTLESHIP";
+UPDATE Units SET Personnel = 2000, 	Materiel = 5000, Combat=55, RangedCombat = 60, PrereqCivic=NULL, PrereqTech = "TECH_STEEL"  Where UnitType = "UNIT_BRAZILIAN_MINAS_GERAES";
 UPDATE Units SET Personnel = 150, 	Materiel = 750  Where UnitType = "UNIT_SUBMARINE" or UnitType = "UNIT_GERMAN_UBOAT";
 UPDATE Units SET Personnel = 2500, 	Materiel = 7500 Where UnitType = "UNIT_AIRCRAFT_CARRIER";
 UPDATE Units SET Personnel = 250, 	Materiel = 900  Where UnitType = "UNIT_DESTROYER";

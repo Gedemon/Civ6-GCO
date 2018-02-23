@@ -61,6 +61,11 @@
 		<Row YieldType="YIELD_MIDDLE_HOUSING"	Name="LOC_YIELD_MIDDLE_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
 		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>	
 	</CustomYields>
+
+	<!-- 
+		GAME SPEEDS
+		
+	-->
 	
 	<GameSpeed_Turns>
 		<Delete></Delete>
@@ -260,6 +265,11 @@
 			<TurnsPerIncrement>30</TurnsPerIncrement>
 		</Row>
 	</GameSpeed_Turns>
+
+	<!-- 
+		MILITARY ORGANIZATION
+		
+	-->
 	
 	<MilitaryOrganisationLevels>
 		<Row OrganisationLevelType="LEVEL0" 													SupplyLineLengthFactor="1.80" MaxPersonnelPercentFromReserve="10" MaxmaterielPercentFromReserve="15" MaxHealingPerTurn="10" /> <!-- Ancient  		SupplyLine = 5 -->
@@ -650,5 +660,17 @@
 		<Row PolicyType="POLICY_SMALLER_UNITS" Name="LOC_POLICY_SMALLER_UNITS_NAME" Description="LOC_POLICY_SMALLER_UNITS_DESCRIPTION" PrereqCivic="CIVIC_MILITARY_TRADITION" GovernmentSlotType="SLOT_MILITARY"/>
 	</Policies>
 	
+	<!-- 
+		TECHNOLOGIES
+		
+	-->
+	<Types>
+		<Row Type="TECH_ARMORED_WARFARE" Kind="KIND_TECH"/>
+	</Types>
 	
+	<Technologies>
+		<Replace TechnologyType="TECH_ARMORED_WARFARE" 	Name="LOC_TECH_ARMORED_WARFARE_NAME" 	Cost="1350" AdvisorType="ADVISOR_CONQUEST" 		EraType="ERA_MODERN" UITreeRow="2"/>
+		
+	</Technologies>
+		
 </GameInfo>

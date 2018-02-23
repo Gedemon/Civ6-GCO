@@ -94,14 +94,14 @@
            	</Properties>
 				<File Priority="100">Data/GlobalParameters.sql</File>
 				<File Priority="100">Data/CultureDiffusionParameters.sql</File>
-				<File Priority="100">Data/CombatRules.sql</File>
-				<File Priority="100">Data/ModRules.sql</File>
 				<File Priority="100">Data/GamePlay.xml</File>
 				<File Priority="100">Data/Buildings.xml</File>
 				<File Priority="100">Data/Equipment.xml</File>
 				<File Priority="100">Data/Resources.xml</File>
 				<!-- Add buildings, units, ... name & descriptions here to automate table filling -->
 				<File Priority="100">Text/NameText.xml</File>
+				<File Priority="90">Data/CombatRules.sql</File>
+				<File Priority="90">Data/ModRules.sql</File>
 				<File Priority="2">Data/PostUpdate.sql</File>
 				<File Priority="1">Data/Unlockers.sql</File>
 		</UpdateDatabase>

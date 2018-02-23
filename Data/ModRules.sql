@@ -30,23 +30,151 @@ INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) V
 DELETE FROM Feature_Removes;
 
 /* Technologies & Civics*/
-UPDATE Technologies SET Cost = 25 WHERE TechnologyType ='TECH_THE_WHEEL';
-UPDATE Technologies SET UITreeRow = 3 WHERE TechnologyType ='TECH_MACHINERY';
-DELETE FROM Technologies WHERE TechnologyType ='TECH_MILITARY_TACTICS';
+
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_THE_WHEEL';
-DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MACHINERY';
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MACHINERY', 'TECH_ENGINEERING');
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MACHINERY', 'TECH_CONSTRUCTION');
+UPDATE Technologies SET Cost = 25 WHERE TechnologyType ='TECH_THE_WHEEL';
+
+UPDATE Technologies SET UITreeRow = -3 WHERE TechnologyType ='TECH_ASTROLOGY';
+UPDATE Technologies SET UITreeRow = -2 WHERE TechnologyType ='TECH_SAILING';
+
+UPDATE Technologies SET Cost = 80 WHERE TechnologyType ='TECH_WRITING';
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_IRON_WORKING', 'TECH_MASONRY');
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CURRENCY', 'TECH_IRRIGATION');
+UPDATE Technologies SET UITreeRow = -1 WHERE TechnologyType ='TECH_CURRENCY';
+
+UPDATE Technologies SET UITreeRow = -3 WHERE TechnologyType ='TECH_CELESTIAL_NAVIGATION';
+UPDATE Technologies SET Cost = 250, UITreeRow = -2 WHERE TechnologyType ='TECH_SHIPBUILDING';
+
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_ENGINEERING';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ENGINEERING', 'TECH_THE_WHEEL');
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ENGINEERING', 'TECH_IRON_WORKING');
+UPDATE Technologies SET Cost = 250 WHERE TechnologyType ='TECH_ENGINEERING';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_CONSTRUCTION';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CONSTRUCTION', 'TECH_IRON_WORKING');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CONSTRUCTION', 'TECH_MATHEMATICS');
+UPDATE Technologies SET Cost = 250 WHERE TechnologyType ='TECH_CONSTRUCTION';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MACHINERY';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MACHINERY', 'TECH_ENGINEERING');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MACHINERY', 'TECH_CONSTRUCTION');
+UPDATE Technologies SET UITreeRow = 3 WHERE TechnologyType ='TECH_MACHINERY';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MILITARY_TACTICS';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_TACTICS', 'TECH_HORSEBACK_RIDING');
+UPDATE Technologies SET UITreeRow = 1 WHERE TechnologyType ='TECH_MILITARY_TACTICS';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_APPRENTICESHIP';
+--INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_APPRENTICESHIP', 'TECH_HORSEBACK_RIDING');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_APPRENTICESHIP', 'TECH_MILITARY_TACTICS');
+UPDATE Technologies SET Cost = 390 WHERE TechnologyType ='TECH_APPRENTICESHIP';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_STIRRUPS';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STIRRUPS', 'TECH_APPRENTICESHIP');
+UPDATE Technologies SET Cost = 450 WHERE TechnologyType ='TECH_STIRRUPS';
+
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_CASTLES';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CASTLES', 'TECH_MACHINERY');
+UPDATE Technologies SET Cost = 450 WHERE TechnologyType ='TECH_CASTLES';
+
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MILITARY_ENGINEERING';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_ENGINEERING', 'TECH_MACHINERY');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_ENGINEERING', 'TECH_MILITARY_TACTICS');
+UPDATE Technologies SET Cost = 450 WHERE TechnologyType ='TECH_MILITARY_ENGINEERING';
 
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CONSTRUCTION', 'TECH_IRON_WORKING');
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STIRRUPS', 'TECH_APPRENTICESHIP');
+UPDATE Technologies SET Cost = 450 WHERE TechnologyType ='TECH_EDUCATION';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_GUNPOWDER';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_GUNPOWDER', 'TECH_MILITARY_ENGINEERING');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_GUNPOWDER', 'TECH_STIRRUPS');
+
+--DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_CARTOGRAPHY';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CARTOGRAPHY', 'TECH_EDUCATION');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CARTOGRAPHY', 'TECH_CELESTIAL_NAVIGATION');
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MASS_PRODUCTION';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MASS_PRODUCTION', 'TECH_BANKING');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MASS_PRODUCTION', 'TECH_CARTOGRAPHY');
+UPDATE Technologies SET Cost = 660 WHERE TechnologyType ='TECH_MASS_PRODUCTION';
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_SIEGE_TACTICS', 'TECH_MILITARY_ENGINEERING');
+
+--UPDATE Technologies SET Cost = 750 WHERE TechnologyType ='TECH_METAL_CASTING';
+--INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_INDUSTRIALIZATION', 'TECH_METAL_CASTING');
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_SQUARE_RIGGING', 'TECH_METAL_CASTING');
+UPDATE Technologies SET Cost = 750 WHERE TechnologyType ='TECH_SQUARE_RIGGING';
+
+UPDATE Technologies SET Cost = 750, EraType='ERA_RENAISSANCE' WHERE TechnologyType ='TECH_SCIENTIFIC_THEORY';
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_BALLISTICS', 'TECH_SIEGE_TACTICS');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_INDUSTRIALIZATION', 'TECH_SCIENTIFIC_THEORY');
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_SANITATION';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_SANITATION', 'TECH_INDUSTRIALIZATION');
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_ECONOMICS';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ECONOMICS', 'TECH_INDUSTRIALIZATION');
+
+UPDATE Technologies SET Cost = 1070 WHERE TechnologyType ='TECH_STEAM_POWER';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_STEEL';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STEEL', 'TECH_STEAM_POWER');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STEEL', 'TECH_RIFLING');
+UPDATE Technologies SET UITreeRow = 2 WHERE TechnologyType ='TECH_STEEL';
+
+UPDATE Technologies SET Cost = 1140 WHERE TechnologyType ='TECH_ELECTRICITY';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_RADIO';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_RADIO', 'TECH_ELECTRICITY');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_RADIO', 'TECH_REPLACEABLE_PARTS');
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_REPLACEABLE_PARTS', 'TECH_RIFLING');
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_COMBUSTION';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBUSTION', 'TECH_STEEL');
+UPDATE Technologies SET UITreeRow = 3 WHERE TechnologyType ='TECH_COMBUSTION';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_FLIGHT';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_FLIGHT', 'TECH_COMBUSTION');
+UPDATE Technologies SET Cost = 1350, UITreeRow = 1 WHERE TechnologyType ='TECH_FLIGHT';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_ADVANCED_FLIGHT';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ADVANCED_FLIGHT', 'TECH_FLIGHT');
+UPDATE Technologies SET UITreeRow = -2 WHERE TechnologyType ='TECH_ADVANCED_FLIGHT';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_ROCKETRY';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ROCKETRY', 'TECH_ADVANCED_FLIGHT');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ROCKETRY', 'TECH_ADVANCED_BALLISTICS');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ROCKETRY', 'TECH_CHEMISTRY');
+UPDATE Technologies SET Cost = 1580, UITreeRow = -1 WHERE TechnologyType ='TECH_ROCKETRY';
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ARMORED_WARFARE', 'TECH_COMBUSTION');
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_COMBINED_ARMS';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBINED_ARMS', 'TECH_ARMORED_WARFARE');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBINED_ARMS', 'TECH_FLIGHT');
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBINED_ARMS', 'TECH_RADIO');
+
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_SYNTHETIC_MATERIALS', 'TECH_ROCKETRY');
+UPDATE Technologies SET Cost = 1700 WHERE TechnologyType ='TECH_SYNTHETIC_MATERIALS';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_COMPUTERS';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMPUTERS', 'TECH_RADIO');
+UPDATE Technologies SET Cost = 1700 WHERE TechnologyType ='TECH_COMPUTERS';
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_SATELLITES';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_SATELLITES', 'TECH_ROCKETRY');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_SATELLITES', 'TECH_COMPUTERS');
+
+DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_GUIDANCE_SYSTEMS';
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_GUIDANCE_SYSTEMS', 'TECH_ROCKETRY');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_GUIDANCE_SYSTEMS', 'TECH_COMPUTERS');
+
+--INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_FUTURE_TECH', 'TECH_TELECOMMUNICATIONS');
 
 --DELETE FROM CivicModifiers WHERE ModifierId='CIVIC_AWARD_ONE_INFLUENCE_TOKEN'; -- no use for token yet
 
@@ -65,23 +193,23 @@ UPDATE Boosts SET Boost = 30; -- Default = 50
 
 -- Technology cost
 UPDATE Technologies SET Cost = Cost*1.00 WHERE EraType ='ERA_ANCIENT';
-UPDATE Technologies SET Cost = Cost*1.10 WHERE EraType ='ERA_CLASSICAL';
-UPDATE Technologies SET Cost = Cost*1.20 WHERE EraType ='ERA_MEDIEVAL';
-UPDATE Technologies SET Cost = Cost*1.30 WHERE EraType ='ERA_RENAISSANCE';
-UPDATE Technologies SET Cost = Cost*1.45 WHERE EraType ='ERA_INDUSTRIAL';
-UPDATE Technologies SET Cost = Cost*1.60 WHERE EraType ='ERA_MODERN';
-UPDATE Technologies SET Cost = Cost*1.80 WHERE EraType ='ERA_ATOMIC';
-UPDATE Technologies SET Cost = Cost*2.00 WHERE EraType ='ERA_INFORMATION';
+UPDATE Technologies SET Cost = Cost*1.20 WHERE EraType ='ERA_CLASSICAL';
+UPDATE Technologies SET Cost = Cost*1.40 WHERE EraType ='ERA_MEDIEVAL';
+UPDATE Technologies SET Cost = Cost*1.70 WHERE EraType ='ERA_RENAISSANCE';
+UPDATE Technologies SET Cost = Cost*2.00 WHERE EraType ='ERA_INDUSTRIAL';
+UPDATE Technologies SET Cost = Cost*2.40 WHERE EraType ='ERA_MODERN';
+UPDATE Technologies SET Cost = Cost*2.80 WHERE EraType ='ERA_ATOMIC';
+UPDATE Technologies SET Cost = Cost*3.40 WHERE EraType ='ERA_INFORMATION';
 
 -- Civics cost
 UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_ANCIENT';
-UPDATE Civics SET Cost = Cost*1.50 WHERE EraType ='ERA_CLASSICAL';
-UPDATE Civics SET Cost = Cost*1.60 WHERE EraType ='ERA_MEDIEVAL';
-UPDATE Civics SET Cost = Cost*1.70 WHERE EraType ='ERA_RENAISSANCE';
-UPDATE Civics SET Cost = Cost*1.80 WHERE EraType ='ERA_INDUSTRIAL';
-UPDATE Civics SET Cost = Cost*2.00 WHERE EraType ='ERA_MODERN';
-UPDATE Civics SET Cost = Cost*2.20 WHERE EraType ='ERA_ATOMIC';
-UPDATE Civics SET Cost = Cost*2.40 WHERE EraType ='ERA_INFORMATION';
+UPDATE Civics SET Cost = Cost*1.60 WHERE EraType ='ERA_CLASSICAL';
+UPDATE Civics SET Cost = Cost*1.80 WHERE EraType ='ERA_MEDIEVAL';
+UPDATE Civics SET Cost = Cost*2.00 WHERE EraType ='ERA_RENAISSANCE';
+UPDATE Civics SET Cost = Cost*2.30 WHERE EraType ='ERA_INDUSTRIAL';
+UPDATE Civics SET Cost = Cost*2.70 WHERE EraType ='ERA_MODERN';
+UPDATE Civics SET Cost = Cost*3.20 WHERE EraType ='ERA_ATOMIC';
+UPDATE Civics SET Cost = Cost*3.80 WHERE EraType ='ERA_INFORMATION';
 
 
 /* Districts & Buildings */

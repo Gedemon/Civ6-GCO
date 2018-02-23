@@ -55,12 +55,12 @@
 		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Desirability="1" 	Size="20" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
 		<Row ResourceType="EQUIPMENT_WAR_HORSES"		PrereqTech="TECH_HORSEBACK_RIDING"	Desirability="10" 	Size="10" ObsoleteTech="TECH_COMPOSITES" />
 		<Row ResourceType="EQUIPMENT_ARMORED_HORSES"	PrereqTech="TECH_STIRRUPS"			Desirability="20" 	Size="10" ObsoleteTech="TECH_RIFLING" />
-		<Row ResourceType="EQUIPMENT_TANKS"				PrereqTech="TECH_COMBUSTION"		Desirability="40" 	Size="40" />
+		<Row ResourceType="EQUIPMENT_TANKS"				PrereqTech="TECH_ARMORED_WARFARE"	Desirability="40" 	Size="40" />
 		<Row ResourceType="EQUIPMENT_MODERN_ARMORS"		PrereqTech="TECH_COMPOSITES"		Desirability="50" 	Size="40" />
 	</Equipment>
 	<Equipment> <!-- Siege Weapons -->
 		<Row ResourceType="EQUIPMENT_CATAPULTS"			PrereqTech="TECH_IRON_WORKING"			Desirability="1" 	Size="10" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
-		<Row ResourceType="EQUIPMENT_TREBUCHETS"		PrereqTech="TECH_MILITARY_ENGINEERING"	Desirability="10" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
+		<Row ResourceType="EQUIPMENT_TREBUCHETS"		PrereqTech="TECH_MACHINERY"				Desirability="10" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
 		<Row ResourceType="EQUIPMENT_BOMBARDS"			PrereqTech="TECH_METAL_CASTING"			Desirability="20" 	Size="10" ObsoleteTech="TECH_STEEL" />
 		<Row ResourceType="EQUIPMENT_CANNONS"			PrereqTech="TECH_BALLISTICS"			Desirability="30" 	Size="10" ObsoleteTech="TECH_GUIDANCE_SYSTEMS" />
 		<Row ResourceType="EQUIPMENT_HOWITZER"			PrereqTech="TECH_STEEL"					Desirability="40" 	Size="10" />

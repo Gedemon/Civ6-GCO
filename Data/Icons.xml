@@ -317,6 +317,15 @@
 	<Row Name="ICON_EQUIPMENT_ROCKET_ARTILLERY"	Atlas="ICON_ATLAS_UNITS" 		Index="89"/>
 
   </IconDefinitions>
+  
+	<IconDefinitions> 	<!-- TECH ICONS -->
+		<!--
+		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_UNITS" 		Index="78"/>
+		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_UNITS_FOW" 	Index="78"/>
+		 -->
+		<Row Name="ICON_TECH_ARMORED_WARFARE" Index="49" Atlas="ICON_ATLAS_TECH"/>
+		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" Index="49" Atlas="ICON_ATLAS_TECH_FOW"/>
+	</IconDefinitions>
 
   	<IconTextureAtlases> <!-- FONT ICONS -->
 		<Row Name="ICON_GCO_ATLAS_FONT_ICON_BASELINE_4" Baseline="4" IconSize="22" IconsPerRow="11" IconsPerColumn="25" Filename="GCO_FontIcons.dds"/>
