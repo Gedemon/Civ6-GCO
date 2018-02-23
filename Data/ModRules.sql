@@ -130,6 +130,7 @@ UPDATE Technologies SET Cost = 1140 WHERE TechnologyType ='TECH_ELECTRICITY';
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_RADIO';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_RADIO', 'TECH_ELECTRICITY');
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_RADIO', 'TECH_REPLACEABLE_PARTS');
+UPDATE Technologies SET UITreeRow = -3 WHERE TechnologyType ='TECH_RADIO';
 
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_REPLACEABLE_PARTS', 'TECH_RIFLING');
 
@@ -143,6 +144,7 @@ UPDATE Technologies SET Cost = 1350, UITreeRow = 1 WHERE TechnologyType ='TECH_F
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_ADVANCED_FLIGHT';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ADVANCED_FLIGHT', 'TECH_FLIGHT');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ADVANCED_FLIGHT', 'TECH_RADIO');
 UPDATE Technologies SET UITreeRow = -2 WHERE TechnologyType ='TECH_ADVANCED_FLIGHT';
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_ROCKETRY';
@@ -272,7 +274,7 @@ UPDATE Improvements SET Housing = 0;
 --*/
 
 /* Start */
-UPDATE StartEras SET Tiles = '0', Gold = Gold * 100;
+UPDATE StartEras SET Tiles = '0', Gold = Gold * 25;
 
 /* Remove Faith */
 --/* 
