@@ -23,6 +23,8 @@ AccountType	= {	-- ENUM for treasury changes (string as it it used as a key for 
 		ExportTaxes			= "8",	-- Income from Export Taxes
 		Plundering			= "9",	-- Income from units Plundering
 		CityTaxes			= "10",	-- Income from City Taxes (vanilla)
+		UpperTaxes			= "13",	-- Income from Taxes on Upper Class
+		MiddleTaxes			= "14",	-- Income from Taxes on Middle Class
 }
 
 

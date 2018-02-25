@@ -3661,7 +3661,6 @@ function GetPopulationNeedsEffectsString(self) -- draft for a global string
 			for needsEffectType, data2 in pairs(data1) do
 				for locString, value in pairs(data2) do
 					table.insert(returnStrTable, Locale.Lookup(locString, value))
-print(Locale.Lookup(locString, value))
 				end
 			end
 		end
@@ -5040,13 +5039,26 @@ function DoSocialClassStratification(self)
 	end
 end
 
+function DoTaxes(self)
+
+	local player 		= GCO.GetPlayer(self:GetOwner())
+	local goldPerTurn 	= self:GetCityYield(YieldTypes.GOLD )
+	
+	if player:HasPolicyActive(GameInfo.Policies["POLICY_UPPER_TAX"].Index) then 
+		local ratio 		= self:GetUpperClass() / self:GetRealPopulation()
+		local extraGold 	= goldPerTurn * ratio * 2
+		player:ProceedTransaction(AccountType.UpperTaxes, extraGold)		
+	end
+	
+	if player:HasPolicyActive(GameInfo.Policies["POLICY_MIDDLE_TAX"].Index) then 
+		local ratio 		= self:GetMiddleClass() / self:GetRealPopulation()
+		local extraGold 	= goldPerTurn * ratio
+		player:ProceedTransaction(AccountType.MiddleTaxes, extraGold)		
+	end
+end
+
 function Heal(self)
 	local DEBUG_CITY_SCRIPT = "CityScript"
-
---local healGarrisonMaxPerTurn			= tonumber(GameInfo.GlobalParameters["CITY_HEAL_GARRISON_MAX_PER_TURN"].Value)
---local healGarrisonBaseMateriel		= tonumber(GameInfo.GlobalParameters["CITY_HEAL_GARRISON_BASE_MATERIEL"].Value)
---local healOuterDefensesMaxPerTurn		= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN"].Value)
---local healOuterDefensesBaseMateriel	= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL"].Value)
 
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
@@ -5238,6 +5250,7 @@ function DoTurnFourthPass(self)
 	self:SetRealPopulation()
 	self:DoSocialClassStratification()
 	self:SetWealth()
+	self:DoTaxes()
 	self:ChangeSize()
 	self:Heal()
 	GCO.ShowTimer("CitySize/SocialClasses for ".. name)
@@ -5522,6 +5535,7 @@ function AttachCityFunctions(city)
 	c.DoIndustries						= DoIndustries
 	c.DoConstruction					= DoConstruction
 	c.DoNeeds							= DoNeeds
+	c.DoTaxes							= DoTaxes
 	c.Heal								= Heal
 	c.DoTurnFirstPass					= DoTurnFirstPass
 	c.DoTurnSecondPass					= DoTurnSecondPass

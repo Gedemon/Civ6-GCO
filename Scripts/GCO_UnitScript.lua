@@ -1390,17 +1390,17 @@ function SetOrganizationLevel(self, organizationLevel)
 			LuaEvents.OrganizationLevelChanged(self:GetOwner(), self:GetID())
 
 			-- Set and remove promotions
+			local newStrengthPromotionID
 			local promotionToRemove 		= {}
 			local bNeedToRemovePromotions	= false
 			local unitOrganization			= self:GetMilitaryOrganization()
 			local newLevelPromotionType 	= militaryOrganization[organizationLevel].PromotionType
 			local newLevelPromotionID		= GameInfo.UnitPromotions[newLevelPromotionType].Index
 			local newStrengthPromotionType 	= unitOrganization.PromotionType
-			local newStrengthPromotionID	= GameInfo.UnitPromotions[newStrengthPromotionType].Index
 			local oldLevelPromotionType 	= militaryOrganization[oldOrganizationLevel].PromotionType			
 			local oldStrengthPromotionType 	= oldUnitOrganization.PromotionType
 			local experienceManager			= self:GetExperience()
-
+			
 			if oldLevelPromotionType ~= newLevelPromotionType then
 				if oldLevelPromotionType then
 					promotionToRemove[GameInfo.UnitPromotions[oldLevelPromotionType].Index] = true
@@ -1409,7 +1409,8 @@ function SetOrganizationLevel(self, organizationLevel)
 				experienceManager:SetPromotion(newLevelPromotionID)
 			end
 
-			if oldStrengthPromotionType ~= newStrengthPromotionType then
+			if newStrengthPromotionType and oldStrengthPromotionType ~= newStrengthPromotionType then
+				newStrengthPromotionID	= GameInfo.UnitPromotions[newStrengthPromotionType].Index
 				if oldStrengthPromotionType then
 					promotionToRemove[GameInfo.UnitPromotions[oldStrengthPromotionType].Index] = true
 					bNeedToRemovePromotions = true

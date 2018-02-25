@@ -881,7 +881,10 @@ function CityBanner.UpdateStats( self : CityBanner)
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_TITLE")
 				cityString = cityString .. "[NEWLINE]" .. city:GetFoodStockString()
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. city:GetFoodConsumptionString() -- Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())				
+				cityString = cityString .. "[NEWLINE]" .. city:GetFoodConsumptionString() -- Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
+								
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_NEEDS_TITLE")
+				cityString = cityString .. "[NEWLINE]" .. city:GetPopulationNeedsEffectsString()
 				
 				popTooltip = cityString
 			else

@@ -323,8 +323,24 @@
 		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_UNITS" 		Index="78"/>
 		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_UNITS_FOW" 	Index="78"/>
 		 -->
-		<Row Name="ICON_TECH_ARMORED_WARFARE" Index="49" Atlas="ICON_ATLAS_TECH"/>
-		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" Index="49" Atlas="ICON_ATLAS_TECH_FOW"/>
+		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_TECH"		Index="49" />
+		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_TECH_FOW"	Index="49" />
+	</IconDefinitions>
+  
+	<IconDefinitions> 	<!-- POLICY ICONS -->
+		<!--
+		<Row Name="ICON_POLICY_ECONOMIC" Atlas="ICON_ATLAS_POLICIES" Index="0"/>
+		<Row Name="ICON_POLICY_MILITARY" Atlas="ICON_ATLAS_POLICIES" Index="1"/>
+		<Row Name="ICON_POLICY_DIPLOMATIC" Atlas="ICON_ATLAS_POLICIES" Index="2"/>
+		<Row Name="ICON_POLICY_WILDCARD" Atlas="ICON_ATLAS_POLICIES" Index="3"/>
+		 -->
+		<Row Name="ICON_POLICY_SMALLER_UNITS" 		Atlas="ICON_ATLAS_POLICIES" 	Index="1"	/>
+		<Row Name="ICON_POLICY_SMALLER_UNITS_FOW" 	Atlas="ICON_ATLAS_POLICIES_FOW" Index="29"	/>
+		
+		<Row Name="ICON_POLICY_UPPER_TAX" 			Atlas="ICON_ATLAS_POLICIES" 	Index="0"	/>
+		<Row Name="ICON_POLICY_UPPER_TAX_FOW" 		Atlas="ICON_ATLAS_POLICIES_FOW" Index="0"	/>
+		<Row Name="ICON_POLICY_MIDDLE_TAX" 			Atlas="ICON_ATLAS_POLICIES" 	Index="0"	/>
+		<Row Name="ICON_POLICY_MIDDLE_TAX_FOW" 		Atlas="ICON_ATLAS_POLICIES_FOW" Index="0"	/>
 	</IconDefinitions>
 
   	<IconTextureAtlases> <!-- FONT ICONS -->

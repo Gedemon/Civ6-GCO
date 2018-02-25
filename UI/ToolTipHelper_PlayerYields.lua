@@ -78,6 +78,8 @@ function GetGoldTooltip()
 		local importTaxesIncome		= player:GetTransactionType(AccountType.ImportTaxes, GCO.GetPreviousTurnKey()) -- to do : by player playing order, not just assuming local = first
 		local exportTaxesIncome		= player:GetTransactionType(AccountType.ExportTaxes)
 		local plunderingIncome		= player:GetTransactionType(AccountType.Plundering)
+		local upperIncome			= player:GetTransactionType(AccountType.UpperTaxes)
+		local middleIncome			= player:GetTransactionType(AccountType.MiddleTaxes)
 		
 		local baseExpense			= -playerTreasury:GetTotalMaintenance()
 		local productionExpense		= player:GetTransactionType(AccountType.Production)
@@ -85,7 +87,7 @@ function GetGoldTooltip()
 		local repairExpense			= player:GetTransactionType(AccountType.Repair)
 		local repayExpense			= player:GetTransactionType(AccountType.Repay)
 		
-		local totalIncome 			= baseIncome + importTaxesIncome + exportTaxesIncome + plunderingIncome
+		local totalIncome 			= baseIncome + importTaxesIncome + exportTaxesIncome + plunderingIncome + upperIncome + middleIncome
 		local totalExpense 			= baseExpense + productionExpense + reinforcementExpense + repairExpense + repayExpense
 		
 		--	szReturnValue = szReturnValue .. "[NEWLINE][NEWLINE]Extra = " .. tostring(balance) .. "[ICON_Gold]";
@@ -96,8 +98,10 @@ function GetGoldTooltip()
 		
 		if(#income_tt_details > 0) 	then szReturnValue = szReturnValue .. "[NEWLINE]" .. income_tt_details end
 		if importTaxesIncome > 0 	then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_IMPORT_INCOME", importTaxesIncome) end
-		if exportTaxesIncome > 0 	then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_EXPORT_INCOME", exportTaxesIncome) end	
-		if plunderingIncome > 0 	then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_PLUDERING_INCOME", plunderingIncome) end	
+		if exportTaxesIncome > 0 	then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_EXPORT_INCOME", exportTaxesIncome) end
+		if plunderingIncome > 0 	then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_PLUDERING_INCOME", plunderingIncome) end
+		if upperIncome > 0 			then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_UPPER_TAX_INCOME", upperIncome) end
+		if middleIncome > 0 		then szReturnValue = szReturnValue .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_MIDDLE_TAX_INCOME", middleIncome) end
 		
 		szReturnValue = szReturnValue .. "[NEWLINE][NEWLINE]"
 		szReturnValue = szReturnValue .. Locale.Lookup("LOC_TOP_PANEL_GOLD_EXPENSE", totalExpense)

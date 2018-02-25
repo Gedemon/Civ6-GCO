@@ -23,7 +23,7 @@
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		PrereqTech="TECH_IRON_WORKING"			Toughness="5"	Desirability="22" 	AntiPersonnel="42" AntiPersonnelArmor="7" 	ObsoleteTech="TECH_GUNPOWDER"	/>
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		PrereqTech="TECH_CONSTRUCTION"			Toughness="7"	Desirability="23" 	AntiPersonnel="46" AntiPersonnelArmor="10" 	ObsoleteTech="TECH_GUNPOWDER"	Size="5" 	/>
 		
-		<Row ResourceType="EQUIPMENT_LANCES"			PrereqTech="TECH_STIRRUPS"				Toughness="7"	Desirability="25" 	AntiPersonnel="46" AntiPersonnelArmor="10" 	ObsoleteTech="TECH_RIFLING"	Size="5" />
+		<Row ResourceType="EQUIPMENT_LANCES"			PrereqTech="TECH_MILITARY_TACTICS"		Toughness="7"	Desirability="25" 	AntiPersonnel="46" AntiPersonnelArmor="10" 	ObsoleteTech="TECH_RIFLING"	Size="5" />
 		
 		<Row ResourceType="EQUIPMENT_IRON_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	Toughness="6"	Desirability="30" 	AntiPersonnel="44" AntiPersonnelArmor="8" 	ObsoleteTech="TECH_RIFLING"	/>
 		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	Toughness="7"	Desirability="35" 	AntiPersonnel="48" AntiPersonnelArmor="12" 	ObsoleteTech="TECH_RIFLING"	Size="2" />
@@ -46,10 +46,10 @@
 		<Row ResourceType="EQUIPMENT_LINOTHORAX"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" ObsoleteTech="TECH_MACHINERY" />
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" ObsoleteTech="TECH_ENGINEERING" />
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		PrereqTech="TECH_BRONZE_WORKING"	Toughness="5"	Desirability="20" 	PersonnelArmor="25" ObsoleteTech="TECH_ENGINEERING" />
-		<Row ResourceType="EQUIPMENT_GAMBESON"			PrereqTech="TECH_MACHINERY"			Toughness="6"	Desirability="25" 	PersonnelArmor="30" />
+		<Row ResourceType="EQUIPMENT_GAMBESON"			PrereqTech="TECH_MILITARY_TACTICS"	Toughness="6"	Desirability="25" 	PersonnelArmor="30" />
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		PrereqTech="TECH_IRON_WORKING"		Toughness="15"	Desirability="30" 	PersonnelArmor="35" />
-		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_ENGINEERING"		Toughness="20"	Desirability="40" 	PersonnelArmor="40" Size="2" />
-		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_MACHINERY"			Toughness="30"	Desirability="50" 	PersonnelArmor="50" Size="5" />
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			Toughness="20"	Desirability="40" 	PersonnelArmor="40" Size="2" />
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	Toughness="30"	Desirability="50" 	PersonnelArmor="50" Size="5" />
 	</Equipment>
 	<Equipment> <!-- "Vehicle" -->
 		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Desirability="1" 	Size="20" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>

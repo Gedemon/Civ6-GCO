@@ -41,9 +41,9 @@ UPDATE GlobalParameters SET Value = 25		WHERE Name = 'DIPLOMACY_RESEARCH_AGREEME
 
 -- city
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_MAX_PER_TURN', 		10);	-- default = 20
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_BASE_MATERIEL',		10);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_BASE_MATERIEL',		5);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN',	5);		-- default = 10
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL',	25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL',	10);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					40);	-- base stock for resource 			= CITY_STOCK_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 			= CITY_FOOD_STOCK_PER_SIZE * CitySize
@@ -72,8 +72,8 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_WEALTH_MIDDL
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_WEALTH_LOWER_CLASS_RATIO', 			0.50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_WEALTH_SLAVE_CLASS_RATIO', 			0.10);
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_NEEDED_LUXURIES_PER_MIL', 		2.00);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_LUXURIES_CONSUMED_PER_MIL', 	4.00);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MIN_NEEDED_LUXURIES_PER_MIL', 		1.25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MAX_LUXURIES_CONSUMED_PER_MIL', 	2.00);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_USE_REAL_YEARS_FOR_GROWTH_RATE', 	0);		-- 1 = use real number of years between turns to calculate City Growth Rate (much slower in late game)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_GROWTH_RATE_BASE_YEARS', 			30);	-- use this fixed value to calculate City Growth Rate when CITY_USE_REAL_YEARS_FOR_GROWTH_RATE = 0

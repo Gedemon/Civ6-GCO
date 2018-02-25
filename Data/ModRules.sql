@@ -23,7 +23,7 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 --*/
 
 /* Improvements */
-UPDATE Improvements 	SET PrereqTech ='TECH_CONSTRUCTION' WHERE ImprovementType ='IMPROVEMENT_FORT';
+UPDATE Improvements 	SET PrereqTech ='TECH_MILITARY_TACTICS' WHERE ImprovementType ='IMPROVEMENT_FORT';
 INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_FORT', 'UNIT_BUILDER');
 
 /* Features */
@@ -64,6 +64,7 @@ UPDATE Technologies SET UITreeRow = 3 WHERE TechnologyType ='TECH_MACHINERY';
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MILITARY_TACTICS';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_TACTICS', 'TECH_HORSEBACK_RIDING');
+INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_TACTICS', 'TECH_CONSTRUCTION');
 UPDATE Technologies SET UITreeRow = 1 WHERE TechnologyType ='TECH_MILITARY_TACTICS';
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_APPRENTICESHIP';

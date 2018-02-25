@@ -55,6 +55,21 @@
 	<Replace Tag="LOC_POLICY_SMALLER_UNITS_DESCRIPTION"	Language="en_US">
 		<Text>Your military is organized on smaller entities requiring 20% less personnel and supplies.[NEWLINE]Units [ICON_Strength] Combat Strength is reduced but they heal faster.</Text>
 	</Replace>
+	
+    <Replace Tag="LOC_POLICY_UPPER_TAX_NAME"	Text="Upper Class Tax" 	Language="en_US" />
+	<Replace Tag="LOC_POLICY_UPPER_TAX_DESCRIPTION"	Language="en_US">
+		<Text>+ X% [ICON_Gold] income per City, where "X" is twice the percentage of the Upper Class Population in that city.</Text>
+	</Replace>
+	
+    <Replace Tag="LOC_POLICY_MIDDLE_TAX_NAME"	Text="Middle Class Tax" 	Language="en_US" />
+	<Replace Tag="LOC_POLICY_MIDDLE_TAX_DESCRIPTION"	Language="en_US">
+		<Text>+ X% [ICON_Gold] income per City, where "X" is the percentage of the Middle Class Population in that city.</Text>
+	</Replace>	
+	
+    <Replace Tag="LOC_POLICY_TRADE_TAX_NAME"	Text="Tax on Importation" 	Language="en_US" />
+	<Replace Tag="LOC_POLICY_TRADE_TAX_DESCRIPTION"	Language="en_US">
+		<Text>+100% [ICON_Gold] income from taxes on imported resources, but 30% less resources imported.</Text>
+	</Replace>
 
   </LocalizedText>
   
@@ -66,11 +81,13 @@
   
   <LocalizedText> <!-- Treasury -->
 		
-	<Replace Tag="LOC_TOP_PANEL_IMPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from Importations taxes"		Language="en_US" />
-	<Replace Tag="LOC_TOP_PANEL_EXPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from Exportations taxes"		Language="en_US" />
-	<Replace Tag="LOC_TOP_PANEL_PLUDERING_INCOME"		Text="{1_Num : number +#.#;-#.#} from Plundering"				Language="en_US" />
-	<Replace Tag="LOC_TOP_PANEL_PRODUCTION_EXPENSE"		Text="{1_Num : number +#.#;-#.#} from Production in Cities"		Language="en_US" />
-	<Replace Tag="LOC_TOP_PANEL_REINFORCEMENT_EXPENSE"	Text="{1_Num : number +#.#;-#.#} from Reinforcements to units"	Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_IMPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from importations taxes"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_EXPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from exportations taxes"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_PLUDERING_INCOME"		Text="{1_Num : number +#.#;-#.#} from units surplus"			Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_UPPER_TAX_INCOME"		Text="{1_Num : number +#.#;-#.#} from [ICON_GreatPerson] Upper Class taxes"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_MIDDLE_TAX_INCOME"		Text="{1_Num : number +#.#;-#.#} from [ICON_Citizen] Middle Class taxes"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_PRODUCTION_EXPENSE"		Text="{1_Num : number +#.#;-#.#} from production in Cities"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_REINFORCEMENT_EXPENSE"	Text="{1_Num : number +#.#;-#.#} from reinforcements to units"	Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_REPAIR_EXPENSE"			Text="{1_Num : number +#.#;-#.#} from city reparations"			Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_REPAY_EXPENSE"			Text="{1_Num : number +#.#;-#.#} from repaying the Debt"		Language="en_US" />
 	
@@ -130,6 +147,9 @@
     </Replace>
     <Replace Tag="LOC_CITYBANNER_FOOD_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------------- Food -------------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_POPULATION_NEEDS_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------------- Needs Effects ----------------------[ENDCOLOR]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_TOTAL_POPULATION" Language="en_US">
@@ -437,7 +457,7 @@
     </Replace>
 	
     <Replace Tag="LOC_DEATHRATE_FROM_FOOD_RATIONING" Language="en_US">
-      <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR] from [ICON_Food] Food Rationing.</Text>
+      <Text>[COLOR_Civ6Red]+{1_Num}[ENDCOLOR] Deathrate from [ICON_Food] Food Rationing.</Text>
     </Replace>
 	
     <Replace Tag="LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES" Language="en_US">
