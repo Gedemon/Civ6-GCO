@@ -232,6 +232,14 @@ for row in GameInfo.BuildingConstructionResources() do
 	table.insert(buildingConstructionResources[buildingID], {ResourceID = resourceID, Quantity = row.Quantity})
 end
 
+-- Helper to get the resources that can be traded at a specific trade level (filled after initialization) 
+local resourceTradeLevel = { 
+	[TradeLevelType.Limited] = {},	-- embargo (denounced)
+	[TradeLevelType.Neutral] = {},
+	[TradeLevelType.Friend] = {},
+	[TradeLevelType.Allied] = {}	-- internal trade route are at this level
+}
+
 local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)
 
@@ -407,6 +415,29 @@ function PostInitialize() -- everything that may require other context to be loa
 	CitiesTradeDemand				= GCO.LoadTableFromSlot("CitiesTradeDemand") or {}
 	CitiesForTransfer				= GCO.LoadTableFromSlot("CitiesForTransfer") or {}
 	CitiesForTrade					= GCO.LoadTableFromSlot("CitiesForTrade") or {}
+	
+	-- Filling the helper to get the resources that can be traded at a specific trade level
+	for row in GameInfo.Resources() do
+		local resourceID = row.Index
+		if (GCO.IsResourceFood(resourceID) and row.ResourceClassType ~= "RESOURCECLASS_LUXURY" ) then
+			resourceTradeLevel[TradeLevelType.Limited][resourceID] 	= true
+			resourceTradeLevel[TradeLevelType.Neutral][resourceID] 	= true
+			resourceTradeLevel[TradeLevelType.Friend][resourceID] 	= true
+			resourceTradeLevel[TradeLevelType.Allied][resourceID] 	= true
+		end
+		if (row.ResourceClassType ~= "RESOURCECLASS_STRATEGIC" and row.ResourceClassType ~= "RESOURCECLASS_EQUIPMENT" and (not GCO.IsResourceEquipmentMaker(resourceID))) then
+			resourceTradeLevel[TradeLevelType.Neutral][resourceID] 	= true
+			resourceTradeLevel[TradeLevelType.Friend][resourceID] 	= true
+			resourceTradeLevel[TradeLevelType.Allied][resourceID] 	= true	
+		end
+		if (row.ResourceClassType == "RESOURCECLASS_STRATEGIC" or GCO.IsResourceEquipmentMaker(resourceID)) then
+			resourceTradeLevel[TradeLevelType.Friend][resourceID] 	= true
+			resourceTradeLevel[TradeLevelType.Allied][resourceID] 	= true	
+		end
+		if (row.ResourceClassType == "RESOURCECLASS_EQUIPMENT") then
+			resourceTradeLevel[TradeLevelType.Allied][resourceID] 	= true	
+		end
+	end
 end
 
 function Initialize() -- called immediatly after loading this file
@@ -1957,7 +1988,9 @@ Events.TradeRouteActivityChanged.Add(OnTradeRouteActivityChanged)
 
 function ExportToForeignCities(self)
 	Dlog("ExportToForeignCities ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	
+	local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
+
 	Dprint( DEBUG_CITY_SCRIPT, "Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
 	local selfKey 			= self:GetKey()
@@ -1982,27 +2015,33 @@ function ExportToForeignCities(self)
 		local loop = 0
 		while (resLeft > 0 and loop < maxLoop) do
 			for cityKey, data in pairs(cityToSupply) do
+			
+				-- we need to check trade route level here has this is not cached in the transfers.Resources table...
+				local tradeRouteLevel = CitiesForTrade[selfKey][cityKey].TradeRouteLevel
+				if resourceTradeLevel[tradeRouteLevel][resourceID] then
+				
+					local city		= GetCityFromKey(cityKey)
+					if city then
+					
+						local reqValue 	= city:GetNumResourceNeeded(resourceID, bExternalRoute)
+						Dprint( DEBUG_CITY_SCRIPT, " - Check route to ".. Indentation20(Locale.Lookup(city:GetName())) .." require = ".. tostring(value), " unit of " .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)))
 
-				local city		= GetCityFromKey(cityKey)
-				if city then
-					local reqValue 	= city:GetNumResourceNeeded(resourceID, bExternalRoute)
-					Dprint( DEBUG_CITY_SCRIPT, " - Check route to ".. Indentation20(Locale.Lookup(city:GetName())) .." require = ".. tostring(value), " unit of " .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)))
+						if reqValue > 0 then
+							local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
+							local efficiency		= data.Efficiency
+							local send 				= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
+							local localCost			= self:GetResourceCost(resourceID)
+							local costPerUnit		= (localCost * self:GetTransportCostTo(city)) + localCost
 
-					if reqValue > 0 then
-						local resourceClassType = GameInfo.Resources[resourceID].ResourceClassType
-						local efficiency		= data.Efficiency
-						local send 				= math.min(transfers.ResPerCity[resourceID], reqValue, resLeft)
-						local localCost			= self:GetResourceCost(resourceID)
-						local costPerUnit		= (localCost * self:GetTransportCostTo(city)) + localCost
-
-						if costPerUnit < city:GetResourceCost(resourceID) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost and stock here again before sending the resource... to do : track value per city
-							local transactionIncome = send * self:GetResourceCost(resourceID) -- * costPerUnit
-							resLeft = resLeft - send
-							city:ChangeStock(resourceID, send, ResourceUseType.Import, selfKey, costPerUnit)
-							self:ChangeStock(resourceID, -send, ResourceUseType.Export, cityKey)
-							importIncome[cityKey] 	= (importIncome[cityKey] or 0) + transactionIncome
-							exportIncome 			= exportIncome + transactionIncome
-							Dprint( DEBUG_CITY_SCRIPT, "   - Generating ", transactionIncome, " golds for ", send, " ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (".. tostring(efficiency) .." percent efficiency) send to ".. Locale.Lookup(city:GetName()))
+							if costPerUnit < city:GetResourceCost(resourceID) or city:GetStock(resourceID) == 0 then -- this city may be in cityToSupply list for another resource, so check cost and stock here again before sending the resource... to do : track value per city
+								local transactionIncome = send * self:GetResourceCost(resourceID) -- * costPerUnit
+								resLeft = resLeft - send
+								city:ChangeStock(resourceID, send, ResourceUseType.Import, selfKey, costPerUnit)
+								self:ChangeStock(resourceID, -send, ResourceUseType.Export, cityKey)
+								importIncome[cityKey] 	= (importIncome[cityKey] or 0) + transactionIncome
+								exportIncome 			= exportIncome + transactionIncome
+								Dprint( DEBUG_CITY_SCRIPT, "   - Generating ", transactionIncome, " golds for ", send, " ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (".. tostring(efficiency) .." percent efficiency) send to ".. Locale.Lookup(city:GetName()))
+							end
 						end
 					end
 				end
@@ -2107,73 +2146,74 @@ function GetRouteEfficiencyTo(self, city)
 end
 
 function GetRequirements(self, fromCity)
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
 	local selfKey 				= self:GetKey()
 	local player 				= GCO.GetPlayer(self:GetOwner())
 	local fromplayerID			= fromCity:GetOwner()
-	local pDiplomacy			= player:GetAi_Diplomacy()
+	local fromName				= Locale.Lookup(fromCity:GetName())
+	local fromKey				= fromCity:GetKey()
 	local cityName	 			= Locale.Lookup(self:GetName())
 	local bExternalRoute 		= (self:GetOwner() ~= fromplayerID)
-	local bIsFriend				= (not bExternalRoute) or (pDiplomacy:GetDiplomaticState(fromplayerID) == "DIPLO_STATE_DECLARED_FRIEND") or (pDiplomacy:GetDiplomaticState(fromplayerID) == "DIPLO_STATE_ALLIED")
-	local bIsAllied				= (not bExternalRoute) or (pDiplomacy:GetDiplomaticState(fromplayerID) == "DIPLO_STATE_ALLIED")
-	local bIsEmbargo			= (bExternalRoute and pDiplomacy:GetDiplomaticState(fromplayerID) == "DIPLO_STATE_DENOUNCED")
 	local requirements 			= {}
 	requirements.Resources 		= {}
-	requirements.HasPrecedence 	= {}
+	requirements.HasPrecedence 	= {}	
+		
+	local tradeRouteLevel 
+	if bExternalRoute then
+		tradeRouteLevel = CitiesForTrade[fromKey][selfKey].TradeRouteLevel -- we're checking the route from the city
+	else
+		tradeRouteLevel = TradeLevelType.Allied
+	end
 
-	Dprint( DEBUG_CITY_SCRIPT, "GetRequirements for ".. cityName )
+	Dprint( DEBUG_CITY_SCRIPT, "GetRequirements for ".. cityName .. " from " .. fromName .. GCO.Separator)
 
 	for row in GameInfo.Resources() do
 		local resourceID 			= row.Index
-		if (not bIsEmbargo) or (GCO.IsResourceFood(resourceID) and row.ResourceClassType ~= "RESOURCECLASS_LUXURY" ) then
-			if ((row.ResourceClassType ~= "RESOURCECLASS_STRATEGIC" and not GCO.IsResourceEquipmentMaker(resourceID)) or bIsFriend) then
-				--Dprint( DEBUG_CITY_SCRIPT, Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .. " strategic = ", (row.ResourceClassType == "RESOURCECLASS_STRATEGIC"),"bIsFriend",bIsFriend)
-
-				if ((not GCO.IsResourceEquipment(resourceID)) or bIsAllied) then
-					--Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. " equipment = ", GCO.IsResourceEquipment(resourceID),"bIsAllied",bIsAllied)
-					local bCanRequest 			= false
-					local bCanTradeResource 	= (not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute))))
-					--Dprint( DEBUG_CITY_SCRIPT, Indentation20("... can trade") .. tostring(bCanTradeResource),"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
-					if bCanTradeResource and not player:IsObsoleteEquipment(resourceCreatedID) then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources, do not ask for obsolete resource
-						local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
-						if numResourceNeeded > 0 then
-							local bPriorityRequest	= false
-							if fromCity then -- function was called to only request resources available in "fromCity"
-								local efficiency 	= fromCity:GetRouteEfficiencyTo(self)
-								local transportCost = fromCity:GetTransportCostTo(self)
-								local bHasStock		= fromCity:GetStock(resourceID) > 0
-								if bHasStock then
-									local fromName	 		= Locale.Lookup(fromCity:GetName())
-									Dprint( DEBUG_CITY_SCRIPT, "    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", fromCity:GetResourceCost(resourceID) * transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
-								end
-								local bHasMoreStock 	= true -- (fromCity:GetStock(resourceID) > self:GetStock(resourceID)) --< must find another check, this one doesn't allow small city at full stock to transfer to big city at low stock (but still higher than small city max stock) use percentage stock instead ?
-								local fromCost			= fromCity:GetResourceCost(resourceID)
-								local bIsLowerCost 		= ((fromCost * transportCost) + fromCost < self:GetResourceCost(resourceID))
-								bPriorityRequest		= false
-
-								if UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID] and resourceID ~= foodResourceID then -- Units have required this resource...
-									numResourceNeeded	= math.min(self:GetMaxStock(resourceID), numResourceNeeded + UnitsSupplyDemand[selfKey].Resources[resourceID])
-									bPriorityRequest	= true
-								end
-								
-								local numRequiredInQueue = self:GetNumRequiredInQueue(resourceID)
-								if numRequiredInQueue > 0 then -- an Item in build queue is requiring this resource...
-									numResourceNeeded	= math.min(self:GetMaxStock(resourceID), numResourceNeeded + numRequiredInQueue)
-									bPriorityRequest	= true
-								end
-
-								if bHasStock and bHasMoreStock and (bIsLowerCost or bPriorityRequest or self:GetStock(resourceID) == 0) then
-									bCanRequest = true
-								end
-							else
-								bCanRequest = true
-							end
-							if bCanRequest then
-								requirements.Resources[resourceID] 		= numResourceNeeded
-								requirements.HasPrecedence[resourceID] 	= bPriorityRequest
-								Dprint( DEBUG_CITY_SCRIPT, "- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID])..", Priority = "..tostring(bPriorityRequest))
-							end
+		
+		if resourceTradeLevel[tradeRouteLevel][resourceID] then
+		
+			Dprint( DEBUG_CITY_SCRIPT, Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .. Indentation20("... strategic").. tostring(row.ResourceClassType == "RESOURCECLASS_STRATEGIC"))
+			Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... equipment") .. tostring( GCO.IsResourceEquipment(resourceID)))
+			local bCanRequest 			= false
+			local bCanTradeResource 	= (not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute))))
+			Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... can trade") .. tostring(bCanTradeResource),"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
+			if bCanTradeResource and not player:IsObsoleteEquipment(resourceCreatedID) then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources, do not ask for obsolete resource
+				local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
+				if numResourceNeeded > 0 then
+					local bPriorityRequest	= false
+					if fromCity then -- function was called to only request resources available in "fromCity"
+						local efficiency 	= fromCity:GetRouteEfficiencyTo(self)
+						local transportCost = fromCity:GetTransportCostTo(self)
+						local bHasStock		= fromCity:GetStock(resourceID) > 0
+						if bHasStock then
+							Dprint( DEBUG_CITY_SCRIPT, "    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", fromCity:GetResourceCost(resourceID) * transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
 						end
+						local bHasMoreStock 	= true -- (fromCity:GetStock(resourceID) > self:GetStock(resourceID)) --< must find another check, this one doesn't allow small city at full stock to transfer to big city at low stock (but still higher than small city max stock) use percentage stock instead ?
+						local fromCost			= fromCity:GetResourceCost(resourceID)
+						local bIsLowerCost 		= ((fromCost * transportCost) + fromCost < self:GetResourceCost(resourceID))
+						bPriorityRequest		= false
+
+						if UnitsSupplyDemand[selfKey] and UnitsSupplyDemand[selfKey].Resources[resourceID] and resourceID ~= foodResourceID then -- Units have required this resource...
+							numResourceNeeded	= math.min(self:GetMaxStock(resourceID), numResourceNeeded + UnitsSupplyDemand[selfKey].Resources[resourceID])
+							bPriorityRequest	= true
+						end
+						
+						local numRequiredInQueue = self:GetNumRequiredInQueue(resourceID)
+						if numRequiredInQueue > 0 then -- an Item in build queue is requiring this resource...
+							numResourceNeeded	= math.min(self:GetMaxStock(resourceID), numResourceNeeded + numRequiredInQueue)
+							bPriorityRequest	= true
+						end
+
+						if bHasStock and bHasMoreStock and (bIsLowerCost or bPriorityRequest or self:GetStock(resourceID) == 0) then
+							bCanRequest = true
+						end
+					else
+						bCanRequest = true
+					end
+					if bCanRequest then
+						requirements.Resources[resourceID] 		= numResourceNeeded
+						requirements.HasPrecedence[resourceID] 	= bPriorityRequest
+						Dprint( DEBUG_CITY_SCRIPT, "- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID])..", Priority = "..tostring(bPriorityRequest))
 					end
 				end
 			end

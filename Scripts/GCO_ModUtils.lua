@@ -136,7 +136,7 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 							and ExposedMembers.PlayerScript_Initialized
 							and ExposedMembers.GameScript_Initialized
 							)
-	if not bIsInitialized and Automation.GetTime() > g_Timer + 20 then
+	if not bIsInitialized and Automation.GetTime() > g_Timer + 120 then
 		Error("GCO Initialization problem")
 		print("Still not initialized...  timer = ",  Automation.GetTime())
 		g_Timer = Automation.GetTime()
@@ -302,7 +302,8 @@ local bErrorToScreen 	= true
 
 local debugFilter = {
 	["debug"] 		= true,
-	["CityScript"] 	= true,
+--	["CityScript"] 	= true,
+	["PlayerScript"] = true,
 --	["UnitScript"] 	= true,
 }
 
