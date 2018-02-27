@@ -1019,7 +1019,7 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 			return GetPath(currentNode)
 		end
 		
-		local neighbors = GetNeighbors(currentNode)
+		local neighbors = GetRiverNeighbors(currentNode)
 		for i, data in ipairs(neighbors) do
 			local node = plotToNode(data.Plot, data.Edge)
 			if not closedSet[node] then
@@ -1064,7 +1064,7 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 end
 
 
-function GetNeighbors(node)
+function GetRiverNeighbors(node)
 	local DEBUG_PLOT_SCRIPT			= false
 	Dprint( DEBUG_PLOT_SCRIPT, "Get neighbors :")
 	local neighbors 				= {}
@@ -1110,6 +1110,151 @@ function GetNeighbors(node)
 	end
 	
 	return neighbors
+end
+
+
+-----------------------------------------------------------------------------------------
+-- Pathfinder Functions
+-----------------------------------------------------------------------------------------
+
+function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded)
+	local DEBUG_PLOT_SCRIPT			= false
+	
+	local startPlot	= self
+	local closedSet = {}
+	local openSet	= {}
+	local comeFrom 	= {}
+	local gScore	= {}
+	local fScore	= {}
+	
+	local startNode	= startPlot
+	
+	Dprint( DEBUG_PLOT_SCRIPT, "CHECK FOR PATH BETWEEN : ", startPlot:GetX(), startPlot:GetY(), " and ", destPlot:GetX(), destPlot:GetY(), " distance = ", Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY()) )
+	
+	function GetPath(currentNode)
+		local path 		= {}
+		local seen 		= {}
+		local current 	= currentNode
+		local count 	= 0
+		while true do
+			local prev = comeFrom[current]
+			if prev == nil then break end
+			local plot = current
+			local plotIndex = plot:GetIndex()
+			Dprint( DEBUG_PLOT_SCRIPT, "Adding to path : ", plot:GetX(), plot:GetY())
+			table.insert(path, 1, plotIndex)
+			current = prev
+		 end
+		Dprint( DEBUG_PLOT_SCRIPT, "Adding Starting plot to path : ", startPlot:GetX(), startPlot:GetY())
+		table.insert(path, 1, startPlot:GetIndex())
+		return path
+	end
+	
+	gScore[startNode]	= 0
+	fScore[startNode]	= Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY())
+	
+	local currentNode = startNode
+	while currentNode do
+	
+		local currentPlot 		= currentNode
+		closedSet[currentNode] 	= true
+		
+		if currentPlot == destPlot then
+			Dprint( DEBUG_PLOT_SCRIPT, "Found a path, returning...")
+			return GetPath(currentNode)
+		end
+		
+		local neighbors = GetNeighbors(currentNode, pPlayer, sRoute, fBlockaded)
+		for i, data in ipairs(neighbors) do
+			local node = data.Plot
+			if not closedSet[node] then
+				if gScore[node] == nil then
+					local nodeDistance = 1 --Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), currentPlot:GetX(), currentPlot:GetY())
+
+					--if data.Plot:IsRiverCrossingToPlot(currentPlot) then nodeDistance = nodeDistance + 0.15 end
+					local destDistance		= Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), destPlot:GetX(), destPlot:GetY())
+					local tentative_gscore 	= (gScore[currentNode] or math.huge) + nodeDistance
+				
+					table.insert (openSet, {Node = node, Score = tentative_gscore + destDistance})
+
+					if tentative_gscore < (gScore[node] or math.huge) then
+						local plot = node
+						Dprint( DEBUG_PLOT_SCRIPT, "New best : ", plot:GetX(), plot:GetY())
+						comeFrom[node] = currentNode
+						gScore[node] = tentative_gscore
+						fScore[node] = tentative_gscore + destDistance
+					end
+				end				
+			end		
+		end
+		table.sort(openSet, function(a, b) return a.Score > b.Score; end)
+		local data = table.remove(openSet)
+		if data then
+			local plot = data.Node
+			Dprint( DEBUG_PLOT_SCRIPT, "Next to test : ", plot:GetX(), plot:GetY(), data.Node, data.Score)
+			currentNode = data.Node 
+		else
+			currentNode = nil
+		end
+	end
+	Dprint( DEBUG_PLOT_SCRIPT, "failed to find a path")
+end
+
+local routes = {"Land", "Road", "Railroad", "Coastal", "Ocean", "Submarine"}
+function GetNeighbors(node, pPlayer, sRoute, fBlockaded)
+	local DEBUG_PLOT_SCRIPT			= false
+	Dprint( DEBUG_PLOT_SCRIPT, "Get neighbors :")
+	local neighbors 				= {}
+	local plot 						= node
+	
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction);
+		if (adjacentPlot ~= nil) then
+		
+			local bAdd = false
+
+			-- Be careful of order, must check for road before rail, and coastal before ocean
+			if (sRoute == routes[1] and not( adjacentPlot:IsImpassable() or adjacentPlot:IsWater())) then
+			  bAdd = true
+			elseif (sRoute == routes[2] and adjacentPlot:GetRouteType() ~= RouteTypes.NONE) then		
+			  bAdd = true
+			elseif (sRoute == routes[3] and adjacentPlot:GetRouteType() >= 1) then
+			  bAdd = true
+			elseif (sRoute == routes[4] and adjacentPlot:GetTerrainType() == g_TERRAIN_COAST) then
+			  bAdd = true
+			elseif (sRoute == routes[5] and adjacentPlot:IsWater()) then
+			  bAdd = true
+			elseif (sRoute == routes[6] and adjacentPlot:IsWater()) then
+			  bAdd = true
+			end
+
+			-- Special case for water, a city on the coast counts as water
+			if (not bAdd and (sRoute == routes[4] or sRoute == routes[5] or sRoute == routes[6])) then
+			  bAdd = adjacentPlot:IsCity()
+			end
+
+			-- Check for impassable and blockaded tiles
+			bAdd = bAdd and isPassable(adjacentPlot, sRoute) and not isBlockaded(adjacentPlot, pPlayer, fBlockaded, pPlot)
+
+			if (bAdd) then
+				table.insert( neighbors, { Plot = adjacentPlot } )
+			end		
+		end
+	end
+	
+	return neighbors
+end
+
+-- Is the plot passable for this route type ...
+function isPassable(pPlot, sRoute)
+  bPassable = true
+
+  -- ... due to terrain, eg those covered in ice
+  if (pPlot:GetFeatureType() == g_FEATURE_ICE and sRoute ~= routes[6]) then
+    bPassable = false
+  end
+
+  return bPassable
 end
 
 -----------------------------------------------------------------------------------------
@@ -1405,6 +1550,8 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.GetNextCounterClockRiverPlot	= GetNextCounterClockRiverPlot
 	p.GetRiverPath					= GetRiverPath
 	p.GetRiverPathFromEdge			= GetRiverPathFromEdge
+	--
+	p.GetPathToPlot					= GetPathToPlot
 
 end
 
