@@ -4193,7 +4193,9 @@ function GetSupplyPathPlots(self)
 		if city then
 			local cityPlot = Map.GetPlot(city:GetX(), city:GetY())
 			local bShortestRoute = true
+			GCO.StartTimer("IsPlotConnectedLand")
 			local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
+			GCO.ShowTimer("IsPlotConnectedLand")
 			if bIsPlotConnected then
 				return GCO.GetRoutePlots()
 			end
@@ -4223,7 +4225,9 @@ function SetSupplyLine(self)
 			end
 		--]]
 		local bShortestRoute 			= true
+		GCO.StartTimer("IsPlotConnectedLand")
 		local bIsPlotConnected 			= GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
+		GCO.ShowTimer("IsPlotConnectedLand")
 		local routeLength 				= GCO.GetRouteLength()
 		if bIsPlotConnected then
 			local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()

@@ -1304,14 +1304,19 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 	local routeLength		= 0
 	local pathPlots			= {}
 	if sRouteType == "River" then
+	
+		GCO.StartTimer("GetRiverPath")
 		local path = selfPlot:GetRiverPath(transferPlot)
+		GCO.ShowTimer("GetRiverPath")
 		if path then
 			bIsPlotConnected 	= true
 			routeLength 		= #path
 			pathPlots			= path
 		end
 	else
+		GCO.StartTimer("IsPlotConnected"..sRouteType)
 		bIsPlotConnected 	= GCO.IsPlotConnected(Players[self:GetOwner()], selfPlot, transferPlot, sRouteType, true, nil, GCO.TradePathBlocked)
+		GCO.ShowTimer("IsPlotConnected"..sRouteType)
 		routeLength 		= GCO.GetRouteLength()
 		pathPlots 			= GCO.GetRoutePlots()
 	end

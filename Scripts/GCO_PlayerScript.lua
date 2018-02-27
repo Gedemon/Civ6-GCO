@@ -650,6 +650,8 @@ function DoPlayerTurn( playerID )
 		player:UpdateCitiesBanners()
 		player:SetCurrentTurn()
 		
+		LuaEvents.ShowTimerLog(playerID)
+		
 		if playerID == Game.GetLocalPlayer() then		
 			--LuaEvents.SaveTables()
 		end

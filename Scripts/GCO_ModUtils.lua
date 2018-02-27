@@ -553,7 +553,14 @@ LuaEvents.StartPlayerTurn.Add(MarkFlagUpdateSafe)
 --=====================================================================================--
 -- Timer
 --=====================================================================================--
-local Timer = {}
+local Timer 	= {}
+local TimerLog 	= {
+	["GetRiverPath"] 	= 0,
+	["IsPlotConnectedCoastal"] = 0,
+	["IsPlotConnectedOcean"] = 0,
+	["IsPlotConnectedRoad"] = 0,
+	["IsPlotConnectedLand"] = 0,	
+}
 function StartTimer(name)
 	Timer[name] = { Start = Automation.GetTime() }
 end
@@ -571,6 +578,7 @@ function ShowTimer(name) -- bShowInGame, seconds are optionnal
 		diff = Automation.GetTime()-Timer[name].Start
 	end	
 	local str = tostring(name) .." timer = " .. tostring(diff) .. " seconds"
+	if TimerLog[name] then TimerLog[name] = TimerLog[name] + diff; end
 	Dprint(str)
 	if diff > 0.5 then
 		if diff < 2 then
@@ -584,6 +592,26 @@ function ShowTimer(name) -- bShowInGame, seconds are optionnal
 	return str
 end
 
+function ShowPlayerLoggedTimers(playerID)
+	for key, value in pairs(TimerLog) do
+		local str = tostring(key) .." timer = " .. tostring(value) .. " seconds" .. " for " .. tostring(Locale.ToUpper(Locale.Lookup(PlayerConfigurations[playerID]:GetCivilizationShortDescription())))
+		print(str)
+		TimerLog[key] = 0
+	end	
+end
+--LuaEvents.ShowTimerLog.Add(ShowPlayerLoggedTimers)
+
+function ShowLoggedTimers()
+	print(GCO.Separator)
+	print("Turn = " .. tostring(Game.GetCurrentGameTurn()))
+	for key, value in pairs(TimerLog) do
+		local str = tostring(key) .." timer = " .. tostring(value) .. " seconds"
+		print(str)
+		TimerLog[key] = 0
+	end
+	print(GCO.Separator)
+end
+GameEvents.OnGameTurnStarted.Add(ShowLoggedTimers)
 
 --=====================================================================================--
 -- Civilizations
