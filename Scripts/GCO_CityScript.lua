@@ -1267,6 +1267,7 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 	local selfPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
 	local transferPlot	= GCO.GetPlot(transferCity:GetX(), transferCity:GetY())
 	local currentTurn 	= Game.GetCurrentGameTurn()
+	local maxlength		= self:GetMaxRouteLength(sRouteType)
 
 	-- Convert "Coastal" to "Ocean" with required tech for navigation on Ocean
 	-- to do check for docks to allow transfert by sea/rivers
@@ -1285,17 +1286,17 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 
 	-- check if the route is possible before trying to determine it...
 	if sRouteType == "Coastal" then
-		if ( not(selfPlot:IsCoastalLand() and transferPlot:IsCoastalLand()) ) or self:GetMaxRouteLength(sRouteType) < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY()) then
+		if ( not(selfPlot:IsCoastalLand() and transferPlot:IsCoastalLand()) ) or maxlength < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY()) then
 			return
 		end
 
 	elseif sRouteType == "River" then
-		if ( not(selfPlot:IsRiver() and transferPlot:IsRiver()) ) or self:GetMaxRouteLength(sRouteType) < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY())  then
+		if ( not(selfPlot:IsRiver() and transferPlot:IsRiver()) ) or maxlength < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY())  then
 			return
 		end
 
 	elseif sRouteType == "Road" then
-		if self:GetMaxRouteLength(sRouteType) < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY()) then
+		if maxlength < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY()) then
 			return
 		end
 	end
@@ -1314,11 +1315,22 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 			pathPlots			= path
 		end
 	else
+		--[[
 		GCO.StartTimer("IsPlotConnected"..sRouteType)
 		bIsPlotConnected 	= GCO.IsPlotConnected(Players[self:GetOwner()], selfPlot, transferPlot, sRouteType, true, nil, GCO.TradePathBlocked)
 		GCO.ShowTimer("IsPlotConnected"..sRouteType)
 		routeLength 		= GCO.GetRouteLength()
 		pathPlots 			= GCO.GetRoutePlots()
+		--]]
+		
+		GCO.StartTimer("GetPathToPlot"..sRouteType)
+		local path = selfPlot:GetPathToPlot(transferPlot, Players[self:GetOwner()], sRouteType, GCO.TradePathBlocked, maxlength)
+		GCO.ShowTimer("GetPathToPlot"..sRouteType)
+		if path then
+			bIsPlotConnected 	= true
+			routeLength 		= #path
+			pathPlots			= path
+		end
 	end
 	if bIsPlotConnected then
 		local efficiency 	= GCO.GetRouteEfficiency( routeLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
@@ -1355,12 +1367,7 @@ function SetMaxRouteLength(self, sRouteType)
 	local cityKey = self:GetKey()
 	if not _cached[cityKey] then _cached[cityKey] = {} end
 	if not _cached[cityKey].MaxRouteLength then _cached[cityKey].MaxRouteLength = {} end
-	local maxRouteLength = 0
-	local efficiency = 100
-	while efficiency > 0 do
-		maxRouteLength 	= maxRouteLength + 1
-		efficiency 		= GCO.GetRouteEfficiency( maxRouteLength * SupplyRouteLengthFactor[SupplyRouteType[sRouteType]] )
-	end
+	local maxRouteLength = GCO.CalculateMaxRouteLength(SupplyRouteLengthFactor[SupplyRouteType[sRouteType]])
 	Dprint( DEBUG_CITY_SCRIPT, "Setting max route length for "..tostring(sRouteType).." = ".. tostring(maxRouteLength))
 	_cached[cityKey].MaxRouteLength[sRouteType] = maxRouteLength
 end
@@ -4119,16 +4126,26 @@ function DoCollectResources(self)
 			if  pTech:HasTech(GameInfo.Technologies["TECH_CARTOGRAPHY"].Index) then
 				sRouteType = "Ocean"
 			end
-			local cityPlot 	= Map.GetPlot(self:GetX(), self:GetY())
+			local cityPlot 	= GCO.GetPlot(self:GetX(), self:GetY())
 			for ring = 1, seaRange do
 				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
 					local plotOwner = pEdgePlot:GetOwner()
 					if (plotOwner == self:GetOwner()) or (plotOwner == NO_PLAYER) then
 						if (pEdgePlot:IsWater() or pEdgePlot:IsLake()) and pEdgePlot:GetResourceCount() > 0 then
-							local bIsPlotConnected 	= GCO.IsPlotConnected(pPlayer, cityPlot, pEdgePlot, sRouteType, true, nil, GCO.TradePathBlocked)
+							local bIsPlotConnected 	= false --GCO.IsPlotConnected(pPlayer, cityPlot, pEdgePlot, sRouteType, true, nil, GCO.TradePathBlocked)
+							local routeLength		= 0
+							GCO.StartTimer("GetPathToPlot"..sRouteType)
+							local path = cityPlot:GetPathToPlot(pEdgePlot, pPlayer, sRouteType, GCO.TradePathBlocked, seaRange)
+							GCO.ShowTimer("GetPathToPlot"..sRouteType)
+							if path then
+								bIsPlotConnected 	= true
+								routeLength 		= #path
+							end
+							
+							
 							if bIsPlotConnected then
-								local routeLength = GCO.GetRouteLength()
-								if routeLength <= seaRange then
+								--local routeLength = GCO.GetRouteLength()
+								if routeLength <= seaRange then -- not needed with GetPathToPlot called with seaRange ?
 									local resourceID = pEdgePlot:GetResourceType()
 									if player:IsResourceVisible(resourceID) then
 										table.insert(cityPlots, pEdgePlot:GetIndex())

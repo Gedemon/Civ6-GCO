@@ -4192,13 +4192,23 @@ function GetSupplyPathPlots(self)
 		local city = GCO.GetCityFromKey( unitData.SupplyLineCityKey )
 		if city then
 			local cityPlot = Map.GetPlot(city:GetX(), city:GetY())
-			local bShortestRoute = true
-			GCO.StartTimer("IsPlotConnectedLand")
-			local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
-			GCO.ShowTimer("IsPlotConnectedLand")
-			if bIsPlotConnected then
-				return GCO.GetRoutePlots()
+			--local bShortestRoute = true
+			--GCO.StartTimer("IsPlotConnectedLand")
+			--local bIsPlotConnected = GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
+			--GCO.ShowTimer("IsPlotConnectedLand")			
+			
+			GCO.StartTimer("GetPathToPlotLand")
+			local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()
+			local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)
+			local path = GCO.GetPlot(self:GetX(), self:GetY()):GetPathToPlot(cityPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked)
+			GCO.ShowTimer("GetPathToPlotLand")
+			
+			if path then
+				return path
 			end
+			--if bIsPlotConnected then
+			--	return GCO.GetRoutePlots()
+			--end
 		end
 	end
 end 
@@ -4224,13 +4234,26 @@ function SetSupplyLine(self)
 				NoLinkToCity = false
 			end
 		--]]
-		local bShortestRoute 			= true
-		GCO.StartTimer("IsPlotConnectedLand")
-		local bIsPlotConnected 			= GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
-		GCO.ShowTimer("IsPlotConnectedLand")
-		local routeLength 				= GCO.GetRouteLength()
+		--local bShortestRoute 			= true
+		--GCO.StartTimer("IsPlotConnectedLand")
+		--local bIsPlotConnected 			= GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
+		--GCO.ShowTimer("IsPlotConnectedLand")
+		
+		local bIsPlotConnected 	= false
+		local routeLength		= 0
+		GCO.StartTimer("GetPathToPlotLand")
+		local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()
+		local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)
+		local path = GCO.GetPlot(self:GetX(), self:GetY()):GetPathToPlot(cityPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked, maxDistance)
+		GCO.ShowTimer("GetPathToPlotLand")
+		
+		if path then
+			bIsPlotConnected 	= true
+			routeLength 		= #path
+		end
+			
+		--local routeLength 				= GCO.GetRouteLength()
 		if bIsPlotConnected then
-			local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()
 			local efficiency 				= GCO.GetRouteEfficiency(routeLength*SupplyLineLengthFactor)
 			
 			if efficiency > 0 then

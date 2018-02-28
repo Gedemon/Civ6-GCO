@@ -1117,7 +1117,7 @@ end
 -- Pathfinder Functions
 -----------------------------------------------------------------------------------------
 
-function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded)
+function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded, maxRange)
 	local DEBUG_PLOT_SCRIPT			= false
 	
 	local startPlot	= self
@@ -1164,7 +1164,7 @@ function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded)
 			return GetPath(currentNode)
 		end
 		
-		local neighbors = GetNeighbors(currentNode, pPlayer, sRoute, fBlockaded)
+		local neighbors = GetNeighbors(currentNode, pPlayer, sRoute, fBlockaded, startPlot, destPlot, maxRange)
 		for i, data in ipairs(neighbors) do
 			local node = data.Plot
 			if not closedSet[node] then
@@ -1201,44 +1201,65 @@ function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded)
 end
 
 local routes = {"Land", "Road", "Railroad", "Coastal", "Ocean", "Submarine"}
-function GetNeighbors(node, pPlayer, sRoute, fBlockaded)
+function GetNeighbors(node, pPlayer, sRoute, fBlockaded, startPlot, destPlot, maxRange)
 	local DEBUG_PLOT_SCRIPT			= false
 	Dprint( DEBUG_PLOT_SCRIPT, "Get neighbors :")
 	local neighbors 				= {}
 	local plot 						= node
 	
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
-		local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction);
-		if (adjacentPlot ~= nil) then
+		local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction);		
+
+		GCO.Incremente("GetPathToPlot"..sRoute)
 		
-			local bAdd = false
+		if (adjacentPlot ~= nil) then
+			
+			local distanceFromStart = Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), startPlot:GetX(), startPlot:GetY())
+			if maxRange == nil or distanceFromStart <= maxRange then
+			
+				local distanceFromDest	= Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), destPlot:GetX(), destPlot:GetY())				
+				if maxRange == nil or distanceFromDest <= maxRange then
+			
+					local IsPlotRevealed = false
+					local pPlayerVis = PlayersVisibility[pPlayer:GetID()]
+					if (pPlayerVis ~= nil) then
+						if (pPlayerVis:IsRevealed(adjacentPlot:GetX(), adjacentPlot:GetY())) then -- IsVisible
+						  IsPlotRevealed = true
+						end
+					end
+				
+					if (pPlayer == nil or IsPlotRevealed) then
+						local bAdd = false
 
-			-- Be careful of order, must check for road before rail, and coastal before ocean
-			if (sRoute == routes[1] and not( adjacentPlot:IsImpassable() or adjacentPlot:IsWater())) then
-			  bAdd = true
-			elseif (sRoute == routes[2] and adjacentPlot:GetRouteType() ~= RouteTypes.NONE) then		
-			  bAdd = true
-			elseif (sRoute == routes[3] and adjacentPlot:GetRouteType() >= 1) then
-			  bAdd = true
-			elseif (sRoute == routes[4] and adjacentPlot:GetTerrainType() == g_TERRAIN_COAST) then
-			  bAdd = true
-			elseif (sRoute == routes[5] and adjacentPlot:IsWater()) then
-			  bAdd = true
-			elseif (sRoute == routes[6] and adjacentPlot:IsWater()) then
-			  bAdd = true
+						-- Be careful of order, must check for road before rail, and coastal before ocean
+						if (sRoute == routes[1] and not( adjacentPlot:IsImpassable() or adjacentPlot:IsWater())) then
+						  bAdd = true
+						elseif (sRoute == routes[2] and adjacentPlot:GetRouteType() ~= RouteTypes.NONE) then		
+						  bAdd = true
+						elseif (sRoute == routes[3] and adjacentPlot:GetRouteType() >= 1) then
+						  bAdd = true
+						elseif (sRoute == routes[4] and adjacentPlot:GetTerrainType() == g_TERRAIN_COAST) then
+						  bAdd = true
+						elseif (sRoute == routes[5] and adjacentPlot:IsWater()) then
+						  bAdd = true
+						elseif (sRoute == routes[6] and adjacentPlot:IsWater()) then
+						  bAdd = true
+						end
+
+						-- Special case for water, a city on the coast counts as water
+						if (not bAdd and (sRoute == routes[4] or sRoute == routes[5] or sRoute == routes[6])) then
+						  bAdd = adjacentPlot:IsCity()
+						end
+
+						-- Check for impassable and blockaded tiles
+						bAdd = bAdd and isPassable(adjacentPlot, sRoute) and not isBlockaded(adjacentPlot, pPlayer, fBlockaded, pPlot)
+
+						if (bAdd) then
+							table.insert( neighbors, { Plot = adjacentPlot } )
+						end
+					end
+				end
 			end
-
-			-- Special case for water, a city on the coast counts as water
-			if (not bAdd and (sRoute == routes[4] or sRoute == routes[5] or sRoute == routes[6])) then
-			  bAdd = adjacentPlot:IsCity()
-			end
-
-			-- Check for impassable and blockaded tiles
-			bAdd = bAdd and isPassable(adjacentPlot, sRoute) and not isBlockaded(adjacentPlot, pPlayer, fBlockaded, pPlot)
-
-			if (bAdd) then
-				table.insert( neighbors, { Plot = adjacentPlot } )
-			end		
 		end
 	end
 	
@@ -1255,6 +1276,17 @@ function isPassable(pPlot, sRoute)
   end
 
   return bPassable
+end
+
+-- Is the plot blockaded for this player ...
+function isBlockaded(pDestPlot, pPlayer, fBlockaded, pOriginPlot)
+  bBlockaded = false
+
+  if (fBlockaded ~= nil) then
+    bBlockaded = fBlockaded(pDestPlot, pPlayer, pOriginPlot)
+  end
+
+  return bBlockaded
 end
 
 -----------------------------------------------------------------------------------------

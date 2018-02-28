@@ -550,6 +550,33 @@ function MarkFlagUpdateSafe()
 end
 LuaEvents.StartPlayerTurn.Add(MarkFlagUpdateSafe)
 
+
+--=====================================================================================--
+-- Counter
+--=====================================================================================--
+local Counter	= {}
+function Incremente(name)
+	Counter[name] = (Counter[name] or 0) + 1
+end
+
+function ShowCounter(name)
+	print(Counter[name])
+end
+
+
+function ShowLoggedCounter()
+	print(GCO.Separator)
+	print("Turn = " .. tostring(Game.GetCurrentGameTurn()))
+	for key, value in pairs(Counter) do
+		local str = tostring(key) .." tested plots count = " .. tostring(value)
+		print(str)
+		Counter[key] = 0
+	end
+	print(GCO.Separator)
+end
+GameEvents.OnGameTurnStarted.Add(ShowLoggedCounter)
+
+
 --=====================================================================================--
 -- Timer
 --=====================================================================================--
@@ -559,7 +586,11 @@ local TimerLog 	= {
 	["IsPlotConnectedCoastal"] = 0,
 	["IsPlotConnectedOcean"] = 0,
 	["IsPlotConnectedRoad"] = 0,
-	["IsPlotConnectedLand"] = 0,	
+	["IsPlotConnectedLand"] = 0,
+	["GetPathToPlotCoastal"] = 0,
+	["GetPathToPlotOcean"] = 0,
+	["GetPathToPlotRoad"] = 0,
+	["GetPathToPlotLand"] = 0,	
 }
 function StartTimer(name)
 	Timer[name] = { Start = Automation.GetTime() }
@@ -663,6 +694,16 @@ end
 
 function GetRouteEfficiency(length)
 	return GCO.Round( 100 - math.pow(length,2) )
+end
+
+function CalculateMaxRouteLength(routeLengthFactor)
+	local maxRouteLength = 0
+	local efficiency = 100
+	while efficiency > 0 do
+		maxRouteLength 	= maxRouteLength + 1
+		efficiency 		= GetRouteEfficiency( maxRouteLength * routeLengthFactor )
+	end
+	return maxRouteLength
 end
 
 function TradePathBlocked(pPlot, pPlayer) -- check for trade path (doesn't require open border, but blocked by enemy units/territory)
@@ -930,6 +971,9 @@ function Initialize()
 	ExposedMembers.GCO.ToDecimals 		= ToDecimals
 	ExposedMembers.GCO.TableSummation 	= TableSummation
 	ExposedMembers.GCO.IsEmpty 			= IsEmpty
+	-- counter
+	ExposedMembers.GCO.Incremente 		= Incremente
+	ExposedMembers.GCO.ShowCounter		= ShowCounter
 	-- timers
 	ExposedMembers.GCO.StartTimer 		= StartTimer
 	ExposedMembers.GCO.ShowTimer 		= ShowTimer
@@ -961,6 +1005,7 @@ function Initialize()
 	-- map
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
 	ExposedMembers.GCO.GetRouteEfficiency 			= GetRouteEfficiency
+	ExposedMembers.GCO.CalculateMaxRouteLength		= CalculateMaxRouteLength
 	ExposedMembers.GCO.SupplyPathBlocked 			= SupplyPathBlocked
 	ExposedMembers.GCO.TradePathBlocked 			= TradePathBlocked
 	-- player

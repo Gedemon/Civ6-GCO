@@ -295,6 +295,8 @@ function reachablePlots(pPlayer, pPlot, sRoute, fBlockaded)
 
   for loop, direction in ipairs(directions) do
     local pDestPlot = Map.GetAdjacentPlot(pPlot:GetX(), pPlot:GetY(), direction)
+	
+	GCO.Incremente("IsPlotConnected"..sRoute)
 
     -- Don't let submarines fall over the edge!
     if (pDestPlot ~= nil) then
