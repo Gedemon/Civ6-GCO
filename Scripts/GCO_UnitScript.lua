@@ -4918,7 +4918,7 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 		Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 		local unit = GetUnitFromKey ( unitKey )
 		if (not unit) then		
-			Dprint( DEBUG_UNIT_SCRIPT, "REMOVING... unit ID#"..tostring(unitData.unitID).." from player ID#"..tostring(unitData.playerID), "unit type = ".. tostring(GameInfo.Units[unitData.unitType].UnitType))
+			Dprint( DEBUG_UNIT_SCRIPT, "REMOVING... unitKey#"..tostring(unitKey))--tostring(unitData.unitID).." from player ID#"..tostring(unitData.playerID), "unit type = ".. tostring(GameInfo.Units[unitData.unitType].UnitType))
 			ExposedMembers.UnitData[unitKey] = nil
 		else
 			Dprint( DEBUG_UNIT_SCRIPT, "KEEPING.... unit ID#"..unit:GetKey(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))

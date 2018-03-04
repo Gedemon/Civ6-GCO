@@ -52,6 +52,8 @@
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	Toughness="30"	Desirability="50" 	PersonnelArmor="50" Size="5" />
 	</Equipment>
 	<Equipment> <!-- "Vehicle" -->
+		<Row ResourceType="EQUIPMENT_GALLEY"			NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"	Desirability="1" 	Size="40" />
+		
 		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Desirability="1" 	Size="20" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
 		<Row ResourceType="EQUIPMENT_WAR_HORSES"		PrereqTech="TECH_HORSEBACK_RIDING"	Desirability="10" 	Size="10" ObsoleteTech="TECH_COMPOSITES" />
 		<Row ResourceType="EQUIPMENT_ARMORED_HORSES"	PrereqTech="TECH_STIRRUPS"			Desirability="20" 	Size="10" ObsoleteTech="TECH_RIFLING" />

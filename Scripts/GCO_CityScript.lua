@@ -2465,11 +2465,14 @@ function GetNumRequiredInQueue(self, resourceID)
 end
 
 function GetMaxStock(self, resourceID)
-	local maxStock = self:GetSize() * ResourceStockPerSize
-	if resourceID == personnelResourceID 	then maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value) end
-	if resourceID == foodResourceID 		then maxStock = (self:GetSize() * FoodStockPerSize) + baseFoodStock end
-	if GCO.IsResourceEquipment(resourceID) 	then maxStock = self:GetMaxEquipmentStock(resourceID) end	-- Equipment stock does not depend of city size, just buildings
-	if GCO.IsResourceLuxury(resourceID) 	then maxStock = GCO.Round(maxStock * LuxuryStockRatio) end
+	local maxStock = 0
+	if GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
+		maxStock = self:GetSize() * ResourceStockPerSize
+		if resourceID == personnelResourceID 	then maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value) end
+		if resourceID == foodResourceID 		then maxStock = (self:GetSize() * FoodStockPerSize) + baseFoodStock end
+		if GCO.IsResourceEquipment(resourceID) 	then maxStock = self:GetMaxEquipmentStock(resourceID) end	-- Equipment stock does not depend of city size, just buildings
+		if GCO.IsResourceLuxury(resourceID) 	then maxStock = GCO.Round(maxStock * LuxuryStockRatio) end
+	end
 	if ResourceStockage[resourceID] then
 		for _, buildingID in ipairs(ResourceStockage[resourceID]) do
 			if self:GetBuildings():HasBuilding(buildingID) then

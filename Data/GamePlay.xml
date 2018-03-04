@@ -599,20 +599,20 @@
 	
 	<ModifierArguments>
 		<Row ModifierId="STRENGTH_IN_NUMBERS_1"	Name="Amount" Value="4"	/>
-		<Row ModifierId="STRENGTH_IN_NUMBERS_2"	Name="Amount" Value="5"	/>
-		<Row ModifierId="STRENGTH_IN_NUMBERS_3"	Name="Amount" Value="6"	/>
-		<Row ModifierId="STRENGTH_IN_NUMBERS_4"	Name="Amount" Value="8" />
-		<Row ModifierId="STRENGTH_IN_NUMBERS_5"	Name="Amount" Value="10" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_2"	Name="Amount" Value="6"	/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_3"	Name="Amount" Value="8"	/>
+		<Row ModifierId="STRENGTH_IN_NUMBERS_4"	Name="Amount" Value="10" />
+		<Row ModifierId="STRENGTH_IN_NUMBERS_5"	Name="Amount" Value="11" />
 		<Row ModifierId="STRENGTH_IN_NUMBERS_6"	Name="Amount" Value="12" />
 		
 		<Row ModifierId="ORGANIZATION_LEVEL_1"	Name="Amount" Value="1"	/>
 		<Row ModifierId="ORGANIZATION_LEVEL_2"	Name="Amount" Value="2"	/>
-		<Row ModifierId="ORGANIZATION_LEVEL_3"	Name="Amount" Value="4"	/>
-		<Row ModifierId="ORGANIZATION_LEVEL_4"	Name="Amount" Value="7" />
-		<Row ModifierId="ORGANIZATION_LEVEL_5"	Name="Amount" Value="10" />
-		<Row ModifierId="ORGANIZATION_LEVEL_6"	Name="Amount" Value="13" />
-		<Row ModifierId="ORGANIZATION_LEVEL_7"	Name="Amount" Value="20" />
-		<Row ModifierId="ORGANIZATION_LEVEL_8"	Name="Amount" Value="30" />
+		<Row ModifierId="ORGANIZATION_LEVEL_3"	Name="Amount" Value="3"	/>
+		<Row ModifierId="ORGANIZATION_LEVEL_4"	Name="Amount" Value="4" />
+		<Row ModifierId="ORGANIZATION_LEVEL_5"	Name="Amount" Value="5" />
+		<Row ModifierId="ORGANIZATION_LEVEL_6"	Name="Amount" Value="6" />
+		<Row ModifierId="ORGANIZATION_LEVEL_7"	Name="Amount" Value="7" />
+		<Row ModifierId="ORGANIZATION_LEVEL_8"	Name="Amount" Value="8" />
 		
 		<Row ModifierId="REMOVE_RANGED_ATTACK"	Name="Amount" Value="-999" />
 	</ModifierArguments>

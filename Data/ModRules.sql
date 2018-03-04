@@ -23,7 +23,7 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 --*/
 
 /* Improvements */
-UPDATE Improvements 	SET PrereqTech ='TECH_MILITARY_TACTICS' WHERE ImprovementType ='IMPROVEMENT_FORT';
+UPDATE Improvements SET PrereqTech ='TECH_MILITARY_TACTICS', SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_FORT';
 INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_FORT', 'UNIT_BUILDER');
 
 /* Features */
@@ -217,6 +217,10 @@ UPDATE Civics SET Cost = Cost*3.80 WHERE EraType ='ERA_INFORMATION';
 
 /* Districts & Buildings */
 --/*
+
+-- Update Spy missions before removing Districts !
+UPDATE UnitOperations SET TargetDistrict = 'DISTRICT_CITY_CENTER' WHERE OperationType='UNITOPERATION_SPY_SIPHON_FUNDS';
+UPDATE UnitOperations SET TargetDistrict = 'DISTRICT_CITY_CENTER' WHERE OperationType='UNITOPERATION_SPY_STEAL_TECH_BOOST';
 
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
