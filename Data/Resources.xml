@@ -5,15 +5,17 @@
 		PostUpdate.sql add the required entries (like <Name>) or rows to various tables (like <Types>, <Resources>, ...)		
 	-->		
 	<ResourcesGCO>
-		<Row ResourceType="RESOURCE_FOOD" 		ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<!-- Materiel can be used as Equipment for units reinforcement, so is defined in the equipment table -->
 		<!--<Row ResourceType="RESOURCE_MATERIEL" 	ResourceClassType="RESOURCECLASS_MATERIEL" Frequency="0"/>-->
-		<Row ResourceType="RESOURCE_PERSONNEL" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
-		<Row ResourceType="RESOURCE_STEEL" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="RESOURCE_WOOD" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
-		<Row ResourceType="RESOURCE_PLANTS" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
-		<Row ResourceType="RESOURCE_MEDICINE" 	ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
-		<Row ResourceType="RESOURCE_LEATHER" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_FOOD" 				ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_PERSONNEL" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
+		<Row ResourceType="RESOURCE_STEEL" 				ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_WOOD" 				ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_PLANTS" 			ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_MEDICINE" 			ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_LEATHER" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_WOODEN_HULL_PART" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_STEEL_HULL_PART" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
 	</ResourcesGCO>
 
 	<ResourceStockUsage>
