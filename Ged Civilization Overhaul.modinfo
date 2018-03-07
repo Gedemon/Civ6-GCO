@@ -101,6 +101,7 @@
 				<!-- Add buildings, units, ... name & descriptions here to automate table filling -->
 				<File Priority="100">Text/NameText.xml</File>
 				<File Priority="90">Data/CombatRules.sql</File>
+				<File Priority="90">Data/Units.sql</File>
 				<File Priority="90">Data/ModRules.sql</File>
 				<File Priority="2">Data/PostUpdate.sql</File>
 				<File Priority="1">Data/Unlockers.sql</File>
@@ -144,6 +145,7 @@
 		<File>Data/CultureDiffusionParameters.sql</File>
 		<File>Data/CombatRules.sql</File>
 		<File>Data/ModRules.sql</File>
+		<File>Data/Units.sql</File>
 		<File>Data/Unlockers.sql</File>
 		<File>Data/PostUpdate.sql</File>
 		<File>Text/GameText.xml</File>
