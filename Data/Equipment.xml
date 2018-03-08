@@ -52,18 +52,18 @@
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	Toughness="30"	Desirability="50" 	PersonnelArmor="50" Size="5" />
 	</Equipment>
 	<Equipment> <!-- Ships -->
-		<Row ResourceType="EQUIPMENT_GALLEY"				NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="1" 	Size="40" />
-		<Row ResourceType="EQUIPMENT_QUADRIREME" 			NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="10" 	Size="80" />
-		<Row ResourceType="EQUIPMENT_CARAVEL" 				NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="20" 	Size="40" />
-		<Row ResourceType="EQUIPMENT_PRIVATEER" 			NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="30" 	Size="60" />
-		<Row ResourceType="EQUIPMENT_FRIGATE" 				NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="40" 	Size="80" />
-		<Row ResourceType="EQUIPMENT_IRONCLAD" 				NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="50" 	Size="120" />
-		<Row ResourceType="EQUIPMENT_DESTROYER" 			NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="60" 	Size="160" />
-		<Row ResourceType="EQUIPMENT_SUBMARINE" 			NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="70" 	Size="160" />
-		<Row ResourceType="EQUIPMENT_NUCLEAR_SUBMARINE"		NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="80" 	Size="800" />
-		<Row ResourceType="EQUIPMENT_BATTLESHIP" 			NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="90" 	Size="800" />
-		<Row ResourceType="EQUIPMENT_AIRCRAFT_CARRIER" 		NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="100" 	Size="800" />
-		<Row ResourceType="EQUIPMENT_MISSILE_CRUISER" 		NoExport="1" NoTransfer="0"	SpecialStock="1" NotLoot="1"	Desirability="110" 	Size="400" />
+		<Row ResourceType="EQUIPMENT_GALLEY"			PrereqTech="TECH_SAILING"			NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="1" 	Size="40" ObsoleteTech="TECH_SQUARE_RIGGING"	/>
+		<Row ResourceType="EQUIPMENT_QUADRIREME" 		PrereqTech="TECH_SHIPBUILDING"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="10" 	Size="80" ObsoleteTech="TECH_SQUARE_RIGGING"	/>
+		<Row ResourceType="EQUIPMENT_CARAVEL" 			PrereqTech="TECH_CARTOGRAPHY"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="20" 	Size="40" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
+		<Row ResourceType="EQUIPMENT_PRIVATEER" 		PrereqTech="TECH_SQUARE_RIGGING"	NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="30" 	Size="60" ObsoleteTech="TECH_ARMORED_WARFARE"	/>
+		<Row ResourceType="EQUIPMENT_FRIGATE" 			PrereqTech="TECH_SQUARE_RIGGING"	NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="40" 	Size="80" ObsoleteTech="TECH_ARMORED_WARFARE"	/>
+		<Row ResourceType="EQUIPMENT_IRONCLAD" 			PrereqTech="TECH_STEAM_POWER"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="50" 	Size="120" ObsoleteTech="TECH_COMBINED_ARMS"	/>
+		<Row ResourceType="EQUIPMENT_DESTROYER" 		PrereqTech="TECH_COMBINED_ARMS"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="60" 	Size="160" />
+		<Row ResourceType="EQUIPMENT_SUBMARINE" 		PrereqTech="TECH_ELECTRICITY"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="70" 	Size="160" />
+		<Row ResourceType="EQUIPMENT_NUCLEAR_SUBMARINE"	PrereqTech="TECH_TELECOMMUNICATIONS"NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="80" 	Size="800" />
+		<Row ResourceType="EQUIPMENT_BATTLESHIP" 		PrereqTech="TECH_ARMORED_WARFARE"	NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="90" 	Size="800" />
+		<Row ResourceType="EQUIPMENT_AIRCRAFT_CARRIER" 	PrereqTech="TECH_COMBINED_ARMS"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="100" 	Size="800" />
+		<Row ResourceType="EQUIPMENT_MISSILE_CRUISER" 	PrereqTech="TECH_LASERS"			NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="110" 	Size="400" />
 
 	</Equipment>
 	<Equipment> <!-- "Vehicle" -->
