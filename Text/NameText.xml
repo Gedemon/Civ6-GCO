@@ -122,6 +122,19 @@
 		<Replace Tag="LOC_EQUIPMENT_CHAINMAIL_ARMOR_NAME" 			Text="Chainmail Armor"		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_PLATE_ARMOR_NAME" 				Text="Plate Armor"			Language="en_US" /> 
 		
+		<Replace Tag="LOC_EQUIPMENT_GALLEY_NAME" 					Text="Galley"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_QUADRIREME_NAME" 				Text="Quadrireme"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_CARAVEL_NAME" 					Text="Caravel"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_PRIVATEER_NAME" 				Text="Privateer"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_FRIGATE_NAME" 					Text="Frigate"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_IRONCLAD_NAME" 					Text="Ironclad"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_DESTROYER_NAME" 				Text="Destroyer"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_SUBMARINE_NAME" 				Text="Submarine"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_NUCLEAR_SUBMARINE_NAME" 		Text="Nuclear Submarine"	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_BATTLESHIP_NAME" 				Text="Battleship"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_AIRCRAFT_CARRIER_NAME" 			Text="Aircraft Carrier"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_MISSILE_CRUISER_NAME" 			Text="Missile Cruiser"		Language="en_US" /> 
+		
 		<Replace Tag="LOC_EQUIPMENTCLASS_MATERIEL_NAME" 			Text="Materiel" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BLUNT_WEAPONS_NAME" 		Text="Blunt Weapons" 		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SLINGS_NAME" 				Text="Slings"				Language="en_US" />
@@ -150,6 +163,19 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_LIGHTARMOR_NAME" 			Text="Light Armor"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_HELMET_NAME" 				Text="Helmets"				Language="en_US" />
 		
+		<Replace Tag="LOC_EQUIPMENTCLASS_GALLEY_NAME" 				Text="Galley"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_QUADRIREME_NAME" 			Text="Quadrireme"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_CARAVEL_NAME" 				Text="Caravel"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_PRIVATEER_NAME" 			Text="Privateer"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_FRIGATE_NAME" 				Text="Frigate"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_IRONCLAD_NAME" 			Text="Ironclad"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_DESTROYER_NAME" 			Text="Destroyer"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_SUBMARINE_NAME" 			Text="Submarine"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_NUCLEAR_SUBMARINE_NAME" 	Text="Nuclear Submarine"	Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_BATTLESHIP_NAME" 			Text="Battleship"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_AIRCRAFT_CARRIER_NAME" 	Text="Aircraft Carrier"		Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_MISSILE_CRUISER_NAME" 		Text="Missile Cruiser"		Language="en_US" /> 
+		
 		<Replace Tag="LOC_EQUIPMENTCLASS_CATAPULTS_NAME"			Text="Catapults" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_TREBUCHETS_NAME"			Text="Trebuchets" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BOMBARDS_NAME"				Text="Bombards" 			Language="en_US" /> 
@@ -165,20 +191,23 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_ARMOR_NAME" 		Text="Cavalry Armor"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SKIRMISHER_ARMOR_NAME" 	Text="Skirmisher Armor"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SIEGE_WEAPONS_NAME" 		Text="Siege Weapons"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_SHIPS_NAME" 			Text="Melee Ships"			Language="en_US" />
 		
 	
 	</LocalizedText>
     
 	<LocalizedText> <!-- Resources -->	
-		<Replace Tag="LOC_RESOURCE_WINE_NAME" 		Text="Grapes" 		Language="en_US" /> 		
-		<Replace Tag="LOC_RESOURCE_FOOD_NAME" 		Text="Food" 		Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 	Text="Materiel" 	Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"	Text="Personnel"	Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_STEEL_NAME" 		Text="Steel" 		Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_WOOD_NAME" 		Text="Wood" 		Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_PLANTS_NAME" 	Text="Plants" 		Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_LEATHER_NAME" 	Text="Leather" 		Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 	Text="Medicine" 	Language="en_US" /> 		
+		<Replace Tag="LOC_RESOURCE_WINE_NAME" 				Text="Grapes" 			Language="en_US" /> 		
+		<Replace Tag="LOC_RESOURCE_FOOD_NAME" 				Text="Food" 			Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 			Text="Materiel" 		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"			Text="Personnel"		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_STEEL_NAME" 				Text="Steel" 			Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_WOOD_NAME" 				Text="Wood" 			Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_PLANTS_NAME" 			Text="Plants" 			Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_LEATHER_NAME" 			Text="Leather" 			Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 			Text="Medicine" 		Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_WOODEN_HULL_PART_NAME" 	Text="Hull (Wood)" 		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_STEEL_HULL_PART_NAME" 	Text="Hull (Steel)" 	Language="en_US" /> 
 	</LocalizedText>
 
 	<LocalizedText> <!-- Units -->	

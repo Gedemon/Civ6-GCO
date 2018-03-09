@@ -144,7 +144,6 @@ local RefPopulationAll		= "POPULATION_ALL"
 
 -- Error checking
 for row in GameInfo.BuildingResourcesConverted() do
-	--print( DEBUG_CITY_SCRIPT, row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	if row.MultiResRequired and  row.MultiResCreated then
 		print("ERROR: BuildingResourcesConverted contains a row with both MultiResRequired and MultiResCreated set to true:", row.BuildingType, row.ResourceCreated, row.ResourceType, row.MultiResRequired, row.MultiResCreated)
 	end
@@ -2466,7 +2465,7 @@ end
 
 function GetMaxStock(self, resourceID)
 	local maxStock = 0
-	if GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
+	if not GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
 		maxStock = self:GetSize() * ResourceStockPerSize
 		if resourceID == personnelResourceID 	then maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value) end
 		if resourceID == foodResourceID 		then maxStock = (self:GetSize() * FoodStockPerSize) + baseFoodStock end

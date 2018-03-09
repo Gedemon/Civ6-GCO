@@ -73,6 +73,8 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["RESOURCE_MEDICINE"].Index] 			= "[ICON_Damaged]",
 		[GameInfo.Resources["RESOURCE_FOOD"].Index] 				= "[ICON_Food]",
 		[GameInfo.Resources["RESOURCE_PERSONNEL"].Index]			= "[ICON_Position]",
+		[GameInfo.Resources["RESOURCE_WOODEN_HULL_PART"].Index]		= "[ICON_New]",
+		[GameInfo.Resources["RESOURCE_STEEL_HULL_PART"].Index]		= "[ICON_New]",
 		[GameInfo.Resources["EQUIPMENT_CHARIOT"].Index]				= "[ICON_EQUIPMENT_CHARIOT]",
 		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]			= "[ICON_EQUIPMENT_WAR_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_ARMORED_HORSES"].Index]		= "[ICON_EQUIPMENT_ARMORED_HORSES]",
@@ -110,7 +112,20 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_BRONZE_ARMOR"].Index]		= "[ICON_EQUIPMENT_BRONZE_ARMOR]",
 		[GameInfo.Resources["EQUIPMENT_IRON_ARMOR"].Index]			= "[ICON_EQUIPMENT_IRON_ARMOR]",
 		[GameInfo.Resources["EQUIPMENT_CHAINMAIL_ARMOR"].Index]		= "[ICON_EQUIPMENT_CHAINMAIL_ARMOR]",
-		[GameInfo.Resources["EQUIPMENT_PLATE_ARMOR"].Index]			= "[ICON_EQUIPMENT_PLATE_ARMOR]",		
+		[GameInfo.Resources["EQUIPMENT_PLATE_ARMOR"].Index]			= "[ICON_EQUIPMENT_PLATE_ARMOR]",
+		
+		[GameInfo.Resources["EQUIPMENT_GALLEY"].Index]				= "[ICON_EQUIPMENT_GALLEY]",
+		[GameInfo.Resources["EQUIPMENT_QUADRIREME"].Index]			= "[ICON_EQUIPMENT_QUADRIREME]",
+		[GameInfo.Resources["EQUIPMENT_CARAVEL"].Index]				= "[ICON_EQUIPMENT_CARAVEL]",
+		[GameInfo.Resources["EQUIPMENT_PRIVATEER"].Index]			= "[ICON_EQUIPMENT_PRIVATEER]",
+		[GameInfo.Resources["EQUIPMENT_FRIGATE"].Index]				= "[ICON_EQUIPMENT_FRIGATE]",
+		[GameInfo.Resources["EQUIPMENT_IRONCLAD"].Index]			= "[ICON_EQUIPMENT_IRONCLAD]",
+		[GameInfo.Resources["EQUIPMENT_DESTROYER"].Index]			= "[ICON_EQUIPMENT_DESTROYER]",
+		[GameInfo.Resources["EQUIPMENT_SUBMARINE"].Index]			= "[ICON_EQUIPMENT_SUBMARINE]",
+		[GameInfo.Resources["EQUIPMENT_NUCLEAR_SUBMARINE"].Index]	= "[ICON_EQUIPMENT_NUCLEAR_SUBMARINE]",
+		[GameInfo.Resources["EQUIPMENT_BATTLESHIP"].Index]			= "[ICON_EQUIPMENT_BATTLESHIP]",
+		[GameInfo.Resources["EQUIPMENT_AIRCRAFT_CARRIER"].Index]	= "[ICON_EQUIPMENT_AIRCRAFT_CARRIER]",
+		[GameInfo.Resources["EQUIPMENT_MISSILE_CRUISER"].Index]		= "[ICON_EQUIPMENT_MISSILE_CRUISER]",
 	}
 
 -- Floating Texts LOD
@@ -302,8 +317,8 @@ local bErrorToScreen 	= true
 
 local debugFilter = {
 	["debug"] 		= true,
---	["CityScript"] 	= true,
-	["PlayerScript"] = true,
+	["CityScript"] 	= true,
+--	["PlayerScript"] = true,
 --	["UnitScript"] 	= true,
 }
 
@@ -313,7 +328,7 @@ function ToggleOutput()
 end
 
 local debugPrint = {}
-local bLogToTunerConsole 	= false
+local bLogToTunerConsole 	= true--false
 local bLogToDebugTable	 	= not bLogToTunerConsole
 function SetDebugToConsole(bValue)
 	bLogToTunerConsole = bValue

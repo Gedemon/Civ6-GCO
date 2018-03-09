@@ -71,14 +71,14 @@ UPDATE Units SET Personnel = 150 	Where UnitType = "UNIT_HELICOPTER";
 
 /* Sea */
 
-UPDATE Units SET Personnel = 200 	Where UnitType = "UNIT_BARBARIAN_RAIDER" UnitType = "UNIT_NORWEGIAN_LONGSHIP";
+UPDATE Units SET Personnel = 200 	Where UnitType = "UNIT_BARBARIAN_RAIDER" or UnitType = "UNIT_NORWEGIAN_LONGSHIP";
 UPDATE Units SET Personnel = 200, 	PrereqTech = NULL 	Where UnitType = "UNIT_GALLEY";
 UPDATE Units SET Personnel = 300, 	PrereqTech = NULL 	Where UnitType = "UNIT_QUADRIREME";
 UPDATE Units SET Personnel = 150, 	PrereqTech = NULL 	Where UnitType = "UNIT_CARAVEL";
-UPDATE Units SET Personnel = 400, 	PrereqTech = NULL, Where UnitType = "UNIT_FRIGATE";
+UPDATE Units SET Personnel = 400, 	PrereqTech = NULL	Where UnitType = "UNIT_FRIGATE";
 UPDATE Units SET Personnel = 400, 	PrereqCivic = NULL 	Where UnitType = "UNIT_PRIVATEER" or UnitType = "UNIT_ENGLISH_SEADOG";
 UPDATE Units SET Personnel = 150, 	PrereqTech = NULL 	Where UnitType = "UNIT_IRONCLAD";
-UPDATE Units SET Personnel = 2000, 	PrereqTech = NULL 	 Where UnitType = "UNIT_BATTLESHIP";
+UPDATE Units SET Personnel = 2000, 	PrereqTech = NULL 	Where UnitType = "UNIT_BATTLESHIP";
 UPDATE Units SET Personnel = 2000, 	Combat=55, RangedCombat = 60, PrereqCivic=NULL, PrereqTech = NULL  Where UnitType = "UNIT_BRAZILIAN_MINAS_GERAES";
 UPDATE Units SET Personnel = 150, 	PrereqTech = NULL 	Where UnitType = "UNIT_SUBMARINE" or UnitType = "UNIT_GERMAN_UBOAT";
 UPDATE Units SET Personnel = 2500, 	PrereqTech = NULL 	Where UnitType = "UNIT_AIRCRAFT_CARRIER";

@@ -3563,7 +3563,7 @@ function OnCombat( combatResult )
 				local sortedResources 	= {}
 				for resourceKey, stock in pairs(resourcesList) do
 					local resourceID 	= tonumber(resourceKey)
-					if resourceID ~= personnelResourceID then -- to do : make prisonners, from population too
+					if resourceID ~= personnelResourceID and not GameInfo.Resources[resourceID].NotLoot then -- to do : make prisonners, from population too
 						local cost 			= city:GetResourceCost(resourceID)
 						local maxLoot 		= math.min(250, stock/2)
 						local loot			= GCO.Round(maxLoot * ratio)
