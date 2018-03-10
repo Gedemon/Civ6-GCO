@@ -317,8 +317,8 @@ local bErrorToScreen 	= true
 
 local debugFilter = {
 	["debug"] 		= true,
-	["CityScript"] 	= true,
---	["PlayerScript"] = true,
+--	["CityScript"] 	= true,
+	["PlayerScript"] = true,
 --	["UnitScript"] 	= true,
 }
 

@@ -2000,7 +2000,7 @@ Events.TradeRouteActivityChanged.Add(OnTradeRouteActivityChanged)
 function ExportToForeignCities(self)
 	Dlog("ExportToForeignCities ".. Locale.Lookup(self:GetName()).." /START")
 	
-	local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
+	--local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
@@ -2157,7 +2157,7 @@ function GetRouteEfficiencyTo(self, city)
 end
 
 function GetRequirements(self, fromCity)
-	local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
+	--local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
 	local selfKey 				= self:GetKey()
 	local player 				= GCO.GetPlayer(self:GetOwner())
 	local fromplayerID			= fromCity:GetOwner()
@@ -3305,6 +3305,8 @@ end
 
 function CanTrain(self, unitType)
 
+	local DEBUG_CITY_SCRIPT = false --"CityScript"
+
 	local cityKey 	= self:GetKey()
 	local unitID 	= GameInfo.Units[unitType].Index
 
@@ -3355,10 +3357,10 @@ function CanTrain(self, unitType)
 	-- check components needed
 	for resourceID, value in pairs(resTable) do
 
-		local needPerTurn 				= math.ceil( (value - self:GetBuildingQueueStock(resourceID, unitType)) / turnsLeft)
+		local reserved 					= self:GetBuildingQueueStock(resourceID, unitType)
+		local needPerTurn 				= math.ceil( (value - reserved) / turnsLeft)
 		local stock						= self:GetStock(resourceID)
 		local supplied					= math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))
-		local reserved 					= self:GetBuildingQueueStock(resourceID, unitType)
 		local resourceCost				= self:GetResourceCost(resourceID)
 		local costPerTurn				= needPerTurn * resourceCost
 		local costStr					= ""
@@ -3366,18 +3368,17 @@ function CanTrain(self, unitType)
 		local totalCostStr 				= ""
 		if costPerTurn > 0 	then costStr = "("..tostring(costPerTurn).." [ICON_Gold])" end
 		if totalCost > 0 	then totalCostStr = "("..tostring(totalCost).." [ICON_Gold])" end
-		
 		if reserved > 0 then
 			reservedStr = reservedStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESERVED_RESOURCE", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, reserved )
 
-			--Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_PRODUCTION_RESERVED_RESOURCE", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, reserved))
+			Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_PRODUCTION_RESERVED_RESOURCE", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, reserved))
 		end
 
 		totalStr = totalStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESOURCE_TOTAL", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, value, totalCostStr )
 
 		if (needPerTurn * ConstructionMinStockRatio) > stock and (needPerTurn * ConstructionMinStockRatio) > supplied then
 			bHasComponents = false
-	--print("Can't train ".. Locale.Lookup(GameInfo.Units[unitType].Name) ..", failed check on components ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." -> needPerTurn * ConstructionMinStockRatio = ", needPerTurn * ConstructionMinStockRatio, " > stock ", stock, " and > supplied ", supplied)
+			Dprint( DEBUG_CITY_SCRIPT, "Can't train ".. Locale.Lookup(GameInfo.Units[unitType].Name) ..", failed check on components ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." -> needPerTurn * ConstructionMinStockRatio = ", needPerTurn * ConstructionMinStockRatio, " > stock ", stock, " and > supplied ", supplied)
 			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESOURCE_NO_STOCK", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, needPerTurn, stock, supplied, costStr )
 		elseif value > (stock + (supplied * turnsToBuild)) and needPerTurn > supplied then
 			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESOURCE_LIMITED_STOCK", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, needPerTurn, stock, supplied, costStr )
@@ -3396,8 +3397,7 @@ function CanTrain(self, unitType)
 			alreadyStocked = alreadyStocked + self:GetBuildingQueueStock(resourceID, unitType)
 		end
 
-		local value 				= totalNeeded - alreadyStocked --resourceTable.Value
-		--local needPerTurn 			= math.ceil( (value / turnsToBuild)) -- needed for that class
+		local value 				= totalNeeded - alreadyStocked
 		local needPerTurn 			= math.ceil( value / turnsLeft )
 		local numResourceToProvide	= needPerTurn
 		local supplied 				= 0
@@ -3405,7 +3405,7 @@ function CanTrain(self, unitType)
 		local costMin				= 99999
 		local costMax				= 0
 		for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
-			if numResourceToProvide > 0 then
+			--if numResourceToProvide > 0 then
 				stock 			= stock + self:GetStock(resourceID)
 				supplied 		= supplied + math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))
 				local cost		= self:GetResourceCost(resourceID)
@@ -3415,10 +3415,10 @@ function CanTrain(self, unitType)
 				if cost < costMin then
 					costMin = cost
 				end
-				local reserved 	= self:GetBuildingQueueStock(resourceID, unitType)
-				if reserved > 0 then
-					reservedStr = reservedStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESERVED_RESOURCE", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, reserved )
-				end
+			--end
+			local reserved 	= self:GetBuildingQueueStock(resourceID, unitType)
+			if reserved > 0 then
+				reservedStr = reservedStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESERVED_RESOURCE", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, reserved )
 			end
 		end
 
@@ -3447,7 +3447,7 @@ function CanTrain(self, unitType)
 		end
 
 		if (needPerTurn * ConstructionMinStockRatio) > stock and (needPerTurn * ConstructionMinStockRatio) > supplied then
-	--print("Can't train ".. Locale.Lookup(GameInfo.Units[unitType].Name) ..", failed check on equipment ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name).." -> needPerTurn * ConstructionMinStockRatio) = ", needPerTurn * ConstructionMinStockRatio, " > stock ", stock, " and > supplied ", supplied)
+			Dprint( DEBUG_CITY_SCRIPT, "Can't train ".. Locale.Lookup(GameInfo.Units[unitType].Name) ..", failed check on equipment ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name).." -> needPerTurn * ConstructionMinStockRatio) = ", needPerTurn * ConstructionMinStockRatio, " > stock ", stock, " and > supplied ", supplied)
 			bHasComponents = false
 			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESOURCE_NO_STOCK", GCO.GetResourceIcon(), GameInfo.EquipmentClasses[equipmentClass].Name, needPerTurn, stock, supplied, costPerTurnStr ) -- GetResourceIcon() with no argument returns a default icon (to do : GetEquipmentClassIcon(equipmentClass))
 		elseif value > (stock + (supplied * turnsToBuild)) and needPerTurn > supplied then
@@ -3461,6 +3461,7 @@ function CanTrain(self, unitType)
 	-- construct the complete requirement string
 	if bAddStr then requirementStr = reservedStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr end
 	requirementStr = "[NEWLINE]" .. totalStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr
+	Dprint( DEBUG_CITY_SCRIPT, requirementStr)
 
 	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR), requirementStr
 end
@@ -4455,7 +4456,7 @@ end
 function DoConstruction(self)
 
 	Dlog("DoConstruction ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	local DEBUG_CITY_SCRIPT = "debug" --"CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Getting resources for Constructions...")
 
 	local cityKey			= self:GetKey()
@@ -4495,7 +4496,7 @@ function DoConstruction(self)
 		local usedTable = {}
 		for resourceID, value in pairs(resTable) do
 			local neededPerTurn 	= math.ceil( (value - self:GetBuildingQueueStock(resourceID, currentlyBuilding)) / turnsLeft)
-			Dprint( DEBUG_CITY_SCRIPT, "Need : ".. tostring(neededPerTurn), " " ..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. ", Actual Stock = " .. tostring(self:GetStock(resourceID)) )
+			Dprint( DEBUG_CITY_SCRIPT, "Need : ".. tostring(neededPerTurn), " " ..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. ", Actual Stock = " .. Indentation15(tostring(self:GetStock(resourceID))).. " (Resource)" )
 			usedTable[resourceID] = neededPerTurn
 			if neededPerTurn > self:GetStock(resourceID) then efficiency = math.min(efficiency, self:GetStock(resourceID) / neededPerTurn) end
 		end
@@ -4508,25 +4509,30 @@ function DoConstruction(self)
 			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
 				alreadyStocked = alreadyStocked + self:GetBuildingQueueStock(resourceID, currentlyBuilding)
 			end
-
-			local neededPerTurn 		= math.ceil( (totalNeeded-alreadyStocked) / turnsLeft ) -- total needed for that class at 100% production efficiency
-			local numResourceToProvide	= neededPerTurn
-			local totalClass			= 0
-			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
-				if numResourceToProvide > 0 then
-					local stock = self:GetStock(resourceID)
-					totalClass = totalClass + stock
-					if stock >= numResourceToProvide then
-						numResourceToProvide	= 0
-					else
-						numResourceToProvide	= numResourceToProvide - stock
+			if totalNeeded > alreadyStocked then -- we may already have enough of that resource/equipment in the reserved stock
+				local neededPerTurn 		= math.ceil( (totalNeeded-alreadyStocked) / turnsLeft ) -- total needed for that class at 100% production efficiency
+				local numResourceToProvide	= neededPerTurn
+				local totalClass			= 0
+				for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
+					if numResourceToProvide > 0 then
+						local stock = self:GetStock(resourceID)
+						totalClass = totalClass + stock
+						if stock >= numResourceToProvide then
+							numResourceToProvide	= 0
+						else
+							numResourceToProvide	= numResourceToProvide - stock
+						end
 					end
 				end
-			end
-			local providedResources = (neededPerTurn - numResourceToProvide)
+				local providedResources = (neededPerTurn - numResourceToProvide)
+				Dprint( DEBUG_CITY_SCRIPT, "Need : ".. tostring(neededPerTurn), " " ..Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name)).. ", Actual Stock = " .. Indentation15(tostring(totalClass)).. " (Equipment)" )
 
-			Dprint( DEBUG_CITY_SCRIPT, "Need : ".. tostring(neededPerTurn), " Actual Stock = ".. tostring(totalClass), " Equipment : " .. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name) )
-			if numResourceToProvide > 0 then efficiency = math.min(efficiency, providedResources / neededPerTurn) end
+				if numResourceToProvide > 0 	then
+					efficiency = math.min(efficiency, providedResources / neededPerTurn)
+				end
+			else -- if we already have enough of that resource/equipment, mark it...
+				resOrTable[equipmentClass].Value = 0
+			end
 		end
 
 		-- Efficiency value is set, we can use the global resources...
@@ -4538,7 +4544,7 @@ function DoConstruction(self)
 			local cost 	= self:GetResourceCost(resourceID) * used
 			totalCost 	= totalCost + cost
 
-			Dprint( DEBUG_CITY_SCRIPT, "Using : ".. tostring(used), " "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." Cost = "..tostring(cost), " Actual Stock = ", self:GetStock(resourceID))
+			Dprint( DEBUG_CITY_SCRIPT, "Using : ".. tostring(used), " " .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .. Indentation15(" Cost = "..tostring(cost)) .. " Actual Stock = ".. tostring(self:GetStock(resourceID)) )
 			
 			-- add to building queue stock
 			self:ChangeBuildingQueueStock(resourceID, currentlyBuilding, used)
@@ -4591,7 +4597,7 @@ function DoConstruction(self)
 
 			local cost 	= self:GetResourceCost(resourceID) * value
 			totalCost 	= totalCost + cost
-			Dprint( DEBUG_CITY_SCRIPT, "Using : ".. tostring(value), " "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." Cost = "..tostring(cost), " Actual Stock = ", self:GetStock(resourceID) )
+			Dprint( DEBUG_CITY_SCRIPT, "Using : ".. tostring(value), " "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. Indentation15(" Cost = "..tostring(cost)) .. " Actual Stock = " .. tostring(self:GetStock(resourceID)) )
 
 			-- add to building queue stock
 			self:ChangeBuildingQueueStock(resourceID, currentlyBuilding, value)
@@ -4621,9 +4627,9 @@ function DoConstruction(self)
 			self:GetBuildQueue():AddProgress(- production) 
 			if not _cached.RealProduction then _cached.RealProduction = {} end
 			_cached.RealProduction[cityKey] = actualProd
+
 		end
 		
-		--local cost 		= self:GetResourceCost(resourceID) * send
 		player:ProceedTransaction(AccountType.Production, -totalCost)
 	end
 

@@ -507,10 +507,10 @@
 	
 	<UnitConstructionResources>
 		
-		<Row UnitType="UNIT_GALLEY" 			ResourceType="RESOURCE_WOOD" 	Quantity="200" />
-		<Row UnitType="UNIT_QUADRIREME" 		ResourceType="RESOURCE_WOOD" 	Quantity="300" />
-		<Row UnitType="UNIT_CARAVEL" 			ResourceType="RESOURCE_WOOD" 	Quantity="400" />
-		<Row UnitType="UNIT_PRIVATEER" 			ResourceType="RESOURCE_WOOD" 	Quantity="450" />
+		<Row UnitType="UNIT_GALLEY" 			ResourceType="RESOURCE_WOOD" 	Quantity="100" />
+		<Row UnitType="UNIT_QUADRIREME" 		ResourceType="RESOURCE_WOOD" 	Quantity="200" />
+		<Row UnitType="UNIT_CARAVEL" 			ResourceType="RESOURCE_WOOD" 	Quantity="100" />
+		<Row UnitType="UNIT_PRIVATEER" 			ResourceType="RESOURCE_WOOD" 	Quantity="250" />
 		<Row UnitType="UNIT_FRIGATE" 			ResourceType="RESOURCE_WOOD" 	Quantity="600" />
 		<Row UnitType="UNIT_IRONCLAD" 			ResourceType="RESOURCE_STEEL" 	Quantity="100" />
 		<Row UnitType="UNIT_DESTROYER" 			ResourceType="RESOURCE_STEEL" 	Quantity="300" />
