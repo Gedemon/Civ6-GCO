@@ -1259,7 +1259,7 @@ end
 
 function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, tradeRouteLevel)
 
-	local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = "debug"
 
 	local selfKey 		= self:GetKey()
 	local transferKey 	= transferCity:GetKey()
@@ -1347,6 +1347,8 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 		else
 			Dprint( DEBUG_CITY_SCRIPT, " - Can't register route, too far away " .. tostring(efficiency).." % efficiency")
 		end
+	else
+		Dprint( DEBUG_CITY_SCRIPT, " - Can't find a route")
 	end
 end
 
