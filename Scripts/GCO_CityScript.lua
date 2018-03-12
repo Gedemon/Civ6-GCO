@@ -1259,7 +1259,7 @@ end
 
 function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, tradeRouteLevel)
 
-	local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = "debug"
 
 	local selfKey 		= self:GetKey()
 	local transferKey 	= transferCity:GetKey()
@@ -1284,18 +1284,23 @@ function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, 
 	Dprint( DEBUG_CITY_SCRIPT, "Testing "..tostring(sRouteType).." route from "..Locale.Lookup(self:GetName()).." to ".. Locale.Lookup(transferCity:GetName()))
 
 	-- check if the route is possible before trying to determine it...
+	local distance = Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY())
+	
 	if sRouteType == "Coastal" then
-		if ( not(selfPlot:IsCoastalLand() and transferPlot:IsCoastalLand()) ) or maxlength < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY()) then
+		if ( not(selfPlot:IsCoastalLand() and transferPlot:IsCoastalLand()) ) or maxlength < distance then
+			Dprint( DEBUG_CITY_SCRIPT, " - abort from starting conditions: selfPlot:IsCoastalLand() = ", selfPlot:IsCoastalLand(), " transferPlot:IsCoastalLand() = ", transferPlot:IsCoastalLand(), " maxlength = ", maxlength, " distance = ", distance)
 			return
 		end
 
 	elseif sRouteType == "River" then
 		if ( not(selfPlot:IsRiver() and transferPlot:IsRiver()) ) or maxlength < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY())  then
+			Dprint( DEBUG_CITY_SCRIPT, " - abort from starting conditions: selfPlot:IsRiver() = ", selfPlot:IsRiver(), " transferPlot:IsRiver() = ", transferPlot:IsRiver(), " maxlength = ", maxlength, " distance = ", distance)
 			return
 		end
 
 	elseif sRouteType == "Road" then
 		if maxlength < Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), transferPlot:GetX(), transferPlot:GetY()) then
+			Dprint( DEBUG_CITY_SCRIPT, " - abort from starting conditions: maxlength = ", maxlength, " distance = ", distance)
 			return
 		end
 	end
@@ -4458,7 +4463,7 @@ end
 function DoConstruction(self)
 
 	Dlog("DoConstruction ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = "debug" --"CityScript"
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 	Dprint( DEBUG_CITY_SCRIPT, "Getting resources for Constructions...")
 
 	local cityKey			= self:GetKey()
