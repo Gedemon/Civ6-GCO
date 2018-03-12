@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+
+		<!-- +++++++++++++++++++++++++++++++++++++++ -->
+		<!-- +        TEXTS FROM MERGED MODS       + -->
+		<!-- +++++++++++++++++++++++++++++++++++++++ -->
+ 
+  <LocalizedText> <!-- MOAR Units -->
+	<Replace Tag="LOC_UNIT_JAGUAR_NAME" Language="en_US">
+		<Text>Jaguar Warrior</Text>
+	</Replace>
+	<Replace Tag="LOC_UNIT_JAGUAR_DESCRIPTION" Language="en_US">
+		<Text>Unique Aztec melee unit that replaces Swordsman. +7 [ICON_Strength] Combat Strength when attacking and -7 [ICON_Strength] Combat Strength when defending. May capture defeated enemies, turning them into Builders. Ignores terrain movement cost in Jungle and Forest.</Text>
+	</Replace>
+	<Replace Tag="LOC_UNIT_WARRIOR_PRIEST_NAME" Language="en_US">
+		<Text>Warrior Priest</Text>
+	</Replace>
+	<Replace Tag="LOC_UNIT_WARRIOR_PRIEST_DESCRIPTION" Language="en_US">
+		<Text>Aztec unique support unit available with the Mysticism Civic. Can be purchased with Faith. Adjacent Melee, Anti-Cavalry and Ranged units fight at full strength when damaged and earn Great General points from kills.</Text>
+	</Replace>
+	
+		<Replace Tag="LOC_UNIT_CAMEL_ARCHER_NAME" Language="en_US">
+			<Text>Camel Archer</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_CAMEL_ARCHER_DESCRIPTION" Language="en_US">
+			<Text>Arabian unique Classical Era unit. Gains additional +8 [ICON_Strength] when fighting on Desert or Plains.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_PELTAST_NAME" Language="en_US">
+			<Text>Peltast</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_PELTAST_DESCRIPTION" Language="en_US">
+			<Text>Greek unique Ranged unit that replaces Archer. Stronger Ranged attack and Melee defence than Archer but with Range 1.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MINUTEMAN_NAME" Language="en_US">
+			<Text>Minuteman</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MINUTEMAN_DESCRIPTION" Language="en_US">
+			<Text>American unique Industrial Era unit that replaces Musketman. Weaker than Musketman, but cheaper to build and maintain and gains +5 [ICON_Strength] Combat Strength when fighting in or adjacent to its home territory. Also gains additional +5 [ICON_Strength] when fighting in Forest or Jungle.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_LANDSKNECHT_NAME" Language="en_US">
+			<Text>Landsknecht</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_LANDSKNECHT_DESCRIPTION" Language="en_US">
+			<Text>German unique Medieval Era unit that replaces Pikeman. Half the cost of Pikeman but must be purchased with gold.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_PHALANX_NAME" Language="en_US">
+			<Text>Phalanx</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_PHALANX_DESCRIPTION" Language="en_US">
+			<Text>Sumerian unique Ancient Era unit that replaces the Spearman. The Phalanx is available with the discovery of the Mining technology. +8 [ICON_Strength] if fighting within 8 tiles of a Ziggurat improvement.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_CHOKONU_NAME" Language="en_US">
+			<Text>Cho-Ko-Nu</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_CHOKONU_DESCRIPTION" Language="en_US">
+			<Text>Chinese unique Medieval Era Ranged unit that replaces Crossbowman. Slightly less strong than the Crossbowman, but can attack twice per turn.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_RIFLEMAN_NAME" Language="en_US">
+			<Text>Rifleman</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_RIFLEMAN_DESCRIPTION" Language="en_US">
+			<Text>Industrial Era Melee unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_JINETE_NAME" Language="en_US">
+			<Text>Jinete</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_JINETE_DESCRIPTION" Language="en_US">
+			<Text>Spanish unique Ranged unit that replaces Horseman. Yields 50% of defeated units' [ICON_Strength] Combat Strength as [ICON_Faith] Faith on combat victory if fighting on same continent as capital.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_EQUITE_NAME" Language="en_US">
+			<Text>Eques</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_EQUITE_DESCRIPTION" Language="en_US">
+			<Text>Roman unique cavalry unit that replaces Rider. +5 [ICON_Strength] Combat Strength when fighting next to Legion or Warrior unit. Yields 33% of defeated units' [ICON_Strength] as [ICON_Gold] on combat victory.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_DRUZHINA_NAME" Language="en_US">
+			<Text>Druzhina</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_DRUZHINA_DESCRIPTION" Language="en_US">
+			<Text>Russian unique cavalry unit that replaces Horseman. +5 [ICON_Strength] Combat Strength versus damaged units and +4 [ICON_Strength] Combat Strength against Melee units.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_HIRDMAN_NAME" Language="en_US">
+			<Text>Hirdman</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_HIRDMAN_DESCRIPTION" Language="en_US">
+			<Text>Norwegian unique Medieval Era Melee unit that replaces Swordsman. +5 [ICON_Strength] Combat Strength and yields 50% of defeated units' [ICON_Strength] Combat Strength as [ICON_Culture] Culture on combat victory if fighting on same continent as capital.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MUGHAL_SOWAR_NAME" Language="en_US">
+			<Text>Mughal Sowar</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MUGHAL_SOWAR_DESCRIPTION" Language="en_US">
+			<Text>Indian unique Medieval Era Heavy Cavalry unit that replaces Knight. Ignores terrain costs. Heals +15 per turn when on or adjacent to a Stepwell improvement.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_LONGBOWMAN_NAME" Language="en_US">
+			<Text>Longbowman</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_LONGBOWMAN_DESCRIPTION" Language="en_US">
+			<Text>English unique Medieval Era Ranged unit that replaces the Crossbowman. +4 [ICON_Strength] Combat Strength against Melee and Cavalry units with a further +4 [ICON_Strength] Combat Strength if adjacent to another Longbowman unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_CUIRASSIER_NAME" Language="en_US">
+			<Text>Cuirassier</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_CUIRASSIER_DESCRIPTION" Language="en_US">
+			<Text>Industrial Era Heavy Cavalry unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SOHEI_NAME" Language="en_US">
+			<Text>Sohei</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SOHEI_DESCRIPTION" Language="en_US">
+			<Text>Japanese unique unit available with the Feudalism Civic. Can be purchased with [ICON_Faith] Faith. +10 [ICON_Strength] Combat Strength when defending.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_AMAZON_NAME" Language="en_US">
+			<Text>Amazon Cavalry</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_AMAZON_DESCRIPTION" Language="en_US">
+			<Text>Scythian unique Medieval Era Heavy Cavalry unit that replaces Knight. Can move after attacking.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_FATHERLAND_VOLUNTEER_NAME" Language="en_US">
+			<Text>Fatherland Volunteer</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_FATHERLAND_VOLUNTEER_DESCRIPTION" Language="en_US">
+			<Text>Brazilian unique Industrial Era Melee unit that replaces the Rifleman. Cheaper than the Rifleman and costs less maintenance.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_HYKSOS_BOWMAN_NAME" Language="en_US">
+			<Text>Hyksos Bowman</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_HYKSOS_BOWMAN_DESCRIPTION" Language="en_US">
+			<Text>Egyptian unique Ranged unit that is stronger than the Archer it replaces.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_GENDARME_NAME" Language="en_US">
+			<Text>Gendarme</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_GENDARME_DESCRIPTION" Language="en_US">
+			<Text>French unique Medieval Era Heavy Cavalry unit that replaces Knight. +5 [ICON_Strength] Combat Strength when attacking.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_GARDE_REPUBLICAINE_NAME" Language="en_US">
+			<Text>Garde Republicaine</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_GARDE_REPUBLICAINE_DESCRIPTION" Language="en_US">
+			<Text>Kongolese unique Information Era Melee unit that replaces Mechanized Infantry. +10 [ICON_Strength] Combat Strength when attacking or defending districts.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_BANDEIRANTE_NAME" Language="en_US">
+			<Text>Bandeirante</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_BANDEIRANTE_DESCRIPTION" Language="en_US">
+			<Text>Brazilian unique Renaissance Era Recon unit that replaces the Ranger. Available earlier than the Hunter at Gunpowder. Can build forts. Yields 25% of defeated units' combat strength as [ICON_Gold] Gold and 25% of defeated units' combat strength as [ICON_Culture] Culture.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_TERCIO_NAME" Language="en_US">
+			<Text>Tercio</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_TERCIO_DESCRIPTION" Language="en_US">
+			<Text>Spanish unique Renaissance Era Anti-Cavalry unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SEPOY_NAME" Language="en_US">
+			<Text>Sepoy</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SEPOY_DESCRIPTION" Language="en_US">
+			<Text>Indian unique Melee unit that replaces the Rifleman. Fights at full Combat Strength when damaged.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_AMAZON_SCOUT_NAME" Language="en_US">
+			<Text>Amazon Scout</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_AMAZON_SCOUT_DESCRIPTION" Language="en_US">
+			<Text>Scythian unique Ancient Era Recon unit that is stronger than the regular Scout.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_PANZER_NAME" Language="en_US">
+			<Text>Tiger I</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_PANZER_DESCRIPTION" Language="en_US">
+			<Text>German unique Tank replacement that has +5 [ICON_Strength] Combat Strength when attacking.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_T34_NAME" Language="en_US">
+			<Text>T-34</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_T34_DESCRIPTION" Language="en_US">
+			<Text>Russian unique Tank replacement that costs less to build and less maintenance. +5 [ICON_Strength] Combat Strength in or adjacent to own territory.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_YAMATO_NAME" Language="en_US">
+			<Text>Yamato</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_YAMATO_DESCRIPTION" Language="en_US">
+			<Text>Japanese unique naval Ranged unit. Stronger than the Battleship it replaces.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_WAR_GALLEY_NAME" Language="en_US">
+			<Text>Septireme</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_WAR_GALLEY_DESCRIPTION" Language="en_US">
+			<Text>Egyptian unique naval Ranged unit. Stronger than the Quadrireme it replaces and has range 2 instead of 1.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_ONAGER_NAME" Language="en_US">
+			<Text>Onager</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_ONAGER_DESCRIPTION" Language="en_US">
+			<Text>Roman unique siege unit. Stronger than the Catapult it replaces.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_VULTURE_NAME" Language="en_US">
+			<Text>Sickle Swordsman</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_VULTURE_DESCRIPTION" Language="en_US">
+			<Text>Sumerian unique Melee unit. +5 [ICON_Strength] Combat Strength versus damaged units.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_ARMATOLOS_NAME" Language="en_US">
+			<Text>Armatolos</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_ARMATOLOS_DESCRIPTION" Language="en_US">
+			<Text>Greek unique Melee unit that replaces Rifleman. +5 [ICON_Strength] Combat Strength on Hills and ignores Hills movement penalty.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_FRENCH_MARINE_NAME" Language="en_US">
+			<Text>Marine</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_FRENCH_MARINE_DESCRIPTION" Language="en_US">
+			<Text>French unique Melee unit that replaces Musketman. +5 [ICON_Strength] Combat Strength on foreign continents. Amphibious - no attack penalty when attacking from sea or across rivers.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_GHAZI_NAME" Language="en_US">
+			<Text>Ghazi</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_GHAZI_DESCRIPTION" Language="en_US">
+			<Text>Arabian unique Medieval Era Melee unit that replaces the Longswordsman. +5 [ICON_Strength] Combat Strength when opponent is another religion. Yields 50% of defeated units' [ICON_Strength] Combat Strength as [ICON_Faith] Faith on combat victory. Converts captured cities to player's religion. May be purchased with Faith.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MEDICINE_MAN_NAME" Language="en_US">
+			<Text>Medicine Man</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MEDICINE_MAN_DESCRIPTION" Language="en_US">
+			<Text>Kongolese unique support unit replacing Medic but available earlier with the Mysticism Civic. Must be purchased with Faith. Heals units plus adjacent Melee, Cavalry, Anti-Cavalry and Ranged units yield 50% of defeated units' [ICON_Strength] Combat Strength as [ICON_Faith] Faith on combat victory.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SHIGONG_NAME" Language="en_US">
+			<Text>Shigong</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SHIGONG_DESCRIPTION" Language="en_US">
+			<Text>Chinese unique support unit available with the Military Training Civic. Adjacent Melee, Cavalry, Anti-Cavalry and Ranged units get +5 Combat Strength and earn more experience. Must have a Barracks to build.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SPANISH_CONQUISTADOR_DESCRIPTION" Language="en_US">
+			<Text>Spanish unique Renaissance Era unit that replaces the Musketman. +9 [ICON_Strength] Combat Strength when there is a Missionary, Inquisitor, or Apostle in the same hex. If this unit captures a city or is adjacent to a city when it is captured, the city will automatically adopt the Conquistador player's Religion as the dominant Religion.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SNIPER_NAME" Language="en_US">
+			<Text>Sniper</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_SNIPER_DESCRIPTION" Language="en_US">
+			<Text>Atomic Era Ranged unit. Cannot move and attack on the same turn. Gains +12 [ICON_Ranged] Ranged strength vs. land units (exluding Heavy Cavalry). Gains +1 [ICON_Range] Range when on hills.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_EXPLORER_NAME" Language="en_US">
+			<Text>Explorer</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_EXPLORER_DESCRIPTION" Language="en_US">
+			<Text>Fast-moving Renaissance Era Recon unit. Ignores rivers when moving and has no disembark cost.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MACEMAN_NAME" Language="en_US">
+			<Text>Longswordsman</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MACEMAN_DESCRIPTION" Language="en_US">
+			<Text>Medieval Era Melee unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MEDIEVAL_HORSEMAN_NAME" Language="en_US">
+			<Text>Horseman</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MEDIEVAL_HORSEMAN_DESCRIPTION" Language="en_US">
+			<Text>Medieval Era Light Cavalry unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_AMERICAN_AH64_APACHE_NAME" Language="en_US">
+			<Text>AH-64 Apache</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_AMERICAN_AH64_APACHE_DESCRIPTION" Language="en_US">
+			<Text>American unique Atomic Era Light Cavalry unit. +10 [ICON_Strength] Combat Strength versus Heavy Cavalry units.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_ENGLISH_IRONSIDE_NAME" Language="en_US">
+			<Text>Ironside</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_ENGLISH_IRONSIDE_DESCRIPTION" Language="en_US">
+			<Text>English unique Renaissance Era Heavy Cavalry unit available with the Reformed Church Civic. +5 [ICON_Strength] Combat Strength in or adjacent to own territory and +5 [ICON_Strength] Combat Strength when opponent is another religion.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_NORWEGIAN_ULFHEDNAR_NAME" Language="en_US">
+			<Text>Ulfhedinn</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_NORWEGIAN_ULFHEDNAR_DESCRIPTION" Language="en_US">
+			<Text>Norwegian unique support unit available with the Mysticism Civic. Adjacent units receive +5 [ICON_Strength] Combat Strength versus undamaged units and +10 [ICON_Strength] Combat Strength versus damaged units. Yield 50% of defeated units' [ICON_Strength] Combat Strength as [ICON_Faith] Faith if combat is won within one tile.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_TREBUCHET_NAME" Language="en_US">
+			<Text>Trebuchet</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_TREBUCHET_DESCRIPTION" Language="en_US">
+			<Text>Medieval Siege unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_GATLING_GUN_NAME" Language="en_US">
+			<Text>Gatling Gun</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_GATLING_GUN_DESCRIPTION" Language="en_US">
+			<Text>Industrial Era Anti-Cavalry unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_RECON_NAME" Language="en_US">
+			<Text>Recon</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_RECON_DESCRIPTION" Language="en_US">
+			<Text>Modern Era Recon unit. Ignores rivers when moving and has no disembark cost.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MODERN_SNIPER_NAME" Language="en_US">
+			<Text>Modern Sniper</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MODERN_SNIPER_DESCRIPTION" Language="en_US">
+			<Text>Information Era Ranged unit. Cannot move and attack on the same turn. Gains +12 [ICON_Ranged] Ranged strength vs. land units (exluding Heavy Cavalry). Gains +1 [ICON_Range] Range when on hills.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MACHINE_GUN_DESCRIPTION" Language="en_US">
+			<Text>Atomic Era Ranged Support unit. +10 Combat Strength when defending.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_HORSEMAN_NAME" Language="en_US">
+			<Text>Rider</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_INDIAN_VARU_DESCRIPTION" Language="en_US">
+			<Text>Indian unique Classical Era unit. Adjacent enemy units receive -5 [ICON_STRENGTH] Combat Strength.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_CAPITAL_CONTINENT_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength on same continent as capital city.</Text>
+		</Replace>
+		<Replace Tag="PLUS_4_VERSUS_MELEE_CAVALRY_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+4 [ICON_Strength] Combat Strength against Melee and Cavalry units.</Text>
+		</Replace>
+		<Replace Tag="PLUS_4_LONGBOWMAN_ADJACENCY_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+4 [ICON_Strength] Combat Strength next to Longbowman unit.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_EQUITE_ADJACENCY_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength next to Legion or Warrior unit.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_ZIGURRAT_PROXIMITY_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength within 8 tiles of Ziggurat.</Text>
+		</Replace>
+		<Replace Tag="PLUS_8_DESERT_PLAINS_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+8 [ICON_Strength] Combat Strength in Desert or Plains.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_NOT_OWNER_TERRITORY_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength outside of own borders.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_FOREST_JUNGLE_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength in Forest or Jungle.</Text>
+		</Replace>
+		<Replace Tag="PLUS_4_VERSUS_MELEE_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+4 [ICON_Strength] Combat Strength against Melee units.</Text>
+		</Replace>
+		<Replace Tag="PLUS_10_WHEN_DEFENDING_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+10 [ICON_Strength] Combat Strength when defending.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_WHEN_ATTACKING_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength when attacking.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_HILLS_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength on Hills.</Text>
+		</Replace>
+		<Replace Tag="RECEIVE_SHIGONG_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength from Shigong unit.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_FOREIGN_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength on foreign continents.</Text>
+		</Replace>
+		<Replace Tag="PLUS_5_OTHER_RELIGION_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength when opponent is another religion.</Text>
+		</Replace>
+		<Replace Tag="RECEIVE_NORWEGIAN_ULFHEDNAR_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+5 [ICON_Strength] Combat Strength versus undamaged units.</Text>
+		</Replace>
+		<Replace Tag="RECEIVE_NORWEGIAN_ULFHEDNAR_DAMAGED_UNITS_BONUS_DESC" Language="en_US">
+			<Text>+10 [ICON_Strength] Combat Strength versus damaged units.</Text>
+		</Replace>
+		<Replace Tag="PLUS_10_VS_HEAVY_CAVALRY_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+10 [ICON_Strength] Combat Strength versus Heavy Cavalry.</Text>
+		</Replace>
+		<Replace Tag="PLUS_15_VS_HEAVY_CAVALRY_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+15 [ICON_Strength] Combat Strength versus Heavy Cavalry.</Text>
+		</Replace>
+		<Replace Tag="PLUS_20_VS_LIGHT_CAVALRY_COMBAT_BONUS_DESC" Language="en_US">
+			<Text>+20 [ICON_Strength] Combat Strength versus Light Cavalry.</Text>
+		</Replace>
+  </LocalizedText>
+  
+  <LocalizedText> <!-- Warfare Expanded -->
+  		<Row Tag="LOC_UNIT_MOTORISED_INFANTRY_NAME" Language="en_US">
+			<Text>Motorised Infantry</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_MOTORISED_INFANTRY_DESCRIPTION" Language="en_US">
+			<Text>Atomic era melee unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_COMPOSITE_BOWMAN_NAME" Language="en_US">
+			<Text>Composite Bowman</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_COMPOSITE_BOWMAN_DESCRIPTION" Language="en_US">
+			<Text>Ancient era ranged unit.</Text>
+		</Row>
+		<Row Tag="LOC_BOOST_TRIGGER_BOWMAN" Language="en_US">
+			<Text>Own 3 Composite Bowman.</Text>
+		</Row>
+		<Row Tag="LOC_BOOST_TRIGGER_LONGDESC_BOWMAN" Language="en_US">
+			<Text>You look to machinery to improve the performance of your sizable contingent of ranged troops.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_CULVERIN_NAME" Language="en_US">
+			<Text>Culverin</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_CULVERIN_DESCRIPTION" Language="en_US">
+			<Text>Renaissance era ranged unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_FIELD_GUN_NAME" Language="en_US">
+			<Text>Field Gun</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_FIELD_GUN_DESCRIPTION" Language="en_US">
+			<Text>Modern era ranged unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ASSAULT_GUN_NAME" Language="en_US">
+			<Text>Assault Gun</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ASSAULT_GUN_DESCRIPTION" Language="en_US">
+			<Text>Atomic era ranged unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_SP_GUN_NAME" Language="en_US">
+			<Text>Self-Propeled Gun</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_SP_GUN_DESCRIPTION" Language="en_US">
+			<Text>Information era ranged unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_HEAVY_INFANTRY_NAME" Language="en_US">
+			<Text>Heavy Infantry</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_HEAVY_INFANTRY_DESCRIPTION" Language="en_US">
+			<Text>Clasical era melee unit that's effective against mounted units.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_PIKE_AND_SHOT_NAME" Language="en_US">
+			<Text>Pike and Shot</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_PIKE_AND_SHOT_DESCRIPTION" Language="en_US">
+			<Text>Renaissance era melee unit that's effective against mounted units.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_LINE_INFANTRY_NAME" Language="en_US">
+			<Text>Line Infantry</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_LINE_INFANTRY_DESCRIPTION" Language="en_US">
+			<Text>Industrial era melee unit that's effective against mounted units.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_TANK_DESTROYER_NAME" Language="en_US">
+			<Text>Tank Destroyer</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_TANK_DESTROYER_DESCRIPTION" Language="en_US">
+			<Text>Atomic era melee unit that's effective against mounted units.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_LANCER_NAME" Language="en_US">
+			<Text>Lancer</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_LANCER_DESCRIPTION" Language="en_US">
+			<Text>Fast-moving Renaissance era light cavalry unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ARMORED_CAR_NAME" Language="en_US">
+			<Text>Armored Car</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ARMORED_CAR_DESCRIPTION" Language="en_US">
+			<Text>Fast-moving Modern era light cavalry unit</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ARMORED_CAVALRY_NAME" Language="en_US">
+			<Text>Armored Cavalry</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ARMORED_CAVALRY_DESCRIPTION" Language="en_US">
+			<Text>Fast-moving Atomic era light cavalry unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ARMORED_HORSEMAN_NAME" Language="en_US">
+			<Text>Armored Horseman</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ARMORED_HORSEMAN_DESCRIPTION" Language="en_US">
+			<Text>Hard-hitting, Clasical era heavy cavalry unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_REITER_NAME" Language="en_US">
+			<Text>Reiter</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_REITER_DESCRIPTION" Language="en_US">
+			<Text>Hard-hitting, Renaissance era heavy cavalry unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_LANDSHIP_NAME" Language="en_US">
+			<Text>Landship</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_LANDSHIP_DESCRIPTION" Language="en_US">
+			<Text>Hard-hitting, Modern era heavy cavalry unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_WW1_BOMBER_NAME" Language="en_US">
+			<Text>Great War Bomber</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_WW1_BOMBER_DESCRIPTION" Language="en_US">
+			<Text>First bomber unit, available in the Modern era.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_STEALTH_BOMBER_NAME" Language="en_US">
+			<Text>Stealth Bomber</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_STEALTH_BOMBER_DESCRIPTION" Language="en_US">
+			<Text>Future era bomber unit with stealth capability.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_STEALTH_FIGHTER_NAME" Language="en_US">
+			<Text>Stealth Fighter</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_STEALTH_FIGHTER_DESCRIPTION" Language="en_US">
+			<Text>Future era Jet Fighter upgrade with stealth capability.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_WW1_GROUND_ATTACK_NAME" Language="en_US">
+			<Text>Great War Ground Attack</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_WW1_GROUND_ATTACK_DESCRIPTION" Language="en_US">
+			<Text>First ground attack unit, available in the Modern era.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_GROUND_ATTACK_NAME" Language="en_US">
+			<Text>Ground Attack</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_GROUND_ATTACK_DESCRIPTION" Language="en_US">
+			<Text>Atomic era Great War Ground Attack upgrade.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_JET_GROUND_ATTACK_NAME" Language="en_US">
+			<Text>Jet Ground Attack</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_JET_GROUND_ATTACK_DESCRIPTION" Language="en_US">
+			<Text>Information era Ground Attack upgrade.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_STEALTH_ATTACK_NAME" Language="en_US">
+			<Text>Stealth Ground Attack</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_STEALTH_ATTACK_DESCRIPTION" Language="en_US">
+			<Text>Future era Jet Ground Attack upgrade with stealth capability.</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_CLASS_AIR_ATTACK_NAME" Language="en_US">
+			<Text>Air Attack</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_WILD_WEASEL_NAME" Language="en_US">
+			<Text>Wild Weasel</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_WILD_WEASEL_DESCRIPTION" Language="en_US">
+			<Text>+10 [ICON_Strength] Combat Strength when defending vs. anti-air.</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_COUNTERMEASURES_NAME" Language="en_US">
+			<Text>Countermeasures</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_COUNTERMEASURES_DESCRIPTION" Language="en_US">
+			<Text>+7 [ICON_Strength] Combat Strength vs. fighter class units.</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_AIR_SORTIES_NAME" Language="en_US">
+			<Text>Air Sorties</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_AIR_SORTIES_DESCRIPTION" Language="en_US">
+			<Text>Can heal after attacking.</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_GUIDED_BOMBS_NAME" Language="en_US">
+			<Text>Guided Bombs</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_GUIDED_BOMBS_DESCRIPTION" Language="en_US">
+			<Text>+10 [ICON_Strength] Combat Strength vs. fortified defender.</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_STRATEGIC_BOMBING_NAME" Language="en_US">
+			<Text>Strategic Bombing</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_STRATEGIC_BOMBING_DESCRIPTION" Language="en_US">
+			<Text>+12 [ICON_Strength] Combat Strength vs. district defenses.</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_CARPET_BOMBING_NAME" Language="en_US">
+			<Text>Carpet Bombing</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_CARPET_BOMBING_DESCRIPTION" Language="en_US">
+			<Text>+15 [ICON_Strength] Combat Strength vs. land units.</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_AIR_SUPERIORITY_FIGHTER_NAME" Language="en_US">
+			<Text>Air Superiority Fighter</Text>
+		</Row>
+		<Row Tag="LOC_PROMOTION_AIR_SUPERIORITY_FIGHTER_DESCRIPTION" Language="en_US">
+			<Text>+7 [ICON_Strength] Combat Strength vs. ground attack class units.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_UAV_NAME" Language="en_US">
+			<Text>Unmanned Aerial Vehicle</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_UAV_DESCRIPTION" Language="en_US">
+			<Text>Information era Recon upgrade.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_CORVETTE_NAME" Language="en_US">
+			<Text>Corvette</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_CORVETTE_DESCRIPTION" Language="en_US">
+			<Text>Fast Renaissance era melee naval unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_MISSILE_DESTROYER_NAME" Language="en_US">
+			<Text>Guided Missile Destroyer</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_MISSILE_DESTROYER_DESCRIPTION" Language="en_US">
+			<Text>Strongest melee naval unit. Reveals submarines within sight range.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_SUPERCARRIER_NAME" Language="en_US">
+			<Text>Supercarrier</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_SUPERCARRIER_DESCRIPTION" Language="en_US">
+			<Text>Information era melee naval unit that can transport air units.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_GALLEASS_NAME" Language="en_US">
+			<Text>Galleass</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_GALLEASS_DESCRIPTION" Language="en_US">
+			<Text>Medieval era ranged naval unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ARMORED_CRUISER_NAME" Language="en_US">
+			<Text>Armored Cruiser</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_ARMORED_CRUISER_DESCRIPTION" Language="en_US">
+			<Text>Industrial era ranged naval unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_BATTLECRUISER_NAME" Language="en_US">
+			<Text>Battlecruiser</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_BATTLECRUISER_DESCRIPTION" Language="en_US">
+			<Text>Modern era ranged naval unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_GALLEON_NAME" Language="en_US">
+			<Text>Galleon</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_GALLEON_DESCRIPTION" Language="en_US">
+			<Text>Medieval era heavy ranged naval unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_SHIP_OF_THE_LINE_NAME" Language="en_US">
+			<Text>Ship Of The Line</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_SHIP_OF_THE_LINE_DESCRIPTION" Language="en_US">
+			<Text>Renaissance era heavy ranged naval unit.</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_PRE_DREADNOUGHT_NAME" Language="en_US">
+			<Text>Pre-Dreadnought Battleship</Text>
+		</Row>
+		<Row Tag="LOC_UNIT_PRE_DREADNOUGHT_DESCRIPTION" Language="en_US">
+			<Text>Industrial era heavy ranged naval unit.</Text>
+		</Row>
+		<Row Tag="LOC_ABILITY_NAVAL_BOMBARD_NAME" Language="en_US">
+			<Text>Naval Bombard</Text>
+		</Row>
+		<Row Tag="LOC_ABILITY_NAVAL_BOMBARD_DESCRIPTION" Language="en_US">
+			<Text>Cancel out bombard penalty against units.</Text>
+		</Row>
+		<Row Tag="LOC_ABILITY_NAVAL_BOMBARD_COMBAT_MODIFIER_DESCRIPTION" Language="en_US">
+			<Text>Increase bombard by +17 for Heavy Naval Units.</Text>
+		</Row>
+  </LocalizedText>
+  
+  <LocalizedText>  <!-- Warfare Expanded (replace) -->
+		<Replace Tag="LOC_UNIT_AT_CREW_NAME" Language="en_US">
+			<Text>Anti-Tank Artillery</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_MODERN_AT_NAME" Language="en_US">
+			<Text>Weapons Company</Text>
+		</Replace>
+		<Replace Tag="LOC_PEDIA_UNITS_PAGE_UNIT_MODERN_AT_CHAPTER_HISTORY_PARA_1" Language="en_US">
+			<Text>A mechanized weapons company, sometimes called a manoeuvre support company, is a company-sized military unit attached to an infantry battalion to support the rifle companies of the battalion. It usually possesses some combination of machine guns, automatic grenade launchers, mortars, anti-armor missiles, anti-aircraft missiles, reconnaissance troops (which usually includes snipers) and assault pioneers (infantrymen specially trained in the assault role). Traditionally these infantrymen are foot soldiers but from WW2 onwards they are mounted in either APCs or AFVs in mechanized infantry battalions.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_HELICOPTER_NAME" Language="en_US">
+			<Text>Air Cavalry</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_HELICOPTER_DESCRIPTION" Language="en_US">
+			<Text>Fast-moving Information era light cavalry unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_BOOST_TRIGGER_LONGDESC_MACHINERY" Language="en_US">
+			<Text>You look to construction to improve the performance of your sizable contingent of ranged troops.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_INDIAN_VARU_DESCRIPTION" Language="en_US">
+			<Text>Indian unique Classical era unit that replaces the Cataphract. Adjacent enemy units receive -5 [ICON_STRENGTH] Combat Strength.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_BOMBER_DESCRIPTION" Language="en_US">
+			<Text>Atomic era Great War Bomber upgrade.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_BIPLANE_NAME" Language="en_US">
+			<Text>Great War Fighter</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_FIGHTER_DESCRIPTION" Language="en_US">
+			<Text>Atomic era Great War Fighter upgrade.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_CARAVEL_DESCRIPTION" Language="en_US">
+			<Text>Fast Medieval era exploration melee naval unit.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_DESTROYER_DESCRIPTION" Language="en_US">
+			<Text>Modern era melee naval unit. Reveals submarines within sight range.</Text>
+		</Replace>
+		<Replace Tag="LOC_UNIT_BATTLESHIP_DESCRIPTION" Language="en_US">
+			<Text>Modern era heavy naval ranged unit. Provides cover from air and nuclear attacks up to 1 tile away.</Text>
+		</Replace>
+  </LocalizedText>
+	
+</GameData>

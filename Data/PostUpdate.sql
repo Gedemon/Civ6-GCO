@@ -69,8 +69,19 @@ UPDATE MilitaryFormations			SET Name = 'LOC_' || MilitaryFormations.MilitaryForm
 -- Units
 -----------------------------------------------
 
+/* Create new Units entries from the temporary BuildingsGCO table */
+INSERT OR REPLACE INTO Units (UnitType, Name, Cost, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, FormationClass, PromotionClass, AdvisorType)
+
+	SELECT UnitsGCO.UnitType, 'LOC_' || UnitsGCO.UnitType || '_NAME', UnitsGCO.Cost, UnitsGCO.Maintenance, UnitsGCO.BaseMoves, UnitsGCO.BaseSightRange, UnitsGCO.ZoneOfControl, UnitsGCO.Domain, UnitsGCO.Combat, UnitsGCO.FormationClass, UnitsGCO.PromotionClass, UnitsGCO.AdvisorType
+	FROM UnitsGCO;
+	
+/* Create new Buildings Types entries from the temporary BuildingsGCO table */
+INSERT OR REPLACE INTO Types (Type, Kind)
+	SELECT UnitsGCO.UnitType, 'KIND_UNIT'
+	FROM UnitsGCO;
+	
 /* temporary for testing before removing completely those columns from the Units table */
-UPDATE Units SET Materiel = 0, Horses = 0;
+--UPDATE Units SET Materiel = 0, Horses = 0;
 
 -- Replace Unit Upgrade table by custom version (deprecated by new upgrade mechanism)
 /*
@@ -190,6 +201,9 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 (	'UNIT_LONGBOWMAN'						),
 (	'UNIT_MEDIEVAL_HORSEMAN'				),
 (	'UNIT_CUIRASSIER'						),
+
+-- New Units
+(	'UNIT_MODERN_INFANTRY'					), -- 
 
 (	'END_OF_INSERT'							);
 

@@ -974,5 +974,5 @@
     <Replace Tag="LOC_YIELD_LOWER_HOUSING_NAME" 	Text="Lower Class Housing"	Language="en_US" />
 	
   </LocalizedText>  
- 
+
 </GameData>

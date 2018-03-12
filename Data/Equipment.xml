@@ -40,16 +40,16 @@
 		<Row ResourceType="EQUIPMENT_SLINGS"												Desirability="1" 	ObsoleteTech="TECH_ARCHERY"		/>
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"				Desirability="10" 	ObsoleteTech="TECH_MACHINERY"	/>
 		<Row ResourceType="EQUIPMENT_LONGBOWS"		PrereqTech="TECH_CONSTRUCTION"			Desirability="20" 	ObsoleteTech="TECH_GUNPOWDER"	/>		
-		<Row ResourceType="EQUIPMENT_CROSSBOWS"		PrereqTech="TECH_MACHINERY"				Desirability="30" 	/>
+		<Row ResourceType="EQUIPMENT_CROSSBOWS"		PrereqTech="TECH_MACHINERY"				Desirability="30" 	ObsoleteTech="TECH_RIFLING"		/>
 	</Equipment>
 	<Equipment> <!-- Personnel Armor -->
 		<Row ResourceType="EQUIPMENT_LINOTHORAX"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" ObsoleteTech="TECH_MACHINERY" />
 		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" ObsoleteTech="TECH_ENGINEERING" />
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		PrereqTech="TECH_BRONZE_WORKING"	Toughness="5"	Desirability="20" 	PersonnelArmor="25" ObsoleteTech="TECH_ENGINEERING" />
-		<Row ResourceType="EQUIPMENT_GAMBESON"			PrereqTech="TECH_MILITARY_TACTICS"	Toughness="6"	Desirability="25" 	PersonnelArmor="30" />
-		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		PrereqTech="TECH_IRON_WORKING"		Toughness="15"	Desirability="30" 	PersonnelArmor="35" />
-		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			Toughness="20"	Desirability="40" 	PersonnelArmor="40" Size="2" />
-		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	Toughness="30"	Desirability="50" 	PersonnelArmor="50" Size="5" />
+		<Row ResourceType="EQUIPMENT_GAMBESON"			PrereqTech="TECH_MILITARY_TACTICS"	Toughness="6"	Desirability="25" 	PersonnelArmor="30" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		PrereqTech="TECH_IRON_WORKING"		Toughness="15"	Desirability="30" 	PersonnelArmor="35" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			Toughness="20"	Desirability="40" 	PersonnelArmor="40" Size="2" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	Toughness="30"	Desirability="50" 	PersonnelArmor="50" Size="5" ObsoleteTech="TECH_RIFLING"	/>
 	</Equipment>
 	<Equipment> <!-- Ships -->
 		<Row ResourceType="EQUIPMENT_GALLEY"			PrereqTech="TECH_SAILING"			NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="1" 	Size="400" ObsoleteTech="TECH_SQUARE_RIGGING"	/>
@@ -404,6 +404,10 @@
 		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES" />
 		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		
+		<Row UnitType="UNIT_MODERN_INFANTRY"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_MODERN_INFANTRY"		EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES" />
+		<Row UnitType="UNIT_MODERN_INFANTRY"		EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type (Cavalry) -->

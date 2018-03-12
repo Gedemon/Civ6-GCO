@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameInfo>
+
+	<!--
+		UnitsGCO : Temporary table to set the new Units.		
+		PostUpdate.sql add the required entries (like <Name>, <Description>, ...) and rows to various tables (like <Types>, <Units>, ...)		
+		By default <AdvisorType> is set to "ADVISOR_GENERIC", you'll need to specify different AdvisorType or use AdvisorType="NONE" for NULL
+	-->
+	
+	<UnitsGCO>
+		<Row UnitType="UNIT_MODERN_INFANTRY" Cost="650" Maintenance="8" BaseMoves="2" BaseSightRange="2" ZoneOfControl="true" Domain="DOMAIN_LAND" Combat="85" FormationClass="FORMATION_CLASS_LAND_COMBAT" PromotionClass="PROMOTION_CLASS_MELEE" AdvisorType="ADVISOR_CONQUEST" />
+	</UnitsGCO>	
+	
+</GameInfo>

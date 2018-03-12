@@ -10,23 +10,53 @@
 	<LocalizedText>
 		<Text id="LOC_GCO_TITLE">
 			<en_US>Gedemon's Civilization</en_US>
+            <de_DE>Gedemon's Civilization</de_DE>
+            <es_ES>Gedemon's Civilization</es_ES>
+            <fr_FR>Gedemon's Civilization</fr_FR>
+            <it_IT>Gedemon's Civilization</it_IT>
+            <ja_JP>Gedemon's Civilization</ja_JP>
+            <ko_KR>Gedemon's Civilization</ko_KR>
+            <pl_PL>Gedemon's Civilization</pl_PL>
+            <pt_BR>Gedemon's Civilization</pt_BR>
+            <ru_RU>Gedemon's Civilization</ru_RU>
+			<zh_Hans_CN>Gedemon's Civilization</zh_Hans_CN>
+			<zh_Hant_HK>Gedemon's Civilization</zh_Hant_HK>
 		</Text>
 		<Text id="LOC_GCO_TEASER">
 			<en_US>Complete modifications of many Civilization mechanisms</en_US>
+            <de_DE>Complete modifications of many Civilization mechanisms</de_DE>
+            <es_ES>Complete modifications of many Civilization mechanisms</es_ES>
+            <fr_FR>Changement intégral de nombreux méchanismes du jeu</fr_FR>
+            <it_IT>Complete modifications of many Civilization mechanisms</it_IT>
+            <ja_JP>Complete modifications of many Civilization mechanisms</ja_JP>
+            <ko_KR>Complete modifications of many Civilization mechanisms</ko_KR>
+            <pl_PL>Complete modifications of many Civilization mechanisms</pl_PL>
+            <pt_BR>Complete modifications of many Civilization mechanisms</pt_BR>
+            <ru_RU>Complete modifications of many Civilization mechanisms</ru_RU>
+			<zh_Hans_CN>Complete modifications of many Civilization mechanisms</zh_Hans_CN>
+			<zh_Hant_HK>Complete modifications of many Civilization mechanisms</zh_Hant_HK>
 		</Text>
 		<Text id="LOC_GCO_DESCRIPTION">
-			<en_US>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, ...</en_US>
+			<en_US>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</en_US>
+            <de_DE>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</de_DE>
+            <es_ES>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</es_ES>
+            <fr_FR>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</fr_FR>
+            <it_IT>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</it_IT>
+            <ja_JP>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</ja_JP>
+            <ko_KR>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</ko_KR>
+            <pl_PL>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</pl_PL>
+            <pt_BR>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</pt_BR>
+            <ru_RU>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</ru_RU>
+			<zh_Hans_CN>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</zh_Hans_CN>
+			<zh_Hant_HK>Resources stockpile, Supply Lines, Social Stratifications, Supply and Demand, Equipment Production, Units Upgrades based on Equipment availability, ...</zh_Hant_HK>
 		</Text>
 	</LocalizedText>
 	
 	<Dependencies>
-		<Mod id="8342b98d-80c7-4002-87bb-419646bd9b54" title="MOAR Units" />
+		<Mod id="432232e6-7d07-4c16-9262-cc28795d72c5" title="Ged Assets" />
 	</Dependencies>
 
 	<InGameActions>
-		<UpdateArt id="GCO_ConfigArt">
-			<File>GCO.dep</File>
-		</UpdateArt>
 		<UpdateIcons id="GCO_ICONS">
 		    <Properties>
 				<LoadOrder>100</LoadOrder>
@@ -96,34 +126,23 @@
 				<File Priority="100">Data/CultureDiffusionParameters.sql</File>
 				<File Priority="100">Data/GamePlay.xml</File>
 				<File Priority="100">Data/Buildings.xml</File>
+				<File Priority="100">Data/Units.xml</File>
 				<File Priority="100">Data/Equipment.xml</File>
-				<File Priority="100">Data/Resources.xml</File>
-				<!-- Add buildings, units, ... name & descriptions here to automate table filling -->
-				<File Priority="100">Text/NameText.xml</File>
+				<File Priority="100">Data/Resources.xml</File>				
+				<File Priority="100">Text/NameText.xml</File> <!-- Add buildings, units, ... name & descriptions here to automate table filling -->
 				<File Priority="90">Data/CombatRules.sql</File>
 				<File Priority="90">Data/Units.sql</File>
 				<File Priority="90">Data/ModRules.sql</File>
 				<File Priority="2">Data/PostUpdate.sql</File>
 				<File Priority="1">Data/Unlockers.sql</File>
-		</UpdateDatabase>
-		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
-           	<Properties>
-				<LoadOrder>100600</LoadOrder>
-           	</Properties>
-				<File>custom.sql</File>
-				<File>custom.xml</File>
-		</UpdateDatabase>		
-		<UpdateDatabase id="GCO_POST_COMPONENT">
-		    <Properties>
-				<LoadOrder>110000</LoadOrder>
-		    </Properties>
 		</UpdateDatabase>	
 		<UpdateText id="GCO_DEFAULT_LOC">
            	<Properties>
 				<LoadOrder>100700</LoadOrder>
            	</Properties>
-				<File>Text/GameText.xml</File>
-				<File>Text/NameText.xml</File>
+				<File Priority="9">Text/ExternalText.xml</File>
+				<File Priority="2">Text/GameText.xml</File>
+				<File Priority="1">Text/NameText.xml</File>
 		</UpdateText>
 	</InGameActions>
 
@@ -148,9 +167,11 @@
 		<File>Data/Units.sql</File>
 		<File>Data/Unlockers.sql</File>
 		<File>Data/PostUpdate.sql</File>
+		<File>Text/ExternalText.xml</File>
 		<File>Text/GameText.xml</File>
 		<File>Text/NameText.xml</File>
 		<File>Data/Buildings.xml</File>
+		<File>Data/Units.xml</File>
 		<File>Data/Equipment.xml</File>
 		<File>Data/Resources.xml</File>
 		<File>Text/ConfigText.xml</File>
@@ -188,6 +209,5 @@
 		<File>UI/CitySupport.lua</File>
 		<File>UI/ProductionPanel.lua</File>
 		<File>GCO_FontIcons.dds</File>
-		<File>GCO.dep</File>
 	</Files>
 </Mod>

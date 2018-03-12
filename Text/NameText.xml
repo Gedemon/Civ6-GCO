@@ -7,6 +7,7 @@
 		<Replace Tag="LOC_BUILDING_HERBALIST_NAME" 					Text="Herbalist" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 				Text="City Stable"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" 			Text="City Barracks"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CITY_SHIPYARD_NAME" 				Text="City Shipyard"			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 				Text="Blacksmith"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FISH_MARKET_NAME" 				Text="Fish Market"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FRUIT_MARKET_NAME" 				Text="Fruit Market"				Language="en_US" />
@@ -211,9 +212,10 @@
 	</LocalizedText>
 
 	<LocalizedText> <!-- Units -->	
-		<Replace Tag="LOC_UNIT_EXPLORER_NAME" 		Text="Skirmisher" 		Language="en_US" />
-		<Replace Tag="LOC_UNIT_SNIPER_NAME" 		Text="Commando" 		Language="en_US" />
-		<Replace Tag="LOC_UNIT_MODERN_SNIPER_NAME" 	Text="Special Forces" 	Language="en_US" />
+		<Replace Tag="LOC_UNIT_EXPLORER_NAME" 			Text="Skirmisher" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_SNIPER_NAME" 			Text="Commando" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_MODERN_SNIPER_NAME" 		Text="Special Forces" 	Language="en_US" />
+		<Replace Tag="LOC_UNIT_MODERN_INFANTRY_NAME" 	Text="Modern Infantry" 	Language="en_US" />
 	</LocalizedText>
 	
 	<LocalizedText> <!-- Promotions -->	

@@ -637,8 +637,7 @@
 		<Row ModifierId="REMOVE_RANGED_ATTACK" 		Context="Preview" Text="{LOC_REMOVE_RANGED_ATTACK_NAME} {LOC_PROMOTION_DESCRIPTOR_PREVIEW_TEXT}"/>
 	</ModifierStrings>
 	
-	<!-- 
-		POLICIES
+	<!-- 		POLICIES
 		
 		Marian reforms 	-> allows more units in standing army
 		Si Vis Pacem	-> +25% equipment production, +33% equipment cost
@@ -667,8 +666,7 @@
 		<Row PolicyType="POLICY_MIDDLE_TAX" 	Name="LOC_POLICY_MIDDLE_TAX_NAME" 		Description="LOC_POLICY_MIDDLE_TAX_DESCRIPTION" 		PrereqCivic="CIVIC_STATE_WORKFORCE" 	GovernmentSlotType="SLOT_ECONOMIC"/>
 	</Policies>
 	
-	<!-- 
-		TECHNOLOGIES
+	<!-- 		TECHNOLOGIES
 		
 	-->
 	<Types>
@@ -679,5 +677,5 @@
 		<Replace TechnologyType="TECH_ARMORED_WARFARE" 	Name="LOC_TECH_ARMORED_WARFARE_NAME" 	Cost="1350" AdvisorType="ADVISOR_CONQUEST" 		EraType="ERA_MODERN" UITreeRow="2"/>
 		
 	</Technologies>
-		
+	
 </GameInfo>
