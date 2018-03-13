@@ -394,7 +394,7 @@ CREATE TABLE IF NOT EXISTS UnitEquipmentClasses (
 		UnitType TEXT NOT NULL,
 		EquipmentClass TEXT, 																	-- 
 		PercentageOfPersonnel INTEGER NOT NULL CHECK (PercentageOfPersonnel >0) DEFAULT 100,	-- Percentage of equipement for personnel, for examples: 100% for 1:1 personnel:equipment ratio (ie "swords"), 50% for 2:1 (ie "chariot"), 25% for 4:1 (ie "tank")
-		IsRequired BOOLEAN NOT NULL CHECK (IsRequired IN (0,1)) DEFAULT 1,						-- If required, the equipement is part of the healing table 
+		IsRequired BOOLEAN NOT NULL CHECK (IsRequired IN (0,1)) DEFAULT 1,						-- If required, the equipement is part of the healing table
 		CanBeRepaired BOOLEAN NOT NULL CHECK (CanBeRepaired IN (0,1)) DEFAULT 0,				-- Can this equipment be repaired in reserve, or does it need a complete replacement
 		UseInStats BOOLEAN NOT NULL CHECK (UseInStats IN (0,1)) DEFAULT 0,						-- Should we track this equipment losses in unit's statistic
 		PRIMARY KEY(UnitType, EquipmentClass),

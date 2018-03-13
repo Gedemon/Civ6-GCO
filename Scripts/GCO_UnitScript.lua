@@ -1093,15 +1093,19 @@ end
 
 function UpdateFrontLineData(self, bForceSynchronization) -- that function will have to be called after we change the structure of an unit (upgrading, downgrading, new military organization level, ...)
 	Dlog("UpdateFrontLineData for "..Locale.Lookup(self:GetName())..", key = "..tostring(self:GetKey()).." /START")
-	
+	local DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT
+	if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
+	if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_UNIT_SCRIPT, "Updating Data for Unit "..Locale.Lookup(self:GetName()).." key = "..tostring(self:GetKey()))
+	Dprint( DEBUG_UNIT_SCRIPT, "Updating Front Line Data for Unit "..Locale.Lookup(self:GetName()).." key = "..tostring(self:GetKey()))
 	
 	local unitKey = self:GetKey()
 	local unitData = ExposedMembers.UnitData[unitKey]
 	-- When updating, we'll set the HP based on what's available in frontline, no healing here...
 	local currentDamage = self:GetDamage()
 	local maxUnitHP 	= maxHP - currentDamage
+	
+	Dprint( DEBUG_UNIT_SCRIPT, "Core maxUnitHP = "..tostring(maxUnitHP)..", unitData.HP = "..tostring(unitData.HP))
 	
 	-- If we want to force synchronization, use the mod's value, not core value
 	if bForceSynchronization then
@@ -1118,13 +1122,16 @@ function UpdateFrontLineData(self, bForceSynchronization) -- that function will 
 	local personnelSurplus 	= 0
 	local equipmentSurplus	= {}
 	while (not bReached) and (maxUnitHP > 0) do
+		Dprint( DEBUG_UNIT_SCRIPT, "InLoop for maxUnitHP = "..tostring(maxUnitHP))
 		local bNeedToLowerHP	= false
 		personnelSurplus 		= self:GetFrontLinePersonnel() - self:GetPersonnelAtHP(maxUnitHP)
+		Dprint( DEBUG_UNIT_SCRIPT, Indentation20("personnel").." = "..tostring(personnelSurplus).." =  self:GetFrontLinePersonnel() ["..tostring(self:GetFrontLinePersonnel()).."] - self:GetPersonnelAtHP("..tostring(maxUnitHP)..") ["..tostring(self:GetPersonnelAtHP(maxUnitHP)).."]")
 		if personnelSurplus < 0 then
 			bNeedToLowerHP = true
 		end
 		for classID, _ in pairs(self:GetEquipmentClasses()) do
 			equipmentSurplus[classID] = self:GetEquipmentClassFrontLine(classID) - self:GetEquipmentAtHP(classID, maxUnitHP)
+			Dprint( DEBUG_UNIT_SCRIPT, Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[classID].Name)).." = "..tostring(equipmentSurplus[classID]).." =  self:GetEquipmentClassFrontLine(classID) ["..tostring(self:GetEquipmentClassFrontLine(classID)).."] - self:GetEquipmentAtHP("..tostring(maxUnitHP)..") ["..tostring(self:GetEquipmentAtHP(classID, maxUnitHP)).."]")
 			if equipmentSurplus[classID] < 0 and self:IsRequiringEquipmentClass(classID) then
 				bNeedToLowerHP = true
 			end
@@ -1135,6 +1142,8 @@ function UpdateFrontLineData(self, bForceSynchronization) -- that function will 
 			bReached = true
 		end
 	end
+	Dprint( DEBUG_UNIT_SCRIPT, "Loop ended at maxUnitHP = "..tostring(maxUnitHP))
+	
 	if maxUnitHP == 0 then
 		GCO.Warning("UpdateFrontLineData() is trying to murder an unit :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
 		--ExposedMembers.UI.LookAtPlot(self:GetX(), self:GetY(), 0.3) -- if the unit was killed, then this will crash...
