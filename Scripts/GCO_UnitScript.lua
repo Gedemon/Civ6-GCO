@@ -18,8 +18,11 @@ include( "GCO_SmallUtils" )
 
 DEBUG_UNIT_SCRIPT = "UnitScript"
 
-function ToggleUnitDebug()
+function ToggleDebug()
 	DEBUG_UNIT_SCRIPT = not DEBUG_UNIT_SCRIPT
+end
+function SetDebugLevel(sLevel)
+	DEBUG_UNIT_SCRIPT = sLevel
 end
 
 
@@ -3022,32 +3025,31 @@ end
 -- Combat
 -----------------------------------------------------------------------------------------
 
-function GetAntiPersonnelPercent(self)
+function GetPropertyPercent(self, sPropertyKey)
 	
 	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
-	local antiPersonnel = GameInfo.Units[self:GetType()].AntiPersonnel -- 0 = no kill, 100 = all killed
-	local classAP		= {}
-	local numClassAP	= 0		-- number of equipment classes with Anti-Personnel value (usually weapons or ammunition)
+	local baseValue 	= GameInfo.Units[self:GetType()][sPropertyKey]
+	local class			= {}
+	local numClass		= 0		-- number of equipment classes with that property value
 	
 	local equipmentClasses = self:GetEquipmentClasses()
 	for classType, classData in pairs(equipmentClasses) do
-		local equipmentTypes 	= GetEquipmentTypes(classType)
+		local equipmentTypes 	= GetEquipmentTypes(classType)	-- already sorted by desirability
 		local totalFrontLine	= self:GetEquipmentClassFrontLine(classType)
-		--table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
 		if equipmentTypes then
 			for _, data in ipairs(equipmentTypes) do
-				local equipmentAP 		= EquipmentInfo[data.EquipmentID].AntiPersonnel
-				if equipmentAP then
+				local equipmentValue 		= EquipmentInfo[data.EquipmentID][sPropertyKey]
+				if equipmentValue then
 					local equipmentID = data.EquipmentID
 					local num = self:GetFrontLineEquipment(equipmentID, classType)
 					if num > 0 then
 						local ratio = num / totalFrontLine 
-						if not classAP[classType] then 
-							classAP[classType] = equipmentAP * ratio
-							numClassAP = numClassAP + 1
+						if not class[classType] then 
+							class[classType] = equipmentValue * ratio
+							numClass = numClass + 1
 						else
-							classAP[classType] = classAP[classType] + (equipmentAP * ratio)
+							class[classType] = class[classType] + (equipmentValue * ratio)
 						end
 					end
 				end
@@ -3055,11 +3057,12 @@ function GetAntiPersonnelPercent(self)
 		end
 	end
 	
-	local averageAP = (GCO.TableSummation(classAP) + antiPersonnel) / ( numClassAP + 1 )
+	if baseValue then numClass = numClass + 1 end -- acount the base value for the average 
+	local averageValue = (GCO.TableSummation(class) + (baseValue or 0)) / ( numClass )
 	
-	Dprint( DEBUG_UNIT_SCRIPT, "- Getting AP value for ".. Locale.Lookup(self:GetName()), " averageAP = ", tostring(averageAP), " base AP = ", tostring(antiPersonnel), ", classAP = ", GCO.TableSummation(classAP), ", numClassAP = ", numClassAP )
+	Dprint( DEBUG_UNIT_SCRIPT, "- Getting ".. sPropertyKey .." value for ".. Locale.Lookup(self:GetName()), " averageValue = ", tostring(averageValue), " baseValue = ", tostring(baseValue), ", classValue = ", GCO.TableSummation(class), ", numClass = ", numClass )
 	
-	return averageAP
+	return averageValue
 end
 
 function AddCombatInfoTo(Opponent)
@@ -3085,7 +3088,8 @@ function AddCombatInfoTo(Opponent)
 		else
 			Opponent.MaxCapture = 0
 		end
-		Opponent.AntiPersonnel 		= Opponent.unit:GetAntiPersonnelPercent()
+		Opponent.AntiPersonnel 		= Opponent.unit:GetPropertyPercent("AntiPersonnel")
+		Opponent.PersonnelArmor		= Opponent.unit:GetPropertyPercent("PersonnelArmor")
 		
 		Opponent.PromotionClass		= Opponent.unit:GetPromotionClassID()
 		Opponent.OrganizationLevel	= Opponent.unit:GetOrganizationLevel()
@@ -3257,11 +3261,22 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	
 
 	-- Send wounded to the rear, bury the dead, take prisonners
-	if FromOpponent.AntiPersonnel then
-		Opponent.Dead = GCO.Round(Opponent.PersonnelCasualties * FromOpponent.AntiPersonnel / 100)
+	local deathRatio
+	local baseDeathRatio 		= tonumber(GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value)
+	local maxAttackBonus		= 100 - baseDeathRatio
+	local maxDefenseBonus		= baseDeathRatio
+	local antiPersonnelValue	= (FromOpponent.AntiPersonnel or 0) + maxDefenseBonus
+	local personnelArmorValue	= (Opponent.PersonnelArmor or 0) + maxAttackBonus
+	
+	if personnelArmorValue > antiPersonnelValue then
+		local defenseBonus 	= GCO.GetMaxPercentFromLowDiff(maxDefenseBonus, personnelArmorValue, antiPersonnelValue)
+		deathRatio 			= baseDeathRatio - defenseBonus
 	else
-		Opponent.Dead = GCO.Round(Opponent.PersonnelCasualties * GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value / 100)
+		local attackBonus 	= GCO.GetMaxPercentFromLowDiff(maxAttackBonus, antiPersonnelValue, personnelArmorValue)
+		deathRatio 			= baseDeathRatio + attackBonus			
 	end
+	
+	Opponent.Dead = GCO.Round(Opponent.PersonnelCasualties * deathRatio / 100)
 	
 	if FromOpponent.CanTakePrisoners then	
 		if FromOpponent.CapturedPersonnelRatio then
@@ -3752,6 +3767,9 @@ function Heal(self)
 	--if self:GetDamage() == 0 then return end
 
 	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
+	if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
+	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
 	
@@ -5073,7 +5091,7 @@ function AttachUnitFunctions(unit)
 		u.GetMaxMaterielPercentFromReserve		= GetMaxMaterielPercentFromReserve
 		u.GetMaxHealingPerTurn					= GetMaxHealingPerTurn
 		--
-		u.GetAntiPersonnelPercent				= GetAntiPersonnelPercent
+		u.GetPropertyPercent					= GetPropertyPercent
 		--
 		u.InitializeEquipment					= InitializeEquipment
 		u.IsSpecificEquipment					= IsSpecificEquipment

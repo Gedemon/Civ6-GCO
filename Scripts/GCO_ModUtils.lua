@@ -308,6 +308,16 @@ function IsEmpty(testTable)
 	return (next(testTable) == nil)
 end
 
+function GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue) 	-- Return a higher value if lowerValue is high
+	return maxEffectValue*(lowerValue/higherValue)
+end
+function GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue)	-- Return a higher value if lowerValue is low
+	return maxEffectValue*(100-(lowerValue/higherValue*100))/100
+end
+function LimitEffect(maxEffectValue, effectValue)							-- Keep effectValue never equals to maxEffectValue
+	return ToDecimals(maxEffectValue*effectValue/(maxEffectValue+1))
+end
+
 --=====================================================================================--
 -- Debug
 --=====================================================================================--
@@ -980,12 +990,16 @@ function Initialize()
 	-- utils
 	ExposedMembers.GCO.OrderedPairs 	= orderedPairs
 	-- maths
-	ExposedMembers.GCO.Round 			= Round
-	ExposedMembers.GCO.Shuffle 			= Shuffle
-	ExposedMembers.GCO.GetSize 			= GetSize
-	ExposedMembers.GCO.ToDecimals 		= ToDecimals
-	ExposedMembers.GCO.TableSummation 	= TableSummation
-	ExposedMembers.GCO.IsEmpty 			= IsEmpty
+	ExposedMembers.GCO.Round 						= Round
+	ExposedMembers.GCO.Shuffle 						= Shuffle
+	ExposedMembers.GCO.GetSize 						= GetSize
+	ExposedMembers.GCO.ToDecimals 					= ToDecimals
+	ExposedMembers.GCO.TableSummation 				= TableSummation
+	ExposedMembers.GCO.IsEmpty 						= IsEmpty
+	ExposedMembers.GCO.GetMaxPercentFromLowDiff 	= GetMaxPercentFromLowDiff
+	ExposedMembers.GCO.GetMaxPercentFromHighDiff 	= GetMaxPercentFromHighDiff
+	ExposedMembers.GCO.LimitEffect 					= LimitEffect
+
 	-- counter
 	ExposedMembers.GCO.Incremente 		= Incremente
 	ExposedMembers.GCO.ShowCounter		= ShowCounter

@@ -18,8 +18,11 @@ include( "GCO_SmallUtils" )
 
 DEBUG_CITY_SCRIPT = "CityScript"
 
-function ToggleCityDebug()
+function ToggleDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
+end
+function SetDebugLevel(sLevel)
+	DEBUG_CITY_SCRIPT = sLevel
 end
 
 -----------------------------------------------------------------------------------------
@@ -4781,16 +4784,9 @@ function DoNeeds(self)
 	--
 	-- Private functions
 	--	
-	function GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue) 	-- Return a higher value lowerValue is high
-		return maxEffectValue*(lowerValue/higherValue)
-	end
-	function GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue)	-- Return a higher value if lowerValue is low
-		return maxEffectValue*(100-(lowerValue/higherValue*100))/100
-	end
-	function LimitEffect(maxEffectValue, effectValue)							-- Keep effectValue never equals to maxEffectValue
-		return GCO.ToDecimals(maxEffectValue*effectValue/(maxEffectValue+1))
-	end
-
+	local GetMaxPercentFromLowDiff 	= GCO.GetMaxPercentFromLowDiff	-- Return a higher value if lowerValue is high 	(maxEffectValue, higherValue, lowerValue)
+	local GetMaxPercentFromHighDiff = GCO.GetMaxPercentFromHighDiff	-- Return a higher value if lowerValue is low	(maxEffectValue, higherValue, lowerValue)
+	local LimitEffect				= GCO.LimitEffect				-- Keep effectValue never equals to maxEffectValue (maxEffectValue, effectValue)
 
 	local upperPopulation		= self:GetPopulationClass(UpperClassID)
 	local middlePopulation		= self:GetPopulationClass(MiddleClassID)
