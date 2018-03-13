@@ -234,10 +234,10 @@ ALTER TABLE Terrains ADD COLUMN CulturePenalty integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CultureMaxPercent integer DEFAULT '0';
 
 -- Resources trading
-ALTER TABLE Resources ADD COLUMN NoExport 	BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0; 			-- Not allowed on international trade routes
-ALTER TABLE Resources ADD COLUMN NoTransfer BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; 		-- Not allowed on internal trade routes
-ALTER TABLE Resources ADD COLUMN SpecialStock BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0; 	-- Stocked in specific buildings only
-ALTER TABLE Resources ADD COLUMN NotLoot BOOLEAN NOT NULL CHECK (NotLoot IN (0,1)) DEFAULT 0; 				-- Can't be captured when attacking cities
+ALTER TABLE Resources ADD COLUMN NoExport 		BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0; 			-- Not allowed on international trade routes
+ALTER TABLE Resources ADD COLUMN NoTransfer 	BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; 		-- Not allowed on internal trade routes
+ALTER TABLE Resources ADD COLUMN SpecialStock 	BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0; 	-- Stocked in specific buildings only
+ALTER TABLE Resources ADD COLUMN NotLoot 		BOOLEAN NOT NULL CHECK (NotLoot IN (0,1)) DEFAULT 0; 				-- Can't be captured when attacking cities
 
 -- Hidden Buildings
 ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; 		-- Do not show in Civilopedia
@@ -360,14 +360,14 @@ CREATE TABLE IF NOT EXISTS Equipment (
 		Size INTEGER NOT NULL DEFAULT 1,								-- Space taken in a city stockage capacity
 		Desirability INTEGER NOT NULL DEFAULT 0,						-- Units will request ResourceType of higher desirability first
 		Toughness INTEGER NOT NULL CHECK (Toughness > 0) DEFAULT 1,		-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
-		PersonnelArmor INTEGER,
-		AntiPersonnel INTEGER,											-- 0 = no kill, 100 = all killed (if PersonnelArmor = 0)
-		AntiPersonnelArmor INTEGER,
-		IgnorePersonnelArmor INTEGER,
-		VehicleArmor INTEGER,
-		AntiVehicle INTEGER,
-		AntiVehicleArmor INTEGER,
-		IgnoreVehicleArmor INTEGER,
+		PersonnelArmor INTEGER,											-- 0 = high death rate, 100 = low death rate
+		AntiPersonnel INTEGER,											-- 0 = low kill rate, 100 = high kill rate
+		AntiPersonnelArmor INTEGER,										-- 0 = low damage to equipment with PersonnelArmor values, 100 = high damage to equipment with PersonnelArmor values
+		IgnorePersonnelArmor INTEGER,									-- lower PersonnelArmor values
+		VehicleArmor INTEGER,											-- 0 = high personnel loss from death/capture, 100 = low personnel loss from death/capture
+		AntiVehicle INTEGER,											-- 0 = low destruction, 100 = high destruction
+		AntiVehicleArmor INTEGER,										-- 0 = low damage to equipment with VehicleArmor values, 100 = high damage to equipment with VehicleArmor values
+		IgnoreVehicleArmor INTEGER,										-- 100 = high captured/killed personnel, 0 = low captured/killed personnel
 		Reliability INTEGER,											-- Percentage, 100 means no loss from breakdown, lower values means possible loss from unreliability ( = captured or destroyed instead of damaged -> in reserve)
 		FuelConsumption INTEGER,
 		FuelType TEXT,
