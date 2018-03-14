@@ -140,7 +140,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_LO
 
 -- combats
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_HEAVY_DIFFERENCE_VALUE',			10);	-- Minimal damage difference to consider a large victory/defeat
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTIPERSONNEL_PERCENT',		50);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTIPERSONNEL_PERCENT',		45);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTITANK_PERCENT',			15);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTIAIR_PERCENT',			25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTISHIP_PERCENT',			10);
@@ -148,9 +148,11 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_CAPTURE_FR
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_CAPTURED_PERSONNEL_PERCENT',		45);	-- To calculate the captured personnel from an unit casualties
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT',	50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_MATERIEL_KILL_PERCENT',	65);	-- Percentage of the opponent's materiel gained when killing it
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_EQUIPMENT_KILL_PERCENT',	65);	-- Percentage of the opponent's equipment converted to gained materiel when killing it
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_FOOD_KILL_PERCENT',		85);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_DEFENDER_MATERIEL_GAIN_PERCENT',	25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_EQUIPMENT_GAIN_PERCENT',	75);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_EQUIPMENT_KILL_PERCENT',	90);	-- Percentage of the opponent's equipment converted to gained materiel when killing it
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_DEFENDER_EQUIPMENT_GAIN_PERCENT',	35);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_ATTACKER_FOOD_KILL_PERCENT',		85);
 
 -- food
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_CONSUMPTION_UPPER_CLASS_FACTOR',	1.25);

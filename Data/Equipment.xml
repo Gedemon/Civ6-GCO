@@ -11,45 +11,45 @@
 		<Row ResourceType="RESOURCE_MATERIEL" ResourceClassType="RESOURCECLASS_MATERIEL" Size="10" /> <!-- Size 10 to compensate CITY_TRADE_INCOME_EQUIPMENT_RATIO (=0.1) applied to all equipment cost -->
 	</Equipment>
 	<Equipment> <!-- Melee/Cavalry Weapons -->
-		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"												Toughness="1"	Desirability="1" 	AntiPersonnel="27" ObsoleteTech="TECH_IRON_WORKING"	/>
-		<Row ResourceType="EQUIPMENT_STONE_AXES"												Toughness="1"	Desirability="2" 	AntiPersonnel="27" ObsoleteTech="TECH_IRON_WORKING"	/>
-		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="3" 	AntiPersonnel="32" AntiPersonnelArmor="10" ObsoleteTech="TECH_IRON_WORKING"	/>
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"												Toughness="1"	Desirability="1" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
+		<Row ResourceType="EQUIPMENT_STONE_AXES"												Toughness="1"	Desirability="2" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
+		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="3" 	AntiPersonnel="32"	AntiPersonnelArmor="10" 	ObsoleteTech="TECH_IRON_WORKING"	/>
 		
-		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"												Toughness="1"	Desirability="11" 	AntiPersonnel="27" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
-		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="12" 	AntiPersonnel="32" AntiPersonnelArmor="4" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
-		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="13" 	AntiPersonnel="40" AntiPersonnelArmor="6" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
+		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"												Toughness="1"	Desirability="11" 	AntiPersonnel="27"								ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		PrereqTech="TECH_BRONZE_WORKING"		Toughness="2"	Desirability="12" 	AntiPersonnel="32"	IgnorePersonnelArmor="4" 	ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
+		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		PrereqTech="TECH_IRON_WORKING"			Toughness="4"	Desirability="13" 	AntiPersonnel="40"	IgnorePersonnelArmor="6" 	ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
 		
-		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		PrereqTech="TECH_BRONZE_WORKING"		Toughness="3"	Desirability="21" 	AntiPersonnel="38" AntiPersonnelArmor="5" 	ObsoleteTech="TECH_GUNPOWDER"	/>
-		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		PrereqTech="TECH_IRON_WORKING"			Toughness="5"	Desirability="22" 	AntiPersonnel="42" AntiPersonnelArmor="7" 	ObsoleteTech="TECH_GUNPOWDER"	/>
-		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		PrereqTech="TECH_CONSTRUCTION"			Toughness="7"	Desirability="23" 	AntiPersonnel="46" AntiPersonnelArmor="10" 	ObsoleteTech="TECH_GUNPOWDER"	Size="5" 	/>
+		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		PrereqTech="TECH_BRONZE_WORKING"		Toughness="3"	Desirability="21" 	AntiPersonnel="38"	IgnorePersonnelArmor="5" 	ObsoleteTech="TECH_GUNPOWDER"	/>
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		PrereqTech="TECH_IRON_WORKING"			Toughness="5"	Desirability="22" 	AntiPersonnel="42"	IgnorePersonnelArmor="7" 	ObsoleteTech="TECH_GUNPOWDER"	/>
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		PrereqTech="TECH_CONSTRUCTION"			Toughness="7"	Desirability="23" 	AntiPersonnel="46"	IgnorePersonnelArmor="10" 	ObsoleteTech="TECH_GUNPOWDER"	Size="5" 	/>
 		
-		<Row ResourceType="EQUIPMENT_LANCES"			PrereqTech="TECH_MILITARY_TACTICS"		Toughness="7"	Desirability="25" 	AntiPersonnel="46" AntiPersonnelArmor="10" 	ObsoleteTech="TECH_RIFLING"	Size="5" />
+		<Row ResourceType="EQUIPMENT_LANCES"			PrereqTech="TECH_MILITARY_TACTICS"		Toughness="7"	Desirability="25" 	AntiPersonnel="46"	IgnorePersonnelArmor="10" 	ObsoleteTech="TECH_RIFLING"	Size="5" />
 		
-		<Row ResourceType="EQUIPMENT_IRON_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	Toughness="6"	Desirability="30" 	AntiPersonnel="44" AntiPersonnelArmor="8" 	ObsoleteTech="TECH_RIFLING"	/>
-		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	Toughness="7"	Desirability="35" 	AntiPersonnel="48" AntiPersonnelArmor="12" 	ObsoleteTech="TECH_RIFLING"	Size="2" />
+		<Row ResourceType="EQUIPMENT_IRON_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	Toughness="6"	Desirability="30" 	AntiPersonnel="44"	IgnorePersonnelArmor="8" 	ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	Toughness="7"	Desirability="35" 	AntiPersonnel="48"	IgnorePersonnelArmor="12" 	ObsoleteTech="TECH_RIFLING"	Size="2" />
 		
-		<Row ResourceType="EQUIPMENT_MUSKETS"			PrereqTech="TECH_GUNPOWDER"				Toughness="7"	Desirability="40" 	AntiPersonnel="50" AntiPersonnelArmor="25" 	ObsoleteTech="TECH_REPLACEABLE_PARTS" />
+		<Row ResourceType="EQUIPMENT_MUSKETS"			PrereqTech="TECH_GUNPOWDER"				Toughness="7"	Desirability="40" 	AntiPersonnel="50"	IgnorePersonnelArmor="50" 	ObsoleteTech="TECH_REPLACEABLE_PARTS" />
 		
-		<Row ResourceType="EQUIPMENT_RIFLES"			PrereqTech="TECH_RIFLING"				Toughness="7"	Desirability="50" 	AntiPersonnel="55" AntiPersonnelArmor="40"  ObsoleteTech="TECH_COMPOSITES" />
+		<Row ResourceType="EQUIPMENT_RIFLES"			PrereqTech="TECH_RIFLING"				Toughness="7"	Desirability="50" 	AntiPersonnel="55"	IgnorePersonnelArmor="100" 	ObsoleteTech="TECH_COMPOSITES" />
 		
-		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	PrereqTech="TECH_REPLACEABLE_PARTS"		Toughness="7"	Desirability="60" 	AntiPersonnel="60" AntiPersonnelArmor="50" />
+		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	PrereqTech="TECH_REPLACEABLE_PARTS"		Toughness="7"	Desirability="60" 	AntiPersonnel="100"	IgnorePersonnelArmor="120" />
 		
-		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	PrereqTech="TECH_SYNTHETIC_MATERIALS"	Toughness="7"	Desirability="70" 	AntiPersonnel="65" AntiPersonnelArmor="55" />
+		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	PrereqTech="TECH_SYNTHETIC_MATERIALS"	Toughness="7"	Desirability="70" 	AntiPersonnel="150"	IgnorePersonnelArmor="140" />
 	</Equipment>
 	<Equipment> <!-- Skirmisher Weapons -->		
-		<Row ResourceType="EQUIPMENT_SLINGS"												Desirability="1" 	ObsoleteTech="TECH_ARCHERY"		/>
-		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"				Desirability="10" 	ObsoleteTech="TECH_MACHINERY"	/>
-		<Row ResourceType="EQUIPMENT_LONGBOWS"		PrereqTech="TECH_CONSTRUCTION"			Desirability="20" 	ObsoleteTech="TECH_GUNPOWDER"	/>		
-		<Row ResourceType="EQUIPMENT_CROSSBOWS"		PrereqTech="TECH_MACHINERY"				Desirability="30" 	ObsoleteTech="TECH_RIFLING"		/>
+		<Row ResourceType="EQUIPMENT_SLINGS"												Desirability="1" 	AntiPersonnel="5"	ObsoleteTech="TECH_ARCHERY"		/>
+		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"	PrereqTech="TECH_ARCHERY"				Desirability="10" 	AntiPersonnel="25"	ObsoleteTech="TECH_MACHINERY"	/>
+		<Row ResourceType="EQUIPMENT_LONGBOWS"		PrereqTech="TECH_CONSTRUCTION"			Desirability="20" 	AntiPersonnel="35"	ObsoleteTech="TECH_GUNPOWDER"	/>		
+		<Row ResourceType="EQUIPMENT_CROSSBOWS"		PrereqTech="TECH_MACHINERY"				Desirability="30" 	AntiPersonnel="45"	IgnorePersonnelArmor="25"	ObsoleteTech="TECH_RIFLING"		/>
 	</Equipment>
 	<Equipment> <!-- Personnel Armor -->
-		<Row ResourceType="EQUIPMENT_LINOTHORAX"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" ObsoleteTech="TECH_MACHINERY" />
-		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											Toughness="3"	Desirability="10" 	PersonnelArmor="20" ObsoleteTech="TECH_ENGINEERING" />
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"											Toughness="3"	Desirability="10" 	PersonnelArmor="10" ObsoleteTech="TECH_MACHINERY" />
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											Toughness="3"	Desirability="10" 	PersonnelArmor="15" ObsoleteTech="TECH_ENGINEERING" />
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		PrereqTech="TECH_BRONZE_WORKING"	Toughness="5"	Desirability="20" 	PersonnelArmor="25" ObsoleteTech="TECH_ENGINEERING" />
 		<Row ResourceType="EQUIPMENT_GAMBESON"			PrereqTech="TECH_MILITARY_TACTICS"	Toughness="6"	Desirability="25" 	PersonnelArmor="30" ObsoleteTech="TECH_RIFLING"	/>
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		PrereqTech="TECH_IRON_WORKING"		Toughness="15"	Desirability="30" 	PersonnelArmor="35" ObsoleteTech="TECH_RIFLING"	/>
-		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			Toughness="20"	Desirability="40" 	PersonnelArmor="40" Size="2" ObsoleteTech="TECH_RIFLING"	/>
-		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	Toughness="30"	Desirability="50" 	PersonnelArmor="50" Size="5" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			Toughness="20"	Desirability="40" 	PersonnelArmor="50" Size="2" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	Toughness="30"	Desirability="50" 	PersonnelArmor="80" Size="5" ObsoleteTech="TECH_RIFLING"	/>
 	</Equipment>
 	<Equipment> <!-- Ships -->
 		<Row ResourceType="EQUIPMENT_GALLEY"			PrereqTech="TECH_SAILING"			NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="1" 	Size="400" ObsoleteTech="TECH_SQUARE_RIGGING"	/>
@@ -69,17 +69,17 @@
 	<Equipment> <!-- "Vehicle" -->
 		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			Desirability="1" 	Size="20" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
 		<Row ResourceType="EQUIPMENT_WAR_HORSES"		PrereqTech="TECH_HORSEBACK_RIDING"	Desirability="10" 	Size="10" ObsoleteTech="TECH_COMPOSITES" />
-		<Row ResourceType="EQUIPMENT_ARMORED_HORSES"	PrereqTech="TECH_STIRRUPS"			Desirability="20" 	Size="10" ObsoleteTech="TECH_RIFLING" />
-		<Row ResourceType="EQUIPMENT_TANKS"				PrereqTech="TECH_ARMORED_WARFARE"	Desirability="40" 	Size="40" />
-		<Row ResourceType="EQUIPMENT_MODERN_ARMORS"		PrereqTech="TECH_COMPOSITES"		Desirability="50" 	Size="40" />
+		<Row ResourceType="EQUIPMENT_ARMORED_HORSES"	PrereqTech="TECH_STIRRUPS"			Desirability="20" 	Size="10" VehicleArmor="50"	ObsoleteTech="TECH_RIFLING" />
+		<Row ResourceType="EQUIPMENT_TANKS"				PrereqTech="TECH_ARMORED_WARFARE"	Desirability="40" 	Size="40" AntiPersonnelArmor="100" 	 AntiVehicleArmor="100" IgnoreVehicleArmor="100" VehicleArmor="200"	/>
+		<Row ResourceType="EQUIPMENT_MODERN_ARMORS"		PrereqTech="TECH_COMPOSITES"		Desirability="50" 	Size="40" AntiPersonnelArmor="200" 	 AntiVehicleArmor="400" IgnoreVehicleArmor="600" VehicleArmor="500"	/>
 	</Equipment>
 	<Equipment> <!-- Siege Weapons -->
-		<Row ResourceType="EQUIPMENT_CATAPULTS"			PrereqTech="TECH_IRON_WORKING"			Desirability="1" 	Size="10" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
-		<Row ResourceType="EQUIPMENT_TREBUCHETS"		PrereqTech="TECH_MACHINERY"				Desirability="10" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
-		<Row ResourceType="EQUIPMENT_BOMBARDS"			PrereqTech="TECH_METAL_CASTING"			Desirability="20" 	Size="10" ObsoleteTech="TECH_STEEL" />
-		<Row ResourceType="EQUIPMENT_CANNONS"			PrereqTech="TECH_BALLISTICS"			Desirability="30" 	Size="10" ObsoleteTech="TECH_GUIDANCE_SYSTEMS" />
-		<Row ResourceType="EQUIPMENT_HOWITZER"			PrereqTech="TECH_STEEL"					Desirability="40" 	Size="10" />
-		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	PrereqTech="TECH_GUIDANCE_SYSTEMS"		Desirability="50" 	Size="40" />
+		<Row ResourceType="EQUIPMENT_CATAPULTS"			PrereqTech="TECH_IRON_WORKING"			Desirability="1" 	AntiPersonnelArmor="10" 	Size="10" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
+		<Row ResourceType="EQUIPMENT_TREBUCHETS"		PrereqTech="TECH_MACHINERY"				Desirability="10" 	AntiPersonnelArmor="20" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
+		<Row ResourceType="EQUIPMENT_BOMBARDS"			PrereqTech="TECH_METAL_CASTING"			Desirability="20" 	AntiPersonnelArmor="50" 	Size="10" ObsoleteTech="TECH_STEEL" />
+		<Row ResourceType="EQUIPMENT_CANNONS"			PrereqTech="TECH_BALLISTICS"			Desirability="30" 	AntiPersonnelArmor="75" 	Size="10" ObsoleteTech="TECH_GUIDANCE_SYSTEMS" />
+		<Row ResourceType="EQUIPMENT_HOWITZER"			PrereqTech="TECH_STEEL"					Desirability="40" 	AntiPersonnelArmor="100" 	AntiVehicleArmor="50" 	Size="10" />
+		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	PrereqTech="TECH_GUIDANCE_SYSTEMS"		Desirability="50" 	AntiPersonnelArmor="200" 	AntiVehicleArmor="100" 	Size="40" />
 	</Equipment>
 	
 	

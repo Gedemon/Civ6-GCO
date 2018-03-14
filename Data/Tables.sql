@@ -214,10 +214,10 @@ ALTER TABLE Units ADD COLUMN Personnel integer DEFAULT '0';
 --ALTER TABLE Units ADD COLUMN FuelType TEXT; -- resource type used as fuel
 
 -- Casualties modifier
-ALTER TABLE Units ADD COLUMN AntiPersonnel 	integer DEFAULT '55'; -- 100 means all personnel casualties are dead, no wounded, no prisonners
-ALTER TABLE Units ADD COLUMN AntiArmor 		integer DEFAULT '20';
-ALTER TABLE Units ADD COLUMN AntiShip 		integer DEFAULT '50';
-ALTER TABLE Units ADD COLUMN AntiAir 		integer DEFAULT '50';
+ALTER TABLE Units ADD COLUMN AntiPersonnel 	integer; -- 
+--ALTER TABLE Units ADD COLUMN AntiArmor 		integer DEFAULT '20';
+--ALTER TABLE Units ADD COLUMN AntiShip 		integer DEFAULT '50';
+--ALTER TABLE Units ADD COLUMN AntiAir 		integer DEFAULT '50';
 
 -- Columns used when Culture Diffusion is ON and CULTURE_DIFFUSION_VARIATION_BY_ERA = 1
 ALTER TABLE Eras ADD COLUMN CultureMinimumForAcquisitionMod integer DEFAULT '100';		-- Percentage of CULTURE_MINIMUM_FOR_ACQUISITION

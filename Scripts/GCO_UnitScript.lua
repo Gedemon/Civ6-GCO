@@ -69,6 +69,10 @@ local attackerMaterielGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_A
 local attackerMaterielKillPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value)
 local defenderMaterielGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_DEFENDER_MATERIEL_GAIN_PERCENT"].Value)
 
+local attackerEquipmentGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_EQUIPMENT_GAIN_PERCENT"].Value)
+local attackerEquipmentKillPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_EQUIPMENT_KILL_PERCENT"].Value)
+local defenderEquipmentGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_DEFENDER_EQUIPMENT_GAIN_PERCENT"].Value)
+
 -- Helper to get the resource list required by an unit for its construction (but not for reinforcement)
 local unitConstructionResources = {}
 for row in GameInfo.UnitConstructionResources() do
@@ -1097,8 +1101,8 @@ end
 function UpdateFrontLineData(self, bForceSynchronization) -- that function will have to be called after we change the structure of an unit (upgrading, downgrading, new military organization level, ...)
 	Dlog("UpdateFrontLineData for "..Locale.Lookup(self:GetName())..", key = "..tostring(self:GetKey()).." /START")
 	local DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT
-	if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
-	if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
+	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
+	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Updating Front Line Data for Unit "..Locale.Lookup(self:GetName()).." key = "..tostring(self:GetKey()))
 	
@@ -1790,8 +1794,6 @@ function GetNumResourceNeeded(self, resourceID)
 end
 
 function GetRequirements(self)
-
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	local unitKey 			= self:GetKey()
 	local unitData 			= ExposedMembers.UnitData[unitKey]
@@ -2006,7 +2008,7 @@ function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID) -- to do : cac
 end
 
 function GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, equipmentClassID) -- to do : cached table with values per equipment/unit updated on organization/type change
-	return GCO.Round(personnel * GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID))
+	return GCO.Round(personnel * GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID)) -- math.ceil
 end
 
 function GetUnitEquipmentClassBaseAmount(unitTypeID, equipmentClassID, organizationLevelID)
@@ -2248,8 +2250,9 @@ function GetMaxEquipmentFrontLine(self, equipmentClassID)		-- get max equipment 
 end
 
 function GetMaxEquipmentReserve(self, equipmentClassID)			-- get max equipment in reserve for that class
+	local neededForHealing 	= self:GetMaxEquipmentFrontLine(equipmentClassID) - self:GetEquipmentClassFrontLine(equipmentClassID)
 	local personnel = self:GetMaxPersonnelReserve()
-	return GetUnitEquipmentClassNumberForPersonnel(self:GetType(), personnel, equipmentClassID)
+	return math.max(neededForHealing, GetUnitEquipmentClassNumberForPersonnel(self:GetType(), personnel, equipmentClassID))
 end
 
 function GetEquipmentClassFrontLine(self, equipmentClassID)		-- get current number of equipment of that class in frontline
@@ -3027,7 +3030,7 @@ end
 
 function GetPropertyPercent(self, sPropertyKey)
 	
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "debug"
 	
 	local baseValue 	= GameInfo.Units[self:GetType()][sPropertyKey]
 	local class			= {}
@@ -3057,8 +3060,9 @@ function GetPropertyPercent(self, sPropertyKey)
 		end
 	end
 	
-	if baseValue then numClass = numClass + 1 end -- acount the base value for the average 
-	local averageValue = (GCO.TableSummation(class) + (baseValue or 0)) / ( numClass )
+	local averageValue = 0	
+	if baseValue 	then numClass = numClass + 1 end -- acount the base value for the average	
+	if numClass > 0 then averageValue = (GCO.TableSummation(class) + (baseValue or 0)) / ( numClass ) end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "- Getting ".. sPropertyKey .." value for ".. Locale.Lookup(self:GetName()), " averageValue = ", tostring(averageValue), " baseValue = ", tostring(baseValue), ", classValue = ", GCO.TableSummation(class), ", numClass = ", numClass )
 	
@@ -3500,10 +3504,16 @@ function OnCombat( combatResult )
 			attacker.FoodGained 		= math.floor(defender.unitData.FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) / 100)
 			attacker.EquipmentGained 	= {}
 			for equipmentKey, value in pairs(defender.EquipmentLost) do
-				local fromCombat		= value * attackerMaterielGainPercent / 100
+				local fromCombatRatio	= attackerEquipmentGainPercent
+				local fromKillRatio		= attackerEquipmentKillPercent
+				if materielResourceKey	== equipmentKey then 
+					fromCombatRatio 	= attackerMaterielGainPercent 
+					fromKillRatio 		= attackerMaterielKillPercent 
+				end 
+				local fromCombat		= value * fromCombatRatio / 100
 				local equipmentID		= tonumber(equipmentKey)
 				local equipmentClassID	= GetUnitEquipmentTypeClass(defender.unitType, equipmentID)
-				local fromReserve		= defender.unitData.Equipment[equipmentKey] * attackerMaterielKillPercent / 100
+				local fromReserve		= defender.unitData.Equipment[equipmentKey] * fromKillRatio / 100
 				local equipmentGained	= math.floor(fromCombat + fromReserve)
 				
 				attacker.EquipmentGained[equipmentKey] = equipmentGained
@@ -3531,8 +3541,11 @@ function OnCombat( combatResult )
 				
 				attacker.EquipmentGained 	= {}
 				for equipmentKey, value in pairs(defender.EquipmentLost) do
+					local gainRatio			= attackerEquipmentGainPercent
+					if materielResourceKey	== equipmentKey  then gainRatio = attackerMaterielGainPercent	end
+					
 					local equipmentID		= tonumber(equipmentKey)
-					local equipmentGained	= math.floor(value * attackerMaterielGainPercent / 100)
+					local equipmentGained	= math.floor(value * gainRatio / 100)
 					
 					attacker.EquipmentGained[equipmentKey] = equipmentGained
 					
@@ -3553,8 +3566,11 @@ function OnCombat( combatResult )
 				
 				defender.EquipmentGained 	= {}
 				for equipmentKey, value in pairs(attacker.EquipmentLost) do
+					local gainRatio			= defenderEquipmentGainPercent
+					if materielResourceKey	== equipmentKey  then gainRatio = defenderMaterielGainPercent	end
+					
 					local equipmentID		= tonumber(equipmentKey)
-					local equipmentGained	= math.floor(value * defenderMaterielGainPercent / 100)
+					local equipmentGained	= math.floor(value * gainRatio / 100)
 					
 					defender.EquipmentGained[equipmentKey] = equipmentGained
 					
@@ -3767,8 +3783,8 @@ function Heal(self)
 	--if self:GetDamage() == 0 then return end
 
 	local DEBUG_UNIT_SCRIPT = "UnitScript"
-	if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
-	if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
+	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
+	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
@@ -3948,7 +3964,7 @@ function Heal(self)
 		local alreadyUsed			= alreadyUsed[equipmentClassID] or 0
 		local current				= self:GetEquipmentClassFrontLine(equipmentClassID)
 		local currentMax			= self:GetEquipmentAtHP(equipmentClassID, finalHP)
-		local transferMax			= self:GetMaxEquipmentFrontLine(equipmentClassID) * self:GetMaxMaterielPercentFromReserve() / 100 -- using materiel ratio for all equipment
+		local transferMax			= self:GetMaxEquipmentFrontLine(equipmentClassID) * self:GetMaxPersonnelPercentFromReserve() / 100 -- using materiel ratio for all equipment  GetMaxMaterielPercentFromReserve
 		local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)
 		local maxLeftToTranfer 		= math.min(currentMax, transferMax - alreadyUsed)
 		local bTransferDone			= false

@@ -915,6 +915,7 @@ function UnitFlag.UpdateName( self )
 			-- Condition
 			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE")
 			nameString = nameString .. "[NEWLINE]" .. pUnit:GetMoraleString()
+			nameString = nameString .. "[NEWLINE] AP:" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnel")) .. " ARM:" .. GCO.Round(pUnit:GetPropertyPercent("PersonnelArmor")) .. " AARM:" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnelArmor")) .. " IARM:" .. GCO.Round(pUnit:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
 		
 			--local bHasComponents = (unitInfo.Personnel + unitInfo.Equipment + unitInfo.Horses + unitInfo.Materiel > 0)
 			local personnel = pUnit:GetComponent("Personnel")

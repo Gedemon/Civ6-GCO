@@ -11,8 +11,8 @@
 -----------------------------------------------
 
 -- Anti-Personnel (default = 50)
-UPDATE Units SET AntiPersonnel = 10 Where UnitType = "UNIT_SCOUT"; 
-UPDATE Units SET AntiPersonnel = 25 Where UnitType = "UNIT_SLINGER"; 
+--UPDATE Units SET AntiPersonnel = 10 Where UnitType = "UNIT_SCOUT"; 
+--UPDATE Units SET AntiPersonnel = 25 Where UnitType = "UNIT_SLINGER"; 
 
 
 -----------------------------------------------
