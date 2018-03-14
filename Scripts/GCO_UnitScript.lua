@@ -3092,11 +3092,13 @@ function AddCombatInfoTo(Opponent)
 		else
 			Opponent.MaxCapture = 0
 		end
-		Opponent.AntiPersonnel 		= Opponent.unit:GetPropertyPercent("AntiPersonnel")
-		Opponent.PersonnelArmor		= Opponent.unit:GetPropertyPercent("PersonnelArmor")
+		Opponent.AntiPersonnel 			= Opponent.unit:GetPropertyPercent("AntiPersonnel")
+		Opponent.PersonnelArmor			= Opponent.unit:GetPropertyPercent("PersonnelArmor")
+		Opponent.AntiPersonnelArmor		= Opponent.unit:GetPropertyPercent("AntiPersonnelArmor")
+		Opponent.IgnorePersonnelArmor	= Opponent.unit:GetPropertyPercent("IgnorePersonnelArmor")
 		
-		Opponent.PromotionClass		= Opponent.unit:GetPromotionClassID()
-		Opponent.OrganizationLevel	= Opponent.unit:GetOrganizationLevel()
+		Opponent.PromotionClass			= Opponent.unit:GetPromotionClassID()
+		Opponent.OrganizationLevel		= Opponent.unit:GetOrganizationLevel()
 	else
 		Opponent.unitKey 	= GetUnitKeyFromIDs(Opponent.playerID, Opponent.unitID)		
 		Opponent.unitData 	= ExposedMembers.UnitData[Opponent.unitKey]
@@ -3161,11 +3163,13 @@ end
 
 function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	local DEBUG_UNIT_SCRIPT = "debug"
+	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	
 	local UnitData = Opponent.unitData
 	
-	if Opponent.unit then Dprint( DEBUG_UNIT_SCRIPT, "Add Casualties Info To "..tostring(GameInfo.Units[Opponent.unit:GetType()].UnitType).." id#".. tostring(Opponent.unit:GetKey()).." player#"..tostring(Opponent.unit:GetOwner())) end
+	if Opponent.unit 		then Dprint( DEBUG_UNIT_SCRIPT, "Add Casualties Info To "..Indentation20(GameInfo.Units[Opponent.unit:GetType()].UnitType).." id#".. tostring(Opponent.unit:GetKey()).." player#"..tostring(Opponent.unit:GetOwner())) end
+	if FromOpponent.unit 	then Dprint( DEBUG_UNIT_SCRIPT, "..................From "..Indentation20(GameInfo.Units[FromOpponent.unit:GetType()].UnitType).." id#".. tostring(FromOpponent.unit:GetKey()).." player#"..tostring(FromOpponent.unit:GetOwner())) end
 	Dprint( DEBUG_UNIT_SCRIPT, "- Handling casualties to Personnel : initial = ".. tostring(UnitData.Personnel), " casualties = ", Opponent.PersonnelCasualties, " final = ", tostring(UnitData.Personnel  	- Opponent.PersonnelCasualties) )
 	
 	-- Remove casualties from frontline
@@ -3175,17 +3179,121 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	end
 		
 	Opponent.EquipmentLost 		= {}
+	-- to do : split "lost" in
+	-- Opponent.CapturedEquipment	= {} -- equipment captured by the other opponent
+	-- Opponent.DestroyedEquipment	= {} -- equipment destroyed on the field
+	-- Opponent.DisabledEquipment	= {} -- equipment lightly damaged (send to reserve)
+	
 	Opponent.DamagedEquipment 	= {}
 	Opponent.HorsesLost			= 0 	-- used for stats
 	
-	-- Remove equipment from frontline, and handle destoyed/damaged/captured equipment
+	--
+	-- Base values
+	--
+	
+	local baseIgnorePersonnelArmor	= (FromOpponent.IgnorePersonnelArmor or 0)
+	local baseIgnoreVehicleArmor	= (FromOpponent.IgnoreVehicleArmor or 0)
+	local basePersonnelArmor		= (Opponent.PersonnelArmor or 0)
+	local baseVehicleArmor			= (Opponent.VehicleArmor or 0)
+	
+	-- Lethality (efficiency to kill personnel or destroy vehicles)
+	local baseAntiPersonnel			= (FromOpponent.AntiPersonnel or 0)
+	local baseAntiVehicle			= (FromOpponent.AntiVehicle or 0)
+	
+	-- AntiArmor (ability to disable armor but not the ability to kill the owner)
+	local baseAntiPersonnelArmor	= (FromOpponent.AntiPersonnelArmor or 0)
+	local baseAntiVehicleArmor		= (FromOpponent.AntiVehicleArmor or 0)
+
+	-- Armor (protect from death/wound)
+	local personnelArmorValue		= math.max(0, basePersonnelArmor - baseIgnorePersonnelArmor)
+	local vehicleArmorValue			= math.max(0, baseVehicleArmor - baseIgnoreVehicleArmor)
+	
+	-- Evasion (ability to avoid capture, safely behind protection)
+	local baseEvasion				= math.max(0, (baseVehicleArmor - baseAntiVehicleArmor) + math.max(0, basePersonnelArmor - baseAntiPersonnelArmor)
+	
+	-- Capture (ability to go through all protection)
+	local baseCapture				= 0	
+	if baseIgnorePersonnelArmor > basePersonnelArmor and baseIgnoreVehicleArmor > baseVehicleArmor then
+		baseCapture = (baseIgnorePersonnelArmor - basePersonnelArmor) + (baseIgnoreVehicleArmor - baseVehicleArmor)
+	end
+	
+	Dprint( DEBUG_UNIT_SCRIPT, "- Base values :")
+	Dprint( DEBUG_UNIT_SCRIPT, "  AntiPersonnel = ".. Indentation8(baseAntiPersonnel).. ", PersonnelArmorValue = ".. Indentation8(personnelArmorValue).. " ( = PersonnelArmor[".. Indentation8(basePersonnelArmor) .."] - IgnorePersonnelArmor["..Indentation8(baseIgnorePersonnelArmor).."] ), AntiPersonnelArmor = ".. Indentation8(baseAntiPersonnelArmor) )
+	Dprint( DEBUG_UNIT_SCRIPT, "  AntiVehicle   = ".. Indentation8(baseAntiVehicle).. 	", VehicleArmorValue   = ".. Indentation8(vehicleArmorValue)..   " ( =   VehicleArmor[".. Indentation8(baseVehicleArmor) .."]   -   IgnoreVehicleArmor["..Indentation8(baseIgnoreVehicleArmor).."] )  , AntiVehicleArmor   = ".. Indentation8(baseAntiVehicleArmor) )
+	Dprint( DEBUG_UNIT_SCRIPT, "  BaseCapture   = ".. Indentation8(baseCapture).. 	"    , baseEvasion         = ".. Indentation8(baseEvasion))
+		
+	--
+	-- Manage personnel casualties
+	--
+	Dprint( DEBUG_UNIT_SCRIPT, "- Manage Casualties to Personnel :")
+	
+	-- Death from combat
+	local deathRatio
+	local baseDeathRatio 		= tonumber(GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value)
+	local maxAttackBonus		= 100 - baseDeathRatio
+	local maxDefenseBonus		= baseDeathRatio
+	local antiPersonnelValue	= baseAntiPersonnel + maxDefenseBonus						-- only AntiPersonnel value for death rate (AntiArmor values define the ability to disable armor, it doesn't affect the ability to kill the owner)
+	local armorValue			= personnelArmorValue + vehicleArmorValue + maxAttackBonus 	-- protected by PersonnelArmor + VehicleArmor 
+	
+	if armorValue > antiPersonnelValue then
+		local defenseBonus 	= GCO.GetMaxPercentFromLowDiff(maxDefenseBonus, armorValue, antiPersonnelValue)
+		deathRatio 			= baseDeathRatio - defenseBonus
+	else
+		local attackBonus 	= GCO.GetMaxPercentFromLowDiff(maxAttackBonus, antiPersonnelValue, armorValue)
+		deathRatio 			= baseDeathRatio + attackBonus			
+	end
+	
+	Opponent.Dead 				= GCO.Round(Opponent.PersonnelCasualties * deathRatio / 100)
+	local casualtiesToManage	= Opponent.PersonnelCasualties - Opponent.Dead
+	local deadRatio 			= Opponent.Dead / Opponent.PersonnelCasualties
+
+	-- Captured personnel
+	if FromOpponent.CanTakePrisoners then
+	
+		local captureRatio
+		local baseCaptureRatio 		= tonumber(GameInfo.GlobalParameters["COMBAT_CAPTURED_PERSONNEL_PERCENT"].Value)
+		local maxAttackBonus		= 100 - baseCaptureRatio
+		local maxDefenseBonus		= baseCaptureRatio
+		local captureValue			= baseCapture + maxDefenseBonus
+		local evasionValue			= baseEvasion + maxAttackBonus
+		
+		if evasionValue > captureValue then
+			local defenseBonus 	= GCO.GetMaxPercentFromLowDiff(maxDefenseBonus, evasionValue, captureValue)
+			captureRatio 		= baseCaptureRatio - defenseBonus
+		else
+			local attackBonus 	= GCO.GetMaxPercentFromLowDiff(maxAttackBonus, captureValue, evasionValue)
+			captureRatio		= baseCaptureRatio + attackBonus			
+		end
+	
+		Opponent.Captured = GCO.Round(casualtiesToManage * captureRatio / 100)
+	
+		if FromOpponent.MaxCapture then
+			Opponent.Captured = math.min(FromOpponent.MaxCapture, Opponent.Captured)
+		end
+	else
+		Opponent.Captured = 0
+	end	
+	casualtiesToManage 	= casualtiesToManage - Opponent.Captured
+	local capturedRatio = Opponent.Captured / Opponent.PersonnelCasualties
+	
+	-- Wounded
+	--to do : protection -> light injuries transferred to reserve
+	Opponent.Wounded 	= casualtiesToManage
+	local woundedRatio = Opponent.Wounded / Opponent.PersonnelCasualties
+	
+	Dprint( DEBUG_UNIT_SCRIPT, "- Casualties to Personnel : ".. Indentation20("Dead = ".. tostring(Opponent.Dead)).. Indentation20(", Captured = ".. tostring(Opponent.Captured)).. Indentation20(", Wounded = ".. tostring(Opponent.Wounded)) )
+
+	
+	--
+	-- Remove equipment from frontline, and handle destoyed/damaged/captured equipment (To do: manage using base values)
+	-- 
 	for equipmentClassID, classCasualty in pairs(Opponent.EquipmentCasualties) do
 		local totalEquipment 	= GetNumEquipmentOfClassInList(equipmentClassID, Opponent.unitData.Equipment)
 		local equipment 		= {}
 		local averageToughness	= 0
 		local totalPondered		= 0
 		
-		Dprint( DEBUG_UNIT_SCRIPT, "- Handling casualties to equipment class : ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name), " casualties = ", classCasualty, " total class equipment = ", totalEquipment)
+		Dprint( DEBUG_UNIT_SCRIPT, "- Handling casualties to equipment class : ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name)), " casualties = ", classCasualty, " total class equipment = ", totalEquipment)
 		
 		for equipmentID, value in pairs(GetEquipmentOfClassInList(equipmentClassID, UnitData.Equipment)) do
 			if value > 0 then
@@ -3194,7 +3302,7 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 				local relativeValue 	= value / toughness	-- the SQL column constrain says toughness > 0
 				table.insert(equipment, {Key = equipmentTypeKey, ID = equipmentID, RelativeValue = relativeValue })		
 				totalPondered = totalPondered + relativeValue
-				Dprint( DEBUG_UNIT_SCRIPT, "  - data for ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", number = ", value, ", relative number = ", relativeValue, "percentage of class = ", GCO.Round(value / totalEquipment * 100))
+				Dprint( DEBUG_UNIT_SCRIPT, "  - data for ".. Indentation20(Locale.Lookup(GameInfo.Resources[equipmentID].Name)), ", number = ", value, ", relative number = ", relativeValue, "percentage of class = ", GCO.Round(value / totalEquipment * 100))
 			end
 		end
 		
@@ -3211,12 +3319,21 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 			end
 			casualtyLeft = casualtyLeft - equipmentCasualty
 			
-			local lost 		= GCO.Round(equipmentCasualty / 2) -- hardcoded for testing			
-			local damaged 	= equipmentCasualty - lost
+			-- Equipment belonging to Dead personnel is lost (to do : attack/defense/retreat ?)
+			local lostFromDead		= GCO.Round(equipmentCasualty * deadRatio)
 			
-			if equipmentClassID == horsesEquipmentClassID then Opponent.HorsesLost = lost end -- used for stats 
+			-- Equipment lost from captured personnel
+			local lostFromCapture	= GCO.Round(equipmentCasualty * capturedRatio)
 			
-			Dprint( DEBUG_UNIT_SCRIPT, "  - equipment casualties for ".. Locale.Lookup(GameInfo.Resources[equipmentData.ID].Name), ", lost = ", lost, ", damaged = ", damaged, " relative percentage of class = ", GCO.Round(equipmentData.RelativeValue / totalPondered * 100))
+			-- to do: destroyed from antiVehicleArmor
+			-- to do: abandonned by wounded
+			
+			local lost 				= lostFromDead + lostFromCapture			
+			local damaged 			= equipmentCasualty - lost
+			
+			if equipmentClassID == horsesEquipmentClassID then Opponent.HorsesLost = Opponent.HorsesLost + lost end -- used for stats 
+			
+			Dprint( DEBUG_UNIT_SCRIPT, "  - equipment casualties for ".. Indentation20(Locale.Lookup(GameInfo.Resources[equipmentData.ID].Name)), ", lost = ", lost, ", damaged = ", damaged, " relative percentage of class = ", GCO.Round(equipmentData.RelativeValue / totalPondered * 100))
 
 			Opponent.EquipmentLost[equipmentData.Key] 		= lost		-- part of the lost equipment will be captured
 			Opponent.DamagedEquipment[equipmentData.Key] 	= damaged	-- todo : handle the case where the equipment can't be repaired (just don't add it to UnitData.DamagedEquipment but do add it to TotalEquipmentLost if the stat is tracked) 
@@ -3245,7 +3362,7 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 				
 				local lost = equipmentCasualty
 				
-				Dprint( DEBUG_UNIT_SCRIPT, "  - Extra equipment casualties for ".. Locale.Lookup(GameInfo.Resources[equipmentData.ID].Name), ", lost = ", lost)
+				Dprint( DEBUG_UNIT_SCRIPT, "  - Extra (from rounding) equipment casualties for ".. Indentation20(Locale.Lookup(GameInfo.Resources[equipmentData.ID].Name)), ", lost = ", lost)
 
 				Opponent.EquipmentLost[equipmentData.Key] 		= (Opponent.EquipmentLost[equipmentData.Key] or 0) + lost		-- part of the lost equipment will be captured
 				UnitData.TotalEquipmentLost[equipmentData.Key] 	= (UnitData.TotalEquipmentLost[equipmentData.Key] or 0) + lost				
@@ -3263,42 +3380,6 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 		end	
 	end
 	
-
-	-- Send wounded to the rear, bury the dead, take prisonners
-	local deathRatio
-	local baseDeathRatio 		= tonumber(GameInfo.GlobalParameters["COMBAT_BASE_ANTIPERSONNEL_PERCENT"].Value)
-	local maxAttackBonus		= 100 - baseDeathRatio
-	local maxDefenseBonus		= baseDeathRatio
-	local antiPersonnelValue	= (FromOpponent.AntiPersonnel or 0) + maxDefenseBonus
-	local personnelArmorValue	= (Opponent.PersonnelArmor or 0) + maxAttackBonus
-	
-	if personnelArmorValue > antiPersonnelValue then
-		local defenseBonus 	= GCO.GetMaxPercentFromLowDiff(maxDefenseBonus, personnelArmorValue, antiPersonnelValue)
-		deathRatio 			= baseDeathRatio - defenseBonus
-	else
-		local attackBonus 	= GCO.GetMaxPercentFromLowDiff(maxAttackBonus, antiPersonnelValue, personnelArmorValue)
-		deathRatio 			= baseDeathRatio + attackBonus			
-	end
-	
-	Opponent.Dead = GCO.Round(Opponent.PersonnelCasualties * deathRatio / 100)
-	
-	if FromOpponent.CanTakePrisoners then	
-		if FromOpponent.CapturedPersonnelRatio then
-			Opponent.Captured = GCO.Round((Opponent.PersonnelCasualties - Opponent.Dead) * FromOpponent.CapturedPersonnelRatio / 100)
-		else
-			Opponent.Captured = GCO.Round((Opponent.PersonnelCasualties - Opponent.Dead) * GameInfo.GlobalParameters["COMBAT_CAPTURED_PERSONNEL_PERCENT"].Value / 100)
-		end	
-		if FromOpponent.MaxCapture then
-			Opponent.Captured = math.min(FromOpponent.MaxCapture, Opponent.Captured)
-		end
-	else
-		Opponent.Captured = 0
-	end	
-	Opponent.Wounded = Opponent.PersonnelCasualties - Opponent.Dead - Opponent.Captured
-	
-	-- Salvage Equipment
-	--Opponent.EquipmentLost = GCO.Round(Opponent.EquipmentCasualties / 2) -- hardcoded for testing, to do : get Anti-Vehicule stat (anti-tank, anti-ship, anti-air...) from opponent, maybe use also era difference (asymetry between weapon and protection used)
-	--Opponent.DamagedEquipment = Opponent.EquipmentCasualties - Opponent.EquipmentLost
 				
 	-- Apply Casualties	transfer
 	UnitData.WoundedPersonnel 	= UnitData.WoundedPersonnel 	+ Opponent.Wounded
@@ -3499,8 +3580,8 @@ function OnCombat( combatResult )
 
 		if defender.IsDead and attacker.unit then
 
-			attacker.Prisoners 			= defender.Captured + defender.unitData.WoundedPersonnel -- capture all the wounded (to do : add prisonners from enemy nationality here)
-			attacker.LiberatedPrisoners = GCO.GetTotalPrisoners(defender.unitData) 	-- to do : recruit only some of the enemy prisonners and liberate own prisonners
+			attacker.Prisoners 			= defender.Captured + defender.unitData.WoundedPersonnel 	-- capture all the wounded (to do : add prisonners from enemy nationality here)
+			attacker.LiberatedPrisoners = GCO.GetTotalPrisoners(defender.unitData) 					-- to do : recruit only some of the enemy prisonners and liberate own prisonners
 			attacker.FoodGained 		= math.floor(defender.unitData.FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) / 100)
 			attacker.EquipmentGained 	= {}
 			for equipmentKey, value in pairs(defender.EquipmentLost) do
