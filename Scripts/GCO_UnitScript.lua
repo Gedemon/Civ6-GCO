@@ -3209,7 +3209,7 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	local vehicleArmorValue			= math.max(0, baseVehicleArmor - baseIgnoreVehicleArmor)
 	
 	-- Evasion (ability to avoid capture, safely behind protection)
-	local baseEvasion				= math.max(0, (baseVehicleArmor - baseAntiVehicleArmor) + math.max(0, basePersonnelArmor - baseAntiPersonnelArmor)
+	local baseEvasion				= math.max(0, baseVehicleArmor - baseAntiVehicleArmor) + math.max(0, basePersonnelArmor - baseAntiPersonnelArmor)
 	
 	-- Capture (ability to go through all protection)
 	local baseCapture				= 0	
@@ -3245,7 +3245,8 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	
 	Opponent.Dead 				= GCO.Round(Opponent.PersonnelCasualties * deathRatio / 100)
 	local casualtiesToManage	= Opponent.PersonnelCasualties - Opponent.Dead
-	local deadRatio 			= Opponent.Dead / Opponent.PersonnelCasualties
+	local deadRatio 			= 0	
+	if Opponent.PersonnelCasualties > 0 then deadRatio = Opponent.Dead / Opponent.PersonnelCasualties end
 
 	-- Captured personnel
 	if FromOpponent.CanTakePrisoners then
@@ -3274,12 +3275,14 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 		Opponent.Captured = 0
 	end	
 	casualtiesToManage 	= casualtiesToManage - Opponent.Captured
-	local capturedRatio = Opponent.Captured / Opponent.PersonnelCasualties
+	local capturedRatio = 0	
+	if Opponent.PersonnelCasualties > 0 then deadRatio = Opponent.Captured / Opponent.PersonnelCasualties end
 	
 	-- Wounded
 	--to do : protection -> light injuries transferred to reserve
 	Opponent.Wounded 	= casualtiesToManage
-	local woundedRatio = Opponent.Wounded / Opponent.PersonnelCasualties
+	local woundedRatio  = 0	
+	if Opponent.PersonnelCasualties > 0 then deadRatio = Opponent.Wounded / Opponent.PersonnelCasualties end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "- Casualties to Personnel : ".. Indentation20("Dead = ".. tostring(Opponent.Dead)).. Indentation20(", Captured = ".. tostring(Opponent.Captured)).. Indentation20(", Wounded = ".. tostring(Opponent.Wounded)) )
 
