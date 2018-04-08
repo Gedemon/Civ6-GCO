@@ -94,6 +94,7 @@ INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_GUNPOWDER',
 --DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_CARTOGRAPHY';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CARTOGRAPHY', 'TECH_EDUCATION');
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CARTOGRAPHY', 'TECH_CELESTIAL_NAVIGATION');
+UPDATE Technologies SET Cost = 540, EraType = 'ERA_RENAISSANCE' WHERE TechnologyType ='TECH_CARTOGRAPHY'; -- cancel changes from Warfare Expanded
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MASS_PRODUCTION';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MASS_PRODUCTION', 'TECH_BANKING');

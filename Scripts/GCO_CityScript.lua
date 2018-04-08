@@ -4233,7 +4233,7 @@ end
 function DoIndustries(self)
 
 	Dlog("DoIndustries ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	local DEBUG_CITY_SCRIPT = "debug"--"CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
@@ -4257,7 +4257,6 @@ function DoIndustries(self)
 		if self:GetBuildings():HasBuilding(buildingID) then
 			local resourceRequiredID 	= GameInfo.Resources[row.ResourceType].Index
 			local resourceCreatedID 	= GameInfo.Resources[row.ResourceCreated].Index
-
 			if player:IsResourceVisible(resourceCreatedID) and not player:IsObsoleteEquipment(resourceCreatedID) then -- don't create resources we don't have the tech for or that are obsolete...
 				if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
 				ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + row.MaxConverted
@@ -4325,7 +4324,6 @@ function DoIndustries(self)
 	-- Resources production: create single resources
 	for resourceRequiredID, data1 in pairs(ResCreated) do
 		for buildingID, data2 in pairs (data1) do
-
 			for _, row in ipairs(data2) do
 
 				local available = resPerBuilding[buildingID][resourceRequiredID]

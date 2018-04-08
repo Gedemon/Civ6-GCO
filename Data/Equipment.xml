@@ -54,7 +54,7 @@
 	<Equipment> <!-- Ships -->
 		<Row ResourceType="EQUIPMENT_GALLEY"			PrereqTech="TECH_SAILING"			NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="1" 	Size="400" ObsoleteTech="TECH_SQUARE_RIGGING"	/>
 		<Row ResourceType="EQUIPMENT_QUADRIREME" 		PrereqTech="TECH_SHIPBUILDING"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="10" 	Size="800" ObsoleteTech="TECH_SQUARE_RIGGING"	/>
-		<Row ResourceType="EQUIPMENT_CARAVEL" 			PrereqTech="TECH_CARTOGRAPHY"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="20" 	Size="400" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
+		<Row ResourceType="EQUIPMENT_CARAVEL" 			PrereqTech="TECH_CARTOGRAPHY"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="20" 	Size="400" ObsoleteTech="TECH_COMBINED_ARMS"	/>
 		<Row ResourceType="EQUIPMENT_PRIVATEER" 		PrereqTech="TECH_SQUARE_RIGGING"	NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="30" 	Size="600" ObsoleteTech="TECH_ARMORED_WARFARE"	/>
 		<Row ResourceType="EQUIPMENT_FRIGATE" 			PrereqTech="TECH_SQUARE_RIGGING"	NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="40" 	Size="800" ObsoleteTech="TECH_ARMORED_WARFARE"	/>
 		<Row ResourceType="EQUIPMENT_IRONCLAD" 			PrereqTech="TECH_STEAM_POWER"		NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="50" 	Size="1200" ObsoleteTech="TECH_COMBINED_ARMS"	/>

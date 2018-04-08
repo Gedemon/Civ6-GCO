@@ -356,7 +356,7 @@
       <Text>Resources transfered to your other cities</Text>
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_STOLEN_TOOLTIP" Language="en_US">
-      <Text>Resources stolen by ennemy units</Text>
+      <Text>Resources stolen by enemy units</Text>
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_OTHER_OUT_TOOLTIP" Language="en_US">
       <Text>Resources used by other demands</Text>
@@ -378,7 +378,7 @@
       <Text>{1_Name} transfered to your other cities</Text>
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_STOLEN_DETAILS_TOOLTIP" Language="en_US">
-      <Text>{1_Name} stolen by ennemy units</Text>
+      <Text>{1_Name} stolen by enemy units</Text>
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_RESOURCES_OTHER_OUT_DETAILS_TOOLTIP" Language="en_US">
       <Text>{1_Name} used by other demands</Text>
