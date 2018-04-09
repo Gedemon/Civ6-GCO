@@ -1733,7 +1733,7 @@ end
 
 function GetAllSurplus(self) -- Return all resources that can be transfered back to a city (or a nearby unit/improvement ?)
 
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	local DEBUG_UNIT_SCRIPT = "debug"--"UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, "- check surplus for : ".. Locale.Lookup(self:GetName()))
 	
 	local unitKey 	= self:GetKey()
@@ -4500,35 +4500,38 @@ function SetSupplyLine(self)
 		
 		local bIsPlotConnected 	= false
 		local routeLength		= 0
-		GCO.StartTimer("GetPathToPlotLand")
-		local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()
-		local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)
-		local path = GCO.GetPlot(self:GetX(), self:GetY()):GetPathToPlot(cityPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked, maxDistance)
-		GCO.ShowTimer("GetPathToPlotLand")
-		
-		if path then
-			bIsPlotConnected 	= true
-			routeLength 		= #path
-		end
+		local unitPlot			= GCO.GetPlot(self:GetX(), self:GetY())
+		if (not unitPlot:IsWater()) or (unitPlot:GetDistrictType() ~= -1) then
+			GCO.StartTimer("GetPathToPlotLand")
+			local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()
+			local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)
+			local path 						= unitPlot:GetPathToPlot(cityPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked, maxDistance)
+			GCO.ShowTimer("GetPathToPlotLand")
 			
-		--local routeLength 				= GCO.GetRouteLength()
-		if bIsPlotConnected then
-			local efficiency 				= GCO.GetRouteEfficiency(routeLength*SupplyLineLengthFactor)
+			if path then
+				bIsPlotConnected 	= true
+				routeLength 		= #path
+			end
+				
+			--local routeLength 				= GCO.GetRouteLength()
+			if bIsPlotConnected then
+				local efficiency 				= GCO.GetRouteEfficiency(routeLength*SupplyLineLengthFactor)
+				
+				if efficiency > 0 then
+					unitData.SupplyLineCityKey = closestCity:GetKey()
+					unitData.SupplyLineEfficiency = efficiency
+					NoLinkToCity = false
+				else
+					unitData.SupplyLineCityKey = closestCity:GetKey()
+					unitData.SupplyLineEfficiency = 0
+					NoLinkToCity = false
+				end
 			
-			if efficiency > 0 then
+			elseif distance == 0 then -- unit is on the city's plot...
 				unitData.SupplyLineCityKey = closestCity:GetKey()
-				unitData.SupplyLineEfficiency = efficiency
-				NoLinkToCity = false
-			else
-				unitData.SupplyLineCityKey = closestCity:GetKey()
-				unitData.SupplyLineEfficiency = 0
+				unitData.SupplyLineEfficiency = 100
 				NoLinkToCity = false
 			end
-		
-		elseif distance == 0 then -- unit is on the city's plot...
-			unitData.SupplyLineCityKey = closestCity:GetKey()
-			unitData.SupplyLineEfficiency = 100
-			NoLinkToCity = false
 		end
 	end
 	

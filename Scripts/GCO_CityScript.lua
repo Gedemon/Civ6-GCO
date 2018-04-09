@@ -3987,7 +3987,7 @@ end
 
 function DoReinforceUnits(self)
 	Dlog("DoReinforceUnits ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	local DEBUG_CITY_SCRIPT = "debug"--"CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Reinforcing units...")
 	local cityKey 				= self:GetKey()
@@ -4004,6 +4004,7 @@ function DoReinforceUnits(self)
 		reinforcements.ResPerUnit[resourceID] = math.floor(reinforcements.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
 		Dprint( DEBUG_CITY_SCRIPT, "- Max transferable ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. " = ".. tostring(value), " for " .. tostring(supplyDemand.NeedResources[resourceID]), " units, available = " .. tostring(self:GetAvailableStockForUnits(resourceID)), ", send = ".. tostring(reinforcements.Resources[resourceID]))
 	end
+	
 	local reqValue = {}
 	for resourceID, value in pairs(reinforcements.Resources) do
 		local resLeft = value
@@ -4070,7 +4071,7 @@ function DoReinforceUnits(self)
 	for unitKey, _ in pairs(LinkedUnits[cityKey]) do
 		local unit = GCO.GetUnitFromKey ( unitKey )
 		if unit then
-			if reqValue[unit].FullReinforcement then -- force a full internal transfer now if the unit was on a city or a (military related) district
+			if reqValue[unit] and reqValue[unit].FullReinforcement then -- force a full internal transfer now if the unit was on a city or a (military related) district
 				local bLimitTransfer = false
 				unit:DoInternalEquipmentTransfer( bLimitTransfer )
 			end
@@ -4081,7 +4082,8 @@ function DoReinforceUnits(self)
 				local income = 0
 				for resourceID, value in pairs(unitExcedent) do
 					local toTransfert = math.min(self:GetMaxStock(resourceID) - self:GetStock(resourceID), value)
-					if resourceID == personnelResourceID then toTransfert = value end -- city can convert surplus in personnel to population
+					if resourceID == personnelResourceID 	then toTransfert = value end -- city can convert surplus in personnel to population
+					if GCO.IsResourceEquipment(resourceID)  then toTransfert = value end -- don't allow units to keep equipment surplus
 					if toTransfert > 0 then
 						local sellPrice = math.max(self:GetMinimumResourceCost(resourceID), self:GetResourceCost(resourceID) / 2)
 						income		= income + (sellPrice * toTransfert)
@@ -4091,6 +4093,7 @@ function DoReinforceUnits(self)
 						Dprint( DEBUG_CITY_SCRIPT, "  - received " .. tostring(toTransfert) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." from ".. Locale.Lookup(unit:GetName()) .." that had an excedent of ".. tostring(value))
 					end
 				end
+				
 				if income > 0 then
 					totalIncome = totalIncome + income
 					--self:RecordTransaction(AccountType.Plundering, -income, unitKey)
@@ -4098,6 +4101,7 @@ function DoReinforceUnits(self)
 					local sText = Locale.Lookup("LOC_GOLD_FROM_PLUNDERING", GCO.ToDecimals(income))
 					if Game.GetLocalPlayer() == unit:GetOwner() then Game.AddWorldViewText(EventSubTypes.PLOT, sText, unit:GetX(), unit:GetY(), 0) end
 				end
+				
 				-- Send prisoners to city
 				local cityData = ExposedMembers.CityData[cityKey]
 				for playerKey, number in pairs(unitData.Prisoners) do
@@ -4110,7 +4114,7 @@ function DoReinforceUnits(self)
 			end
 		end
 	end
-	
+		
 	if totalIncome > 0 then
 		player:ProceedTransaction(AccountType.Plundering, totalIncome)	
 	end
@@ -4248,7 +4252,7 @@ end
 function DoIndustries(self)
 
 	Dlog("DoIndustries ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = "debug"--"CityScript"
+	local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
@@ -5204,6 +5208,7 @@ function Heal(self)
 end
 
 function DoTurnFirstPass(self)
+	local DEBUG_CITY_SCRIPT = "debug"
 	Dlog("DoTurnFirstPass ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "First Pass on ".. Locale.Lookup(self:GetName()))
@@ -5263,6 +5268,8 @@ end
 
 function DoTurnSecondPass(self)
 
+	local DEBUG_CITY_SCRIPT = "debug"
+	
 	local cityKey 	= self:GetKey()
 	local name 		= Locale.Lookup(self:GetName())
 	if CitiesToIgnoreThisTurn[cityKey] then return end
@@ -5284,6 +5291,7 @@ function DoTurnSecondPass(self)
 end
 
 function DoTurnThirdPass(self)
+	local DEBUG_CITY_SCRIPT = "debug"
 
 	local cityKey 	= self:GetKey()
 	local name 		= Locale.Lookup(self:GetName())
@@ -5315,6 +5323,7 @@ function DoTurnThirdPass(self)
 end
 
 function DoTurnFourthPass(self)
+	local DEBUG_CITY_SCRIPT = "debug"
 
 	local cityKey 	= self:GetKey()
 	local name 		= Locale.Lookup(self:GetName())
@@ -5355,7 +5364,7 @@ function DoTurnFourthPass(self)
 end
 
 function DoCitiesTurn( playerID )
-	local DEBUG_CITY_SCRIPT = "CityScript"
+	--local DEBUG_CITY_SCRIPT = "debug"
 	CitiesToIgnoreThisTurn = {}
 	Dlog("DoCitiesTurn /START")
 	local player = Players[playerID]
