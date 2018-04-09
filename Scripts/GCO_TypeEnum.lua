@@ -53,7 +53,7 @@ for row in GameInfo.Improvement_ValidResources() do
 	ResourceImprovementID[resourceID] = improvementID
 end
 
-IsImprovementForFeature		= {} -- cached table to check if an improvement is meant for a feature
+IsImprovementForFeature			= {} -- cached table to check if an improvement is meant for a feature
 for row in GameInfo.Improvement_ValidFeatures() do
 	local improvementID = GameInfo.Improvements[row.ImprovementType].Index
 	local featureID 	= GameInfo.Features[row.FeatureType].Index
@@ -77,6 +77,7 @@ for row in GameInfo.TerrainResourcesProduced() do
 	table.insert(TerrainResources[terrainID], {[resourceID] = row.NumPerTerrain})
 end
 
+BaseImprovementMultiplier		= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
 
 -----------------------------------------------------------------------------------------
 -- Equipment - to do : those are helpers, to move to mod utils with related functions

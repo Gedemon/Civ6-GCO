@@ -347,7 +347,6 @@ local foodResourceKey			= tostring(foodResourceID)
 local personnelResourceKey		= tostring(personnelResourceID)
 local materielResourceKey		= tostring(materielResourceID)
 
-local BaseImprovementMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
 local BaseCollectCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_COLLECT_COST_MULTIPLIER"].Value)
 local ImprovementCostRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_IMPROVEMENT_COST_RATIO"].Value)
 local NotWorkedCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_NOT_WORKED_COST_MULTIPLIER"].Value)
@@ -1239,12 +1238,13 @@ function UpdateLinkedUnits(self)
 			local unit = GCO.GetUnit(data.playerID, data.unitID)
 			if unit then
 				LinkedUnits[selfKey][unitKey] = {NeedResources = {}}
-				local requirements 	= unit:GetRequirements()
+				local bTotal		= unit:CanGetFullReinforcement()
+				local requirements 	= unit:GetRequirements(bTotal)
 				for resourceID, value in pairs(requirements.Resources) do
 					if value > 0 then
 						UnitsSupplyDemand[selfKey].Resources[resourceID] 		= ( UnitsSupplyDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
 						UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	= ( UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
-						LinkedUnits[selfKey][unitKey].NeedResources[resourceID] 	= true
+						LinkedUnits[selfKey][unitKey].NeedResources[resourceID] = true
 					end
 				end
 			end
@@ -3585,6 +3585,7 @@ function CanConstruct(self, buildingType)
 	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck), requirementStr, preReqStr
 end
 
+
 ----------------------------------------------
 -- Texts function
 ----------------------------------------------
@@ -4003,7 +4004,7 @@ function DoReinforceUnits(self)
 		reinforcements.ResPerUnit[resourceID] = math.floor(reinforcements.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
 		Dprint( DEBUG_CITY_SCRIPT, "- Max transferable ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. " = ".. tostring(value), " for " .. tostring(supplyDemand.NeedResources[resourceID]), " units, available = " .. tostring(self:GetAvailableStockForUnits(resourceID)), ", send = ".. tostring(reinforcements.Resources[resourceID]))
 	end
-	reqValue = {}
+	local reqValue = {}
 	for resourceID, value in pairs(reinforcements.Resources) do
 		local resLeft = value
 		local maxLoop = 5
@@ -4012,12 +4013,22 @@ function DoReinforceUnits(self)
 			for unitKey, data in pairs(LinkedUnits[cityKey]) do
 				local unit = GCO.GetUnitFromKey ( unitKey )
 				if unit then
-					local efficiency = unit:GetSupplyLineEfficiency()
 					if not reqValue[unit] then reqValue[unit] = {} end
-					if not reqValue[unit][resourceID] then reqValue[unit][resourceID] = GCO.Round(unit:GetNumResourceNeeded(resourceID)*efficiency/100) end
+					
+					if reqValue[unit].FullReinforcement == nil then reqValue[unit].FullReinforcement = unit:CanGetFullReinforcement() end
+					local bTotal = reqValue[unit].FullReinforcement
+					
+					local efficiency
+					if bTotal then 
+						efficiency = 100
+					else
+						efficiency = unit:GetSupplyLineEfficiency()
+					end
+					
+					if not reqValue[unit][resourceID] then reqValue[unit][resourceID] = GCO.Round(unit:GetNumResourceNeeded(resourceID, bTotal)*efficiency/100) end
 					if reqValue[unit][resourceID] > 0 then
-						local efficiency	= unit:GetSupplyLineEfficiency()
-						local send 			= math.min(reinforcements.ResPerUnit[resourceID], reqValue[unit][resourceID], resLeft)
+					
+						local send = math.min(reinforcements.ResPerUnit[resourceID], reqValue[unit][resourceID], resLeft)
 
 						resLeft = resLeft - send
 						reqValue[unit][resourceID] = reqValue[unit][resourceID] - send
@@ -4026,7 +4037,7 @@ function DoReinforceUnits(self)
 						self:ChangeStock(resourceID, -send, ResourceUseType.Supply, unit:GetKey())						
 						
 						local cost 					= self:GetResourceCost(resourceID) * send						
-						pendingTransaction[unitKey] 	= (pendingTransaction[unitKey] or 0) + cost
+						pendingTransaction[unitKey] = (pendingTransaction[unitKey] or 0) + cost
 
 						Dprint( DEBUG_CITY_SCRIPT, "  - send ".. tostring(send)," ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (@ ".. tostring(efficiency), " percent efficiency), cost = "..tostring(cost), " to unit key#".. tostring(unit:GetKey()), Locale.Lookup(UnitManager.GetTypeName(unit)))
 					end
@@ -4059,6 +4070,10 @@ function DoReinforceUnits(self)
 	for unitKey, _ in pairs(LinkedUnits[cityKey]) do
 		local unit = GCO.GetUnitFromKey ( unitKey )
 		if unit then
+			if reqValue[unit].FullReinforcement then -- force a full internal transfer now if the unit was on a city or a (military related) district
+				local bLimitTransfer = false
+				unit:DoInternalEquipmentTransfer( bLimitTransfer )
+			end
 			local unitExcedent 	= unit:GetAllSurplus()
 			local unitData 		= ExposedMembers.UnitData[unitKey]
 			if unitData then

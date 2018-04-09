@@ -49,6 +49,8 @@ local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIG
 local mediumRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 local heavyRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
 
+local BasePillageMultiplier		= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_PILLAGE_MULTIPLIER"].Value)
+
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local horsesResourceID 			= GameInfo.Resources["RESOURCE_HORSES"].Index
@@ -1294,23 +1296,36 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 end
 
 function RecordTransaction(self, accountType, value, refKey, turnKey) --turnKey optionnal
-	local cityData 	= self:GetData()
+	local unitData 	= self:GetData()
 	local turnKey 	= turnKey or GCO.GetTurnKey()
-	if not cityData.Account[turnKey] then cityData.Account[turnKey] = {} end
-	if not cityData.Account[turnKey][accountType] then cityData.Account[turnKey][accountType] = {} end
-	cityData.Account[turnKey][accountType][refKey] = (cityData.Account[turnKey][accountType][refKey] or 0) + value
+	if not unitData.Account[turnKey] then unitData.Account[turnKey] = {} end
+	if not unitData.Account[turnKey][accountType] then unitData.Account[turnKey][accountType] = {} end
+	unitData.Account[turnKey][accountType][refKey] = (unitData.Account[turnKey][accountType][refKey] or 0) + value
 end
 
 function GetTransactionValue(self, accountType, refKey, turnKey)
-	local cityData 	= self:GetData()	
-	if not cityData.Account[turnKey] then return 0 end
-	if not cityData.Account[turnKey][accountType] then return 0 end
-	return cityData.Account[turnKey][accountType][refKey] or 0
+	local unitData 	= self:GetData()	
+	if not unitData.Account[turnKey] then return 0 end
+	if not unitData.Account[turnKey][accountType] then return 0 end
+	return unitData.Account[turnKey][accountType][refKey] or 0
 end
 
 function IsCombat(self)
 	local row = GameInfo.Units[self:GetType()] 
 	return (row.Combat > 0 or row.RangedCombat > 0)
+end
+
+function CanGetFullReinforcement(self)
+	local unitPlot = GCO.GetPlot(self:GetX(), self:GetY())
+	if unitPlot and unitPlot:GetOwner() == self:GetOwner() then
+		local eDistrictType = unitPlot:GetDistrictType();
+		if (eDistrictType and GameInfo.Districts[eDistrictType]) then
+			local sDistrictType = GameInfo.Districts[eDistrictType].DistrictType
+			if sDistrictType == "DISTRICT_CITY_CENTER" or sDistrictType == "DISTRICT_ENCAMPMENT" or sDistrictType == "DISTRICT_HARBOR" or sDistrictType == "DISTRICT_AERODROME" then
+				return true -- we're on the city plot or on a district with military facility, we can require equipment for both frontline and reserve
+			end
+		end
+	end
 end
 
 -----------------------------------------------------------------------------------------
@@ -1518,6 +1533,11 @@ function GetMaxPersonnelReserve(self)
 	local neededForHealing 	= self:GetMaxFrontLinePersonnel() - self:GetComponent("Personnel")
 	local baseReserve		= GetBasePersonnelReserve(self:GetType(), self:GetOrganizationLevel())
 	return neededForHealing + baseReserve
+end
+
+function GetMaxPersonnel(self)
+	local baseReserve		= GetBasePersonnelReserve(self:GetType(), self:GetOrganizationLevel())
+	return self:GetMaxFrontLinePersonnel() + baseReserve
 end
 
 function GetFrontLinePersonnel(self)
@@ -1766,34 +1786,46 @@ function GetAllSurplus(self) -- Return all resources that can be transfered back
 	
 end
 
-function GetNumResourceNeeded(self, resourceID)
+function GetNumResourceNeeded(self, resourceID, bTotal)
 	local resourceKey 	= tostring(resourceID)
 	local unitData = self:GetData()
 	if not unitData then
 		Dprint("UnitData is nil in GetNumResourceNeeded for " .. Locale.Lookup(self:GetName()), self:GetKey())
 		return 0
 	end
-	local unitType 		= self:GetType()
-	local equipmentNeed = self:GetEquipmentReserveNeed()
 	
 	if resourceKey == personnelResourceKey then
-		return math.max(0, self:GetMaxPersonnelReserve() - unitData.PersonnelReserve)
+		if bTotal then
+			return math.max(0, self:GetMaxPersonnel() - (unitData.Personnel + unitData.PersonnelReserve))
+		else
+			return math.max(0, self:GetMaxPersonnelReserve() - unitData.PersonnelReserve)
+		end
 		
 	elseif resourceKey == foodResourceKey then
 		return math.max(0, self:GetMaxFoodStock() - unitData.FoodStock)
 		
 	elseif resourceKey == medicineResourceKey then
 		return math.max(0, self:GetMaxMedicineStock() - unitData.MedicineStock)
+		
+	end
 	
-	elseif GCO.IsResourceEquipment(resourceID) and equipmentNeed[resourceID] then
-		return math.max(0, equipmentNeed[resourceID])
+	if GCO.IsResourceEquipment(resourceID) then
+		local equipmentNeed	= {}	
+		if bTotal then
+			equipmentNeed = self:GetTotalEquipmentNeed()
+		else
+			equipmentNeed = self:GetEquipmentReserveNeed()
+		end
+		if equipmentNeed[resourceID] then
+			return math.max(0, equipmentNeed[resourceID])
+		end
 		
 	end
 	
 	return 0
 end
 
-function GetRequirements(self)
+function GetRequirements(self, bTotal)
 	
 	local unitKey 			= self:GetKey()
 	local unitData 			= ExposedMembers.UnitData[unitKey]
@@ -1805,9 +1837,15 @@ function GetRequirements(self)
 	end
 	local unitType 			= self:GetType()
 	local listResources		= {personnelResourceID, foodResourceID, medicineResourceID} 
-	local listEquipment		= self:GetEquipmentReserveNeed()
-	local requirements 		= {}
-	requirements.Resources 	= {}
+	local listEquipment		= {}
+	
+	if bTotal then
+		listEquipment = self:GetTotalEquipmentNeed()
+	else
+		listEquipment = self:GetEquipmentReserveNeed()
+	end
+	
+	local requirements 		= { Resources 	= {}, }
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "Get Requirements for unit ".. tostring(unitKey), Locale.Lookup(UnitManager.GetTypeName(self)) )
 	
@@ -2255,6 +2293,11 @@ function GetMaxEquipmentReserve(self, equipmentClassID)			-- get max equipment i
 	return math.max(neededForHealing, GetUnitEquipmentClassNumberForPersonnel(self:GetType(), personnel, equipmentClassID))
 end
 
+function GetMaxTotalEquipment(self, equipmentClassID)			-- get max total equipment for that class
+	local personnel = self:GetMaxPersonnel()
+	return GetUnitEquipmentClassNumberForPersonnel(self:GetType(), personnel, equipmentClassID)
+end
+
 function GetEquipmentClassFrontLine(self, equipmentClassID)		-- get current number of equipment of that class in frontline
 	local unitData = self:GetData()
 	if not unitData then
@@ -2344,10 +2387,30 @@ function GetEquipmentFrontLineNeed(self)						-- return a table with all equipme
 		if equipmentTypes then
 			for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
 				local equipmentID = data.EquipmentID
-				local num = self:GetFrontLineEquipment(equipmentID, classType)
+				local num = self:GetFrontLineEquipment(equipmentID)
 				-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
 				bestNum = bestNum + num
 				equipmentNeed[equipmentID] = math.max(0, maxFrontLine - bestNum)
+			end
+		end
+	end
+	return equipmentNeed
+end
+
+function GetTotalEquipmentNeed(self)							-- return a table with  the total of all equipment types needed { [equipmentID] = num }
+	local equipmentNeed = {}
+	local equipmentClasses = self:GetEquipmentClasses()
+	for classType, classData in pairs(equipmentClasses) do
+		local equipmentTypes 	= GetEquipmentTypes(classType)
+		local maxTotal			= self:GetMaxTotalEquipment(classType)
+		local bestNum 			= 0
+		if equipmentTypes then
+			for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
+				local equipmentID = data.EquipmentID
+				local num = self:GetFrontLineEquipment(equipmentID) + self:GetReserveEquipment(equipmentID)
+				-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
+				bestNum = bestNum + num
+				equipmentNeed[equipmentID] = math.max(0, maxTotal - bestNum)
 			end
 		end
 	end
@@ -2385,6 +2448,110 @@ function GetTypesFromEquipmentList(self)
 		return bestUnitType, percentageStr
 	end
 end
+
+function DoInternalEquipmentTransfer(self, bLimitTransfer, aAlreadyUsed)
+
+	local DEBUG_UNIT_SCRIPT = "debug" -- "UnitScript"
+
+	if bLimitTransfer 	== nil then bLimitTransfer 	= true 	end	
+	if aAlreadyUsed		== nil then aAlreadyUsed 	= {} 	end
+	
+	local finalHP 	= self:GetHP()
+	local unitData 	= self:GetData()
+	
+	-- Transfer equipment
+	Dprint( DEBUG_UNIT_SCRIPT, " - Checking to transfer equipment from reserve...")
+	for equipmentClassID, equipmentClassData in pairs(self:GetEquipmentClasses()) do
+		local alreadyUsed			= aAlreadyUsed[equipmentClassID] or 0
+		local current				= self:GetEquipmentClassFrontLine(equipmentClassID)
+		local currentMax			= self:GetEquipmentAtHP(equipmentClassID, finalHP)
+		
+		local transferMax
+		if bLimitTransfer then
+			transferMax				= math.ceil(self:GetMaxEquipmentFrontLine(equipmentClassID) * self:GetMaxMaterielPercentFromReserve() / 100) --  GetMaxPersonnelPercentFromReserve
+		else
+			transferMax				= self:GetMaxEquipmentFrontLine(equipmentClassID)
+		end
+
+		local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)
+		local maxLeftToTranfer 		= math.min(currentMax, transferMax - alreadyUsed)
+		local bTransferDone			= false
+		local bFrontLineFilled		= false
+		
+		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name)) .. " " .. Indentation20("START <<<<<"), " AlreadyUsed = ", alreadyUsed, " Current = ", current, " CurrentMax = ", currentMax, " TransferMax = ", transferMax, " MaxLeftToTranfer = ", maxLeftToTranfer, " IsRequired = ", equipmentClassData.IsRequired)
+
+		while (maxLeftToTranfer > 0) and (not bTransferDone) do
+			local lowerTypeID, lowerDesirability	= GetLowerAvailableEquipmentTypeInList(equipmentClassID, unitData.Equipment)
+			local bestTypeID, bestDesirability 		= GetBestAvailableEquipmentTypeInList(equipmentClassID, unitData.EquipmentReserve)			
+	
+			if bestTypeID then -- Must check in case that equipmentClass is still empty
+				local loopTransfer	= 0
+				
+				Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. BestDesirability ... = ", bestDesirability, " for "..Locale.Lookup(GameInfo.Resources[bestTypeID].Name))				
+				if lowerTypeID then
+					Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. LowerDesirability .. = ", lowerDesirability, " for "..Locale.Lookup(GameInfo.Resources[lowerTypeID].Name))
+				end
+				
+				if equipmentClassData.IsRequired then -- exchange 1:1 in that case
+					if lowerTypeID then
+						
+						if lowerDesirability < bestDesirability then				
+							local toTransfer = math.min(maxLeftToTranfer, self:GetFrontLineEquipment(lowerTypeID), self:GetReserveEquipment(bestTypeID))
+							if toTransfer > 0 then
+								self:ChangeReserveEquipment(bestTypeID, -toTransfer)
+								self:ChangeReserveEquipment(lowerTypeID, toTransfer)
+								self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
+								self:ChangeFrontLineEquipment(lowerTypeID, -toTransfer)
+								maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
+								loopTransfer		= loopTransfer + toTransfer
+								Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
+							end
+						else
+							bTransferDone = true
+						end
+					else
+						bTransferDone = true
+					end
+				else
+					-- First try to fill FrontLine
+					if not bFrontLineFilled then
+						local toFill = self:GetEquipmentAtHP(equipmentClassID, finalHP) - self:GetEquipmentClassFrontLine(equipmentClassID) -- Can't use initial values in the loop...
+						if toFill > 0 then
+							local toTransfer = math.min(maxLeftToTranfer, toFill, self:GetReserveEquipment(bestTypeID))
+							self:ChangeReserveEquipment(bestTypeID, -toTransfer)
+							self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
+							maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
+							loopTransfer		= loopTransfer + toTransfer
+							Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Filling FrontLine .. = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
+						else
+							bFrontLineFilled = true
+						end
+					end
+					-- Then exchange...
+					if lowerTypeID and maxLeftToTranfer > 0 and lowerDesirability < bestDesirability then				
+						local toTransfer = math.min(maxLeftToTranfer, self:GetFrontLineEquipment(lowerTypeID), self:GetReserveEquipment(bestTypeID))
+						if toTransfer > 0 then
+							self:ChangeReserveEquipment(bestTypeID, -toTransfer)
+							self:ChangeReserveEquipment(lowerTypeID, toTransfer)
+							self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
+							self:ChangeFrontLineEquipment(lowerTypeID, -toTransfer)
+							maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
+							loopTransfer		= loopTransfer + toTransfer
+							Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
+						end
+					else
+						bTransferDone = true
+					end
+				end
+				if loopTransfer == 0 then bTransferDone = true end
+			else
+				bTransferDone = true
+			end
+		end
+		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name)) .. " " .. Indentation20("END >>>>>")," TransferDone =", bTransferDone, " MaxLeftToTranfer = ", maxLeftToTranfer)
+	end	
+end
+
 
 ----------------------------------------------
 -- Morale function
@@ -2667,7 +2834,7 @@ function GetFrontLineEquipmentString(self)
 			--if #equipmentList > 1 then  -- show sub-entries only if there could be more than one equipment type in this class
 				for _, equipmentData in ipairs(equipmentList) do
 					local equipmentID 	= equipmentData.EquipmentID
-					local equipmentNum 	= self:GetFrontLineEquipment( equipmentID, classType)
+					local equipmentNum 	= self:GetFrontLineEquipment( equipmentID )
 					if equipmentNum > 0 then
 						local percentage =  GCO.Round(equipmentNum / classNum * 100)
 						str = str .. "[NEWLINE] [ICON_BULLET] " .. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_FRONTLINE", equipmentNum, percentage, GameInfo.Resources[equipmentID].Name, GCO.GetResourceIcon(equipmentID))
@@ -3045,7 +3212,7 @@ function GetPropertyPercent(self, sPropertyKey)
 				local equipmentValue 		= EquipmentInfo[data.EquipmentID][sPropertyKey]
 				if equipmentValue then
 					local equipmentID = data.EquipmentID
-					local num = self:GetFrontLineEquipment(equipmentID, classType)
+					local num = self:GetFrontLineEquipment(equipmentID)
 					if num > 0 then
 						local ratio = num / totalFrontLine 
 						if not class[classType] then 
@@ -4044,88 +4211,8 @@ function Heal(self)
 	
 	-- Transfer equipment
 	Dprint( DEBUG_UNIT_SCRIPT, " - Checking to transfer equipment from reserve...")
-	for equipmentClassID, equipmentClassData in pairs(self:GetEquipmentClasses()) do
-		local alreadyUsed			= alreadyUsed[equipmentClassID] or 0
-		local current				= self:GetEquipmentClassFrontLine(equipmentClassID)
-		local currentMax			= self:GetEquipmentAtHP(equipmentClassID, finalHP)
-		local transferMax			= self:GetMaxEquipmentFrontLine(equipmentClassID) * self:GetMaxPersonnelPercentFromReserve() / 100 -- using materiel ratio for all equipment  GetMaxMaterielPercentFromReserve
-		local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)
-		local maxLeftToTranfer 		= math.min(currentMax, transferMax - alreadyUsed)
-		local bTransferDone			= false
-		local bFrontLineFilled		= false
-		
-		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name)) .. " " .. Indentation20("START <<<<<"), " AlreadyUsed = ", alreadyUsed, " Current = ", current, " CurrentMax = ", currentMax, " TransferMax = ", transferMax, " MaxLeftToTranfer = ", maxLeftToTranfer, " IsRequired = ", equipmentClassData.IsRequired)
-
-		while (maxLeftToTranfer > 0) and (not bTransferDone) do
-			local lowerTypeID, lowerDesirability	= GetLowerAvailableEquipmentTypeInList(equipmentClassID, unitData.Equipment)
-			local bestTypeID, bestDesirability 		= GetBestAvailableEquipmentTypeInList(equipmentClassID, unitData.EquipmentReserve)			
-	
-			if bestTypeID then -- Must check in case that equipmentClass is still empty
-				local loopTransfer	= 0
-				
-				Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. BestDesirability ... = ", bestDesirability, " for "..Locale.Lookup(GameInfo.Resources[bestTypeID].Name))				
-				if lowerTypeID then
-					Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. LowerDesirability .. = ", lowerDesirability, " for "..Locale.Lookup(GameInfo.Resources[lowerTypeID].Name))
-				end
-				
-				if equipmentClassData.IsRequired then -- exchange 1:1 in that case
-					if lowerTypeID then
-						
-						if lowerDesirability < bestDesirability then				
-							local toTransfer = math.min(maxLeftToTranfer, self:GetFrontLineEquipment(lowerTypeID), self:GetReserveEquipment(bestTypeID))
-							if toTransfer > 0 then
-								self:ChangeReserveEquipment(bestTypeID, -toTransfer)
-								self:ChangeReserveEquipment(lowerTypeID, toTransfer)
-								self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
-								self:ChangeFrontLineEquipment(lowerTypeID, -toTransfer)
-								maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
-								loopTransfer		= loopTransfer + toTransfer
-								Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
-							end
-						else
-							bTransferDone = true
-						end
-					else
-						bTransferDone = true
-					end
-				else
-					-- First try to fill FrontLine
-					if not bFrontLineFilled then
-						local toFill = self:GetEquipmentAtHP(equipmentClassID, finalHP) - self:GetEquipmentClassFrontLine(equipmentClassID) -- Can't use initial values in the loop...
-						if toFill > 0 then
-							local toTransfer = math.min(maxLeftToTranfer, toFill, self:GetReserveEquipment(bestTypeID))
-							self:ChangeReserveEquipment(bestTypeID, -toTransfer)
-							self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
-							maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
-							loopTransfer		= loopTransfer + toTransfer
-							Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Filling FrontLine .. = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
-						else
-							bFrontLineFilled = true
-						end
-					end
-					-- Then exchange...
-					if lowerTypeID and maxLeftToTranfer > 0 and lowerDesirability < bestDesirability then				
-						local toTransfer = math.min(maxLeftToTranfer, self:GetFrontLineEquipment(lowerTypeID), self:GetReserveEquipment(bestTypeID))
-						if toTransfer > 0 then
-							self:ChangeReserveEquipment(bestTypeID, -toTransfer)
-							self:ChangeReserveEquipment(lowerTypeID, toTransfer)
-							self:ChangeFrontLineEquipment(bestTypeID, toTransfer)
-							self:ChangeFrontLineEquipment(lowerTypeID, -toTransfer)
-							maxLeftToTranfer 	= maxLeftToTranfer - toTransfer
-							loopTransfer		= loopTransfer + toTransfer
-							Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer values .. Exchanging ......... = ", toTransfer, " MaxLeftToTranfer = ", maxLeftToTranfer)
-						end
-					else
-						bTransferDone = true
-					end
-				end
-				if loopTransfer == 0 then bTransferDone = true end
-			else
-				bTransferDone = true
-			end
-		end
-		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name)) .. " " .. Indentation20("END >>>>>")," TransferDone =", bTransferDone, " MaxLeftToTranfer = ", maxLeftToTranfer)
-	end	
+	local bLimitTransfer = true
+	self:DoInternalEquipmentTransfer(bLimitTransfer, alreadyUsed)
 
 	-- Visualize healing
 	local healingData = {deads = deads, healed = healed, repairedEquipment = repairedEquipment, X = self:GetX(), Y = self:GetY() }
@@ -4255,36 +4342,81 @@ function CheckComponentsHP(unit, str, bNoWarning)
 end
 
 
--- Handle pillage healing
--- (Deprecated by HealingControl based on last healing value)
-local PillagingUnit = nil
-function MarkUnitOnPillage(playerID, unitID)
-	local unit = UnitManager.GetUnit(playerID, unitID)
-	local testHP = unit:GetMaxDamage() - unit:GetDamage()
-	local unitKey = unit:GetKey()
-	if ExposedMembers.UnitData[unitKey] then
-		Dprint( DEBUG_UNIT_SCRIPT, "Marking unit on pillage : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP)
-	else
-		GCO.Error("ExposedMembers.UnitData[unitKey] is nil when marking unit on pillage : ", playerID, unitID, unit:GetDamage(), testHP, unitKey)
-	end
-	PillagingUnit = unit
-end
-GameEvents.OnPillage.Add(MarkUnitOnPillage)
+-- Handle pillaging
+function OnUnitPillage(playerID, unitID)
 
---[[
-function DamageChanged (playerID, unitID, newDamage, prevDamage)
-	local unit = UnitManager.GetUnit(playerID, unitID)
-	if unit and unit == PillagingUnit then
-		PillagingUnit = nil
-		local testHP = unit:GetMaxDamage() - unit:GetDamage()
+	local DEBUG_UNIT_SCRIPT = "debug" --"UnitScript"	
+	
+	local unit 		= GetUnit(playerID, unitID)
+	local unitData 	= unit:GetData()
+	if not unitData then
 		local unitKey = unit:GetKey()
-		Dprint( DEBUG_UNIT_SCRIPT, "Handling Damage Changed for pillaging unit : ", playerID, unitID, unit:GetDamage(), testHP, ExposedMembers.UnitData[unitKey].HP, newDamage, prevDamage)
-		unit:SetDamage(prevDamage)
-		Dprint( DEBUG_UNIT_SCRIPT, "Damage restored to ", unit:GetDamage() )
+		GCO.Error("unitData is nil OnUnitPillage for unitKey ", unitKey, playerID, unitID)
+		return
+	end
+	
+	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_UNIT_SCRIPT, "Get resources pillaged for ".. Locale.Lookup(unit:GetName()) .." for player #".. tostring(unit:GetOwner()).. " id#" .. tostring(unit:GetKey()) .. " at plot(".. unit:GetX() ..",".. unit:GetY() ..")")
+		
+	local plot 	= GCO.GetPlot(unit:GetX(), unit:GetY())
+
+	if plot then
+		-- private function
+		function Collect(resourceID, collected, bImprovedForResource)
+			if bImprovedForResource then
+				collected = collected * BaseImprovementMultiplier
+			end
+			collected = collected * BasePillageMultiplier
+			Dprint( DEBUG_UNIT_SCRIPT, "-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name))
+			unit:ChangeStock(resourceID, collected)
+		end
+	
+		local plotOwner 		= GCO.GetPlayer(plot:GetOwner())
+		local unitOwner 		= GCO.GetPlayer(unit:GetOwner())
+		local improvementID = plot:GetImprovementType()
+		
+		if plot:GetResourceCount() > 0 then
+			local resourceID 	= plot:GetResourceType()
+			local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
+			if ((not plotOwner) and unitOwner:IsResourceVisible(resourceID)) or (plotOwner and plotOwner:IsResourceVisible(resourceID)) then
+				local collected 			= plot:GetResourceCount()
+				local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+				Collect(resourceID, collected, bImprovedForResource)
+			end
+		end
+
+		local featureID = plot:GetFeatureType()
+		if FeatureResources[featureID] then
+			for _, data in pairs(FeatureResources[featureID]) do
+				for resourceID, value in pairs(data) do
+					if ((not plotOwner) and unitOwner:IsResourceVisible(resourceID)) or (plotOwner and plotOwner:IsResourceVisible(resourceID)) then
+						local collected 			= value
+						local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
+						Collect(resourceID, collected, bImprovedForResource)
+					end
+				end
+			end
+		end
+
+		--TerrainResources
+		local terrainID = plot:GetTerrainType()
+		if TerrainResources[terrainID] then
+			for _, data in pairs(TerrainResources[terrainID]) do
+				for resourceID, value in pairs(data) do
+					if ((not plotOwner) and unitOwner:IsResourceVisible(resourceID)) or (plotOwner and plotOwner:IsResourceVisible(resourceID)) then
+						local collected 			= value
+						local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+						Collect(resourceID, collected, bImprovedForResource)
+					end
+				end
+			end
+		end
+	else
+		GCO.Error("plot is nil OnUnitPillage for unitKey ", unitKey, playerID, unitID)
 	end
 end
-Events.UnitDamageChanged.Add(DamageChanged)
---]]
+GameEvents.OnPillage.Add( OnUnitPillage )
+
 
 -----------------------------------------------------------------------------------------
 -- Supply Lines
@@ -5138,6 +5270,7 @@ function AttachUnitFunctions(unit)
 		u.UpdateFrontLineData					= UpdateFrontLineData
 		u.GetData								= GetData
 		u.IsCombat								= IsCombat
+		u.CanGetFullReinforcement				= CanGetFullReinforcement
 		--
 		u.RecordTransaction						= RecordTransaction
 		u.GetTransactionValue					= GetTransactionValue
@@ -5169,6 +5302,7 @@ function AttachUnitFunctions(unit)
 		--
 		u.GetMaxPersonnelReserve				= GetMaxPersonnelReserve
 		u.GetFrontLinePersonnel					= GetFrontLinePersonnel
+		u.GetMaxPersonnel						= GetMaxPersonnel
 		--
 		u.GetMoraleFromFood						= GetMoraleFromFood
 		u.GetMoraleFromLastCombat				= GetMoraleFromLastCombat
@@ -5204,6 +5338,7 @@ function AttachUnitFunctions(unit)
 		u.IsRequiringEquipmentClass				= IsRequiringEquipmentClass
 		u.GetMaxEquipmentFrontLine				= GetMaxEquipmentFrontLine
 		u.GetMaxEquipmentReserve				= GetMaxEquipmentReserve
+		u.GetMaxTotalEquipment					= GetMaxTotalEquipment
 		u.GetEquipmentClassFrontLine			= GetEquipmentClassFrontLine
 		u.GetEquipmentClassReserve				= GetEquipmentClassReserve
 		u.GetEquipmentClassReserveNeed			= GetEquipmentClassReserveNeed
@@ -5212,10 +5347,12 @@ function AttachUnitFunctions(unit)
 		u.GetFrontLineEquipment					= GetFrontLineEquipment
 		u.GetEquipmentReserveNeed				= GetEquipmentReserveNeed
 		u.GetEquipmentFrontLineNeed				= GetEquipmentFrontLineNeed
+		u.GetTotalEquipmentNeed					= GetTotalEquipmentNeed
 		u.ChangeReserveEquipment				= ChangeReserveEquipment
 		u.ChangeFrontLineEquipment				= ChangeFrontLineEquipment
 		u.IsWaitingForEquipment					= IsWaitingForEquipment
 		u.GetTypesFromEquipmentList				= GetTypesFromEquipmentList
+		u.DoInternalEquipmentTransfer			= DoInternalEquipmentTransfer
 		--
 		u.UpdateDataOnNewTurn					= UpdateDataOnNewTurn
 		u.DoFood 								= DoFood
