@@ -372,7 +372,8 @@ CREATE TABLE IF NOT EXISTS Equipment (
 		FuelConsumption INTEGER,
 		FuelType TEXT,
 		PrereqTech TEXT,
-		ObsoleteTech TEXT,		
+		ObsoleteTech TEXT,
+		FixedPrice BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0, 		-- Not price variation after construction
 		NoExport BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0, 			-- Not allowed on international trade routes
 		NoTransfer BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0, 		-- Not allowed on internal trade routes
 		SpecialStock BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0, 	-- Stocked in specific buildings only

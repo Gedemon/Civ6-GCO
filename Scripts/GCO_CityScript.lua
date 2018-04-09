@@ -3792,7 +3792,7 @@ end
 function UpdateCosts(self)
 
 	Dlog("UpdateCosts ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = "debug"
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey 	= GCO.GetPreviousTurnKey()
@@ -3802,46 +3802,54 @@ function UpdateCosts(self)
 	for resourceKey, value in pairs(stockData) do
 		if resourceKey ~= personnelResourceKey then
 
-			local resourceID 	= tonumber(resourceKey)
-			local previousTurn	= tonumber(previousTurnKey)
-			local demand 		= self:GetDemand(resourceID) -- include real demand for food (GetDemandAtTurn return the real use with rationing)
-			local supply		= self:GetSupplyAtTurn(resourceID, previousTurn)
+			local resourceID 		= tonumber(resourceKey)
+			local bCanUpdateCost 	= true
+			
+			if GCO.IsResourceEquipment(resourceID) 	then
+				bCanUpdateCost = not EquipmentInfo[resourceID].FixedPrice
+			end
+			
+			if bCanUpdateCost then
+				local previousTurn	= tonumber(previousTurnKey)
+				local demand 		= self:GetDemand(resourceID) -- include real demand for food (GetDemandAtTurn return the real use with rationing)
+				local supply		= self:GetSupplyAtTurn(resourceID, previousTurn)
 
-			local varPercent	= 0
-			local stock 		= self:GetStock(resourceID)
-			local maxStock		= self:GetMaxStock(resourceID)
-			local actualCost	= self:GetResourceCost(resourceID)
-			local minCost		= self:GetMinimumResourceCost(resourceID)
-			local maxCost		= self:GetMaximumResourceCost(resourceID)
-			local newCost 		= actualCost
+				local varPercent	= 0
+				local stock 		= self:GetStock(resourceID)
+				local maxStock		= self:GetMaxStock(resourceID)
+				local actualCost	= self:GetResourceCost(resourceID)
+				local minCost		= self:GetMinimumResourceCost(resourceID)
+				local maxCost		= self:GetMaximumResourceCost(resourceID)
+				local newCost 		= actualCost
 
-			Dprint( DEBUG_CITY_SCRIPT, "- Actualising cost of "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name))," actual cost.. ".. tostring(actualCost)," stock ",stock," maxStock ",maxStock," demand ",demand," supply ",supply)
+				Dprint( DEBUG_CITY_SCRIPT, "- Actualising cost of "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name))," actual cost.. ".. tostring(actualCost)," stock ",stock," maxStock ",maxStock," demand ",demand," supply ",supply)
 
-			if supply > demand or stock == maxStock then
+				if supply > demand or stock == maxStock then
 
-				local turnUntilFull = (maxStock - stock) / (supply - demand) -- (don't worry, supply - demand > 0)
-				if turnUntilFull == 0 then
-					varPercent = MaxCostReductionPercent
-				else
-					varPercent = math.min(MaxCostReductionPercent, 1 / (turnUntilFull / (maxStock / 2)))
+					local turnUntilFull = (maxStock - stock) / (supply - demand) -- (don't worry, supply - demand > 0)
+					if turnUntilFull == 0 then
+						varPercent = MaxCostReductionPercent
+					else
+						varPercent = math.min(MaxCostReductionPercent, 1 / (turnUntilFull / (maxStock / 2)))
+					end
+					local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
+					newCost = math.max(minCost, math.min(maxCost, actualCost - variation))
+					self:SetResourceCost(resourceID, newCost)
+					Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...").." new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until full ".. Indentation8(turnUntilFull).." variation ".. Indentation8(variation))
+				elseif demand > supply then
+
+					local turnUntilEmpty = stock / (demand - supply)
+					if turnUntilEmpty == 0 then
+						varPercent = MaxCostIncreasePercent
+					else
+						varPercent = math.min(MaxCostIncreasePercent, 1 / (turnUntilEmpty / (maxStock / 2)))
+					end
+					local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)
+					newCost = math.max(minCost, math.min(maxCost, actualCost + variation))
+					self:SetResourceCost(resourceID, newCost)
+					Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...").." new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until empty ".. Indentation8(turnUntilEmpty).." variation ".. Indentation8(variation))
+
 				end
-				local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
-				newCost = math.max(minCost, math.min(maxCost, actualCost - variation))
-				self:SetResourceCost(resourceID, newCost)
-				Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...").." new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until full ".. Indentation8(turnUntilFull).." variation ".. Indentation8(variation))
-			elseif demand > supply then
-
-				local turnUntilEmpty = stock / (demand - supply)
-				if turnUntilEmpty == 0 then
-					varPercent = MaxCostIncreasePercent
-				else
-					varPercent = math.min(MaxCostIncreasePercent, 1 / (turnUntilEmpty / (maxStock / 2)))
-				end
-				local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)
-				newCost = math.max(minCost, math.min(maxCost, actualCost + variation))
-				self:SetResourceCost(resourceID, newCost)
-				Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...").." new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until empty ".. Indentation8(turnUntilEmpty).." variation ".. Indentation8(variation))
-
 			end
 		end
 	end

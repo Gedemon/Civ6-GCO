@@ -9,7 +9,7 @@
 	<!--  -->	
 	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION"	Language="en_US">
 		<Text>May create new cities.</Text>
-	</Replace>	
+	</Replace>
 	
 	<Replace Tag="LOC_POLICY_SURVEY_DESCRIPTION"	Language="en_US">
 		<Text>Double Loots from Tribal Villages.</Text>
@@ -42,6 +42,10 @@
 	<Replace Tag="LOC_CIVIC_RAPID_DEPLOYMENT_DESCRIPTION"	Language="en_US">
 		<Text>Allows for the transport of land units between Aerodrome districts that contain Airports.[NEWLINE]Unlock Military Organization Level 8</Text>
 	</Replace>
+	
+	<Replace Tag="LOC_TECH_STEEL_NAME"	Language="en_US">
+		<Text>Industrial Steel</Text>
+	</Replace>	
 
   </LocalizedText>
 
