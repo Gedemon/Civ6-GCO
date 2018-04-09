@@ -222,7 +222,8 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_FAR
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_NO_WAY_HOME',				-2);
 
 -- Resources
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_IMPROVEMENT_MULTIPLIER',	5);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_PILLAGE_MULTIPLIER',		4);		-- Multiplier for resources pillaged on a plot
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_IMPROVEMENT_MULTIPLIER',	5);		-- Multiplier for resources collected/pillaged on a plot improved for that resource
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_COLLECT_COST_MULTIPLIER',	2);		--
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_NOT_WORKED_COST_MULTIPLIER',	1.5);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_IMPROVEMENT_COST_RATIO',		0.5);
