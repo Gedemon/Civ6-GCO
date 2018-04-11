@@ -99,7 +99,8 @@ for row in GameInfo.Units() do
 	end
 end
 
-local unitEquipmentClasses	= {}
+local unitEquipmentClasses		= {}
+local equipmentClassesPercent	= {}
 for row in GameInfo.UnitEquipmentClasses() do
 	local equipmentClass 	= row.EquipmentClass
 	local unitType 			= row.UnitType
@@ -111,6 +112,13 @@ for row in GameInfo.UnitEquipmentClasses() do
 		-- This is to handle index, as pUnit:GetUnitType() returns an index...
 		if not unitEquipmentClasses[unitID] then unitEquipmentClasses[unitID] = {} end
 		unitEquipmentClasses[unitID][equipmentClassID] = unitEquipmentClasses[unitType][equipmentClassID]
+		
+		-- If there is only one possible PercentageOfPersonnel value for this equipmentClassID, we'll use it directly, else we'll use the promotionClassEquipmentClasses or unitEquipmentClasses value or 
+		if equipmentClassesPercent[equipmentClassID] == nil then
+			equipmentClassesPercent[equipmentClassID]	= row.PercentageOfPersonnel
+		elseif equipmentClassesPercent[equipmentClassID] ~= row.PercentageOfPersonnel then 
+			equipmentClassesPercent[equipmentClassID]	= false
+		end
 	else
 		-- can't use GCO.Error or GCO.Warning functions at this point
 		print("WARNING: no equipment class in GameInfo.EquipmentClasses for "..tostring(row.EquipmentClass))
@@ -2007,35 +2015,38 @@ function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID) -- to do : cac
 	if not _cached.UnitEquipmentClassRatio[unitTypeID] then _cached.UnitEquipmentClassRatio[unitTypeID] = {} end
 	if _cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] then return _cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] end
 	
-	local percentageOfPersonnel = 0
-	local promotionID = GetUnitPromotionClassID(unitTypeID)
-	local linkedClass = GetLinkedEquipmentClass(unitTypeID, equipmentClassID)
+	local percentageOfPersonnel = equipmentClassesPercent[equipmentClassID] or 0
 	
-	--Dline(GameInfo.Units[unitTypeID].UnitType, unitTypeID, promotionID, personnel, GameInfo.EquipmentClasses[equipmentClassID].EquipmentClass, equipmentClassID, linkedClass, promotionClassEquipmentClasses, unitEquipmentClasses)
-
-	-- try to use PromotionClassEquipmentClasses value if it exists
-	if promotionID then
-		--Dline(GameInfo.UnitPromotionClasses[promotionID].PromotionClassType)
-		if promotionClassEquipmentClasses[promotionID] then
-			if promotionClassEquipmentClasses[promotionID][equipmentClassID] then
-				--Dline("promotionClassEquipmentClasses for " .. GameInfo.EquipmentClasses[equipmentClassID].EquipmentClass)
-				percentageOfPersonnel = promotionClassEquipmentClasses[promotionID][equipmentClassID].PercentageOfPersonnel or percentageOfPersonnel
-			elseif linkedClass and promotionClassEquipmentClasses[promotionID][linkedClass] then
-				--Dline("promotionClassEquipmentClasses for " .. GameInfo.EquipmentClasses[linkedClass].EquipmentClass)
-				percentageOfPersonnel = promotionClassEquipmentClasses[promotionID][linkedClass].PercentageOfPersonnel or percentageOfPersonnel
+	if percentageOfPersonnel == 0 then -- if the percentageOfPersonnel for that equipmentClass is not set as unique, get it for that PromotionClass or UnitType
+		local promotionID = GetUnitPromotionClassID(unitTypeID)
+		local linkedClass = GetLinkedEquipmentClass(unitTypeID, equipmentClassID)
+		
+		--Dline(GameInfo.Units[unitTypeID].UnitType, unitTypeID, promotionID, personnel, GameInfo.EquipmentClasses[equipmentClassID].EquipmentClass, equipmentClassID, linkedClass, promotionClassEquipmentClasses, unitEquipmentClasses)
+				
+		-- try to use PromotionClassEquipmentClasses value if it exists
+		if promotionID then
+			--Dline(GameInfo.UnitPromotionClasses[promotionID].PromotionClassType)
+			if promotionClassEquipmentClasses[promotionID] then
+				if promotionClassEquipmentClasses[promotionID][equipmentClassID] then
+					--Dline("promotionClassEquipmentClasses for " .. GameInfo.EquipmentClasses[equipmentClassID].EquipmentClass)
+					percentageOfPersonnel = promotionClassEquipmentClasses[promotionID][equipmentClassID].PercentageOfPersonnel or percentageOfPersonnel
+				elseif linkedClass and promotionClassEquipmentClasses[promotionID][linkedClass] then
+					--Dline("promotionClassEquipmentClasses for " .. GameInfo.EquipmentClasses[linkedClass].EquipmentClass)
+					percentageOfPersonnel = promotionClassEquipmentClasses[promotionID][linkedClass].PercentageOfPersonnel or percentageOfPersonnel
+				end
 			end
 		end
-	end
-	
-	-- else use the unit type value if it exists
-	if percentageOfPersonnel == 0 then
-		if unitEquipmentClasses[unitTypeID] then
-			if unitEquipmentClasses[unitTypeID][equipmentClassID]  then
-				--Dline("unitEquipmentClasses for " .. GameInfo.EquipmentClasses[equipmentClassID].EquipmentClass)
-				percentageOfPersonnel = unitEquipmentClasses[unitTypeID][equipmentClassID].PercentageOfPersonnel or percentageOfPersonnel
-			elseif linkedClass and unitEquipmentClasses[unitTypeID][linkedClass] then
-				--Dline("unitEquipmentClasses for " .. GameInfo.EquipmentClasses[linkedClass].EquipmentClass)
-				percentageOfPersonnel = unitEquipmentClasses[unitTypeID][linkedClass].PercentageOfPersonnel or percentageOfPersonnel
+		
+		-- else use the unit type value if it exists
+		if percentageOfPersonnel == 0 then
+			if unitEquipmentClasses[unitTypeID] then
+				if unitEquipmentClasses[unitTypeID][equipmentClassID]  then
+					--Dline("unitEquipmentClasses for " .. GameInfo.EquipmentClasses[equipmentClassID].EquipmentClass)
+					percentageOfPersonnel = unitEquipmentClasses[unitTypeID][equipmentClassID].PercentageOfPersonnel or percentageOfPersonnel
+				elseif linkedClass and unitEquipmentClasses[unitTypeID][linkedClass] then
+					--Dline("unitEquipmentClasses for " .. GameInfo.EquipmentClasses[linkedClass].EquipmentClass)
+					percentageOfPersonnel = unitEquipmentClasses[unitTypeID][linkedClass].PercentageOfPersonnel or percentageOfPersonnel
+				end
 			end
 		end
 	end
@@ -2165,11 +2176,11 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 					if total < requiredNum then
 						if total < GetUnitEquipmentClassNumberForPersonnel(oldUnitType, personelAtHP, equipmentClassID) then -- allow health damage if the unit can't get more of that equipment class in frontline
 							bEnoughEquipmentForHP = false
-						elseif HP < maxHP then -- but only do the upgrade when at full health
+						elseif HP < maxHP then -- but else only do the upgrade when at full health
 							bEnoughEquipmentForHP = false						
 						end
 					end
-										
+					
 					local num 			= GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)					
 					local ratio 		= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
 					local percent 		= (num) / (requiredNum) * 100 --(num*ratio) / (total) * 100
