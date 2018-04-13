@@ -462,7 +462,7 @@ function Dlog(...)
 end
 
 function ShowLastLog(n)
-	if not n then n = 100 end
+	if not n then n = 10 end
 	print("Check logged call...")
 	if #lastLog > 0 then
 		print("last 10 logged call...")

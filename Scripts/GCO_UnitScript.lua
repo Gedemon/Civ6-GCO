@@ -1927,12 +1927,35 @@ function IsUnitEquipment(unitTypeID, equipmentTypeID)								-- to check if equi
 	return false
 end
 
+function GetEquipmentTypeClassFromPromotionClass(promotionID, equipmentTypeID)		-- to get an equipmentType class for a specific promotion class
+	if equipmentPromotionClasses[equipmentTypeID] and equipmentPromotionClasses[equipmentTypeID][promotionID] then
+		return equipmentPromotionClasses[equipmentTypeID][promotionID]
+	end
+end
+
+function GetEquipmentTypeClassNotPromotionClass(notEquipmentClass, equipmentTypeID)	-- to get an equipmentType class that is not the passed EquipmentClass and has a fixed ratio of personnel
+	local fixedPercent
+	local potentialClass
+	for equipmentClassID, _ in pairs(equipmentIsClass[equipmentTypeID]) do
+		if equipmentClassID ~= notEquipmentClass then
+			--return equipmentClassID
+			if equipmentClassesPercent[equipmentClassID] and (fixedPercent == nil or fixedPercent == equipmentClassesPercent[equipmentClassID]) then
+				potentialClass = equipmentClassID
+			else
+				return nil
+			end
+		end
+	end
+	return potentialClass
+-- equipmentIsClass[equipmentTypeID][equipmentClassID] 	= true
+end
+
 function GetEquipmentTypes(equipmentClassID)										-- to get the list of EquipmentTypes for that EquipmentClass, returned table = {EquipmentID = equipmentTypeID, Desirability = desirability}, already ordered by Desirability
 	return equipmentTypeClasses[tonumber(equipmentClassID)] or {}
 end
 
 function GetUnitEquipmentTypeClass(unitTypeID, equipmentTypeID)						-- return the equipmentClass corresponding to the equipmentType used by UnitType
-	if equipmentUnitTypes[equipmentTypeID] then
+	if equipmentUnitTypes[equipmentTypeID] and equipmentUnitTypes[equipmentTypeID][unitTypeID] then
 		return equipmentUnitTypes[equipmentTypeID][unitTypeID] -- classTypeID
 	end
 end
@@ -2016,7 +2039,7 @@ function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID) -- to do : cac
 	if _cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] then return _cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] end
 	
 	local percentageOfPersonnel = equipmentClassesPercent[equipmentClassID] or 0
-	
+
 	if percentageOfPersonnel == 0 then -- if the percentageOfPersonnel for that equipmentClass is not set as unique, get it for that PromotionClass or UnitType
 		local promotionID = GetUnitPromotionClassID(unitTypeID)
 		local linkedClass = GetLinkedEquipmentClass(unitTypeID, equipmentClassID)
@@ -2122,7 +2145,7 @@ function GetEquipmentOfClassInList(equipmentClassID, equipmentList)
 end
 
 function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType, HP, organizationLevel)
-	
+	local DEBUG_UNIT_SCRIPT = "debug"
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name) .. " current type = " ..GameInfo.Units[oldUnitType].Name)
 	
@@ -2377,11 +2400,37 @@ function GetEquipmentReserveNeed(self)							-- return a table with all equipmen
 		local bestNum 			= 0
 		if equipmentTypes then
 			for _, data in ipairs(equipmentTypes) do  -- the equipmentTypes table is already sorted by Desirability
-				local equipmentID = data.EquipmentID
-				local num = self:GetReserveEquipment(equipmentID)
+				local equipmentID 	= data.EquipmentID
+				local num 			= self:GetReserveEquipment(equipmentID)
+				local ratio			= 1
+
+Dline(Locale.Lookup(self:GetName()), self:GetKey(), equipmentID, Locale.Lookup(GameInfo.Resources[equipmentID].Name), self:IsSpecificEquipment( equipmentID ))
+
+				if not self:IsSpecificEquipment( equipmentID ) then -- this equipment type is not specific to this unit
+				
+					local unitType				= self:GetType()
+					local promotionID 			= GetUnitPromotionClassID(unitType)
+					local equipmentTypeClass 	= GetEquipmentTypeClassNotPromotionClass(classType, equipmentID)--GetEquipmentTypeClassFromPromotionClass(promotionID, equipmentID)--GetLinkedEquipmentClass(unitType, classType)
+					
+					if equipmentTypeClass then
+	Dline(Locale.Lookup(GameInfo.EquipmentClasses[classType].Name), classType )
+	Dline(Locale.Lookup(GameInfo.EquipmentClasses[equipmentTypeClass].Name), equipmentTypeClass )
+
+						local equipmentClassRatio  	= GetUnitEquipmentClassRatio(unitType, classType)
+	Dline(equipmentClassRatio)
+						local equipmentTypeRatio	= GetUnitEquipmentClassRatio(unitType, equipmentTypeClass)--GetLinkedEquipmentClass(unitType, classType))
+	Dline(equipmentTypeRatio)
+						if equipmentTypeRatio ~= equipmentClassRatio and equipmentClassRatio > 0 then
+							-- we're here because the current equipment type use a different personnel ratio than the specific equipment type for that unit in this class type.
+	Dline("num", num, " calculated at ", num*equipmentTypeRatio/equipmentClassRatio)
+							ratio = equipmentTypeRatio / equipmentClassRatio
+						end
+					end
+				end				
+				
 				-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
 				bestNum = bestNum + num
-				equipmentNeed[equipmentID] = math.max(0, maxReserve - bestNum)
+				equipmentNeed[equipmentID] = math.max(0, (maxReserve - bestNum) )--* ratio)
 			end
 		end
 	end
@@ -2389,6 +2438,7 @@ function GetEquipmentReserveNeed(self)							-- return a table with all equipmen
 end
 
 function GetEquipmentFrontLineNeed(self)						-- return a table with all equipment types needed in frontline { [equipmentID] = num }
+
 	local equipmentNeed = {}
 	local equipmentClasses = self:GetEquipmentClasses()
 	for classType, classData in pairs(equipmentClasses) do
@@ -2397,8 +2447,10 @@ function GetEquipmentFrontLineNeed(self)						-- return a table with all equipme
 		local bestNum 			= 0
 		if equipmentTypes then
 			for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
-				local equipmentID = data.EquipmentID
-				local num = self:GetFrontLineEquipment(equipmentID)
+
+				local equipmentID 	= data.EquipmentID
+				local num 			= self:GetFrontLineEquipment(equipmentID)
+				
 				-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
 				bestNum = bestNum + num
 				equipmentNeed[equipmentID] = math.max(0, maxFrontLine - bestNum)
