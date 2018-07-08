@@ -3792,7 +3792,7 @@ end
 function UpdateCosts(self)
 
 	Dlog("UpdateCosts ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = "debug"
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey 	= GCO.GetPreviousTurnKey()
