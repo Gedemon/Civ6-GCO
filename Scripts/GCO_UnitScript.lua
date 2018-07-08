@@ -4029,11 +4029,11 @@ function SetHP(self, value)
 	end	
 end
 
-function Heal(self)
+function Heal(self, maxHealedHP, maxUnitHP)
 
 	--if self:GetDamage() == 0 then return end
 
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	local DEBUG_UNIT_SCRIPT = "debug"--"UnitScript"
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	
@@ -4055,7 +4055,8 @@ function Heal(self)
 	local hitPoints 			= self:GetHitPointTable()
 	local maxPersonnelTransfer 	= self:GetMaxFrontLinePersonnel() * self:GetMaxPersonnelPercentFromReserve() / 100
 	local maxMaterielTransfer 	= self:GetMaxFrontLineMateriel() * self:GetMaxMaterielPercentFromReserve() / 100 	-- Materiel may also be used to repair/build equipment, up to a limit
-	local maxHealedHP			= self:GetMaxHealingPerTurn()
+	local maxHealedHP			= maxHealedHP or self:GetMaxHealingPerTurn()
+	local maxHP					= maxUnitHP or maxHP
 
 	-- try to reinforce the selected Units (move personnel and equipment from reserve to frontline)
 	-- up to MAX_HP_HEALED (or an unit component limit), 1hp per loop
@@ -5160,11 +5161,13 @@ Events.UnitFormArmy.Add( OnMilitaryFormationChanged )
 -- General Functions
 -----------------------------------------------------------------------------------------
 function UpdateUnitsData() -- called in GCO_GameScript.lua
+
+	local DEBUG_UNIT_SCRIPT = "debug"--"UnitScript"
+	
 	-- remove dead units from the table
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Updating UnitData...")
 	
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	local count = 0
 	for unitKey, unitData in pairs(ExposedMembers.UnitData) do
 		count = count + 1
@@ -5185,11 +5188,12 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 		else
 			Dprint( DEBUG_UNIT_SCRIPT, "KEEPING.... unit ID#"..unit:GetKey(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
 
+			local coreHP 	= unit:GetMaxDamage() - unit:GetDamage()
+
 			-- Check data syncronization
 			local bCheck, bIsCoreSynchronized, bIsDataSynchronized = CheckComponentsHP(unit, "UpdateUnitsData")
 			if (not bCheck) then
 
-				local coreHP 	= unit:GetMaxDamage() - unit:GetDamage()
 				local virtualHP = unit:GetHP()
 				local correctionStr = "[NEWLINE]Delta HP is too high, not synchronizing..."
 				
@@ -5223,7 +5227,10 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 			
 				local newUnitType 	= unit:GetTypesFromEquipmentList()			
 				if newUnitType and newUnitType ~= unit:GetType() then
-					unit = ChangeUnitTo(unit, newUnitType)
+					local newUnit = ChangeUnitTo(unit, newUnitType)
+					if newUnit then
+						newUnit:Heal(coreHP, coreHP)
+					end
 				end
 			end
 		end
