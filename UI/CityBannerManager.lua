@@ -49,6 +49,8 @@ local DATA_FIELD_RELIGION_FOLLOWER_LIST_IM	:string = "m_FollowerListIM";
 local DATA_FIELD_RELIGION_POP_CHART_IM		:string = "m_PopChartIM";
 local DATA_FIELD_RELIGION_INFO_INSTANCE		:string = "m_ReligionInfoInst";
 
+local RELIGION_POP_CHART_TOOLTIP_HEADER		:string = Locale.Lookup("LOC_CITY_BANNER_FOLLOWER_PRESSURE_TOOLTIP_HEADER");
+
 local OFFSET_RELIGION_BANNER	:number = 25;
 local ICON_HOLY_SITE			:string = "Faith";
 local ICON_PRESSURE_DOWN		:string = "PressureDown";
@@ -133,6 +135,7 @@ hstructure CityBanner
 	m_PlotY							: number; 
 	m_IsImprovementBanner			: boolean;
 	m_eMajorityReligion				: number;
+	m_UnitListEnabled				: boolean;		-- if this is an aerodome marks whether the unit dropdown is enabled when fully visible.
 end
 
 
@@ -296,6 +299,7 @@ function CityBanner.Initialize( self : CityBanner, playerID: number, cityID : nu
 	self.m_IsDimmed = false;
 	self.m_OverrideDim = false;
 	self.m_FogState = 0;
+	self.m_UnitListEnabled = false;
 
 	self:UpdateName();
 	self:UpdatePosition();
@@ -426,14 +430,16 @@ function CityBanner.UpdateAerodromeBanner( self : CityBanner )
 	self.m_Instance.AerodromeMaxUnitCount:SetText(iAirCapacity);
 
 	-- Update tooltip to show unit capacity
-	self.m_Instance.AerodromeBannerGrid:SetToolTipString(Locale.Lookup("LOC_CITY_BANNER_AERODROME_AIRCRAFT_STATIONED", iAirUnitCount, iAirCapacity));
+	self.m_Instance.AerodromeBase:SetToolTipString(Locale.Lookup("LOC_CITY_BANNER_AERODROME_AIRCRAFT_STATIONED", iAirUnitCount, iAirCapacity));
 
 	-- If current air unit count is 0 then disabled popup
 	if iAirUnitCount <= 0 then
-		self.m_Instance.UnitListPopup:SetDisabled(true);
+		self.m_UnitListEnabled = false;
 	else
-		self.m_Instance.UnitListPopup:SetDisabled(false);
+		self.m_UnitListEnabled = true;
 	end
+
+	self:SetFogState( self.m_FogState );
 
 	self.m_Instance.UnitListPopup:CalculateInternals();
 
@@ -774,6 +780,28 @@ function CityBanner.SetHealthBarColor( self : CityBanner )
 end
 
 -- ===========================================================================
+-- Non-instance function so it can be overwritten by mods
+function GetPopulationTooltip(self:CityBanner, turnsUntilGrowth:number, currentPopulation:number, foodSurplus:number)
+	--- POPULATION AND GROWTH INFO ---
+	local popTooltip:string = Locale.Lookup("LOC_CITY_BANNER_POPULATION") .. ": " .. currentPopulation;
+	if turnsUntilGrowth > 0 then
+		popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_TURNS_GROWTH", turnsUntilGrowth);
+		popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_FOOD_SURPLUS", round(foodSurplus,1));
+	elseif turnsUntilGrowth == 0 then
+		popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_STAGNATE");
+	elseif turnsUntilGrowth < 0 then
+		popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_TURNS_STARVATION", -turnsUntilGrowth);
+	end
+	return popTooltip;
+end
+
+-- ===========================================================================
+-- Non-instance function so it can be overwritten by mods
+function GetCityPopulationText(self:CityBanner, currentPopulation:number)
+	return tostring(currentPopulation);
+end
+
+-- ===========================================================================
 function CityBanner.UpdateStats( self : CityBanner)
 	local pDistrict:table = self:GetDistrict();
 	local localPlayerID:number = Game.GetLocalPlayer();
@@ -801,20 +829,15 @@ function CityBanner.UpdateStats( self : CityBanner)
 			elseif isStarving then
 				turnsUntilGrowth = -pCityGrowth:GetTurnsUntilStarvation();	-- Make negative
 			end	
-			--- POPULATION AND GROWTH INFO ---
-			local popTooltip :string = Locale.Lookup("LOC_CITY_BANNER_POPULATION") .. ": " .. currentPopulation;
+
 			if turnsUntilGrowth > 0 then
-				popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_TURNS_GROWTH", turnsUntilGrowth);
-				popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_FOOD_SURPLUS", round(foodSurplus,1));				
 				self.m_Instance.CityPopTurnsLeft:SetColorByName("StatGoodCS");
 			elseif turnsUntilGrowth < 0 then
-				popTooltip = popTooltip .. "[NEWLINE]  " .. Locale.Lookup("LOC_CITY_BANNER_TURNS_STARVATION", -turnsUntilGrowth);
-				self.m_Instance.CityPopTurnsLeft:SetColorByName("StatBadCS");
-			else
-				self.m_Instance.CityPopTurnsLeft:SetColorByName("StatNormalCS");
-			end
-			self.m_Instance.CityPopulation:SetText(currentPopulation);
-			
+					self.m_Instance.CityPopTurnsLeft:SetColorByName("StatBadCS");
+				else
+					self.m_Instance.CityPopTurnsLeft:SetColorByName("StatNormalCS");
+				end	
+
 			-- GCO <<<<<
 			local city = GCO.GetCity(pCity:GetOwner(), pCity:GetID())  -- to get a CityScript context city
 			local foodStock, maxFoodStock, population, popVariation
@@ -892,14 +915,20 @@ function CityBanner.UpdateStats( self : CityBanner)
 			end
 			-- GCO >>>>>
 
+			self.m_Instance.CityPopulation:SetText(GetCityPopulationText(self, currentPopulation));
+
 			if (self.m_Player == Players[localPlayerID]) then			--Only show growth data if the player is you
+				local popTooltip:string = GetPopulationTooltip(self, turnsUntilGrowth, currentPopulation, foodSurplus);
 				self.m_Instance.CityPopulation:SetToolTipString(popTooltip);
+				if turnsUntilGrowth ~= 0 then
 				self.m_Instance.CityPopTurnsLeft:SetText(turnsUntilGrowth);
+				else
+					self.m_Instance.CityPopTurnsLeft:SetText("-");
+				end
 			end
 
 			local food             :number = pCityGrowth:GetFood();
 			local growthThreshold  :number = pCityGrowth:GetGrowthThreshold();
-			local foodSurplus      :number = pCityGrowth:GetFoodSurplus();
 			local foodpct          :number = Clamp( food / growthThreshold, 0.0, 1.0 );
 			local foodpctNextTurn  :number = 0;
 			if turnsUntilGrowth > 0 then
@@ -931,6 +960,16 @@ function CityBanner.UpdateStats( self : CityBanner)
 			
 			self.m_Instance.CityPopulationMeter:SetPercent(foodpct);
 			self.m_Instance.CityPopulationNextTurn:SetPercent(foodpctNextTurn);
+
+			-- Update insufficient housing icon
+			if self.m_Instance.CityHousingInsufficientIcon ~= nil then
+				self.m_Instance.CityHousingInsufficientIcon:SetToolTipString(Locale.Lookup("LOC_CITY_BANNER_HOUSING_INSUFFICIENT"));
+				if pCityGrowth:GetHousing() < pCity:GetPopulation() then
+					self.m_Instance.CityHousingInsufficientIcon:SetHide(false);
+				else
+					self.m_Instance.CityHousingInsufficientIcon:SetHide(true);
+				end
+			end
 
 			--- CITY PRODUCTION ---
 			if (localPlayerID == pCity:GetOwner()) then
@@ -1140,6 +1179,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 
 			-- Update insufficient amenities icon
 			if self.m_Instance.CityAmenitiesInsufficientIcon ~= nil then
+				self.m_Instance.CityAmenitiesInsufficientIcon:SetToolTipString(Locale.Lookup("LOC_CITY_BANNER_AMENITIES_INSUFFICIENT"));
 				if pCityGrowth:GetAmenitiesNeeded() > pCityGrowth:GetAmenities() then
 					self.m_Instance.CityAmenitiesInsufficientIcon:SetHide(false);
 				else
@@ -1298,6 +1338,19 @@ function CityBanner.SetFogState( self : CityBanner, fogState : number )
         self:SetHide( true );
     else
         self:SetHide( false );
+
+		--If this is an Aerodrome we need to hide the numbers and dropdown if in FOW
+		if( self.m_Instance ~= nil ) then
+			if( self.m_Type == BANNERTYPE_AERODROME) then
+				if( fogState == PLOT_REVEALED ) then
+					self.m_Instance.AerodromeBase:SetHide(true);
+					self.m_Instance.UnitListPopup:SetDisabled(true);
+				else
+					self.m_Instance.AerodromeBase:SetHide(false);
+					self.m_Instance.UnitListPopup:SetDisabled(not self.m_UnitListEnabled);
+				end
+			end
+		end
     end
         
     self.m_FogState = fogState;
@@ -1328,16 +1381,11 @@ function CityBanner.UpdateName( self : CityBanner )
 			local cityName		:string = capitalIcon .. Locale.ToUpper(pCity:GetName());			
 
 			if not self:IsTeam() then
-				local leader:string = PlayerConfigurations[owner]:GetLeaderTypeName();
-				if GameInfo.CivilizationLeaders[leader] == nil then
-					UI.DataError("Banners found a leader \""..leader.."\" which is not/no longer in the game; icon may be whack.");
-				else
-					local civIconName	:string = "ICON_";
-					local civType		:string = GameInfo.CivilizationLeaders[leader].CivilizationType;
+				local civType:string = PlayerConfigurations[owner]:GetCivilizationTypeName();
 					if civType ~= nil then
-						--self.m_Instance.CivIcon:SetIcon(civIconName..civType);
-						self.m_Instance.CivIcon:SetIcon(civIconName..leader);
-					end
+					self.m_Instance.CivIcon:SetIcon("ICON_" .. civType);
+				else
+					UI.DataError("Invalid type name returned by GetCivilizationTypeName");
 				end
 			end
 
@@ -1587,6 +1635,7 @@ function CityBanner.UpdateReligion( self : CityBanner )
 				Religion=religion,
 				Followers=followers,
 				Pressure=pCityReligion:GetTotalPressureOnCity(religion),
+				LifetimePressure=cityReligion.Pressure,
 				FillPercent=fillPercent,
 				Color=GameInfo.Religions[religion].Color });
 		end
@@ -1625,9 +1674,9 @@ function CityBanner.UpdateReligion( self : CityBanner )
 		end
 
 		-- Color hexes in this city the same color as religion
-			local visiblePlots:table = Map.GetCityPlots():GetVisiblePurchasedPlots(pCity);
-			if(table.count(visiblePlots) > 0) then
-				UILens.SetLayerHexesColoredArea( LensLayers.HEX_COLORING_RELIGION, Game.GetLocalPlayer(), visiblePlots, majorityReligionColor );
+			local plots:table = Map.GetCityPlots():GetPurchasedPlots(pCity);
+			if(table.count(plots) > 0) then
+				UILens.SetLayerHexesColoredArea( LensLayers.HEX_COLORING_RELIGION, Game.GetLocalPlayer(), plots, majorityReligionColor );
 			end
 		end
 	end
@@ -1670,13 +1719,22 @@ end
 			popChartIM:ResetInstances();
 		end
 
+		local populationChartTooltip:string = RELIGION_POP_CHART_TOOLTIP_HEADER;
+
 		-- Add religion icons for each active religion
 		for i,religionInfo in ipairs(activeReligions) do
 			local religionDef:table = GameInfo.Religions[religionInfo.Religion];
 
 			local icon = "ICON_" .. religionDef.ReligionType;
 			local religionColor = UI.GetColorValue(religionDef.Color);
-			local religionName = Game.GetReligion():GetName(religionDef.Index);
+			
+			-- The first index is the predominant religion. Label it as such.
+			local religionName = "";
+			if i == 1 then
+				religionName = Locale.Lookup("LOC_CITY_BANNER_PREDOMINANT_RELIGION", Game.GetReligion():GetName(religionDef.Index));
+			else
+				religionName = Game.GetReligion():GetName(religionDef.Index);
+			end
 
 			-- Add icon to main icon list
 			local iconInst:table = iconIM:GetInstance();
@@ -1690,11 +1748,17 @@ end
 			followerListInst.ReligionFollowerIcon:SetIcon(icon);
 			followerListInst.ReligionFollowerIcon:SetColor(religionColor);
 			followerListInst.ReligionFollowerIconBacking:SetColor(religionColor);
-			followerListInst.ReligionFollowerIconBacking:SetToolTipString(religionName);
 			followerListInst.ReligionFollowerCount:SetText(religionInfo.Followers);
-			followerListInst.ReligionFollowerPressure:SetText(Locale.Lookup("LOC_CITY_BANNER_RELIGIOUS_PRESSURE", religionInfo.Pressure));
+			followerListInst.ReligionFollowerPressure:SetText(Locale.Lookup("LOC_CITY_BANNER_RELIGIOUS_PRESSURE", Round(religionInfo.Pressure)));
+
+			-- Add the follower tooltip to the population chart tooltip
+			local followerTooltip:string = Locale.Lookup("LOC_CITY_BANNER_FOLLOWER_PRESSURE_TOOLTIP", religionName, religionInfo.Followers, Round(religionInfo.LifetimePressure));
+			followerListInst.ReligionFollowerIconBacking:SetToolTipString(followerTooltip);
+			populationChartTooltip = populationChartTooltip .. "[NEWLINE][NEWLINE]" .. followerTooltip;
 		end
 
+		religionInfoInst.ReligionPopChartContainer:SetToolTipString(populationChartTooltip);
+		
 		religionInfoInst.ReligionFollowerListStack:CalculateSize();
 		religionInfoInst.ReligionFollowerListScrollPanel:CalculateInternalSize();
 		religionInfoInst.ReligionFollowerListScrollPanel:ReprocessAnchoring();
@@ -1752,7 +1816,7 @@ end
 
 		-- Show how much religion this city is exerting outwards
 		local outwardReligiousPressure = pCityReligion:GetPressureFromCity();
-		religionInfoInst.ExertedReligiousPressure:SetText(Locale.Lookup("LOC_CITY_BANNER_RELIGIOUS_PRESSURE", outwardReligiousPressure));
+		religionInfoInst.ExertedReligiousPressure:SetText(Locale.Lookup("LOC_CITY_BANNER_RELIGIOUS_PRESSURE", Round(outwardReligiousPressure)));
 
 		-- Reset buttons to default state
 		religionInfoInst.ReligionInfoButton:SetHide(false);
