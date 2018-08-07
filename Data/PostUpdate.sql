@@ -194,7 +194,7 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 (	'UNIT_MACEMAN'							), -- LongSwordsman
 (	'UNIT_EXPLORER'							), -- Skirmisher
 (	'UNIT_TREBUCHET'						),
-(	'UNIT_TERCIO'							), -- check for error on update unit data
+--(	'UNIT_TERCIO'							), -- check for error on update unit data
 (	'UNIT_RIFLEMAN'							),
 --(	'UNIT_PHALANX'							),
 --(	'UNIT_PELTAST'							),
