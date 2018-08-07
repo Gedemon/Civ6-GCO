@@ -924,16 +924,20 @@ function GetNextClockRiverPlot(self, edge)
 	local DEBUG_PLOT_SCRIPT			= false
 	local nextPlotEdge 	= (edge + 3 + 1) % 6
 	local nextPlot		= Map.GetAdjacentPlot(self:GetX(), self:GetY(), edge)
-	Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", nextPlot:GetX(), nextPlot:GetY(), 				" river edge  = ", DirectionString[nextPlotEdge]); 		
-	if nextPlot:IsEdgeRiver(nextPlotEdge) then return nextPlot, nextPlotEdge end
+	if nextPlot then
+		Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", nextPlot:GetX(), nextPlot:GetY(), 				" river edge  = ", DirectionString[nextPlotEdge]); 		
+		if nextPlot:IsEdgeRiver(nextPlotEdge) then return nextPlot, nextPlotEdge end
+	end
 end
 
 function GetNextCounterClockRiverPlot(self, edge)
 	local DEBUG_PLOT_SCRIPT			= false
 	local nextPlotEdge 	= (edge + 3 - 1) % 6
 	local nextPlot		= Map.GetAdjacentPlot(self:GetX(), self:GetY(), edge)
-	Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", nextPlot:GetX(), nextPlot:GetY(), 				" river edge  = ", DirectionString[nextPlotEdge]); 	
-	if nextPlot:IsEdgeRiver(nextPlotEdge) then return nextPlot, nextPlotEdge end
+	if nextPlot then
+		Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", nextPlot:GetX(), nextPlot:GetY(), 				" river edge  = ", DirectionString[nextPlotEdge]); 	
+		if nextPlot:IsEdgeRiver(nextPlotEdge) then return nextPlot, nextPlotEdge end
+	end
 end
 
 function plotToNode(plot, edge)
@@ -1094,9 +1098,10 @@ function GetRiverNeighbors(node)
 	-- Add Opposite plot, same edge
 	--Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", oppositePlot:GetX(), oppositePlot:GetY(), " river edge  = ", DirectionString[oppositeEdge])
 	--if oppositePlot:IsEdgeRiver(oppositeEdge) then
+	if oppositePlot then
 		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", oppositePlot:GetX(), oppositePlot:GetY(), " river edge  = ", DirectionString[oppositeEdge])
 		table.insert( neighbors, { Plot = oppositePlot, 	Edge = oppositeEdge } )
-	--end
+	end
 	
 	-- Test diverging edge on next plot (clock direction)
 	local clockPlot, clockEdge		= plot:GetNextClockRiverPlot(nextEdge)

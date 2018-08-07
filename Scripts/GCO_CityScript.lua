@@ -3586,6 +3586,88 @@ function CanConstruct(self, buildingType)
 end
 
 
+-----------------------------------------------------------------------------------------
+-- Activities & Employment
+-----------------------------------------------------------------------------------------
+
+local CityEmploymentPow 	= {
+	["ERA_ANCIENT"] 		= 1.00 ,
+	["ERA_CLASSICAL"] 		= 1.10 ,
+	["ERA_MEDIEVAL"] 		= 1.25 ,
+	["ERA_RENAISSANCE"] 	= 1.50 ,
+	["ERA_INDUSTRIAL"] 		= 1.80 ,
+	["ERA_MODERN"] 			= 2.20 ,
+	["ERA_ATOMIC"] 			= 2.50 ,
+	["ERA_INFORMATION"] 	= 2.80 ,
+	}
+	
+local CityEmploymentFactor 	= {
+	["ERA_ANCIENT"] 		= 500 ,
+	["ERA_CLASSICAL"] 		= 550 ,
+	["ERA_MEDIEVAL"] 		= 600 ,
+	["ERA_RENAISSANCE"] 	= 650 ,
+	["ERA_INDUSTRIAL"] 		= 700 ,
+	["ERA_MODERN"] 			= 800 ,
+	["ERA_ATOMIC"] 			= 900 ,
+	["ERA_INFORMATION"] 	= 1000 ,
+	}
+
+local PlotEmploymentPow		= {
+	["ERA_ANCIENT"] 		= 1.80 ,
+	["ERA_CLASSICAL"] 		= 1.79 ,
+	["ERA_MEDIEVAL"] 		= 1.77 ,
+	["ERA_RENAISSANCE"] 	= 1.75 ,
+	["ERA_INDUSTRIAL"] 		= 1.60 ,
+	["ERA_MODERN"] 			= 1.55 ,
+	["ERA_ATOMIC"] 			= 1.52 ,
+	["ERA_INFORMATION"] 	= 1.50 ,
+	}
+	
+local PlotEmploymentFactor 	= {
+	["ERA_ANCIENT"] 		= 1000 ,
+	["ERA_CLASSICAL"] 		= 950 ,
+	["ERA_MEDIEVAL"] 		= 900 ,
+	["ERA_RENAISSANCE"] 	= 850 ,
+	["ERA_INDUSTRIAL"] 		= 700 ,
+	["ERA_MODERN"] 			= 600 ,
+	["ERA_ATOMIC"] 			= 550 ,
+	["ERA_INFORMATION"] 	= 500 ,
+	}
+
+function GetEraType(self)
+	local player 	= Players[self:GetOwner()]
+	return GameInfo.Eras[player:GetEra()].EraType
+end
+
+function GetCityEmploymentPow(self)
+	return CityEmploymentPow[self:GetEraType()]
+end
+
+function GetCityEmploymentFactor(self)
+	return CityEmploymentFactor[self:GetEraType()]
+end
+
+function GetPlotEmploymentPow(self)
+	return PlotEmploymentPow[self:GetEraType()]
+end
+
+function GetPlotEmploymentFactor(self)
+	return PlotEmploymentFactor[self:GetEraType()]
+end
+
+function GetMaxEmploymentRural(self)
+	-- We want the max value before reaching the next city size...
+	local nextCitySize = self:GetSize() + 1
+	return GCO.Round(math.pow(nextCitySize, self:GetPlotEmploymentPow()) * self:GetPlotEmploymentFactor())
+end
+
+function GetMaxEmploymentUrban(self)
+	-- We want the max value before reaching the next city size...
+	local nextCitySize = self:GetSize() + 1
+	return GCO.Round(math.pow(nextCitySize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
+end
+
+
 ----------------------------------------------
 -- Texts function
 ----------------------------------------------
@@ -5700,6 +5782,14 @@ function AttachCityFunctions(city)
 	c.GetCityYield						= GetCityYield
 	c.GetCustomYield					= GetCustomYield
 	c.TurnCreated						= TurnCreated
+	--
+	c.GetEraType						= GetEraType
+	c.GetCityEmploymentPow				= GetCityEmploymentPow
+	c.GetCityEmploymentFactor			= GetCityEmploymentFactor
+	c.GetPlotEmploymentPow				= GetPlotEmploymentPow
+	c.GetPlotEmploymentFactor			= GetPlotEmploymentFactor
+	c.GetMaxEmploymentRural				= GetMaxEmploymentRural
+	c.GetMaxEmploymentUrban				= GetMaxEmploymentUrban
 
 end
 
