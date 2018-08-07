@@ -287,6 +287,23 @@ function GetMilitaryOrganizationLevel(self)
 	return ExposedMembers.PlayerData[playerKey].OrganizationLevel or 0
 end
 
+function UpdateMilitaryOrganizationLevel(self)
+	-- this function assume that a higher ID means better Civics and OrganizationLevel
+	local bestCivicID = -1
+	for civicID, organizationLevelID in pairs(OrganizationLevelCivics) do
+		if self:GetCulture():HasCivic(civicID) and civicID > bestCivicID then
+			bestCivicID = civicID
+		end
+	end
+	if bestCivicID > -1 then	
+		local organizationLevel	= OrganizationLevelCivics[bestCivicID]
+		if self:HasPolicyActive(smallerUnitsPolicyID) and OrganizationLevelToSmaller[organizationLevel] then
+			organizationLevel = OrganizationLevelToSmaller[organizationLevel]
+		end
+		self:SetMilitaryOrganizationLevel(organizationLevel)
+	end
+end
+
 -- Events
 function OnCivicCompleted(playerID, civicID) -- this function assume that Civics related to Military Organisation Levels are sequential (else the level could downgrade if a later civics is researched before an older)
 	if OrganizationLevelCivics[civicID] then
@@ -636,6 +653,9 @@ function DoPlayerTurn( playerID )
 		Dprint( DEBUG_PLAYER_SCRIPT, "--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(playerName) .." )")
 		Dprint( DEBUG_PLAYER_SCRIPT, "---============================================================================================================================================================================---")
 		
+		-- May need that when launching a game with a later era start
+		player:UpdateMilitaryOrganizationLevel()
+		
 		--player:UpdatePopulationNeeds()
 		GCO.StartTimer("DoUnitsTurn for ".. tostring(playerName))
 		LuaEvents.DoUnitsTurn( playerID )
@@ -823,6 +843,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	--
 	p.SetMilitaryOrganizationLevel				= SetMilitaryOrganizationLevel
 	p.GetMilitaryOrganizationLevel				= GetMilitaryOrganizationLevel
+	p.UpdateMilitaryOrganizationLevel			= UpdateMilitaryOrganizationLevel
 	--
 	p.IsKnownTech								= IsKnownTech
 	p.SetKnownTech								= SetKnownTech
