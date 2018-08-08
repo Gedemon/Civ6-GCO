@@ -155,6 +155,9 @@
     <Replace Tag="LOC_CITYBANNER_POPULATION_NEEDS_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------- Needs Effects ----------------------[ENDCOLOR]</Text>
     </Replace>
+    <Replace Tag="LOC_CITYBANNER_URBAN_EMPLOYMENT_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]----------------- Urban Employment ---------------------[ENDCOLOR]</Text>
+    </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_TOTAL_POPULATION" Language="en_US">
       <Text>[ICON_Housing] {1_Num} Total Population</Text>
@@ -247,6 +250,22 @@
       <Text>{1_Turns : plural 1?{1_Turns} turn; other? {1_Turn} turns;} to complete when at 100% production efficiency.</Text>
     </Replace>
 	
+    <Replace Tag="LOC_CITYBANNER_URBAN_RURAL_POPULATION" Language="en_US">
+      <Text>[ICON_Housing] {1_Num} Urban population[NEWLINE][ICON_Housing] {2_Num} Rural population</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_BUILDING_EMPLOYMENT_EFFECT" Language="en_US">
+      <Text>Buildings require {2_Num} Workers (Size {1_Num} Employment)</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_URBAN_EMPLOYMENT_DETAILS" Language="en_US">
+      <Text>{1_Num} employed, {2_Num} unemployed</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_URBAN_EMPLOYMENT_EFFECT" Language="en_US">
+      <Text>{1_Num} missing workers : {2_Num}% activity</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_URBAN_PRODUCTION_OUTPUT" Language="en_US">
+      <Text>x {1_Num} resource/equipment production (Size {2_Num} city)</Text>
+    </Replace>
+
   </LocalizedText>
     
   <LocalizedText> <!-- CityPanels Texts -->	
@@ -682,7 +701,11 @@
 	
 	<Replace Tag="LOC_TOOLTIP_BUILDING_EQUIPMENT_STOCK" Language="en_US">
       <Text>Provide {1_Num} storage space for Equipment</Text>
-    </Replace>	
+    </Replace>
+	
+	<Replace Tag="LOC_TOOLTIP_BUILDING_EMPLOYMENT" Language="en_US">
+      <Text>Provide {1_Num} Employment for the Urban Population</Text>
+    </Replace>
 	
   </LocalizedText>
  

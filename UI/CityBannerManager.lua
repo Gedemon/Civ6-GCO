@@ -870,6 +870,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 				if population > 0 then
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE")
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_TOTAL_POPULATION", population) .. GCO.GetVariationString(popVariation)
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_RURAL_POPULATION", city:GetUrbanPopulation(), city:GetRuralPopulation())
 					if city:GetUpperClass() + city:GetPreviousUpperClass() > 0 then
 						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", city:GetUpperClass()) .. GCO.GetVariationString(city:GetUpperClass() - city:GetPreviousUpperClass())
 					end
@@ -882,18 +883,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 					if city:GetSlaveClass() + city:GetPreviousSlaveClass() > 0 then 
 						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", city:GetSlaveClass()) .. GCO.GetVariationString(city:GetSlaveClass() - city:GetPreviousSlaveClass())
 					end
-				end
-				 
-				-- Test for Employment values
-				cityString = cityString .. "[NEWLINE]" 
-				cityString = cityString .. "[NEWLINE] Urban pop = ".. tostring( city:GetUrbanPopulation() ) .. ", Rural pop = " .. tostring( city:GetRuralPopulation() )
-				cityString = cityString .. "[NEWLINE] buildings Empl. = ".. tostring( city:GetUrbanEmploymentSize() ) .. ", Max employed (total urban) = " .. tostring( city:GetMaxEmploymentUrban() )
-				cityString = cityString .. "[NEWLINE] Max employed (from buildings) = ".. tostring( city:GetMaxEmploymentFromBuildings() ) .. ", urban employed = " .. tostring( city:GetUrbanEmployed() )
-				cityString = cityString .. "[NEWLINE] unemployed = ".. tostring( city:GetUrbanPopulation() - city:GetUrbanEmployed() ) .. ", available employment = " .. tostring( city:GetMaxEmploymentFromBuildings() - city:GetUrbanEmployed() )
-				cityString = cityString .. "[NEWLINE] prod % from buildings = ".. tostring( GCO.Round(city:GetProductionFactorFromBuildings()*100) ) .. ", urban activity % = " .. tostring( GCO.Round(city:GetUrbanActivityFactor()*100) )
-				cityString = cityString .. "[NEWLINE] urban production % = ".. tostring( GCO.Round(city:GetUrbanProductionFactor()*100) ) .. ", output per yield = " .. tostring( GCO.Round(GetOutputPerYield*100)/100 )
-				cityString = cityString .. "[NEWLINE]" 
-				
+				end				
 					
 				if popVariation > 0 then
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITY_BANNER_POPULATION_TO_GROWTH", popDiff);
@@ -905,6 +895,14 @@ function CityBanner.UpdateStats( self : CityBanner)
 				else
 					self.m_Instance.CityPopTurnsLeft:SetColorByName("StatNormalCS");
 				end	
+				 
+				-- Test for Employment values
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_EMPLOYMENT_TITLE")				
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_BUILDING_EMPLOYMENT_EFFECT", city:GetUrbanEmploymentSize(), city:GetMaxEmploymentUrban())
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_EMPLOYMENT_DETAILS", city:GetUrbanEmployed(), city:GetUrbanPopulation() - city:GetUrbanEmployed() )
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_EMPLOYMENT_EFFECT", city:GetMaxEmploymentUrban() - city:GetUrbanEmployed(), GCO.Round(city:GetUrbanActivityFactor()*100))
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_PRODUCTION_OUTPUT", GCO.Round(city:GetOutputPerYield()*100)/100, city:GetSize() )
+				--cityString = cityString .. "[NEWLINE]"
 					
 				-- Personnel				
 				if city:GetPersonnel() > 0 then

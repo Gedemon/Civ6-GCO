@@ -3600,8 +3600,8 @@ local CityEmploymentPow 	= {
 	["ERA_CLASSICAL"] 		= 1.10 ,
 	["ERA_MEDIEVAL"] 		= 1.25 ,
 	["ERA_RENAISSANCE"] 	= 1.50 ,
-	["ERA_INDUSTRIAL"] 		= 1.80 ,
-	["ERA_MODERN"] 			= 2.20 ,
+	["ERA_INDUSTRIAL"] 		= 2.20 ,
+	["ERA_MODERN"] 			= 2.30 ,
 	["ERA_ATOMIC"] 			= 2.50 ,
 	["ERA_INFORMATION"] 	= 2.80 ,
 	}
@@ -3611,9 +3611,9 @@ local CityEmploymentFactor 	= {
 	["ERA_CLASSICAL"] 		= 550 ,
 	["ERA_MEDIEVAL"] 		= 600 ,
 	["ERA_RENAISSANCE"] 	= 650 ,
-	["ERA_INDUSTRIAL"] 		= 700 ,
-	["ERA_MODERN"] 			= 800 ,
-	["ERA_ATOMIC"] 			= 900 ,
+	["ERA_INDUSTRIAL"] 		= 800 ,
+	["ERA_MODERN"] 			= 900 ,
+	["ERA_ATOMIC"] 			= 950 ,
 	["ERA_INFORMATION"] 	= 1000 ,
 	}
 
@@ -3660,7 +3660,7 @@ function GetUrbanPopulation(self)
 	-- simple test function before implementing per plot population for migration
 	local eraType = self:GetEraType()
 	local percent = BaseUrbanPercent[eraType]
-	return GCO.Round(self:GetRealPopulation() * percent)
+	return GCO.Round(self:GetRealPopulation() * percent / 100)
 end
 
 function GetRuralPopulation(self)
@@ -3714,9 +3714,9 @@ end
 function GetMaxEmploymentUrban(self)
 	local cityKey = self:GetKey()
 	if not _cached[cityKey] then
-		self:SetMaxEmploymentRural()
+		self:SetMaxEmploymentUrban()
 	elseif not _cached[cityKey].MaxEmploymentUrban then
-		self:SetMaxEmploymentRural()
+		self:SetMaxEmploymentUrban()
 	end
 	return _cached[cityKey].MaxEmploymentUrban
 end
@@ -3725,10 +3725,12 @@ function SetMaxEmploymentUrban(self)
 	local cityKey = self:GetKey()
 	if not _cached[cityKey] then _cached[cityKey] = {} end
 	-- We want the max value before reaching the next city size...
-	local nextCitySize = self:GetSize() + 1
-	_cached[cityKey].MaxEmploymentUrban = GCO.Round(math.pow(nextCitySize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
+	local employmentSize = self:GetUrbanEmploymentSize() --self:GetSize() + 1
+	_cached[cityKey].MaxEmploymentUrban = GCO.Round(math.pow(employmentSize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
 end
 
+-- duplicate usage with GetUrbanActivityFactor...
+--[[
 function GetProductionFactorFromBuildings(self)
 	local cityKey = self:GetKey()
 	if not _cached[cityKey] then
@@ -3753,6 +3755,7 @@ function SetProductionFactorFromBuildings(self)
 	end
 	_cached[cityKey].ProductionFactorFromBuildings = ratio
 end
+--]]
 
 function GetEmploymentFactorFromBuildings(self)
 	local cityKey = self:GetKey()
@@ -3775,18 +3778,21 @@ function SetEmploymentFactorFromBuildings(self)
 	_cached[cityKey].EmploymentFactorFromBuildings = math.min(1,(employment / size))
 end
 
+-- duplicate usage with GetUrbanActivityFactor...
+--[[
 function GetMaxEmploymentFromBuildings(self)
 	local maxEmployment = self:GetMaxEmploymentUrban()
 	local ratio 		= self:GetEmploymentFactorFromBuildings()
 	return GCO.Round(maxEmployment * ratio)
 end
+--]]
 
 function GetUrbanEmployed(self)
-	return math.min(self:GetUrbanPopulation(), self:GetMaxEmploymentFromBuildings())
+	return math.min(self:GetUrbanPopulation(), self:GetMaxEmploymentUrban())
 end
 
 function GetUrbanActivityFactor(self)
-	local employmentFromBuilding = self:GetMaxEmploymentFromBuildings()
+	local employmentFromBuilding = self:GetMaxEmploymentUrban()
 	if employmentFromBuilding > 0 then
 		return (self:GetUrbanEmployed() / employmentFromBuilding)
 	else
@@ -3795,7 +3801,7 @@ function GetUrbanActivityFactor(self)
 end
 
 function GetUrbanProductionFactor(self)
-	return math.min(1, self:GetProductionFactorFromBuildings() * self:GetUrbanActivityFactor())
+	return self:GetUrbanActivityFactor() --math.min(1, self:GetProductionFactorFromBuildings() * self:GetUrbanActivityFactor())
 end
 
 function GetOutputPerYield(self)
@@ -5574,7 +5580,7 @@ function DoTurnFourthPass(self)
 	self:Heal()
 	self:SetMaxEmploymentRural()
 	self:SetMaxEmploymentUrban()
-	self:SetProductionFactorFromBuildings()
+	--self:SetProductionFactorFromBuildings()
 	self:SetEmploymentFactorFromBuildings()
 	GCO.ShowTimer("CitySize/SocialClasses for ".. name)
 

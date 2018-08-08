@@ -295,6 +295,9 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 	end
 	
 	-- GCO <<<<<
+	if building.EmploymentSize and building.EmploymentSize > 0 then
+		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_EMPLOYMENT", building.EmploymentSize))
+	end
 	if building.EquipmentStock and building.EquipmentStock > 0 then
 		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_EQUIPMENT_STOCK", building.EquipmentStock))
 	end
