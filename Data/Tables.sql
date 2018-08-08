@@ -61,6 +61,8 @@ CREATE TABLE IF NOT EXISTS BuildingsGCO (
 		EquipmentStock	integer DEFAULT 0, 											-- Equipment that can be stocked by the building
 		-- Materiel ratio for Buildings construction
 		MaterielPerProduction 	INTEGER DEFAULT '4', 								-- Materiel per unit of production needed for buildings construction
+		-- Employment
+		EmploymentSize	REAL DEFAULT 0, 											-- Employment slots provided by the building
 		PRIMARY KEY(BuildingType),
 		FOREIGN KEY (AdjacentDistrict) REFERENCES Districts(DistrictType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
 		FOREIGN KEY (PrereqDistrict) REFERENCES Districts(DistrictType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
@@ -247,6 +249,9 @@ ALTER TABLE Buildings ADD COLUMN EquipmentStock	integer DEFAULT 0; 											--
 
 -- Materiel ratio for Buildings construction
 ALTER TABLE Buildings ADD COLUMN MaterielPerProduction 	INTEGER DEFAULT '4'; 		-- Materiel per unit of production needed for buildings construction
+
+-- Employment
+ALTER TABLE Buildings ADD COLUMN EmploymentSize	REAL DEFAULT 1; 					-- Employment slots provided by the building
 
 -----------------------------------------------
 -- New Tables

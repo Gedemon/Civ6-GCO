@@ -228,23 +228,46 @@ UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistric
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_THEATER';
 
-UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE BuildingType ='BUILDING_WORKSHOP';
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER', 	EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_WORKSHOP';
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER', 	EmploymentSize ='0.15', Coast = '1' WHERE BuildingType ='BUILDING_LIGHTHOUSE';
 
-UPDATE Buildings SET PrereqDistrict 	= 'DISTRICT_CITY_CENTER', Coast = '1' WHERE BuildingType ='BUILDING_LIGHTHOUSE';
 UPDATE Buildings SET AdjacentDistrict 	= 'DISTRICT_CITY_CENTER' WHERE BuildingType ='BUILDING_GREAT_LIGHTHOUSE';
 UPDATE Buildings SET AdjacentDistrict 	= 'DISTRICT_CITY_CENTER' WHERE BuildingType ='BUILDING_COLOSSUS';
 
-UPDATE Buildings SET PrereqTech = 'TECH_ENGINEERING' 			WHERE BuildingType ='BUILDING_WATER_MILL';
-UPDATE Buildings SET PrereqTech = 'TECH_GUNPOWDER' 				WHERE BuildingType ='BUILDING_ARMORY';
-UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING' 	WHERE BuildingType ='BUILDING_BARRACKS';
-UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING' 	WHERE BuildingType ='BUILDING_STABLE';
+UPDATE Buildings SET PrereqTech = 'TECH_ENGINEERING', 			EmploymentSize ='1.00'	WHERE BuildingType ='BUILDING_WATER_MILL';
+UPDATE Buildings SET PrereqTech = 'TECH_GUNPOWDER', 			EmploymentSize ='0.25'	WHERE BuildingType ='BUILDING_ARMORY';
+UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00' 	WHERE BuildingType ='BUILDING_BARRACKS';
+UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00' 	WHERE BuildingType ='BUILDING_STABLE';
 
-UPDATE Buildings SET PrereqTech = 'TECH_STEAM_POWER' 			WHERE BuildingType ='BUILDING_SEAPORT';
+UPDATE Buildings SET PrereqTech = 'TECH_STEAM_POWER',			EmploymentSize ='4.00'	WHERE BuildingType ='BUILDING_SEAPORT';
 
-UPDATE Buildings SET PrereqTech = 'TECH_COMPUTERS', TraitType = NULL WHERE BuildingType ='BUILDING_ELECTRONICS_FACTORY';
+UPDATE Buildings SET PrereqTech = 'TECH_COMPUTERS',				EmploymentSize ='8.00', TraitType = NULL WHERE BuildingType ='BUILDING_ELECTRONICS_FACTORY';
+
 DELETE FROM BuildingReplaces WHERE CivUniqueBuildingType ='BUILDING_ELECTRONICS_FACTORY';
 
 UPDATE Buildings SET MaterielPerProduction = '3' WHERE BuildingType ='BUILDING_GRANARY';
+
+UPDATE Buildings SET EmploymentSize ='0.15' WHERE BuildingType ='BUILDING_LIBRARY';
+UPDATE Buildings SET EmploymentSize ='0.20' WHERE BuildingType ='BUILDING_ARENA';
+UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_MARKET';
+UPDATE Buildings SET EmploymentSize ='0.50' WHERE BuildingType ='BUILDING_AMPHITHEATER';
+UPDATE Buildings SET EmploymentSize ='0.50' WHERE BuildingType ='BUILDING_UNIVERSITY';
+UPDATE Buildings SET EmploymentSize ='0.50' WHERE BuildingType ='BUILDING_WORKSHOP';
+UPDATE Buildings SET EmploymentSize ='2.00' WHERE BuildingType ='BUILDING_SHIPYARD';
+UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_BANK';
+UPDATE Buildings SET EmploymentSize ='0.50' WHERE BuildingType ='BUILDING_MUSEUM_ART';
+UPDATE Buildings SET EmploymentSize ='0.50' WHERE BuildingType ='BUILDING_MUSEUM_ARTIFACT';
+UPDATE Buildings SET EmploymentSize ='8.00' WHERE BuildingType ='BUILDING_FACTORY';
+UPDATE Buildings SET EmploymentSize ='2.00' WHERE BuildingType ='BUILDING_STOCK_EXCHANGE';
+UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_MILITARY_ACADEMY';
+UPDATE Buildings SET EmploymentSize ='0.50' WHERE BuildingType ='BUILDING_ZOO';
+UPDATE Buildings SET EmploymentSize ='4.00' WHERE BuildingType ='BUILDING_HANGAR';
+UPDATE Buildings SET EmploymentSize ='3.00' WHERE BuildingType ='BUILDING_POWER_PLANT';
+UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_BROADCAST_CENTER';
+UPDATE Buildings SET EmploymentSize ='0.25' WHERE BuildingType ='BUILDING_RESEARCH_LAB';
+UPDATE Buildings SET EmploymentSize ='3.00' WHERE BuildingType ='BUILDING_POWER_PLANT';
+UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_STADIUM';
+UPDATE Buildings SET EmploymentSize ='3.00' WHERE BuildingType ='BUILDING_AIRPORT';
 
 UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT_CITY_CENTER';
 
