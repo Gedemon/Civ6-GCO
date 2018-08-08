@@ -164,9 +164,13 @@ for row in GameInfo.BuildingStock() do
 end
 
 local EquipmentStockage		= {}		-- cached table with all the buildings that can stock equipment
+local BuildingEmployment	= {}		-- cached table with all the buildings that provide employment
 for row in GameInfo.Buildings() do
 	if row.EquipmentStock and  row.EquipmentStock > 0 then
 		EquipmentStockage[row.Index] = row.EquipmentStock
+	end
+	if row.EmploymentSize and  row.EmploymentSize > 0 then
+		BuildingEmployment[row.Index] = row.EmploymentSize
 	end
 end
 
@@ -851,6 +855,7 @@ function GetTransactionValue(self, accountType, refKey, turnKey)
 	return cityData.Account[turnKey][accountType][refKey] or 0
 end
 
+
 -----------------------------------------------------------------------------------------
 -- Population functions
 -----------------------------------------------------------------------------------------
@@ -1218,6 +1223,7 @@ function GetPreviousSlaveClass(self)
 		return self:GetSlaveClass()
 	end
 end
+
 
 -----------------------------------------------------------------------------------------
 -- Resources Transfers
@@ -3589,7 +3595,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Activities & Employment
 -----------------------------------------------------------------------------------------
-
 local CityEmploymentPow 	= {
 	["ERA_ANCIENT"] 		= 1.00 ,
 	["ERA_CLASSICAL"] 		= 1.10 ,
@@ -3634,9 +3639,42 @@ local PlotEmploymentFactor 	= {
 	["ERA_INFORMATION"] 	= 500 ,
 	}
 
+-- For population repartition at city creation
+local BaseUrbanPercent 		= {
+	["ERA_ANCIENT"] 		= 5 ,
+	["ERA_CLASSICAL"] 		= 5 ,
+	["ERA_MEDIEVAL"] 		= 7 ,
+	["ERA_RENAISSANCE"] 	= 10 ,
+	["ERA_INDUSTRIAL"] 		= 30 ,
+	["ERA_MODERN"] 			= 50 ,
+	["ERA_ATOMIC"] 			= 60 ,
+	["ERA_INFORMATION"] 	= 70 ,
+	}
+
 function GetEraType(self)
 	local player 	= Players[self:GetOwner()]
 	return GameInfo.Eras[player:GetEra()].EraType
+end
+
+function GetUrbanPopulation(self)
+	-- simple test function before implementing per plot population for migration
+	local eraType = self:GetEraType()
+	local percent = BaseUrbanPercent[eraType]
+	return GCO.Round(self:GetRealPopulation() * percent)
+end
+
+function GetRuralPopulation(self)
+	return self:GetRealPopulation() - self:GetUrbanPopulation()
+end
+
+function GetUrbanEmploymentSize(self)
+	local employment 	= 0
+	for buildingID, employmentValue in ipairs(BuildingEmployment) do
+		if self:GetBuildings():HasBuilding(buildingID) then
+			employment = employment + employmentValue
+		end
+	end
+	return employment
 end
 
 function GetCityEmploymentPow(self)
@@ -3656,17 +3694,113 @@ function GetPlotEmploymentFactor(self)
 end
 
 function GetMaxEmploymentRural(self)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then
+		self:SetMaxEmploymentRural()
+	elseif not _cached[cityKey].MaxEmploymentRural then
+		self:SetMaxEmploymentRural()
+	end
+	return _cached[cityKey].MaxEmploymentRural
+end
+
+function SetMaxEmploymentRural(self)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then _cached[cityKey] = {} end
 	-- We want the max value before reaching the next city size...
 	local nextCitySize = self:GetSize() + 1
-	return GCO.Round(math.pow(nextCitySize, self:GetPlotEmploymentPow()) * self:GetPlotEmploymentFactor())
+	_cached[cityKey].MaxEmploymentRural = GCO.Round(math.pow(nextCitySize, self:GetPlotEmploymentPow()) * self:GetPlotEmploymentFactor())
 end
 
 function GetMaxEmploymentUrban(self)
-	-- We want the max value before reaching the next city size...
-	local nextCitySize = self:GetSize() + 1
-	return GCO.Round(math.pow(nextCitySize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then
+		self:SetMaxEmploymentRural()
+	elseif not _cached[cityKey].MaxEmploymentUrban then
+		self:SetMaxEmploymentRural()
+	end
+	return _cached[cityKey].MaxEmploymentUrban
 end
 
+function SetMaxEmploymentUrban(self)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then _cached[cityKey] = {} end
+	-- We want the max value before reaching the next city size...
+	local nextCitySize = self:GetSize() + 1
+	_cached[cityKey].MaxEmploymentUrban = GCO.Round(math.pow(nextCitySize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
+end
+
+function GetProductionFactorFromBuildings(self)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then
+		self:SetProductionFactorFromBuildings()
+	elseif not _cached[cityKey].ProductionFactorFromBuildings then
+		self:SetProductionFactorFromBuildings()
+	end
+	return _cached[cityKey].ProductionFactorFromBuildings
+end
+
+function SetProductionFactorFromBuildings(self)
+
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then _cached[cityKey] = {} end
+	
+	local size 			= self:GetSize()
+	local employment 	= self:GetUrbanEmploymentSize()
+	
+	local ratio = 1
+	if employment > 0 then 
+		ratio = math.min(1,(size / employment))
+	end
+	_cached[cityKey].ProductionFactorFromBuildings = ratio
+end
+
+function GetEmploymentFactorFromBuildings(self)
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then
+		self:SetEmploymentFactorFromBuildings()
+	elseif not _cached[cityKey].EmploymentFactorFromBuildings then
+		self:SetEmploymentFactorFromBuildings()
+	end
+	return _cached[cityKey].EmploymentFactorFromBuildings
+end
+
+function SetEmploymentFactorFromBuildings(self)
+
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then _cached[cityKey] = {} end
+	
+	local size 			= self:GetSize()
+	local employment 	= self:GetUrbanEmploymentSize()
+	
+	_cached[cityKey].EmploymentFactorFromBuildings = math.min(1,(employment / size))
+end
+
+function GetMaxEmploymentFromBuildings(self)
+	local maxEmployment = self:GetMaxEmploymentUrban()
+	local ratio 		= self:GetEmploymentFactorFromBuildings()
+	return GCO.Round(maxEmployment * ratio)
+end
+
+function GetUrbanEmployed(self)
+	return math.min(self:GetUrbanPopulation(), self:GetMaxEmploymentFromBuildings())
+end
+
+function GetUrbanActivityFactor(self)
+	local employmentFromBuilding = self:GetMaxEmploymentFromBuildings()
+	if employmentFromBuilding > 0 then
+		return (self:GetUrbanEmployed() / employmentFromBuilding)
+	else
+		return 1
+	end
+end
+
+function GetUrbanProductionFactor(self)
+	return math.min(1, self:GetProductionFactorFromBuildings() * self:GetUrbanActivityFactor())
+end
+
+function GetOutputPerYield(self)
+	return self:GetUrbanProductionFactor() * self:GetSize()
+end
 
 ----------------------------------------------
 -- Texts function
@@ -5429,7 +5563,7 @@ function DoTurnFourthPass(self)
 		return
 	end
 
-	-- Update City Size / social classes
+	-- Update City Size / social classes / Employment
 	GCO.StartTimer("CitySize/SocialClasses for ".. name)
 	self:DoGrowth()
 	self:SetRealPopulation()
@@ -5438,6 +5572,10 @@ function DoTurnFourthPass(self)
 	self:DoTaxes()
 	self:ChangeSize()
 	self:Heal()
+	self:SetMaxEmploymentRural()
+	self:SetMaxEmploymentUrban()
+	self:SetProductionFactorFromBuildings()
+	self:SetEmploymentFactorFromBuildings()
 	GCO.ShowTimer("CitySize/SocialClasses for ".. name)
 
 	-- last...
@@ -5784,12 +5922,26 @@ function AttachCityFunctions(city)
 	c.TurnCreated						= TurnCreated
 	--
 	c.GetEraType						= GetEraType
+	c.GetUrbanEmploymentSize			= GetUrbanEmploymentSize
 	c.GetCityEmploymentPow				= GetCityEmploymentPow
 	c.GetCityEmploymentFactor			= GetCityEmploymentFactor
 	c.GetPlotEmploymentPow				= GetPlotEmploymentPow
 	c.GetPlotEmploymentFactor			= GetPlotEmploymentFactor
 	c.GetMaxEmploymentRural				= GetMaxEmploymentRural
 	c.GetMaxEmploymentUrban				= GetMaxEmploymentUrban
+	c.SetMaxEmploymentRural				= SetMaxEmploymentRural
+	c.SetMaxEmploymentUrban				= SetMaxEmploymentUrban
+	c.GetProductionFactorFromBuildings	= GetProductionFactorFromBuildings
+	c.SetProductionFactorFromBuildings	= SetProductionFactorFromBuildings
+	c.GetEmploymentFactorFromBuildings	= GetEmploymentFactorFromBuildings
+	c.SetEmploymentFactorFromBuildings	= SetEmploymentFactorFromBuildings
+	c.GetMaxEmploymentFromBuildings		= GetMaxEmploymentFromBuildings
+	c.GetUrbanPopulation				= GetUrbanPopulation
+	c.GetRuralPopulation				= GetRuralPopulation	
+	c.GetUrbanEmployed					= GetUrbanEmployed
+	c.GetUrbanActivityFactor			= GetUrbanActivityFactor
+	c.GetUrbanProductionFactor			= GetUrbanProductionFactor
+	c.GetOutputPerYield					= GetOutputPerYield
 
 end
 
