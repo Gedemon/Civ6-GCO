@@ -1424,6 +1424,7 @@ Events.ImprovementActivated.Add( OnImprovementActivated )
 -----------------------------------------------------------------------------------------
 
 ---[[
+-- << obsolete
 
 -- vegetal resource = activity farmer (crop)
 -- wood resource = activity woodcutter
@@ -1534,7 +1535,16 @@ function GetAvailableEmployment(self)
 	end
 	return Employment
 end
+
+-- obsolete >>
 --]]
+
+function GetOutputPerYield(self)
+	local city = Cities.GetPlotPurchaseCity(self)
+	GCO.AttachCityFunctions(city)
+	-- for now just return city size
+	return city:GetSize()
+end
 
 -----------------------------------------------------------------------------------------
 -- UI Functions
@@ -1594,6 +1604,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.DiffuseCulture				= DiffuseCulture
 	--
 	p.GetAvailableEmployment		= GetAvailableEmployment
+	p.GetOutputPerYield				= GetOutputPerYield
 	--
 	p.IsEOfRiver					= IsEOfRiver
 	p.IsSEOfRiver					= IsSEOfRiver
