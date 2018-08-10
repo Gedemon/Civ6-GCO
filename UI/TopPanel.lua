@@ -207,6 +207,61 @@ function RefreshYields()
 		-- GCO >>>>>
 		
 	end
+	
+	-- GCO <<<<<
+	---- LOGISTIC COST  ----
+	m_LogisticCostButton 	= m_LogisticCostButton or m_YieldButtonSingleManager:GetInstance()
+	if ExposedMembers.GCO_Initialized then
+		local playerData 	= localPlayer:GetData()
+		local availableLogistic	= localPlayer:GetPersonnelInCities()
+		
+		local classLogisticCost 	= {}
+		local maxClassLogisticCost	= 0
+		for row in GameInfo.UnitPromotionClasses() do
+			local promotionClassID 				= row.Index
+			local logisticCost 					= localPlayer:GetLogisticCost(promotionClassID)
+			if logisticCost > 0 then
+				classLogisticCost[promotionClassID] = logisticCost
+				if logisticCost > maxClassLogisticCost then
+					maxClassLogisticCost = logisticCost
+				end
+			end
+		end
+		
+		if (availableLogistic > 0) then
+			local balanceColorName = "Brown"
+			local backingColorName = "Brown"
+			if maxClassLogisticCost >= availableLogistic then
+				backingColorName = "OperationChance_Red"
+			elseif maxClassLogisticCost > availableLogistic * 0.9 then
+				backingColorName = "OperationChance_Orange"
+			end
+			
+			m_LogisticCostButton.YieldPerTurn:SetText( Locale.ToNumber(availableLogistic, "#,###") );
+			m_LogisticCostButton.YieldIconString:SetText("[ICON_Charges_Large]"); -- [ICON_Strength_Large]
+			m_LogisticCostButton.YieldPerTurn:SetColorByName(balanceColorName);
+
+			local toolTipStrTable = {}
+			for promotionID, logisticCost in pairs(classLogisticCost) do
+				local logisticStr = " " .. Locale.ToNumber(logisticCost, "#,###")
+				if logisticCost >= availableLogistic then
+					logisticStr = " [COLOR_Civ6Red]" .. Locale.ToNumber(logisticCost, "#,###") .. "[ENDCOLOR]"
+				elseif logisticCost > availableLogistic * 0.9 then
+					logisticStr = " [COLOR_Civ6Yellow]" .. Locale.ToNumber(logisticCost, "#,###") .. "[ENDCOLOR]"
+				end				
+				table.insert(toolTipStrTable, Locale.Lookup(GameInfo.UnitPromotionClasses[promotionID].Name) .. logisticStr)
+			end
+			local toolTipStr = Locale.Lookup("LOC_TOP_PANEL_LOGISTIC_COST_TOOLTIP", availableLogistic)..Locale.Lookup("LOC_TOOLTIP_SEPARATOR").. table.concat(toolTipStrTable, "[NEWLINE]")
+			m_LogisticCostButton.YieldBacking:SetToolTipString( toolTipStr );
+			m_LogisticCostButton.YieldBacking:SetColorByName(backingColorName);
+			m_LogisticCostButton.YieldButtonStack:CalculateSize();
+		
+			m_LogisticCostButton.Top:SetHide(false);
+		else
+			m_LogisticCostButton.Top:SetHide(true);
+		end
+	end
+	-- GCO >>>>>
 
 	---- TOURISM ----
 	if GameCapabilities.HasCapability("CAPABILITY_TOURISM") then
@@ -350,6 +405,9 @@ end
 
 -- ===========================================================================
 function RefreshResources()
+	-- GCO <<<<<
+	--[[
+	-- GCO >>>>>
 	local localPlayerID = Game.GetLocalPlayer();
 	if (localPlayerID ~= -1) then
 		m_kResourceIM:ResetInstances(); 
@@ -404,6 +462,10 @@ function RefreshResources()
 			Controls.Resources:SetHide(false);
 		end
 	end
+	-- GCO <<<<<
+	--]]
+	Controls.Resources:SetHide(true)
+	-- GCO >>>>>
 end
 
 -- ===========================================================================

@@ -235,9 +235,9 @@ UPDATE Buildings SET AdjacentDistrict 	= 'DISTRICT_CITY_CENTER' WHERE BuildingTy
 UPDATE Buildings SET AdjacentDistrict 	= 'DISTRICT_CITY_CENTER' WHERE BuildingType ='BUILDING_COLOSSUS';
 
 UPDATE Buildings SET PrereqTech = 'TECH_ENGINEERING', 			EmploymentSize ='1.00'	WHERE BuildingType ='BUILDING_WATER_MILL';
-UPDATE Buildings SET PrereqTech = 'TECH_GUNPOWDER', 			EmploymentSize ='0.25'	WHERE BuildingType ='BUILDING_ARMORY';
-UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00' 	WHERE BuildingType ='BUILDING_BARRACKS';
-UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00' 	WHERE BuildingType ='BUILDING_STABLE';
+UPDATE Buildings SET PrereqTech = 'TECH_GUNPOWDER', 			EmploymentSize ='0.25',	EquipmentStock ='2500'	WHERE BuildingType ='BUILDING_ARMORY';
+UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00',	EquipmentStock ='1500' 	WHERE BuildingType ='BUILDING_BARRACKS';
+UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00',	EquipmentStock ='1500' 	WHERE BuildingType ='BUILDING_STABLE';
 
 UPDATE Buildings SET PrereqTech = 'TECH_STEAM_POWER',			EmploymentSize ='4.00'	WHERE BuildingType ='BUILDING_SEAPORT';
 

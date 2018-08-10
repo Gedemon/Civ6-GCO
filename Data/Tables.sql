@@ -364,6 +364,7 @@ CREATE TABLE IF NOT EXISTS Equipment (
 		ResourceClassType TEXT NOT NULL DEFAULT 'RESOURCECLASS_EQUIPMENT',
 		Size INTEGER NOT NULL DEFAULT 1,								-- Space taken in a city stockage capacity
 		Desirability INTEGER NOT NULL DEFAULT 0,						-- Units will request ResourceType of higher desirability first
+		LogisticCost REAL NOT NULL DEFAULT 0,							-- Personnel in cities required to maintain one piece of this equipment
 		Toughness INTEGER NOT NULL CHECK (Toughness > 0) DEFAULT 1,		-- Global value used to determine if a equipment casualty result in destruction or damage (or prevent the equipment casualty and sent it to reserve depending of requirement)
 		PersonnelArmor INTEGER,											-- 0 = high death rate, 100 = low death rate
 		AntiPersonnel INTEGER,											-- 0 = low kill rate, 100 = high kill rate

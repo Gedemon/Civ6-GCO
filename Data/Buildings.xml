@@ -15,8 +15,8 @@
 		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 			EmploymentSize="0.15"/>
 		<Row BuildingType="BUILDING_FISH_MARKET" 				Cost="70" 	MaterielPerProduction="2" PrereqTech="TECH_SAILING" 			EmploymentSize="0.50"/>
 		<Row BuildingType="BUILDING_FRUIT_MARKET" 				Cost="110" 	MaterielPerProduction="3" PrereqTech="TECH_IRRIGATION" 			EmploymentSize="0.50"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="0.50"		EquipmentStock="500" />
-		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING"		EmploymentSize="0.50"		EquipmentStock="500" />
+		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="0.50"	EquipmentStock="500" />
+		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING"		EmploymentSize="0.50"	EquipmentStock="500" />
 		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" 										EmploymentSize="0.15"	EquipmentStock="1000"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="1.00"	Coast = "1" />
 		
@@ -76,8 +76,8 @@
 		<Row BuildingType="BUILDING_STONEHENGE"	ResourceType="RESOURCE_STONE" 	Quantity="300" />
 		
 		<Row BuildingType="BUILDING_WALLS" 		ResourceType="RESOURCE_STONE" 	Quantity="250" />
-		<Row BuildingType="BUILDING_CASTLE" 	ResourceType="RESOURCE_STONE" 	Quantity="400" />
-		<Row BuildingType="BUILDING_STAR_FORT" 	ResourceType="RESOURCE_STONE" 	Quantity="800" />
+		<Row BuildingType="BUILDING_CASTLE" 	ResourceType="RESOURCE_STONE" 	Quantity="800" />
+		<Row BuildingType="BUILDING_STAR_FORT" 	ResourceType="RESOURCE_STONE" 	Quantity="1200" />
 		
 	</BuildingConstructionResources>
 	
@@ -393,23 +393,27 @@
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="200"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="100"/>
 		
-		<Row BuildingType="BUILDING_SMALL_BARRACKS" ResourceType="RESOURCE_PERSONNEL" 		Stock="2000"/>		
-		<Row BuildingType="BUILDING_BARRACKS" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="15000"/>
+		<Row BuildingType="BUILDING_SMALL_BARRACKS" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="2000"/>		
+		<Row BuildingType="BUILDING_BARRACKS" 			ResourceType="RESOURCE_PERSONNEL" 		Stock="10000"/>
+		<Row BuildingType="BUILDING_MILITARY_ACADEMY" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="7500"/>
 		
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOOD"			Stock="500"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="20"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="EQUIPMENT_GALLEY"			Stock="6"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="EQUIPMENT_QUADRIREME"		Stock="4"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="EQUIPMENT_CARAVEL"		Stock="6"/>
+		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="250"/>
 		
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="20"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_PRIVATEER"		Stock="4"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_FRIGATE"		Stock="4"/>
+		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="500"/>
 		
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_STEEL_HULL_PART"	Stock="20"/>
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="EQUIPMENT_IRONCLAD"		Stock="4"/>
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="EQUIPMENT_SUBMARINE"		Stock="4"/>
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="EQUIPMENT_DESTROYER"		Stock="4"/>
+		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="5000"/>
 		
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 			Stock="250"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 			Stock="250"/>

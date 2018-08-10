@@ -1541,9 +1541,13 @@ end
 
 function GetOutputPerYield(self)
 	local city = Cities.GetPlotPurchaseCity(self)
-	GCO.AttachCityFunctions(city)
-	-- for now just return city size
-	return city:GetSize()
+	if city then
+		GCO.AttachCityFunctions(city)
+		-- for now just return city size
+		return city:GetSize()
+	else
+		return 1
+	end
 end
 
 -----------------------------------------------------------------------------------------

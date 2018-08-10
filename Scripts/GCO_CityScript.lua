@@ -3473,13 +3473,25 @@ function CanTrain(self, unitType)
 		end
 
 	end
+	
+	local bCheckLogistic 	= true
+	local PromotionClassID 	= GCO.GetUnitPromotionClassID(unitID)
+	if PromotionClassID then
+		local logisticCost		= player:GetLogisticCost(PromotionClassID)
+		local availableLogistic	= player:GetPersonnelInCities()
+		if logisticCost >= availableLogistic then
+			Dprint( DEBUG_CITY_SCRIPT, "Can't train ".. Locale.Lookup(GameInfo.Units[unitType].Name) .." of ".. Locale.Lookup(GameInfo.UnitPromotionClasses[PromotionClassID].Name) .." class, failed check on logistic : available = ".. tostring(availableLogistic)..",  current cost = " .. tostring(logisticCost))
+			bCheckLogistic = false
+			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC", logisticCost, GameInfo.UnitPromotionClasses[PromotionClassID].Name, availableLogistic )
+		end
+	end
 
 	-- construct the complete requirement string
 	if bAddStr then requirementStr = reservedStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr end
 	requirementStr = "[NEWLINE]" .. totalStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr
 	Dprint( DEBUG_CITY_SCRIPT, requirementStr)
 
-	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR), requirementStr
+	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCheckLogistic), requirementStr
 end
 
 function CanConstruct(self, buildingType)
@@ -3805,7 +3817,7 @@ function GetUrbanProductionFactor(self)
 end
 
 function GetOutputPerYield(self)
-	return self:GetUrbanProductionFactor() * self:GetSize()
+	return math.max(1, self:GetUrbanProductionFactor() * self:GetSize())
 end
 
 ----------------------------------------------
@@ -4217,7 +4229,7 @@ end
 
 function DoReinforceUnits(self)
 	Dlog("DoReinforceUnits ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = "debug"--"CityScript"
+	local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Reinforcing units...")
 	local cityKey 				= self:GetKey()
@@ -4366,7 +4378,7 @@ function DoCollectResources(self)
 	-- private function
 	function Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 		if bImprovedForResource then
-			collected 		= collected * BaseImprovementMultiplier
+			collected 		= GCO.Round(collected * BaseImprovementMultiplier)
 			resourceCost 	= resourceCost * ImprovementCostRatio
 		end
 		resourceCost = resourceCost * cityWealth
@@ -4427,9 +4439,9 @@ function DoCollectResources(self)
 			end
 		end
 	end
-
+	
 	for _, plotID in ipairs(cityPlots) do
-		local plot			= Map.GetPlotByIndex(plotID)
+		local plot			= GCO.GetPlotByIndex(plotID)
 		local bWorked 		= (plot:GetWorkerCount() > 0)
 		local bImproved		= (plot:GetImprovementType() ~= NO_IMPROVEMENT)
 		local bSeaResource 	= (plot:IsWater() or plot:IsLake())
@@ -4440,7 +4452,7 @@ function DoCollectResources(self)
 				local resourceID 	= plot:GetResourceType()
 				local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 				if player:IsResourceVisible(resourceID) then
-					local collected 			= plot:GetResourceCount()
+					local collected 			= plot:GetResourceCount() * plot:GetOutputPerYield()
 					local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
 					Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 				end
@@ -4451,7 +4463,7 @@ function DoCollectResources(self)
 				for _, data in pairs(FeatureResources[featureID]) do
 					for resourceID, value in pairs(data) do
 						if player:IsResourceVisible(resourceID) then
-							local collected 	= value
+							local collected 	= value * plot:GetOutputPerYield()
 							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 							local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
@@ -4466,7 +4478,7 @@ function DoCollectResources(self)
 				for _, data in pairs(TerrainResources[terrainID]) do
 					for resourceID, value in pairs(data) do
 						if player:IsResourceVisible(resourceID) then
-							local collected 	= value
+							local collected 	= value * plot:GetOutputPerYield()
 							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 							local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
@@ -4476,7 +4488,7 @@ function DoCollectResources(self)
 			end
 		end
 	end
-	Dlog("DoCollectResources ".. Locale.Lookup(self:GetName()).." /START")
+	Dlog("DoCollectResources ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoIndustries(self)
@@ -4503,29 +4515,30 @@ function DoIndustries(self)
 	local ResNeeded			= {}	-- Total resources required 
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
+		local maxConverted 	= GCO.Round(row.MaxConverted * self:GetOutputPerYield())
 		if self:GetBuildings():HasBuilding(buildingID) then
 			local resourceRequiredID 	= GameInfo.Resources[row.ResourceType].Index
 			local resourceCreatedID 	= GameInfo.Resources[row.ResourceCreated].Index
 			if player:IsResourceVisible(resourceCreatedID) and not player:IsObsoleteEquipment(resourceCreatedID) then -- don't create resources we don't have the tech for or that are obsolete...
 				if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
-				ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + row.MaxConverted
-				ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + row.MaxConverted
+				ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + maxConverted
+				ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + maxConverted
 
 				if row.MultiResRequired then
 					if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {} end
 					if not MultiResRequired[resourceCreatedID][buildingID] then	MultiResRequired[resourceCreatedID][buildingID] = {} end
-					table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+					table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = maxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
 
 				elseif row.MultiResCreated then
 					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 					if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {} end
 					if not MultiResCreated[resourceRequiredID][buildingID] then	MultiResCreated[resourceRequiredID][buildingID] = {} end
-					table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+					table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
 				else
 					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 					if not ResCreated[resourceRequiredID] then	ResCreated[resourceRequiredID] = {} end
 					if not ResCreated[resourceRequiredID][buildingID] then	ResCreated[resourceRequiredID][buildingID] = {} end
-					table.insert(ResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+					table.insert(ResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
 				end
 			end
 		end
@@ -5001,8 +5014,8 @@ end
 function DoFood(self)
 
 	Dlog("DoFood ".. Locale.Lookup(self:GetName()).." /START")
-	-- get city food yield
-	local food = self:GetCityYield(YieldTypes.FOOD )
+	-- get city food yield. Todo : switch to collect on plots with employment activity on plots
+	local food = GCO.Round(self:GetCityYield(YieldTypes.FOOD ) * self:GetOutputPerYield())
 	local resourceCost = GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
 	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, self:GetKey(), resourceCost)
 
@@ -5706,7 +5719,7 @@ function CleanCitiesData() -- called in GCO_GameScript.lua
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")
 	
-	local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = "CityScript"
 	
 	for cityKey, data1 in pairs(ExposedMembers.CityData) do
 		local toClean 	= {"Stock","ResourceCost","ResourceUse","Population"}

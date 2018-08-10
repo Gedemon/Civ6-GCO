@@ -191,7 +191,7 @@ end
 -- General functions
 -----------------------------------------------------------------------------------------	
 
-function CanTrain(self, unitType)
+function CanTrain(self, unitType) -- global check, used to show the unit in the build list, the tests for materiel/equipment and others limits are done at the city level 
 	local row 	= GameInfo.Units[unitType]
 	
 	if not row.CanTrain then return false end	
@@ -204,6 +204,7 @@ function CanTrain(self, unitType)
 			return false
 		end
 	end
+	
 	return true
 end
 
@@ -224,7 +225,31 @@ function IsObsoleteEquipment(self, equipmentTypeID)
 	return pScience:HasTech(iTech)
 end
 
+function GetPersonnelInCities(self)
+	local personnel = 0
+	local playerCities = self:GetCities()
+	if playerCities then
+		for i, city in playerCities:Members() do
+			GCO.AttachCityFunctions(city)
+			personnel = personnel + city:GetPersonnel()
+		end
+	end
+	return personnel
+end
 
+function GetLogisticCost(self, PromotionClassID)
+	local logisticCost = 0
+	local playerUnits = self:GetUnits()
+	if playerUnits then
+		for i, unit in playerUnits:Members() do
+			GCO.AttachUnitFunctions(unit)
+			if PromotionClassID == unit:GetPromotionClassID() then
+				logisticCost = logisticCost + unit:GetLogisticCost()
+			end
+		end
+	end
+	return logisticCost
+end
 
 -----------------------------------------------------------------------------------------
 -- Research functions
@@ -862,6 +887,9 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.GetResourcesConsumptionRatioForPopulation = GetResourcesConsumptionRatioForPopulation
 	--
 	p.CanDeclareWarOn							= CanDeclareWarOn
+	--
+	p.GetPersonnelInCities						= GetPersonnelInCities
+	p.GetLogisticCost							= GetLogisticCost
 	
 end
 

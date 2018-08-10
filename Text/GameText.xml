@@ -83,7 +83,7 @@
 
   </LocalizedText>
   
-  <LocalizedText> <!-- Treasury -->
+  <LocalizedText> <!-- Top Panel -->
 		
 	<Replace Tag="LOC_TOP_PANEL_IMPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from importations taxes"		Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_EXPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from exportations taxes"		Language="en_US" />
@@ -96,6 +96,9 @@
 	<Replace Tag="LOC_TOP_PANEL_REPAY_EXPENSE"			Text="{1_Num : number +#.#;-#.#} from repaying the Debt"		Language="en_US" />
 	
 	<Replace Tag="LOC_TOP_PANEL_DEBT_TOOLTIP"			Text="The value of your Debt[NEWLINE][NEWLINE]Repayment is taken from your net income.[NEWLINE]A large debt may lower your Empire stability." Language="en_US" />
+
+
+	<Replace Tag="LOC_TOP_PANEL_LOGISTIC_COST_TOOLTIP"	Text="Available Logistic =  {1_Num} Personnel in cities [NEWLINE][NEWLINE]If the available logistic fall under the Logistic Cost of a Promotion Class, you won't be able to build new units of that class.[NEWLINE]Some buildings (like Barracks) allows you to raise the maximum number of personnel in reserve in your cities." Language="en_US" />
 	
   </LocalizedText>	
 	
@@ -763,7 +766,10 @@
 	<Replace Tag="LOC_PRODUCTION_PER_TURN_REQUIREMENT" Language="en_US">
 		<Text>Resources required per construction turn :</Text>
 	</Replace>	
-	
+
+	<Replace Tag="LOC_PRODUCTION_NO_LOGISTIC" Language="en_US">
+      <Text>[ICON_Bullet] [COLOR_Civ6Red]{1_Num}[ENDCOLOR] Logistic Cost for {2_Name} Class, [COLOR_Civ6Yellow]{3_Num}[ENDCOLOR] available.</Text>
+    </Replace>	
 	
 	
   </LocalizedText>
@@ -986,9 +992,13 @@
     </Replace>
 	<Replace Tag="LOC_UNITFLAG_NOT_ENOUGH_EQUIPMENT_MATCH_TYPE" Language="en_US">
       <Text>Not enough equipment for {2_Name} (match {1_Num}%)</Text>
-    </Replace>	
+    </Replace>
 	<Replace Tag="LOC_UNITFLAG_PENDING_TYPE_CHANGE" Language="en_US">
       <Text>Pending change : {1_Name}</Text>
+    </Replace>	
+	
+	<Replace Tag="LOC_UNITFLAG_LOGISTIC_COST" Language="en_US">
+      <Text>Logistic Cost: {1_Num} personnel in cities</Text>
     </Replace>
 
   </LocalizedText>

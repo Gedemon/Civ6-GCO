@@ -1328,6 +1328,28 @@ function CanGetFullReinforcement(self)
 	end
 end
 
+function GetLogisticCost(self)
+	local logisticCost		= 0
+	local equipmentClasses 	= self:GetEquipmentClasses()
+	for classType, classData in pairs(equipmentClasses) do
+		local equipmentTypes 	= GetEquipmentTypes(classType)	-- already sorted by desirability
+		--local totalFrontLine	= self:GetEquipmentClassFrontLine(classType)
+		if equipmentTypes then
+			for _, data in ipairs(equipmentTypes) do
+				local equipmentLogisticCost	= EquipmentInfo[data.EquipmentID].LogisticCost
+				if equipmentLogisticCost then
+					local equipmentID = data.EquipmentID
+					local num = self:GetFrontLineEquipment(equipmentID) + self:GetReserveEquipment(equipmentID)
+					if num > 0 then
+						logisticCost = logisticCost + ( equipmentLogisticCost * num)
+					end
+				end
+			end
+		end
+	end
+	return GCO.Round(logisticCost)
+end
+
 -----------------------------------------------------------------------------------------
 -- Military Organization Level function
 -----------------------------------------------------------------------------------------
@@ -1733,7 +1755,7 @@ end
 
 function GetAllSurplus(self) -- Return all resources that can be transfered back to a city (or a nearby unit/improvement ?)
 
-	local DEBUG_UNIT_SCRIPT = "debug"--"UnitScript"
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, "- check surplus for : ".. Locale.Lookup(self:GetName()))
 	
 	local unitKey 	= self:GetKey()
@@ -2340,7 +2362,7 @@ end
 function GetFrontLineEquipment(self, equipmentType) 			-- get current number of this equipment type in frontline
 	local unitData = self:GetData()
 	if not unitData then
-		GCO.Error("unitData is nil for " .. self:GetName(), self:GetKey())
+		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey()) -- this could happen when called from an event before the unit is initialized ?
 		return 0
 	end
 	local equipmentTypeKey 	= tostring(equipmentType)
@@ -2451,7 +2473,7 @@ end
 
 function DoInternalEquipmentTransfer(self, bLimitTransfer, aAlreadyUsed)
 
-	local DEBUG_UNIT_SCRIPT = "debug" -- "UnitScript"
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 
 	if bLimitTransfer 	== nil then bLimitTransfer 	= true 	end	
 	if aAlreadyUsed		== nil then aAlreadyUsed 	= {} 	end
@@ -3330,7 +3352,7 @@ end
 
 function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 
-	local DEBUG_UNIT_SCRIPT = "debug"
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	
 	local UnitData = Opponent.unitData
@@ -4033,7 +4055,7 @@ function Heal(self, maxHealedHP, maxUnitHP)
 
 	--if self:GetDamage() == 0 then return end
 
-	local DEBUG_UNIT_SCRIPT = "debug"--"UnitScript"
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	
@@ -4346,7 +4368,7 @@ end
 -- Handle pillaging
 function OnUnitPillage(playerID, unitID)
 
-	local DEBUG_UNIT_SCRIPT = "debug" --"UnitScript"	
+	local DEBUG_UNIT_SCRIPT = "UnitScript"	
 	
 	local unit 		= GetUnit(playerID, unitID)
 	local unitData 	= unit:GetData()
@@ -4572,7 +4594,7 @@ Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 	
 	Dlog("UpdateDataOnNewTurn for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
-	local DEBUG_UNIT_SCRIPT = false
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	
@@ -5162,7 +5184,7 @@ Events.UnitFormArmy.Add( OnMilitaryFormationChanged )
 -----------------------------------------------------------------------------------------
 function UpdateUnitsData() -- called in GCO_GameScript.lua
 
-	local DEBUG_UNIT_SCRIPT = "debug"--"UnitScript"
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	-- remove dead units from the table
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
@@ -5281,6 +5303,7 @@ function AttachUnitFunctions(unit)
 		u.GetData								= GetData
 		u.IsCombat								= IsCombat
 		u.CanGetFullReinforcement				= CanGetFullReinforcement
+		u.GetLogisticCost						= GetLogisticCost
 		--
 		u.RecordTransaction						= RecordTransaction
 		u.GetTransactionValue					= GetTransactionValue
@@ -5409,6 +5432,7 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetUnitConstructionOrResources		= GetUnitConstructionOrResources
 	ExposedMembers.GCO.GetUnitConstructionOptionalResources	= GetUnitConstructionOptionalResources
 	ExposedMembers.GCO.UpdateUnitsData 						= UpdateUnitsData
+	ExposedMembers.GCO.GetUnitPromotionClassID 				= GetUnitPromotionClassID
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end
