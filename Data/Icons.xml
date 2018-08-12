@@ -42,6 +42,9 @@
 	<!-- --------- -->
 	
 	<IconDefinitions> 	<!-- BUILDINGS -->
+		<Row Name="ICON_BUILDING_RECRUITS"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="17"/>
+		<Row Name="ICON_BUILDING_RECRUITS_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="17"/>
+		
 		<Row Name="ICON_BUILDING_HERBALIST"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="47"/>
 		<Row Name="ICON_BUILDING_HERBALIST_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="47"/>
 
@@ -381,8 +384,13 @@
 		<Row Name="INDENT"	 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="264"/>
 		<Row Name="TOOLS"	 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="78"/>
 		<Row Name="Wounded" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="20"/>
+		<Row Name="Skull"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="21"/>
+		<Row Name="WoundedLarge" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="11"/>
+		<Row Name="SkullLarge"					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="12"/>
+		<Row Name="Captured" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="76"/>
 		<Row Name="Kill" 						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="90"/>
 		<Row Name="Death" 						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="92"/>
+		<Row Name="DeathLarge" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="75"/>
 		<Row Name="Prisoners" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="91"/>
 		<Row Name="SlaveClass" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="89"/>
 		<Row Name="lowerClass" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="88"/>

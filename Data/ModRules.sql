@@ -377,6 +377,9 @@ DELETE FROM DiplomaticStateActions WHERE StateType='DIPLO_STATE_DECLARED_FRIEND'
 DELETE FROM DiplomaticStateActions WHERE StateType='DIPLO_STATE_ALLIED' AND DiplomaticActionType='DIPLOACTION_DEFENSIVE_PACT';
 INSERT OR REPLACE INTO DiplomaticStateActions (StateType, DiplomaticActionType, Worth, Cost) VALUES ('DIPLO_STATE_FRIENDLY','DIPLOACTION_DEFENSIVE_PACT','-30','30');
 
+-- Remove War delay after Denounce (else the mod's DoW from Alliance fail in that case)
+UPDATE GlobalParameters SET Value = 0 	WHERE Name='DIPLOMACY_DENOUNCE_WAR_DELAY'; 				-- Default = 5
+
 -- Reduce Warmongering
 UPDATE Eras SET WarmongerPoints = 0 	WHERE EraType='ERA_ANCIENT'; 		-- Default = 0
 UPDATE Eras SET WarmongerPoints = 2 	WHERE EraType='ERA_CLASSICAL';  	-- Default = 4

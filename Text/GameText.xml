@@ -18,6 +18,10 @@
 		<Text>Double Loots from pillaging Improvments and cleaning Barbarian Camps.</Text>
 	</Replace>
 	
+	<Replace Tag="LOC_POLICY_GOD_KING_DESCRIPTION" 	Language="en_US">
+		<Text>+1 [ICON_Culture] Culture and +1 [ICON_Gold] Gold in the [ICON_Capital] Capital.</Text>
+	</Replace>
+	
 	<Replace Tag="LOC_CIVIC_MILITARY_TRADITION_DESCRIPTION"	Language="en_US">
 		<Text>Grants flanking and support combat bonuses to all combat units.[NEWLINE]Unlock Military Organization Level 1</Text>
 	</Replace>
@@ -97,9 +101,10 @@
 	
 	<Replace Tag="LOC_TOP_PANEL_DEBT_TOOLTIP"			Text="The value of your Debt[NEWLINE][NEWLINE]Repayment is taken from your net income.[NEWLINE]A large debt may lower your Empire stability." Language="en_US" />
 
+	<Replace Tag="LOC_TOP_PANEL_LOGISTIC_COST_TOOLTIP"	Text="Available Base Logistic =  {1_Num} Personnel in cities [NEWLINE][NEWLINE]If the available logistic fall under the Logistic Cost of a Promotion Class, you won't be able to build new units of that class.[NEWLINE]The logistic cost of an unit is determined by its current stock of equipment in Frontline and Reserve.[NEWLINE]Different equipment types can have very different logistic cost.[NEWLINE]Some buildings (like Barracks) allows you to raise the maximum number of personnel in reserve in your cities.[NEWLINE]Some specialized classes require specific support, the available personnel is then lower than the Base Logistic." Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_PROMOTION_COST_TOOLTIP" Text="{1_Name} units require {2_Name} Support, {3_Num : number #,###} available for that class" Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_POPULATION_TOOLTIP"		Text="Total population =  {1_Num : number #,###}[NEWLINE]Army Size = {2_Num : number #,###} personnel ({3_Num : number #.##} % of population)[NEWLINE]Conscription Efficiency = {4_Num : number #.##} %[NEWLINE][NEWLINE]Conscription Efficiency goes down when your Army Size get closer to the maximum percentage of conscripts ({5_Num : number #.##} % of population). It affects the number of personnel drafted each turn in your cities." Language="en_US" />
 
-	<Replace Tag="LOC_TOP_PANEL_LOGISTIC_COST_TOOLTIP"	Text="Available Logistic =  {1_Num} Personnel in cities [NEWLINE][NEWLINE]If the available logistic fall under the Logistic Cost of a Promotion Class, you won't be able to build new units of that class.[NEWLINE]Some buildings (like Barracks) allows you to raise the maximum number of personnel in reserve in your cities." Language="en_US" />
-	
   </LocalizedText>	
 	
   <LocalizedText> <!-- To show FontIcons on Pedia front page... -->
@@ -516,10 +521,10 @@
       <Text>[COLOR_Civ6Red]-{1_Num} [ENDCOLOR][ICON_Position] personnel</Text>
     </Replace>
     <Replace Tag="LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS" Language="en_US">
-      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit] deads[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Prisoners] captured[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege] wounded</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_SkullLarge][NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Captured] captured[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_WoundedLarge] wounded</Text>
     </Replace>
     <Replace Tag="LOC_FRONTLINE_PERSONNEL_CASUALTIES_DETAILS_SHORT" Language="en_US">
-      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Unit],[ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Prisoners],[ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_UnderSiege]</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_SkullLarge],[ICON_PressureDown][COLOR_Civ6Red]{2_Num} [ENDCOLOR][ICON_Captured],[ICON_TradeRouteLarge][COLOR_Civ6Yellow]{3_Num} [ENDCOLOR][ICON_WoundedLarge]</Text>
     </Replace>	
     <Replace Tag="LOC_FRONTLINE_EQUIPMENT_CASUALTIES" Language="en_US">
       <Text>[COLOR_Civ6Red]-{1_Num} [ENDCOLOR][ICON_Production] equipment</Text>
@@ -593,10 +598,10 @@
     </Replace>
 	<!-- Healing -->
     <Replace Tag="LOC_HEALING_WOUNDED" Language="en_US">
-      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_UnderSiege] wounded deads[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Green]{2_Num} [ENDCOLOR][ICON_UnderSiege] wounded healed</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_DeathLarge] wounded deads[NEWLINE][ICON_TradeRouteLarge][COLOR_Civ6Green]{2_Num} [ENDCOLOR][ICON_WoundedLarge] wounded healed</Text>
     </Replace>
     <Replace Tag="LOC_HEALING_WOUNDED_SHORT" Language="en_US">
-      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_UnderSiege],[ICON_TradeRouteLarge][COLOR_Civ6Green]{2_Num} [ENDCOLOR][ICON_UnderSiege]</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_DeathLarge],[ICON_TradeRouteLarge][COLOR_Civ6Green]{2_Num} [ENDCOLOR][ICON_WoundedLarge]</Text>
     </Replace>
     <Replace Tag="LOC_REPAIRING_EQUIPMENT" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num} [ENDCOLOR][ICON_Production] equipment repaired</Text>
@@ -770,7 +775,9 @@
 	<Replace Tag="LOC_PRODUCTION_NO_LOGISTIC" Language="en_US">
       <Text>[ICON_Bullet] [COLOR_Civ6Red]{1_Num}[ENDCOLOR] Logistic Cost for {2_Name} Class, [COLOR_Civ6Yellow]{3_Num}[ENDCOLOR] available.</Text>
     </Replace>	
-	
+	<Replace Tag="LOC_PRODUCTION_LOGISTIC_COST" Language="en_US">
+      <Text>Initial Logistic Cost: {1_Name} [ICON_Position] Personnel in cities</Text>
+    </Replace>
 	
   </LocalizedText>
   

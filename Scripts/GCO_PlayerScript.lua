@@ -62,7 +62,7 @@ local OrganizationLevelToStandard 	= {		-- to get the normal MilitaryOrganisatio
 }
 local smallerUnitsPolicyID 			= GameInfo.Policies["POLICY_SMALLER_UNITS"].Index
 
-
+local armyMaxPercentOfPopulation	= tonumber(GameInfo.GlobalParameters["ARMY_MAX_PERCENT_OF_POPULATION"].Value)
 
 -----------------------------------------------------------------------------------------
 -- Initialize
@@ -225,6 +225,20 @@ function IsObsoleteEquipment(self, equipmentTypeID)
 	return pScience:HasTech(iTech)
 end
 
+function GetTotalPopulation(self)
+	local populationTotal		= 0
+	local populationVariation	= 0
+	local playerCities = self:GetCities()
+	if playerCities then
+		for i, city in playerCities:Members() do
+			GCO.AttachCityFunctions(city)
+			populationTotal 	= populationTotal + city:GetRealPopulation()
+			populationVariation	= populationVariation + city:GetRealPopulationVariation()
+		end
+	end
+	return populationTotal, populationVariation
+end
+
 function GetPersonnelInCities(self)
 	local personnel = 0
 	local playerCities = self:GetCities()
@@ -235,6 +249,36 @@ function GetPersonnelInCities(self)
 		end
 	end
 	return personnel
+end
+
+function GetPersonnelInUnits(self)
+	local personnel = 0
+	local playerUnits = self:GetUnits()
+	if playerUnits then
+		for i, unit in playerUnits:Members() do
+			GCO.AttachUnitFunctions(unit)
+			personnel = personnel + unit:GetTotalPersonnel()
+		end
+	end
+	return personnel
+end
+
+function GetDraftedPercentage(self)
+	local PopulationBalance = self:GetTotalPopulation()
+	local ArmySize			= self:GetPersonnelInCities() + self:GetPersonnelInUnits()
+	return  ArmySize / PopulationBalance * 100
+end
+
+function GetMaxDraftedPercentage(self) -- the maximum percentage of population in the army
+	local maxPercentage = armyMaxPercentOfPopulation
+	--  to do : change with policies
+	return maxPercentage
+end
+
+function GetDraftEfficiencyPercent(self)
+	local maxDraftedPercentage	= self:GetMaxDraftedPercentage()
+	local draftedPercentage		= self:GetDraftedPercentage()
+	return math.max(0, GCO.GetMaxPercentFromHighDiff(100, maxDraftedPercentage, draftedPercentage))
 end
 
 function GetLogisticCost(self, PromotionClassID)
@@ -250,6 +294,18 @@ function GetLogisticCost(self, PromotionClassID)
 	end
 	return logisticCost
 end
+
+function GetLogisticSupport(self, PromotionClassID)
+	local logisticSupport 		= self:GetPersonnelInCities()
+	local promotionClassType 	= GameInfo.UnitPromotionClasses[PromotionClassID].PromotionClassType
+	if promotionClassType == "PROMOTION_CLASS_SKIRMISHER" then
+		logisticSupport = GCO.Round(logisticSupport * 0.1)
+	elseif promotionClassType == "PROMOTION_CLASS_NAVAL_MELEE" or promotionClassType == "PROMOTION_CLASS_NAVAL_RANGED" then
+		logisticSupport = GCO.Round(logisticSupport * 0.15)	
+	end
+	return logisticSupport
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Research functions
@@ -502,6 +558,16 @@ end
 -----------------------------------------------------------------------------------------
 -- Diplomacy functions
 -----------------------------------------------------------------------------------------
+
+function IsAtWar(self)
+	local playerDiplo = self:GetDiplomacy()
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
+		if playerDiplo:IsAtWarWith( playerID ) then
+			return true
+		end
+	end
+	return false
+end
 
 function OnDiplomacyDeclareWar(attackerPlayerID, defenderPlayerID)
 
@@ -886,10 +952,17 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.GetResourcesNeededForPopulations			= GetResourcesNeededForPopulations
 	p.GetResourcesConsumptionRatioForPopulation = GetResourcesConsumptionRatioForPopulation
 	--
+	p.IsAtWar									= IsAtWar
 	p.CanDeclareWarOn							= CanDeclareWarOn
 	--
+	p.GetTotalPopulation						= GetTotalPopulation
 	p.GetPersonnelInCities						= GetPersonnelInCities
+	p.GetPersonnelInUnits						= GetPersonnelInUnits
 	p.GetLogisticCost							= GetLogisticCost
+	p.GetLogisticSupport						= GetLogisticSupport
+	p.GetMaxDraftedPercentage					= GetMaxDraftedPercentage
+	p.GetDraftedPercentage						= GetDraftedPercentage
+	p.GetDraftEfficiencyPercent					= GetDraftEfficiencyPercent
 	
 end
 

@@ -98,7 +98,7 @@ UPDATE Units SET TraitType = 'TRAIT_BARBARIAN' WHERE TraitType = 'TRAIT_LEADER_U
 
 /* Field Cannon is now a siege weapon */
 UPDATE Units SET PromotionClass ='PROMOTION_CLASS_SIEGE' WHERE  UnitType = 'UNIT_FIELD_CANNON';
-UPDATE Units SET RangedCombat ='0', Combat ='65' WHERE UnitType = 'UNIT_FIELD_CANNON';
+UPDATE Units SET Combat ='53', Bombard ='65' WHERE UnitType = 'UNIT_FIELD_CANNON';
 DELETE FROM TypeTags WHERE Type='UNIT_FIELD_CANNON';
 INSERT OR REPLACE INTO TypeTags(Type, Tag) VALUES ('UNIT_FIELD_CANNON', 'CLASS_SIEGE');
 

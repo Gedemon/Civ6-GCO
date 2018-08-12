@@ -10,6 +10,8 @@
 	<BuildingsGCO>
 		
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 			Cost="1" 	NoPedia="1"/>
+		
+		<Row BuildingType="BUILDING_RECRUITS" 					Cost="1" 	NoPedia="1"/>
 			
 		<Row BuildingType="BUILDING_BUTCHERY" 					Cost="80" 	MaterielPerProduction="3" PrereqTech="TECH_ANIMAL_HUSBANDRY"	EmploymentSize="0.50"/>
 		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 			EmploymentSize="0.15"/>
@@ -434,6 +436,9 @@
 	</BuildingStock>
 	
 	<Building_YieldChanges>
+		<Row BuildingType="BUILDING_RECRUITS" 		YieldType="YIELD_PRODUCTION" 	YieldChange="2"/>
+		<Row BuildingType="BUILDING_RECRUITS" 		YieldType="YIELD_GOLD" 			YieldChange="2"/>
+		
 		<Row BuildingType="BUILDING_STONEMASON" 	YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 		<Row BuildingType="BUILDING_CARPENTER" 		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH" 	YieldType="YIELD_PRODUCTION" YieldChange="2"/>

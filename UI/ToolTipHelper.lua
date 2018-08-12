@@ -398,7 +398,7 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 
 	
 	-- GCO <<<<<
-	-- Buildings prerequisite strings are created in custom CanConstruct function using helpers tablees in CityScript.lua
+	-- Buildings prerequisite strings are created in custom CanConstruct function using helpers tables in CityScript.lua
 	--[[
 	-- GCO >>>>>
 	local required_buildings = {};

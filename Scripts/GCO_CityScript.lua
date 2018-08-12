@@ -3404,6 +3404,9 @@ function CanTrain(self, unitType)
 	end
 
 	-- check equipment needed
+	local totalMaxLogisticCost 	= 0
+	local totalMinLogisticCost 	= 0
+		
 	for equipmentClass, resourceTable in pairs(resOrTable) do
 
 		local totalNeeded 		= resourceTable.Value
@@ -3417,19 +3420,28 @@ function CanTrain(self, unitType)
 		local needPerTurn 			= math.ceil( value / turnsLeft )
 		local numResourceToProvide	= needPerTurn
 		local supplied 				= 0
-		local stock					= 0		
+		local stock					= 0
 		local costMin				= 99999
 		local costMax				= 0
+		local logisticCostMin		= 99999
+		local logisticCostMax		= 0
 		for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
 			--if numResourceToProvide > 0 then
-				stock 			= stock + self:GetStock(resourceID)
-				supplied 		= supplied + math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))
-				local cost		= self:GetResourceCost(resourceID)
+				stock 				= stock + self:GetStock(resourceID)
+				supplied 			= supplied + math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))
+				local cost			= self:GetResourceCost(resourceID)
+				local logisticCost	= EquipmentInfo[resourceID].LogisticCost or 0
 				if cost > costMax then
 					costMax = cost
 				end
 				if cost < costMin then
 					costMin = cost
+				end
+				if logisticCost > logisticCostMax then
+					logisticCostMax = logisticCost
+				end
+				if logisticCost < logisticCostMin then
+					logisticCostMin = logisticCost
 				end
 			--end
 			local reserved 	= self:GetBuildingQueueStock(resourceID, unitType)
@@ -3438,8 +3450,10 @@ function CanTrain(self, unitType)
 			end
 		end
 
-		local totalMaxCost = costMax * totalNeeded
-		local totalMinCost = costMin * totalNeeded
+		local totalMaxCost 			= costMax * totalNeeded
+		local totalMinCost 			= costMin * totalNeeded
+		totalMaxLogisticCost 	= totalMaxLogisticCost + (logisticCostMax * totalNeeded)
+		totalMinLogisticCost 	= totalMinLogisticCost + (logisticCostMin * totalNeeded)
 		local totalCostStr = ""
 		if totalMaxCost + totalMinCost > 0 then
 			if totalMaxCost ~= totalMinCost then
@@ -3474,11 +3488,20 @@ function CanTrain(self, unitType)
 
 	end
 	
+	local logisticCostStr
+	if totalMaxLogisticCost + totalMinLogisticCost > 0 then
+		if totalMaxLogisticCost ~= totalMinLogisticCost then
+			logisticCostStr = tostring(totalMinLogisticCost).."-"..tostring(totalMaxLogisticCost)
+		else
+			logisticCostStr = tostring(totalMinLogisticCost)
+		end
+	end
+	
 	local bCheckLogistic 	= true
 	local PromotionClassID 	= GCO.GetUnitPromotionClassID(unitID)
 	if PromotionClassID then
 		local logisticCost		= player:GetLogisticCost(PromotionClassID)
-		local availableLogistic	= player:GetPersonnelInCities()
+		local availableLogistic	= player:GetLogisticSupport(PromotionClassID)
 		if logisticCost >= availableLogistic then
 			Dprint( DEBUG_CITY_SCRIPT, "Can't train ".. Locale.Lookup(GameInfo.Units[unitType].Name) .." of ".. Locale.Lookup(GameInfo.UnitPromotionClasses[PromotionClassID].Name) .." class, failed check on logistic : available = ".. tostring(availableLogistic)..",  current cost = " .. tostring(logisticCost))
 			bCheckLogistic = false
@@ -3487,7 +3510,8 @@ function CanTrain(self, unitType)
 	end
 
 	-- construct the complete requirement string
-	if bAddStr then requirementStr = reservedStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr end
+	if logisticCostStr 	then totalStr		= totalStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_LOGISTIC_COST", logisticCostStr) end
+	if bAddStr 			then requirementStr = reservedStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr end
 	requirementStr = "[NEWLINE]" .. totalStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr
 	Dprint( DEBUG_CITY_SCRIPT, requirementStr)
 
@@ -3498,7 +3522,8 @@ function CanConstruct(self, buildingType)
 
 	local row 			= GameInfo.Buildings[buildingType]
 	local buildingID 	= row.Index
-	local preReqStr 	= ""
+	local preReqStr 	= ""	
+	local bCheckSpecial = true
 
 	-- check for required buildings (any required)
 	local bCheckBuildingOR
@@ -3595,12 +3620,95 @@ function CanConstruct(self, buildingType)
 		else
 			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RESOURCE_ENOUGH_STOCK", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, needPerTurn, stock, supplied, costStr )
 		end
+	end	
+	
+	-- check for special recruitment building
+	if row.BuildingType == "BUILDING_RECRUITS" then
+Dline(self:GetName(), "BUILDING_RECRUITS")
+		local PromotionClassID 	= GameInfo.UnitPromotionClasses["PROMOTION_CLASS_MELEE"].Index
+		local player			= GCO.GetPlayer(self:GetOwner())
+
+		-- must be at war or under threat from barbarians
+		if not player:IsAtWar() then
+			local bNoThreat	= true
+			local cityPlot 	= GCO.GetPlot(self:GetX(), self:GetY())
+			for ring = 1, 6 do
+				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
+					if pEdgePlot:GetUnitCount() > 0 then
+						local aUnits = Units.GetUnitsInPlot(pEdgePlot)
+						for i, unit in ipairs(aUnits) do
+							local unitOwner = GCO.GetPlayer(unit:GetOwner())
+							if unitOwner:IsBarbarian() then
+								bNoThreat = false
+							end
+						end
+					end
+				end				
+			end
+			if bNoThreat then
+				bCheckSpecial = false
+				requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_THREAT_RECRUITS" )
+Dline("LOC_PRODUCTION_NO_THREAT_RECRUITS")		
+			end
+		end
+		
+		if PromotionClassID then
+			--[[
+			-- Allows drafting even without logistic support, the limit being the population in that case
+			local logisticCost		= player:GetLogisticCost(PromotionClassID)
+			local availableLogistic	= GetLogisticSupport(PromotionClassID)
+			if logisticCost >= availableLogistic then
+				bCheckSpecial = false
+				requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC_RECRUITS", logisticCost, GameInfo.UnitPromotionClasses[PromotionClassID].Name, availableLogistic )
+Dline("LOC_PRODUCTION_NO_LOGISTIC_RECRUITS", logisticCost, GameInfo.UnitPromotionClasses[PromotionClassID].Name, availableLogistic)
+			end
+			--]]
+			
+			local personnelSupply	= self:GetStockVariation(personnelResourceID)
+			local minPersonnel		= 250
+			local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)
+			if militaryOrganization[organizationLevel] and militaryOrganization[organizationLevel][promotionClassID] then
+				minPersonnel = (militaryOrganization[organizationLevel][promotionClassID].Personnel*0.3)
+			end
+			
+			if self:GetPersonnel() < (minPersonnel  - personnelSupply) then
+				bCheckSpecial = false
+				requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_PERSONNEL_RECRUITS", self:GetPersonnel(), minPersonnel )
+Dline("LOC_PRODUCTION_NO_PERSONNEL_RECRUITS", self:GetPersonnel(), minPersonnel)
+			end
+			
+			---[[
+			-- promotionClassEquipmentClasses[promotionID]
+			local equipmentClasses = promotionClassEquipmentClasses[promotionID]
+			if equipmentClasses then
+				for classType, classData in pairs(equipmentClasses) do
+					local equipmentTypes 	= GCO.GetEquipmentTypes(classType)
+					local required			= classData.PercentageOfPersonnel * minPersonnel
+					local available			= 0
+					if equipmentTypes then
+						for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
+							local equipmentID = data.EquipmentID
+							local num = self:GetStock(equipmentID)
+							available = available + num
+						end
+					end
+					if required > available then
+						bCheckSpecial = false
+						requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_EQUIPMENT_RECRUITS", required, GameInfo.EquipmentClasses[classType].Name, available )
+Dline("LOC_PRODUCTION_NO_EQUIPMENT_RECRUITS", required, GameInfo.EquipmentClasses[classType].Name, available)
+					end
+				end
+			end
+			
+		end
+	
 	end
+	
 	-- construct the complete requirement string
 	if bAddStr then requirementStr = reservedStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr end
 	requirementStr = "[NEWLINE]" .. totalStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr
 
-	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck), requirementStr, preReqStr
+	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck and bCheckSpecial), requirementStr, preReqStr
 end
 
 
@@ -4197,15 +4305,22 @@ function DoRecruitPersonnel(self)
 	Dlog("DoRecruitPersonnel ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = false
 	Dprint( DEBUG_CITY_SCRIPT, "Recruiting Personnel...")
+	local player			= GCO.GetPlayer(self:GetOwner())
 	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
+Dline(self:GetName(), "nedeed personnel", nedded)
+	
+	local maxDraftedPercentage	= player:GetMaxDraftedPercentage()
+	local draftedPercentage		= player:GetDraftedPercentage()
+	local draftRatio			= player:GetDraftEfficiencyPercent() / 100
+Dline(maxDraftedPercentage, draftedPercentage, draftRatio)
 
 	local generals			= GCO.Round(nedded*PersonnelHighRankRatio)
 	local officers			= GCO.Round(nedded*PersonnelMiddleRankRatio)
 	local soldiers			= math.max(0, nedded - (generals + officers))
 
-	local maxUpper 			= GCO.Round(self:GetUpperClass()	* UpperClassToPersonnelRatio)
-	local maxMiddle			= GCO.Round(self:GetMiddleClass()	* MiddleClassToPersonnelRatio)
-	local maxLower 			= GCO.Round(self:GetLowerClass()	* LowerClassToPersonnelRatio)
+	local maxUpper 			= GCO.Round(self:GetUpperClass()	* UpperClassToPersonnelRatio	* draftRatio)
+	local maxMiddle			= GCO.Round(self:GetMiddleClass()	* MiddleClassToPersonnelRatio	* draftRatio)
+	local maxLower 			= GCO.Round(self:GetLowerClass()	* LowerClassToPersonnelRatio	* draftRatio)
 	local maxPotential		= maxUpper + maxMiddle + maxLower
 
 	local recruitedGenerals = math.min(generals, maxUpper)
@@ -4214,6 +4329,7 @@ function DoRecruitPersonnel(self)
 	local totalRecruits		= recruitedGenerals + recruitedOfficers + recruitedSoldiers
 
 	Dprint( DEBUG_CITY_SCRIPT, " - total needed =", nedded, "generals =", generals,"officers =", officers, "soldiers =",soldiers)
+	Dprint( DEBUG_CITY_SCRIPT, " - maxDraftedPercentage =", maxDraftedPercentage, "draftedPercentage =", draftedPercentage,"draftRatio =", draftRatio)
 	Dprint( DEBUG_CITY_SCRIPT, " - max potential =", maxPotential ,"Upper = ", maxUpper, "Middle = ", maxMiddle, "Lower = ", maxLower )
 	Dprint( DEBUG_CITY_SCRIPT, " - total recruits =", totalRecruits, "Generals = ", recruitedGenerals, "Officers = ", recruitedOfficers, "Soldiers = ", recruitedSoldiers )
 
@@ -5639,10 +5755,79 @@ LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 -- Events
 -----------------------------------------------------------------------------------------
 
+function GetEquipmentList(self)
+	local cityKey 			= self:GetKey()
+	local turnKey 			= GCO.GetTurnKey()
+	local previousTurnKey	= GCO.GetPreviousTurnKey()
+	local data 				= ExposedMembers.CityData[cityKey]
+	local equipmentList		= {}
+	if not data.Stock[turnKey] then return end
+	
+	for resourceKey, value in pairs(data.Stock[turnKey]) do
+		local resourceID 		= tonumber(resourceKey)
+		if GCO.IsResourceEquipment(resourceID) then
+			table.insert(equipmentList, { String = str, Order = EquipmentInfo[resourceID].Desirability })
+			-- { EquipmentID = resourceID, Value = value, Desirability = desirability }
+		end
+	end
+	table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
+	return equipmentList
+end
+
 function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCanceled, typeModifier)
 	local city = CityManager.GetCity(playerID, cityID)
 	if productionID == ProductionTypes.BUILDING then
 		if GameInfo.Buildings[objectID] and GameInfo.Buildings[objectID].Unlockers then return end
+		
+		-- On recruitment...
+		if GameInfo.Buildings[objectID].BuildingType =="BUILDING_RECRUITS" then
+			Dprint( DEBUG_CITY_SCRIPT, "BUILDING_RECRUITS")
+			
+			local player			= GCO.GetPlayer(playerID)
+			local unit 				= UnitManager.InitUnit(playerID, "UNIT_WARRIOR", city:GetX(), city:GetY())
+			
+			-- initialize at 0 HP...
+			unit:SetDamage(100)
+			local initialHP 		= 0
+			local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)
+			GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
+			GCO.AttachUnitFunctions(unit)
+			unit:InitializeEquipment() --unit:InitializeEquipment(sortedEquipmentList)
+			unit:SetProperty("CanChangeOrganization", false)
+			
+			-- get full reinforcement...
+			local bTotal		= true
+			local recruitmentCostFactor	= tonumber(GameInfo.GlobalParameters["CITY_RECRUITMENT_COST_FACTOR"].Value)
+			local requirements 	= unit:GetRequirements(bTotal)
+			for resourceID, value in pairs(requirements.Resources) do
+				if value > 0 then
+					local maxValue = math.min(city:GetStock(resourceID), value)
+					local cost 		= city:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
+					unit:ChangeStock(resourceID, maxValue)
+					city:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
+					if cost > 0 then
+						player:ProceedTransaction(AccountType.Reinforce, -cost)
+					end
+				end
+			end
+				
+			-- heal completly...
+			local bNoLimit 	= true
+			local maxHP		= 100
+			unit:Heal(maxHP, maxHP, bNoLimit)
+			
+			-- try to upgrade...
+			local newUnitType 	= unit:GetTypesFromEquipmentList()			
+			if newUnitType and newUnitType ~= unit:GetType() then
+				local newUnit = GCO.ChangeUnitTo(unit, newUnitType)
+				if newUnit then
+					newUnit:Heal(maxHP, maxHP, bNoLimit)
+				end
+			end
+			
+			-- remove this "project" building
+			city:GetBuildings():RemoveBuilding(objectID)
+		end
 	end
 	Dprint( DEBUG_CITY_SCRIPT, "OnCityProductionCompleted", Locale.Lookup(city:GetName()), playerID, cityID, productionID, objectID, bCanceled, typeModifier)
 	city:SetUnlockers()

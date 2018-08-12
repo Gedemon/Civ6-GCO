@@ -117,20 +117,6 @@ for row in GameInfo.UnitEquipmentClasses() do
 	end
 end
 
-local promotionClassEquipmentClasses	= {}
-for row in GameInfo.PromotionClassEquipmentClasses() do
-	local equipmentClass	= row.EquipmentClass
-	local promotionType		= row.PromotionClassType 
-	local promotionID 		= GameInfo.UnitPromotionClasses[promotionType].Index
-	if GameInfo.EquipmentClasses[equipmentClass] then
-		local equipmentClassID 	= GameInfo.EquipmentClasses[equipmentClass].Index
-		if not promotionClassEquipmentClasses[promotionID] then promotionClassEquipmentClasses[promotionID] = {} end
-		promotionClassEquipmentClasses[promotionID][equipmentClassID] = {PercentageOfPersonnel = row.PercentageOfPersonnel, IsRequired = row.IsRequired}
-	else
-		-- can't use GCO.Error or GCO.Warning functions at this point
-		print("WARNING: no equipment class in GameInfo.EquipmentClasses for "..tostring(row.EquipmentClass))
-	end
-end
 
 local equipmentTypeClasses	= {}
 local equipmentIsClass		= {}
@@ -214,27 +200,6 @@ for row in GameInfo.EquipmentClasses() do
 	if equipmentTypeClasses[row.Index] then
 		table.sort(equipmentTypeClasses[row.Index], function(a, b) return a.Desirability > b.Desirability; end)
 	end
-end
-
-local militaryOrganization = {}
-for row in GameInfo.MilitaryFormationStructures() do
-	local promotionClassID 	= GameInfo.UnitPromotionClasses[row.PromotionClassType].Index
-	local organizationRow	= GameInfo.MilitaryOrganisationLevels[row.OrganisationLevelType]
-	if not militaryOrganization[organizationRow.Index] then 
-		militaryOrganization[organizationRow.Index] = {}
-		militaryOrganization[organizationRow.Index].SupplyLineLengthFactor 			= organizationRow.SupplyLineLengthFactor
-		militaryOrganization[organizationRow.Index].MaxPersonnelPercentFromReserve 	= organizationRow.MaxPersonnelPercentFromReserve
-		militaryOrganization[organizationRow.Index].MaxMaterielPercentFromReserve	= organizationRow.MaxMaterielPercentFromReserve
-		militaryOrganization[organizationRow.Index].MaxHealingPerTurn 				= organizationRow.MaxHealingPerTurn
-		militaryOrganization[organizationRow.Index].PromotionType 					= organizationRow.PromotionType -- that's the organization level promotion
-	end
-	militaryOrganization[organizationRow.Index][promotionClassID] = { 
-		MilitaryFormationType 			= row.MilitaryFormationType,
-		FrontLinePersonnel				= row.FrontLinePersonnel,
-		ReservePersonnel 				= row.ReservePersonnel,
-		PromotionType 					= row.PromotionType,	-- that's the promotion based on number of personnel
-		SizeString 						= row.SizeString
-	}
 end
 
 -- Get link between an equipmentClass for a Promotion Class and the corresponding equipmentClass of a specific unit 
@@ -1185,8 +1150,9 @@ function UpdateFrontLineData(self, bForceSynchronization) -- that function will 
 	end
 	local newDamage = maxHP - maxUnitHP
 	if newDamage ~= currentDamage then
-		self:SetDamage(newDamage)
-		unitData.HP = maxUnitHP
+		--self:SetDamage(newDamage)
+		--unitData.HP = maxUnitHP
+		self:SetHP(maxUnitHP)
 	end
 	
 	local bCheck = not bForceSynchronization -- CheckComponentsHP may call UpdateFrontLineData to force synchronization, don't do an infinite loop here...
@@ -1218,7 +1184,8 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 	local bTypeChanged
 	
 	-- Get old unit data
-	local prevDamage 			= oldUnit:GetDamage()
+--	local prevDamage 			= oldUnit:GetDamage()
+	local prevHP	 			= oldUnit:GetHP()
 	local prevUnitExperience	= oldUnit:GetExperience()
 	local prevExperiencePoints	= prevUnitExperience:GetExperiencePoints()
 	local prevFortifyTurns		= oldUnit:GetFortifyTurns()
@@ -1264,7 +1231,11 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 		
 		ExposedMembers.UnitData[oldUnitKey] = nil
 		
-		newUnit:SetDamage(prevDamage)
+		UnitLastHealingValue[newUnitKey] = UnitLastHealingValue[oldUnitKey]
+		UnitLastHealingValue[oldUnitKey] = nil
+		
+		--newUnit:SetDamage(prevDamage)
+		newUnit:SetHP(prevHP)
 		newUnit:SetFortifyTurns(prevFortifyTurns)
 		newUnit:SetName(prevName)
 		
@@ -1348,6 +1319,20 @@ function GetLogisticCost(self)
 		end
 	end
 	return GCO.Round(logisticCost)
+end
+
+function GetProperty(self, property)
+	local unitData = self:GetData()
+	if not unitData then
+		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())
+		return 0
+	end
+	return unitData[property]
+end
+
+function SetProperty(self, property, value)
+	local unitKey = self:GetKey()
+	ExposedMembers.UnitData[unitKey][property] = value
 end
 
 -----------------------------------------------------------------------------------------
@@ -1569,6 +1554,16 @@ function GetFrontLinePersonnel(self)
 		return 0
 	end
 	return ExposedMembers.UnitData[unitKey].Personnel or 0
+end
+
+function GetTotalPersonnel(self)
+	local unitData = self:GetData()
+	if unitData then 
+		return unitData.Personnel + unitData.PersonnelReserve + unitData.WoundedPersonnel
+	else
+		GCO.Error("unitData is nil for " .. self:GetName(), self:GetKey())
+		return 0
+	end
 end
 
 function GetBaseFoodStock(self)
@@ -2919,7 +2914,7 @@ end
 
 -- Floating text
 function ShowCasualtiesFloatingText(CombatData) -- need complete rework with equipment
-	if true then return end
+	--if true then return end
 	if floatingTextLevel == FLOATING_TEXT_NONE then
 		return
 	end
@@ -3057,7 +3052,7 @@ function ShowFoodFloatingText(foodData)
 end
 
 function ShowFrontLineHealingFloatingText(healingData) -- need complete rework with equipment
-	if true then return end
+	--if true then return end
 	if floatingTextLevel == FLOATING_TEXT_NONE then
 		return
 	end
@@ -3088,12 +3083,13 @@ function ShowFrontLineHealingFloatingText(healingData) -- need complete rework w
 					sText = sText .. Locale.Lookup("LOC_EQUIPMENT_RESERVE_TRANSFER", healingData.reqEquipment)					
 					bNeedNewLine, bNeedSeparator = false, true
 				end
-				--]]
-				--if healingData.reqHorses > 0 then
+				
+				if healingData.reqHorses > 0 then
 					--if bNeedNewLine then sText = sText .. "[NEWLINE]" end
-				--	if bNeedSeparator then sText = sText .. "," end
-				--	sText = sText .. Locale.Lookup("LOC_HORSES_RESERVE_TRANSFER", healingData.reqHorses)
-				--end
+					if bNeedSeparator then sText = sText .. "," end
+					sText = sText .. Locale.Lookup("LOC_HORSES_RESERVE_TRANSFER", healingData.reqHorses)
+				end
+				--]]
 				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 			else
 				-- Show details with multiple calls to AddWorldViewText	
@@ -3106,18 +3102,18 @@ function ShowFrontLineHealingFloatingText(healingData) -- need complete rework w
 					sText = Locale.Lookup("LOC_HEALING_EQUIPMENT", healingData.reqEquipment)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 				end
-				--]]
 				if healingData.reqHorses > 0 then
 					sText = Locale.Lookup("LOC_HEALING_HORSES", healingData.reqHorses)
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, healingData.X, healingData.Y, 0)
 				end
+				--]]
 			end
 		end
 	end
 end
 
 function ShowReserveHealingFloatingText(healingData) -- need complete rework with equipment
-	if true then return end
+	--if true then return end
 	if floatingTextLevel == FLOATING_TEXT_NONE then
 		return
 	end
@@ -4041,17 +4037,32 @@ function GetEquipmentAtHP(self, equipmentClassID, hp)
 	return GetUnitEquipmentClassNumberForPersonnel(self:GetType(), self:GetPersonnelAtHP(hp), equipmentClassID)
 end
 
-function SetHP(self, value)
+function SetHP(self, value, bOnlyVirtualValue)
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_UNIT_SCRIPT, "Set HP to " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()), value, bOnlyVirtualValue)
+	
 	local unitKey 	= self:GetKey()
 	local unitData 	= ExposedMembers.UnitData[unitKey]
 	if unitData then
-		unitData.HP = value
+		if bOnlyVirtualValue then
+			unitData.HP = value
+		else
+			local coreHP = self:GetMaxDamage() - self:GetDamage()
+			if value > coreHP or value > unitData.HP then
+				local restoredHP = value - coreHP
+				UnitLastHealingValue[unitKey] 	= restoredHP
+				unitData.UnitLastHealingValue 	= restoredHP
+			end
+			self:SetDamage(self:GetMaxDamage()-value)
+			unitData.HP = value
+		end
 	else
 		GCO.Error("Trying to set HP but unitData is nil for "..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()))
 	end	
 end
 
-function Heal(self, maxHealedHP, maxUnitHP)
+function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 
 	--if self:GetDamage() == 0 then return end
 
@@ -4060,7 +4071,7 @@ function Heal(self, maxHealedHP, maxUnitHP)
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_UNIT_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
+	Dprint( DEBUG_UNIT_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()), maxHealedHP, maxUnitHP, bNoLimit)
 	
 	local unitKey 	= self:GetKey()	
 	local unitData 	= self:GetData()
@@ -4077,8 +4088,8 @@ function Heal(self, maxHealedHP, maxUnitHP)
 	local hitPoints 			= self:GetHitPointTable()
 	local maxPersonnelTransfer 	= self:GetMaxFrontLinePersonnel() * self:GetMaxPersonnelPercentFromReserve() / 100
 	local maxMaterielTransfer 	= self:GetMaxFrontLineMateriel() * self:GetMaxMaterielPercentFromReserve() / 100 	-- Materiel may also be used to repair/build equipment, up to a limit
-	local maxHealedHP			= maxHealedHP or self:GetMaxHealingPerTurn()
 	local maxHP					= maxUnitHP or maxHP
+	local maxHealedHP			= maxHealedHP or self:GetMaxHealingPerTurn()
 
 	-- try to reinforce the selected Units (move personnel and equipment from reserve to frontline)
 	-- up to MAX_HP_HEALED (or an unit component limit), 1hp per loop
@@ -4088,17 +4099,21 @@ function Heal(self, maxHealedHP, maxUnitHP)
 				local loopHP = initialHP + restoredHP + 1
 				-- check here if the unit has enough reserves to get +1HP
 				local reqPersonnel 	= hitPoints[loopHP].Personnel - hitPoints[initialHP].Personnel
-				if reqPersonnel > tonumber(maxPersonnelTransfer) then
+				if (not bNoLimit ) and (reqPersonnel > tonumber(maxPersonnelTransfer)) then
 					hasReachedLimit = true
 					Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(self:GetName()) .. " at " .. tostring(healHP) ..", Personnel Requirements = ".. tostring(reqPersonnel) .. ", Max transferable per turn = ".. tostring(maxPersonnelTransfer))
 
 				else 
-					if unitData.PersonnelReserve 	< reqPersonnel 	then hasReachedLimit = true end
+					if unitData.PersonnelReserve 	< reqPersonnel 	then
+						Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(self:GetName()) .. " at " .. tostring(healHP) ..", Personnel Requirements = ".. tostring(reqPersonnel) .. ", Personnel Reserve = ".. tostring(unitData.PersonnelReserve))
+						hasReachedLimit = true
+					end
 						
 					for equipmentClassID, _ in pairs(self:GetEquipmentClasses()) do
 						local reqEquipment = self:GetEquipmentAtHP(equipmentClassID, loopHP) - self:GetEquipmentAtHP(equipmentClassID, initialHP)
 						if self:IsRequiringEquipmentClass(equipmentClassID) then 	-- required equipment follow exactly the selfHitPoints table								
 							if self:GetEquipmentClassReserve(equipmentClassID) < reqEquipment then
+								Dprint( DEBUG_UNIT_SCRIPT, "- Reached healing limit for " .. Locale.Lookup(self:GetName()) .. " at " .. tostring(healHP) ..", ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name) .." Requirements = ".. tostring(reqEquipment) .. ", in Reserve = ".. tostring(self:GetEquipmentClassReserve(equipmentClassID)))
 								hasReachedLimit = true
 							end
 						end
@@ -4115,16 +4130,17 @@ function Heal(self, maxHealedHP, maxUnitHP)
 	CheckComponentsHP(self, "before Healing")
 
 	local finalHP 					= initialHP + restoredHP
-	unitData.HP 					= finalHP
-	UnitLastHealingValue[unitKey] 	= restoredHP
-	unitData.UnitLastHealingValue 	= restoredHP
+	--unitData.HP 					= finalHP
+	--UnitLastHealingValue[unitKey] 	= restoredHP
+	--unitData.UnitLastHealingValue 	= restoredHP
 
 	if finalHP < initialHP then
 		GCO.Error("finalHP < initialHP for ", unitKey, " initialHP:", initialHP , " finalHP:", finalHP, " restoredHP :", restoredHP)
 	end		
 	Dprint( DEBUG_UNIT_SCRIPT, " Healing : initialHP = ", initialHP , " finalHP = ", finalHP, " restoredHP = ", restoredHP, " core initialHP = ", maxHP - damage, " core finalHP = ", maxHP - damage + restoredHP)
 				
-	self:SetDamage(damage-restoredHP)
+	--self:SetDamage(damage-restoredHP)
+	self:SetHP(finalHP)
 	
 	-- update reserve and frontline...
 	local reqPersonnel 	= hitPoints[finalHP].Personnel 	- hitPoints[initialHP].Personnel
@@ -4247,6 +4263,7 @@ end
 
 -- Control function
 function HealingControl (playerID, unitID, newDamage, prevDamage)
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
 		local unitKey 	= unit:GetKey()
@@ -4266,7 +4283,7 @@ function HealingControl (playerID, unitID, newDamage, prevDamage)
 		Dprint( DEBUG_UNIT_SCRIPT, "------------------------------------------------------------------------------")
 		data.testHP = testHP		
 		
-		if change > 0 and UnitLastHealingValue[unitKey] ~= change then -- that unit has received health outside the mod control (like when pillaging, hardcoding is bad Firaxis, bad !)
+		if change > 0 and UnitLastHealingValue[unitKey] ~= change then -- that unit has received health outside the mod control (like when pillaging, hardcoding is bad Firaxis, bad ! no jokes, I have hundred of lines of codes in there to handle this and the asynchronous events related to units damage and combat...)
 			--ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
 			local plot = Map.GetPlot(unit:GetX(), unit:GetY())
 			Dprint( DEBUG_UNIT_SCRIPT, "Reverting unexpected healing : +"..tostring(change).." HP for "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()), ", in city = ", plot:IsCity())
@@ -4757,8 +4774,9 @@ function DoMorale(self)
 
 		-- Set Damage
 		if desertionData.GiveDamage then
-			self:SetDamage(self:GetDamage() + lostHP)
-			unitData.HP = finalHP
+			--self:SetDamage(self:GetDamage() + lostHP)
+			--unitData.HP = finalHP
+			self:SetHP(finalHP)
 		end
 	end
 	CheckComponentsHP(self, "after DoMorale()")	
@@ -5223,10 +5241,11 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 					local damageChange = virtualHP-coreHP
 					if math.abs(damageChange) < 15 then
 						correctionStr = "[NEWLINE]Applying Virtual HP to unit..."
-						if damageChange > 0 then
-							UnitLastHealingValue[unitKey] = damageChange
-						end
-						unit:SetDamage(unit:GetMaxDamage() - virtualHP)
+						--if damageChange > 0 then
+						--	UnitLastHealingValue[unitKey] = damageChange
+						--end
+						--unit:SetDamage(unit:GetMaxDamage() - virtualHP)
+						unit:SetHP(virtualHP)
 					end
 					GCO.Error("Desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr)
 				else
@@ -5251,7 +5270,8 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 				if newUnitType and newUnitType ~= unit:GetType() then
 					local newUnit = ChangeUnitTo(unit, newUnitType)
 					if newUnit then
-						newUnit:Heal(coreHP, coreHP)
+						local bNoLimit = true
+						newUnit:Heal(coreHP, coreHP, bNoLimit)
 					end
 				end
 			end
@@ -5304,6 +5324,8 @@ function AttachUnitFunctions(unit)
 		u.IsCombat								= IsCombat
 		u.CanGetFullReinforcement				= CanGetFullReinforcement
 		u.GetLogisticCost						= GetLogisticCost
+		u.GetProperty							= GetProperty
+		u.SetProperty							= SetProperty
 		--
 		u.RecordTransaction						= RecordTransaction
 		u.GetTransactionValue					= GetTransactionValue
@@ -5336,6 +5358,7 @@ function AttachUnitFunctions(unit)
 		u.GetMaxPersonnelReserve				= GetMaxPersonnelReserve
 		u.GetFrontLinePersonnel					= GetFrontLinePersonnel
 		u.GetMaxPersonnel						= GetMaxPersonnel
+		u.GetTotalPersonnel						= GetTotalPersonnel
 		--
 		u.GetMoraleFromFood						= GetMoraleFromFood
 		u.GetMoraleFromLastCombat				= GetMoraleFromLastCombat
@@ -5433,6 +5456,9 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetUnitConstructionOptionalResources	= GetUnitConstructionOptionalResources
 	ExposedMembers.GCO.UpdateUnitsData 						= UpdateUnitsData
 	ExposedMembers.GCO.GetUnitPromotionClassID 				= GetUnitPromotionClassID
+	ExposedMembers.GCO.RegisterNewUnit						= RegisterNewUnit
+	ExposedMembers.GCO.ChangeUnitTo							= ChangeUnitTo
+	ExposedMembers.GCO.GetEquipmentTypes					= GetEquipmentTypes
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end
@@ -5447,6 +5473,26 @@ Initialize()
 -----------------------------------------------------------------------------------------
 -- Test / Debug
 -----------------------------------------------------------------------------------------
+
+-- temp fix when changing unit DB mid-game
+function UnitsUpdateFromDB()
+	for unitKey, unitData in pairs(ExposedMembers.UnitData) do
+		print( GCO.Separator)
+		local typesToFix = {"UNIT_FIELD_CANNON"}
+		local unit = GetUnitFromKey ( unitKey )
+		if unit then
+			for i, unitType in ipairs(typesToFix) do
+				local typeID = GameInfo.Units[unitType].Index
+				if unit:GetType() == typeID then
+					print("Updating : ".. tostring(unitType), unitKey)
+					local newUnit = ChangeUnitTo(unit, typeID)
+				end
+			end
+		end
+		print( GCO.Separator)
+	end
+end
+--Events.LoadGameViewStateDone.Add( UnitsUpdateFromDB )
 
 function TestDamage()
 	if not ExposedMembers.UnitData then return end

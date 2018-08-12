@@ -123,6 +123,37 @@ function RefreshYields()
 	-- GCO <<<<<
 	if ExposedMembers.GCO_Initialized then GCO.InitializePlayerFunctions(localPlayer) end
 	-- GCO >>>>>
+	
+	-- GCO <<<<<
+	---- POPULATION ----
+	m_PopulationYieldButton = m_PopulationYieldButton or m_YieldButtonDoubleManager:GetInstance();
+	
+	if ExposedMembers.GCO_Initialized then
+		
+		local PopulationBalance, PopulationYield = localPlayer:GetTotalPopulation()
+		
+		local ArmySize				:number = localPlayer:GetPersonnelInCities() + localPlayer:GetPersonnelInUnits()
+		local PercentagePopulation	:number = ArmySize / PopulationBalance * 100
+		local MaxDraftedPercentage	:number = localPlayer:GetMaxDraftedPercentage()
+		
+		local balanceColor	= "ResFoodLabelCS"
+		if PercentagePopulation > MaxDraftedPercentage then
+			balanceColor	= "ModStatusRedCS"
+		end		
+
+		m_PopulationYieldButton.YieldBalance:SetText( Locale.ToNumber(PopulationBalance, "#,###.#") );
+		m_PopulationYieldButton.YieldBalance:SetColorByName(balanceColor);	
+		m_PopulationYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(PopulationYield) );
+		m_PopulationYieldButton.YieldIconString:SetText("[ICON_GIFT_UNIT]");
+		m_PopulationYieldButton.YieldPerTurn:SetColorByName("ResFoodLabelCS");	
+
+		local toolTipString = Locale.Lookup("LOC_TOP_PANEL_POPULATION_TOOLTIP", PopulationBalance, ArmySize, PercentagePopulation, localPlayer:GetDraftEfficiencyPercent(), MaxDraftedPercentage)
+		m_PopulationYieldButton.YieldBacking:SetToolTipString( toolTipString );
+		m_PopulationYieldButton.YieldBacking:SetColorByName("ResFoodLabelCS");
+		m_PopulationYieldButton.YieldButtonStack:CalculateSize();		
+	end
+
+	-- GCO >>>>>
 
 	---- SCIENCE ----
 	m_ScienceYieldButton = m_ScienceYieldButton or m_YieldButtonSingleManager:GetInstance();
@@ -215,26 +246,33 @@ function RefreshYields()
 		local playerData 	= localPlayer:GetData()
 		local availableLogistic	= localPlayer:GetPersonnelInCities()
 		
-		local classLogisticCost 	= {}
-		local maxClassLogisticCost	= 0
-		for row in GameInfo.UnitPromotionClasses() do
-			local promotionClassID 				= row.Index
-			local logisticCost 					= localPlayer:GetLogisticCost(promotionClassID)
-			if logisticCost > 0 then
-				classLogisticCost[promotionClassID] = logisticCost
-				if logisticCost > maxClassLogisticCost then
-					maxClassLogisticCost = logisticCost
+		if (availableLogistic > 0) then
+		
+			local classLogisticCost 	= {}
+			local classLogisticSupport 	= {}
+			local bNoSupport			= false
+			local bNearNoSupport		= false
+			local nearNoSupportRatio	= 0.80
+			for row in GameInfo.UnitPromotionClasses() do
+				local promotionClassID 				= row.Index
+				local logisticCost 					= localPlayer:GetLogisticCost(promotionClassID)
+				local logisticSupport				= localPlayer:GetLogisticSupport(promotionClassID)
+				if logisticCost > 0 then
+					classLogisticCost[promotionClassID] 	= logisticCost
+					classLogisticSupport[promotionClassID] 	= logisticSupport
+					if logisticCost >=  logisticSupport then
+						bNoSupport = true
+					elseif logisticCost > logisticSupport * nearNoSupportRatio then
+						bNearNoSupport = true
+					end
 				end
 			end
-		end
-		
-		if (availableLogistic > 0) then
 			local balanceColorName = "Brown"
 			local backingColorName = "Brown"
-			if maxClassLogisticCost >= availableLogistic then
-				backingColorName = "OperationChance_Red"
-			elseif maxClassLogisticCost > availableLogistic * 0.9 then
-				backingColorName = "OperationChance_Orange"
+			if bNoSupport then
+				balanceColorName = "OperationChance_Red"
+			elseif bNearNoSupport then
+				balanceColorName = "OperationChance_Yellow"
 			end
 			
 			m_LogisticCostButton.YieldPerTurn:SetText( Locale.ToNumber(availableLogistic, "#,###") );
@@ -243,13 +281,15 @@ function RefreshYields()
 
 			local toolTipStrTable = {}
 			for promotionID, logisticCost in pairs(classLogisticCost) do
+				local logisticSupport = classLogisticSupport[promotionID]
 				local logisticStr = " " .. Locale.ToNumber(logisticCost, "#,###")
-				if logisticCost >= availableLogistic then
+				if logisticCost >= logisticSupport then
 					logisticStr = " [COLOR_Civ6Red]" .. Locale.ToNumber(logisticCost, "#,###") .. "[ENDCOLOR]"
-				elseif logisticCost > availableLogistic * 0.9 then
-					logisticStr = " [COLOR_Civ6Yellow]" .. Locale.ToNumber(logisticCost, "#,###") .. "[ENDCOLOR]"
+				elseif logisticCost > logisticSupport * nearNoSupportRatio then
+					logisticStr = " [COLOR_OperationChance_Orange]" .. Locale.ToNumber(logisticCost, "#,###") .. "[ENDCOLOR]"
 				end				
-				table.insert(toolTipStrTable, Locale.Lookup(GameInfo.UnitPromotionClasses[promotionID].Name) .. logisticStr)
+				--table.insert(toolTipStrTable, Locale.Lookup(GameInfo.UnitPromotionClasses[promotionID].Name) .. logisticStr)
+				table.insert(toolTipStrTable, Locale.Lookup("LOC_TOP_PANEL_PROMOTION_COST_TOOLTIP", GameInfo.UnitPromotionClasses[promotionID].Name, logisticStr, logisticSupport))
 			end
 			local toolTipStr = Locale.Lookup("LOC_TOP_PANEL_LOGISTIC_COST_TOOLTIP", availableLogistic)..Locale.Lookup("LOC_TOOLTIP_SEPARATOR").. table.concat(toolTipStrTable, "[NEWLINE]")
 			m_LogisticCostButton.YieldBacking:SetToolTipString( toolTipStr );

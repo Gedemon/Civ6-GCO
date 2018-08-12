@@ -3,6 +3,8 @@
 
 	<LocalizedText> <!-- Buildings Names -->
 	
+		<Replace Tag="LOC_BUILDING_RECRUITS_NAME" 					Text="Recruitment Centre"		Language="en_US" />
+		
 		<Replace Tag="LOC_BUILDING_BUTCHERY_NAME" 					Text="Butchery" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_HERBALIST_NAME" 					Text="Herbalist" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 				Text="City Stable"				Language="en_US" />
@@ -62,10 +64,13 @@
 	
 	<LocalizedText> <!-- Buildings Descriptions -->
 		
-		<Replace Tag="LOC_BUILDING_ARTILLATOR_DESCRIPTION" Language="en_US">
-			<Text>A building for the makers of bows, arrows, and other archery goods.</Text>
+		<Replace Tag="LOC_BUILDING_RECRUITS_DESCRIPTION" Language="en_US">
+			<Text>An emergency Recruitment Centre, when completed a melee unit will be created from the available personnel and equipment in this city, and the building is removed.[NEWLINE]Note that this building is not always available, recruitment is limited to war time or when Barbarians are menacing the city.[NEWLINE]The full cost of the unit's equipment will be removed from your treasury when it's completed.</Text>
 		</Replace>
 		
+		<Replace Tag="LOC_BUILDING_ARTILLATOR_DESCRIPTION" Language="en_US">
+			<Text>A building for the makers of bows, arrows, and other archery goods.</Text>
+		</Replace>		
 		<Replace Tag="LOC_BUILDING_WEAPONSMITH_DESCRIPTION" Language="en_US">
 			<Text>Allows the production of Steel Weapons, which may raise the supply cost for your units</Text>
 		</Replace>		

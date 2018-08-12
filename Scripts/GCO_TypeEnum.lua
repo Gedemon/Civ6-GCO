@@ -80,11 +80,47 @@ end
 BaseImprovementMultiplier		= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
 
 -----------------------------------------------------------------------------------------
--- Equipment - to do : those are helpers, to move to mod utils with related functions
+-- Equipment - to do : those are helpers, to move to mod utils with related functions ?
 -----------------------------------------------------------------------------------------
 EquipmentInfo = {}	-- Helper to get equipment info from Resource ID
 for row in GameInfo.Equipment() do
 	local equipmentType = row.ResourceType
 	local equipmentID	= GameInfo.Resources[equipmentType].Index
 	EquipmentInfo[equipmentID] = row
+end
+
+promotionClassEquipmentClasses	= {}
+for row in GameInfo.PromotionClassEquipmentClasses() do
+	local equipmentClass	= row.EquipmentClass
+	local promotionType		= row.PromotionClassType 
+	local promotionID 		= GameInfo.UnitPromotionClasses[promotionType].Index
+	if GameInfo.EquipmentClasses[equipmentClass] then
+		local equipmentClassID 	= GameInfo.EquipmentClasses[equipmentClass].Index
+		if not promotionClassEquipmentClasses[promotionID] then promotionClassEquipmentClasses[promotionID] = {} end
+		promotionClassEquipmentClasses[promotionID][equipmentClassID] = {PercentageOfPersonnel = row.PercentageOfPersonnel, IsRequired = row.IsRequired}
+	else
+		-- can't use GCO.Error or GCO.Warning functions at this point
+		print("WARNING: no equipment class in GameInfo.EquipmentClasses for "..tostring(row.EquipmentClass))
+	end
+end
+
+militaryOrganization = {}
+for row in GameInfo.MilitaryFormationStructures() do
+	local promotionClassID 	= GameInfo.UnitPromotionClasses[row.PromotionClassType].Index
+	local organizationRow	= GameInfo.MilitaryOrganisationLevels[row.OrganisationLevelType]
+	if not militaryOrganization[organizationRow.Index] then 
+		militaryOrganization[organizationRow.Index] = {}
+		militaryOrganization[organizationRow.Index].SupplyLineLengthFactor 			= organizationRow.SupplyLineLengthFactor
+		militaryOrganization[organizationRow.Index].MaxPersonnelPercentFromReserve 	= organizationRow.MaxPersonnelPercentFromReserve
+		militaryOrganization[organizationRow.Index].MaxMaterielPercentFromReserve	= organizationRow.MaxMaterielPercentFromReserve
+		militaryOrganization[organizationRow.Index].MaxHealingPerTurn 				= organizationRow.MaxHealingPerTurn
+		militaryOrganization[organizationRow.Index].PromotionType 					= organizationRow.PromotionType -- that's the organization level promotion
+	end
+	militaryOrganization[organizationRow.Index][promotionClassID] = { 
+		MilitaryFormationType 			= row.MilitaryFormationType,
+		FrontLinePersonnel				= row.FrontLinePersonnel,
+		ReservePersonnel 				= row.ReservePersonnel,
+		PromotionType 					= row.PromotionType,	-- that's the promotion based on number of personnel
+		SizeString 						= row.SizeString
+	}
 end

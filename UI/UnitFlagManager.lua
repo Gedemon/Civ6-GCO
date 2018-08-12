@@ -912,6 +912,16 @@ function UnitFlag.UpdateName( self )
 		
 		if unitData then
 		
+			local frontlineStrTitle = Locale.Lookup("LOC_UNITFLAG_ANCIENT_FRONTLINE_TITLE")
+			local reserveStrTitle 	= Locale.Lookup("LOC_UNITFLAG_ANCIENT_RESERVE_TITLE")
+			local rearStrTitle 		= Locale.Lookup("LOC_UNITFLAG_ANCIENT_REAR_TITLE")
+			local era = self.m_Player:GetEra()
+			if era >= GameInfo.Eras["ERA_INDUSTRIAL"].Index then
+				frontlineStrTitle 	= Locale.Lookup("LOC_UNITFLAG_FRONTLINE_TITLE")
+				reserveStrTitle 	= Locale.Lookup("LOC_UNITFLAG_RESERVE_TITLE")
+				rearStrTitle 		= Locale.Lookup("LOC_UNITFLAG_REAR_TITLE")			
+			end
+		
 			-- Condition
 			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE")
 			nameString = nameString .. "[NEWLINE]" .. pUnit:GetMoraleString()
@@ -926,7 +936,7 @@ function UnitFlag.UpdateName( self )
 			if bHasComponents then
 				
 				-- "Frontline"
-				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_ANCIENT_FRONTLINE_TITLE") --Locale.Lookup("LOC_UNITFLAG_FRONTLINE_TITLE")
+				nameString = nameString .. "[NEWLINE]" .. frontlineStrTitle
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL", personnel, pUnit:GetMaxFrontLinePersonnel()) .. GCO.GetVariationString(pUnit:GetComponentVariation("Personnel"))
 				nameString = nameString .. pUnit:GetFrontLineEquipmentString()
 
@@ -940,7 +950,7 @@ function UnitFlag.UpdateName( self )
 				
 				-- "Reserve" (show even when = 0 if it's a component required in front line)
 				local reserveStr = ""
-				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_ANCIENT_RESERVE_TITLE") --Locale.Lookup("LOC_UNITFLAG_RESERVE_TITLE")
+				nameString = nameString .. "[NEWLINE]" .. reserveStrTitle
 				if pUnit:GetComponent("PersonnelReserve") 	> 0 then reserveStr = reserveStr .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL_RESERVE", pUnit:GetComponent("PersonnelReserve")) .. GCO.GetVariationString(pUnit:GetComponentVariation("PersonnelReserve")) end
 				reserveStr = reserveStr .. pUnit:GetReserveEquipmentString()
 				--if unitInfo.Horses 		> 0 or unitData.HorsesReserve > 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES_RESERVE", unitData.HorsesReserve) .. GCO.GetVariationString(pUnit:GetComponentVariation("HorsesReserve")) end
@@ -957,7 +967,7 @@ function UnitFlag.UpdateName( self )
 			--local bHasExtra = (unitData.WoundedPersonnel + unitData.DamagedEquipment + totalPrisoners + unitData.FoodStock + unitData.FoodStock > 0)
 			local bHasExtra = (unitData.WoundedPersonnel + totalPrisoners + unitData.FoodStock + unitData.FoodStock > 0)
 			if bHasExtra then
-				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_ANCIENT_REAR_TITLE")	 --Locale.Lookup("LOC_UNITFLAG_REAR_TITLE")					
+				nameString = nameString .. "[NEWLINE]" .. rearStrTitle
 				if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) .. GCO.GetNeutralVariationString(pUnit:GetComponentVariation("WoundedPersonnel")) end
 				--if unitData.DamagedEquipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_EQUIPMENT", unitData.DamagedEquipment)  .. GCO.GetNeutralVariationString(pUnit:GetComponentVariation("DamagedEquipment"))end
 				if totalPrisoners	 			> 0 then nameString = nameString .. GCO.GetPrisonersStringByCiv(unitData) end	-- "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONERS", totalPrisoners) .. GCO.GetPrisonersStringByCiv(unitData) end
