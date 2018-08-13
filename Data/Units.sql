@@ -96,3 +96,53 @@ UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_RIFLEMAN";
 UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_CUIRASSIER";
 UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_SNIPER";
 UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_MODERN_SNIPER";
+
+/* Unit Table (Short Names) */
+INSERT INTO UnitsShort
+--
+--																			AntiAirCombat	Stackable			CanCapture															ADVISOR_	YIELD_	PSEUDOYIELD_UNIT_
+--								Cost		Combat	RangedCombat	CanTargetAir		IgnoreMoves		ZoneOfControl		DOMAIN_	FORMATION_CLASS_					DISTRICT_	AdvisorType			PseudoYieldType
+--	'UNIT_'					BaseMoves	Maintenance	|	Range	Bombard		|	AirSlots			BaseSightRange	WMDCapable						PROMOTION_CLASS_	PrereqDistrict			PurchaseYield
+	(UnitType,				BM,	Cs,		Mt,	Cb,		RC,	Rg,		Bd,	CTA,	AAC,AS,		IM,	Stk,	SR,	ZOC,	Cpt,WMD,	Domain,	FormationClass,	PromotionClass,		District,	Advisor,	PurYld,	PsYld,			)
+VALUES                              	        	        	        	        	        	        	        	                
+	('MOTORISED_INFANTRY',	4,	540,	7,	78,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'MELEE',			null,		'CONQUEST',	'GOLD',	null			),
+	('COMPOSITE_BOWMAN',	2,	85,		2,	22,		32,	2,		0,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'RANGED',			null,		'CONQUEST',	'GOLD',	null			),
+	('CULVERIN',			2,	230,	4,	40,		50,	2,		0,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'RANGED',			null,		'CONQUEST',	'GOLD',	null			),
+	('FIELD_GUN',			2,	420,	6,	58,		68,	2,		0,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'RANGED',			null,		'CONQUEST',	'GOLD',	null			),
+	('ASSAULT_GUN',			4,	530,	7,	65,		75,	2,		0,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'RANGED',			null,		'CONQUEST',	'GOLD',	null			),
+	('SP_GUN',				4,	640,	8,	72,		82,	2,		0,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'RANGED',			null,		'CONQUEST',	'GOLD',	null			),
+	('HEAVY_INFANTRY',		2,	95,		2,	33,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'ANTI_CAVALRY',		null,		'CONQUEST',	'GOLD',	null			),
+	('TANK_DESTROYER',		4,	490,	6,	76,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'ANTI_CAVALRY',		null,		'CONQUEST',	'GOLD',	null			),
+	('LANCER',				5,	210,	3,	53,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'LIGHT_CAVALRY',	null,		'CONQUEST',	'GOLD',	null			),
+	('ARMORED_CAVALRY',		5,	390,	5,	68,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'LIGHT_CAVALRY',	null,		'CONQUEST',	'GOLD',	null			),
+	('GUNSHIP',				4,	600,	7,	82,		0,	0,		0,	'1',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'LIGHT_CAVALRY',	null,		'CONQUEST',	'GOLD',	null			),
+	('ARMORED_HORSEMAN',	4,	100,	2,	40,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'HEAVY_CAVALRY',	null,		'CONQUEST',	'GOLD',	null			),
+	('REITER',				4,	240,	4,	58,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'HEAVY_CAVALRY',	null,		'CONQUEST',	'GOLD',	null			),
+	('LANDSHIP',			4,	420,	6,	73,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'HEAVY_CAVALRY',	null,		'CONQUEST',	'GOLD',	null			),
+	('WW1_BOMBER',			7,	450,	6,	50,		0,	7,		70,	'1',	0,	0,		'1','1',	4,	'0',	'0','0',	'AIR',	'AIR',			'AIR_BOMBER',		'AERODROME','CONQUEST',	'GOLD',	'AIR_COMBAT'	),
+	('STEALTH_BOMBER',		15,	720,	8,	70,		0,	15,		100,'1',	0,	0,		'1','1',	5,	'0',	'0','1',	'AIR',	'AIR',			'AIR_BOMBER',		'AERODROME','CONQUEST',	'GOLD',	'AIR_COMBAT'	),
+	('STEALTH_FIGHTER',		10,	670,	8,	90,		85,	10,		0,	'1',	0,	0,		'1','1',	5,	'0',	'0','0',	'AIR',	'AIR',			'AIR_FIGHTER',		'AERODROME','CONQUEST',	'GOLD',	'AIR_COMBAT'	),
+	('WW1_GROUND_ATTACK',	5,	440,	6,	55,		60,	5,		0,	'1',	0,	0,		'1','1',	4,	'0',	'0','0',	'AIR',	'AIR',			'AIR_ATTACK',		'AERODROME','CONQUEST',	'GOLD',	'AIR_COMBAT'	),
+	('GROUND_ATTACK',		8,	540,	7,	72,		85,	8,		0,	'1',	0,	0,		'1','1',	4,	'0',	'0','0',	'AIR',	'AIR',			'AIR_ATTACK',		'AERODROME','CONQUEST',	'GOLD',	'AIR_COMBAT'	),
+	('JET_GROUND_ATTACK',	10,	675,	8,	85,		90,	10,		0,	'1',	0,	0,		'1','1',	5,	'0',	'0','0',	'AIR',	'AIR',			'AIR_ATTACK',		'AERODROME','CONQUEST',	'GOLD',	'AIR_COMBAT'	),
+	('STEALTH_ATTACK',		10,	700,	8,	85,		95,	10,		0,	'1',	0,	0,		'1','1',	5,	'0',	'0','1',	'AIR',	'AIR',			'AIR_ATTACK',		'AERODROME','CONQUEST',	'GOLD',	'AIR_COMBAT'	),
+	('CORVETTE',			4,	260,	4,	50,		0,	0,		0,	'0',	0,	0,		'0','0',	3,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_MELEE',		null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'  ),
+	('MISSILE_DESTROYER',	5,	660,	8,	90,		0,	0,		0,	'1',	85,	0,		'0','0',	3,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_MELEE',		null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('SUPERCARRIER',		5,	680,	8,	80,		0,	0,		0,	'0',	0,	5,		'0','0',	2,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_CARRIER',	null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('GALLEASS',			4,	240,	3,	35,		45,	2,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_RANGED',		null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('ARMORED_CRUISER',		5,	400,	5,	55,		65,	2,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_RANGED',		null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('BATTLECRUISER',		5,	560,	6,	65,		75,	2,		0,	'1',	75,	0,		'0','0',	2,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_RANGED',		null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('GALLEON',				3,	280,	4,	40,		0,	3,		50,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_BOMBARD',	null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('SHIP_OF_THE_LINE',	3,	320,	4,	50,		0,	3,		60,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_BOMBARD',	null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('PRE_DREADNOUGHT',		4,	440,	5,	60,		0,	3,		70,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'SEA',	'NAVAL',		'NAVAL_BOMBARD',	null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('ATTACK_SUBMARINE',	4,	680,	8,	85,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'SEA',	'NAVAL',		'NAVAL_MELEE',		null,		'CONQUEST',	'GOLD',	'NAVAL_COMBAT'	),
+	('INDUSTRIAL_MARINE',	2,	350,	3,	61,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'MARINE',			null,		'CONQUEST',	'GOLD',	null			),
+	('WW2_MARINE',			2,	430,	5,	67,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'MARINE',			null,		'CONQUEST',	'GOLD',	null			),
+	('MODERN_MARINE',		4,	650,	7,	82,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'MARINE',			null,		'CONQUEST',	'GOLD',	null			),
+	('FIELD_HOWITZER',		2,	360,	5,	53,		0,	2,		65,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'SIEGE',			null,		'CONQUEST',	'GOLD',	null			),
+	('SP_HVY_ATILLERY',		3,	560,	7,	72,		0,	3,		88,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'SIEGE',			null,		'CONQUEST',	'GOLD',	null			),
+	('UAV',					4,	700,	7,	60,		80,	1,		0,	'1',	0,	0,		'0','0',	5,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'RANGED',			null,		'CONQUEST',	'GOLD',	null			),
+	('END_OF_INSERT',		null, null,	null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,	null,			null,				null,		null,		null,	null			);
+
+-- Remove "END_OF_INSERT" entry 
+DELETE from UnitsShort WHERE UnitType ='END_OF_INSERT';

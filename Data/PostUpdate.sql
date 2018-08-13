@@ -69,11 +69,34 @@ UPDATE MilitaryFormations			SET Name = 'LOC_' || MilitaryFormations.MilitaryForm
 -- Units
 -----------------------------------------------
 
-/* Create new Units entries from the temporary BuildingsGCO table */
-INSERT OR REPLACE INTO Units (UnitType, Name, Cost, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, FormationClass, PromotionClass, AdvisorType)
+/* Update existing Units entries from the temporary BuildingsGCO table (before INSERT) */
+/*
+UPDATE Units SET
+		(UnitType, Name, Cost, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, FormationClass, PromotionClass, AdvisorType)
+	= (SELECT
+		UnitsGCO.UnitType, 'LOC_' || UnitsGCO.UnitType || '_NAME', UnitsGCO.Cost, UnitsGCO.Maintenance, UnitsGCO.BaseMoves, UnitsGCO.BaseSightRange, UnitsGCO.ZoneOfControl, UnitsGCO.Domain, UnitsGCO.Combat, UnitsGCO.FormationClass, UnitsGCO.PromotionClass, UnitsGCO.AdvisorType
+    FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType )
+		WHERE EXISTS ( SELECT * FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType)
+*/
+
+/*
+-- By doing 1 query by column we can set entries in UnitsGCO with just the columns to update and leave the rest empty
+--UPDATE Units SET Name = (SELECT 'LOC_' || UnitsGCO.UnitType || '_NAME' FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType)
+UPDATE Units SET BaseMoves 		= (SELECT UnitsShort.BM FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.BM IS NOT NULL) 
+UPDATE Units SET Cost 			= (SELECT UnitsShort.Cs FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.Cs IS NOT NULL) 
+UPDATE Units SET Maintenance 	= (SELECT UnitsShort.Mt FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.Mt IS NOT NULL) 
+UPDATE Units SET Combat 		= (SELECT UnitsShort.Cb FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.Cb IS NOT NULL) 
+UPDATE Units SET RangedCombat	= (SELECT UnitsShort.RC FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.RC IS NOT NULL) 
+UPDATE Units SET Range 			= (SELECT UnitsShort.Rg FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.Rg IS NOT NULL) 
+*/
+
+
+/* Create new Units entries from the temporary BuildingsGCO table  (after UPDATE)*/
+INSERT INTO Units (UnitType, Name, Cost, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, FormationClass, PromotionClass, AdvisorType)
 
 	SELECT UnitsGCO.UnitType, 'LOC_' || UnitsGCO.UnitType || '_NAME', UnitsGCO.Cost, UnitsGCO.Maintenance, UnitsGCO.BaseMoves, UnitsGCO.BaseSightRange, UnitsGCO.ZoneOfControl, UnitsGCO.Domain, UnitsGCO.Combat, UnitsGCO.FormationClass, UnitsGCO.PromotionClass, UnitsGCO.AdvisorType
-	FROM UnitsGCO;
+	FROM UnitsGCO WHERE NOT EXISTS	(SELECT * FROM Units WHERE Units.UnitType = UnitsGCO.UnitType);
+	
 	
 /* Create new Buildings Types entries from the temporary BuildingsGCO table */
 INSERT OR REPLACE INTO Types (Type, Kind)

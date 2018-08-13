@@ -107,6 +107,141 @@ CREATE TABLE IF NOT EXISTS ResourcesGCO (
 --DROP TABLE Resources;
 --ALTER TABLE temp_Resources RENAME TO Resources;
 
+-- Units Table without "NOT NULL" requirements (except UnitType)
+CREATE TABLE IF NOT EXISTS UnitsGCO (
+		UnitType TEXT NOT NULL,
+		Name TEXT,
+		BaseSightRange INTEGER,
+		BaseMoves INTEGER,
+		Combat INTEGER,
+		RangedCombat INTEGER,
+		Range INTEGER,
+		Bombard INTEGER,
+		Domain TEXT,
+		FormationClass TEXT,
+		Cost INTEGER,
+		PopulationCost INTEGER,
+		FoundCity BOOLEAN,
+		FoundReligion BOOLEAN,
+		MakeTradeRoute BOOLEAN,
+		EvangelizeBelief BOOLEAN,
+		LaunchInquisition BOOLEAN,
+		RequiresInquisition BOOLEAN,
+		BuildCharges INTEGER,
+		ReligiousStrength INTEGER,
+		ReligionEvictPercent INTEGER,
+		SpreadCharges INTEGER,
+		ExtractsArtifacts BOOLEAN,
+		Description TEXT,
+		Flavor TEXT,
+		CanCapture BOOLEAN,
+		CanRetreatWhenCaptured BOOLEAN,
+		TraitType TEXT,
+		AllowBarbarians BOOLEAN,
+		CostProgressionModel TEXT,
+		CostProgressionParam1 INTEGER,
+		PromotionClass TEXT,
+		InitialLevel INTEGER,
+		NumRandomChoices INTEGER,
+		PrereqTech TEXT,
+		PrereqCivic TEXT,
+		PrereqDistrict TEXT,
+		PrereqPopulation INTEGER,
+		LeaderType TEXT,
+		CanTrain BOOLEAN,
+		StrategicResource TEXT,
+		PurchaseYield TEXT,
+		MustPurchase BOOLEAN,
+		Maintenance INTEGER,
+		Stackable BOOLEAN,
+		AirSlots INTEGER,
+		CanTargetAir,
+		PseudoYieldType TEXT,
+		ZoneOfControl BOOLEAN,
+		AntiAirCombat INTEGER,
+		Spy BOOLEAN,
+		WMDCapable BOOLEAN,
+		ParkCharges INTEGER,
+		IgnoreMoves BOOLEAN,
+		TeamVisibility BOOLEAN,
+		ObsoleteTech TEXT,
+		ObsoleteCivic TEXT,
+		MandatoryObsoleteTech TEXT,
+		MandatoryObsoleteCivic TEXT,
+		AdvisorType TEXT,
+		-- Composition in personnel, vehicles and horses of an unit at full health 
+		Personnel,
+		Equipment,
+		EquipmentType TEXT,
+		Horses integer,
+		-- Materiel required  
+		Materiel integer, 			-- total value for unit at 100% health, representing general equipement, armement and munitions
+		-- Casualties modifier
+		AntiPersonnel 	integer, 	-- 100 means all personnel casualties are dead, no wounded, no prisonners
+		AntiArmor 		integer,
+		AntiShip 		integer,
+		AntiAir 		integer,
+		PRIMARY KEY(UnitType),
+		FOREIGN KEY (Flavor) REFERENCES Flavors(FlavorType),
+		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType),
+		FOREIGN KEY (PrereqCivic) REFERENCES Civics(CivicType),
+		FOREIGN KEY (TraitType) REFERENCES Traits(TraitType),
+		FOREIGN KEY (StrategicResource) REFERENCES Resources(ResourceType),
+		FOREIGN KEY (PurchaseYield) REFERENCES Yields(YieldType),
+		FOREIGN KEY (PrereqDistrict) REFERENCES Districts(DistrictType),
+		FOREIGN KEY (PromotionClass) REFERENCES UnitPromotionClasses(PromotionClassType),
+		FOREIGN KEY (PseudoYieldType) REFERENCES PseudoYields(PseudoYieldType),
+		FOREIGN KEY (PrereqCivic) REFERENCES Civics(CivicType),
+		FOREIGN KEY (UnitType) REFERENCES Types(Type),
+		FOREIGN KEY (PurchaseYield) REFERENCES Yields(YieldType),
+		FOREIGN KEY (ObsoleteCivic) REFERENCES Civics(CivicType),
+		FOREIGN KEY (MandatoryObsoleteCivic) REFERENCES Civics(CivicType),
+		FOREIGN KEY (MandatoryObsoleteTech) REFERENCES Technologies(TechnologyType),
+		FOREIGN KEY (ObsoleteTech) REFERENCES Technologies(TechnologyType)
+	);
+
+-- Units Table without "NOT NULL" requirements (except UnitType) and short names
+CREATE TABLE IF NOT EXISTS UnitsShort (
+		UnitType TEXT NOT NULL, -- Without 'UNIT_'
+		SR INTEGER,				-- BaseSightRange
+		BM INTEGER,				-- BaseMoves
+		Cb INTEGER,				-- Combat
+		RC INTEGER,				-- RangedCombat
+		Rg INTEGER,				-- Range
+		Bd INTEGER,				-- Bombard
+		Domain TEXT,			-- Without 'DOMAIN_'
+		FormationClass TEXT,	-- Without 'FORMATION_CLASS_'
+		Cs INTEGER,				-- Cost
+		Flavor TEXT,
+		Cpt BOOLEAN,			-- CanCapture
+		PromotionClass TEXT,	-- Without 'PROMOTION_CLASS_'
+		District TEXT,			-- PrereqDistrict, Without 'DISTRICT_'
+		CanTrain BOOLEAN,
+		PurYld TEXT,			-- PurchaseYield, Without 'YIELD_'
+		MustPurchase BOOLEAN,
+		Mt INTEGER,				-- Maintenance
+		Stk BOOLEAN,			-- Stackable
+		AS INTEGER,				-- AirSlots
+		CTA BOOLEAN,			-- CanTargetAir
+		PsYld TEXT,				-- PseudoYieldType
+		ZOC BOOLEAN,			-- ZoneOfControl
+		AAC INTEGER,			-- AntiAirCombat
+		Spy BOOLEAN,
+		WMDCapable BOOLEAN,
+		IgnoreMoves BOOLEAN,
+		TeamVisibility BOOLEAN,
+		Advisor TEXT,			-- AdvisorType, Without 'ADVISOR_'
+		-- Composition in personnel, vehicles and horses of an unit at full health 
+		Personnel integer,
+		-- Casualties modifier
+		AntiPersonnel 	integer, 	-- 100 means all personnel casualties are dead, no wounded, no prisonners
+		AntiArmor 		integer,
+		AntiShip 		integer,
+		AntiAir 		integer,
+		PRIMARY KEY(UnitType),
+	);	
+/*
+-- Full unit table copy
 CREATE TABLE IF NOT EXISTS UnitsGCO (
 		UnitType TEXT NOT NULL,
 		Name TEXT NOT NULL DEFAULT 'UNIT_NAME',
@@ -197,6 +332,8 @@ CREATE TABLE IF NOT EXISTS UnitsGCO (
 		FOREIGN KEY (MandatoryObsoleteCivic) REFERENCES Civics(CivicType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
 		FOREIGN KEY (MandatoryObsoleteTech) REFERENCES Technologies(TechnologyType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT,
 		FOREIGN KEY (ObsoleteTech) REFERENCES Technologies(TechnologyType) ON DELETE SET DEFAULT ON UPDATE SET DEFAULT);
+
+ */
 --INSERT INTO temp_Units SELECT * FROM Units;
 --DROP TABLE Units;
 --ALTER TABLE temp_Units RENAME TO Units;
