@@ -3630,20 +3630,25 @@ Dline(self:GetName(), "BUILDING_RECRUITS")
 
 		-- must be at war or under threat from barbarians
 		if not player:IsAtWar() then
-			local bNoThreat	= true
-			local cityPlot 	= GCO.GetPlot(self:GetX(), self:GetY())
-			for ring = 1, 6 do
-				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
-					if pEdgePlot:GetUnitCount() > 0 then
-						local aUnits = Units.GetUnitsInPlot(pEdgePlot)
-						for i, unit in ipairs(aUnits) do
-							local unitOwner = GCO.GetPlayer(unit:GetOwner())
-							if unitOwner:IsBarbarian() then
-								bNoThreat = false
+			local pLocalPlayerVis = PlayersVisibility[self:GetOwner()]
+			if (pLocalPlayerVis ~= nil) then
+				local bNoThreat	= true
+				local cityPlot 	= GCO.GetPlot(self:GetX(), self:GetY())
+				for ring = 1, 6 do
+					for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
+						if (pLocalPlayerVis:IsVisible(pEdgePlot:GetX(), pEdgePlot:GetY())) then
+							if pEdgePlot:GetUnitCount() > 0 then
+								local aUnits = Units.GetUnitsInPlot(pEdgePlot)
+								for i, unit in ipairs(aUnits) do
+									local unitOwner = GCO.GetPlayer(unit:GetOwner())
+									if unitOwner:IsBarbarian() then
+										bNoThreat = false
+									end
+								end
 							end
-						end
+						end				
 					end
-				end				
+				end
 			end
 			if bNoThreat then
 				bCheckSpecial = false
