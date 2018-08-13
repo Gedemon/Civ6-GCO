@@ -221,7 +221,7 @@ CREATE TABLE IF NOT EXISTS UnitsShort (
 		MustPurchase BOOLEAN,
 		Mt INTEGER,				-- Maintenance
 		Stk BOOLEAN,			-- Stackable
-		AS INTEGER,				-- AirSlots
+		AiS INTEGER,			-- AirSlots
 		CTA BOOLEAN,			-- CanTargetAir
 		PsYld TEXT,				-- PseudoYieldType
 		ZOC BOOLEAN,			-- ZoneOfControl
@@ -238,8 +238,9 @@ CREATE TABLE IF NOT EXISTS UnitsShort (
 		AntiArmor 		integer,
 		AntiShip 		integer,
 		AntiAir 		integer,
-		PRIMARY KEY(UnitType),
+		PRIMARY KEY(UnitType)
 	);	
+	
 /*
 -- Full unit table copy
 CREATE TABLE IF NOT EXISTS UnitsGCO (
