@@ -21,10 +21,17 @@ DEBUG_UNIT_SCRIPT = "UnitScript"
 function ToggleDebug()
 	DEBUG_UNIT_SCRIPT = not DEBUG_UNIT_SCRIPT
 end
+
+local previousDebugLevel = DEBUG_UNIT_SCRIPT
 function SetDebugLevel(sLevel)
+	previousDebugLevel = DEBUG_UNIT_SCRIPT
 	DEBUG_UNIT_SCRIPT = sLevel
 end
-
+function RestorePreviousDebugLevel()
+	DEBUG_UNIT_SCRIPT = previousDebugLevel
+end
+LuaEvents.SetUnitsDebugLevel.Add(SetDebugLevel)
+LuaEvents.RestoreUnitsDebugLevel.Add(RestorePreviousDebugLevel)
 
 -----------------------------------------------------------------------------------------
 -- Defines
@@ -965,7 +972,7 @@ local barbarianUnits = {
 }
 
 function CheckAndReplaceBarbarianUnit(unit)
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, "Check And Replace Barbarian Unit type...")
 	
 	local eraType			= GameInfo.Eras[GCO.GetGameEra()].EraType
@@ -1750,7 +1757,7 @@ end
 
 function GetAllSurplus(self) -- Return all resources that can be transfered back to a city (or a nearby unit/improvement ?)
 
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, "- check surplus for : ".. Locale.Lookup(self:GetName()))
 	
 	local unitKey 	= self:GetKey()
@@ -2093,6 +2100,35 @@ function GetUnitConstructionEquipment(unitTypeID, organizationLevelID, sConditio
 				resTable[classType]				= {}
 				resTable[classType].Resources	= {}
 				resTable[classType].Value 		= GCO.Round(personnel * classData.PercentageOfPersonnel / 100)
+				local equipmentTypes 			= GetEquipmentTypes(classType)
+				
+				for _, data in ipairs(equipmentTypes) do
+					table.insert(resTable[classType].Resources, data.EquipmentID)
+				end
+			end
+		end
+	end
+	return resTable
+
+end
+
+function GetUnitConscriptionEquipment(unitTypeID, organizationLevelID, sCondition)
+
+	local resTable = {}
+	
+	local bAll 				= (sCondition == "ALL" or sCondition == nil)
+	local bRequiredOnly 	= (sCondition == "REQUIRED")
+	local bOptionalOnly 	= (sCondition == "OPTIONAL")
+
+	local equipmentClasses 	= GetUnitEquipmentClasses(unitTypeID)	
+	local personnel 		= GetUnitMaxFrontLinePersonnel(unitTypeID, organizationLevelID)
+	
+	if equipmentClasses then
+		for classType, classData in pairs(equipmentClasses) do
+			if bAll or (bRequiredOnly and classData.IsRequired) or (bOptionalOnly and not classData.IsRequired) then
+				resTable[classType]				= {}
+				resTable[classType].Resources	= {}
+				resTable[classType].Value 		= GCO.Round(personnel * GetUnitEquipmentClassRatio(unitTypeID, classType))
 				local equipmentTypes 			= GetEquipmentTypes(classType)
 				
 				for _, data in ipairs(equipmentTypes) do
@@ -2468,7 +2504,7 @@ end
 
 function DoInternalEquipmentTransfer(self, bLimitTransfer, aAlreadyUsed)
 
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 
 	if bLimitTransfer 	== nil then bLimitTransfer 	= true 	end	
 	if aAlreadyUsed		== nil then aAlreadyUsed 	= {} 	end
@@ -3348,7 +3384,7 @@ end
 
 function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	
 	local UnitData = Opponent.unitData
@@ -3592,6 +3628,8 @@ local combatEnd		= {}
 function OnCombat( combatResult )
 
 	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
+	if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
 	
 	-- for console debugging...
 	ExposedMembers.lastCombat = combatResult
@@ -3942,6 +3980,9 @@ function OnCombat( combatResult )
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	--]]
 	
+	if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
+	if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
+	
 	combatEnd[combatCount] = true
 end
 Events.Combat.Add( OnCombat )
@@ -4038,7 +4079,7 @@ function GetEquipmentAtHP(self, equipmentClassID, hp)
 end
 
 function SetHP(self, value, bOnlyVirtualValue)
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Set HP to " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()), value, bOnlyVirtualValue)
 	
@@ -4066,7 +4107,7 @@ function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 
 	--if self:GetDamage() == 0 then return end
 
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	
@@ -4263,7 +4304,7 @@ end
 
 -- Control function
 function HealingControl (playerID, unitID, newDamage, prevDamage)
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
 		local unitKey 	= unit:GetKey()
@@ -4301,7 +4342,7 @@ end
 Events.UnitDamageChanged.Add(HealingControl)
 
 function CheckComponentsHP(unit, str, bNoWarning)
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	if not unit then
 		Dprint( DEBUG_UNIT_SCRIPT, "Unit is nil in CheckComponentsHP() for " .. tostring(str))
@@ -4385,7 +4426,7 @@ end
 -- Handle pillaging
 function OnUnitPillage(playerID, unitID)
 
-	local DEBUG_UNIT_SCRIPT = "UnitScript"	
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"	
 	
 	local unit 		= GetUnit(playerID, unitID)
 	local unitData 	= unit:GetData()
@@ -4611,7 +4652,7 @@ Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 	
 	Dlog("UpdateDataOnNewTurn for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	
@@ -4895,7 +4936,7 @@ end
 
 function HealingUnits(playerID)
 	Dlog("HealingUnits /START")
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 
 	local player 		= Players[playerID]
 	local playerConfig 	= PlayerConfigurations[playerID]
@@ -4920,7 +4961,7 @@ end
 
 function DoUnitsTurn( playerID )
 	
-	local DEBUG_UNIT_SCRIPT = "UnitScript"	
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Units turn")
 	
@@ -5202,7 +5243,7 @@ Events.UnitFormArmy.Add( OnMilitaryFormationChanged )
 -----------------------------------------------------------------------------------------
 function UpdateUnitsData() -- called in GCO_GameScript.lua
 
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	-- remove dead units from the table
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
@@ -5454,6 +5495,7 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetUnitConstructionResources			= GetUnitConstructionResources
 	ExposedMembers.GCO.GetUnitConstructionOrResources		= GetUnitConstructionOrResources
 	ExposedMembers.GCO.GetUnitConstructionOptionalResources	= GetUnitConstructionOptionalResources
+	ExposedMembers.GCO.GetUnitConscriptionEquipment			= GetUnitConscriptionEquipment
 	ExposedMembers.GCO.UpdateUnitsData 						= UpdateUnitsData
 	ExposedMembers.GCO.GetUnitPromotionClassID 				= GetUnitPromotionClassID
 	ExposedMembers.GCO.RegisterNewUnit						= RegisterNewUnit
