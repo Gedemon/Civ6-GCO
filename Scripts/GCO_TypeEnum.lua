@@ -39,6 +39,18 @@ TradeLevelType	= {	-- ENUM for trade route level types
 		Allied		= 4,	-- Trade All
 }
 
+
+-----------------------------------------------------------------------------------------
+-- Units
+-----------------------------------------------------------------------------------------
+UnitPersonnelType	= {	-- ENUM for trade route level types
+
+		StandingArmy 	= 1,	-- Permanent units
+		Conscripts		= 2,	-- Temporary units, built in city based on personnel/equipment available in the city
+		Mercenary		= 3,	-- Temporary units, bought in city, not linked to any city
+}
+
+
 -----------------------------------------------------------------------------------------
 -- Resources - to do : those are helpers, to move to mod utils with related functions
 -----------------------------------------------------------------------------------------

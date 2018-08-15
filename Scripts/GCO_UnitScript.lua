@@ -378,7 +378,7 @@ local unitTableEnum = {
 	Account						= 8,
 	PersonnelReserve			= 9,
 	EquipmentReserve			= 10,
-	--HorsesReserve				= 11,
+	UnitPersonnelType			= 11,
 	CanChangeOrganization		= 12,
 	WoundedPersonnel			= 13,
 	DamagedEquipment			= 14,
@@ -416,8 +416,8 @@ local unitTableEnum = {
 	LastY						= 46,
 	PreviousPersonnelReserve	= 47,
 	PreviousEquipmentReserve	= 48,
-	--PreviousHorsesReserve		= 49,
-	--PreviousMaterielReserve	= 50,
+	HomeCityKey					= 49,
+	ActiveTurnsLeft				= 50,
 	PreviousWoundedPersonnel	= 51,
 	PreviousDamagedEquipment	= 52,
 	PreviousPrisoners			= 53,
@@ -602,6 +602,7 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizati
 		UnitLastHealingValue	= 0,
 		OrganizationLevel		= organizationLevel,
 		CanChangeOrganization	= true,
+		UnitPersonnelType		= UnitPersonnelType.StandingArmy,
 		-- "Frontline" : combat ready, units HP are restored only if there is enough reserve to move to frontline for all required components
 		Personnel 				= personnel,
 		Equipment 				= {}, -- {[EquipmentClassKey] = { [ResourceKey] = value, ... } , ...}
@@ -1209,7 +1210,7 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 	end
 	
 	-- Destroy old unit first to prevent stacking issues
-	prevPlayerUnits:Destroy(oldUnit)	
+	prevPlayerUnits:Destroy(oldUnit)
 	
 	-- Create the new unit
 	if type(newUnitType) == "number" then
@@ -1290,7 +1291,7 @@ end
 
 function IsCombat(self)
 	local row = GameInfo.Units[self:GetType()] 
-	return (row.Combat > 0 or row.RangedCombat > 0)
+	return (row.Combat > 0 or row.RangedCombat > 0 or row.Bombard > 0)
 end
 
 function CanGetFullReinforcement(self)
@@ -1341,6 +1342,22 @@ function SetProperty(self, property, value)
 	local unitKey = self:GetKey()
 	ExposedMembers.UnitData[unitKey][property] = value
 end
+
+function IsDisbanding(self)
+	local activeTurnsLeft = self:GetProperty("ActiveTurnsLeft")
+	if activeTurnsLeft then
+		if self:GetProperty("UnitPersonnelType") == UnitPersonnelType.Conscripts then
+			local player = GCO.GetPlayer(self:GetOwner())
+			if player:IsAtWar() then
+				return false
+			else
+				return true
+			end
+		end
+	end
+	return false
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Military Organization Level function
@@ -2468,6 +2485,21 @@ function GetTotalEquipmentNeed(self)							-- return a table with  the total of 
 		end
 	end
 	return equipmentNeed
+end
+
+function GetFullEquipmentList(self)								-- return a table with all the current equipment of the unit { [equipmentID] = num } (restricted to the types that it can actually use)
+	local equipmentList = {}
+	local equipmentClasses = self:GetEquipmentClasses()
+	for classType, classData in pairs(equipmentClasses) do
+		local equipmentTypes 	= GetEquipmentTypes(classType)
+		if equipmentTypes then
+			for _, data in ipairs(equipmentTypes) do
+				local equipmentID = data.EquipmentID
+				equipmentList[equipmentID] = self:GetFrontLineEquipment(equipmentID) + self:GetReserveEquipment(equipmentID)
+			end
+		end
+	end
+	return equipmentList
 end
 
 function ChangeReserveEquipment(self, equipmentID, value)  		-- change number of this equipment type in reserve by value
@@ -4922,11 +4954,114 @@ function DoExchange(self)
 	Dlog("DoExchange /END")
 end
 
+function CheckForActiveTurnsLeft(self)
+	Dlog("CheckForActiveTurnsLeft for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
+	local DEBUG_UNIT_SCRIPT = "debug"
+	local bRemoveUnit		= false
+	local activeTurnsLeft 	= self:GetProperty("ActiveTurnsLeft")
+	if activeTurnsLeft then
+		Dprint( DEBUG_UNIT_SCRIPT, "Handle Turns Active Left for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .. " current =  ".. tostring(activeTurnsLeft))
+		-- Update active turns left
+		local personnelType 	= self:GetProperty("UnitPersonnelType")
+		local bLocked		= false
+		if personnelType == UnitPersonnelType.Conscripts then
+			local player = GCO.GetPlayer(self:GetOwner())
+			if player:IsAtWar() then
+				Dprint( DEBUG_UNIT_SCRIPT, " - Locked by current war...")
+				bLocked = true
+			end
+		end
+
+		activeTurnsLeft	= activeTurnsLeft - 1
+		self:SetProperty("ActiveTurnsLeft", activeTurnsLeft)
+		Dprint( DEBUG_UNIT_SCRIPT, " - ActiveTurnsLeft = " .. tostring(self:GetProperty("ActiveTurnsLeft")))
+		
+		-- start disbanding if no turns left
+		if activeTurnsLeft < 0 and not bLocked then
+			Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding unit...")
+			if personnelType == UnitPersonnelType.Conscripts then
+				local unitData = self:GetData()
+				if unitData then
+					local disbandingRatio 		= 0.10 -- to do : lower if under threat
+					local maxPersonnelToDisband = math.min(self:GetMaxPersonnel() * disbandingRatio, self:GetTotalPersonnel())
+					Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding ratio = ", disbandingRatio, ", personnel to disband = ", maxPersonnelToDisband)
+					if maxPersonnelToDisband >= self:GetFrontLinePersonnel() then
+						Dprint( DEBUG_UNIT_SCRIPT, "     - Removing unit...")
+						local city = GCO.GetCityFromKey( unitData.HomeCityKey )
+						if city then
+							Dprint( DEBUG_UNIT_SCRIPT, "     - Send everyone and everything back to the home city of ".. Locale.Lookup(city:GetName()))
+							-- personnel
+							local totalPersonnel = self:GetTotalPersonnel()
+							city:ChangeStock(personnelResourceID, totalPersonnel)
+							Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20("Total Personnel").." = ", totalPersonnel)
+							
+							-- special resources
+							local listResources		= {foodResourceID, medicineResourceID} 
+							for _, resourceID in ipairs(listResources) do
+								local stock = self:GetStock(resourceID)
+								if stock > 0 then
+									city:ChangeStock(resourceID, stock)
+									Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", stock)
+								end
+							end							
+
+							-- all resource in "stock" (ie not "reserve")
+							for resourceKey, value in pairs(unitData.Stock) do
+								if value > 0 then
+									local resourceID = tonumber(resourceKey)
+									city:ChangeStock(resourceID, value)
+									Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
+								end
+							end
+							
+							-- all equipment
+							for resourceID, value in pairs(self:GetFullEquipmentList()) do
+								if value > 0 then
+									city:ChangeStock(resourceID, value)
+									Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
+								end
+							end
+							
+							-- Send prisoners to city
+							local cityData = city:GetData()
+							for playerKey, number in pairs(unitData.Prisoners) do
+								if number > 0 then
+									Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners").." = ", number)
+									cityData.Prisoners[playerKey] = cityData.Prisoners[playerKey] + number
+								end
+							end
+						else
+							Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home city...")
+						end
+						bRemoveUnit	= true
+					else
+						Dprint( DEBUG_UNIT_SCRIPT, "     - Removing Personnel from front line...")
+						unitData.Personnel 	= unitData.Personnel - maxPersonnelToDisband
+						local city = GCO.GetCityFromKey( unitData.HomeCityKey )
+						if city then
+							Dprint( DEBUG_UNIT_SCRIPT, "     - Send them back to the home city of ".. Locale.Lookup(city:GetName()))
+							city:ChangeStock(personnelResourceID, maxPersonnelToDisband)
+						else
+							Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home city...")
+						end
+						Dprint( DEBUG_UNIT_SCRIPT, "     - Updating Front Line Data...")
+						self:UpdateFrontLineData()
+					end
+				else
+					GCO.Error("unitData is nil for " .. self:GetName(), self:GetKey())
+				end
+			end
+		end		
+	end
+	Dlog("CheckForActiveTurnsLeft /END")
+	return bRemoveUnit
+end
+
 function DoTurn(self)
 	local unitData = self:GetData()
 	if not unitData then
 		return
-	end	
+	end
 	self:DoFood()
 	self:DoMorale()
 	self:DoFuel()
@@ -4972,6 +5107,9 @@ function DoUnitsTurn( playerID )
 	if playerUnits then
 		for i, unit in playerUnits:Members() do
 			unit:DoTurn()
+			if unit:CheckForActiveTurnsLeft() then
+				playerUnits:Destroy(unit)
+			end
 		end
 	end	
 	GCO.PlayerTurnsDebugChecks[playerID].UnitsTurn	= true
@@ -5367,6 +5505,7 @@ function AttachUnitFunctions(unit)
 		u.GetLogisticCost						= GetLogisticCost
 		u.GetProperty							= GetProperty
 		u.SetProperty							= SetProperty
+		u.IsDisbanding							= IsDisbanding
 		--
 		u.RecordTransaction						= RecordTransaction
 		u.GetTransactionValue					= GetTransactionValue
@@ -5445,6 +5584,7 @@ function AttachUnitFunctions(unit)
 		u.GetEquipmentReserveNeed				= GetEquipmentReserveNeed
 		u.GetEquipmentFrontLineNeed				= GetEquipmentFrontLineNeed
 		u.GetTotalEquipmentNeed					= GetTotalEquipmentNeed
+		u.GetFullEquipmentList					= GetFullEquipmentList
 		u.ChangeReserveEquipment				= ChangeReserveEquipment
 		u.ChangeFrontLineEquipment				= ChangeFrontLineEquipment
 		u.IsWaitingForEquipment					= IsWaitingForEquipment
@@ -5457,6 +5597,7 @@ function AttachUnitFunctions(unit)
 		u.DoFuel 								= DoFuel
 		u.DoTurn 								= DoTurn
 		u.DoExchange							= DoExchange
+		u.CheckForActiveTurnsLeft						= CheckForActiveTurnsLeft
 		--
 		
 		-- flag strings

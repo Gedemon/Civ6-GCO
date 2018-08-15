@@ -325,8 +325,10 @@
 	</EquipmentEffects>	
 	
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type (Civilians) -->
+	<!-- 
 		<Row UnitType="UNIT_SETTLER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="30" />
-		<Row UnitType="UNIT_BUILDER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="100" />		
+		<Row UnitType="UNIT_BUILDER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="100" />
+	-->		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type (Skirmishers) -->
 		
@@ -510,19 +512,20 @@
 	</UnitEquipmentClasses>
 	
 	<UnitConstructionResources>
-		
-		<Row UnitType="UNIT_GALLEY" 			ResourceType="RESOURCE_WOOD" 	Quantity="100" />
-		<Row UnitType="UNIT_QUADRIREME" 		ResourceType="RESOURCE_WOOD" 	Quantity="200" />
-		<Row UnitType="UNIT_CARAVEL" 			ResourceType="RESOURCE_WOOD" 	Quantity="100" />
-		<Row UnitType="UNIT_PRIVATEER" 			ResourceType="RESOURCE_WOOD" 	Quantity="250" />
-		<Row UnitType="UNIT_FRIGATE" 			ResourceType="RESOURCE_WOOD" 	Quantity="600" />
-		<Row UnitType="UNIT_IRONCLAD" 			ResourceType="RESOURCE_STEEL" 	Quantity="100" />
-		<Row UnitType="UNIT_DESTROYER" 			ResourceType="RESOURCE_STEEL" 	Quantity="300" />
-		<Row UnitType="UNIT_SUBMARINE" 			ResourceType="RESOURCE_STEEL" 	Quantity="300" />
-		<Row UnitType="UNIT_NUCLEAR_SUBMARINE"	ResourceType="RESOURCE_STEEL" 	Quantity="900" />
-		<Row UnitType="UNIT_BATTLESHIP" 		ResourceType="RESOURCE_STEEL" 	Quantity="1200" />
-		<Row UnitType="UNIT_AIRCRAFT_CARRIER" 	ResourceType="RESOURCE_STEEL" 	Quantity="1500" />
-		<Row UnitType="UNIT_MISSILE_CRUISER" 	ResourceType="RESOURCE_STEEL" 	Quantity="1000" />
+		<Row UnitType="UNIT_SETTLER"			ResourceType="RESOURCE_MATERIEL"	Quantity="750" />
+		<Row UnitType="UNIT_BUILDER"			ResourceType="RESOURCE_MATERIEL"	Quantity="350" />		
+		<Row UnitType="UNIT_GALLEY" 			ResourceType="RESOURCE_WOOD" 		Quantity="100" />
+		<Row UnitType="UNIT_QUADRIREME" 		ResourceType="RESOURCE_WOOD" 		Quantity="200" />
+		<Row UnitType="UNIT_CARAVEL" 			ResourceType="RESOURCE_WOOD" 		Quantity="100" />
+		<Row UnitType="UNIT_PRIVATEER" 			ResourceType="RESOURCE_WOOD" 		Quantity="250" />
+		<Row UnitType="UNIT_FRIGATE" 			ResourceType="RESOURCE_WOOD" 		Quantity="600" />
+		<Row UnitType="UNIT_IRONCLAD" 			ResourceType="RESOURCE_STEEL" 		Quantity="100" />
+		<Row UnitType="UNIT_DESTROYER" 			ResourceType="RESOURCE_STEEL" 		Quantity="300" />
+		<Row UnitType="UNIT_SUBMARINE" 			ResourceType="RESOURCE_STEEL" 		Quantity="300" />
+		<Row UnitType="UNIT_NUCLEAR_SUBMARINE"	ResourceType="RESOURCE_STEEL" 		Quantity="900" />
+		<Row UnitType="UNIT_BATTLESHIP" 		ResourceType="RESOURCE_STEEL" 		Quantity="1200" />
+		<Row UnitType="UNIT_AIRCRAFT_CARRIER" 	ResourceType="RESOURCE_STEEL" 		Quantity="1500" />
+		<Row UnitType="UNIT_MISSILE_CRUISER" 	ResourceType="RESOURCE_STEEL" 		Quantity="1000" />
 		
 	</UnitConstructionResources>
 	

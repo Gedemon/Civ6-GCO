@@ -8,6 +8,9 @@ include( "SupportFunctions" );
 include( "Civ6Common" );
 
 -- GCO <<<<<
+
+include( "GCO_TypeEnum" )
+
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
@@ -852,7 +855,33 @@ function UnitFlag.UpdateName( self )
 		else
 			self.m_Instance.CorpsMarker:SetHide(true);
 			self.m_Instance.ArmyMarker:SetHide(true);
-		end		
+		end	
+		
+		local activeTurnsLeft = pUnit:GetProperty("ActiveTurnsLeft")
+		if activeTurnsLeft then
+			self.m_Instance.ActiveTurnsLeft:SetHide(false);
+			self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Turn]")
+			local toolTipString = Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_BEFORE_DISBANDING", activeTurnsLeft)
+			if pUnit:GetProperty("UnitPersonnelType") == UnitPersonnelType.Conscripts then
+				local player = GCO.GetPlayer(pUnit:GetOwner())
+				if player:IsAtWar() then
+					toolTipString = Locale.Lookup("LOC_UNITFLAG_DISBANDING_LOCKED_BY_WAR", activeTurnsLeft)
+				elseif activeTurnsLeft >= 0 then
+					--self.m_Instance.ActiveTurnsLeftString:SetText(tostring(activeTurnsLeft).."[ICON_Turn]")
+					--self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Turn]")
+					--self.m_Instance.ActiveTurnsLeftString:SetToolTipString(tostring(activeTurnsLeft).."[ICON_Turn] before disbanding")
+				else
+					--self.m_Instance.ActiveTurnsLeftString:SetText("[COLOR_Civ6DarkRed]"..tostring(activeTurnsLeft).."[ENDCOLOR][ICON_Turn]")
+					self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Disbanding]")
+					--self.m_Instance.ActiveTurnsLeftString:SetToolTipString("Disbanding since [COLOR_Civ6DarkRed]"..tostring(-activeTurnsLeft).."[ENDCOLOR][ICON_Turn] turns")
+					toolTipString = Locale.Lookup("LOC_UNITFLAG_CURRENTLY_DISBANDING", -activeTurnsLeft)
+				end
+			end
+			self.m_Instance.ActiveTurnsLeftString:SetToolTipString(toolTipString)
+			
+		else
+			self.m_Instance.ActiveTurnsLeft:SetHide(true);
+		end	
 		-- GCO >>>>>
 
 		-- DEBUG TEXT FOR SHOWING UNIT ACTIVITY TYPE
@@ -925,7 +954,7 @@ function UnitFlag.UpdateName( self )
 			-- Condition
 			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE")
 			nameString = nameString .. "[NEWLINE]" .. pUnit:GetMoraleString()
-			nameString = nameString .. "[NEWLINE] AP:" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnel")) .. " ARM:" .. GCO.Round(pUnit:GetPropertyPercent("PersonnelArmor")) .. " AARM:" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnelArmor")) .. " IARM:" .. GCO.Round(pUnit:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
+			nameString = nameString .. "[NEWLINE][ICON_AntiPersonnel]" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnel")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_PersonnelArmor]" .. GCO.Round(pUnit:GetPropertyPercent("PersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_AntiArmor]" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_IgnorArmor]" .. GCO.Round(pUnit:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
 			if pUnit:GetLogisticCost() > 0 then
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_LOGISTIC_COST", pUnit:GetLogisticCost())
 			end

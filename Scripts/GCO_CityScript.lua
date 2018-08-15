@@ -394,6 +394,8 @@ local healGarrisonBaseMateriel		= tonumber(GameInfo.GlobalParameters["CITY_HEAL_
 local healOuterDefensesMaxPerTurn	= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN"].Value)
 local healOuterDefensesBaseMateriel	= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL"].Value)
 
+local ConscriptsBaseActiveTurns		= tonumber(GameInfo.GlobalParameters["ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS"].Value)
+
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
 local FLOATING_TEXT_SHORT 	= 1
@@ -1250,7 +1252,7 @@ function UpdateLinkedUnits(self)
 		local efficiency = data.SupplyLineEfficiency
 		if data.SupplyLineCityKey == self:GetKey() and efficiency > 0 then
 			local unit = GCO.GetUnit(data.playerID, data.unitID)
-			if unit then
+			if unit and not unit:IsDisbanding() then
 				LinkedUnits[selfKey][unitKey] = {NeedResources = {}}
 				local bTotal		= unit:CanGetFullReinforcement()
 				local requirements 	= unit:GetRequirements(bTotal)
@@ -3797,7 +3799,7 @@ end
 
 function GetUrbanEmploymentSize(self)
 	local employment 	= 0
-	for buildingID, employmentValue in ipairs(BuildingEmployment) do
+	for buildingID, employmentValue in pairs(BuildingEmployment) do
 		if self:GetBuildings():HasBuilding(buildingID) then
 			employment = employment + employmentValue
 		end
@@ -5800,11 +5802,15 @@ function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCa
 			Dprint( DEBUG_CITY_SCRIPT, "Initializing unit...")
 			unit:SetDamage(100)
 			local initialHP 		= 0
-			local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)
+			local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)	-- } to do: affected by policies
+			local turnsActive		= ConscriptsBaseActiveTurns									-- |
 			GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
 			GCO.AttachUnitFunctions(unit)
-			unit:InitializeEquipment() --unit:InitializeEquipment(sortedEquipmentList)
+			unit:InitializeEquipment()
 			unit:SetProperty("CanChangeOrganization", false)
+			unit:SetProperty("ActiveTurnsLeft", turnsActive)
+			unit:SetProperty("HomeCityKey", city:GetKey())	-- send back personnel/equipment/resources here on disbanding (with no income from selling)
+			unit:SetProperty("UnitPersonnelType", UnitPersonnelType.Conscripts)
 			
 			-- get full reinforcement...
 			Dprint( DEBUG_CITY_SCRIPT, "Getting full reinforcement...")

@@ -440,6 +440,13 @@
 		<Row Name="EQUIPMENT_AIRCRAFT_CARRIER" 	Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="121"/>
 		<Row Name="EQUIPMENT_MISSILE_CRUISER" 	Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="121"/>
 		
+		<Row Name="AntiPersonnel" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="132"/>
+		<Row Name="AntiArmor" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="133"/>
+		<Row Name="IgnorArmor" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="134"/>
+		<Row Name="PersonnelArmor" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="135"/>
+		
+		<Row Name="Disbanding" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="143"/>
+		
 	</IconDefinitions>
 
 	<IconDefinitions>	<!-- UNITS ICONS -->

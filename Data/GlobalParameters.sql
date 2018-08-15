@@ -134,13 +134,14 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_TO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_TO_MIDDLE_CLASS_RATIO', 	0.60);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_TO_LOWER_CLASS_RATIO', 	0.38); 	-- Just for reference, the code use difference with high+middle class
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_RECRUITMENT_COST_FACTOR', 			1.50); 	-- Equipment cost when recruiting an unit
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_RECRUITMENT_COST_FACTOR', 			0.25); 	-- Equipment requisition cost when conscripting a temporary unit
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_HIGH_RANK_RATIO', 		0.02);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_MIDDLE_RANK_RATIO', 		0.10);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_LOWER_RANK_RATIO', 		0.88); 	-- Just for reference, the code use difference with high+middle ranks
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_MAX_PERCENT_OF_POPULATION', 		10);	-- max percentage of total population in the army (personnel)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_MAX_PERCENT_OF_POPULATION', 		5);		-- max percentage of total population in the army (personnel)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS', 		6);		-- number of turns before a conscript unit starts disbanding (locked by war)
 
 -- combats
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_HEAVY_DIFFERENCE_VALUE',			10);	-- Minimal damage difference to consider a large victory/defeat

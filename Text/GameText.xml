@@ -1007,6 +1007,18 @@
 	<Replace Tag="LOC_UNITFLAG_LOGISTIC_COST" Language="en_US">
       <Text>Logistic Cost: {1_Num} personnel in cities</Text>
     </Replace>
+	
+	<Replace Tag="LOC_UNITFLAG_TURNS_LEFT_BEFORE_DISBANDING" Language="en_US">
+      <Text>{1_Num} [ICON_Turn] left before disbanding</Text>
+    </Replace>
+	<Replace Tag="LOC_UNITFLAG_DISBANDING_LOCKED_BY_WAR" Language="en_US">
+      <Text>{1_Num} [ICON_Turn] left before disbanding (locked by current war)</Text>
+    </Replace>
+	<Replace Tag="LOC_UNITFLAG_CURRENTLY_DISBANDING" Language="en_US">
+      <Text>Disbanding since [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] [ICON_Turn]</Text>
+    </Replace>
+	
+	
 
   </LocalizedText>
   
