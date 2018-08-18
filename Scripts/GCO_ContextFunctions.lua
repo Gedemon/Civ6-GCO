@@ -141,6 +141,20 @@ function HasPolicyActive(player, policyID)
 	return false
 end
 
+function GetActivePolicies(player)
+	local contextPlayer 	= Players[player:GetID()] -- We can't use an object comming from a script context to call a function exposed only to the UI context...
+	local kPlayerCulture	= contextPlayer:GetCulture()
+	local numSlots:number 	= kPlayerCulture:GetNumPolicySlots()
+	local policiesList 		= {} 
+	for i = 0, numSlots-1, 1 do
+		local policyID = kPlayerCulture:GetSlotPolicy(i)
+		if GameInfo.Policies[policyID] then
+			table.insert(policiesList, policyID)
+		end
+	end
+	return policiesList
+end
+
 ----------------------------------------------
 -- Plots functions
 ----------------------------------------------
@@ -192,6 +206,7 @@ function Initialize()
 	ExposedMembers.GCO.CanPlayerDeclareWarOn 		= CanPlayerDeclareWarOn
 	ExposedMembers.GCO.IsResourceVisibleFor 		= IsResourceVisibleFor
 	ExposedMembers.GCO.HasPolicyActive 				= HasPolicyActive
+	ExposedMembers.GCO.GetActivePolicies			= GetActivePolicies
 	-- plots
 	--local p = getmetatable(Map.GetPlot(1,1)).__index
 	--ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged -- attaching this in script context doesn't work as the plot object from script miss other elements required for this by the plot object in UI context 

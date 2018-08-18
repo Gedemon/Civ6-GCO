@@ -6,6 +6,12 @@
 		<!-- ++++++++++++++++++++++++++ -->
 	
   <LocalizedText>  
+  
+  
+	<Replace Tag="LOC_BUILDING_BARRACKS_DESCRIPTION"	Language="en_US">
+		<Text>+25% combat experience for all melee and ranged land units trained in this city.[NEWLINE][NEWLINE]May not be built in an Encampment district that already has a Stable.[NEWLINE]When creating an emergency Recruitment Centre, up to four units can be drafted from the city (depending of the available equipment, materiel and personnel).</Text>
+	</Replace>
+		
 	<!--  -->	
 	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION"	Language="en_US">
 		<Text>May create new cities.</Text>
@@ -17,9 +23,31 @@
 	<Replace Tag="LOC_POLICY_RAID_DESCRIPTION"	Language="en_US">
 		<Text>Double Loots from pillaging Improvments and cleaning Barbarian Camps.</Text>
 	</Replace>
-	
 	<Replace Tag="LOC_POLICY_GOD_KING_DESCRIPTION" 	Language="en_US">
 		<Text>+1 [ICON_Culture] Culture and +1 [ICON_Gold] Gold in the [ICON_Capital] Capital.</Text>
+	</Replace>
+	
+	<Replace Tag="LOC_POLICY_CONSCRIPTION_DESCRIPTION"	Language="en_US">
+		<Text>Unit maintenance reduced by 1 [ICON_Gold][ICON_Turn].[NEWLINE]+5% Army Size[NEWLINE]Drafted units are 1 level higher.</Text>
+	</Replace>
+	<Replace Tag="LOC_POLICY_FEUDAL_CONTRACT_DESCRIPTION"	Language="en_US">
+		<Text>+50% [ICON_Production] Production toward Medieval and Renaissance era melee, anti-cavalry, and ranged units.[NEWLINE]+6% Army Size</Text>
+	</Replace>
+	<Replace Tag="LOC_POLICY_GRANDE_ARMEE_DESCRIPTION"	Language="en_US">
+		<Text>+50% [ICON_Production] Production toward Industrial and Modern era melee, anti-cavalry, and ranged units.[NEWLINE]+7% Army Size</Text>
+	</Replace>
+	<Replace Tag="LOC_POLICY_LEVEE_EN_MASSE_DESCRIPTION"	Language="en_US">
+		<Text>Unit maintenance reduced by 2 [ICON_Gold][ICON_Turn].[NEWLINE]+8% Army Size[NEWLINE]Drafted units are 1 level higher.</Text>
+	</Replace>
+	<Replace Tag="LOC_POLICY_PATRIOTIC_WAR_DESCRIPTION"	Language="en_US">
+		<Text>+100% [ICON_Production] Production for Modern, Atomic, and Information era support units.[NEWLINE]+10% Army Size</Text>
+	</Replace>
+
+	<Replace Tag="LOC_POLICY_MANEUVER_DESCRIPTION"	Language="en_US">
+		<Text>+50% [ICON_Production] Production toward Ancient and Classical era heavy and light cavalry units.[NEWLINE]+3[ICON_Turn] for drafted units</Text>
+	</Replace>
+	<Replace Tag="LOC_POLICY_LIGHTNING_WARFARE_DESCRIPTION"	Language="en_US">
+		<Text>+50% [ICON_Production] Production for Modern, Atomic, and Information era heavy and light cavalry units.[NEWLINE]+6[ICON_Turn] for drafted units</Text>
 	</Replace>
 	
 	<Replace Tag="LOC_CIVIC_MILITARY_TRADITION_DESCRIPTION"	Language="en_US">
@@ -101,9 +129,9 @@
 	
 	<Replace Tag="LOC_TOP_PANEL_DEBT_TOOLTIP"			Text="The value of your Debt[NEWLINE][NEWLINE]Repayment is taken from your net income.[NEWLINE]A large debt may lower your Empire stability." Language="en_US" />
 
-	<Replace Tag="LOC_TOP_PANEL_LOGISTIC_COST_TOOLTIP"	Text="Available Base Logistic =  {1_Num} Personnel in cities [NEWLINE][NEWLINE]If the available logistic fall under the Logistic Cost of a Promotion Class, you won't be able to build new units of that class.[NEWLINE]The logistic cost of an unit is determined by its current stock of equipment in Frontline and Reserve.[NEWLINE]Different equipment types can have very different logistic cost.[NEWLINE]Some buildings (like Barracks) allows you to raise the maximum number of personnel in reserve in your cities.[NEWLINE]Some specialized classes require specific support, the available personnel is then lower than the Base Logistic." Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_LOGISTIC_COST_TOOLTIP"	Text="Available Base Logistic =  {1_Num} Personnel in cities[NEWLINE]Active Duty logistic = {2_Num} Personnel required for units support[NEWLINE][NEWLINE]If the available logistic fall under the Logistic Cost of a Promotion Class, you won't be able to build new units of that class.[NEWLINE][NEWLINE]The logistic cost of an unit is determined by its current stock of equipment in Frontline and Reserve.[NEWLINE][NEWLINE]Different equipment types can have very different logistic cost.[NEWLINE][NEWLINE]Some buildings (like Barracks) allows you to raise the maximum number of personnel in reserve in your cities.[NEWLINE][NEWLINE]Some specialized classes require specific support, the available personnel is then lower than the Base Logistic." Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_PROMOTION_COST_TOOLTIP" Text="{1_Name} units require {2_Name} Support, {3_Num : number #,###} available for that class" Language="en_US" />
-	<Replace Tag="LOC_TOP_PANEL_POPULATION_TOOLTIP"		Text="Total population =  {1_Num : number #,###}[NEWLINE]Army Size = {2_Num : number #,###} personnel ({3_Num : number #.##} % of population)[NEWLINE]Conscription Efficiency = {4_Num : number #.##} %[NEWLINE][NEWLINE]Conscription Efficiency goes down when your Army Size get closer to the maximum percentage of conscripts ({5_Num : number #.##} % of population). It affects the number of personnel drafted each turn in your cities." Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_POPULATION_TOOLTIP"		Text="Total population =  {1_Num : number #,###}[NEWLINE]Active Duty = {2_Num : number #,###} personnel ({7_Num : number #,###} in logistic + {6_Num : number #,###} in units)[NEWLINE]{3_Num : number #.##} % of population in service[NEWLINE]Conscription Efficiency = {4_Num : number #.##} %[NEWLINE][NEWLINE]Conscription Efficiency goes down when the number of your Personnel in Active Duty get closer to the maximum percentage of population in service (currently {5_Num : number #.##} %).[NEWLINE][NEWLINE]It affects the number of personnel drafted each turn in your cities.[NEWLINE][NEWLINE]Some Policies allow you to raise a bigger army, and being at war give a boost to the percentage of population that can be drafted, until the end of the war.[NEWLINE][NEWLINE]The personnel in units and the personnel required to provide support to those units are considered in Active Duty." Language="en_US" />
 
   </LocalizedText>	
 	
@@ -972,10 +1000,10 @@
       <Text>[ICON_TradeRouteLarge] Supply from {1_CityName} at {2_Num}% efficiency</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR" Language="en_US">
-      <Text>[ICON_HousingInsufficient] Too far from {1_CityName} to get supply</Text>
+      <Text>[ICON_NoSupply] Too far from {1_CityName} to get supply</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_NO_SUPPLY_LINE" Language="en_US">
-      <Text>[ICON_HousingInsufficient] Can't find a route for supply</Text>
+      <Text>[ICON_NoSupply] Can't find a route for supply</Text>
     </Replace>
 	
 	<Replace Tag="LOC_UNITFLAG_RESOURCE_STOCK" Language="en_US">
@@ -1012,7 +1040,7 @@
       <Text>{1_Num} [ICON_Turn] left before disbanding</Text>
     </Replace>
 	<Replace Tag="LOC_UNITFLAG_DISBANDING_LOCKED_BY_WAR" Language="en_US">
-      <Text>{1_Num} [ICON_Turn] left before disbanding (locked by current war)</Text>
+      <Text>No disbanding allowed during a war</Text>
     </Replace>
 	<Replace Tag="LOC_UNITFLAG_CURRENTLY_DISBANDING" Language="en_US">
       <Text>Disbanding since [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] [ICON_Turn]</Text>

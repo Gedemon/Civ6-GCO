@@ -162,11 +162,17 @@ end
 
 local BuildingStock			= {}		-- cached table with stock value of a building for a specific resource
 local ResourceStockage		= {}		-- cached table with all the buildings that can stock a specific resource
+local FixedBuildingStock	= {}		-- cached table with all the buildings that stock a specific resource at a fixed value (not related to city size)
 for row in GameInfo.BuildingStock() do
 	local buildingID = GameInfo.Buildings[row.BuildingType].Index
 	local resourceID = GameInfo.Resources[row.ResourceType].Index
+	--
 	if not BuildingStock[buildingID] then BuildingStock[buildingID] = {} end
 	BuildingStock[buildingID][resourceID] = row.Stock
+	--
+	if not FixedBuildingStock[buildingID] then FixedBuildingStock[buildingID] = {} end
+	FixedBuildingStock[buildingID][resourceID] = row.FixedValue
+	--
 	if not ResourceStockage[resourceID] then ResourceStockage[resourceID] = {} end
 	table.insert (ResourceStockage[resourceID], buildingID)
 end
@@ -324,6 +330,8 @@ local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATE
 local ResourceStockPerSize 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
 local FoodStockPerSize 				= tonumber(GameInfo.GlobalParameters["CITY_FOOD_STOCK_PER_SIZE"].Value)
 local LuxuryStockRatio 				= tonumber(GameInfo.GlobalParameters["CITY_LUXURY_STOCK_RATIO"].Value)
+local PerSizeStockRatio 			= tonumber(GameInfo.GlobalParameters["CITY_PER_SIZE_STOCK_RATIO"].Value)
+local PersonnelPerSize	 			= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
 local EquipmentBaseStock 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUIPMENT"].Value)
 local ConstructionMinStockRatio		= tonumber(GameInfo.GlobalParameters["CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO"].Value)
 
@@ -362,6 +370,9 @@ local materielResourceKey		= tostring(materielResourceID)
 local BaseCollectCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_COLLECT_COST_MULTIPLIER"].Value)
 local ImprovementCostRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_IMPROVEMENT_COST_RATIO"].Value)
 local NotWorkedCostMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_NOT_WORKED_COST_MULTIPLIER"].Value)
+
+local RequiredResourceFactor	= tonumber(GameInfo.GlobalParameters["CITY_REQUIRED_RESOURCE_BASE_FACTOR"].Value)
+local ProducedResourceFactor	= tonumber(GameInfo.GlobalParameters["CITY_PRODUCED_RESOURCE_BASE_FACTOR"].Value)
 
 local MaxCostIncreasePercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_INCREASE_PERCENT"].Value)
 local MaxCostReductionPercent 	= tonumber(GameInfo.GlobalParameters["RESOURCE_COST_MAX_REDUCTION_PERCENT"].Value)
@@ -843,6 +854,7 @@ function GetSeaRange(self)
 	end
 	local buildings = self:GetBuildings()
 	if buildings then
+		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index) then range = range + 1 end
 		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then range = range + 1 end
 		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_SHIPYARD"].Index) then range = range + 1 end
 		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_SEAPORT"].Index) then range = range + 3 end
@@ -1241,7 +1253,7 @@ end
 function UpdateLinkedUnits(self)
 
 	Dlog("UpdateLinkedUnits ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = "CityScript"
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Linked Units...")
 	local selfKey 				= self:GetKey()
@@ -1252,15 +1264,17 @@ function UpdateLinkedUnits(self)
 		local efficiency = data.SupplyLineEfficiency
 		if data.SupplyLineCityKey == self:GetKey() and efficiency > 0 then
 			local unit = GCO.GetUnit(data.playerID, data.unitID)
-			if unit and not unit:IsDisbanding() then
+			if unit then
 				LinkedUnits[selfKey][unitKey] = {NeedResources = {}}
-				local bTotal		= unit:CanGetFullReinforcement()
-				local requirements 	= unit:GetRequirements(bTotal)
-				for resourceID, value in pairs(requirements.Resources) do
-					if value > 0 then
-						UnitsSupplyDemand[selfKey].Resources[resourceID] 		= ( UnitsSupplyDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
-						UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	= ( UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
-						LinkedUnits[selfKey][unitKey].NeedResources[resourceID] = true
+				if not unit:IsDisbanding() then
+					local bTotal		= unit:CanGetFullReinforcement()
+					local requirements 	= unit:GetRequirements(bTotal)
+					for resourceID, value in pairs(requirements.Resources) do
+						if value > 0 then
+							UnitsSupplyDemand[selfKey].Resources[resourceID] 		= ( UnitsSupplyDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+							UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	= ( UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
+							LinkedUnits[selfKey][unitKey].NeedResources[resourceID] = true
+						end
 					end
 				end
 			end
@@ -2264,6 +2278,11 @@ end
 -----------------------------------------------------------------------------------------
 -- Resources Stock
 -----------------------------------------------------------------------------------------
+
+function GetSizeStockRatio(self)
+	return self:GetSize() * PerSizeStockRatio
+end
+
 function GetAvailableStockForUnits(self, resourceID)
 
 	local turnKey 			= GCO.GetPreviousTurnKey()
@@ -2326,7 +2345,7 @@ end
 
 function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 
-	local DEBUG_CITY_SCRIPT = false
+	--local DEBUG_CITY_SCRIPT = false
 	
 	if not resourceID then
 		GCO.Warning("resourceID is nil or false in ChangeStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
@@ -2490,18 +2509,23 @@ function GetNumRequiredInQueue(self, resourceID)
 end
 
 function GetMaxStock(self, resourceID)
-	local maxStock = 0
+	local maxStock 	= 0
+	local sizeRatio	= self:GetSizeStockRatio()
 	if not GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
-		maxStock = self:GetSize() * ResourceStockPerSize
-		if resourceID == personnelResourceID 	then maxStock = self:GetSize() * tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value) end
-		if resourceID == foodResourceID 		then maxStock = (self:GetSize() * FoodStockPerSize) + baseFoodStock end
+		maxStock = sizeRatio * ResourceStockPerSize
+		if resourceID == personnelResourceID 	then maxStock = GCO.Round(sizeRatio * PersonnelPerSize) end
+		if resourceID == foodResourceID 		then maxStock = GCO.Round(sizeRatio * FoodStockPerSize) + baseFoodStock end
 		if GCO.IsResourceEquipment(resourceID) 	then maxStock = self:GetMaxEquipmentStock(resourceID) end	-- Equipment stock does not depend of city size, just buildings
 		if GCO.IsResourceLuxury(resourceID) 	then maxStock = GCO.Round(maxStock * LuxuryStockRatio) end
 	end
 	if ResourceStockage[resourceID] then
 		for _, buildingID in ipairs(ResourceStockage[resourceID]) do
 			if self:GetBuildings():HasBuilding(buildingID) then
-				maxStock = maxStock + BuildingStock[buildingID][resourceID]
+				if FixedBuildingStock[buildingID][resourceID] then
+					maxStock = maxStock + BuildingStock[buildingID][resourceID]
+				else
+					maxStock = maxStock + GCO.Round(BuildingStock[buildingID][resourceID] * sizeRatio )
+				end
 			end
 		end
 	end
@@ -2786,13 +2810,7 @@ end
 
 function GetResourceUseToolTipStringForTurn(self, resourceID, useTypeKey, turn)
 
-	local DEBUG_CITY_SCRIPT = false
-
-	Dprint( DEBUG_CITY_SCRIPT, self)
-	Dprint( DEBUG_CITY_SCRIPT, resourceID)
-	Dprint( DEBUG_CITY_SCRIPT, useTypeKey)
-	Dprint( DEBUG_CITY_SCRIPT, turn)
-	Dprint( DEBUG_CITY_SCRIPT, ResourceUseTypeReference[useTypeKey])
+	--local DEBUG_CITY_SCRIPT = false
 
 	local resourceKey 	= tostring(resourceID)
 	local selfKey 		= self:GetKey()
@@ -3721,6 +3739,124 @@ function CanConstruct(self, buildingType)
 	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck and bCheckSpecial), requirementStr, preReqStr
 end
 
+function RecruitUnits(self, UnitType, number)
+	
+	local DEBUG_CITY_SCRIPT = "debug"
+	
+	if not GameInfo.Units[UnitType] then
+		GCO.Error("can't find "..tostring(UnitType).." in GameInfo.Units")
+		return
+	end
+	
+	local number 	= number or 1
+	local playerID	= self:GetOwner()
+	local player	= GCO.GetPlayer(playerID)
+	
+	for i = 1, number do
+	
+		local unit 				= UnitManager.InitUnit(playerID, UnitType, self:GetX(), self:GetY())
+		
+		-- initialize at 0 HP...
+		Dprint( DEBUG_self_SCRIPT, "Initializing unit...")
+		unit:SetDamage(100)
+		local initialHP 		= 0
+		local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)	-- } to do: affected by policies
+		local turnsActive		= ConscriptsBaseActiveTurns									-- |
+		
+		local policies	= player:GetActivePolicies()
+		for _, policyID in ipairs(policies) do
+			turnsActive = turnsActive + GameInfo.Policies[policyID].ActiveTurnsLeftBoost
+			local policyType = GameInfo.Policies[policyID].PolicyType
+			if policyType == "POLICY_CONSCRIPTION" or policyType == "POLICY_LEVEE_EN_MASSE" then 
+				organizationLevel = math.max(0 , player:GetMilitaryOrganizationLevel() - 1)
+			end
+		end
+
+		GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
+		GCO.AttachUnitFunctions(unit)
+		unit:InitializeEquipment()
+		unit:SetProperty("CanChangeOrganization", nil)
+		unit:SetProperty("ActiveTurnsLeft", turnsActive)
+		unit:SetProperty("HomeCityKey", self:GetKey())	-- send back personnel/equipment/resources here on disbanding (with no income from selling)
+		unit:SetProperty("UnitPersonnelType", UnitPersonnelType.Conscripts)
+		
+		-- get full reinforcement...
+		Dprint( DEBUG_self_SCRIPT, "Getting full reinforcement...")
+		local bTotal		= true
+		local recruitmentCostFactor	= tonumber(GameInfo.GlobalParameters["CITY_RECRUITMENT_COST_FACTOR"].Value)
+		--local requirements 	= unit:GetRequirements(bTotal)
+		
+		local resTable 		= GCO.GetUnitConstructionResources(unit:GetType(), organizationLevel)
+		local resOrTable 	= GCO.GetUnitConscriptionEquipment(unit:GetType(), organizationLevel)
+					
+		Dprint( DEBUG_self_SCRIPT, "Get available resources in city...")
+		for resourceID, value in pairs(resTable) do
+			if value > 0 then
+				local maxValue	= math.min(self:GetStock(resourceID), value)
+				local cost 		= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
+				Dprint( DEBUG_self_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
+				unit:ChangeStock(resourceID, maxValue)
+				self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
+				if cost > 0 then
+					player:ProceedTransaction(AccountType.Reinforce, -cost)
+				end
+			end
+		end			
+		
+		for equipmentClass, resourceTable in pairs(resOrTable) do
+			local totalNeeded 		= resourceTable.Value
+			local stillNeeded		= totalNeeded
+			-- get the number of resource already stocked for that class...
+			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
+				local maxValue 	= math.min(self:GetStock(resourceID), stillNeeded)
+				local cost 		= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
+				Dprint( DEBUG_self_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
+				unit:ChangeStock(resourceID, maxValue)
+				self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
+				if cost > 0 then
+					player:ProceedTransaction(AccountType.Reinforce, -cost)
+				end
+				stillNeeded = math.max(0, stillNeeded - maxValue)
+			end
+		end
+		
+		--[[
+		for resourceID, value in pairs(resOrTable) do
+			if value > 0 and GCO.IsResourceEquipment(resourceID) then
+				local equipmentClassID	= unit:GetEquipmentClass(resourceID)
+				local stillNeeded		= math.max(0, unit:GetMaxTotalEquipment(equipmentClassID) - (unit:GetEquipmentClassFrontLine(equipmentClassID) + unit:GetEquipmentClassReserve(equipmentClassID)))
+				local maxValue 			= math.min(self:GetStock(resourceID), value, stillNeeded) -- get minimal valuie between "stock left", "initially required" and "still needed in the middle of the loop"
+				local cost 				= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
+				Dprint( DEBUG_self_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
+				unit:ChangeStock(resourceID, maxValue)
+				self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
+				if cost > 0 then
+					player:ProceedTransaction(AccountType.Reinforce, -cost)
+				end
+			end
+		end
+		--]]
+			
+		-- heal completly...			
+		Dprint( DEBUG_self_SCRIPT, "Healing...")
+		local bNoLimit 	= true
+		local maxHP		= 100
+		unit:Heal(maxHP, maxHP, bNoLimit)
+		
+		-- try to upgrade...
+		Dprint( DEBUG_self_SCRIPT, "Upgrading...")
+		local newUnitType 	= unit:GetTypesFromEquipmentList()			
+		if newUnitType and newUnitType ~= unit:GetType() then
+			local newUnit = GCO.ChangeUnitTo(unit, newUnitType)
+			if newUnit then
+				newUnit:Heal(maxHP, maxHP, bNoLimit)
+			end
+		end		
+	
+	end
+
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Activities & Employment
@@ -4313,7 +4449,7 @@ end
 function DoRecruitPersonnel(self)
 	
 	Dlog("DoRecruitPersonnel ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = false
+	--local DEBUG_CITY_SCRIPT = "debug"
 	Dprint( DEBUG_CITY_SCRIPT, "Recruiting Personnel...")
 	local player			= GCO.GetPlayer(self:GetOwner())
 	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
@@ -4337,7 +4473,7 @@ function DoRecruitPersonnel(self)
 	local totalRecruits		= recruitedGenerals + recruitedOfficers + recruitedSoldiers
 
 	Dprint( DEBUG_CITY_SCRIPT, " - total needed =", nedded, "generals =", generals,"officers =", officers, "soldiers =",soldiers)
-	Dprint( DEBUG_CITY_SCRIPT, " - maxDraftedPercentage =", maxDraftedPercentage, "draftedPercentage =", draftedPercentage,"draftRatio =", draftRatio)
+	Dprint( DEBUG_CITY_SCRIPT, " - maxDraftedPercentage in army =", maxDraftedPercentage, "current draftedPercentage =", draftedPercentage, " draftRatio =", draftRatio)
 	Dprint( DEBUG_CITY_SCRIPT, " - max potential =", maxPotential ,"Upper = ", maxUpper, "Middle = ", maxMiddle, "Lower = ", maxLower )
 	Dprint( DEBUG_CITY_SCRIPT, " - total recruits =", totalRecruits, "Generals = ", recruitedGenerals, "Officers = ", recruitedOfficers, "Soldiers = ", recruitedSoldiers )
 
@@ -4353,7 +4489,7 @@ end
 
 function DoReinforceUnits(self)
 	Dlog("DoReinforceUnits ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = "CityScript"
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Reinforcing units...")
 	local cityKey 				= self:GetKey()
@@ -4379,7 +4515,7 @@ function DoReinforceUnits(self)
 		while (resLeft > 0 and loop < maxLoop) do
 			for unitKey, data in pairs(LinkedUnits[cityKey]) do
 				local unit = GCO.GetUnitFromKey ( unitKey )
-				if unit then
+				if unit and not unit:IsDisbanding() then
 					if not reqValue[unit] then reqValue[unit] = {} end
 					
 					if reqValue[unit].FullReinforcement == nil then reqValue[unit].FullReinforcement = unit:CanGetFullReinforcement() end
@@ -4639,7 +4775,9 @@ function DoIndustries(self)
 	local ResNeeded			= {}	-- Total resources required 
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
-		local maxConverted 	= GCO.Round(row.MaxConverted * self:GetOutputPerYield())
+		local maxConverted 	= GCO.Round(row.MaxConverted * self:GetOutputPerYield() * RequiredResourceFactor)
+		local ratio			= row.Ratio * ProducedResourceFactor
+		
 		if self:GetBuildings():HasBuilding(buildingID) then
 			local resourceRequiredID 	= GameInfo.Resources[row.ResourceType].Index
 			local resourceCreatedID 	= GameInfo.Resources[row.ResourceCreated].Index
@@ -4651,18 +4789,18 @@ function DoIndustries(self)
 				if row.MultiResRequired then
 					if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {} end
 					if not MultiResRequired[resourceCreatedID][buildingID] then	MultiResRequired[resourceCreatedID][buildingID] = {} end
-					table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = maxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+					table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = maxConverted, Ratio = ratio, CostFactor = row.CostFactor })
 
 				elseif row.MultiResCreated then
 					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 					if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {} end
 					if not MultiResCreated[resourceRequiredID][buildingID] then	MultiResCreated[resourceRequiredID][buildingID] = {} end
-					table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+					table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio, CostFactor = row.CostFactor })
 				else
 					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 					if not ResCreated[resourceRequiredID] then	ResCreated[resourceRequiredID] = {} end
 					if not ResCreated[resourceRequiredID][buildingID] then	ResCreated[resourceRequiredID][buildingID] = {} end
-					table.insert(ResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = row.Ratio, CostFactor = row.CostFactor })
+					table.insert(ResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio, CostFactor = row.CostFactor })
 				end
 			end
 		end
@@ -5575,7 +5713,7 @@ function Heal(self)
 end
 
 function DoTurnFirstPass(self)
-	local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = "debug"
 	Dlog("DoTurnFirstPass ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "First Pass on ".. Locale.Lookup(self:GetName()))
@@ -5635,7 +5773,7 @@ end
 
 function DoTurnSecondPass(self)
 
-	local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = "debug"
 	
 	local cityKey 	= self:GetKey()
 	local name 		= Locale.Lookup(self:GetName())
@@ -5658,7 +5796,7 @@ function DoTurnSecondPass(self)
 end
 
 function DoTurnThirdPass(self)
-	local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = "debug"
 
 	local cityKey 	= self:GetKey()
 	local name 		= Locale.Lookup(self:GetName())
@@ -5690,7 +5828,7 @@ function DoTurnThirdPass(self)
 end
 
 function DoTurnFourthPass(self)
-	local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = "debug"
 
 	local cityKey 	= self:GetKey()
 	local name 		= Locale.Lookup(self:GetName())
@@ -5731,6 +5869,7 @@ function DoTurnFourthPass(self)
 	GCO.ShowTimer("SetUnlockers for ".. name)
 
 	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass done for ".. name)
+	
 	Dlog("DoTurnFourthPass ".. name.." /END")
 end
 
@@ -5763,25 +5902,6 @@ LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 -- Events
 -----------------------------------------------------------------------------------------
 
-function GetEquipmentList(self)
-	local cityKey 			= self:GetKey()
-	local turnKey 			= GCO.GetTurnKey()
-	local previousTurnKey	= GCO.GetPreviousTurnKey()
-	local data 				= ExposedMembers.CityData[cityKey]
-	local equipmentList		= {}
-	if not data.Stock[turnKey] then return end
-	
-	for resourceKey, value in pairs(data.Stock[turnKey]) do
-		local resourceID 		= tonumber(resourceKey)
-		if GCO.IsResourceEquipment(resourceID) then
-			table.insert(equipmentList, { String = str, Order = EquipmentInfo[resourceID].Desirability })
-			-- { EquipmentID = resourceID, Value = value, Desirability = desirability }
-		end
-	end
-	table.sort(equipmentList, function(a, b) return a.Desirability > b.Desirability; end)
-	return equipmentList
-end
-
 function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCanceled, typeModifier)
 	local city = CityManager.GetCity(playerID, cityID)
 	if productionID == ProductionTypes.BUILDING then
@@ -5791,102 +5911,22 @@ function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCa
 		if GameInfo.Buildings[objectID].BuildingType =="BUILDING_RECRUITS" then
 
 			local DEBUG_CITY_SCRIPT = "debug"
-			LuaEvents.SetUnitsDebugLevel("debug")
+			LuaEvents.SetUnitsDebugLevel("debug")	-- temporary set custom debug level for UnitScript
+			
 			Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 			Dprint( DEBUG_CITY_SCRIPT, "Completed BUILDING_RECRUITS !")
 			
-			local player			= GCO.GetPlayer(playerID)
-			local unit 				= UnitManager.InitUnit(playerID, "UNIT_WARRIOR", city:GetX(), city:GetY())
-			
-			-- initialize at 0 HP...
-			Dprint( DEBUG_CITY_SCRIPT, "Initializing unit...")
-			unit:SetDamage(100)
-			local initialHP 		= 0
-			local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)	-- } to do: affected by policies
-			local turnsActive		= ConscriptsBaseActiveTurns									-- |
-			GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
-			GCO.AttachUnitFunctions(unit)
-			unit:InitializeEquipment()
-			unit:SetProperty("CanChangeOrganization", false)
-			unit:SetProperty("ActiveTurnsLeft", turnsActive)
-			unit:SetProperty("HomeCityKey", city:GetKey())	-- send back personnel/equipment/resources here on disbanding (with no income from selling)
-			unit:SetProperty("UnitPersonnelType", UnitPersonnelType.Conscripts)
-			
-			-- get full reinforcement...
-			Dprint( DEBUG_CITY_SCRIPT, "Getting full reinforcement...")
-			local bTotal		= true
-			local recruitmentCostFactor	= tonumber(GameInfo.GlobalParameters["CITY_RECRUITMENT_COST_FACTOR"].Value)
-			--local requirements 	= unit:GetRequirements(bTotal)
-			
-			local resTable 		= GCO.GetUnitConstructionResources(unit:GetType(), organizationLevel)
-			local resOrTable 	= GCO.GetUnitConscriptionEquipment(unit:GetType(), organizationLevel)
-						
-			Dprint( DEBUG_CITY_SCRIPT, "Get available resources in city...")
-			for resourceID, value in pairs(resTable) do
-				if value > 0 then
-					local maxValue	= math.min(city:GetStock(resourceID), value)
-					local cost 		= city:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
-					Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
-					unit:ChangeStock(resourceID, maxValue)
-					city:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
-					if cost > 0 then
-						player:ProceedTransaction(AccountType.Reinforce, -cost)
-					end
-				end
-			end			
-			
-			for equipmentClass, resourceTable in pairs(resOrTable) do
-				local totalNeeded 		= resourceTable.Value
-				local stillNeeded		= totalNeeded
-				-- get the number of resource already stocked for that class...
-				for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
-					local maxValue 	= math.min(city:GetStock(resourceID), stillNeeded)
-					local cost 		= city:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
-					Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
-					unit:ChangeStock(resourceID, maxValue)
-					city:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
-					if cost > 0 then
-						player:ProceedTransaction(AccountType.Reinforce, -cost)
-					end
-					stillNeeded = math.max(0, stillNeeded - maxValue)
-				end
+			local number = 1
+			if city:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_SMALL_BARRACKS"].Index) then
+				number = 2
 			end
-			
-			--[[
-			for resourceID, value in pairs(resOrTable) do
-				if value > 0 and GCO.IsResourceEquipment(resourceID) then
-					local equipmentClassID	= unit:GetEquipmentClass(resourceID)
-					local stillNeeded		= math.max(0, unit:GetMaxTotalEquipment(equipmentClassID) - (unit:GetEquipmentClassFrontLine(equipmentClassID) + unit:GetEquipmentClassReserve(equipmentClassID)))
-					local maxValue 			= math.min(city:GetStock(resourceID), value, stillNeeded) -- get minimal valuie between "stock left", "initially required" and "still needed in the middle of the loop"
-					local cost 				= city:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
-					Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
-					unit:ChangeStock(resourceID, maxValue)
-					city:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
-					if cost > 0 then
-						player:ProceedTransaction(AccountType.Reinforce, -cost)
-					end
-				end
+			if city:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_BARRACKS"].Index) then
+				number = 4
 			end
-			--]]
-				
-			-- heal completly...			
-			Dprint( DEBUG_CITY_SCRIPT, "Healing...")
-			local bNoLimit 	= true
-			local maxHP		= 100
-			unit:Heal(maxHP, maxHP, bNoLimit)
+			city:RecruitUnits("UNIT_WARRIOR", number) -- called with the first unit of the melee line, it will be upgraded automatically to the best available with the current equipment in city
 			
-			-- try to upgrade...
-			Dprint( DEBUG_CITY_SCRIPT, "Upgrading...")
-			local newUnitType 	= unit:GetTypesFromEquipmentList()			
-			if newUnitType and newUnitType ~= unit:GetType() then
-				local newUnit = GCO.ChangeUnitTo(unit, newUnitType)
-				if newUnit then
-					newUnit:Heal(maxHP, maxHP, bNoLimit)
-				end
-			end
-			
-			LuaEvents.RestoreUnitsDebugLevel()
-			
+			LuaEvents.RestoreUnitsDebugLevel()	-- restore previous debug level for UnitScript
+	
 			-- remove this "project" building
 			Dprint( DEBUG_CITY_SCRIPT, "Removing BUILDING_RECRUITS...")
 			city:GetBuildings():RemoveBuilding(objectID)			
@@ -6065,6 +6105,7 @@ function AttachCityFunctions(city)
 	c.GetMaxPercentLeftToRequest		= GetMaxPercentLeftToRequest
 	c.GetMaxPercentLeftToImport			= GetMaxPercentLeftToImport
 	c.GetMinPercentLeftToExport			= GetMinPercentLeftToExport
+	c.GetSizeStockRatio					= GetSizeStockRatio
 	c.GetAvailableStockForUnits			= GetAvailableStockForUnits
 	c.GetAvailableStockForCities		= GetAvailableStockForCities
 	c.GetAvailableStockForExport		= GetAvailableStockForExport
@@ -6181,6 +6222,7 @@ function AttachCityFunctions(city)
 	c.GetConstructionEfficiency			= GetConstructionEfficiency
 	c.SetConstructionEfficiency			= SetConstructionEfficiency
 	c.GetProductionProgress				= GetProductionProgress
+	c.RecruitUnits						= RecruitUnits
 	--
 	c.IsCoastal							= IsCoastal
 	c.GetSeaRange						= GetSeaRange

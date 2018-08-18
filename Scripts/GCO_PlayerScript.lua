@@ -62,7 +62,6 @@ local OrganizationLevelToStandard 	= {		-- to get the normal MilitaryOrganisatio
 }
 local smallerUnitsPolicyID 			= GameInfo.Policies["POLICY_SMALLER_UNITS"].Index
 
-local armyMaxPercentOfPopulation	= tonumber(GameInfo.GlobalParameters["ARMY_MAX_PERCENT_OF_POPULATION"].Value)
 
 -----------------------------------------------------------------------------------------
 -- Initialize
@@ -216,6 +215,10 @@ function HasPolicyActive(self, policyID)
 	return GCO.HasPolicyActive(self, policyID)
 end
 
+function GetActivePolicies(self, policyID)
+	return GCO.GetActivePolicies(self)
+end
+
 function IsObsoleteEquipment(self, equipmentTypeID)
 	if not GCO.IsResourceEquipment(equipmentTypeID) then return false end
 	local ObsoleteTech = EquipmentInfo[equipmentTypeID].ObsoleteTech
@@ -239,7 +242,7 @@ function GetTotalPopulation(self)
 	return populationTotal, populationVariation
 end
 
-function GetPersonnelInCities(self)
+function GetPersonnelInCities(self) -- logistic support
 	local personnel = 0
 	local playerCities = self:GetCities()
 	if playerCities then
@@ -263,16 +266,35 @@ function GetPersonnelInUnits(self)
 	return personnel
 end
 
+function GetLogisticPersonnelInActiveDuty(self)
+	local maxActiveDutyPersonnel = 0
+	for row in GameInfo.UnitPromotionClasses() do
+		local promotionClassID 				= row.Index
+		local logisticCost 					= self:GetLogisticCost(promotionClassID)
+		if logisticCost > maxActiveDutyPersonnel then
+			maxActiveDutyPersonnel	= logisticCost
+		end
+	end
+	return math.min(maxActiveDutyPersonnel, self:GetPersonnelInCities())
+end
+
 function GetDraftedPercentage(self)
 	local PopulationBalance = self:GetTotalPopulation()
-	local ArmySize			= self:GetPersonnelInCities() + self:GetPersonnelInUnits()
+	local ArmySize			= self:GetPersonnelInUnits() + self:GetLogisticPersonnelInActiveDuty() 
 	return  ArmySize / PopulationBalance * 100
 end
 
 function GetMaxDraftedPercentage(self) -- the maximum percentage of population in the army
-	local maxPercentage = armyMaxPercentOfPopulation
-	--  to do : change with policies
-	return maxPercentage
+	local era 				= self:GetEra()
+	local basePercentage	= GameInfo.Eras[era].ArmyMaxPercentOfPopulation
+	local policies			= self:GetActivePolicies()
+	if self:IsAtWar() then
+		basePercentage = basePercentage + GameInfo.Eras[era].ArmyMaxPercentWarBoost
+	end
+	for _, policyID in ipairs(policies) do
+		basePercentage = basePercentage + GameInfo.Policies[policyID].ArmyMaxPercentBoost
+	end
+	return basePercentage
 end
 
 function GetDraftEfficiencyPercent(self)
@@ -733,6 +755,7 @@ end
 
 local startTurnAutoSaveNum = 0
 function DoPlayerTurn( playerID )
+	local DEBUG_PLAYER_SCRIPT	= "debug"
 	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	
 	local player = Players[playerID]
@@ -785,6 +808,7 @@ end
 
 
 function CheckPlayerTurn(playerID)
+	local DEBUG_PLAYER_SCRIPT	= "debug"
 	local playerConfig	= PlayerConfigurations[playerID]
 	local bNoError		= true
 	if GCO.PlayerTurnsDebugChecks[playerID] then
@@ -929,6 +953,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	--
 	p.IsResourceVisible							= IsResourceVisible
 	p.HasPolicyActive							= HasPolicyActive
+	p.GetActivePolicies							= GetActivePolicies
 	p.IsObsoleteEquipment						= IsObsoleteEquipment
 	p.CanTrain									= CanTrain
 	--
@@ -958,6 +983,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.GetTotalPopulation						= GetTotalPopulation
 	p.GetPersonnelInCities						= GetPersonnelInCities
 	p.GetPersonnelInUnits						= GetPersonnelInUnits
+	p.GetLogisticPersonnelInActiveDuty			= GetLogisticPersonnelInActiveDuty
 	p.GetLogisticCost							= GetLogisticCost
 	p.GetLogisticSupport						= GetLogisticSupport
 	p.GetMaxDraftedPercentage					= GetMaxDraftedPercentage

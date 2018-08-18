@@ -365,6 +365,12 @@ ALTER TABLE Eras ADD COLUMN CultureDiffusionThresholdMod integer DEFAULT '100';	
 ALTER TABLE Eras ADD COLUMN CultureFlippingMaxDistance integer DEFAULT '100';			-- Replace CULTURE_FLIPPING_MAX_DISTANCE (0 = unlimited)
 ALTER TABLE Eras ADD COLUMN CultureConquestEnabled integer DEFAULT '100';				-- Replace CULTURE_CONQUEST_ENABLED (boolean = 0,1) 
 
+ALTER TABLE Eras ADD COLUMN ArmyMaxPercentOfPopulation integer DEFAULT '1';				-- max percentage of total population in the army (max personnel when not at war)
+ALTER TABLE Eras ADD COLUMN ArmyMaxPercentWarBoost integer DEFAULT '5';					-- raise max percentage of total population in the army by this value (max personnel when at war)
+
+ALTER TABLE Policies ADD COLUMN ArmyMaxPercentBoost integer DEFAULT '0';				-- raise max percentage of total population in the army by this value (max personnel when at war)
+ALTER TABLE Policies ADD COLUMN ActiveTurnsLeftBoost integer DEFAULT '0';				-- raise max number of turn an unit can be drafted before disbanding 
+
 -- Culture Diffusion modifiers
 ALTER TABLE Features ADD COLUMN CultureThreshold integer DEFAULT '0';
 ALTER TABLE Features ADD COLUMN CulturePenalty integer DEFAULT '0';
@@ -390,6 +396,7 @@ ALTER TABLE Buildings ADD COLUMN MaterielPerProduction 	INTEGER DEFAULT '4'; 		-
 
 -- Employment
 ALTER TABLE Buildings ADD COLUMN EmploymentSize	REAL DEFAULT 0; 					-- Employment slots provided by the building
+
 
 -----------------------------------------------
 -- New Tables
@@ -433,6 +440,7 @@ CREATE TABLE IF NOT EXISTS BuildingStock (
 		BuildingType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,
 		Stock INTEGER NOT NULL DEFAULT 0,
+		FixedValue BOOLEAN NOT NULL CHECK (FixedValue IN (0,1)) DEFAULT 0,	-- if true, city size doesn't affect that building stock
 		PRIMARY KEY(BuildingType, ResourceType),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE

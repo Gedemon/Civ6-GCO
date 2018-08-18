@@ -18,13 +18,13 @@ include( "GCO_SmallUtils" )
 DEBUG_GAME_SCRIPT = "GameScript"
 
 local ResClassCount = {
-		["RESOURCECLASS_LUXURY"] 	= 2,
-		["RESOURCECLASS_STRATEGIC"]	= 10,
-		["RESOURCECLASS_BONUS"]		= 5
+		["RESOURCECLASS_LUXURY"] 	= 1,
+		["RESOURCECLASS_STRATEGIC"]	= 5,
+		["RESOURCECLASS_BONUS"]		= 2
 	}
 	
 local ResTypeBonus = {
-		["RESOURCE_HORSES"] 	= 10,
+		["RESOURCE_HORSES"] 	= 5,
 	}
 
 	

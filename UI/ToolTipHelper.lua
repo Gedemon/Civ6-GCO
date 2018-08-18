@@ -294,7 +294,11 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 		table.insert(toolTipLines, "[NEWLINE]" .. Locale.Lookup(description));	
 	end
 	
-	-- GCO <<<<<
+	-- GCO <<<<<	
+	if city ~= nil then
+		GCO.AttachCityFunctions(city)
+	end
+	
 	if building.EmploymentSize and building.EmploymentSize > 0 then
 		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_EMPLOYMENT", building.EmploymentSize))
 	end
@@ -302,34 +306,53 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_EQUIPMENT_STOCK", building.EquipmentStock))
 	end
 	
+	local sizeRatio = tonumber(GameInfo.GlobalParameters["CITY_PER_SIZE_STOCK_RATIO"].Value)
+	if city ~= nil then
+		sizeRatio = city:GetSizeStockRatio()
+	end
 	for row in GameInfo.BuildingStock() do
 		if(row.BuildingType == buildingType) then
 			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
 			local resName 		= GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)
-			table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_STOCK", row.Stock, resName))
+			local stock			= row.Stock
+			if not row.FixedValue then
+				stock = stock * sizeRatio
+			end
+			table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_STOCK", stock, resName))
 		end
 	end	
 	
+	local RequiredResourceFactor	= tonumber(GameInfo.GlobalParameters["CITY_REQUIRED_RESOURCE_BASE_FACTOR"].Value)
+	local ProducedResourceFactor	= tonumber(GameInfo.GlobalParameters["CITY_PRODUCED_RESOURCE_BASE_FACTOR"].Value)
+	
+	local outputPerYield = 1
+	if city ~= nil then
+		outputPerYield = city:GetOutputPerYield()
+	end
+
 	local MultiResRequired 	= {}
 	local MultiResCreated 	= {}
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
-		if(row.BuildingType == buildingType) then
+		if(row.BuildingType == buildingType) then	
+			local maxConverted 	= GCO.Round(row.MaxConverted * outputPerYield * RequiredResourceFactor)
+			local ratio			= row.Ratio * ProducedResourceFactor
+			
 			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
 			if row.MultiResRequired then
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 				if not MultiResRequired[resourceCreatedID] then	MultiResRequired[resourceCreatedID] = {[buildingID] = {}} end
-				table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+				table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = maxConverted, Ratio = ratio})
 
 			elseif row.MultiResCreated then
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 				if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {[buildingID] = {}} end
-				table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = row.MaxConverted, Ratio = row.Ratio})
+				table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio})
 			else
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index					
 				local resRequiredName 	= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
 				local resCreatedName 	= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
-				table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED", row.MaxConverted, row.Ratio, resRequiredName, resCreatedName))
+				table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED", maxConverted, ratio, resRequiredName, resCreatedName))
 			end
 		end
 	end

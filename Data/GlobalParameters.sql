@@ -45,9 +45,10 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN',	5);		-- default = 10
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL',	10);
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					40);	-- base stock for resource 			= CITY_STOCK_PER_SIZE * CitySize
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 			= CITY_FOOD_STOCK_PER_SIZE * CitySize
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LUXURY_STOCK_RATIO', 				0.25);	-- base stock for luxuries 			= CITY_STOCK_PER_SIZE * CITY_LUXURY_STOCK_RATIO * CitySize
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PER_SIZE_STOCK_RATIO', 				0.5);	-- ratio of stock per city size 
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					40);	-- base stock for resource 			= CITY_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 			= CITY_FOOD_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LUXURY_STOCK_RATIO', 				0.25);	-- base stock for luxuries 			= CITY_STOCK_PER_SIZE * CITY_LUXURY_STOCK_RATIO * CitySize * CITY_PER_SIZE_STOCK_RATIO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					1000);	-- base stock for equipment 		(not related to city size)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		12);	-- unit of materiel produced 		= CITY_MATERIEL_PRODUCTION_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO',	0.5);	-- minimum stock for construction 	= CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO * stock
@@ -56,6 +57,9 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PE
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		2500);	-- value added to the starting population of a new city (to do : Settlers with different size for late game)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_STOCK', 					100);	-- bonus food stock added to base resource stock
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_PER_SIZE_POWER',			2.8);	-- CityPopulation = math.pow(citySize, CITY_POPULATION_PER_SIZE_POWER) * 1000)
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_REQUIRED_RESOURCE_BASE_FACTOR',		1.50);	-- Balance factor for required resources
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PRODUCED_RESOURCE_BASE_FACTOR',		1.00);	-- Balance factor for produced resources
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_UPPER_CLASS_PERCENT', 			5);		-- Used during city creation, before there is a base populatin to refer to.
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_MIDDLE_CLASS_PERCENT', 		30);	--
@@ -140,7 +144,6 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_HI
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_MIDDLE_RANK_RATIO', 		0.10);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_LOWER_RANK_RATIO', 		0.88); 	-- Just for reference, the code use difference with high+middle ranks
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_MAX_PERCENT_OF_POPULATION', 		5);		-- max percentage of total population in the army (personnel)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS', 		6);		-- number of turns before a conscript unit starts disbanding (locked by war)
 
 -- combats
@@ -176,7 +179,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_LI
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_MEDIUM_RATIO',			0.55);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_HEAVY_RATIO',				0.35);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_RATIONING_STARVATION',				0.25);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_COLLECTING_ADJACENT_PLOT_RATIO',	0.25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FOOD_COLLECTING_ADJACENT_PLOT_RATIO',	0.15);	-- ratio of food collected on adjacent plots by an unit
 
 -- fuel
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FUEL_CONSUMPTION_ACTIVE_FACTOR',			1000);

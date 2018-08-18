@@ -330,7 +330,7 @@ local bErrorToScreen 	= true
 local debugFilter = {
 	["debug"] 		= true,
 --	["CityScript"] 	= true,
-	["PlayerScript"] = true,
+--	["PlayerScript"] = true,
 --	["UnitScript"] 	= true,
 }
 
@@ -399,7 +399,7 @@ function Error(...)
 	print(str)
 	LuaEvents.StopAuToPlay()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
-	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
+	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 20) end
 	ShowDebugPrint()
 end
 
@@ -983,6 +983,36 @@ function GetVariationStringRedPositive(variation)
 	return ""
 end
 
+function GetEquipmentPropertyString(equipmentID)
+	local str 		= ""
+	local bStarted 	= false
+	local function StartStr()
+		if bStarted then
+			return "[COLOR_Grey]--[ENDCOLOR]"
+		else
+			bStarted = true
+			return ""
+		end
+	end
+	local AntiPersonnel = EquipmentInfo[equipmentID].AntiPersonnel
+	if AntiPersonnel and AntiPersonnel > 0 then
+		str = str .. StartStr() .. tostring(AntiPersonnel) .."[ICON_AntiPersonnel]"
+	end
+	local PersonnelArmor = EquipmentInfo[equipmentID].PersonnelArmor
+	if PersonnelArmor and PersonnelArmor > 0 then
+		str = str .. StartStr() .. tostring(PersonnelArmor) .."[ICON_PersonnelArmor]"
+	end
+	local AntiPersonnelArmor = EquipmentInfo[equipmentID].AntiPersonnelArmor
+	if AntiPersonnelArmor and AntiPersonnelArmor > 0 then
+		str = str .. StartStr() .. tostring(AntiPersonnelArmor) .."[ICON_AntiArmor]"
+	end
+	local IgnorePersonnelArmor = EquipmentInfo[equipmentID].IgnorePersonnelArmor
+	if IgnorePersonnelArmor and IgnorePersonnelArmor > 0 then
+		str = str .. StartStr() .. tostring(IgnorePersonnelArmor) .."[ICON_IgnorArmor]"
+	end
+	return str
+end
+
 --=====================================================================================--
 -- Share functions for other contexts
 --=====================================================================================--
@@ -1055,6 +1085,7 @@ function Initialize()
 	ExposedMembers.GCO.GetNeutralVariationString		= GetNeutralVariationString
 	ExposedMembers.GCO.GetVariationStringGreenPositive 	= GetVariationStringGreenPositive
 	ExposedMembers.GCO.GetVariationStringRedPositive	= GetVariationStringRedPositive
+	ExposedMembers.GCO.GetEquipmentPropertyString		= GetEquipmentPropertyString
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true
 end

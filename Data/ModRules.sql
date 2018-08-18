@@ -216,6 +216,35 @@ UPDATE Civics SET Cost = Cost*3.20 WHERE EraType ='ERA_ATOMIC';
 UPDATE Civics SET Cost = Cost*3.80 WHERE EraType ='ERA_INFORMATION';
 
 
+/* Conscripts */
+UPDATE Policies SET ArmyMaxPercentBoost = 5 WHERE PolicyType ='POLICY_CONSCRIPTION';
+UPDATE Policies SET ArmyMaxPercentBoost = 6 WHERE PolicyType ='POLICY_FEUDAL_CONTRACT';
+UPDATE Policies SET ArmyMaxPercentBoost = 7 WHERE PolicyType ='POLICY_GRANDE_ARMEE';
+UPDATE Policies SET ArmyMaxPercentBoost = 8 WHERE PolicyType ='POLICY_LEVEE_EN_MASSE';
+UPDATE Policies SET ArmyMaxPercentBoost = 10 WHERE PolicyType ='POLICY_PATRIOTIC_WAR';
+
+UPDATE Policies SET ActiveTurnsLeftBoost = 3 WHERE PolicyType ='POLICY_MANEUVER';
+UPDATE Policies SET ActiveTurnsLeftBoost = 6 WHERE PolicyType ='POLICY_LIGHTNING_WARFARE';
+
+/* Army Size */
+UPDATE Eras SET ArmyMaxPercentOfPopulation = 1 	WHERE EraType='ERA_ANCIENT';
+UPDATE Eras SET ArmyMaxPercentOfPopulation = 1 	WHERE EraType='ERA_CLASSICAL';
+UPDATE Eras SET ArmyMaxPercentOfPopulation = 2 	WHERE EraType='ERA_MEDIEVAL';
+UPDATE Eras SET ArmyMaxPercentOfPopulation = 3 	WHERE EraType='ERA_RENAISSANCE';
+UPDATE Eras SET ArmyMaxPercentOfPopulation = 4 	WHERE EraType='ERA_INDUSTRIAL';
+UPDATE Eras SET ArmyMaxPercentOfPopulation = 4	WHERE EraType='ERA_MODERN';
+UPDATE Eras SET ArmyMaxPercentOfPopulation = 5	WHERE EraType='ERA_ATOMIC';
+UPDATE Eras SET ArmyMaxPercentOfPopulation = 5	WHERE EraType='ERA_INFORMATION';
+
+UPDATE Eras SET ArmyMaxPercentWarBoost = 2 	WHERE EraType='ERA_ANCIENT';
+UPDATE Eras SET ArmyMaxPercentWarBoost = 2 	WHERE EraType='ERA_CLASSICAL';
+UPDATE Eras SET ArmyMaxPercentWarBoost = 3 	WHERE EraType='ERA_MEDIEVAL';
+UPDATE Eras SET ArmyMaxPercentWarBoost = 4 	WHERE EraType='ERA_RENAISSANCE';
+UPDATE Eras SET ArmyMaxPercentWarBoost = 5 	WHERE EraType='ERA_INDUSTRIAL';
+UPDATE Eras SET ArmyMaxPercentWarBoost = 6	WHERE EraType='ERA_MODERN';
+UPDATE Eras SET ArmyMaxPercentWarBoost = 7	WHERE EraType='ERA_ATOMIC';
+UPDATE Eras SET ArmyMaxPercentWarBoost = 7	WHERE EraType='ERA_INFORMATION';
+
 /* Districts & Buildings */
 --/*
 

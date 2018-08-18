@@ -383,6 +383,7 @@
 	<IconDefinitions>	<!-- FONT ICONS -->
 		<Row Name="INDENT"	 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="264"/>
 		<Row Name="TOOLS"	 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="78"/>
+		<Row Name="NoSupply" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="58"/>
 		<Row Name="Wounded" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="20"/>
 		<Row Name="Skull"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="21"/>
 		<Row Name="WoundedLarge" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="11"/>
