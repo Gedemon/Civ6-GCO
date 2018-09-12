@@ -136,3 +136,62 @@ for row in GameInfo.MilitaryFormationStructures() do
 		SizeString 						= row.SizeString
 	}
 end
+
+-----------------------------------------------------------------------------------------
+-- Activities & Employment
+-----------------------------------------------------------------------------------------
+CityEmploymentPow 	= {
+	["ERA_ANCIENT"] 		= 1.00 ,
+	["ERA_CLASSICAL"] 		= 1.10 ,
+	["ERA_MEDIEVAL"] 		= 1.25 ,
+	["ERA_RENAISSANCE"] 	= 1.50 ,
+	["ERA_INDUSTRIAL"] 		= 2.20 ,
+	["ERA_MODERN"] 			= 2.30 ,
+	["ERA_ATOMIC"] 			= 2.50 ,
+	["ERA_INFORMATION"] 	= 2.80 , -- 2.8 is max city population
+}
+	
+CityEmploymentFactor 	= {
+	["ERA_ANCIENT"] 		= 500 ,
+	["ERA_CLASSICAL"] 		= 550 ,
+	["ERA_MEDIEVAL"] 		= 600 ,
+	["ERA_RENAISSANCE"] 	= 650 ,
+	["ERA_INDUSTRIAL"] 		= 800 ,
+	["ERA_MODERN"] 			= 900 ,
+	["ERA_ATOMIC"] 			= 950 ,
+	["ERA_INFORMATION"] 	= 1000 ,
+}
+
+PlotEmploymentPow		= {
+	["ERA_ANCIENT"] 		= 1.80 , -- 1.80 = Max City pop Pow - 1.00 : this way the summation of all worked plots can't be > to the total city population (using pow 2.80) 
+	["ERA_CLASSICAL"] 		= 1.79 ,
+	["ERA_MEDIEVAL"] 		= 1.77 ,
+	["ERA_RENAISSANCE"] 	= 1.75 ,
+	["ERA_INDUSTRIAL"] 		= 1.60 ,
+	["ERA_MODERN"] 			= 1.55 ,
+	["ERA_ATOMIC"] 			= 1.52 ,
+	["ERA_INFORMATION"] 	= 1.50 ,
+}
+	
+PlotEmploymentFactor 	= {
+	["ERA_ANCIENT"] 		= 1000 ,
+	["ERA_CLASSICAL"] 		= 950 ,
+	["ERA_MEDIEVAL"] 		= 900 ,
+	["ERA_RENAISSANCE"] 	= 850 ,
+	["ERA_INDUSTRIAL"] 		= 700 ,
+	["ERA_MODERN"] 			= 600 ,
+	["ERA_ATOMIC"] 			= 550 ,
+	["ERA_INFORMATION"] 	= 500 ,
+}
+
+-- For population repartition at city creation
+BaseUrbanPercent 		= {
+	["ERA_ANCIENT"] 		= 5 ,
+	["ERA_CLASSICAL"] 		= 5 ,
+	["ERA_MEDIEVAL"] 		= 7 ,
+	["ERA_RENAISSANCE"] 	= 10 ,
+	["ERA_INDUSTRIAL"] 		= 30 ,
+	["ERA_MODERN"] 			= 50 ,
+	["ERA_ATOMIC"] 			= 60 ,
+	["ERA_INFORMATION"] 	= 70 ,
+}

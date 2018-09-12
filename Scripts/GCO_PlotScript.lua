@@ -15,6 +15,8 @@ include( "GCO_SmallUtils" )
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
+local _cached						= {}	-- cached table to reduce calculations
+
 local SEPARATIST_PLAYER 			= "64" -- use string for table keys for correct serialisation/deserialisation
 local NO_IMPROVEMENT 				= -1
 local NO_FEATURE	 				= -1
@@ -123,6 +125,23 @@ end
 
 function GetPlotFromKey( key )
 	return Map.GetPlotByIndex(tonumber(key))
+end
+
+function GetCity(self)
+	local city = Cities.GetPlotPurchaseCity(self)
+	if city then
+		GCO.AttachCityFunctions(city)
+		return city
+	end
+end
+
+function GetEraType(self)
+	local player 	= Players[self:GetOwner()]
+	if player then
+		return GameInfo.Eras[player:GetEra()].EraType
+	else
+		return GameInfo.Eras[GCO.GetGameEra()].EraType
+	end
 end
 
 local conquestCountdown = {}
@@ -765,31 +784,6 @@ function SetCultureDiffusionRatePer1000()
 	iDiffusionRatePer1000 = tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_RATE"].Value) / 10
 	Dprint( DEBUG_PLOT_SCRIPT, "iDiffusionRatePer1000 = ".. tostring(iDiffusionRatePer1000))
 end
-
-function OnNewTurn()
-	GCO.StartTimer("Culture Diffusion")
-	local iPlotCount = Map.GetPlotCount()
-	-- set previous culture first
-	for i = 0, iPlotCount - 1 do
-		local plot = Map.GetPlotByIndex(i)
-		local plotCulture = plot:GetCultureTable()
-		if  plotCulture then
-			for playerID, value in pairs (plotCulture) do
-				plot:SetPreviousCulture( playerID, value )			
-			end
-		end
-	end
-	-- then update culture
-	for i = 0, iPlotCount - 1 do
-		local plot = Map.GetPlotByIndex(i)
-		plot:UpdateCulture()
-	end
-	--print("-----------------------------------------------------------------------------------------")
-	GCO.ShowTimer("Culture Diffusion")
-	--print("-----------------------------------------------------------------------------------------")
-end
-Events.TurnBegin.Add(OnNewTurn)
-
 
 function InitializeCityPlots(playerID, cityID, iX, iY)
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
@@ -1445,6 +1439,10 @@ Events.ImprovementActivated.Add( OnImprovementActivated )
 
 local populationPerSizepower = tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value) - 1 -- number of worked plots being equal to city size, using (popPerSizePower - 1) for tiles means that the sum of all population on worked tiles at size n will not be > to the total city population at that size 
 
+function GetEmploymentValue(self, num)
+	return GCO.Round(math.pow(num, self:GetRuralEmploymentPow()) * self:GetRuralEmploymentFactor())
+end
+
 local resourceActivities = {
 	[GameInfo.Resources["RESOURCE_ALUMINUM"].Index]		= "Miners",
 	[GameInfo.Resources["RESOURCE_BANANAS"].Index]		= "Crop Farmers",
@@ -1488,8 +1486,9 @@ local resourceActivities = {
 
 }
 function GetAvailableEmployment(self)
-	local EmploymentString = ""
-	local Employment = {}
+	local EmploymentString 	= ""
+	local Employment 		= {}
+	local availableEmployment	= 0
 
 	local bWorked 		= (self:GetWorkerCount() > 0)
 	local bImproved		= (self:GetImprovementType() ~= NO_IMPROVEMENT)
@@ -1502,11 +1501,17 @@ function GetAvailableEmployment(self)
 		local improvementID = self:GetImprovementType()
 		if self:GetResourceCount() > 0 then
 			local resourceID 	= self:GetResourceType()
-			local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 			if player:IsResourceVisible(resourceID) then
 				local collected 			= self:GetResourceCount()
 				local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
-				if resourceActivities[resourceID] then Employment[resourceActivities[resourceID]] = (Employment[resourceActivities[resourceID]] or 0) + 1 end
+				if bImprovedForResource then
+					collected = GCO.Round(collected * BaseImprovementMultiplier)
+				end
+				if resourceActivities[resourceID] then
+					local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+					Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+					availableEmployment 						= availableEmployment + resourceEmploymentValue
+				end
 			end
 		end
 
@@ -1515,10 +1520,16 @@ function GetAvailableEmployment(self)
 			for _, data in pairs(FeatureResources[featureID]) do
 				for resourceID, value in pairs(data) do
 					if player:IsResourceVisible(resourceID) then
-						local collected 	= value
-						local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
+						local collected 			= value
 						local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
-						if resourceActivities[resourceID] then Employment[resourceActivities[resourceID]] = (Employment[resourceActivities[resourceID]] or 0) + 1 end
+						if bImprovedForResource then
+							collected = GCO.Round(collected * BaseImprovementMultiplier)
+						end
+						if resourceActivities[resourceID] then 
+							local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+							availableEmployment 						= availableEmployment + resourceEmploymentValue
+						end
 					end
 				end
 			end
@@ -1533,13 +1544,20 @@ function GetAvailableEmployment(self)
 						local collected 	= value
 						local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 						local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
-						if resourceActivities[resourceID] then Employment[resourceActivities[resourceID]] = (Employment[resourceActivities[resourceID]] or 0) + 1 end
+						if bImprovedForResource then
+							collected = GCO.Round(collected * BaseImprovementMultiplier)
+						end
+						if resourceActivities[resourceID] then
+							local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+							availableEmployment 						= availableEmployment + resourceEmploymentValue
+						end
 					end
 				end
 			end
 		end
 	end
-	return Employment
+	return Employment, availableEmployment
 end
 
 -- obsolete >>
@@ -1549,12 +1567,98 @@ function GetOutputPerYield(self)
 	local city = Cities.GetPlotPurchaseCity(self)
 	if city then
 		GCO.AttachCityFunctions(city)
-		-- for now just return city size
-		return city:GetSize()
+		return city:GetSize() * self:GetActivityFactor()
 	else
 		return 1
 	end
 end
+
+function GetRuralEmploymentPow(self)
+	return PlotEmploymentPow[self:GetEraType()]
+end
+
+function GetRuralEmploymentFactor(self)
+	return PlotEmploymentFactor[self:GetEraType()]
+end
+
+function GetMaxEmployment(self)
+	local plotKey = self:GetKey()
+	if not _cached[plotKey] then
+		self:SetMaxEmployment()
+	elseif not _cached[plotKey].MaxEmployment then
+		self:SetMaxEmployment()
+	end
+	return _cached[plotKey].MaxEmployment
+end
+
+function SetMaxEmployment(self)
+	local plotKey = self:GetKey()
+	if not _cached[plotKey] then _cached[plotKey] = {} end
+	local _, maxEmployment = self:GetAvailableEmployment()
+	_cached[plotKey].MaxEmployment = maxEmployment
+end
+
+function GetEmployed(self)
+	return math.min(self:GetPopulation(), self:GetMaxEmployment())
+end
+
+function GetActivityFactor(self)
+	local employmentFromResources = self:GetMaxEmployment()
+	if employmentFromBuilding > 0 then
+		return (self:GetEmployed() / employmentFromResources)
+	else
+		return 1
+	end
+end
+
+
+-----------------------------------------------------------------------------------------
+-- Plot Population
+-----------------------------------------------------------------------------------------
+
+function GetPopulation(self)
+	local city = self:GetCity()
+	if city then
+		local numPlots = #GCO.GetCityPlots(city)
+		if numPlots > 0 then
+			return GCO.Round(city:GetRuralPopulation() / numPlots)
+		end
+	end
+end
+
+
+-----------------------------------------------------------------------------------------
+-- Plot Doturn
+-----------------------------------------------------------------------------------------
+
+
+function OnNewTurn()
+	GCO.StartTimer("Plots DoTurn")
+	local iPlotCount = Map.GetPlotCount()
+	-- First Pass
+	for i = 0, iPlotCount - 1 do
+		local plot = Map.GetPlotByIndex(i)
+		-- set previous culture first
+		local plotCulture = plot:GetCultureTable()
+		if  plotCulture then
+			for playerID, value in pairs (plotCulture) do
+				plot:SetPreviousCulture( playerID, value )			
+			end
+		end
+	end
+	-- Second Pass
+	for i = 0, iPlotCount - 1 do
+		local plot = Map.GetPlotByIndex(i)
+		-- update culture
+		plot:UpdateCulture()
+		plot:SetMaxEmployment()
+	end
+	--print("-----------------------------------------------------------------------------------------")
+	GCO.ShowTimer("Plots DoTurn")
+	--print("-----------------------------------------------------------------------------------------")
+end
+Events.TurnBegin.Add(OnNewTurn)
+
 
 -----------------------------------------------------------------------------------------
 -- UI Functions
@@ -1589,6 +1693,8 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	--p.IsImprovementPillaged			= GCO.PlotIsImprovementPillaged -- not working ?
 	
 	p.GetKey						= GetKey
+	p.GetCity						= GetCity
+	p.GetEraType					= GetEraType
 	p.GetTotalCulture 				= GetTotalCulture
 	p.GetCulturePercent				= GetCulturePercent
 	p.GetCulturePercentTable		= GetCulturePercentTable
@@ -1615,6 +1721,14 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	--
 	p.GetAvailableEmployment		= GetAvailableEmployment
 	p.GetOutputPerYield				= GetOutputPerYield
+	p.GetRuralEmploymentPow			= GetRuralEmploymentPow
+	p.GetRuralEmploymentFactor		= GetRuralEmploymentFactor
+	p.GetMaxEmployment				= GetMaxEmployment
+	p.SetMaxEmployment				= SetMaxEmployment
+	p.GetEmployed					= GetEmployed
+	p.GetActivityFactor				= GetActivityFactor
+	--
+	p.GetPopulation					= GetPopulation
 	--
 	p.IsEOfRiver					= IsEOfRiver
 	p.IsSEOfRiver					= IsSEOfRiver

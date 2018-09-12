@@ -3861,61 +3861,7 @@ end
 -----------------------------------------------------------------------------------------
 -- Activities & Employment
 -----------------------------------------------------------------------------------------
-local CityEmploymentPow 	= {
-	["ERA_ANCIENT"] 		= 1.00 ,
-	["ERA_CLASSICAL"] 		= 1.10 ,
-	["ERA_MEDIEVAL"] 		= 1.25 ,
-	["ERA_RENAISSANCE"] 	= 1.50 ,
-	["ERA_INDUSTRIAL"] 		= 2.20 ,
-	["ERA_MODERN"] 			= 2.30 ,
-	["ERA_ATOMIC"] 			= 2.50 ,
-	["ERA_INFORMATION"] 	= 2.80 ,
-	}
-	
-local CityEmploymentFactor 	= {
-	["ERA_ANCIENT"] 		= 500 ,
-	["ERA_CLASSICAL"] 		= 550 ,
-	["ERA_MEDIEVAL"] 		= 600 ,
-	["ERA_RENAISSANCE"] 	= 650 ,
-	["ERA_INDUSTRIAL"] 		= 800 ,
-	["ERA_MODERN"] 			= 900 ,
-	["ERA_ATOMIC"] 			= 950 ,
-	["ERA_INFORMATION"] 	= 1000 ,
-	}
 
-local PlotEmploymentPow		= {
-	["ERA_ANCIENT"] 		= 1.80 ,
-	["ERA_CLASSICAL"] 		= 1.79 ,
-	["ERA_MEDIEVAL"] 		= 1.77 ,
-	["ERA_RENAISSANCE"] 	= 1.75 ,
-	["ERA_INDUSTRIAL"] 		= 1.60 ,
-	["ERA_MODERN"] 			= 1.55 ,
-	["ERA_ATOMIC"] 			= 1.52 ,
-	["ERA_INFORMATION"] 	= 1.50 ,
-	}
-	
-local PlotEmploymentFactor 	= {
-	["ERA_ANCIENT"] 		= 1000 ,
-	["ERA_CLASSICAL"] 		= 950 ,
-	["ERA_MEDIEVAL"] 		= 900 ,
-	["ERA_RENAISSANCE"] 	= 850 ,
-	["ERA_INDUSTRIAL"] 		= 700 ,
-	["ERA_MODERN"] 			= 600 ,
-	["ERA_ATOMIC"] 			= 550 ,
-	["ERA_INFORMATION"] 	= 500 ,
-	}
-
--- For population repartition at city creation
-local BaseUrbanPercent 		= {
-	["ERA_ANCIENT"] 		= 5 ,
-	["ERA_CLASSICAL"] 		= 5 ,
-	["ERA_MEDIEVAL"] 		= 7 ,
-	["ERA_RENAISSANCE"] 	= 10 ,
-	["ERA_INDUSTRIAL"] 		= 30 ,
-	["ERA_MODERN"] 			= 50 ,
-	["ERA_ATOMIC"] 			= 60 ,
-	["ERA_INFORMATION"] 	= 70 ,
-	}
 
 function GetEraType(self)
 	local player 	= Players[self:GetOwner()]
@@ -4638,10 +4584,11 @@ function DoCollectResources(self)
 	-- private function
 	function Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 		if bImprovedForResource then
-			collected 		= GCO.Round(collected * BaseImprovementMultiplier)
+			collected 		= collected * BaseImprovementMultiplier
 			resourceCost 	= resourceCost * ImprovementCostRatio
 		end
-		resourceCost = resourceCost * cityWealth
+		resourceCost 	= resourceCost * cityWealth
+		collected 		= GCO.Round(collected)
 		if not bWorked then resourceCost = resourceCost * NotWorkedCostMultiplier end
 		Dprint( DEBUG_CITY_SCRIPT, "-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
 		self:ChangeStock(resourceID, collected, ResourceUseType.Collect, plotID, resourceCost)
