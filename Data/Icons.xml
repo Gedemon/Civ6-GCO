@@ -357,6 +357,11 @@
 		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_TECH"		Index="49" />
 		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_TECH_FOW"	Index="49" />
 	</IconDefinitions>
+	
+	
+	<IconDefinitions> 	<!-- PROJECTS ICONS -->
+		<Row Name="ICON_PROJECT_TAXES"       		Atlas="ICON_ATLAS_PROJECTS" Index="14"/>
+	</IconDefinitions>
   
 	<IconDefinitions> 	<!-- POLICY ICONS -->
 		<!--

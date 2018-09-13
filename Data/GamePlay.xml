@@ -652,8 +652,7 @@
 		<Row Type="POLICY_SMALLER_UNITS" 	Kind="KIND_POLICY"/>
 		<Row Type="POLICY_UPPER_TAX" 		Kind="KIND_POLICY"/>
 		<Row Type="POLICY_MIDDLE_TAX" 		Kind="KIND_POLICY"/>
-	</Types>
-	
+	</Types>	
 	<Policies>
 	<!-- 
 		<Row PolicyType="POLICY_SI_VIS_PACEM" 	Name="LOC_POLICY_SI_VIS_PACEM_NAME" 	Description="LOC_POLICY_SI_VIS_PACEM_DESCRIPTION" 		PrereqCivic="CIVIC_DEFENSIVE_TACTICS" 	GovernmentSlotType="SLOT_MILITARY"/>
@@ -671,11 +670,24 @@
 	-->
 	<Types>
 		<Row Type="TECH_ARMORED_WARFARE" Kind="KIND_TECH"/>
-	</Types>
-	
+	</Types>	
 	<Technologies>
 		<Replace TechnologyType="TECH_ARMORED_WARFARE" 	Name="LOC_TECH_ARMORED_WARFARE_NAME" 	Cost="1350" AdvisorType="ADVISOR_CONQUEST" 		EraType="ERA_MODERN" UITreeRow="2"/>
 		
 	</Technologies>
+
+	<!-- 		PROJECTS
+		
+	-->
+	<Types>
+		<Row Type="PROJECT_TAXES" Kind="KIND_PROJECT"/>
+	</Types>
+	<Projects>
+		<Row ProjectType="PROJECT_TAXES" Name="LOC_PROJECT_TAXES_NAME" ShortName="LOC_PROJECT_TAXES_SHORT_NAME" Description="LOC_PROJECT_TAXES_DESCRIPTION" PrereqCivic="CIVIC_CODE_OF_LAWS" PrereqDistrict="DISTRICT_CITY_CENTER" Cost="25" AdvisorType="ADVISOR_GENERIC" CostProgressionModel="COST_PROGRESSION_GAME_PROGRESS" CostProgressionParam1="1500"/>
+	</Projects>
+	<Project_YieldConversions>
+		<Row ProjectType="PROJECT_TAXES" YieldType="YIELD_GOLD" PercentOfProductionRate="15"/>
+	</Project_YieldConversions>
+	
 	
 </GameInfo>

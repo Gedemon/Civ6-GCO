@@ -1604,7 +1604,7 @@ end
 
 function GetActivityFactor(self)
 	local employmentFromResources = self:GetMaxEmployment()
-	if employmentFromBuilding > 0 then
+	if employmentFromResources > 0 then
 		return (self:GetEmployed() / employmentFromResources)
 	else
 		return 1
@@ -1617,13 +1617,18 @@ end
 -----------------------------------------------------------------------------------------
 
 function GetPopulation(self)
+	-- temporary waiting for population migration
 	local city = self:GetCity()
 	if city then
+		--return GCO.Round(city:GetRuralPopulation() / city:GetSize())
+		---[[
 		local numPlots = #GCO.GetCityPlots(city)
 		if numPlots > 0 then
 			return GCO.Round(city:GetRuralPopulation() / numPlots)
 		end
+		--]]
 	end
+	return 0
 end
 
 
@@ -1720,6 +1725,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.DiffuseCulture				= DiffuseCulture
 	--
 	p.GetAvailableEmployment		= GetAvailableEmployment
+	p.GetEmploymentValue			= GetEmploymentValue
 	p.GetOutputPerYield				= GetOutputPerYield
 	p.GetRuralEmploymentPow			= GetRuralEmploymentPow
 	p.GetRuralEmploymentFactor		= GetRuralEmploymentFactor

@@ -586,10 +586,15 @@ function View(data:table, bIsUpdate:boolean)
 			iter = iter + 1
 		end
 		if other > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER", other)) end
-	end	
-	for key, value in pairs(plot:GetAvailableEmployment()) do
-		table.insert(details, tostring(key) .. " = " .. tostring(value))
 	end
+	local EmploymentTable, maxEmployment = plot:GetAvailableEmployment()
+	for key, value in pairs(EmploymentTable) do
+		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_EMPLOYMENT_LINE", key,value))
+	end
+	table.insert(details, "Max Employment : "..tostring(maxEmployment))
+	table.insert(details, "Employed : "..tostring(plot:GetEmployed()))
+	table.insert(details, "Activity Factor : "..tostring(plot:GetActivityFactor()))
+	table.insert(details, "OutputPerYield : "..tostring(plot:GetOutputPerYield()))
 	-- GCO >>>>>
 	
 	-- Set the control values

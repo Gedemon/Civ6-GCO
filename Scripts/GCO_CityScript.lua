@@ -4583,12 +4583,15 @@ function DoCollectResources(self)
 
 	-- private function
 	function Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
+		if not (bWorked or bImprovedForResource) then
+			return
+		end
 		if bImprovedForResource then
 			collected 		= collected * BaseImprovementMultiplier
 			resourceCost 	= resourceCost * ImprovementCostRatio
 		end
 		resourceCost 	= resourceCost * cityWealth
-		collected 		= GCO.Round(collected)
+		collected 		= math.max(1,GCO.Round(collected))
 		if not bWorked then resourceCost = resourceCost * NotWorkedCostMultiplier end
 		Dprint( DEBUG_CITY_SCRIPT, "-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name).." at ".. tostring(GCO.ToDecimals(resourceCost)) .. " cost/unit")
 		self:ChangeStock(resourceID, collected, ResourceUseType.Collect, plotID, resourceCost)
@@ -4661,7 +4664,7 @@ function DoCollectResources(self)
 				if player:IsResourceVisible(resourceID) then
 					local collected 			= plot:GetResourceCount() * plot:GetOutputPerYield()
 					local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
-					Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
+					Collect(resourceID, collected, resourceCost, plotID, (bWorked or bSeaResource), bImprovedForResource)
 				end
 			end
 

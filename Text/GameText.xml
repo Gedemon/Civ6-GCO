@@ -679,6 +679,9 @@
     </Replace>	
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER" Language="en_US">
       <Text>{1_Num} % others</Text>
+    </Replace>
+    <Replace Tag="LOC_PLOT_TOOLTIP_EMPLOYMENT_LINE" Language="en_US">
+      <Text>{1_Num} {2_Name} max</Text>
     </Replace>	
 	
   </LocalizedText>

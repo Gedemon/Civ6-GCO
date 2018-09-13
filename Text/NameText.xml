@@ -252,5 +252,13 @@
 		<Replace Tag="LOC_TECH_ARMORED_WARFARE_NAME" 	Text="Armored Warfare"	Language="en_US" />
 	</LocalizedText>
 	
+	<LocalizedText> <!-- Projects -->	
+		<Replace Tag="LOC_PROJECT_TAXES_NAME" 			Text="Local Taxes"	Language="en_US" />
+		<Replace Tag="LOC_PROJECT_TAXES_SHORT_NAME" 	Text="Local Taxes"	Language="en_US" />
+		<Replace Tag="LOC_PROJECT_TAXES_DESCRIPTION"	Language="en_US">
+			<Text>Project which provides [ICON_Gold] Gold every turn.</Text>
+		</Replace>
+	</LocalizedText>
+	
  
 </GameData>
