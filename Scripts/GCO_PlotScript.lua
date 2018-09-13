@@ -144,6 +144,94 @@ function GetEraType(self)
 	end
 end
 
+function GetPlotDiffusionValuesTo(self, iDirection)
+	local plotKey = self:GetKey()
+	if not _cached[plotKey] then
+		self:SetPlotDiffusionValuesTo(iDirection)
+	elseif not _cached[plotKey].PlotDiffusionValues then
+		self:SetPlotDiffusionValuesTo(iDirection)
+	end
+	return _cached[plotKey].PlotDiffusionValues[iDirection]
+end
+
+function UpdatePlotDiffusionValues(self)
+	local iX = self:GetX()
+	local iY = self:GetY()
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		local adjacentPlot 	= Map.GetAdjacentPlot(iX, iY, direction)
+		if adjacentPlot then
+			local back	= GetOppositeDirection(direction)
+			self:SetPlotDiffusionValuesTo(direction)
+			adjacentPlot:SetPlotDiffusionValuesTo(back)
+		end		
+	end
+end
+
+
+function SetPlotDiffusionValuesTo(self, iDirection)
+	local plotKey = self:GetKey()
+	if not _cached[plotKey] then _cached[plotKey] = {} end
+	if not _cached[plotKey].PlotDiffusionValues then _cached[plotKey].PlotDiffusionValues = {} end
+	
+	local pAdjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), iDirection)
+	--table.insert(debugTable, "Direction = " .. iDirection ..", to (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
+	if (pAdjacentPlot and not pAdjacentPlot:IsWater()) then
+		local iBonus 			= 0
+		local iPenalty 			= 0
+		local iPlotMaxRatio		= 1		
+		local bIsRoute 			= (self:IsRoute() and not self:IsRoutePillaged()) and (pAdjacentPlot:IsRoute() and not pAdjacentPlot:IsRoutePillaged())
+		local bIsFollowingRiver	= self:GetRiverPath(pAdjacentPlot) and not self:IsRiverCrossing(iDirection) --self:IsRiverConnection(iDirection) and not self:IsRiverCrossing(direction)
+		local bIsCrossingRiver 	= (not bIsRoute) and self:IsRiverCrossing(iDirection)
+		local terrainType		= self:GetTerrainType()
+		local terrainThreshold	= GameInfo.Terrains[terrainType].CultureThreshold
+		local terrainPenalty	= GameInfo.Terrains[terrainType].CulturePenalty
+		local terrainMaxPercent	= GameInfo.Terrains[terrainType].CultureMaxPercent
+		local featureType		= self:GetFeatureType()
+		--table.insert(debugTable, " - iPlotMaxRatio = "..iPlotMaxRatio..", bIsRoute = ".. tostring(bIsRoute) ..", bIsFollowingRiver =" .. tostring(bIsFollowingRiver) ..", bIsCrossingRiver = " .. tostring(bIsCrossingRiver) ..", terrainType = " .. terrainType ..", terrainThreshold = ".. terrainThreshold ..", terrainPenalty = ".. terrainPenalty ..", terrainMaxPercent = ".. terrainMaxPercent ..", featureType = ".. featureType)
+		-- Bonus: following road
+		if (bIsRoute) then
+			iBonus 			= iBonus + iRoadBonus
+			iPlotMaxRatio 	= iPlotMaxRatio * iRoadMax / 100
+			table.insert(debugTable, " - bIsRoute = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
+		end
+		
+		-- Bonus: following a river
+		if (bIsFollowingRiver) then
+			iBonus 			= iBonus + iFollowingRiverBonus
+			iPlotMaxRatio 	= iPlotMaxRatio * iFollowingRiverMax / 100
+			table.insert(debugTable, " - bIsFollowingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
+		end
+		
+		-- Penalty: feature
+		if featureType ~= NO_FEATURE then
+			local featureThreshold	= GameInfo.Features[featureType].CultureThreshold
+			local featurePenalty	= GameInfo.Features[featureType].CulturePenalty
+			local featureMaxPercent	= GameInfo.Features[featureType].CultureMaxPercent
+			if featurePenalty > 0 then
+				iPenalty 		= iPenalty + featurePenalty
+				iPlotMaxRatio 	= iPlotMaxRatio * featureMaxPercent / 100
+				table.insert(debugTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+			end
+		end
+		
+		-- Penalty: terrain
+		if terrainPenalty > 0 then
+			iPenalty 		= iPenalty + terrainPenalty
+			iPlotMaxRatio 	= iPlotMaxRatio * terrainMaxPercent / 100
+			table.insert(debugTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+		end
+		
+		-- Penalty: crossing river
+		if bIsCrossingRiver then
+			iPenalty 		= iPenalty + iCrossingRiverPenalty
+			iPlotMaxRatio 	= iPlotMaxRatio * iCrossingRiverMax / 100
+			table.insert(debugTable, " - bIsCrossingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+		end
+	
+		_cached[plotKey].PlotDiffusionValues[iDirection] = { Bonus = iBonus, Penalty = iPenalty, MaxRatio = iPlotMaxRatio }
+	end
+end
+
 local conquestCountdown = {}
 function DoConquestCountDown( self )
 	local count = conquestCountdown[self:GetKey()]
@@ -610,7 +698,7 @@ function DiffuseCulture( self )
 			local iPenalty 			= 0
 			local iPlotMax 			= iPlotBaseMax		
 			local bIsRoute 			= (self:IsRoute() and not self:IsRoutePillaged()) and (pAdjacentPlot:IsRoute() and not pAdjacentPlot:IsRoutePillaged())
-			local bIsFollowingRiver	= self:IsRiverConnection(direction) and not self:IsRiverCrossing(direction)
+			local bIsFollowingRiver	= self:GetRiverPath(pAdjacentPlot) and not self:IsRiverCrossing(direction) --self:IsRiverConnection(direction) and not self:IsRiverCrossing(direction)
 			local bIsCrossingRiver 	= (not bIsRoute) and self:IsRiverCrossing(direction)
 			local terrainType		= self:GetTerrainType()
 			local terrainThreshold	= GameInfo.Terrains[terrainType].CultureThreshold
@@ -661,7 +749,7 @@ function DiffuseCulture( self )
 						bSkip = true -- no diffusion on that plot
 						--table.insert(debugTable, " - Skipping plot (iCultureValue[".. iCultureValue .."] < terrainThreshold[".. terrainThreshold .."] * iBaseThreshold[".. iBaseThreshold .."] / 100)")
 					end
-				end			
+				end
 			end
 			
 			-- Penalty: crossing river
@@ -675,7 +763,7 @@ function DiffuseCulture( self )
 						bSkip = true -- no diffusion on that plot
 						--table.insert(debugTable, " - Skipping plot (iCultureValue[".. iCultureValue .."] < iCrossingRiverThreshold[".. iCrossingRiverThreshold .."] * iBaseThreshold[".. iBaseThreshold .."] / 100)")
 					end
-				end			
+				end
 			end
 			
 			if not bSkip then				
@@ -712,6 +800,11 @@ end
 -----------------------------------------------------------------------------------------
 -- Other Functions
 -----------------------------------------------------------------------------------------
+function GetOppositeDirection(dir)
+	local numTypes = DirectionTypes.NUM_DIRECTION_TYPES;
+	return ((dir + 3) % numTypes);
+end
+
 function GetCultureMinimumForAcquisition( playerID )
 	-- to do : change by era / policies
 	return tonumber(GameInfo.GlobalParameters["CULTURE_MINIMUM_FOR_ACQUISITION"].Value)
@@ -729,6 +822,7 @@ function ShowDebug()
 		end
 	end
 end
+
 
 function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY )
 	Dprint( DEBUG_PLOT_SCRIPT, "-----------------------------------------------------------------------------------------")
@@ -1070,7 +1164,6 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 	Dprint( DEBUG_PLOT_SCRIPT, "failed to find a path")
 end
 
-
 function GetRiverNeighbors(node)
 	local DEBUG_PLOT_SCRIPT			= false
 	Dprint( DEBUG_PLOT_SCRIPT, "Get neighbors :")
@@ -1309,6 +1402,7 @@ function isBlockaded(pDestPlot, pPlayer, fBlockaded, pOriginPlot)
 
   return bBlockaded
 end
+
 
 -----------------------------------------------------------------------------------------
 -- Goody Huts
@@ -1598,6 +1692,7 @@ function SetMaxEmployment(self)
 	_cached[plotKey].MaxEmployment = maxEmployment
 end
 
+
 function GetEmployed(self)
 	return math.min(self:GetPopulation(), self:GetMaxEmployment())
 end
@@ -1672,6 +1767,41 @@ Events.TurnBegin.Add(OnNewTurn)
 
 
 -----------------------------------------------------------------------------------------
+-- Events Functions
+-----------------------------------------------------------------------------------------
+function OnCityTileOwnershipChanged(playerID, cityID)
+
+end
+Events.CityTileOwnershipChanged.Add(OnCityTileOwnershipChanged)
+
+function DiffusionValueUpdate(x,y)
+	local plot = GetPlot(x,y)
+	if plot then
+		plot:UpdatePlotDiffusionValues()
+	end
+end
+function EmploymentValueUpdate(x,y)
+	local plot = GetPlot(x,y)
+	if plot then
+		plot:SetMaxEmployment()
+	end
+end
+
+Events.ImprovementAddedToMap.Add(DiffusionValueUpdate)
+Events.ImprovementRemovedFromMap.Add(DiffusionValueUpdate)
+Events.FeatureRemovedFromMap.Add(DiffusionValueUpdate)
+Events.FeatureAddedToMap.Add(DiffusionValueUpdate)
+Events.RouteAddedToMap.Add(DiffusionValueUpdate)
+Events.RouteRemovedFromMap.Add(DiffusionValueUpdate)
+
+Events.ImprovementAddedToMap.Add(EmploymentValueUpdate)
+Events.ImprovementRemovedFromMap.Add(EmploymentValueUpdate)
+Events.FeatureRemovedFromMap.Add(EmploymentValueUpdate)
+Events.FeatureAddedToMap.Add(EmploymentValueUpdate)
+Events.ResourceVisibilityChanged.Add(EmploymentValueUpdate)
+
+
+-----------------------------------------------------------------------------------------
 -- Shared Functions
 -----------------------------------------------------------------------------------------
 function GetPlotByIndex(index) -- return a plot with PlotScript functions for another context
@@ -1700,6 +1830,9 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.GetKey						= GetKey
 	p.GetCity						= GetCity
 	p.GetEraType					= GetEraType
+	p.GetPlotDiffusionValuesTo		= GetPlotDiffusionValuesTo
+	p.SetPlotDiffusionValuesTo		= SetPlotDiffusionValuesTo
+	p.UpdatePlotDiffusionValues		= UpdatePlotDiffusionValues
 	p.GetTotalCulture 				= GetTotalCulture
 	p.GetCulturePercent				= GetCulturePercent
 	p.GetCulturePercentTable		= GetCulturePercentTable
