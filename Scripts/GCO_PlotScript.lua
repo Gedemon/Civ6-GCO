@@ -192,14 +192,14 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 		if (bIsRoute) then
 			iBonus 			= iBonus + iRoadBonus
 			iPlotMaxRatio 	= iPlotMaxRatio * iRoadMax / 100
-			table.insert(debugTable, " - bIsRoute = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
+			--table.insert(debugTable, " - bIsRoute = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
 		end
 		
 		-- Bonus: following a river
 		if (bIsFollowingRiver) then
 			iBonus 			= iBonus + iFollowingRiverBonus
 			iPlotMaxRatio 	= iPlotMaxRatio * iFollowingRiverMax / 100
-			table.insert(debugTable, " - bIsFollowingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
+			--table.insert(debugTable, " - bIsFollowingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
 		end
 		
 		-- Penalty: feature
@@ -210,7 +210,7 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 			if featurePenalty > 0 then
 				iPenalty 		= iPenalty + featurePenalty
 				iPlotMaxRatio 	= iPlotMaxRatio * featureMaxPercent / 100
-				table.insert(debugTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+				--table.insert(debugTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
 			end
 		end
 		
@@ -218,14 +218,14 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 		if terrainPenalty > 0 then
 			iPenalty 		= iPenalty + terrainPenalty
 			iPlotMaxRatio 	= iPlotMaxRatio * terrainMaxPercent / 100
-			table.insert(debugTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+			--table.insert(debugTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
 		end
 		
 		-- Penalty: crossing river
 		if bIsCrossingRiver then
 			iPenalty 		= iPenalty + iCrossingRiverPenalty
 			iPlotMaxRatio 	= iPlotMaxRatio * iCrossingRiverMax / 100
-			table.insert(debugTable, " - bIsCrossingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+			--table.insert(debugTable, " - bIsCrossingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
 		end
 	
 		_cached[plotKey].PlotDiffusionValues[iDirection] = { Bonus = iBonus, Penalty = iPenalty, MaxRatio = iPlotMaxRatio }
