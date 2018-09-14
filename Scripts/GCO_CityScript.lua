@@ -271,40 +271,6 @@ local ClassMaximalGrowthRate		= tonumber(GameInfo.GlobalParameters["CITY_CLASS_M
 
 local StartingPopulationBonus		= tonumber(GameInfo.GlobalParameters["CITY_STARTING_POPULATION_BONUS"].Value)
 
-local UpperClassID 					= GameInfo.Populations["POPULATION_UPPER"].Index
-local MiddleClassID 				= GameInfo.Populations["POPULATION_MIDDLE"].Index
-local LowerClassID 					= GameInfo.Populations["POPULATION_LOWER"].Index
-local SlaveClassID 					= GameInfo.Populations["POPULATION_SLAVE"].Index
-local PersonnelClassID				= GameInfo.Populations["POPULATION_PERSONNEL"].Index
-local PrisonersClassID				= GameInfo.Populations["POPULATION_PRISONERS"].Index
-local AllClassID 					= GameInfo.Populations["POPULATION_ALL"].Index
-
-local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
-local UpperClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_BIRTH_RATE_FACTOR"].Value)
-local MiddleClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_BIRTH_RATE_FACTOR"].Value)
-local LowerClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_BIRTH_RATE_FACTOR"].Value)
-local SlaveClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_BIRTH_RATE_FACTOR"].Value)
-
-local BirthRateFactor = {
-	[UpperClassID] 	= UpperClassBirthRateFactor,
-    [MiddleClassID] = MiddleClassBirthRateFactor,
-    [LowerClassID] 	= LowerClassBirthRateFactor,
-    [SlaveClassID] 	= SlaveClassBirthRateFactor,
-	}
-
-local BaseDeathRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_DEATH_RATE"].Value)
-local UpperClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_DEATH_RATE_FACTOR"].Value)
-local MiddleClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_DEATH_RATE_FACTOR"].Value)
-local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_DEATH_RATE_FACTOR"].Value)
-local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
-
-local DeathRateFactor = {
-	[UpperClassID] 	= UpperClassDeathRateFactor,
-    [MiddleClassID] = MiddleClassDeathRateFactor,
-    [LowerClassID] 	= LowerClassDeathRateFactor,
-    [SlaveClassID] 	= SlaveClassDeathRateFactor,
-	}
-
 local UpperClassMaxPercent		 	= tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_MAX_PERCENT"].Value)
 local UpperClassMinPercent 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_UPPER_CLASS_MIN_PERCENT"].Value)
 local MiddleClassMaxPercent 		= tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_MAX_PERCENT"].Value)
@@ -407,6 +373,41 @@ local healOuterDefensesBaseMateriel	= tonumber(GameInfo.GlobalParameters["CITY_H
 
 local ConscriptsBaseActiveTurns		= tonumber(GameInfo.GlobalParameters["ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS"].Value)
 
+-- Population
+local UpperClassID 				= GameInfo.Populations["POPULATION_UPPER"].Index
+local MiddleClassID 			= GameInfo.Populations["POPULATION_MIDDLE"].Index
+local LowerClassID 				= GameInfo.Populations["POPULATION_LOWER"].Index
+local SlaveClassID 				= GameInfo.Populations["POPULATION_SLAVE"].Index
+local PersonnelClassID			= GameInfo.Populations["POPULATION_PERSONNEL"].Index
+local PrisonersClassID			= GameInfo.Populations["POPULATION_PRISONERS"].Index
+local AllClassID 				= GameInfo.Populations["POPULATION_ALL"].Index
+
+local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
+local UpperClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_BIRTH_RATE_FACTOR"].Value)
+local MiddleClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_BIRTH_RATE_FACTOR"].Value)
+local LowerClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_BIRTH_RATE_FACTOR"].Value)
+local SlaveClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_BIRTH_RATE_FACTOR"].Value)
+
+local BirthRateFactor = {
+	[UpperClassID] 	= UpperClassBirthRateFactor,
+    [MiddleClassID] = MiddleClassBirthRateFactor,
+    [LowerClassID] 	= LowerClassBirthRateFactor,
+    [SlaveClassID] 	= SlaveClassBirthRateFactor,
+	}
+
+local BaseDeathRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_DEATH_RATE"].Value)
+local UpperClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_DEATH_RATE_FACTOR"].Value)
+local MiddleClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_DEATH_RATE_FACTOR"].Value)
+local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_DEATH_RATE_FACTOR"].Value)
+local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
+
+local DeathRateFactor = {
+	[UpperClassID] 	= UpperClassDeathRateFactor,
+    [MiddleClassID] = MiddleClassDeathRateFactor,
+    [LowerClassID] 	= LowerClassDeathRateFactor,
+    [SlaveClassID] 	= SlaveClassDeathRateFactor,
+	}
+
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
 local FLOATING_TEXT_SHORT 	= 1
@@ -443,6 +444,7 @@ function PostInitialize() -- everything that may require other context to be loa
 	CitiesForTrade					= GCO.LoadTableFromSlot("CitiesForTrade") or {}
 	
 	-- Filling the helper to get the resources that can be traded at a specific trade level
+	-- (require initializing resources functions in ModUtils first)
 	for row in GameInfo.Resources() do
 		local resourceID = row.Index
 		if (GCO.IsResourceFood(resourceID) and row.ResourceClassType ~= "RESOURCECLASS_LUXURY" ) then

@@ -180,6 +180,10 @@ function InitializeNewTurn()
 	GCO.CleanCitiesData()
 	GCO.ShowTimer("CleanCitiesData")
 	
+	GCO.StartTimer("CleanPlotsData")
+	GCO.CleanPlotsData()
+	GCO.ShowTimer("CleanPlotsData")
+	
 	--LuaEvents.StartPlayerTurn(0) -- calling that here makes the game crash (tested 25-Oct-17)
 end
 GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)

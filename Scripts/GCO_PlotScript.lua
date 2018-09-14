@@ -23,6 +23,7 @@ local NO_FEATURE	 				= -1
 local NO_OWNER 						= -1
 local NO_RESOURCE					= -1
 local iDiffusionRatePer1000 		= 1
+
 local iRoadMax		 				= tonumber(GameInfo.GlobalParameters["CULTURE_FOLLOW_ROAD_MAX"].Value)
 local iRoadBonus	 				= tonumber(GameInfo.GlobalParameters["CULTURE_FOLLOW_ROAD_BONUS"].Value)
 local iFollowingRiverMax 			= tonumber(GameInfo.GlobalParameters["CULTURE_FOLLOW_RIVER_MAX"].Value)
@@ -34,6 +35,64 @@ local iBaseThreshold 				= tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION
 
 local FEATURE_ICE 					= GameInfo.Features["FEATURE_ICE"].Index
 local TERRAIN_COAST 				= GameInfo.Terrains["TERRAIN_COAST"].Index
+
+local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
+local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
+local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
+local horsesResourceID 			= GameInfo.Resources["RESOURCE_HORSES"].Index
+local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
+local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
+local medicineResourceID		= GameInfo.Resources["RESOURCE_MEDICINE"].Index
+local leatherResourceID			= GameInfo.Resources["RESOURCE_LEATHER"].Index
+local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
+
+local foodResourceKey			= tostring(foodResourceID)
+local personnelResourceKey		= tostring(personnelResourceID)
+local materielResourceKey		= tostring(materielResourceID)
+
+local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
+local ResourceStockPerSize 		= tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
+local FoodStockPerSize 			= tonumber(GameInfo.GlobalParameters["CITY_FOOD_STOCK_PER_SIZE"].Value)
+local LuxuryStockRatio 			= tonumber(GameInfo.GlobalParameters["CITY_LUXURY_STOCK_RATIO"].Value)
+local PersonnelPerSize	 		= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
+local EquipmentBaseStock 		= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUIPMENT"].Value)
+
+-- Population
+local populationPerSizepower 	= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value)
+
+local UpperClassID 				= GameInfo.Populations["POPULATION_UPPER"].Index
+local MiddleClassID 			= GameInfo.Populations["POPULATION_MIDDLE"].Index
+local LowerClassID 				= GameInfo.Populations["POPULATION_LOWER"].Index
+local SlaveClassID 				= GameInfo.Populations["POPULATION_SLAVE"].Index
+local PersonnelClassID			= GameInfo.Populations["POPULATION_PERSONNEL"].Index
+local PrisonersClassID			= GameInfo.Populations["POPULATION_PRISONERS"].Index
+local AllClassID 				= GameInfo.Populations["POPULATION_ALL"].Index
+
+local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
+local UpperClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_BIRTH_RATE_FACTOR"].Value)
+local MiddleClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_BIRTH_RATE_FACTOR"].Value)
+local LowerClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_BIRTH_RATE_FACTOR"].Value)
+local SlaveClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_BIRTH_RATE_FACTOR"].Value)
+
+local BirthRateFactor = {
+	[UpperClassID] 	= UpperClassBirthRateFactor,
+    [MiddleClassID] = MiddleClassBirthRateFactor,
+    [LowerClassID] 	= LowerClassBirthRateFactor,
+    [SlaveClassID] 	= SlaveClassBirthRateFactor,
+	}
+
+local BaseDeathRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_DEATH_RATE"].Value)
+local UpperClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_DEATH_RATE_FACTOR"].Value)
+local MiddleClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_MIDDLE_CLASS_DEATH_RATE_FACTOR"].Value)
+local LowerClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_LOWER_CLASS_DEATH_RATE_FACTOR"].Value)
+local SlaveClassDeathRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_SLAVE_CLASS_DEATH_RATE_FACTOR"].Value)
+
+local DeathRateFactor = {
+	[UpperClassID] 	= UpperClassDeathRateFactor,
+    [MiddleClassID] = MiddleClassDeathRateFactor,
+    [LowerClassID] 	= LowerClassDeathRateFactor,
+    [SlaveClassID] 	= SlaveClassDeathRateFactor,
+	}
 
 -----------------------------------------------------------------------------------------
 -- Debug
@@ -56,10 +115,11 @@ end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
-	Dprint( DEBUG_PLOT_SCRIPT, "--------------------------- Saving CultureMap ---------------------------")	
-	GCO.StartTimer("Saving And Checking CultureMap")
+	Dprint( DEBUG_PLOT_SCRIPT, "--------------------------- Saving Map ---------------------------")	
+	GCO.StartTimer("Saving And Checking Map")
 	GCO.SaveTableToSlot(ExposedMembers.CultureMap, "CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.PreviousCultureMap, "PreviousCultureMap")
+	GCO.SaveTableToSlot(ExposedMembers.PlotData, "PlotData")
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
@@ -77,19 +137,41 @@ function CheckSave()
 	else
 		GCO.Error("reloading saved PreviousCultureMap table show differences with actual table !")
 		LuaEvents.StopAuToPlay()
-		CompareData(ExposedMembers.CultureMap, GCO.LoadTableFromSlot("CultureMap"))
-	end	
-	GCO.ShowTimer("Saving And Checking CultureMap")
+		CompareData(ExposedMembers.PreviousCultureMap, GCO.LoadTableFromSlot("PreviousCultureMap"))
+	end
+	
+	if GCO.AreSameTables(ExposedMembers.PlotData, GCO.LoadTableFromSlot("PlotData")) then
+		Dprint( DEBUG_PLOT_SCRIPT, "- Tables are identical")
+	else
+		GCO.Error("reloading saved PlotData table show differences with actual table !")
+		CompareData(ExposedMembers.PlotData, GCO.LoadTableFromSlot("PlotData"))
+	end
+	GCO.ShowTimer("Saving And Checking Map")
 end
 LuaEvents.SaveTables.Add(CheckSave)
 
 function PostInitialize() -- everything that may require other context to be loaded first
-	ExposedMembers.CultureMap 			= GCO.LoadTableFromSlot("CultureMap") or {}
-	ExposedMembers.PreviousCultureMap 	= GCO.LoadTableFromSlot("PreviousCultureMap") or {}
+	ExposedMembers.CultureMap 			= GCO.LoadTableFromSlot("CultureMap") 			or {}
+	ExposedMembers.PreviousCultureMap 	= GCO.LoadTableFromSlot("PreviousCultureMap") 	or {}
+	ExposedMembers.PlotData 			= GCO.LoadTableFromSlot("PlotData") 			or CreatePlotData()
 	InitializePlotFunctions()
 	SetCultureDiffusionRatePer1000()
 end
 
+function CreatePlotData()
+	local plotData		= {}
+	local iPlotCount 	= Map.GetPlotCount()
+	for i = 0, iPlotCount - 1 do
+		local plot 		= Map.GetPlotByIndex(i)		
+		local plotKey 	= plot:GetKey()
+		local turnKey 	= GCO.GetTurnKey()
+		
+		plotData[plotKey] = {
+			Stock					= { [turnKey] = {} },
+			Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
+		}
+	end
+end
 
 -- for debugging
 function ShowPlotData()
@@ -121,6 +203,13 @@ end
 -----------------------------------------------------------------------------------------
 function GetKey ( self )
 	return tostring(self:GetIndex())
+end
+
+function GetData(self)
+	local plotKey 	= self:GetKey()
+	local plotData 	= ExposedMembers.PlotData[plotKey]
+	if not plotData then GCO.Warning("plotData is nil for ".. Locale.Lookup(self:GetName())); GCO.DlineFull(); end
+	return plotData
 end
 
 function GetPlotFromKey( key )
@@ -1531,7 +1620,7 @@ Events.ImprovementActivated.Add( OnImprovementActivated )
 
 -- GCO.Round(math.pow(size, populationPerSizepower) * 1000)
 
-local populationPerSizepower = tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value) - 1 -- number of worked plots being equal to city size, using (popPerSizePower - 1) for tiles means that the sum of all population on worked tiles at size n will not be > to the total city population at that size 
+--local populationPerSizepower = tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value) - 1 -- number of worked plots being equal to city size, using (popPerSizePower - 1) for tiles means that the sum of all population on worked tiles at size n will not be > to the total city population at that size 
 
 function GetEmploymentValue(self, num)
 	return GCO.Round(math.pow(num, self:GetRuralEmploymentPow()) * self:GetRuralEmploymentFactor())
@@ -1711,6 +1800,10 @@ end
 -- Plot Population
 -----------------------------------------------------------------------------------------
 
+function GetSize(self)
+	return GCO.Round(math.pow(self:GetPopulation()/1000, 1/populationPerSizepower))
+end
+
 function GetPopulation(self)
 	-- temporary waiting for population migration
 	local city = self:GetCity()
@@ -1723,13 +1816,288 @@ function GetPopulation(self)
 		end
 		--]]
 	end
+	return 0 -- self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+end
+
+function ChangeUpperClass(self, value)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetTurnKey()
+	local previous 	= plotData.Population[turnKey].UpperClass
+	plotData.Population[turnKey].UpperClass = math.max(0 , previous + value)
+end
+
+function ChangeMiddleClass(self, value)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetTurnKey()
+	local previous 	= plotData.Population[turnKey].MiddleClass
+	plotData.Population[turnKey].MiddleClass = math.max(0 , previous + value)
+end
+
+function ChangeLowerClass(self, value)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetTurnKey()
+	local previous 	= plotData.Population[turnKey].LowerClass
+	plotData.Population[turnKey].LowerClass = math.max(0 , previous + value)
+end
+
+function ChangeSlaveClass(self, value)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetTurnKey()
+	local previous 	= plotData.Population[turnKey].Slaves
+	plotData.Population[turnKey].Slaves = math.max(0 , previous + value)
+end
+
+function GetUpperClass(self)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetTurnKey()
+	return plotData.Population[turnKey].UpperClass or 0
+end
+
+function GetMiddleClass(self)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetTurnKey()
+	return plotData.Population[turnKey].MiddleClass or 0
+end
+
+function GetLowerClass(self)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetTurnKey()
+	return plotData.Population[turnKey].LowerClass or 0
+end
+
+function GetSlaveClass(self)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetTurnKey()
+	return plotData.Population[turnKey].Slaves or 0
+end
+
+function GetPopulationClass(self, populationID)
+	if populationID == UpperClassID 	then return self:GetUpperClass() end
+	if populationID == MiddleClassID 	then return self:GetMiddleClass() end
+	if populationID == LowerClassID 	then return self:GetLowerClass() end
+	if populationID == SlaveClassID 	then return self:GetSlaveClass() end
+	if populationID == AllClassID 		then return self:GetRealPopulation() end
+	GCO.Error("can't find population class for ID = ", populationID)
 	return 0
+end
+
+function ChangePopulationClass(self, populationID, value)
+	if populationID == UpperClassID 	then return self:ChangeUpperClass(value) end
+	if populationID == MiddleClassID 	then return self:ChangeMiddleClass(value) end
+	if populationID == LowerClassID 	then return self:ChangeLowerClass(value) end
+	if populationID == SlaveClassID 	then return self:ChangeSlaveClass(value) end
+	GCO.Error("can't find population class for ID = ", populationID)
+end
+
+function GetPreviousUpperClass(self)
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetPreviousTurnKey()
+	return plotData.Population[turnKey].UpperClass or 0
+end
+
+function GetPreviousMiddleClass(self )
+	local plotData 	= self:GetData()
+	local turnKey 	= GCO.GetPreviousTurnKey()
+	return plotData.Population[turnKey].MiddleClass or 0
+end
+
+function GetPreviousLowerClass(self)
+	local plotData 		= self:GetData()
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	return plotData.Population[turnKey].LowerClass or 0
+end
+
+function GetPreviousSlaveClass(self)
+	local plotData 		= self:GetData()
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	return plotData.Population[turnKey].Slaves or 0
+end
+
+function GetBirthRate(self)
+	local city = self:GetCity()
+	if city then
+		return city:GetBirthRate()
+	else
+		return 0 -- temporary
+	end
+end
+
+function GetDeathRate(self)
+	local city = self:GetCity()
+	if city then
+		return city:GetDeathRate()
+	else
+		return 0 -- temporary
+	end
+end
+
+function GetBasePopulationDeathRate(self, populationID)
+	return self:GetDeathRate() * DeathRateFactor[populationID]
+end
+
+function GetPopulationDeathRate(self, populationID)
+	local city = self:GetCity()
+	if city then
+		return city:GetPopulationDeathRate()
+	else
+		return self:GetBasePopulationDeathRate(populationID)
+	end
+end
+
+function GetBasePopulationBirthRate(self, populationID)
+	return self:GetBirthRate() * BirthRateFactor[populationID]
+end
+
+function GetPopulationBirthRate(self, populationID)
+	local city = self:GetCity()
+	if city then
+		return city:GetPopulationBirthRate()
+	else
+		return self:GetBasePopulationBirthRate(populationID)
+	end
+end
+
+
+-----------------------------------------------------------------------------------------
+-- Plot Stock
+-----------------------------------------------------------------------------------------
+function GetMaxStock(self, resourceID)
+	local maxStock 	= 0
+	if not GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
+		maxStock = ResourceStockPerSize
+		if resourceID == personnelResourceID 	then maxStock = PersonnelPerSize end
+		if resourceID == foodResourceID 		then maxStock = FoodStockPerSize + baseFoodStock end
+		if GCO.IsResourceEquipment(resourceID) 	then		
+			local equipmentType = GameInfo.Resources[equipmentID].ResourceType
+			local equipmentSize = GameInfo.Equipment[equipmentType].Size
+			maxStock = math.floor(EquipmentBaseStock / equipmentSize)
+		end
+		if GCO.IsResourceLuxury(resourceID) 	then maxStock = GCO.Round(maxStock * LuxuryStockRatio) end
+	end
+	return maxStock
+end
+
+function GetStock(self, resourceID)
+	local plotData 		= self:GetData()
+	local turnKey 		= GCO.GetTurnKey()
+	local resourceKey 	= tostring(resourceID)
+	return plotData.Stock[turnKey][resourceKey] or 0
+end
+
+function ChangeStock(self, resourceID, value, useType, reference)
+
+	if not resourceID then
+		GCO.Warning("resourceID is nil or false in ChangeStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
+		return
+	end
+
+	if value == 0 then return end
+
+	value = GCO.ToDecimals(value)
+
+	local resourceKey 	= tostring(resourceID)
+	local plotData 		= self:GetData()
+	local turnKey 		= GCO.GetTurnKey()
+
+	if not reference then reference = NO_REFERENCE_KEY end
+	reference = tostring(reference) -- will be a key in table
+
+	--[[
+	if value > 0 then
+		if not useType then useType = ResourceUseType.OtherIn end
+	else
+		if not useType then useType = ResourceUseType.OtherOut  end
+	end
+	--]]
+
+	-- Update stock
+	if not plotData.Stock[turnKey][resourceKey] then
+		if value < 0 then
+			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[tonumber(resourceID)].Name) .." stock, value = "..tostring(value))
+		end
+		plotData.Stock[turnKey][resourceKey] = math.max(0 , value)
+	else
+		local newStock = GCO.ToDecimals(plotData.Stock[turnKey][resourceKey] + value)
+		if newStock < -1 then -- allow a rounding error of 1
+			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[tonumber(resourceID)].Name) .." stock, previous stock = ".. tostring(cityData.Stock[turnKey][resourceKey])..", variation value = "..tostring(value))
+		end
+		plotData.Stock[turnKey][resourceKey] = math.max(0 , newStock)
+	end
+
+	-- update stats
+	--[[
+	if not plotData.ResourceUse[turnKey][resourceKey] then
+		plotData.ResourceUse[turnKey][resourceKey] = { [useType] = {[reference] = math.abs(value)}}
+
+	elseif not plotData.ResourceUse[turnKey][resourceKey][useType] then
+		plotData.ResourceUse[turnKey][resourceKey][useType] = {[reference] = math.abs(value)}
+
+	elseif not plotData.ResourceUse[turnKey][resourceKey][useType][reference] then
+		plotData.ResourceUse[turnKey][resourceKey][useType][reference] = math.abs(value)
+
+	else
+		plotData.ResourceUse[turnKey][resourceKey][useType][reference] = GCO.ToDecimals(ExposedMembers.CityData[cityKey].ResourceUse[turnKey][resourceKey][useType][reference] + math.abs(value))
+	end
+	--]]
+end
+
+function GetResources(self)
+	local plotData 		= self:GetData()
+	local turnKey 		= GCO.GetTurnKey()
+	return plotData.Stock[turnKey] or {}
+end
+
+function GetPreviousStock(self , resourceID)
+	local plotData 		= self:GetData()
+	local turnKey 		= GCO.GetPreviousTurnKey()
+	local resourceKey 	= tostring(resourceID)
+	return plotData.Stock[turnKey][resourceKey] or 0
+end
+
+function GetStockVariation(self, resourceID)
+	return GCO.ToDecimals(self:GetStock(resourceID) - self:GetPreviousStock(resourceID))
 end
 
 
 -----------------------------------------------------------------------------------------
 -- Plot Doturn
 -----------------------------------------------------------------------------------------
+
+function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
+
+	--Dlog("UpdateDataOnNewTurn (".. tostring(self:GetX()) .. "," tostring(self:GetY())..") /START")
+	local DEBUG_PLOT_SCRIPT = false
+
+	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLOT_SCRIPT, "Updating Data for ".. self:GetX(), self:GetY())
+	local plotData 			= self:GetData()
+	local turnKey 			= GCO.GetTurnKey()
+	local previousTurnKey 	= GCO.GetPreviousTurnKey()
+	if turnKey ~= previousTurnKey then
+
+		Dprint( DEBUG_PLOT_SCRIPT, "turnKey = ", turnKey, " previousTurnKey = ", previousTurnKey)
+		
+		-- get previous turn data
+		local stockData = plotData.Stock[previousTurnKey]
+		local popData 	= plotData.Population[previousTurnKey]
+		
+		-- initialize empty tables for the new turn data
+		plotData.Stock[turnKey] 		= {}
+		plotData.Population[turnKey]	= {}
+		--plotData.ResourceUse[turnKey]	= {}
+		
+		-- fill the new table with previous turn data
+		for resourceKey, value in pairs(stockData) do
+			plotData.Stock[turnKey][resourceKey] = value
+		end
+
+		for key, value in pairs(popData) do
+			plotData.Population[turnKey][key] = value
+		end
+
+	end
+	--Dlog("UpdateDataOnNewTurn /END")
+end
 
 
 function OnNewTurn()
@@ -1748,8 +2116,8 @@ function OnNewTurn()
 	end
 	-- Second Pass
 	for i = 0, iPlotCount - 1 do
-		local plot = Map.GetPlotByIndex(i)
-		-- update culture
+		local plot = Map.GetPlotByIndex(i)	
+		plot:UpdateDataOnNewTurn()	
 		plot:UpdateCulture()
 		plot:SetMaxEmployment()
 	end
@@ -1816,6 +2184,33 @@ function GetPlot(x, y) -- return a plot with PlotScript functions for another co
 	return plot
 end
 
+function CleanPlotsData() -- called in GCO_GameScript.lua
+
+	-- remove old data from the table
+	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLOT_SCRIPT, "Cleaning PlotData...")	
+	
+	for plotKey, data1 in pairs(ExposedMembers.PlotData) do
+		local toClean 	= {"Stock","Population"}
+		local maxTurn	= 3
+		for i, dataToClean in ipairs(toClean) do
+			turnTable = {}
+			for turnkey, data2 in pairs(data1[dataToClean]) do
+				local turn = tonumber(turnkey)
+				if turn <= (Game.GetCurrentGameTurn() - maxTurn) then
+
+					Dprint( DEBUG_PLOT_SCRIPT, "Removing entry : ", plotKey, dataToClean, " turn = ", turn)
+					table.insert(turnTable, turn)
+				end
+			end
+			for j, turn in ipairs(turnTable) do
+				local turnkey = tostring(turn)
+				ExposedMembers.PlotData[plotKey][dataToClean][turnkey] = nil
+			end
+		end
+	end
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Initialize Plot Functions
@@ -1828,6 +2223,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	--p.IsImprovementPillaged			= GCO.PlotIsImprovementPillaged -- not working ?
 	
 	p.GetKey						= GetKey
+	p.GetData						= GetData
 	p.GetCity						= GetCity
 	p.GetEraType					= GetEraType
 	p.GetPlotDiffusionValuesTo		= GetPlotDiffusionValuesTo
@@ -1867,7 +2263,34 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.GetEmployed					= GetEmployed
 	p.GetActivityFactor				= GetActivityFactor
 	--
+	p.GetSize						= GetSize
 	p.GetPopulation					= GetPopulation
+	p.ChangeUpperClass				= ChangeUpperClass
+	p.ChangeMiddleClass				= ChangeMiddleClass
+	p.ChangeLowerClass				= ChangeLowerClass
+	p.ChangeSlaveClass				= ChangeSlaveClass
+	p.GetUpperClass					= GetUpperClass
+	p.GetMiddleClass				= GetMiddleClass
+	p.GetLowerClass					= GetLowerClass
+	p.GetSlaveClass					= GetSlaveClass
+	p.GetPreviousUpperClass			= GetPreviousUpperClass
+	p.GetPreviousMiddleClass		= GetPreviousMiddleClass
+	p.GetPreviousLowerClass			= GetPreviousLowerClass
+	p.GetPreviousSlaveClass			= GetPreviousSlaveClass
+	p.GetPopulationClass			= GetPopulationClass
+	p.ChangePopulationClass			= ChangePopulationClass
+	p.GetPopulationDeathRate		= GetPopulationDeathRate
+	p.GetBasePopulationDeathRate	= GetBasePopulationDeathRate
+	p.GetPopulationBirthRate		= GetPopulationBirthRate
+	p.GetBasePopulationBirthRate	= GetBasePopulationBirthRate
+	p.GetBirthRate					= GetBirthRate
+	p.GetDeathRate					= GetDeathRate
+	--
+	p.GetMaxStock					= GetMaxStock
+	p.GetStock 						= GetStock
+	p.GetResources					= GetResources
+	p.GetPreviousStock				= GetPreviousStock
+	p.ChangeStock 					= ChangeStock
 	--
 	p.IsEOfRiver					= IsEOfRiver
 	p.IsSEOfRiver					= IsSEOfRiver
@@ -1894,6 +2317,8 @@ function Initialize()
 	--
 	ExposedMembers.GCO.GetPlotFromKey 			= GetPlotFromKey
 	ExposedMembers.GCO.GetRiverPath				= GetRiverPath
+	--
+	ExposedMembers.GCO.CleanPlotsData			= CleanPlotsData
 	--
 	ExposedMembers.PlotScript_Initialized 		= true
 end
