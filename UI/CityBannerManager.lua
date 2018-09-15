@@ -851,6 +851,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 				
 				population 			= city:GetTotalPopulation() --city:GetRealPopulation()
 				popVariation 		= city:GetTotalPopulationVariation() --city:GetRealPopulationVariation()
+				urbanPopulation		= city:GetUrbanPopulation()
 				
 				local nextPop		= GCO.GetPopulationPerSize(citySize+1)
 				local prevPop		= GCO.GetPopulationPerSize(citySize)-- -1)
@@ -858,10 +859,10 @@ function CityBanner.UpdateStats( self : CityBanner)
 				local popDiff	= 0
 				if popVariation > 0 then
 					--turnsUntilGrowth = GCO.Round((nextPop - population)/popVariation)
-					popDiff = nextPop - population
+					popDiff = nextPop - urbanPopulation
 				elseif popVariation < 0 then
 					--turnsUntilGrowth = GCO.Round((population-prevPop)/popVariation)
-					popDiff = population - prevPop
+					popDiff = urbanPopulation - prevPop
 				end
 				
 				local cityString =  Locale.Lookup("LOC_CITY_BANNER_SIZE", citySize) .. " - " .. Locale.Lookup(city:GetName()) .. " - " .. Locale.Lookup("LOC_CITY_BANNER_WEALTH", city:GetWealth())
@@ -870,7 +871,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 				if population > 0 then
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE")
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_TOTAL_POPULATION", population) .. GCO.GetVariationString(popVariation)
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_POPULATION", city:GetUrbanPopulation()) .. GCO.GetVariationString(city:GetUrbanPopulationVariation())
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_POPULATION", urbanPopulation) .. GCO.GetVariationString(city:GetUrbanPopulationVariation())
 					if city:GetUpperClass() + city:GetPreviousUpperClass() > 0 then
 						cityString = cityString .. "[NEWLINE][ICON_INDENT]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", city:GetUpperClass()) .. GCO.GetVariationString(city:GetUpperClass() - city:GetPreviousUpperClass())
 					end

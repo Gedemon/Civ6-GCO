@@ -786,7 +786,10 @@ function ShowPlotInfo( plotId:number, bIsUpdate:boolean )
 			local terrainID 	= plot:GetTerrainType()
 			
 			if new_data.ResourceCount > 0 then
-				new_data.Resources[eResourceType] = (new_data.Resources[eResourceType] or 0) + new_data.ResourceCount
+				local resourceID = plot:GetResourceType()
+				if localPlayer:IsResourceVisible(resourceID) then
+					new_data.Resources[resourceID] = (new_data.Resources[resourceID] or 0) + new_data.ResourceCount
+				end
 			end
 			
 			if FeatureResources[featureID] then

@@ -3913,6 +3913,19 @@ function GetRuralPopulation(self)
 	return ruralPopulation
 end
 
+function GetRuralPopulationClass(self, populationID)
+	--return self:GetRealPopulation() - self:GetUrbanPopulation()
+	local ruralPopulation 	= 0
+	local cityPlots			= GCO.GetCityPlots(self)
+	for _, plotID in ipairs(cityPlots) do
+		local plot = GCO.GetPlotByIndex(plotID)
+		if plot and (not plot:IsCity()) then
+			ruralPopulation = ruralPopulation + plot:GetPopulationClass(populationID)
+		end
+	end
+	return ruralPopulation
+end
+
 function GetRuralPopulationVariation(self)
 	--return self:GetRealPopulation() - self:GetUrbanPopulation()
 	local ruralPopulation 	= 0
@@ -5244,38 +5257,27 @@ function DoGrowth(self)
 	local cityDeathRate = self:GetDeathRate()
 	Dprint( DEBUG_CITY_SCRIPT, "Global :	BirthRate = ", cityBirthRate, " DeathRate = ", cityDeathRate)
 	local years = GrowthRateBaseYears
+	
 	if bUseRealYears then
 		years = Calendar.GetTurnYearForGame(Game.GetCurrentGameTurn()) - Calendar.GetTurnYearForGame(Game.GetCurrentGameTurn()-1)
 	end
+	
 	function LimitRate(birth, death)
 		local rate = math.min(ClassMaximalGrowthRate, math.max(ClassMinimalGrowthRate, birth - death))
 		return rate
 	end
-
-	local upperPop	= self:GetUpperClass()
-	local middlePop = self:GetMiddleClass()
-	local lowerPop	= self:GetLowerClass()
-	local slavePop 	= self:GetSlaveClass()
-
+	
 	function CalculateVar(initialPopulation, populationBirthRate, populationDeathRate )
 		return GCO.Round( initialPopulation	* years * LimitRate(populationBirthRate, populationDeathRate) / 1000)
 	end
-	local upperVar	= CalculateVar( upperPop, self:GetPopulationBirthRate(UpperClassID), self:GetPopulationDeathRate(UpperClassID))
-	local middleVar = CalculateVar( middlePop, self:GetPopulationBirthRate(MiddleClassID), self:GetPopulationDeathRate(MiddleClassID))
-	local lowerVar	= CalculateVar( lowerPop, self:GetPopulationBirthRate(LowerClassID), self:GetPopulationDeathRate(LowerClassID))
-	local slaveVar 	= CalculateVar( slavePop, self:GetPopulationBirthRate(SlaveClassID), self:GetPopulationDeathRate(SlaveClassID))
-
-
-	Dprint( DEBUG_CITY_SCRIPT, "Upper :	...	BirthRate = ", self:GetPopulationBirthRate(UpperClassID), " DeathRate = ", self:GetPopulationDeathRate(UpperClassID), " Initial Population = ", upperPop, " Variation = ", upperVar )
-	Dprint( DEBUG_CITY_SCRIPT, "Middle : ..	BirthRate = ", self:GetPopulationBirthRate(MiddleClassID), " DeathRate = ", self:GetPopulationDeathRate(MiddleClassID), " Initial Population = ", middlePop, " Variation = ", middleVar )
-	Dprint( DEBUG_CITY_SCRIPT, "Lower :	...	BirthRate = ", self:GetPopulationBirthRate(LowerClassID), " DeathRate = ", self:GetPopulationDeathRate(LowerClassID), " Initial Population = ", lowerPop, " Variation = ", lowerVar )
-	Dprint( DEBUG_CITY_SCRIPT, "Slave :	...	BirthRate = ", self:GetPopulationBirthRate(SlaveClassID), " DeathRate = ", self:GetPopulationDeathRate(SlaveClassID), " Initial Population = ", slavePop, " Variation = ", slaveVar )
-
-	self:ChangeUpperClass(upperVar)
-	self:ChangeMiddleClass(middleVar)
-	self:ChangeLowerClass(lowerVar)
-	self:ChangeSlaveClass(slaveVar)
-
+	
+	local popTable	= {UpperClassID, MiddleClassID, LowerClassID, SlaveClassID}
+	for i, populationID in ipairs(popTable) do
+		number 		= self:GetPopulationClass(populationID) + math.floor(self:GetRuralPopulationClass(populationID) / 2)
+		variation	= CalculateVar( number, self:GetPopulationBirthRate(populationID), self:GetPopulationDeathRate(populationID))
+		Dprint( DEBUG_CITY_SCRIPT, Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." : BirthRate = ", self:GetPopulationBirthRate(populationID), " DeathRate = ", self:GetPopulationDeathRate(populationID), " Initial Population = ", number, " Variation = ", variation )
+		self:ChangePopulationClass(populationID, variation)
+	end
 end
 
 function DoFood(self)
@@ -5697,12 +5699,14 @@ function DoMigration(self)
 					if (plot:GetWorkerCount() > 0) then
 						workedFactor = 10
 					end
-					table.insert (possibleDestination, {PlotID = plotID, Employment = (plotEmployment - cityEmployment)*workedFactor})
+					local employmentDiff 	= plotEmployment - cityEmployment
+					local MigrationWeight	= employmentDiff * workedFactor
+					table.insert (possibleDestination, {PlotID = plotID, Employment = employmentDiff, Weight = MigrationWeight})
 				end
 			end
 		end
 		
-		table.sort(possibleDestination, function(a, b) return a.Employment > b.Employment; end)
+		table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
 		local numPlotDest 		= #possibleDestination
 		--local averageEmployment	= (ruralEmployment/numPlotDest)
 		for i, destination in ipairs(possibleDestination) do
@@ -6328,6 +6332,7 @@ function AttachCityFunctions(city)
 	c.GetUrbanPopulation				= GetUrbanPopulation
 	c.GetUrbanPopulationVariation		= GetUrbanPopulationVariation
 	c.GetRuralPopulation				= GetRuralPopulation
+	c.GetRuralPopulationClass			= GetRuralPopulationClass
 	c.GetRuralPopulationVariation		= GetRuralPopulationVariation
 	c.GetUrbanEmployed					= GetUrbanEmployed
 	c.GetUrbanActivityFactor			= GetUrbanActivityFactor
