@@ -57,6 +57,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PE
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		2500);	-- value added to the starting population of a new city (to do : Settlers with different size for late game)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_STOCK', 					100);	-- bonus food stock added to base resource stock
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_PER_SIZE_POWER',			2.8);	-- CityPopulation = math.pow(citySize, CITY_POPULATION_PER_SIZE_POWER) * 1000)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_MAX_MIGRANT_PERCENT',	10);	-- Max percentage of CityPopulation that can migrate each turn
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_REQUIRED_RESOURCE_BASE_FACTOR',		1.50);	-- Balance factor for required resources
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PRODUCED_RESOURCE_BASE_FACTOR',		1.00);	-- Balance factor for produced resources

@@ -848,7 +848,7 @@ function GetTurnKey()
 end
 
 function GetPreviousTurnKey()
-	return tostring(math.max(0, Game.GetCurrentGameTurn()-1))
+	return tostring(math.max(1, Game.GetCurrentGameTurn()-1))
 end
 
 
@@ -895,7 +895,6 @@ function IsResourceEquipmentMaker(resourceID)
 	return (IsEquipmentMaker[resourceID] == true)
 end
 
-
 function GetResourceIcon(resourceID)
 	if not resourceID then return "[ICON_EQUIPMENT_CRATES]" end -- allow call with no argument to return default icon
 	local iconStr = ""
@@ -909,6 +908,15 @@ function GetResourceIcon(resourceID)
 	end		
 	return iconStr
 end
+
+function GetResourceImprovementID(resourceID)
+	return ResourceImprovementID[resourceID]
+end
+
+function IsImprovingResource(improvementID, resourceID)
+	return (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+end
+
 
 --=====================================================================================--
 -- Units
@@ -1079,6 +1087,8 @@ function Initialize()
 	ExposedMembers.GCO.IsResourceLuxury 			= IsResourceLuxury
 	ExposedMembers.GCO.IsResourceEquipmentMaker		= IsResourceEquipmentMaker
 	ExposedMembers.GCO.GetResourceIcon				= GetResourceIcon
+	ExposedMembers.GCO.GetResourceImprovementID		= GetResourceImprovementID
+	ExposedMembers.GCO.IsImprovingResource			= IsImprovingResource
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 				= GetVariationString

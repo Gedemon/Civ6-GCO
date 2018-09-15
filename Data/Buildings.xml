@@ -9,35 +9,35 @@
 	-->
 	<BuildingsGCO>
 		
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 			Cost="1" 	NoPedia="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 			Cost="1" 	NoPedia="1" EmploymentSize="2.00"/>
 		
 		<Row BuildingType="BUILDING_RECRUITS" 					Cost="1" 	NoPedia="1"/>
 			
-		<Row BuildingType="BUILDING_BUTCHERY" 					Cost="80" 	MaterielPerProduction="3" PrereqTech="TECH_ANIMAL_HUSBANDRY"	EmploymentSize="0.50"/>
-		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 			EmploymentSize="0.15"/>
-		<Row BuildingType="BUILDING_FISH_MARKET" 				Cost="70" 	MaterielPerProduction="2" PrereqTech="TECH_SAILING" 			EmploymentSize="0.50"/>
-		<Row BuildingType="BUILDING_FRUIT_MARKET" 				Cost="110" 	MaterielPerProduction="3" PrereqTech="TECH_IRRIGATION" 			EmploymentSize="0.50"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="0.50"	EquipmentStock="500" />
-		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING"		EmploymentSize="0.50"	EquipmentStock="500" />
-		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" 										EmploymentSize="0.15"	EquipmentStock="1000"/>
-		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="1.00"	Coast = "1" />
+		<Row BuildingType="BUILDING_BUTCHERY" 					Cost="80" 	MaterielPerProduction="3" PrereqTech="TECH_ANIMAL_HUSBANDRY"	EmploymentSize="1.00"/>
+		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 			EmploymentSize="0.30"/>
+		<Row BuildingType="BUILDING_FISH_MARKET" 				Cost="70" 	MaterielPerProduction="2" PrereqTech="TECH_SAILING" 			EmploymentSize="1.00"/>
+		<Row BuildingType="BUILDING_FRUIT_MARKET" 				Cost="110" 	MaterielPerProduction="3" PrereqTech="TECH_IRRIGATION" 			EmploymentSize="1.00"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="1.00"	EquipmentStock="500" />
+		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING"		EmploymentSize="1.00"	EquipmentStock="500" />
+		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" 										EmploymentSize="0.50"	EquipmentStock="1000"/>
+		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="2.00"	Coast = "1" />
 		
-		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.15"/>
-		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.15"/>
+		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
+		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		
-		<Row BuildingType="BUILDING_WEAPONSMITH"				Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_CONSTRUCTION" 		EmploymentSize="0.25"	EquipmentStock="250" />
-		<Row BuildingType="BUILDING_ARMORSMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_ENGINEERING" 		EmploymentSize="0.25"	EquipmentStock="250" />
-		<Row BuildingType="BUILDING_FARRIER"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_STIRRUPS" 			EmploymentSize="0.25"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_WEAPONSMITH"				Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_CONSTRUCTION" 		EmploymentSize="0.85"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_ARMORSMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_ENGINEERING" 		EmploymentSize="0.85"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_FARRIER"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_STIRRUPS" 			EmploymentSize="0.85"	EquipmentStock="250" />
 		
-		<Row BuildingType="BUILDING_TREADMILL" 					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_THE_WHEEL" 			EmploymentSize="0.50"	/>
-		<Row BuildingType="BUILDING_WINDMILL" 					Cost="195" 	MaterielPerProduction="3" PrereqTech="TECH_MACHINERY" 			EmploymentSize="0.50"	/>
+		<Row BuildingType="BUILDING_TREADMILL" 					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_THE_WHEEL" 			EmploymentSize="0.75"	/>
+		<Row BuildingType="BUILDING_WINDMILL" 					Cost="195" 	MaterielPerProduction="3" PrereqTech="TECH_MACHINERY" 			EmploymentSize="1.25"	/>
 		
-		<Row BuildingType="BUILDING_ARTILLATOR"					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_ARCHERY" 	 		EmploymentSize="0.15"	EquipmentStock="250" />
-		<Row BuildingType="BUILDING_ARMORER"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_MINING" 		 		EmploymentSize="0.15"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_ARTILLATOR"					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_ARCHERY" 	 		EmploymentSize="0.50"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_ARMORER"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_MINING" 		 		EmploymentSize="0.85"	EquipmentStock="250" />
 		
-		<Row BuildingType="BUILDING_FOUNDRY"					Cost="200" 	MaterielPerProduction="6" PrereqTech="TECH_METAL_CASTING" 		EmploymentSize="1.00"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_FOUNDRY"					Cost="200" 	MaterielPerProduction="6" PrereqTech="TECH_METAL_CASTING" 		EmploymentSize="2.50"	EquipmentStock="250" />
 		
-		<Row BuildingType="BUILDING_MARKET_EXTENSION"			Cost="290" 	MaterielPerProduction="6" PrereqTech="TECH_BANKING"  			EmploymentSize="1.00"	/>
+		<Row BuildingType="BUILDING_MARKET_EXTENSION"			Cost="290" 	MaterielPerProduction="6" PrereqTech="TECH_BANKING"  			EmploymentSize="2.50"	/>
 	
 		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	Cost="30" 	MaterielPerProduction="2" />
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	Cost="60" 	MaterielPerProduction="4" />

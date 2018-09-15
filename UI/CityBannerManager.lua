@@ -849,8 +849,8 @@ function CityBanner.UpdateStats( self : CityBanner)
 				maxFoodStock 		= city:GetMaxStock(foodResourceID)
 				foodStock 			= city:GetStock(foodResourceID)
 				
-				population 			= city:GetRealPopulation()
-				popVariation 		= city:GetRealPopulationVariation()
+				population 			= city:GetTotalPopulation() --city:GetRealPopulation()
+				popVariation 		= city:GetTotalPopulationVariation() --city:GetRealPopulationVariation()
 				
 				local nextPop		= GCO.GetPopulationPerSize(citySize+1)
 				local prevPop		= GCO.GetPopulationPerSize(citySize)-- -1)
@@ -870,19 +870,20 @@ function CityBanner.UpdateStats( self : CityBanner)
 				if population > 0 then
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE")
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_TOTAL_POPULATION", population) .. GCO.GetVariationString(popVariation)
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_RURAL_POPULATION", city:GetUrbanPopulation(), city:GetRuralPopulation())
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_POPULATION", city:GetUrbanPopulation()) .. GCO.GetVariationString(city:GetUrbanPopulationVariation())
 					if city:GetUpperClass() + city:GetPreviousUpperClass() > 0 then
-						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", city:GetUpperClass()) .. GCO.GetVariationString(city:GetUpperClass() - city:GetPreviousUpperClass())
+						cityString = cityString .. "[NEWLINE][ICON_INDENT]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", city:GetUpperClass()) .. GCO.GetVariationString(city:GetUpperClass() - city:GetPreviousUpperClass())
 					end
 					if city:GetMiddleClass() + city:GetPreviousMiddleClass() > 0 then
-						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", city:GetMiddleClass()) .. GCO.GetVariationString(city:GetMiddleClass() - city:GetPreviousMiddleClass())
+						cityString = cityString .. "[NEWLINE][ICON_INDENT]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", city:GetMiddleClass()) .. GCO.GetVariationString(city:GetMiddleClass() - city:GetPreviousMiddleClass())
 					end
 					if city:GetLowerClass() + city:GetPreviousLowerClass() > 0 then
-						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", city:GetLowerClass()) .. GCO.GetVariationString(city:GetLowerClass() - city:GetPreviousLowerClass())
+						cityString = cityString .. "[NEWLINE][ICON_INDENT]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", city:GetLowerClass()) .. GCO.GetVariationString(city:GetLowerClass() - city:GetPreviousLowerClass())
 					end
 					if city:GetSlaveClass() + city:GetPreviousSlaveClass() > 0 then 
-						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", city:GetSlaveClass()) .. GCO.GetVariationString(city:GetSlaveClass() - city:GetPreviousSlaveClass())
+						cityString = cityString .. "[NEWLINE][ICON_INDENT]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", city:GetSlaveClass()) .. GCO.GetVariationString(city:GetSlaveClass() - city:GetPreviousSlaveClass())
 					end
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RURAL_POPULATION", city:GetRuralPopulation()) .. GCO.GetVariationString(city:GetRuralPopulationVariation())
 				end				
 					
 				if popVariation > 0 then

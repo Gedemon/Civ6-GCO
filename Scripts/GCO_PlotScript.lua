@@ -108,6 +108,8 @@ local pairs = pairs
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO 	= ExposedMembers.GCO
 	Dprint 	= GCO.Dprint
+	Dline	= GCO.Dline					-- output current code line number to firetuner/log
+	Dlog	= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
 	--pairs 	= GCO.OrderedPairs
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()
@@ -162,15 +164,16 @@ function CreatePlotData()
 	local plotData		= {}
 	local iPlotCount 	= Map.GetPlotCount()
 	for i = 0, iPlotCount - 1 do
-		local plot 		= Map.GetPlotByIndex(i)		
+		local plot 		= GetPlotByIndex(i)
 		local plotKey 	= plot:GetKey()
 		local turnKey 	= GCO.GetTurnKey()
 		
 		plotData[plotKey] = {
 			Stock					= { [turnKey] = {} },
-			Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
+			Population				= { [turnKey] = { UpperClass = 0, MiddleClass	= 0, LowerClass = 0,	Slaves = 0} },
 		}
 	end
+	return plotData
 end
 
 -- for debugging
@@ -1626,6 +1629,10 @@ function GetEmploymentValue(self, num)
 	return GCO.Round(math.pow(num, self:GetRuralEmploymentPow()) * self:GetRuralEmploymentFactor())
 end
 
+function GetEmploymentSize(self, num)
+	return GCO.Round(math.pow( num / self:GetRuralEmploymentFactor(), 1  / self:GetRuralEmploymentPow()))
+end
+
 local resourceActivities = {
 	[GameInfo.Resources["RESOURCE_ALUMINUM"].Index]		= "Miners",
 	[GameInfo.Resources["RESOURCE_BANANAS"].Index]		= "Crop Farmers",
@@ -1686,14 +1693,15 @@ function GetAvailableEmployment(self)
 			local resourceID 	= self:GetResourceType()
 			if player:IsResourceVisible(resourceID) then
 				local collected 			= self:GetResourceCount()
-				local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+				local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 				if bImprovedForResource then
 					collected = GCO.Round(collected * BaseImprovementMultiplier)
 				end
 				if resourceActivities[resourceID] then
-					local resourceEmploymentValue				= self:GetEmploymentValue(collected)
-					Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
-					availableEmployment 						= availableEmployment + resourceEmploymentValue
+					--local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+					--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+					--availableEmployment 						= availableEmployment + resourceEmploymentValue
+					Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 				end
 			end
 		end
@@ -1709,9 +1717,10 @@ function GetAvailableEmployment(self)
 							collected = GCO.Round(collected * BaseImprovementMultiplier)
 						end
 						if resourceActivities[resourceID] then 
-							local resourceEmploymentValue				= self:GetEmploymentValue(collected)
-							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
-							availableEmployment 						= availableEmployment + resourceEmploymentValue
+							--local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+							--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+							--availableEmployment 						= availableEmployment + resourceEmploymentValue
+							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 						end
 					end
 				end
@@ -1726,34 +1735,37 @@ function GetAvailableEmployment(self)
 					if player:IsResourceVisible(resourceID) then
 						local collected 	= value
 						local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
-						local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+						local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 						if bImprovedForResource then
 							collected = GCO.Round(collected * BaseImprovementMultiplier)
 						end
 						if resourceActivities[resourceID] then
-							local resourceEmploymentValue				= self:GetEmploymentValue(collected)
-							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
-							availableEmployment 						= availableEmployment + resourceEmploymentValue
+							--local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+							--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+							--availableEmployment 						= availableEmployment + resourceEmploymentValue
+							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 						end
 					end
 				end
 			end
 		end
 	end
-	return Employment, availableEmployment
+	
+	local EmploymentByActivities = {}
+	for activity, num in pairs(Employment) do
+		local employments 					= self:GetEmploymentValue(num)
+		EmploymentByActivities[activity]	= employments
+		availableEmployment 				= availableEmployment + employments
+	end
+	
+	return EmploymentByActivities, availableEmployment
 end
 
 -- obsolete >>
 --]]
 
 function GetOutputPerYield(self)
-	local city = Cities.GetPlotPurchaseCity(self)
-	if city then
-		GCO.AttachCityFunctions(city)
-		return city:GetSize() * self:GetActivityFactor()
-	else
-		return 1
-	end
+	return self:GetSize() * self:GetActivityFactor()
 end
 
 function GetRuralEmploymentPow(self)
@@ -1787,9 +1799,10 @@ function GetEmployed(self)
 end
 
 function GetActivityFactor(self)
-	local employmentFromResources = self:GetMaxEmployment()
-	if employmentFromResources > 0 then
-		return (self:GetEmployed() / employmentFromResources)
+	local employmentFromResources 	= self:GetMaxEmployment()
+	local employed					= self:GetEmployed()
+	if employmentFromResources > employed  then
+		return (self:GetEmploymentSize(employed) / self:GetEmploymentSize(employmentFromResources))
 	else
 		return 1
 	end
@@ -1801,49 +1814,66 @@ end
 -----------------------------------------------------------------------------------------
 
 function GetSize(self)
-	return GCO.Round(math.pow(self:GetPopulation()/1000, 1/populationPerSizepower))
+	return math.pow(self:GetPopulation()/1000, 1/populationPerSizepower) --GCO.Round(math.pow(self:GetPopulation()/1000, 1/populationPerSizepower))
 end
 
 function GetPopulation(self)
 	-- temporary waiting for population migration
+	--[[
 	local city = self:GetCity()
 	if city then
 		--return GCO.Round(city:GetRuralPopulation() / city:GetSize())
-		---[[
 		local numPlots = #GCO.GetCityPlots(city)
 		if numPlots > 0 then
 			return GCO.Round(city:GetRuralPopulation() / numPlots)
 		end
-		--]]
 	end
-	return 0 -- self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+	return 0
+	--]]
+	return self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+end
+
+function GetPreviousPopulation(self)
+	-- temporary waiting for population migration
+	--[[
+	local city = self:GetCity()
+	if city then
+		--return GCO.Round(city:GetRuralPopulation() / city:GetSize())
+		local numPlots = #GCO.GetCityPlots(city)
+		if numPlots > 0 then
+			return GCO.Round(city:GetRuralPopulation() / numPlots)
+		end
+	end
+	return 0
+	--]]
+	return self:GetPreviousUpperClass() + self:GetPreviousMiddleClass() + self:GetPreviousLowerClass() + self:GetPreviousSlaveClass()
 end
 
 function ChangeUpperClass(self, value)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= plotData.Population[turnKey].UpperClass
+	local previous 	= plotData.Population[turnKey].UpperClass or 0
 	plotData.Population[turnKey].UpperClass = math.max(0 , previous + value)
 end
 
 function ChangeMiddleClass(self, value)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= plotData.Population[turnKey].MiddleClass
+	local previous 	= plotData.Population[turnKey].MiddleClass or 0
 	plotData.Population[turnKey].MiddleClass = math.max(0 , previous + value)
 end
 
 function ChangeLowerClass(self, value)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= plotData.Population[turnKey].LowerClass
+	local previous 	= plotData.Population[turnKey].LowerClass or 0
 	plotData.Population[turnKey].LowerClass = math.max(0 , previous + value)
 end
 
 function ChangeSlaveClass(self, value)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= plotData.Population[turnKey].Slaves
+	local previous 	= plotData.Population[turnKey].Slaves or 0
 	plotData.Population[turnKey].Slaves = math.max(0 , previous + value)
 end
 
@@ -2066,7 +2096,7 @@ end
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
 	--Dlog("UpdateDataOnNewTurn (".. tostring(self:GetX()) .. "," tostring(self:GetY())..") /START")
-	local DEBUG_PLOT_SCRIPT = false
+	--local DEBUG_PLOT_SCRIPT = "debug"
 
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "Updating Data for ".. self:GetX(), self:GetY())
@@ -2078,8 +2108,8 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 		Dprint( DEBUG_PLOT_SCRIPT, "turnKey = ", turnKey, " previousTurnKey = ", previousTurnKey)
 		
 		-- get previous turn data
-		local stockData = plotData.Stock[previousTurnKey]
-		local popData 	= plotData.Population[previousTurnKey]
+		local stockData = plotData.Stock[previousTurnKey] 		or {}
+		local popData 	= plotData.Population[previousTurnKey]	or {}
 		
 		-- initialize empty tables for the new turn data
 		plotData.Stock[turnKey] 		= {}
@@ -2099,6 +2129,9 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	--Dlog("UpdateDataOnNewTurn /END")
 end
 
+function DoMigration()
+
+end
 
 function OnNewTurn()
 	GCO.StartTimer("Plots DoTurn")
@@ -2116,10 +2149,15 @@ function OnNewTurn()
 	end
 	-- Second Pass
 	for i = 0, iPlotCount - 1 do
-		local plot = Map.GetPlotByIndex(i)	
+		local plot = Map.GetPlotByIndex(i)
 		plot:UpdateDataOnNewTurn()	
 		plot:UpdateCulture()
 		plot:SetMaxEmployment()
+	end
+	-- Third Pass
+	for i = 0, iPlotCount - 1 do
+		local plot = Map.GetPlotByIndex(i)
+		plot:DoMigration()
 	end
 	--print("-----------------------------------------------------------------------------------------")
 	GCO.ShowTimer("Plots DoTurn")
@@ -2255,6 +2293,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	--
 	p.GetAvailableEmployment		= GetAvailableEmployment
 	p.GetEmploymentValue			= GetEmploymentValue
+	p.GetEmploymentSize				= GetEmploymentSize
 	p.GetOutputPerYield				= GetOutputPerYield
 	p.GetRuralEmploymentPow			= GetRuralEmploymentPow
 	p.GetRuralEmploymentFactor		= GetRuralEmploymentFactor
@@ -2265,6 +2304,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	--
 	p.GetSize						= GetSize
 	p.GetPopulation					= GetPopulation
+	p.GetPreviousPopulation			= GetPreviousPopulation
 	p.ChangeUpperClass				= ChangeUpperClass
 	p.ChangeMiddleClass				= ChangeMiddleClass
 	p.ChangeLowerClass				= ChangeLowerClass
@@ -2302,6 +2342,9 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.GetRiverPathFromEdge			= GetRiverPathFromEdge
 	--
 	p.GetPathToPlot					= GetPathToPlot
+	--
+	p.UpdateDataOnNewTurn			= UpdateDataOnNewTurn
+	p.DoMigration					= DoMigration
 
 end
 

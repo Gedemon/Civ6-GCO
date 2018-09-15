@@ -235,8 +235,8 @@ function GetTotalPopulation(self)
 	if playerCities then
 		for i, city in playerCities:Members() do
 			GCO.AttachCityFunctions(city)
-			populationTotal 	= populationTotal + city:GetRealPopulation()
-			populationVariation	= populationVariation + city:GetRealPopulationVariation()
+			populationTotal 	= populationTotal + city:GetTotalPopulation()
+			populationVariation	= populationVariation + city:GetTotalPopulationVariation()
 		end
 	end
 	return populationTotal, populationVariation

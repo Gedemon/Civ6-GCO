@@ -4514,7 +4514,7 @@ function OnUnitPillage(playerID, unitID)
 			local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 			if ((not plotOwner) and unitOwner:IsResourceVisible(resourceID)) or (plotOwner and plotOwner:IsResourceVisible(resourceID)) then
 				local collected 			= plot:GetResourceCount()
-				local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+				local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 				Collect(resourceID, collected, bImprovedForResource)
 			end
 		end
@@ -4525,7 +4525,7 @@ function OnUnitPillage(playerID, unitID)
 				for resourceID, value in pairs(data) do
 					if ((not plotOwner) and unitOwner:IsResourceVisible(resourceID)) or (plotOwner and plotOwner:IsResourceVisible(resourceID)) then
 						local collected 			= value
-						local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
+						local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 						Collect(resourceID, collected, bImprovedForResource)
 					end
 				end

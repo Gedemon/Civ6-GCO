@@ -348,6 +348,7 @@ local ResourceTransportMaxCost	= tonumber(GameInfo.GlobalParameters["RESOURCE_TR
 
 local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 local populationPerSizepower	= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value)
+local maxMigrantPercent			= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_MAX_MIGRANT_PERCENT"].Value)
 
 local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 local mediumRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
@@ -884,6 +885,7 @@ end
 -- Population functions
 -----------------------------------------------------------------------------------------
 function GetRealPopulation(self) -- the original city:GetPopulation() returns city size
+	--[[
 	local cityKey = self:GetKey()
 	if not _cached[cityKey] then
 		self:SetRealPopulation()
@@ -891,6 +893,8 @@ function GetRealPopulation(self) -- the original city:GetPopulation() returns ci
 		self:SetRealPopulation()
 	end
 	return _cached[cityKey].TotalPopulation
+	--]]
+	return self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
 end
 
 function SetRealPopulation(self)
@@ -3351,7 +3355,7 @@ end
 
 function CanTrain(self, unitType)
 
-	local DEBUG_CITY_SCRIPT = false --"CityScript"
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	local cityKey 	= self:GetKey()
 	local unitID 	= GameInfo.Units[unitType].Index
@@ -3743,7 +3747,7 @@ end
 
 function RecruitUnits(self, UnitType, number)
 	
-	local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = "debug"
 	
 	if not GameInfo.Units[UnitType] then
 		GCO.Error("can't find "..tostring(UnitType).." in GameInfo.Units")
@@ -3863,22 +3867,64 @@ end
 -----------------------------------------------------------------------------------------
 -- Activities & Employment
 -----------------------------------------------------------------------------------------
-
-
 function GetEraType(self)
 	local player 	= Players[self:GetOwner()]
 	return GameInfo.Eras[player:GetEra()].EraType
 end
 
+function GetTotalPopulation(self)
+	return self:GetUrbanPopulation() + self:GetRuralPopulation() 
+end
+
+function GetTotalPopulationVariation(self)
+	return self:GetUrbanPopulationVariation() + self:GetRuralPopulationVariation() 
+end
+
 function GetUrbanPopulation(self)
+	--[[
 	-- simple test function before implementing per plot population for migration
 	local eraType = self:GetEraType()
 	local percent = BaseUrbanPercent[eraType]
 	return GCO.Round(self:GetRealPopulation() * percent / 100)
+	--]]
+	return self:GetRealPopulation()
+end
+
+function GetUrbanPopulationVariation(self)
+	--[[
+	-- simple test function before implementing per plot population for migration
+	local eraType = self:GetEraType()
+	local percent = BaseUrbanPercent[eraType]
+	return GCO.Round(self:GetRealPopulation() * percent / 100)
+	--]]
+	return self:GetRealPopulationVariation()
 end
 
 function GetRuralPopulation(self)
-	return self:GetRealPopulation() - self:GetUrbanPopulation()
+	--return self:GetRealPopulation() - self:GetUrbanPopulation()
+	local ruralPopulation 	= 0
+	local cityPlots			= GCO.GetCityPlots(self)
+	for _, plotID in ipairs(cityPlots) do
+		local plot = GCO.GetPlotByIndex(plotID)
+		if plot and (not plot:IsCity()) then
+			ruralPopulation = ruralPopulation + plot:GetPopulation()
+		end
+	end
+	return ruralPopulation
+end
+
+function GetRuralPopulationVariation(self)
+	--return self:GetRealPopulation() - self:GetUrbanPopulation()
+	local ruralPopulation 	= 0
+	local cityPlots			= GCO.GetCityPlots(self)
+	for _, plotID in ipairs(cityPlots) do
+		local plot = GCO.GetPlotByIndex(plotID)
+		if plot and (not plot:IsCity()) then
+			local previousPop = plot:GetPreviousUpperClass() + plot:GetPreviousMiddleClass() + plot:GetPreviousLowerClass() + plot:GetPreviousSlaveClass()			
+			ruralPopulation = ruralPopulation + (plot:GetPopulation() - previousPop)
+		end
+	end
+	return ruralPopulation
 end
 
 function GetUrbanEmploymentSize(self)
@@ -3899,6 +3945,11 @@ function GetCityEmploymentFactor(self)
 	return CityEmploymentFactor[self:GetEraType()]
 end
 
+function GetEmploymentSize(self, num)
+	return GCO.Round(math.pow( num / self:GetCityEmploymentFactor(), 1  / self:GetCityEmploymentPow()))
+end
+
+-- unused [[
 function GetPlotEmploymentPow(self)
 	return PlotEmploymentPow[self:GetEraType()]
 end
@@ -3924,6 +3975,7 @@ function SetMaxEmploymentRural(self)
 	local nextCitySize = self:GetSize() + 1
 	_cached[cityKey].MaxEmploymentRural = GCO.Round(math.pow(nextCitySize, self:GetPlotEmploymentPow()) * self:GetPlotEmploymentFactor())
 end
+-- unused ]]
 
 function GetMaxEmploymentUrban(self)
 	local cityKey = self:GetKey()
@@ -4006,9 +4058,11 @@ function GetUrbanEmployed(self)
 end
 
 function GetUrbanActivityFactor(self)
-	local employmentFromBuilding = self:GetMaxEmploymentUrban()
-	if employmentFromBuilding > 0 then
-		return (self:GetUrbanEmployed() / employmentFromBuilding)
+	local employmentFromBuilding 	= self:GetMaxEmploymentUrban()
+	local employed					= self:GetUrbanEmployed()
+	if employmentFromBuilding > employed then
+		--return (self:GetUrbanEmployed() / employmentFromBuilding)
+		return self:GetEmploymentSize(employed) / self:GetEmploymentSize(employmentFromBuilding)
 	else
 		return 1
 	end
@@ -4159,7 +4213,7 @@ function GetPopulationNeedsEffectsString(self) -- draft for a global string
 
 	if _cached[cityKey] and _cached[cityKey].NeedsEffects then --and _cached[cityKey].NeedsEffects[populationID] then
 		for populationID, data1 in pairs(_cached[cityKey].NeedsEffects) do
-			table.insert(returnStrTable, Locale.Lookup(GameInfo.Populations[populationID].Name))
+			table.insert(returnStrTable, "[ICON_BULLET]"..Locale.Lookup(GameInfo.Populations[populationID].Name))
 			for needsEffectType, data2 in pairs(data1) do
 				for locString, value in pairs(data2) do
 					table.insert(returnStrTable, Locale.Lookup(locString, value))
@@ -4296,7 +4350,7 @@ end
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 
 	Dlog("UpdateDataOnNewTurn ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = false
+	--local DEBUG_CITY_SCRIPT = false
 
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Data for ".. Locale.Lookup(self:GetName()))
@@ -4344,9 +4398,8 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 end
 
 function SetUnlockers(self)
-
 	Dlog("SetUnlockers ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = false
+	--local DEBUG_CITY_SCRIPT = false
 
 	Dprint( DEBUG_CITY_SCRIPT, "Setting unlocker buildings for ".. Locale.Lookup(self:GetName()), " production = ", self:GetProductionYield())
 
@@ -4576,7 +4629,7 @@ function DoCollectResources(self)
 
 	Dlog("DoCollectResources ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, "-- Collecting Resources...")
-	local DEBUG_CITY_SCRIPT = false
+	--local DEBUG_CITY_SCRIPT = false
 
 	local cityKey 		= self:GetKey()
 	local cityData 		= ExposedMembers.CityData[cityKey]
@@ -4637,7 +4690,7 @@ function DoCollectResources(self)
 										table.insert(cityPlots, pEdgePlot:GetIndex())
 										Dprint( DEBUG_CITY_SCRIPT, "-- Adding Sea plots for resource collection, route length = ", routeLength, " sea range = ", seaRange, " resource = ", Locale.Lookup(GameInfo.Resources[resourceID].Name), " at ", pEdgePlot:GetX(), pEdgePlot:GetY() )
 										if (pEdgePlot:GetImprovementType() == NO_IMPROVEMENT) and self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then
-											local improvementID = ResourceImprovementID[resourceID]
+											local improvementID = GCO.GetResourceImprovementID(resourceID)
 											if improvementID then
 												ImprovementBuilder.SetImprovementType(pEdgePlot, improvementID, NO_PLAYER)
 											end
@@ -4665,7 +4718,7 @@ function DoCollectResources(self)
 				local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 				if player:IsResourceVisible(resourceID) then
 					local collected 			= plot:GetResourceCount() * plot:GetOutputPerYield()
-					local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+					local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 					Collect(resourceID, collected, resourceCost, plotID, (bWorked or bSeaResource), bImprovedForResource)
 				end
 			end
@@ -4677,7 +4730,7 @@ function DoCollectResources(self)
 						if player:IsResourceVisible(resourceID) then
 							local collected 	= value * plot:GetOutputPerYield()
 							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
-							local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
+							local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 						end
 					end
@@ -4692,7 +4745,7 @@ function DoCollectResources(self)
 						if player:IsResourceVisible(resourceID) then
 							local collected 	= value * plot:GetOutputPerYield()
 							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
-							local bImprovedForResource	= (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
+							local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 						end
 					end
@@ -4706,7 +4759,7 @@ end
 function DoIndustries(self)
 
 	Dlog("DoIndustries ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = "CityScript"
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
@@ -5604,8 +5657,73 @@ function DoTaxes(self)
 	end
 end
 
+function DoMigration(self)
+
+	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /START")
+	
+	local DEBUG_CITY_SCRIPT = "debug"
+	
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_CITY_SCRIPT, "- Population Migration...")
+	local possibleDestination = {}
+	
+	-- Get potential migrants
+	local unEmployed 		= self:GetUrbanPopulation() - self:GetUrbanEmployed()
+	local cityEmployment	= self:GetMaxEmploymentUrban() - self:GetUrbanEmployed()
+	local totalPopultation 	= self:GetRealPopulation()
+	local maxMigrants		= math.floor(totalPopultation * maxMigrantPercent / 100)
+	
+	local migrants			= math.min(unEmployed, maxMigrants)
+	
+	Dprint( DEBUG_CITY_SCRIPT, "   Migrants = ", migrants)
+	
+	if migrants > 0 then
+		local migrantClasses	= {UpperClassID, MiddleClassID, LowerClassID}
+		local classesRatio		= {}
+		for i, classID in ipairs(migrantClasses) do
+			classesRatio[classID] = self:GetPopulationClass(classID) / totalPopultation
+		end
+		
+		-- Get possible destinations from city plots
+		local cityPlots			= GCO.GetCityPlots(self)
+		local ruralEmployment	= 0
+		for _, plotID in ipairs(cityPlots) do
+			local plot = GCO.GetPlotByIndex(plotID)
+			if plot and (not plot:IsCity()) then
+				local plotEmployment = plot:GetMaxEmployment() - plot:GetEmployed()
+				if plotEmployment > cityEmployment then
+					ruralEmployment 	= ruralEmployment + plotEmployment
+					local workedFactor 	= 1
+					if (plot:GetWorkerCount() > 0) then
+						workedFactor = 10
+					end
+					table.insert (possibleDestination, {PlotID = plotID, Employment = (plotEmployment - cityEmployment)*workedFactor})
+				end
+			end
+		end
+		
+		table.sort(possibleDestination, function(a, b) return a.Employment > b.Employment; end)
+		local numPlotDest 		= #possibleDestination
+		--local averageEmployment	= (ruralEmployment/numPlotDest)
+		for i, destination in ipairs(possibleDestination) do
+			if migrants > 0 then
+				local totalPopMoving 	= math.floor(migrants * (destination.Employment / ruralEmployment))
+				local plot 				= GCO.GetPlotByIndex(destination.PlotID)
+				for i, classID in ipairs(migrantClasses) do
+					local classMoving = math.floor(totalPopMoving * classesRatio[classID])
+					Dprint( DEBUG_CITY_SCRIPT, "   Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Populations[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with employement = "..tostring(destination.Employment))
+					self:ChangePopulationClass(classID, -classMoving)
+					plot:ChangePopulationClass(classID, classMoving)
+				end
+			end	
+		end
+	end
+	
+	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /END")
+end
+
 function Heal(self)
-	local DEBUG_CITY_SCRIPT = "CityScript"
+	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
@@ -5679,6 +5797,11 @@ function DoTurnFirstPass(self)
 		return
 	end
 
+	-- migration from city center
+	GCO.StartTimer("SetCityRationing for ".. name)
+	self:DoMigration()
+	GCO.ShowTimer("SetCityRationing for ".. name)
+	
 	-- set food rationing
 	GCO.StartTimer("SetCityRationing for ".. name)
 	self:SetCityRationing()
@@ -5862,8 +5985,8 @@ function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCa
 		-- On recruitment...
 		if GameInfo.Buildings[objectID].BuildingType =="BUILDING_RECRUITS" then
 
-			local DEBUG_CITY_SCRIPT = "debug"
-			LuaEvents.SetUnitsDebugLevel("debug")	-- temporary set custom debug level for UnitScript
+			--local DEBUG_CITY_SCRIPT = "debug"
+			--LuaEvents.SetUnitsDebugLevel("debug")	-- temporary set custom debug level for UnitScript
 			
 			Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 			Dprint( DEBUG_CITY_SCRIPT, "Completed BUILDING_RECRUITS !")
@@ -5877,7 +6000,7 @@ function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCa
 			end
 			city:RecruitUnits("UNIT_WARRIOR", number) -- called with the first unit of the melee line, it will be upgraded automatically to the best available with the current equipment in city
 			
-			LuaEvents.RestoreUnitsDebugLevel()	-- restore previous debug level for UnitScript
+			--LuaEvents.RestoreUnitsDebugLevel()	-- restore previous debug level for UnitScript
 	
 			-- remove this "project" building
 			Dprint( DEBUG_CITY_SCRIPT, "Removing BUILDING_RECRUITS...")
@@ -5956,11 +6079,11 @@ end
 -----------------------------------------------------------------------------------------
 function CleanCitiesData() -- called in GCO_GameScript.lua
 
+	--local DEBUG_CITY_SCRIPT = "CityScript"
+	
 	-- remove old data from the table
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")
-	
-	local DEBUG_CITY_SCRIPT = "CityScript"
+	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")	
 	
 	for cityKey, data1 in pairs(ExposedMembers.CityData) do
 		local toClean 	= {"Stock","ResourceCost","ResourceUse","Population"}
@@ -6120,6 +6243,7 @@ function AttachCityFunctions(city)
 	c.DoConstruction					= DoConstruction
 	c.DoNeeds							= DoNeeds
 	c.DoTaxes							= DoTaxes
+	c.DoMigration						= DoMigration
 	c.Heal								= Heal
 	c.DoTurnFirstPass					= DoTurnFirstPass
 	c.DoTurnSecondPass					= DoTurnSecondPass
@@ -6187,6 +6311,7 @@ function AttachCityFunctions(city)
 	c.GetUrbanEmploymentSize			= GetUrbanEmploymentSize
 	c.GetCityEmploymentPow				= GetCityEmploymentPow
 	c.GetCityEmploymentFactor			= GetCityEmploymentFactor
+	c.GetEmploymentSize					= GetEmploymentSize
 	c.GetPlotEmploymentPow				= GetPlotEmploymentPow
 	c.GetPlotEmploymentFactor			= GetPlotEmploymentFactor
 	c.GetMaxEmploymentRural				= GetMaxEmploymentRural
@@ -6198,8 +6323,12 @@ function AttachCityFunctions(city)
 	c.GetEmploymentFactorFromBuildings	= GetEmploymentFactorFromBuildings
 	c.SetEmploymentFactorFromBuildings	= SetEmploymentFactorFromBuildings
 	c.GetMaxEmploymentFromBuildings		= GetMaxEmploymentFromBuildings
+	c.GetTotalPopulation				= GetTotalPopulation
+	c.GetTotalPopulationVariation		= GetTotalPopulationVariation
 	c.GetUrbanPopulation				= GetUrbanPopulation
-	c.GetRuralPopulation				= GetRuralPopulation	
+	c.GetUrbanPopulationVariation		= GetUrbanPopulationVariation
+	c.GetRuralPopulation				= GetRuralPopulation
+	c.GetRuralPopulationVariation		= GetRuralPopulationVariation
 	c.GetUrbanEmployed					= GetUrbanEmployed
 	c.GetUrbanActivityFactor			= GetUrbanActivityFactor
 	c.GetUrbanProductionFactor			= GetUrbanProductionFactor

@@ -279,6 +279,7 @@ function View(data:table, bIsUpdate:boolean)
 		local resource = GameInfo.Resources[resourceType];
 
 		-- GCO <<<<<
+		--[[
 		--local resourceString = Locale.Lookup(resource.Name);
 		local resourceString = Locale.Lookup(resource.Name) .. " ("..tostring(data.ResourceCount)..")"
 		-- GCO >>>>>
@@ -333,6 +334,10 @@ function View(data:table, bIsUpdate:boolean)
 			end
 		end
 		table.insert(details, resourceString)
+		
+		-- GCO <<<<<
+		--]]
+		-- GCO >>>>>
 	end
 	
 	if (data.IsRiver == true) then
@@ -489,14 +494,6 @@ function View(data:table, bIsUpdate:boolean)
 			table.insert(details, str);
 		end
 	end
-	
-	-- GCO <<<<<
-	for resourceID, v in pairs(data.Resources) do
-		local resName 		= GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)
-		local str = tostring(v) .. resName
-		table.insert(details, str)
-	end	
-	-- GCO >>>>>
 
 	-- NATURAL WONDER TILE
 	if(data.FeatureType ~= nil) then
@@ -563,9 +560,21 @@ function View(data:table, bIsUpdate:boolean)
 
 	-- GCO <<<<<	
 	local plot = GCO.GetPlotByIndex(data.Index) -- to get a PlotScript context plot
-	local totalCulture = plot:GetTotalCulture()
-	if totalCulture > 0 then	
-		table.insert(details, "------------------")
+	
+	-- Population & Culture
+	table.insert(details, "------------------")
+	local totalCulture 	= plot:GetTotalCulture()
+	local population	= plot:GetPopulation()
+	local size			= plot:GetSize()
+	
+	if data.IsCity then
+		GCO.AttachCityFunctions(data.OwnerCity)
+		population = data.OwnerCity:GetRealPopulation()
+	else
+		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", GCO.Round(size) ))		
+	end	
+	table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population) ))
+	if totalCulture > 0 then
 		local sortedCulture = {}
 		for playerID, value in pairs (plot:GetCulturePercentTable()) do
 			table.insert(sortedCulture, {playerID = tonumber(playerID), value = value})
@@ -587,14 +596,45 @@ function View(data:table, bIsUpdate:boolean)
 		end
 		if other > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER", other)) end
 	end
-	local EmploymentTable, maxEmployment = plot:GetAvailableEmployment()
-	for key, value in pairs(EmploymentTable) do
-		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_EMPLOYMENT_LINE", key,value))
+	
+	-- Employment
+	if not data.IsCity then
+		table.insert(details, "------------------")
+		local EmploymentTable, maxEmployment = plot:GetAvailableEmployment()
+		for key, value in pairs(EmploymentTable) do
+			table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_EMPLOYMENT_LINE", value, key))
+		end
+		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_MAX_EMPLOYMENT_LINE", maxEmployment))
+		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_EMPLOYED_LINE", plot:GetEmployed()))
+		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_ACTIVITY_PERCENT_LINE", plot:GetActivityFactor()*100))
+		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_OUTPUT_PER_YIELD_LINE", plot:GetOutputPerYield()))
 	end
-	table.insert(details, "Max Employment : "..tostring(maxEmployment))
-	table.insert(details, "Employed : "..tostring(plot:GetEmployed()))
-	table.insert(details, "Activity Factor : "..tostring(plot:GetActivityFactor()))
-	table.insert(details, "OutputPerYield : "..tostring(plot:GetOutputPerYield()))
+		
+	-- Resources
+	if not data.IsCity then
+		table.insert(details, "------------------")
+		local BaseImprovementMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
+		local improvementMultiplier 	= 1
+		local improvementID
+		if(data.ImprovementType ~= nil) then
+			improvementID = GameInfo.Improvements[data.ImprovementType].Index
+		end
+		for resourceID, v in pairs(data.Resources) do
+			local resName 			= GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)
+			local improvementNeeded	= GCO.GetResourceImprovementID(resourceID)
+			local improvementStr	= ""
+			if improvementNeeded then
+				if improvementID == improvementNeeded then
+					improvementMultiplier = BaseImprovementMultiplier
+					improvementStr = " [COLOR:Civ6Green](" ..Locale.Lookup("LOC_PLOT_TOOLTIP_IMPROVEMENT_MULTIPLIER", BaseImprovementMultiplier, GameInfo.Improvements[improvementNeeded].Name)..")[ENDCOLOR]"
+				else
+					improvementStr = " [COLOR:Civ6Red](" ..Locale.Lookup("LOC_PLOT_TOOLTIP_IMPROVEMENT_MULTIPLIER", BaseImprovementMultiplier, GameInfo.Improvements[improvementNeeded].Name)..")[ENDCOLOR]"
+				end
+			end
+			local str = tostring(GCO.ToDecimals(v * improvementMultiplier * plot:GetOutputPerYield())) .. resName .. "(".. tostring(v) ..")" .. improvementStr
+			table.insert(details, str)
+		end
+	end
 	-- GCO >>>>>
 	
 	-- Set the control values
@@ -745,6 +785,10 @@ function ShowPlotInfo( plotId:number, bIsUpdate:boolean )
 			local featureID 	= plot:GetFeatureType()
 			local terrainID 	= plot:GetTerrainType()
 			
+			if new_data.ResourceCount > 0 then
+				new_data.Resources[eResourceType] = (new_data.Resources[eResourceType] or 0) + new_data.ResourceCount
+			end
+			
 			if FeatureResources[featureID] then
 				for _, data in pairs(FeatureResources[featureID]) do
 					for resourceID, value in pairs(data) do
@@ -785,6 +829,9 @@ function ShowPlotInfo( plotId:number, bIsUpdate:boolean )
 					end
 				end
 
+				-- GCO <<<<<
+				--[[
+				-- GCO >>>>>
 				local cityBuildings = new_data.OwnerCity:GetBuildings();
 				if (cityBuildings) then
 					local buildingTypes = cityBuildings:GetBuildingsAtLocation(plotId);
@@ -797,7 +844,7 @@ function ShowPlotInfo( plotId:number, bIsUpdate:boolean )
 						local name = GameInfo.Buildings[building.BuildingType].Name;
 						table.insert(new_data.BuildingNames, name);
 						local bPillaged = cityBuildings:IsPillaged(type);
-						table.insert(new_data.BuildingsPillaged, bPillaged);							
+						table.insert(new_data.BuildingsPillaged, bPillaged);
 						-- GCO <<<<<
 						end
 						-- GCO >>>>>
@@ -806,6 +853,9 @@ function ShowPlotInfo( plotId:number, bIsUpdate:boolean )
 						new_data.WonderComplete = true;
 					end
 				end
+				-- GCO <<<<<
+				--]]
+				-- GCO >>>>>
 
 				local cityBuildQueue = new_data.OwnerCity:GetBuildQueue();
 				if (cityBuildQueue) then

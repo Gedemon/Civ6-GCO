@@ -286,8 +286,11 @@
       <Text>{1_Turns : plural 1?{1_Turns} turn; other? {1_Turn} turns;} to complete when at 100% production efficiency.</Text>
     </Replace>
 	
-    <Replace Tag="LOC_CITYBANNER_URBAN_RURAL_POPULATION" Language="en_US">
-      <Text>[ICON_Housing] {1_Num} Urban population[NEWLINE][ICON_Housing] {2_Num} Rural population</Text>
+    <Replace Tag="LOC_CITYBANNER_URBAN_POPULATION" Language="en_US">
+      <Text>[ICON_Housing] {1_Num} Urban population</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_RURAL_POPULATION" Language="en_US">
+      <Text>[ICON_Housing] {1_Num} Rural population</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_BUILDING_EMPLOYMENT_EFFECT" Language="en_US">
       <Text>Buildings require {2_Num} Workers (Size {1_Num} Employment)</Text>
@@ -683,6 +686,30 @@
     <Replace Tag="LOC_PLOT_TOOLTIP_EMPLOYMENT_LINE" Language="en_US">
       <Text>{1_Num} {2_Name} max</Text>
     </Replace>	
+    <Replace Tag="LOC_PLOT_TOOLTIP_MAX_EMPLOYMENT_LINE" Language="en_US">
+      <Text>Max workers : {1_Num}</Text>
+    </Replace>
+    <Replace Tag="LOC_PLOT_TOOLTIP_EMPLOYED_LINE" Language="en_US">
+      <Text>Current workers : {1_Num}</Text>
+    </Replace>
+    <Replace Tag="LOC_PLOT_TOOLTIP_ACTIVITY_PERCENT_LINE" Language="en_US">
+      <Text>Activity Percent : {1_Num : number #.##} %</Text>
+    </Replace>
+    <Replace Tag="LOC_PLOT_TOOLTIP_OUTPUT_PER_YIELD_LINE" Language="en_US">
+      <Text>Production factor : x{1_Num : number #.##}</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_PLOT_TOOLTIP_POPULATION_LINE" Language="en_US">
+      <Text>[ICON_Housing] {1_Num} Population</Text>
+    </Replace>
+    <Replace Tag="LOC_PLOT_TOOLTIP_SIZE_LINE" Language="en_US">
+      <Text>[ICON_DISTRICT_NEIGHBORHOOD] Size {1_Num}</Text>
+    </Replace>	
+	
+    <Replace Tag="LOC_PLOT_TOOLTIP_IMPROVEMENT_MULTIPLIER" Language="en_US">
+      <Text>x{1_Num} with {2_Name}</Text>
+    </Replace>
+	
 	
   </LocalizedText>
  
