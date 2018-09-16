@@ -3897,7 +3897,7 @@ function OnCombat( combatResult )
 		else
 			-- attacker
 			if attacker.unit then
-				attacker.Prisoners 			= defender.Captured
+				attacker.Prisoners 			= defender.Captured or 0
 				
 				attacker.EquipmentGained 	= {}
 				for equipmentKey, value in pairs(defender.EquipmentLost) do
@@ -3922,9 +3922,13 @@ function OnCombat( combatResult )
 			
 			-- defender
 			if defender.unit then
-				defender.Prisoners 			= attacker.Captured
+				defender.Prisoners 			= attacker.Captured or 0
 				
 				defender.EquipmentGained 	= {}
+				if not attacker.EquipmentLost then  -- todo : when attacker.EquipmentLost can be nil ?
+					GCO.Warning("attacker.EquipmentLost is nil, Attacker is " .. tostring(componentString[attacker[CombatResultParameters.ID].type]) ..", Defender is " .. tostring(componentString[defender[CombatResultParameters.ID].type]))
+					attacker.EquipmentLost = {}
+				end
 				for equipmentKey, value in pairs(attacker.EquipmentLost) do
 					local gainRatio			= defenderEquipmentGainPercent
 					if materielResourceKey	== equipmentKey  then gainRatio = defenderMaterielGainPercent	end
@@ -5397,6 +5401,19 @@ function OnMilitaryFormationChanged( playerID : number, unitID : number )
 end
 Events.UnitFormCorps.Add( OnMilitaryFormationChanged )
 Events.UnitFormArmy.Add( OnMilitaryFormationChanged )
+
+
+function OnUnitPromoted( playerID : number, unitID : number )
+	local pPlayer = Players[ playerID ];
+	if (pPlayer ~= nil) then
+		local pUnit = pPlayer:GetUnits():FindID(unitID);
+		if (pUnit ~= nil) then
+			local pExp = pUnit:GetExperience()
+			pExp:ChangeExperience(-pExp:GetExperiencePoints())
+		end
+	end
+end
+--Events.UnitPromoted.Add( OnUnitPromoted )
 
 -----------------------------------------------------------------------------------------
 -- General Functions

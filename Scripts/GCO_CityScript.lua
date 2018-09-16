@@ -545,14 +545,28 @@ function RegisterNewCity(playerID, city)
 
 	local cityKey 			= city:GetKey()
 	local personnel 		= city:GetMaxPersonnel()
-	local totalPopulation 	= GCO.Round(GetPopulationPerSize(city:GetSize()) + StartingPopulationBonus)
+	local initialSize		= city:GetSize()
+	local totalPopulation 	= GCO.Round(GetPopulationPerSize(initialSize) + StartingPopulationBonus)
 	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID) / 100) -- can't use city:GetMaxUpperClass() before filling ExposedMembers.CityData[cityKey]
 	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID) / 100)
 	local lowerClass		= totalPopulation - (upperClass + middleClass)
+	local slaveClass		= 0
 	local startingFood		= GCO.Round(baseFoodStock / 2)
 	local startingMateriel	= GCO.Round(ResourceStockPerSize * city:GetSize() / 2)
 	local baseFoodCost 		= GCO.GetBaseResourceCost(foodResourceID)
 	local turnKey 			= GCO.GetTurnKey()
+	local plot				= GCO.GetPlot(city:GetX(), city:GetY())
+	
+	-- add/remove plot's population
+	upperClass		= upperClass	+ plot:GetUpperClass()
+	middleClass		= middleClass	+ plot:GetMiddleClass()
+	lowerClass		= lowerClass	+ plot:GetLowerClass()
+	slaveClass		= slaveClass	+ plot:GetSlaveClass()
+	
+	local toRemove		= {UpperClassID, MiddleClassID, LowerClassID, SlaveClassID}
+	for i, populationID in ipairs(toRemove) do
+		plot:ChangePopulationClass(populationID, - plot:GetPopulationClass(populationID))
+	end
 
 	ExposedMembers.CityData[cityKey] = {
 		TurnCreated				= Game.GetCurrentGameTurn(),
@@ -563,13 +577,20 @@ function RegisterNewCity(playerID, city)
 		Stock					= { [turnKey] = {[foodResourceKey] = startingFood, [personnelResourceKey] = personnel, [materielResourceKey] = startingMateriel} },
 		ResourceCost			= { [turnKey] = {[foodResourceKey] = baseFoodCost, } },
 		ResourceUse				= { [turnKey] = { } }, -- [ResourceKey] = { ResourceUseType.Collected = { [plotKey] = 0, }, ResourceUseType.Consummed = { [buildingKey] = 0, [PopulationType] = 0, }, ...)
-		Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = 0} },
+		Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = slaveClass} },
 		Account					= { [turnKey] = {} }, -- [TransactionType] = { [refKey] = value }
 		FoodRatio				= 1,
 		FoodRatioTurn			= Game.GetCurrentGameTurn(),
 		ConstructionEfficiency	= 1,
 		BuildQueue				= {},
 	}
+	
+	local currentSize 	= math.floor(GCO.GetSizeAtPopulation(city:GetRealPopulation()))
+	local sizeDiff		= currentSize - initialSize
+	if sizeDiff ~= 0 then
+		city:ChangePopulation(sizeDiff)
+		city:UpdateSize()
+	end
 
 	LuaEvents.NewCityCreated()
 end
@@ -1014,7 +1035,7 @@ function SetPopulationBirthRate(self, populationID)
 	_cached[cityKey].BirthRate[populationID] = popBirthRate
 end
 
-function ChangeSize(self)
+function UpdateSize(self)
 	local size = self:GetSize()
 	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size+1, "required =", GetPopulationPerSize(size+1), "current =", self:GetRealPopulation())
 	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size-1, "required =", GetPopulationPerSize(size), "current =", self:GetRealPopulation())
@@ -3926,6 +3947,19 @@ function GetRuralPopulationClass(self, populationID)
 	return ruralPopulation
 end
 
+function GetPreviousRuralPopulationClass(self, populationID)
+	--return self:GetRealPopulation() - self:GetUrbanPopulation()
+	local ruralPopulation 	= 0
+	local cityPlots			= GCO.GetCityPlots(self)
+	for _, plotID in ipairs(cityPlots) do
+		local plot = GCO.GetPlotByIndex(plotID)
+		if plot and (not plot:IsCity()) then
+			ruralPopulation = ruralPopulation + plot:GetPreviousPopulationClass(populationID)
+		end
+	end
+	return ruralPopulation
+end
+
 function GetRuralPopulationVariation(self)
 	--return self:GetRealPopulation() - self:GetUrbanPopulation()
 	local ruralPopulation 	= 0
@@ -5284,7 +5318,7 @@ function DoFood(self)
 
 	Dlog("DoFood ".. Locale.Lookup(self:GetName()).." /START")
 	-- get city food yield. Todo : switch to collect on plots with employment activity on plots
-	local food = GCO.Round(self:GetCityYield(YieldTypes.FOOD ) * self:GetOutputPerYield())
+	local food = GCO.Round(self:GetCityYield(YieldTypes.FOOD )) --* self:GetOutputPerYield())
 	local resourceCost = GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
 	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, self:GetKey(), resourceCost)
 
@@ -5680,42 +5714,59 @@ function DoMigration(self)
 	Dprint( DEBUG_CITY_SCRIPT, "   Migrants = ", migrants)
 	
 	if migrants > 0 then
-		local migrantClasses	= {UpperClassID, MiddleClassID, LowerClassID}
-		local classesRatio		= {}
+		local majorMotivation		= "Greener Pastures"
+		local bestMotivationValue	= 0
+		local bestMotivationWeight	= 0
+		local totalWeight			= 0
+		local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
+		local classesRatio			= {}
 		for i, classID in ipairs(migrantClasses) do
 			classesRatio[classID] = self:GetPopulationClass(classID) / totalPopultation
 		end
 		
 		-- Get possible destinations from city plots
-		local cityPlots			= GCO.GetCityPlots(self)
-		local ruralEmployment	= 0
+		local cityPlots		= GCO.GetCityPlots(self)
 		for _, plotID in ipairs(cityPlots) do
 			local plot = GCO.GetPlotByIndex(plotID)
 			if plot and (not plot:IsCity()) then
-				local plotEmployment = plot:GetMaxEmployment() - plot:GetEmployed()
+			
+				-- Employment
+				local plotEmployment 	= plot:GetMaxEmployment() - plot:GetEmployed()
+				local plotWeight		= 0
 				if plotEmployment > cityEmployment then
-					ruralEmployment 	= ruralEmployment + plotEmployment
 					local workedFactor 	= 1
 					if (plot:GetWorkerCount() > 0) then
 						workedFactor = 10
 					end
+					
 					local employmentDiff 	= plotEmployment - cityEmployment
-					local MigrationWeight	= employmentDiff * workedFactor
-					table.insert (possibleDestination, {PlotID = plotID, Employment = employmentDiff, Weight = MigrationWeight})
+					local migrationWeight	= employmentDiff * workedFactor
+					plotWeight 				= plotWeight + migrationWeight
+					
+					if migrationWeight > bestMotivationWeight then
+						bestMotivationWeight 	= migrationWeight
+						bestMotivationValue		= employmentDiff
+						majorMotivation			= "Employment"
+					end
+					--table.insert (possibleDestination, {PlotID = plotID, MajorMotivation = "Employment", MotivationValue = employmentDiff, Weight = migrationWeight})
+				end				
+				
+				if plotWeight > 0 then
+					totalWeight = totalWeight + plotWeight
+					table.insert (possibleDestination, {PlotID = plotID, MajorMotivation = majorMotivation, MotivationValue = bestMotivationValue,  Weight = plotWeight, BestWeight = bestMotivationWeight})
 				end
 			end
 		end
 		
 		table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
 		local numPlotDest 		= #possibleDestination
-		--local averageEmployment	= (ruralEmployment/numPlotDest)
 		for i, destination in ipairs(possibleDestination) do
 			if migrants > 0 then
-				local totalPopMoving 	= math.floor(migrants * (destination.Employment / ruralEmployment))
+				local totalPopMoving 	= math.floor(migrants * (destination.Weight / totalWeight))
 				local plot 				= GCO.GetPlotByIndex(destination.PlotID)
 				for i, classID in ipairs(migrantClasses) do
 					local classMoving = math.floor(totalPopMoving * classesRatio[classID])
-					Dprint( DEBUG_CITY_SCRIPT, "   Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Populations[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with employement = "..tostring(destination.Employment))
+					Dprint( DEBUG_CITY_SCRIPT, "   Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Populations[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight) .. " MajorMotivation = "..tostring(destination.MajorMotivation) .. " MotivationValue = "..tostring(destination.MotivationValue))
 					self:ChangePopulationClass(classID, -classMoving)
 					plot:ChangePopulationClass(classID, classMoving)
 				end
@@ -5930,7 +5981,7 @@ function DoTurnFourthPass(self)
 	self:DoSocialClassStratification()
 	self:SetWealth()
 	self:DoTaxes()
-	self:ChangeSize()
+	self:UpdateSize()
 	self:Heal()
 	self:SetMaxEmploymentRural()
 	self:SetMaxEmploymentUrban()
@@ -6087,7 +6138,7 @@ function CleanCitiesData() -- called in GCO_GameScript.lua
 	
 	-- remove old data from the table
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")	
+	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")
 	
 	for cityKey, data1 in pairs(ExposedMembers.CityData) do
 		local toClean 	= {"Stock","ResourceCost","ResourceUse","Population"}
@@ -6096,6 +6147,7 @@ function CleanCitiesData() -- called in GCO_GameScript.lua
 		if player and player:IsHuman() then
 			maxTurn = 10
 		end
+		
 		for i, dataToClean in ipairs(toClean) do
 			turnTable = {}
 			for turnkey, data2 in pairs(data1[dataToClean]) do
@@ -6149,7 +6201,7 @@ function AttachCityFunctions(city)
 	if not city then return end
 	local c = getmetatable(city).__index
 	c.IsInitialized						= IsInitialized
-	c.ChangeSize						= ChangeSize
+	c.UpdateSize						= UpdateSize
 	c.GetSize							= GetSize
 	c.GetRealPopulation					= GetRealPopulation
 	c.SetRealPopulation					= SetRealPopulation
@@ -6333,6 +6385,7 @@ function AttachCityFunctions(city)
 	c.GetUrbanPopulationVariation		= GetUrbanPopulationVariation
 	c.GetRuralPopulation				= GetRuralPopulation
 	c.GetRuralPopulationClass			= GetRuralPopulationClass
+	c.GetPreviousRuralPopulationClass	= GetPreviousRuralPopulationClass
 	c.GetRuralPopulationVariation		= GetRuralPopulationVariation
 	c.GetUrbanEmployed					= GetUrbanEmployed
 	c.GetUrbanActivityFactor			= GetUrbanActivityFactor

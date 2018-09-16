@@ -614,15 +614,15 @@ function View(data:table, bIsUpdate:boolean)
 	if not data.IsCity then
 		table.insert(details, "------------------")
 		local BaseImprovementMultiplier	= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
-		local improvementMultiplier 	= 1
 		local improvementID
 		if(data.ImprovementType ~= nil) then
 			improvementID = GameInfo.Improvements[data.ImprovementType].Index
 		end
 		for resourceID, v in pairs(data.Resources) do
-			local resName 			= GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)
-			local improvementNeeded	= GCO.GetResourceImprovementID(resourceID)
-			local improvementStr	= ""
+			local improvementMultiplier = 1
+			local resName 				= GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)
+			local improvementNeeded		= GCO.GetResourceImprovementID(resourceID)
+			local improvementStr		= ""
 			if improvementNeeded then
 				if improvementID == improvementNeeded then
 					improvementMultiplier = BaseImprovementMultiplier

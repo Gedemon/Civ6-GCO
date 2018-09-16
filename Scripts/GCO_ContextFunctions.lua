@@ -163,6 +163,11 @@ function IsImprovementPillaged(plot)
 	return contextPlot:IsImprovementPillaged()
 end
 
+function GetPlotAppeal(plot)
+	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY())
+	return contextPlot:GetAppeal()
+end
+
 
 ----------------------------------------------
 -- Units functions
@@ -211,6 +216,7 @@ function Initialize()
 	--local p = getmetatable(Map.GetPlot(1,1)).__index
 	--ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged -- attaching this in script context doesn't work as the plot object from script miss other elements required for this by the plot object in UI context 
 	ExposedMembers.GCO.IsImprovementPillaged 		= IsImprovementPillaged
+	ExposedMembers.GCO.GetPlotAppeal				= GetPlotAppeal
 	-- units
 	ExposedMembers.GCO.GetMoveToPath				= GetMoveToPath
 	ExposedMembers.GCO.SetUnitName					= SetUnitName

@@ -98,7 +98,7 @@ local DeathRateFactor = {
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_PLOT_SCRIPT			= false
+DEBUG_PLOT_SCRIPT			= "PlotScript"
 
 -----------------------------------------------------------------------------------------
 -- Initialize
@@ -158,6 +158,7 @@ function PostInitialize() -- everything that may require other context to be loa
 	ExposedMembers.PlotData 			= GCO.LoadTableFromSlot("PlotData") 			or CreatePlotData()
 	InitializePlotFunctions()
 	SetCultureDiffusionRatePer1000()
+	SetInitialMapPopulation()
 end
 
 function CreatePlotData()
@@ -1813,6 +1814,38 @@ end
 -- Plot Population
 -----------------------------------------------------------------------------------------
 
+function SetInitialMapPopulation()
+
+	if Game.GetCurrentGameTurn() > GameConfiguration.GetStartTurn() then -- only called on first turn
+		return
+	end
+	
+	local DEBUG_PLOT_SCRIPT = "debug"
+
+	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLOT_SCRIPT, "Initializing Map Population...")
+	
+	local iPlotCount = Map.GetPlotCount()
+	for i = 0, iPlotCount - 1 do
+		local plot = GetPlotByIndex(i)
+		if (not plot:IsWater()) and plot:GetPopulation() == 0 then
+			local food 			= plot:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
+			local bonus			= 0
+			local appeal		= plot:GetPlotAppeal()
+			if food > 1 then
+				bonus = bonus + plot:GetPlotAppeal()
+			end
+			local maxPopulation	= GCO.GetPopulationAtSize(math.max(1,(food + bonus)/2))
+			local minPopulation	= math.floor(maxPopulation / 8)
+			local population	= minPopulation + TerrainBuilder.GetRandomNumber(maxPopulation - minPopulation, "Add population on plot")
+			
+			Dprint( DEBUG_PLOT_SCRIPT, " - Set " .. Indentation20("population = ".. tostring(population)) .. " at ", plot:GetX(), plot:GetY(), " food = ", food, " appeal = ", appeal)
+			
+			plot:ChangeLowerClass(population)
+		end
+	end
+end
+
 function GetSize(self)
 	return math.pow(self:GetPopulation()/1000, 1/populationPerSizepower) --GCO.Round(math.pow(self:GetPopulation()/1000, 1/populationPerSizepower))
 end
@@ -1906,7 +1939,17 @@ function GetPopulationClass(self, populationID)
 	if populationID == MiddleClassID 	then return self:GetMiddleClass() end
 	if populationID == LowerClassID 	then return self:GetLowerClass() end
 	if populationID == SlaveClassID 	then return self:GetSlaveClass() end
-	if populationID == AllClassID 		then return self:GetRealPopulation() end
+	if populationID == AllClassID 		then return self:GetPopulation() end
+	GCO.Error("can't find population class for ID = ", populationID)
+	return 0
+end
+
+function GetPreviousPopulationClass(self, populationID)
+	if populationID == UpperClassID 	then return self:GetPreviousUpperClass() end
+	if populationID == MiddleClassID 	then return self:GetPreviousMiddleClass() end
+	if populationID == LowerClassID 	then return self:GetPreviousLowerClass() end
+	if populationID == SlaveClassID 	then return self:GetPreviousSlaveClass() end
+	if populationID == AllClassID 		then return self:GetPreviousPopulation() end
 	GCO.Error("can't find population class for ID = ", populationID)
 	return 0
 end
@@ -2129,8 +2172,55 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	--Dlog("UpdateDataOnNewTurn /END")
 end
 
-function DoMigration()
 
+function SetMigrationValues(self)
+
+	-- if food rationning in city, try to move to external plot (other civ or unowned), reason : "food is requisitioned"
+	
+	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
+	if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
+	
+	
+	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLOT_SCRIPT, "- Set Migration values to plot ".. self:GetX(), self:GetY())
+	local possibleDestination 	= {}
+	local city					= self:GetCity()
+	local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
+	
+	-- Get potential migrants
+	local unEmployed 			= self:GetPopulation() - self:GetEmployed()
+	local threatened			= 0
+	
+	if city then
+		for _, populationID in ipairs(migrantClasses) do
+			local deathRate = city:GetPopulationDeathRate(populationID)
+			local birthRate	= city:GetPopulationBirthRate(populationID)
+			if deathRate > birthRate then
+				threatened = threatened + math.floor(self:GetPopulationClass(populationID) * (deathRate - birthRate) / 100)
+			end
+		end
+	end	
+	
+	Dprint( DEBUG_PLOT_SCRIPT, "  - unemployed : ", unEmployed, " threatened = ", threatened)	
+	
+end
+
+function DoMigration(self)
+	
+	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
+	if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
+	
+	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLOT_SCRIPT, "- Population Migration from plot ".. self:GetX(), self:GetY())
+	local possibleDestination 	= {}
+	local city					= self:GetCity()
+	local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
+
+	
+	for _, adjacentPlot in ipairs(GCO.GetAdjacentPlots(self)) do
+	
+	end
+	
 end
 
 function OnNewTurn()
@@ -2155,6 +2245,11 @@ function OnNewTurn()
 		plot:SetMaxEmployment()
 	end
 	-- Third Pass
+	for i = 0, iPlotCount - 1 do
+		local plot = Map.GetPlotByIndex(i)
+		plot:SetMigrationValues()
+	end	
+	-- Fourth Pass
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
 		plot:DoMigration()
@@ -2205,6 +2300,18 @@ Events.ImprovementRemovedFromMap.Add(EmploymentValueUpdate)
 Events.FeatureRemovedFromMap.Add(EmploymentValueUpdate)
 Events.FeatureAddedToMap.Add(EmploymentValueUpdate)
 Events.ResourceVisibilityChanged.Add(EmploymentValueUpdate)
+
+-----------------------------------------------------------------------------------------
+-- Functions passed from UI Context
+-----------------------------------------------------------------------------------------
+function GetPlotAppeal(self)
+	return GCO.GetPlotAppeal( self )
+end
+
+function IsPlotImprovementPillaged(self)
+	return GCO.IsImprovementPillaged( self )
+end
+
 
 
 -----------------------------------------------------------------------------------------
@@ -2258,7 +2365,8 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	if not plot then plot = Map.GetPlot(1,1) end
 	local p = getmetatable(plot).__index
 	
-	--p.IsImprovementPillaged			= GCO.PlotIsImprovementPillaged -- not working ?
+	p.IsPlotImprovementPillaged		= IsPlotImprovementPillaged -- not working ?
+	p.GetPlotAppeal					= GetPlotAppeal
 	
 	p.GetKey						= GetKey
 	p.GetData						= GetData
@@ -2318,6 +2426,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.GetPreviousLowerClass			= GetPreviousLowerClass
 	p.GetPreviousSlaveClass			= GetPreviousSlaveClass
 	p.GetPopulationClass			= GetPopulationClass
+	p.GetPreviousPopulationClass	= GetPreviousPopulationClass
 	p.ChangePopulationClass			= ChangePopulationClass
 	p.GetPopulationDeathRate		= GetPopulationDeathRate
 	p.GetBasePopulationDeathRate	= GetBasePopulationDeathRate
@@ -2344,6 +2453,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.GetPathToPlot					= GetPathToPlot
 	--
 	p.UpdateDataOnNewTurn			= UpdateDataOnNewTurn
+	p.SetMigrationValues			= SetMigrationValues
 	p.DoMigration					= DoMigration
 
 end

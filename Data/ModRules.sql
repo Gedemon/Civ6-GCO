@@ -5,7 +5,9 @@
 */
 
 
+/* ************************ */
 /* Remove GoodyHuts bonuses */
+/* ************************ */
 --/* 
 UPDATE GoodyHuts 			SET Weight = 0 WHERE GoodyHutType 		<> 'GOODYHUT_GOLD';
 UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMALL_GOLD';
@@ -14,22 +16,33 @@ UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMAL
 /* Change speed (doesn't work ?) */
 --UPDATE GameSpeed_Turns SET MonthIncrement = MonthIncrement * 0.5, TurnsPerIncrement = TurnsPerIncrement * 2;
 
-/* No resources harvesting */
+/* ************************ */
+/* No resources harvesting  */
+/* ************************ */
 DELETE FROM Resource_Harvests;
 
-/* Deals */
+/* ************************ */
+/* Deals                    */
+/* ************************ */
 --/*
 DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='DEAL_ITEM_RESOURCES';
 --*/
 
-/* Improvements */
+/* ************************ */
+/* Improvements             */
+/* ************************ */
 UPDATE Improvements SET PrereqTech ='TECH_MILITARY_TACTICS', SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_FORT';
 INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_FORT', 'UNIT_BUILDER');
 
-/* Features */
+/* ************************ */
+/* Features                 */
+/* ************************ */
 DELETE FROM Feature_Removes;
 
-/* Technologies & Civics*/
+
+/* ************************ */
+/* Technologies & Civics    */
+/* ************************ */
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_THE_WHEEL';
 UPDATE Technologies SET Cost = 25 WHERE TechnologyType ='TECH_THE_WHEEL';
@@ -216,7 +229,9 @@ UPDATE Civics SET Cost = Cost*3.20 WHERE EraType ='ERA_ATOMIC';
 UPDATE Civics SET Cost = Cost*3.80 WHERE EraType ='ERA_INFORMATION';
 
 
-/* Conscripts */
+/* ************************ */
+/* Conscripts               */
+/* ************************ */
 UPDATE Policies SET ArmyMaxPercentBoost = 5 WHERE PolicyType ='POLICY_CONSCRIPTION';
 UPDATE Policies SET ArmyMaxPercentBoost = 6 WHERE PolicyType ='POLICY_FEUDAL_CONTRACT';
 UPDATE Policies SET ArmyMaxPercentBoost = 7 WHERE PolicyType ='POLICY_GRANDE_ARMEE';
@@ -226,7 +241,9 @@ UPDATE Policies SET ArmyMaxPercentBoost = 10 WHERE PolicyType ='POLICY_PATRIOTIC
 UPDATE Policies SET ActiveTurnsLeftBoost = 3 WHERE PolicyType ='POLICY_MANEUVER';
 UPDATE Policies SET ActiveTurnsLeftBoost = 6 WHERE PolicyType ='POLICY_LIGHTNING_WARFARE';
 
-/* Army Size */
+/* ************************ */
+/* Army Size                */
+/* ************************ */
 UPDATE Eras SET ArmyMaxPercentOfPopulation = 1 	WHERE EraType='ERA_ANCIENT';
 UPDATE Eras SET ArmyMaxPercentOfPopulation = 1 	WHERE EraType='ERA_CLASSICAL';
 UPDATE Eras SET ArmyMaxPercentOfPopulation = 2 	WHERE EraType='ERA_MEDIEVAL';
@@ -245,7 +262,9 @@ UPDATE Eras SET ArmyMaxPercentWarBoost = 6	WHERE EraType='ERA_MODERN';
 UPDATE Eras SET ArmyMaxPercentWarBoost = 7	WHERE EraType='ERA_ATOMIC';
 UPDATE Eras SET ArmyMaxPercentWarBoost = 7	WHERE EraType='ERA_INFORMATION';
 
-/* Districts & Buildings */
+/* ************************ */
+/* Districts & Buildings    */
+/* ************************ */
 --/*
 
 -- Update Spy missions before removing Districts !
@@ -333,10 +352,14 @@ UPDATE Districts SET Entertainment = 0;
 UPDATE Improvements SET Housing = 0;
 --*/
 
-/* Start */
+/* ************************ */
+/* Start                    */
+/* ************************ */
 UPDATE StartEras SET Tiles = '0', Gold = Gold * 25;
 
-/* Remove Faith */
+/* ************************ */
+/* Remove Faith             */
+/* ************************ */
 --/* 
 DELETE FROM Buildings WHERE PurchaseYield='YIELD_FAITH';
 DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
@@ -360,15 +383,45 @@ DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
 --*/
 
 
-/* Units */
+/* ************************ */
+/* Units                    */
+/* ************************ */
 --/*
 UPDATE Units SET PopulationCost ='0';
 UPDATE Units SET PrereqPopulation ='0';
 UPDATE Units SET StrategicResource = NULL;
 --*/
 
+/* ************************ */
+/* Promotions               */
+/* ************************ */
+/*
+--UPDATE UnitPromotions SET Level 	= 1;
+--UPDATE UnitPromotions SET Column 	= 0;
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_ACTIVATE_GOODY_HUT'; 				-- Default = 5
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_BARB_SOFT_CAP'; 						-- Default = 1
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_CITY_CAPTURED'; 						-- Default = 10
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_COMBAT_ATTACKER_BONUS'; 				-- Default = 1
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_COMBAT_RANGED'; 						-- Default = 1
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_DISTRICT_VS_UNIT'; 					-- Default = 2
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_KILL_BONUS'; 						-- Default = 2
+UPDATE GlobalParameters SET Value 	= 2 	WHERE Name='EXPERIENCE_MAX_BARB_LEVEL'; 					-- Default = 2
+UPDATE GlobalParameters SET Value 	= 6 	WHERE Name='EXPERIENCE_MAX_LEVEL'; 							-- Default = 6
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_MAXIMUM_ONE_COMBAT'; 				-- Default = 10
+UPDATE GlobalParameters SET Value 	= 5 	WHERE Name='EXPERIENCE_NEEDED_FOR_NEXT_LEVEL_MULTIPLIER'; 	-- Default = 5
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_NOT_COMBAT_RANGED'; 					-- Default = 2
+--UPDATE GlobalParameters SET Value	= 0	WHERE Name = 'EXPERIENCE_PROMOTE_HEALED';					-- default = 50 (changed in CombatRules)
+--UPDATE GlobalParameters SET Value	= 0	WHERE Name = 'EXPERIENCE_RETRAIN_HEALED';					-- default = 100(changed in CombatRules)
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_REVEAL_NATURAL_WONDER'; 				-- Default = 15
+UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_UNIT_VS_DISTRICT_NOT_CITY_CAPTURED'; -- Default = 3
 
-/* No purchase */
+--UPDATE GlobalParameters SET Value = 99999 WHERE Name = "EXPERIENCE_NEEDED_FOR_NEXT_LEVEL_MULTIPLIER";
+--UPDATE Units SET InitialLevel = 2 WHERE Combat > 0 OR RangedCombat > 0 OR Bombard > 0;
+--*/
+
+/* ************************ */
+/* No purchase              */
+/* ************************ */
 --/*
 UPDATE Units SET PurchaseYield = NULL;
 UPDATE Buildings SET PurchaseYield = NULL;
@@ -388,7 +441,9 @@ UPDATE Buildings SET PurchaseYield = NULL;
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY_DEALS";
 
 
-/* Diplomacy */
+/* ************************ */
+/* Diplomacy                */
+/* ************************ */
 
 -- more spies, sooner
 INSERT OR REPLACE INTO CivicModifiers (CivicType, ModifierId) VALUES ('CIVIC_EARLY_EMPIRE','CIVIC_GRANT_SPY');
@@ -516,6 +571,9 @@ UPDATE ModifierArguments SET Value = -12 	WHERE ModifierID='STANDARD_DIPLOMATIC_
 UPDATE ModifierArguments SET Value = 36 	WHERE ModifierID='STANDARD_DIPLOMATIC_3RD_PARTY_DENOUNCED_FRIEND' AND Name='MaxEffectMagnitude'; 		-- Default = 8
 
 
+/* ************************ */
+/* ************************ */
+/* ************************ */
 /*
 
 	Despecialize

@@ -73,7 +73,7 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["RESOURCE_MEDICINE"].Index] 			= "[ICON_Damaged]",
 		[GameInfo.Resources["RESOURCE_FOOD"].Index] 				= "[ICON_Food]",
 		[GameInfo.Resources["RESOURCE_PERSONNEL"].Index]			= "[ICON_Position]",
-		[GameInfo.Resources["RESOURCE_WOODEN_HULL_PART"].Index]		= "[ICON_New]",
+		[GameInfo.Resources["RESOURCE_WOODEN_HULL_PART"].Index]		= "[ICON_RESOURCE_WOODEN_HULL_PART]",
 		[GameInfo.Resources["RESOURCE_STEEL_HULL_PART"].Index]		= "[ICON_New]",
 		[GameInfo.Resources["RESOURCE_ELECTRICAL_DEVICES"].Index]	= "[ICON_New]",
 		[GameInfo.Resources["RESOURCE_ELECTRONIC_COMPONENTS"].Index]= "[ICON_New]",
@@ -332,6 +332,7 @@ local debugFilter = {
 --	["CityScript"] 	= true,
 --	["PlayerScript"] = true,
 --	["UnitScript"] 	= true,
+--	["PlotScript"] 	= true,
 }
 
 function ToggleOutput()
@@ -772,6 +773,19 @@ function SupplyPathBlocked(pPlot, pPlayer) -- check for supply path (requires op
 	return true -- return true if the path is blocked...
 end
 
+function GetAdjacentPlots(plot)
+	local iX 	= plot:GetX()
+	local iY 	= plot:GetY()
+	local list	= {}
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		local adjacentPlot 	= Map.GetAdjacentPlot(iX, iY, direction)
+		if adjacentPlot then
+			table.insert(list, adjacentPlot)
+		end		
+	end
+	return list
+end
+
 --=====================================================================================--
 -- Cities
 --=====================================================================================--
@@ -863,6 +877,17 @@ function GetPlayerMiddleClassPercent( playerID )
 	return tonumber(GameInfo.GlobalParameters["CITY_BASE_MIDDLE_CLASS_PERCENT"].Value)
 end
 
+
+--=====================================================================================--
+-- Population
+--=====================================================================================--
+local populationPerSizepower	= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value)
+function GetPopulationAtSize(size)
+	return GCO.Round(math.pow(size, populationPerSizepower) * 1000)
+end
+function GetSizeAtPopulation(population)
+	return GCO.Round(math.pow(population / 1000, 1 / populationPerSizepower))
+end
 
 --=====================================================================================--
 -- Resources
@@ -1077,9 +1102,13 @@ function Initialize()
 	ExposedMembers.GCO.CalculateMaxRouteLength		= CalculateMaxRouteLength
 	ExposedMembers.GCO.SupplyPathBlocked 			= SupplyPathBlocked
 	ExposedMembers.GCO.TradePathBlocked 			= TradePathBlocked
+	ExposedMembers.GCO.GetAdjacentPlots				= GetAdjacentPlots
 	-- player
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
+	-- population
+	ExposedMembers.GCO.GetPopulationAtSize			= GetPopulationAtSize
+	ExposedMembers.GCO.GetSizeAtPopulation			= GetSizeAtPopulation
 	-- Resources
 	ExposedMembers.GCO.GetBaseResourceCost 			= GetBaseResourceCost
 	ExposedMembers.GCO.IsResourceEquipment			= IsResourceEquipment
