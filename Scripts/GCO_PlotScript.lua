@@ -1829,17 +1829,12 @@ function SetInitialMapPopulation()
 	for i = 0, iPlotCount - 1 do
 		local plot = GetPlotByIndex(i)
 		if (not plot:IsWater()) and plot:GetPopulation() == 0 then
-			local food 			= plot:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
-			local bonus			= 0
-			local appeal		= plot:GetPlotAppeal()
-			if food > 1 then
-				bonus = bonus + plot:GetPlotAppeal()
-			end
-			local maxPopulation	= GCO.GetPopulationAtSize(math.max(1,(food + bonus)/2))
+			local maxSize		= plot:GetMaxSize()
+			local maxPopulation	= GCO.GetPopulationAtSize(maxSize/4)
 			local minPopulation	= math.floor(maxPopulation / 8)
 			local population	= minPopulation + TerrainBuilder.GetRandomNumber(maxPopulation - minPopulation, "Add population on plot")
 			
-			Dprint( DEBUG_PLOT_SCRIPT, " - Set " .. Indentation20("population = ".. tostring(population)) .. " at ", plot:GetX(), plot:GetY(), " food = ", food, " appeal = ", appeal)
+			Dprint( DEBUG_PLOT_SCRIPT, " - Set " .. Indentation20("population = ".. tostring(population)) .. " at ", plot:GetX(), plot:GetY(), " maxSize = ", maxSize)
 			
 			plot:ChangeLowerClass(population)
 		end
@@ -1864,6 +1859,30 @@ function GetPopulation(self)
 	return 0
 	--]]
 	return self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+end
+
+function GetMaxSize(self)
+	local maxSize = 0
+	if (not self:IsWater()) then
+		local food 			= self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
+		local bonus			= 0
+		local appeal		= self:GetPlotAppeal()
+		local numResource	= self:GetResourceCount()
+		if numResource > 0 then
+			local resourceID 	= self:GetResourceType()
+			if GCO.IsResourceFood(resourceID) then
+				food = food + numResource
+			end
+		end
+		if food > 1 then
+			bonus = bonus + appeal
+			if self:IsFreshWater() then
+				bonus = bonus + 2
+			end
+		end
+		maxSize = maxSize + food + bonus
+	end
+	return math.max(1,maxSize)
 end
 
 function GetPreviousPopulation(self)
@@ -2180,13 +2199,33 @@ function SetMigrationValues(self)
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
 	if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	
+	local plotKey = self:GetKey()
+	if not _cached[plotKey] then
+		_cached[plotKey] = {}
+	end
+	if not _cached[plotKey].Migration then
+		_cached[plotKey].Migration = { Push = {}, Pull = {}}
+	end
+	
+	local plotMigration = _cached[plotKey].Migration
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "- Set Migration values to plot ".. self:GetX(), self:GetY())
-	local possibleDestination 	= {}
-	local city					= self:GetCity()
-	local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
+	local possibleDestination 		= {}
+	local city						= self:GetCity()
+	local migrantClasses			= {UpperClassID, MiddleClassID, LowerClassID}
+	local population				= self:GetPopulation()
+	local maxPopulation				= GCO.GetPopulationAtSize(self:GetMaxSize())
+	local employment				= self:GetMaxEmployment()
+	local employed					= self:GetEmployed()
 	
+	plotMigration.Pull.Population	= maxPopulation / population
+	plotMigration.Push.Population	= population / maxPopulation
+	
+	plotMigration.Pull.Employment	= employment / population
+	plotMigration.Push.Employment	= population / employment
+	
+	--[[
 	-- Get potential migrants
 	local unEmployed 			= self:GetPopulation() - self:GetEmployed()
 	local threatened			= 0
@@ -2200,8 +2239,11 @@ function SetMigrationValues(self)
 			end
 		end
 	end	
+	--]]
 	
-	Dprint( DEBUG_PLOT_SCRIPT, "  - unemployed : ", unEmployed, " threatened = ", threatened)	
+	Dprint( DEBUG_PLOT_SCRIPT, "  - maxPopulation : ", maxPopulation, " population = ", population, " employment = ", employment, " employed = ", employed)
+	Dprint( DEBUG_PLOT_SCRIPT, "  - Pull.Population : ", GCO.ToDecimals(plotMigration.Pull.Population), " Pull.Employment = ", GCO.ToDecimals(plotMigration.Pull.Employment))
+	Dprint( DEBUG_PLOT_SCRIPT, "  - Push.Population : ", GCO.ToDecimals(plotMigration.Push.Population), " Push.Employment = ", GCO.ToDecimals(plotMigration.Push.Employment))	
 	
 end
 
@@ -2212,13 +2254,17 @@ function DoMigration(self)
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "- Population Migration from plot ".. self:GetX(), self:GetY())
+	local plotKey 				= self:GetKey()
+	local plotMigration 		= _cached[plotKey].Migration
 	local possibleDestination 	= {}
 	local city					= self:GetCity()
 	local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
 
 	
 	for _, adjacentPlot in ipairs(GCO.GetAdjacentPlots(self)) do
-	
+		local adjacentPlotKey 		= self:GetKey()
+		local adjacentPlotMigration = _cached[adjacentPlotKey].Migration
+		
 	end
 	
 end
@@ -2412,6 +2458,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	--
 	p.GetSize						= GetSize
 	p.GetPopulation					= GetPopulation
+	p.GetMaxSize					= GetMaxSize
 	p.GetPreviousPopulation			= GetPreviousPopulation
 	p.ChangeUpperClass				= ChangeUpperClass
 	p.ChangeMiddleClass				= ChangeMiddleClass
