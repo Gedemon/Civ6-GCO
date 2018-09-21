@@ -3314,6 +3314,10 @@ function GetFoodConsumption(self, optionalRatio)
 	return math.max(1, GCO.Round( foodConsumption1000 * ratio / 1000 ))
 end
 
+function GetFoodStock(self)
+	return self:GetStock(foodResourceID)
+end
+
 function GetCityBaseFoodStock(data)
 	local city = CityManager.GetCity(data.playerID, data.cityID)
 	return GCO.Round(city:GetMaxStock(foodResourceID) / 2)
@@ -6305,6 +6309,7 @@ function AttachCityFunctions(city)
 	c.DoTurnSecondPass					= DoTurnSecondPass
 	c.DoTurnThirdPass					= DoTurnThirdPass
 	c.DoTurnFourthPass					= DoTurnFourthPass
+	c.GetFoodStock						= GetFoodStock
 	c.GetFoodConsumption 				= GetFoodConsumption
 	c.GetFoodRationing					= GetFoodRationing
 	c.DoCollectResources				= DoCollectResources

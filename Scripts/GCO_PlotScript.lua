@@ -2259,7 +2259,25 @@ function DoMigration(self)
 	local possibleDestination 	= {}
 	local city					= self:GetCity()
 	local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
-
+	local migrantMotivations	= {"Under threat", "Starvation", "Employment", "Overpopulation"}
+	local migrants				= {}
+	
+	-- Get number of migrants in each class:
+	
+	-- 1/ from "Starvation"
+	if city then
+		-- starvation can only happen when rattached to a city (the city requisition all food then do the repartition)
+		-- on free plots, the risk of starvation is part of the "Overpopulation" motivation
+		local consumptionRatio	= 1
+		local foodNeeded		= city:GetFoodConsumption(consumptionRatio)
+		local foodstock			= city:GetFoodStock()
+		
+		for _, populationID in ipairs(migrantClasses) do
+			
+		end
+	end
+	
+	end
 	
 	for _, adjacentPlot in ipairs(GCO.GetAdjacentPlots(self)) do
 		local adjacentPlotKey 		= self:GetKey()
