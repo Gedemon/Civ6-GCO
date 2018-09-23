@@ -349,6 +349,7 @@ local ResourceTransportMaxCost	= tonumber(GameInfo.GlobalParameters["RESOURCE_TR
 local baseFoodStock 			= tonumber(GameInfo.GlobalParameters["CITY_BASE_FOOD_STOCK"].Value)
 local populationPerSizepower	= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value)
 local maxMigrantPercent			= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_MAX_MIGRANT_PERCENT"].Value)
+local minMigrantPercent			= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_MIN_MIGRANT_PERCENT"].Value)
 
 local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 local mediumRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
@@ -590,6 +591,8 @@ function RegisterNewCity(playerID, city)
 	if sizeDiff ~= 0 then
 		city:ChangePopulation(sizeDiff)
 		city:UpdateSize()
+		city:ChangeStock(foodResourceID, GCO.Round(city:GetMaxStock(foodResourceID / 2)))
+		--ExposedMembers.CityData[cityKey].Stock[turnKey][foodResourceKey] = 
 	end
 
 	LuaEvents.NewCityCreated()
@@ -3381,9 +3384,14 @@ end
 function CanTrain(self, unitType)
 
 	--local DEBUG_CITY_SCRIPT = "CityScript"
+	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT	
 
 	local cityKey 	= self:GetKey()
 	local unitID 	= GameInfo.Units[unitType].Index
+	
+	--if GameInfo.Units["UNIT_GALLEY"].Index == unitID then DEBUG_CITY_SCRIPT = "debug" end
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_CITY_SCRIPT, "CanTrain for "..Locale.Lookup(GameInfo.Units[unitType].Name).." in "..Locale.Lookup(self:GetName()))
 
 	-- check for required buildings (any required)
 	local bCheckBuildingOR
@@ -4738,7 +4746,9 @@ function DoCollectResources(self)
 								if routeLength <= seaRange then -- not needed with GetPathToPlot called with seaRange ?
 									local resourceID = pEdgePlot:GetResourceType()
 									if player:IsResourceVisible(resourceID) then
-										table.insert(cityPlots, pEdgePlot:GetIndex())
+										if plotOwner == NO_PLAYER then
+											table.insert(cityPlots, pEdgePlot:GetIndex())-- owned plots are already in a cityPlots list and are not shared
+										end
 										Dprint( DEBUG_CITY_SCRIPT, "-- Adding Sea plots for resource collection, route length = ", routeLength, " sea range = ", seaRange, " resource = ", Locale.Lookup(GameInfo.Resources[resourceID].Name), " at ", pEdgePlot:GetX(), pEdgePlot:GetY() )
 										if (pEdgePlot:GetImprovementType() == NO_IMPROVEMENT) and self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then
 											local improvementID = GCO.GetResourceImprovementID(resourceID)
@@ -5701,7 +5711,7 @@ function DoMigration(self)
 
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /START")
 	
-	local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = "debug"
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "- Population Migration...")
@@ -5712,8 +5722,9 @@ function DoMigration(self)
 	local cityEmployment	= self:GetMaxEmploymentUrban() - self:GetUrbanEmployed()
 	local totalPopultation 	= self:GetRealPopulation()
 	local maxMigrants		= math.floor(totalPopultation * maxMigrantPercent / 100)
+	local minMigrants		= math.floor(totalPopultation * minMigrantPercent / 100)
 	
-	local migrants			= math.min(unEmployed, maxMigrants)
+	local migrants			= math.min(maxMigrants, math.max(unEmployed, minMigrants))
 	
 	Dprint( DEBUG_CITY_SCRIPT, "   Migrants = ", migrants)
 	

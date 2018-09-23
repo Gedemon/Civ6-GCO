@@ -16,7 +16,17 @@ include( "GCO_SmallUtils" )
 -- Defines
 -----------------------------------------------------------------------------------------
 local _cached						= {}	-- cached table to reduce calculations
+local debugTable 					= {}	-- table used to output debug data from some functions
 
+local DirectionString = {
+	[DirectionTypes.DIRECTION_NORTHEAST] 	= "NORTHEAST",
+	[DirectionTypes.DIRECTION_EAST] 		= "EAST",
+	[DirectionTypes.DIRECTION_SOUTHEAST] 	= "SOUTHEAST",
+    [DirectionTypes.DIRECTION_SOUTHWEST] 	= "SOUTHWEST",
+	[DirectionTypes.DIRECTION_WEST] 		= "WEST",
+	[DirectionTypes.DIRECTION_NORTHWEST] 	= "NORTHWEST"
+	}
+	
 local SEPARATIST_PLAYER 			= "64" -- use string for table keys for correct serialisation/deserialisation
 local NO_IMPROVEMENT 				= -1
 local NO_FEATURE	 				= -1
@@ -59,6 +69,8 @@ local EquipmentBaseStock 		= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUI
 
 -- Population
 local populationPerSizepower 	= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value)
+local maxMigrantPercent			= tonumber(GameInfo.GlobalParameters["PLOT_POPULATION_MAX_MIGRANT_PERCENT"].Value)
+local minMigrantPercent			= tonumber(GameInfo.GlobalParameters["PLOT_POPULATION_MIN_MIGRANT_PERCENT"].Value)
 
 local UpperClassID 				= GameInfo.Populations["POPULATION_UPPER"].Index
 local MiddleClassID 			= GameInfo.Populations["POPULATION_MIDDLE"].Index
@@ -243,6 +255,8 @@ function GetPlotDiffusionValuesTo(self, iDirection)
 		self:SetPlotDiffusionValuesTo(iDirection)
 	elseif not _cached[plotKey].PlotDiffusionValues then
 		self:SetPlotDiffusionValuesTo(iDirection)
+	elseif not _cached[plotKey].PlotDiffusionValues[iDirection] then
+		self:SetPlotDiffusionValuesTo(iDirection)
 	end
 	return _cached[plotKey].PlotDiffusionValues[iDirection]
 end
@@ -260,14 +274,26 @@ function UpdatePlotDiffusionValues(self)
 	end
 end
 
-
+local bSetPlotDiffusionValuesToHasRun = true
 function SetPlotDiffusionValuesTo(self, iDirection)
-	local plotKey = self:GetKey()
+
+	if not bSetPlotDiffusionValuesToHasRun then
+		GCO.Warning("previous call to SetPlotDiffusionValuesTo has failed !")
+		ShowDebug()
+	end
+	
+	bSetPlotDiffusionValuesToHasRun = false
+	
+	debugTable 		= {} -- empty debug table
+	
+	table.insert(debugTable, "Set PlotDiffusionValues for ".. self:GetX()..","..self:GetY().." to ".. DirectionString[iDirection])
+	
+	local plotKey 	= self:GetKey()
 	if not _cached[plotKey] then _cached[plotKey] = {} end
 	if not _cached[plotKey].PlotDiffusionValues then _cached[plotKey].PlotDiffusionValues = {} end
 	
 	local pAdjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), iDirection)
-	--table.insert(debugTable, "Direction = " .. iDirection ..", to (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
+	table.insert(debugTable, "To (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
 	if (pAdjacentPlot and not pAdjacentPlot:IsWater()) then
 		local iBonus 			= 0
 		local iPenalty 			= 0
@@ -280,19 +306,19 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 		local terrainPenalty	= GameInfo.Terrains[terrainType].CulturePenalty
 		local terrainMaxPercent	= GameInfo.Terrains[terrainType].CultureMaxPercent
 		local featureType		= self:GetFeatureType()
-		--table.insert(debugTable, " - iPlotMaxRatio = "..iPlotMaxRatio..", bIsRoute = ".. tostring(bIsRoute) ..", bIsFollowingRiver =" .. tostring(bIsFollowingRiver) ..", bIsCrossingRiver = " .. tostring(bIsCrossingRiver) ..", terrainType = " .. terrainType ..", terrainThreshold = ".. terrainThreshold ..", terrainPenalty = ".. terrainPenalty ..", terrainMaxPercent = ".. terrainMaxPercent ..", featureType = ".. featureType)
+		table.insert(debugTable, " - iPlotMaxRatio = "..iPlotMaxRatio..", bIsRoute = ".. tostring(bIsRoute) ..", bIsFollowingRiver =" .. tostring(bIsFollowingRiver) ..", bIsCrossingRiver = " .. tostring(bIsCrossingRiver) ..", terrainType = " .. Locale.Lookup(GameInfo.Terrains[terrainType].Name) ..", terrainThreshold = ".. terrainThreshold ..", terrainPenalty = ".. terrainPenalty ..", terrainMaxPercent = ".. terrainMaxPercent ..", featureType = ".. featureType)
 		-- Bonus: following road
 		if (bIsRoute) then
 			iBonus 			= iBonus + iRoadBonus
 			iPlotMaxRatio 	= iPlotMaxRatio * iRoadMax / 100
-			--table.insert(debugTable, " - bIsRoute = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
+			table.insert(debugTable, " - bIsRoute = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
 		end
 		
 		-- Bonus: following a river
 		if (bIsFollowingRiver) then
 			iBonus 			= iBonus + iFollowingRiverBonus
 			iPlotMaxRatio 	= iPlotMaxRatio * iFollowingRiverMax / 100
-			--table.insert(debugTable, " - bIsFollowingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
+			table.insert(debugTable, " - bIsFollowingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
 		end
 		
 		-- Penalty: feature
@@ -303,7 +329,7 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 			if featurePenalty > 0 then
 				iPenalty 		= iPenalty + featurePenalty
 				iPlotMaxRatio 	= iPlotMaxRatio * featureMaxPercent / 100
-				--table.insert(debugTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+				table.insert(debugTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus .. " iPenalty = "..iPenalty)
 			end
 		end
 		
@@ -311,18 +337,19 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 		if terrainPenalty > 0 then
 			iPenalty 		= iPenalty + terrainPenalty
 			iPlotMaxRatio 	= iPlotMaxRatio * terrainMaxPercent / 100
-			--table.insert(debugTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+			table.insert(debugTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus.. " iPenalty = "..iPenalty)
 		end
 		
 		-- Penalty: crossing river
 		if bIsCrossingRiver then
 			iPenalty 		= iPenalty + iCrossingRiverPenalty
 			iPlotMaxRatio 	= iPlotMaxRatio * iCrossingRiverMax / 100
-			--table.insert(debugTable, " - bIsCrossingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus, " iPenalty = "..iPenalty)
+			table.insert(debugTable, " - bIsCrossingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus .. " iPenalty = "..iPenalty)
 		end
 	
 		_cached[plotKey].PlotDiffusionValues[iDirection] = { Bonus = iBonus, Penalty = iPenalty, MaxRatio = iPlotMaxRatio }
 	end
+	bSetPlotDiffusionValuesToHasRun = true
 end
 
 local conquestCountdown = {}
@@ -564,7 +591,6 @@ function GetTerritorialWaterOwner( self )
 	return territorialWaterOwner
 end
 
-local debugTable = {}
 local bshowDebug = false
 function UpdateCulture( self )
 	debugTable = {}
@@ -1088,15 +1114,6 @@ function GetOppositeFlowDirection(dir)
 	local numTypes = FlowDirectionTypes.NUM_FLOWDIRECTION_TYPES;
 	return ((dir + 3) % numTypes);
 end
-
-local DirectionString = {
-	[DirectionTypes.DIRECTION_NORTHEAST] 	= "NORTHEAST",
-	[DirectionTypes.DIRECTION_EAST] 		= "EAST",
-	[DirectionTypes.DIRECTION_SOUTHEAST] 	= "SOUTHEAST",
-    [DirectionTypes.DIRECTION_SOUTHWEST] 	= "SOUTHWEST",
-	[DirectionTypes.DIRECTION_WEST] 		= "WEST",
-	[DirectionTypes.DIRECTION_NORTHWEST] 	= "NORTHWEST"
-	}
 
 function IsEdgeRiver(self, edge)
 	return (edge == DirectionTypes.DIRECTION_NORTHEAST 	and self:IsSWOfRiver()) 
@@ -1705,6 +1722,8 @@ function GetAvailableEmployment(self)
 					Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 				end
 			end
+		else
+			Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
 		end
 
 		local featureID = self:GetFeatureType()
@@ -1766,7 +1785,11 @@ end
 --]]
 
 function GetOutputPerYield(self)
-	return self:GetSize() * self:GetActivityFactor()
+	if self:IsWater() then
+		return 1
+	else
+		return self:GetSize() * self:GetActivityFactor()
+	end
 end
 
 function GetRuralEmploymentPow(self)
@@ -1820,7 +1843,7 @@ function SetInitialMapPopulation()
 		return
 	end
 	
-	local DEBUG_PLOT_SCRIPT = "debug"
+	--local DEBUG_PLOT_SCRIPT = "debug"
 
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "Initializing Map Population...")
@@ -2191,106 +2214,206 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	--Dlog("UpdateDataOnNewTurn /END")
 end
 
-
 function SetMigrationValues(self)
 
-	-- if food rationning in city, try to move to external plot (other civ or unowned), reason : "food is requisitioned"
-	
+	if self:IsCity() then return end -- cities handle migration differently
+		
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
-	if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
+	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	
 	local plotKey = self:GetKey()
 	if not _cached[plotKey] then
 		_cached[plotKey] = {}
 	end
 	if not _cached[plotKey].Migration then
-		_cached[plotKey].Migration = { Push = {}, Pull = {}}
+		_cached[plotKey].Migration = { Push = {}, Pull = {}, Migrants = {}}
 	end
 	
 	local plotMigration = _cached[plotKey].Migration
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_PLOT_SCRIPT, "- Set Migration values to plot ".. self:GetX(), self:GetY())
+	Dprint( DEBUG_PLOT_SCRIPT, "- Set Migration values to plot ".. self:GetX() ..",".. self:GetY())
 	local possibleDestination 		= {}
 	local city						= self:GetCity()
 	local migrantClasses			= {UpperClassID, MiddleClassID, LowerClassID}
+	--local migrantMotivations		= {"Under threat", "Starvation", "Employment", "Overpopulation"}
+	local migrants					= {}
 	local population				= self:GetPopulation()
 	local maxPopulation				= GCO.GetPopulationAtSize(self:GetMaxSize())
 	local employment				= self:GetMaxEmployment()
 	local employed					= self:GetEmployed()
+	local unEmployed				= math.max(0, population - employment)
 	
-	plotMigration.Pull.Population	= maxPopulation / population
-	plotMigration.Push.Population	= population / maxPopulation
+	if population > 0 then
+		-- check Migration motivations, from lowest to most important :	
 	
-	plotMigration.Pull.Employment	= employment / population
-	plotMigration.Push.Employment	= population / employment
-	
-	--[[
-	-- Get potential migrants
-	local unEmployed 			= self:GetPopulation() - self:GetEmployed()
-	local threatened			= 0
-	
-	if city then
-		for _, populationID in ipairs(migrantClasses) do
-			local deathRate = city:GetPopulationDeathRate(populationID)
-			local birthRate	= city:GetPopulationBirthRate(populationID)
-			if deathRate > birthRate then
-				threatened = threatened + math.floor(self:GetPopulationClass(populationID) * (deathRate - birthRate) / 100)
+		-- Employment
+		if employment > 0 then
+			plotMigration.Pull.Employment	= employment / population
+			plotMigration.Push.Employment	= population / employment
+			if plotMigration.Push.Employment > 1 then 
+				plotMigration.Motivation 			= "Employment"
+				plotMigration.Migrants.Employment	= unEmployed
 			end
+		else
+			plotMigration.Pull.Employment	= 0
+			plotMigration.Push.Employment	= 0		
 		end
-	end	
-	--]]
-	
-	Dprint( DEBUG_PLOT_SCRIPT, "  - maxPopulation : ", maxPopulation, " population = ", population, " employment = ", employment, " employed = ", employed)
-	Dprint( DEBUG_PLOT_SCRIPT, "  - Pull.Population : ", GCO.ToDecimals(plotMigration.Pull.Population), " Pull.Employment = ", GCO.ToDecimals(plotMigration.Pull.Employment))
-	Dprint( DEBUG_PLOT_SCRIPT, "  - Push.Population : ", GCO.ToDecimals(plotMigration.Push.Population), " Push.Employment = ", GCO.ToDecimals(plotMigration.Push.Employment))	
-	
+		Dprint( DEBUG_PLOT_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " population = ", population)
+		
+		-- Population
+		plotMigration.Pull.Population	= maxPopulation / population
+		plotMigration.Push.Population	= population / maxPopulation	
+		if plotMigration.Push.Population > 1 then 
+			plotMigration.Motivation 			= "Population"
+			local overPopulation				= population - maxPopulation
+			plotMigration.Migrants.Population	= overPopulation
+		end
+		Dprint( DEBUG_PLOT_SCRIPT, "  - Overpopulation = ", overPopulation," maxPopulation : ", maxPopulation, " population = ", population)
+		
+		-- Starvation
+		if city then
+			-- starvation can happen on plots controlled by a city (the city is requisitionning all food then share it over its urban+rural population)
+			-- on free plots, the risk of starvation is part of the "Overpopulation" motivation
+			-- if food rationning in city, try to move to external plot (other civ or unowned), reason : "food is requisitioned"
+			local consumptionRatio	= 1
+			local foodNeeded		= city:GetFoodConsumption(consumptionRatio)
+			local foodstock			= city:GetFoodStock()
+			plotMigration.Pull.Food	= foodstock / foodNeeded
+			plotMigration.Push.Food	= foodNeeded / foodstock
+			if plotMigration.Push.Food > 1 then 
+				plotMigration.Motivation 	= "Food"
+				local starving				= population - (population / plotMigration.Push.Food)
+				plotMigration.Migrants.Food	= starving
+			end
+			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", starving," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
+		else
+			plotMigration.Pull.Food	= plotMigration.Pull.Population -- free plots use the population support value for Food when "pulling" migrants that are pushed out of a city influence by starvation 
+		end
+		
+		-- Threat
+		--
+		--
+		
+		if city then
+		Dprint( DEBUG_PLOT_SCRIPT, "  - Pull.Food : ", GCO.ToDecimals(plotMigration.Pull.Food), " Push.Food = ", GCO.ToDecimals(plotMigration.Push.Food))
+		end	
+		Dprint( DEBUG_PLOT_SCRIPT, "  - Pull.Population : ", GCO.ToDecimals(plotMigration.Pull.Population), " Push.Population = ", GCO.ToDecimals(plotMigration.Push.Population))
+		Dprint( DEBUG_PLOT_SCRIPT, "  - Pull.Employment : ", GCO.ToDecimals(plotMigration.Pull.Employment), " Push.Employment = ", GCO.ToDecimals(plotMigration.Push.Employment))
+	end
 end
 
 function DoMigration(self)
+
+	if self:IsCity() then return end -- cities handle migration differently
 	
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
-	if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
+	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_PLOT_SCRIPT, "- Population Migration from plot ".. self:GetX(), self:GetY())
+	Dprint( DEBUG_PLOT_SCRIPT, "- Population Migration from plot ".. self:GetX() ..",".. self:GetY())
 	local plotKey 				= self:GetKey()
 	local plotMigration 		= _cached[plotKey].Migration
+	local population			= self:GetPopulation()
 	local possibleDestination 	= {}
 	local city					= self:GetCity()
 	local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
-	local migrantMotivations	= {"Under threat", "Starvation", "Employment", "Overpopulation"}
-	local migrants				= {}
+	--local migrantMotivations	= {"Under threat", "Starvation", "Employment", "Overpopulation"}	
+	local maxMigrants			= math.floor(population * maxMigrantPercent / 100)
+	local minMigrants			= math.floor(population * minMigrantPercent / 100)
+	local migrants 				= 0
+	local totalWeight			= 0
 	
-	-- Get number of migrants in each class:
+	local classesRatio			= {}
+	for i, classID in ipairs(migrantClasses) do
+		classesRatio[classID] = self:GetPopulationClass(classID) / population
+	end
+	-- Get the number of migrants from this plot
+	for motivation, value in pairs(plotMigration.Migrants) do
+		migrants = math.max(value, migrants) -- motivations can overlap, so just use the biggest value from all motivations 
+	end
+	migrants = math.min(maxMigrants, math.max(minMigrants, migrants))
 	
-	-- 1/ from "Starvation"
-	if city then
-		-- starvation can only happen when rattached to a city (the city requisition all food then do the repartition)
-		-- on free plots, the risk of starvation is part of the "Overpopulation" motivation
-		local consumptionRatio	= 1
-		local foodNeeded		= city:GetFoodConsumption(consumptionRatio)
-		local foodstock			= city:GetFoodStock()
-		
-		for _, populationID in ipairs(migrantClasses) do
+	Dprint( DEBUG_PLOT_SCRIPT, "- Eager migrants = ", migrants)
+	for _, populationID in ipairs(migrantClasses) do
 			
+	end
+	--]]
+	
+	if migrants > 0 then
+		
+		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+			local adjacentPlot 		= Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction)
+			local diffusionValues	= self:GetPlotDiffusionValuesTo(direction)
+			
+			-- debug
+			if (not diffusionValues) and adjacentPlot and not (adjacentPlot:IsCity() or adjacentPlot:IsWater()) then
+				local toStr 			= self:GetX() ..",".. self:GetY() .. " to " .. adjacentPlot:GetX() ..",".. adjacentPlot:GetY()
+				local plotTerrainStr	= Locale.Lookup(GameInfo.Terrains[self:GetTerrainType()].Name)
+				local toTerrainStr		= Locale.Lookup(GameInfo.Terrains[adjacentPlot:GetTerrainType()].Name)
+				GCO.Warning("No diffusion value from ".. plotTerrainStr .. " " .. toStr .. " " .. toTerrainStr)
+			end
+			
+			if diffusionValues and adjacentPlot and not (adjacentPlot:IsCity() or adjacentPlot:IsWater()) then
+			
+				local adjacentPlotKey 		= adjacentPlot:GetKey()
+				local adjacentPlotMigration = _cached[adjacentPlotKey].Migration
+				local plotWeight			= 0
+				Dprint( DEBUG_PLOT_SCRIPT, "  - Looking for better conditions in ".. DirectionString[direction] .." on plot ".. adjacentPlot:GetX() ..",".. adjacentPlot:GetY().." Diffusion Values : Bonus = "..tostring(diffusionValues.Bonus)..", Penalty = "..tostring(diffusionValues.Penalty)..", Ratio = "..tostring(diffusionValues.MaxRatio))
+				for motivation, pushValue in pairs(plotMigration.Push) do
+					local adjacentPull	= adjacentPlotMigration.Pull[motivation] or 0
+					local adjacentPush	= adjacentPlotMigration.Push[motivation] or 0
+					local weightRatio	= 1	
+					Dprint( DEBUG_PLOT_SCRIPT, "    -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " adjacentPush = ", GCO.ToDecimals(adjacentPush), " adjacentPull = ", GCO.ToDecimals(adjacentPull))
+					if adjacentPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
+						if adjacentPull > 1 then
+							weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
+						end
+						if pushValue > 1 then
+							weightRatio = weightRatio * 5		-- situation is bad on currentPlot
+						end
+						if motivation == plotMigration.Motivation then
+							weightRatio = weightRatio * 10		-- this is the most important motivation for migration
+						end
+						local motivationWeight = (adjacentPull + pushValue) * weightRatio
+						plotWeight = plotWeight + motivationWeight
+						Dprint( DEBUG_PLOT_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
+					end
+				end
+				
+				if plotWeight > 0 then
+					plotWeight = (plotWeight + diffusionValues.Bonus + diffusionValues.Penalty) * diffusionValues.MaxRatio
+					Dprint( DEBUG_PLOT_SCRIPT, "  - After diffusionValues: plotWeight = ", GCO.ToDecimals(plotWeight))
+					totalWeight = totalWeight + plotWeight
+					table.insert (possibleDestination, {PlotID = adjacentPlot:GetIndex(), Weight = plotWeight})
+				end
+			end
+		end
+		
+		table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
+		local numPlotDest = #possibleDestination
+		for i, destination in ipairs(possibleDestination) do
+			if migrants > 0 and destination.Weight > 0 then
+				local totalPopMoving 	= math.floor(migrants * (destination.Weight / totalWeight))
+				local plot 				= GCO.GetPlotByIndex(destination.PlotID)
+				for i, classID in ipairs(migrantClasses) do
+					local classMoving = math.floor(totalPopMoving * classesRatio[classID])
+					if classMoving > 0 then
+						Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Populations[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
+						self:ChangePopulationClass(classID, -classMoving)
+						plot:ChangePopulationClass(classID, classMoving)
+					end
+				end
+			end	
 		end
 	end
-	
-	end
-	
-	for _, adjacentPlot in ipairs(GCO.GetAdjacentPlots(self)) do
-		local adjacentPlotKey 		= self:GetKey()
-		local adjacentPlotMigration = _cached[adjacentPlotKey].Migration
-		
-	end
-	
 end
 
 function OnNewTurn()
 	GCO.StartTimer("Plots DoTurn")
 	local iPlotCount = Map.GetPlotCount()
 	-- First Pass
+	GCO.StartTimer("Plots DoTurn First Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
 		-- set previous culture first
@@ -2301,23 +2424,30 @@ function OnNewTurn()
 			end
 		end
 	end
+	GCO.ShowTimer("Plots DoTurn First Pass")
 	-- Second Pass
+	GCO.StartTimer("Plots DoTurn Second Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
 		plot:UpdateDataOnNewTurn()	
 		plot:UpdateCulture()
 		plot:SetMaxEmployment()
 	end
+	GCO.ShowTimer("Plots DoTurn Second Pass")
 	-- Third Pass
+	GCO.StartTimer("Plots DoTurn Third Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
 		plot:SetMigrationValues()
 	end	
+	GCO.ShowTimer("Plots DoTurn Third Pass")
 	-- Fourth Pass
+	GCO.StartTimer("Plots DoTurn Fourth Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
 		plot:DoMigration()
 	end
+	GCO.ShowTimer("Plots DoTurn Fourth Pass")
 	--print("-----------------------------------------------------------------------------------------")
 	GCO.ShowTimer("Plots DoTurn")
 	--print("-----------------------------------------------------------------------------------------")

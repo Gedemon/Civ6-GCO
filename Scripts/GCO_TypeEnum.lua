@@ -64,6 +64,15 @@ for row in GameInfo.Improvement_ValidResources() do
 	IsImprovementForResource[improvementID][resourceID] = true
 	ResourceImprovementID[resourceID] = improvementID
 end
+-- Special cases
+local resourceWoodID	= GameInfo.Resources["RESOURCE_WOOD"].Index
+local resourcePlantsID	= GameInfo.Resources["RESOURCE_PLANTS"].Index
+local lumberMillsID		= GameInfo.Improvements["IMPROVEMENT_LUMBER_MILL"].Index
+local plantationID		= GameInfo.Improvements["IMPROVEMENT_PLANTATION"].Index
+IsImprovementForResource[lumberMillsID] 					= {[resourceWoodID] 	= true}
+IsImprovementForResource[plantationID][resourcePlantsID] 	= true
+ResourceImprovementID[resourceWoodID] 						= lumberMillsID
+ResourceImprovementID[resourcePlantsID] 					= plantationID
 
 IsImprovementForFeature			= {} -- cached table to check if an improvement is meant for a feature
 for row in GameInfo.Improvement_ValidFeatures() do

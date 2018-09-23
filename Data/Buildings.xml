@@ -17,9 +17,9 @@
 		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 			EmploymentSize="0.30"/>
 		<Row BuildingType="BUILDING_FISH_MARKET" 				Cost="70" 	MaterielPerProduction="2" PrereqTech="TECH_SAILING" 			EmploymentSize="1.00"/>
 		<Row BuildingType="BUILDING_FRUIT_MARKET" 				Cost="110" 	MaterielPerProduction="3" PrereqTech="TECH_IRRIGATION" 			EmploymentSize="1.00"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="1.00"	EquipmentStock="500" />
-		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING"		EmploymentSize="1.00"	EquipmentStock="500" />
-		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" 										EmploymentSize="0.50"	EquipmentStock="1000"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="1.00"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING"		EmploymentSize="1.00"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" 										EmploymentSize="0.50"	EquipmentStock="300"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="2.00"	Coast = "1" />
 		
 		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
@@ -163,21 +163,21 @@
 	
 	<BuildingResourcesConverted>
 	
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_RICE" 		MaxConverted="3" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WHEAT" 		MaxConverted="3" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CATTLE" 		MaxConverted="3" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_DEER" 		MaxConverted="3" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_SHEEP" 		MaxConverted="3" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="3" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WHALES" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="2"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_FISH" 		MaxConverted="3" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CRABS" 		MaxConverted="3" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_STONE" 		MaxConverted="2" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WOOD" 		MaxConverted="2" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_RICE" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WHEAT" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CATTLE" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_DEER" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_SHEEP" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_FISH" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CRABS" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_STONE" 		MaxConverted="1" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WOOD" 		MaxConverted="1" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_MATERIEL" 	MaxConverted="1" 	ResourceCreated="EQUIPMENT_SLINGS" 			Ratio="25"/>
 		
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="5"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="RESOURCE_WOOD_PLANKS" 		Ratio="0.5"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_SPEARS" 	Ratio="5"	MultiResCreated="1" CostFactor="0.25" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="2" 	MultiResCreated="1" />
 		
@@ -256,15 +256,15 @@
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="3.5"		MultiResCreated="1" />
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.25"	MultiResCreated="1" />		
 		
-		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="5"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="3"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_CROSSBOWS" 		Ratio="2.5"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_CATAPULTS" 		Ratio="0.15"	/>
-		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_TREBUCHETS" 		Ratio="0.15"	/>
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="5"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="3"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_CROSSBOWS" 		Ratio="2.5"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD_PLANKS" MaxConverted="20" 	ResourceCreated="EQUIPMENT_CATAPULTS" 		Ratio="0.1"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD_PLANKS" MaxConverted="20" 	ResourceCreated="EQUIPMENT_TREBUCHETS" 		Ratio="0.1"	MultiResCreated="1" />
 		
-		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOOD"				MaxConverted="10" 	ResourceCreated="RESOURCE_WOODEN_HULL_PART" Ratio="0.10" />
-		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="5" 	ResourceCreated="EQUIPMENT_GALLEY" 			Ratio="0.20" />
-		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="8" 	ResourceCreated="EQUIPMENT_QUADRIREME" 		Ratio="0.125" />
+		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOOD_PLANKS"			MaxConverted="10" 	ResourceCreated="RESOURCE_WOODEN_HULL_PART" Ratio="0.10" />
+		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="1" 	ResourceCreated="EQUIPMENT_GALLEY" 			Ratio="0.50" />
+		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="4" 	ResourceCreated="EQUIPMENT_QUADRIREME" 		Ratio="0.25" />
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="4" 	ResourceCreated="EQUIPMENT_CARAVEL" 		Ratio="0.25" />
 		
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="4" 	ResourceCreated="EQUIPMENT_PRIVATEER" 		Ratio="0.25" 	MultiResRequired="1"  />
@@ -334,6 +334,7 @@
 		
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_MATERIEL" 	Stock="25"/>
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		Stock="25"/>
+		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD_PLANKS" 		Stock="25"/>
 		
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_MATERIEL" 	Stock="25"/>
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 		Stock="25"/>
@@ -386,6 +387,7 @@
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_FISH" 		Stock="80"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_CRABS" 		Stock="80"/>
 		
+		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD_PLANKS" 	Stock="30"	FixedValue="1"/>
 		
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 			Stock="800"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="700"	FixedValue="1"/>
@@ -406,6 +408,7 @@
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="25"/>
 		
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_SHIPYARD"		ResourceType="RESOURCE_WOOD_PLANKS" 	Stock="60"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_PRIVATEER"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_FRIGATE"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="50"/>

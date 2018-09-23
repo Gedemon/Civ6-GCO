@@ -5,7 +5,7 @@
 		<!-- +        Replacing       + -->
 		<!-- ++++++++++++++++++++++++++ -->
 	
-  <LocalizedText>  
+  <LocalizedText>  <!-- Various -->
   
   
 	<Replace Tag="LOC_BUILDING_BARRACKS_DESCRIPTION"	Language="en_US">
@@ -15,7 +15,25 @@
 	<!--  -->	
 	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION"	Language="en_US">
 		<Text>May create new cities.</Text>
+	</Replace>	
+	
+	<Replace Tag="LOC_TECH_STEEL_NAME"	Language="en_US">
+		<Text>Industrial Steel</Text>
+	</Replace>	
+	
+	<Replace Tag="LOC_IMPROVEMENT_ROMAN_FORT_NAME"	Language="en_US">
+		<Text>Wodden Fort</Text>
 	</Replace>
+	<Replace Tag="LOC_IMPROVEMENT_ROMAN_FORT_DESCRIPTION"	Language="en_US">
+		<Text>Unlocks the ability to construct a Wodden Fort.[NEWLINE][NEWLINE]Occupying unit receives +2 [ICON_Strength] Defense Strength, and automatically gains 1 turns of fortification.</Text>
+	</Replace>	
+	<Replace Tag="LOC_IMPROVEMENT_GREAT_WALL_DESCRIPTION"	Language="en_US">
+		<Text>Unlocks the Builder ability to construct the Great Wall.[NEWLINE][NEWLINE]Provides an increase to [ICON_Strength] Defense. Bonus to [ICON_Gold] Gold if adjacent to other segments. Additional [ICON_Culture] Culture and [ICON_Tourism] Tourism as you advance through the Technology Tree for adjacent segments. Must be built in a line along the borders of your empire.</Text>
+	</Replace>
+
+  </LocalizedText>
+  
+  <LocalizedText>  <!-- Civics & Policies -->
 	
 	<Replace Tag="LOC_POLICY_SURVEY_DESCRIPTION"	Language="en_US">
 		<Text>Double Loots from Tribal Villages.</Text>
@@ -74,10 +92,6 @@
 	<Replace Tag="LOC_CIVIC_RAPID_DEPLOYMENT_DESCRIPTION"	Language="en_US">
 		<Text>Allows for the transport of land units between Aerodrome districts that contain Airports.[NEWLINE]Unlock Military Organization Level 8</Text>
 	</Replace>
-	
-	<Replace Tag="LOC_TECH_STEEL_NAME"	Language="en_US">
-		<Text>Industrial Steel</Text>
-	</Replace>	
 
   </LocalizedText>
 

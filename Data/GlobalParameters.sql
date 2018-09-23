@@ -49,7 +49,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PER_SIZE_STO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					40);	-- base stock for resource 			= CITY_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 			= CITY_FOOD_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LUXURY_STOCK_RATIO', 				0.25);	-- base stock for luxuries 			= CITY_STOCK_PER_SIZE * CITY_LUXURY_STOCK_RATIO * CitySize * CITY_PER_SIZE_STOCK_RATIO
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					1000);	-- base stock for equipment 		(not related to city size)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					300);	-- base stock for equipment 		(not related to city size)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		12);	-- unit of materiel produced 		= CITY_MATERIEL_PRODUCTION_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO',	0.5);	-- minimum stock for construction 	= CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO * stock
 --INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PER_BUIDING_COST',			4);	-- unit of materiel used by unit of cost for buiding construction
@@ -57,7 +57,10 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PE
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		2500);	-- value added to the starting population of a new city (to do : Settlers with different size for late game)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_STOCK', 					100);	-- bonus food stock added to base resource stock
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_PER_SIZE_POWER',			2.8);	-- CityPopulation = math.pow(citySize, CITY_POPULATION_PER_SIZE_POWER) * 1000)
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_MAX_MIGRANT_PERCENT',	50);	-- Max percentage of CityPopulation that can migrate each turn
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_MAX_MIGRANT_PERCENT',	50.00);	-- Max percentage of CityPopulation that can migrate each turn
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_MIN_MIGRANT_PERCENT',	0.05);	-- Min percentage of CityPopulation that can migrate each turn
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MAX_MIGRANT_PERCENT',	50.00);	-- Max percentage of PlotPopulation that can migrate each turn
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MIN_MIGRANT_PERCENT',	1.00);	-- Min percentage of PlotPopulation that can migrate each turn
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_REQUIRED_RESOURCE_BASE_FACTOR',		1.50);	-- Balance factor for required resources
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PRODUCED_RESOURCE_BASE_FACTOR',		1.00);	-- Balance factor for produced resources

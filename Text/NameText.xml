@@ -212,6 +212,7 @@
 		<Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"				Text="Personnel"			Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_STEEL_NAME" 					Text="Steel" 				Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_WOOD_NAME" 					Text="Wood" 				Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_WOOD_PLANKS_NAME" 			Text="Wood Plancks"			Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_PLANTS_NAME" 				Text="Plants" 				Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_LEATHER_NAME" 				Text="Leather" 				Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 				Text="Medicine" 			Language="en_US" />
@@ -219,6 +220,7 @@
 		<Replace Tag="LOC_RESOURCE_STEEL_HULL_PART_NAME" 		Text="Hull (Steel)" 		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_ELECTRICAL_DEVICES_NAME" 	Text="Electrical Devices"	Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_ELECTRONIC_COMPONENTS_NAME" 	Text="Electronic Components"Language="en_US" /> 
+		
 	</LocalizedText>
 
 	<LocalizedText> <!-- Units -->	

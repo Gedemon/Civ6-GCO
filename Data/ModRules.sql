@@ -31,8 +31,58 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 /* ************************ */
 /* Improvements             */
 /* ************************ */
-UPDATE Improvements SET PrereqTech ='TECH_MILITARY_TACTICS', SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_FORT';
+UPDATE Improvements SET OnePerCity = 1, SameAdjacentValid = 0 WHERE Buildable = 1 AND TraitType IS NOT NULL;		-- After updating "CanBuildOutsideTerritory"
+UPDATE Improvements SET CanBuildOutsideTerritory = 1 WHERE Buildable = 1 AND TraitType ISNULL AND OnePerCity = 0;	-- After setting "OnePerCity", before removing "TraitType"
+UPDATE Improvements SET TraitType = NULL WHERE Buildable = 1;														-- After updating "CanBuildOutsideTerritory"
+UPDATE Improvements SET PrereqTech ='TECH_CASTLES', 		DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_FORT';
+--UPDATE Improvements SET PrereqTech ='TECH_MASONRY', 		DefenseModifier = 2, GrantFortification = 1, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ROMAN_FORT';
+UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 	DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ALCAZAR';
+UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 	SameAdjacentValid = 1 WHERE ImprovementType ='IMPROVEMENT_GREAT_WALL';
+
+DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_KURGAN';
+DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_COLOSSAL_HEAD';
+DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_ROMAN_FORT'; -- Roman Fort use the exact same art as fort !
+--DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_STEPWELL';
+
 INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_FORT', 'UNIT_BUILDER');
+--INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'UNIT_BUILDER');
+
+INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_JUNGLE');
+INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_STEPWELL', 'FEATURE_JUNGLE');
+
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_QUARRY', 'TERRAIN_PLAINS');
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_QUARRY', 'TERRAIN_DESERT');
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_QUARRY', 'TERRAIN_PLAINS_HILLS');
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_QUARRY', 'TERRAIN_DESERT_HILLS');
+
+--DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_ROMAN_FORT';
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'TERRAIN_GRASS_HILLS');
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'TERRAIN_PLAINS_HILLS');
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'TERRAIN_SNOW_HILLS');
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'TERRAIN_DESERT_HILLS');
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'TERRAIN_TUNDRA_HILLS');
+
+DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_CHATEAU';
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_CHATEAU', 'TERRAIN_GRASS');
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_CHATEAU', 'TERRAIN_PLAINS');
+
+DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_SPHINX';
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_SPHINX', 'TERRAIN_DESERT');
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_SPHINX', 'TERRAIN_DESERT_HILLS');
+
+DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_ZIGGURAT';
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_SPHINX', 'TERRAIN_DESERT');
+
+DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_STEPWELL';
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_STEPWELL', 'TERRAIN_PLAINS');
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_STEPWELL', 'TERRAIN_GRASS_HILLS');
+
+--DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_ALCAZAR';
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ALCAZAR', 'TERRAIN_GRASS_HILLS');
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ALCAZAR', 'TERRAIN_PLAINS_HILLS');
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ALCAZAR', 'TERRAIN_SNOW_HILLS');
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ALCAZAR', 'TERRAIN_DESERT_HILLS');
+--INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ALCAZAR', 'TERRAIN_TUNDRA_HILLS');
 
 /* ************************ */
 /* Features                 */
@@ -283,9 +333,9 @@ UPDATE Buildings SET AdjacentDistrict 	= 'DISTRICT_CITY_CENTER' WHERE BuildingTy
 UPDATE Buildings SET AdjacentDistrict 	= 'DISTRICT_CITY_CENTER' WHERE BuildingType ='BUILDING_COLOSSUS';
 
 UPDATE Buildings SET PrereqTech = 'TECH_ENGINEERING', 			EmploymentSize ='1.00'	WHERE BuildingType ='BUILDING_WATER_MILL';
-UPDATE Buildings SET PrereqTech = 'TECH_GUNPOWDER', 			EmploymentSize ='0.25',	EquipmentStock ='2500'	WHERE BuildingType ='BUILDING_ARMORY';
+UPDATE Buildings SET PrereqTech = 'TECH_GUNPOWDER', 			EmploymentSize ='0.25',	EquipmentStock ='3000'	WHERE BuildingType ='BUILDING_ARMORY';
 UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00',	EquipmentStock ='1500' 	WHERE BuildingType ='BUILDING_BARRACKS';
-UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00',	EquipmentStock ='1500' 	WHERE BuildingType ='BUILDING_STABLE';
+UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00',	EquipmentStock ='750' 	WHERE BuildingType ='BUILDING_STABLE';
 
 UPDATE Buildings SET PrereqTech = 'TECH_STEAM_POWER',			EmploymentSize ='4.00'	WHERE BuildingType ='BUILDING_SEAPORT';
 
@@ -395,7 +445,7 @@ UPDATE Units SET StrategicResource = NULL;
 /* ************************ */
 /* Promotions               */
 /* ************************ */
-/*
+--/*
 --UPDATE UnitPromotions SET Level 	= 1;
 --UPDATE UnitPromotions SET Column 	= 0;
 UPDATE GlobalParameters SET Value 	= 0 	WHERE Name='EXPERIENCE_ACTIVATE_GOODY_HUT'; 				-- Default = 5

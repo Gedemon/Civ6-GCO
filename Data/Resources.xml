@@ -14,10 +14,12 @@
 		<Row ResourceType="RESOURCE_PLANTS" 				ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<Row ResourceType="RESOURCE_MEDICINE" 				ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<Row ResourceType="RESOURCE_LEATHER" 				ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_WOOD_PLANKS" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	/>
 		<Row ResourceType="RESOURCE_WOODEN_HULL_PART" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_STEEL_HULL_PART" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_ELECTRICAL_DEVICES" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	PrereqTech="TECH_ELECTRICITY"/>
 		<Row ResourceType="RESOURCE_ELECTRONIC_COMPONENTS" 	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	PrereqTech="TECH_COMPUTERS"/>
+		
 	</ResourcesGCO>
 
 	<ResourceStockUsage>
