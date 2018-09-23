@@ -1039,13 +1039,22 @@ function SetPopulationBirthRate(self, populationID)
 end
 
 function UpdateSize(self)
-	local size = self:GetSize()
+	local currentSize 			= math.floor(GCO.GetSizeAtPopulation(self:GetRealPopulation()))
+	local size 					= self:GetSize()
+	local sizeDiff				= currentSize - size
+	local DEBUG_CITY_SCRIPT		= DEBUG_CITY_SCRIPT
+	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_CITY_SCRIPT, "UpdateSize for "..Locale.Lookup(self:GetName()))
+	Dprint( DEBUG_CITY_SCRIPT, "sizeDiff = ", sizeDiff)
 	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size+1, "required =", GetPopulationPerSize(size+1), "current =", self:GetRealPopulation())
 	Dprint( DEBUG_CITY_SCRIPT, "check change size to ", size-1, "required =", GetPopulationPerSize(size), "current =", self:GetRealPopulation())
 	if GetPopulationPerSize(size) > self:GetRealPopulation() and size > 1 then -- GetPopulationPerSize(self:GetSize()-1) > self:GetRealPopulation()
 		self:ChangePopulation(-1) -- (-1, true) ?
+		--self:ChangePopulation(sizeDiff)
 	elseif GetPopulationPerSize(size+1) < self:GetRealPopulation() then
 		self:ChangePopulation(1)
+		--self:ChangePopulation(sizeDiff)
 	end
 end
 
@@ -3383,13 +3392,12 @@ end
 
 function CanTrain(self, unitType)
 
-	--local DEBUG_CITY_SCRIPT = "CityScript"
 	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT	
 
 	local cityKey 	= self:GetKey()
 	local unitID 	= GameInfo.Units[unitType].Index
 	
-	--if GameInfo.Units["UNIT_GALLEY"].Index == unitID then DEBUG_CITY_SCRIPT = "debug" end
+	--if GameInfo.Units["UNIT_HORSEMAN"].Index == unitID and Game.GetLocalPlayer() == self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "CanTrain for "..Locale.Lookup(GameInfo.Units[unitType].Name).." in "..Locale.Lookup(self:GetName()))
 
@@ -4771,14 +4779,19 @@ function DoCollectResources(self)
 		local bWorked 		= (plot:GetWorkerCount() > 0)
 		local bImproved		= (plot:GetImprovementType() ~= NO_IMPROVEMENT)
 		local bSeaResource 	= (plot:IsWater() or plot:IsLake())
+		local outputFactor	= plot:GetOutputPerYield()
+		
 		if bWorked or bImproved or bSeaResource then
 
+			if bSeaResource then 
+				outputFactor = self:GetOutputPerYield()
+			end
 			local improvementID = plot:GetImprovementType()
 			if plot:GetResourceCount() > 0 then
 				local resourceID 	= plot:GetResourceType()
 				local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 				if player:IsResourceVisible(resourceID) then
-					local collected 			= plot:GetResourceCount() * plot:GetOutputPerYield()
+					local collected 			= plot:GetResourceCount() * outputFactor
 					local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 					Collect(resourceID, collected, resourceCost, plotID, (bWorked or bSeaResource), bImprovedForResource)
 				end
@@ -4789,7 +4802,7 @@ function DoCollectResources(self)
 				for _, data in pairs(FeatureResources[featureID]) do
 					for resourceID, value in pairs(data) do
 						if player:IsResourceVisible(resourceID) then
-							local collected 	= value * plot:GetOutputPerYield()
+							local collected 	= value * outputFactor
 							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 							local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
@@ -4804,7 +4817,7 @@ function DoCollectResources(self)
 				for _, data in pairs(TerrainResources[terrainID]) do
 					for resourceID, value in pairs(data) do
 						if player:IsResourceVisible(resourceID) then
-							local collected 	= value * plot:GetOutputPerYield()
+							local collected 	= value * outputFactor
 							local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 							local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
@@ -5295,7 +5308,9 @@ end
 function DoGrowth(self)
 
 	Dlog("DoGrowth ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	
+	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
+	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 
 	if Game.GetCurrentGameTurn() < 2 and bUseRealYears then return end -- we need to know the previous year turn to calculate growth rate...
 	Dprint( DEBUG_CITY_SCRIPT, "Calculate city growth for ".. Locale.Lookup(self:GetName()))
@@ -5321,10 +5336,33 @@ function DoGrowth(self)
 	
 	local popTable	= {UpperClassID, MiddleClassID, LowerClassID, SlaveClassID}
 	for i, populationID in ipairs(popTable) do
-		number 		= self:GetPopulationClass(populationID) + math.floor(self:GetRuralPopulationClass(populationID) / 2)
-		variation	= CalculateVar( number, self:GetPopulationBirthRate(populationID), self:GetPopulationDeathRate(populationID))
-		Dprint( DEBUG_CITY_SCRIPT, Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." : BirthRate = ", self:GetPopulationBirthRate(populationID), " DeathRate = ", self:GetPopulationDeathRate(populationID), " Initial Population = ", number, " Variation = ", variation )
-		self:ChangePopulationClass(populationID, variation)
+		local birthRate	= self:GetPopulationBirthRate(populationID)
+		local deathRate	= self:GetPopulationDeathRate(populationID)
+		if birthRate >= deathRate then -- population growth occurs on city center
+			local number = self:GetPopulationClass(populationID) + math.floor(self:GetRuralPopulationClass(populationID) / 2)  -- half influence outside city
+			if number > 0 then
+				local variation	= CalculateVar( number, birthRate, deathRate)
+				Dprint( DEBUG_CITY_SCRIPT, "URBAN POPULATION " ..Indentation8("City") .. " <<< " .. Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
+				self:ChangePopulationClass(populationID, variation)
+			end
+		else	-- population loss is occuring on all tiles
+			local number = self:GetPopulationClass(populationID)
+			if number > 0 then
+				local variation	= CalculateVar( number, birthRate, deathRate)
+				Dprint( DEBUG_CITY_SCRIPT, "URBAN POPULATION " ..Indentation8("City") .. " <<< " .. Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
+				self:ChangePopulationClass(populationID, variation)
+				local cityPlots	= GCO.GetCityPlots(self)
+				for _, plotID in ipairs(cityPlots) do			
+					local plot = GCO.GetPlotByIndex(plotID)
+					if plot and (not plot:IsCity() or plot:IsWater()) then
+						local number 	= math.floor(plot:GetPopulationClass(populationID) / 2) -- half influence outside city
+						local variation	= CalculateVar( number, birthRate, deathRate)
+						Dprint( DEBUG_CITY_SCRIPT, "Rural Population " ..Indentation8(plot:GetX() ..",".. plot:GetY()) .. " >>> " .. Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
+						plot:ChangePopulationClass(populationID, variation)
+					end
+				end
+			end
+		end
 	end
 end
 
@@ -5711,7 +5749,8 @@ function DoMigration(self)
 
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /START")
 	
-	--local DEBUG_CITY_SCRIPT = "debug"
+	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
+	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "- Population Migration...")
@@ -5720,72 +5759,77 @@ function DoMigration(self)
 	-- Get potential migrants
 	local unEmployed 		= self:GetUrbanPopulation() - self:GetUrbanEmployed()
 	local cityEmployment	= self:GetMaxEmploymentUrban() - self:GetUrbanEmployed()
-	local totalPopultation 	= self:GetRealPopulation()
-	local maxMigrants		= math.floor(totalPopultation * maxMigrantPercent / 100)
-	local minMigrants		= math.floor(totalPopultation * minMigrantPercent / 100)
+	local totalPopulation 	= self:GetRealPopulation()
+	local minPopulationLeft	= GetPopulationPerSize(math.max(1, self:GetSize()-1))
+	local availableMigrants	= totalPopulation - minPopulationLeft
 	
-	local migrants			= math.min(maxMigrants, math.max(unEmployed, minMigrants))
-	
-	Dprint( DEBUG_CITY_SCRIPT, "   Migrants = ", migrants)
-	
-	if migrants > 0 then
-		local majorMotivation		= "Greener Pastures"
-		local bestMotivationValue	= 0
-		local bestMotivationWeight	= 0
-		local totalWeight			= 0
-		local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
-		local classesRatio			= {}
-		for i, classID in ipairs(migrantClasses) do
-			classesRatio[classID] = self:GetPopulationClass(classID) / totalPopultation
-		end
+	if availableMigrants  > 0 then
+		local maxMigrants		= math.floor(availableMigrants * maxMigrantPercent / 100)
+		local minMigrants		= math.floor(availableMigrants * minMigrantPercent / 100)
 		
-		-- Get possible destinations from city plots
-		local cityPlots		= GCO.GetCityPlots(self)
-		for _, plotID in ipairs(cityPlots) do
-			local plot = GCO.GetPlotByIndex(plotID)
-			if plot and (not plot:IsCity()) then
+		local migrants			= math.min(maxMigrants, math.max(unEmployed, minMigrants))
+		
+		Dprint( DEBUG_CITY_SCRIPT, "   Migrants = ", migrants)
+		
+		if migrants > 0 then
+			local majorMotivation		= "Greener Pastures"
+			local bestMotivationValue	= 0
+			local bestMotivationWeight	= 0
+			local totalWeight			= 0
+			local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
+			local classesRatio			= {}
+			for i, classID in ipairs(migrantClasses) do
+				classesRatio[classID] = self:GetPopulationClass(classID) / totalPopulation
+			end
 			
-				-- Employment
-				local plotEmployment 	= plot:GetMaxEmployment() - plot:GetEmployed()
-				local plotWeight		= 0
-				if plotEmployment > cityEmployment then
-					local workedFactor 	= 1
-					if (plot:GetWorkerCount() > 0) then
-						workedFactor = 10
-					end
-					
-					local employmentDiff 	= plotEmployment - cityEmployment
-					local migrationWeight	= employmentDiff * workedFactor
-					plotWeight 				= plotWeight + migrationWeight
-					
-					if migrationWeight > bestMotivationWeight then
-						bestMotivationWeight 	= migrationWeight
-						bestMotivationValue		= employmentDiff
-						majorMotivation			= "Employment"
-					end
-					--table.insert (possibleDestination, {PlotID = plotID, MajorMotivation = "Employment", MotivationValue = employmentDiff, Weight = migrationWeight})
-				end				
+			-- Get possible destinations from city plots
+			local cityPlots		= GCO.GetCityPlots(self)
+			for _, plotID in ipairs(cityPlots) do
+				local plot = GCO.GetPlotByIndex(plotID)
+				if plot and (not plot:IsCity()) then
 				
-				if plotWeight > 0 then
-					totalWeight = totalWeight + plotWeight
-					table.insert (possibleDestination, {PlotID = plotID, MajorMotivation = majorMotivation, MotivationValue = bestMotivationValue,  Weight = plotWeight, BestWeight = bestMotivationWeight})
+					-- Employment
+					local plotEmployment 	= plot:GetMaxEmployment() - plot:GetEmployed()
+					local plotWeight		= 0
+					if plotEmployment > cityEmployment then
+						local workedFactor 	= 1
+						if (plot:GetWorkerCount() > 0) then
+							workedFactor = 10
+						end
+						
+						local employmentDiff 	= plotEmployment - cityEmployment
+						local migrationWeight	= employmentDiff * workedFactor
+						plotWeight 				= plotWeight + migrationWeight
+						
+						if migrationWeight > bestMotivationWeight then
+							bestMotivationWeight 	= migrationWeight
+							bestMotivationValue		= employmentDiff
+							majorMotivation			= "Employment"
+						end
+						--table.insert (possibleDestination, {PlotID = plotID, MajorMotivation = "Employment", MotivationValue = employmentDiff, Weight = migrationWeight})
+					end				
+					
+					if plotWeight > 0 then
+						totalWeight = totalWeight + plotWeight
+						table.insert (possibleDestination, {PlotID = plotID, MajorMotivation = majorMotivation, MotivationValue = bestMotivationValue,  Weight = plotWeight, BestWeight = bestMotivationWeight})
+					end
 				end
 			end
-		end
-		
-		table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
-		local numPlotDest 		= #possibleDestination
-		for i, destination in ipairs(possibleDestination) do
-			if migrants > 0 then
-				local totalPopMoving 	= math.floor(migrants * (destination.Weight / totalWeight))
-				local plot 				= GCO.GetPlotByIndex(destination.PlotID)
-				for i, classID in ipairs(migrantClasses) do
-					local classMoving = math.floor(totalPopMoving * classesRatio[classID])
-					Dprint( DEBUG_CITY_SCRIPT, "   Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Populations[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight) .. " MajorMotivation = "..tostring(destination.MajorMotivation) .. " MotivationValue = "..tostring(destination.MotivationValue))
-					self:ChangePopulationClass(classID, -classMoving)
-					plot:ChangePopulationClass(classID, classMoving)
-				end
-			end	
+			
+			table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
+			local numPlotDest 		= #possibleDestination
+			for i, destination in ipairs(possibleDestination) do
+				if migrants > 0 then
+					local totalPopMoving 	= math.floor(migrants * (destination.Weight / totalWeight))
+					local plot 				= GCO.GetPlotByIndex(destination.PlotID)
+					for i, classID in ipairs(migrantClasses) do
+						local classMoving = math.floor(totalPopMoving * classesRatio[classID])
+						Dprint( DEBUG_CITY_SCRIPT, "   Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Populations[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight) .. " MajorMotivation = "..tostring(destination.MajorMotivation) .. " MotivationValue = "..tostring(destination.MotivationValue))
+						self:ChangePopulationClass(classID, -classMoving)
+						plot:ChangePopulationClass(classID, classMoving)
+					end
+				end	
+			end
 		end
 	end
 	

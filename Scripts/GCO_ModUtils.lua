@@ -887,7 +887,7 @@ function GetPopulationAtSize(size)
 	return GCO.Round(math.pow(size, populationPerSizepower) * 1000)
 end
 function GetSizeAtPopulation(population)
-	return GCO.Round(math.pow(population / 1000, 1 / populationPerSizepower))
+	return math.max(1,GCO.Round(math.pow(population / 1000, 1 / populationPerSizepower)))
 end
 
 --=====================================================================================--

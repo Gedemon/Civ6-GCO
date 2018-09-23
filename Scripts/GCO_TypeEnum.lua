@@ -151,13 +151,13 @@ end
 -- Activities & Employment
 -----------------------------------------------------------------------------------------
 CityEmploymentPow 	= {
-	["ERA_ANCIENT"] 		= 1.00 ,
-	["ERA_CLASSICAL"] 		= 1.10 ,
-	["ERA_MEDIEVAL"] 		= 1.25 ,
-	["ERA_RENAISSANCE"] 	= 1.50 ,
-	["ERA_INDUSTRIAL"] 		= 2.20 ,
-	["ERA_MODERN"] 			= 2.30 ,
-	["ERA_ATOMIC"] 			= 2.50 ,
+	["ERA_ANCIENT"] 		= 2.00 , --1.00 ,
+	["ERA_CLASSICAL"] 		= 2.05 , --1.10 ,
+	["ERA_MEDIEVAL"] 		= 2.12 , --1.25 ,
+	["ERA_RENAISSANCE"] 	= 2.25 , --1.50 ,
+	["ERA_INDUSTRIAL"] 		= 2.65 , --2.20 ,
+	["ERA_MODERN"] 			= 2.70 , --2.30 ,
+	["ERA_ATOMIC"] 			= 2.75 , --2.50 ,
 	["ERA_INFORMATION"] 	= 2.80 , -- 2.8 is max city population
 }
 	
