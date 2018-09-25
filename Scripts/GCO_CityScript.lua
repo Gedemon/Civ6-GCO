@@ -4360,11 +4360,13 @@ function UpdateCosts(self)
 		if resourceKey ~= personnelResourceKey then
 
 			local resourceID 		= tonumber(resourceKey)
-			local bCanUpdateCost 	= true
+			local bCanUpdateCost 	= not GameInfo.Resources[resourceID].FixedPrice -- true
 			
+			--[[
 			if GCO.IsResourceEquipment(resourceID) 	then
 				bCanUpdateCost = not EquipmentInfo[resourceID].FixedPrice
 			end
+			--]]
 			
 			if bCanUpdateCost then
 				local previousTurn	= tonumber(previousTurnKey)
@@ -4372,6 +4374,7 @@ function UpdateCosts(self)
 				local supply		= self:GetSupplyAtTurn(resourceID, previousTurn)
 
 				local varPercent	= 0
+				local maxVarPercent	= GameInfo.Resources[resourceID].MaxPriceVariationPercent
 				local stock 		= self:GetStock(resourceID)
 				local maxStock		= self:GetMaxStock(resourceID)
 				local actualCost	= self:GetResourceCost(resourceID)
@@ -4385,9 +4388,9 @@ function UpdateCosts(self)
 
 					local turnUntilFull = (maxStock - stock) / (supply - demand) -- (don't worry, supply - demand > 0)
 					if turnUntilFull == 0 then
-						varPercent = MaxCostReductionPercent
+						varPercent = math.min(maxVarPercent, MaxCostReductionPercent)
 					else
-						varPercent = math.min(MaxCostReductionPercent, 1 / (turnUntilFull / (maxStock / 2)))
+						varPercent = math.min(maxVarPercent, MaxCostReductionPercent, 1 / (turnUntilFull / (maxStock / 2)))
 					end
 					local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
 					newCost = math.max(minCost, math.min(maxCost, actualCost - variation))
@@ -4397,9 +4400,9 @@ function UpdateCosts(self)
 
 					local turnUntilEmpty = stock / (demand - supply)
 					if turnUntilEmpty == 0 then
-						varPercent = MaxCostIncreasePercent
+						varPercent = math.min(maxVarPercent, MaxCostIncreasePercent)
 					else
-						varPercent = math.min(MaxCostIncreasePercent, 1 / (turnUntilEmpty / (maxStock / 2)))
+						varPercent = math.min(maxVarPercent, MaxCostIncreasePercent, 1 / (turnUntilEmpty / (maxStock / 2)))
 					end
 					local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)
 					newCost = math.max(minCost, math.min(maxCost, actualCost + variation))
