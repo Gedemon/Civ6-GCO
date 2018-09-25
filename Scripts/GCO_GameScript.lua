@@ -126,7 +126,7 @@ function UpdateGameEra()
 	local count 		= 0
 	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
 		local player = Players[playerID]
-		if player and not player:IsBarbarian() then
+		if player and player:IsAlive() and (not player:IsBarbarian()) and player:GetCities():GetCapitalCity() then
 			totalEra 	= totalEra + player:GetEra()
 			count		= count + 1
 		end	

@@ -17,6 +17,7 @@ include( "GCO_SmallUtils" )
 -----------------------------------------------------------------------------------------
 local _cached						= {}	-- cached table to reduce calculations
 local debugTable 					= {}	-- table used to output debug data from some functions
+local bshowDebug 					= false	-- to toggle the output of the debug table 
 
 local DirectionString = {
 	[DirectionTypes.DIRECTION_NORTHEAST] 	= "NORTHEAST",
@@ -279,7 +280,9 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 
 	if not bSetPlotDiffusionValuesToHasRun then
 		GCO.Warning("previous call to SetPlotDiffusionValuesTo has failed !")
-		ShowDebug()
+		bshowDebug = true
+		ShowDebug()		
+		bshowDebug = false
 	end
 	
 	bSetPlotDiffusionValuesToHasRun = false
@@ -293,8 +296,8 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 	if not _cached[plotKey].PlotDiffusionValues then _cached[plotKey].PlotDiffusionValues = {} end
 	
 	local pAdjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), iDirection)
-	table.insert(debugTable, "To (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
 	if (pAdjacentPlot and not pAdjacentPlot:IsWater()) then
+		table.insert(debugTable, "To (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
 		local iBonus 			= 0
 		local iPenalty 			= 0
 		local iPlotMaxRatio		= 1		
@@ -591,7 +594,6 @@ function GetTerritorialWaterOwner( self )
 	return territorialWaterOwner
 end
 
-local bshowDebug = false
 function UpdateCulture( self )
 	debugTable = {}
 	bshowDebug = false
@@ -1786,9 +1788,9 @@ end
 
 function GetOutputPerYield(self)
 	if self:IsWater() then
-		return 1
+		return PlotOutputFactor[self:GetEraType()]
 	else
-		return self:GetSize() * self:GetActivityFactor()
+		return self:GetSize() * self:GetActivityFactor() * PlotOutputFactor[self:GetEraType()]
 	end
 end
 

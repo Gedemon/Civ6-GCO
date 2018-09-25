@@ -39,7 +39,7 @@
 		<Row PopulationType="POPULATION_ALL" 		Name="LOC_POPULATION_ALL_NAME" 			Description="LOC_POPULATION_ALL_DESCRIPTION"/>
 	</Populations>
 	
-	<PopulationNeeds>
+	<PopulationNeeds> <!-- to do : add Pow, Factor as in (math.pow(pop, pow)*factor)) for Needed calcul function -->
 		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_UPPER" 	AffectedType="DEATH_RATE"	Ratio="1.25"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
 		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_MIDDLE" 	AffectedType="DEATH_RATE"	Ratio="0.75"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
 		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_LOWER" 	AffectedType="DEATH_RATE"	Ratio="0.65"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>

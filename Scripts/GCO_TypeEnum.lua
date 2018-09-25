@@ -194,6 +194,17 @@ PlotEmploymentFactor 	= {
 	["ERA_INFORMATION"] 	= 500 ,
 }
 
+PlotOutputFactor 	= {
+	["ERA_ANCIENT"] 		= 0.50 ,
+	["ERA_CLASSICAL"] 		= 0.65 ,
+	["ERA_MEDIEVAL"] 		= 0.80 ,
+	["ERA_RENAISSANCE"] 	= 1.00 ,
+	["ERA_INDUSTRIAL"] 		= 2.00 ,
+	["ERA_MODERN"] 			= 3.00 ,
+	["ERA_ATOMIC"] 			= 4.00 ,
+	["ERA_INFORMATION"] 	= 5.00 ,
+}
+
 -- For population repartition at city creation
 BaseUrbanPercent 		= {
 	["ERA_ANCIENT"] 		= 5 ,

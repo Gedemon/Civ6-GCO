@@ -937,6 +937,10 @@ function GetSize(self) -- for code consistency
 	return self:GetPopulation()
 end
 
+function GetRealSize(self) -- size with decimals
+	return math.pow(self:GetRealPopulation()/1000, 1/populationPerSizepower) --GCO.Round(math.pow(self:GetPopulation()/1000, 1/populationPerSizepower))
+end
+
 function GetBirthRate(self)
 	local cityKey = self:GetKey()
 	local cityData = ExposedMembers.CityData[cityKey]
@@ -3323,7 +3327,11 @@ function GetFoodConsumption(self, optionalRatio)
 	if data.Prisoners then
 		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisoners(data) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) )
 	end
-	return math.max(1, GCO.Round( foodConsumption1000 * ratio / 1000 ))
+	return math.max(1, GCO.Round(( foodConsumption1000 * ratio / 1000  )/ self:GetFoodNeededByPopulationFactor())) -- self:GetFoodNeededByPopulation(population, consumptionRatio )))--
+end
+
+function GetFoodNeededByPopulationFactor(self)	
+	return self:GetRealSize()/2
 end
 
 function GetFoodStock(self)
@@ -5432,7 +5440,7 @@ function DoNeeds(self)
 
 	-- Food for population
 	function GetFoodEaten(classID, population, consumption, maxEffectValue)
-		local need		= GCO.ToDecimals(population * consumption / 1000)
+		local need		= GCO.ToDecimals((population * consumption / 1000)/ self:GetFoodNeededByPopulationFactor()) -- 
 		local ration	= GCO.ToDecimals(need * rationing)
 		local eaten		= GCO.ToDecimals(math.min(availableFood, ration))
 		availableFood 		= availableFood - eaten
@@ -6265,6 +6273,7 @@ function AttachCityFunctions(city)
 	c.IsInitialized						= IsInitialized
 	c.UpdateSize						= UpdateSize
 	c.GetSize							= GetSize
+	c.GetRealSize						= GetRealSize
 	c.GetRealPopulation					= GetRealPopulation
 	c.SetRealPopulation					= SetRealPopulation
 	c.GetRealPopulationVariation		= GetRealPopulationVariation
@@ -6370,6 +6379,7 @@ function AttachCityFunctions(city)
 	c.GetFoodStock						= GetFoodStock
 	c.GetFoodConsumption 				= GetFoodConsumption
 	c.GetFoodRationing					= GetFoodRationing
+	c.GetFoodNeededByPopulationFactor	= GetFoodNeededByPopulationFactor
 	c.DoCollectResources				= DoCollectResources
 	c.SetCityRationing					= SetCityRationing
 	c.SetUnlockers						= SetUnlockers
