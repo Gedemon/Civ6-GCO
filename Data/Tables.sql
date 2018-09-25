@@ -382,10 +382,12 @@ ALTER TABLE Terrains ADD COLUMN CulturePenalty integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CultureMaxPercent integer DEFAULT '0';
 
 -- Resources trading
-ALTER TABLE Resources ADD COLUMN NoExport 		BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0; 			-- Not allowed on international trade routes
-ALTER TABLE Resources ADD COLUMN NoTransfer 	BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; 		-- Not allowed on internal trade routes
-ALTER TABLE Resources ADD COLUMN SpecialStock 	BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0; 	-- Stocked in specific buildings only
-ALTER TABLE Resources ADD COLUMN NotLoot 		BOOLEAN NOT NULL CHECK (NotLoot IN (0,1)) DEFAULT 0; 				-- Can't be captured when attacking cities
+ALTER TABLE Resources ADD COLUMN FixedPrice 				BOOLEAN NOT NULL CHECK (FixedPrice IN (0,1)) DEFAULT 0; 	-- Not price variation after production
+ALTER TABLE Resources ADD COLUMN MaxPriceVariationPercent 	INTEGER NOT NULL DEFAULT 100; 								-- Max price variation each turn
+ALTER TABLE Resources ADD COLUMN NoExport 					BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0; 		-- Not allowed on international trade routes
+ALTER TABLE Resources ADD COLUMN NoTransfer 				BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; 	-- Not allowed on internal trade routes
+ALTER TABLE Resources ADD COLUMN SpecialStock 				BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0; 	-- Stocked in specific buildings only
+ALTER TABLE Resources ADD COLUMN NotLoot 					BOOLEAN NOT NULL CHECK (NotLoot IN (0,1)) DEFAULT 0; 		-- Can't be captured when attacking cities
 
 -- Hidden Buildings
 ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; 		-- Do not show in Civilopedia
