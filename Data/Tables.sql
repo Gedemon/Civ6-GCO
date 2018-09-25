@@ -95,6 +95,8 @@ CREATE TABLE IF NOT EXISTS ResourcesGCO (
 		AdjacentToLand BOOLEAN NOT NULL CHECK (AdjacentToLand IN (0,1)) DEFAULT 0,
 		SeaFrequency INTEGER NOT NULL DEFAULT 0,
 		-- Resources trading
+		FixedPrice BOOLEAN NOT NULL CHECK (FixedPrice IN (0,1)) DEFAULT 0, 		-- Not price variation after production
+		MaxPriceVariationPercent INTEGER NOT NULL DEFAULT 100, 					-- Max price variation each turn
 		NoExport 	BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0, 		-- Not allowed on international trade routes
 		NoTransfer 	BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0,		-- Not allowed on internal trade routes		
 		SpecialStock BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0, 	-- Stocked in specific buildings only
@@ -525,7 +527,8 @@ CREATE TABLE IF NOT EXISTS Equipment (
 		FuelType TEXT,
 		PrereqTech TEXT,
 		ObsoleteTech TEXT,
-		FixedPrice BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0, 		-- Not price variation after construction
+		FixedPrice BOOLEAN NOT NULL CHECK (FixedPrice IN (0,1)) DEFAULT 0, 		-- Not price variation after construction
+		MaxPriceVariationPercent INTEGER NOT NULL DEFAULT 100, 					-- Max price variation each turn
 		NoExport BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0, 			-- Not allowed on international trade routes
 		NoTransfer BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0, 		-- Not allowed on internal trade routes
 		SpecialStock BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0, 	-- Stocked in specific buildings only

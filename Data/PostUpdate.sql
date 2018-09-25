@@ -37,13 +37,13 @@ UPDATE Buildings SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' |
 -----------------------------------------------
 		
 /* Create new Resources entries from the Equipment table */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, NoExport, NoTransfer, SpecialStock, NotLoot)
-	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech, Equipment.NoExport, Equipment.NoTransfer, Equipment.SpecialStock, Equipment.NotLoot
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
+	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech, Equipment.FixedPrice, Equipment.MaxPriceVariationPercent, Equipment.NoExport, Equipment.NoTransfer, Equipment.SpecialStock, Equipment.NotLoot
 	FROM Equipment;
 	
 /* Create new Resources entries from the temporary ResourcesGCO table */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, NoExport, NoTransfer, SpecialStock, NotLoot)
-	SELECT ResourcesGCO.ResourceType, 'LOC_' || ResourcesGCO.ResourceType || '_NAME', ResourcesGCO.ResourceClassType, ResourcesGCO.Frequency, ResourcesGCO.PrereqTech, ResourcesGCO.NoExport, ResourcesGCO.NoTransfer, ResourcesGCO.SpecialStock, ResourcesGCO.NotLoot
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
+	SELECT ResourcesGCO.ResourceType, 'LOC_' || ResourcesGCO.ResourceType || '_NAME', ResourcesGCO.ResourceClassType, ResourcesGCO.Frequency, ResourcesGCO.PrereqTech, ResourcesGCO.FixedPrice, ResourcesGCO.MaxPriceVariationPercent, ResourcesGCO.NoExport, ResourcesGCO.NoTransfer, ResourcesGCO.SpecialStock, ResourcesGCO.NotLoot
 	FROM ResourcesGCO;
 	
 /* Create new Resources Types entries from the temporary ResourcesGCO table */
