@@ -342,6 +342,7 @@ UPDATE Buildings SET PrereqTech = 'TECH_STEAM_POWER',			EmploymentSize ='4.00'	W
 UPDATE Buildings SET PrereqTech = 'TECH_COMPUTERS',				EmploymentSize ='8.00', TraitType = NULL WHERE BuildingType ='BUILDING_ELECTRONICS_FACTORY';
 
 DELETE FROM BuildingReplaces WHERE CivUniqueBuildingType ='BUILDING_ELECTRONICS_FACTORY';
+DELETE FROM BuildingPrereqs WHERE Building ='BUILDING_SHIPYARD';
 
 UPDATE Buildings SET MaterielPerProduction = '3',	EmploymentSize ='0.75' WHERE BuildingType ='BUILDING_GRANARY';
 

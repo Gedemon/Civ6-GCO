@@ -28,7 +28,7 @@
 		<Row ResourceType="EQUIPMENT_IRON_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.25"	Toughness="6"	Desirability="30" 	AntiPersonnel="44"	IgnorePersonnelArmor="8" 	ObsoleteTech="TECH_RIFLING"	/>
 		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.35"	Toughness="7"	Desirability="35" 	AntiPersonnel="48"	IgnorePersonnelArmor="12" 	ObsoleteTech="TECH_RIFLING"	Size="2" />
 		
-		<Row ResourceType="EQUIPMENT_MUSKETS"			PrereqTech="TECH_GUNPOWDER"				LogisticCost="0.75"	Toughness="7"	Desirability="40" 	AntiPersonnel="50"	IgnorePersonnelArmor="50" 	ObsoleteTech="TECH_REPLACEABLE_PARTS" />
+		<Row ResourceType="EQUIPMENT_MUSKETS"			PrereqTech="TECH_METAL_CASTING"			LogisticCost="0.75"	Toughness="7"	Desirability="40" 	AntiPersonnel="50"	IgnorePersonnelArmor="50" 	ObsoleteTech="TECH_REPLACEABLE_PARTS" />
 		
 		<Row ResourceType="EQUIPMENT_RIFLES"			PrereqTech="TECH_RIFLING"				LogisticCost="1.25"	Toughness="7"	Desirability="50" 	AntiPersonnel="55"	IgnorePersonnelArmor="100" 	ObsoleteTech="TECH_COMPOSITES" />
 		

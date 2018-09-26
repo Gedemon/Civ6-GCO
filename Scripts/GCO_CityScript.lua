@@ -1047,7 +1047,7 @@ function UpdateSize(self)
 	local size 					= self:GetSize()
 	local sizeDiff				= currentSize - size
 	local DEBUG_CITY_SCRIPT		= DEBUG_CITY_SCRIPT
-	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "UpdateSize for "..Locale.Lookup(self:GetName()))
 	Dprint( DEBUG_CITY_SCRIPT, "sizeDiff = ", sizeDiff)
@@ -3330,8 +3330,8 @@ function GetFoodConsumption(self, optionalRatio)
 	return math.max(1, GCO.Round(( foodConsumption1000 * ratio / 1000  )/ self:GetFoodNeededByPopulationFactor())) -- self:GetFoodNeededByPopulation(population, consumptionRatio )))--
 end
 
-function GetFoodNeededByPopulationFactor(self)	
-	return self:GetRealSize()/2
+function GetFoodNeededByPopulationFactor(self)	-- reduce food consumption relatively to city size as population per size is exponential, set FOOD_CONSUMPTION_SIZE_EFFECT_REDUCTION > 1 to limit the effect of city size on food consumption
+	return math.max(1, self:GetRealSize() / tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SIZE_EFFECT_REDUCTION"].Value))
 end
 
 function GetFoodStock(self)
@@ -5321,7 +5321,7 @@ function DoGrowth(self)
 	Dlog("DoGrowth ".. Locale.Lookup(self:GetName()).." /START")
 	
 	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 
 	if Game.GetCurrentGameTurn() < 2 and bUseRealYears then return end -- we need to know the previous year turn to calculate growth rate...
 	Dprint( DEBUG_CITY_SCRIPT, "Calculate city growth for ".. Locale.Lookup(self:GetName()))
@@ -5761,7 +5761,7 @@ function DoMigration(self)
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /START")
 	
 	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "- Population Migration...")

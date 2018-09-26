@@ -224,7 +224,6 @@
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="30" 	ResourceCreated="EQUIPMENT_IRON_SPEARS" 	Ratio="4"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="30" 	ResourceCreated="EQUIPMENT_IRON_PIKES" 		Ratio="2.5"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="30" 	ResourceCreated="EQUIPMENT_LANCES" 			Ratio="3"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 		MaxConverted="30" 	ResourceCreated="EQUIPMENT_MUSKETS" 		Ratio="1.2"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="30" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="2.5" MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 		MaxConverted="30" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="2.5" MultiResCreated="1"	/>
 		<Row BuildingType="BUILDING_BLACKSMITH" 	ResourceType="RESOURCE_COPPER" 		MaxConverted="30" 	ResourceCreated="EQUIPMENT_BRONZE_SWORDS" 	Ratio="1" 	MultiResCreated="1" CostFactor="1.25"/>
