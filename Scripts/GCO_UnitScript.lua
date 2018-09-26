@@ -1353,7 +1353,7 @@ end
 
 function IsDisbanding(self)
 	local activeTurnsLeft = self:GetProperty("ActiveTurnsLeft")
-	if activeTurnsLeft then
+	if activeTurnsLeft and activeTurnsLeft <= 1 then
 		if self:GetProperty("UnitPersonnelType") == UnitPersonnelType.Conscripts then
 			local player = GCO.GetPlayer(self:GetOwner())
 			if player:IsAtWar() then
