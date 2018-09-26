@@ -4981,7 +4981,7 @@ end
 
 function CheckForActiveTurnsLeft(self)
 	Dlog("CheckForActiveTurnsLeft for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
-	local DEBUG_UNIT_SCRIPT = "debug"
+	--local DEBUG_UNIT_SCRIPT = "debug"
 	local bRemoveUnit		= false
 	local activeTurnsLeft 	= self:GetProperty("ActiveTurnsLeft")
 	if activeTurnsLeft then
@@ -5152,7 +5152,7 @@ local ProductionTypes = {
 	}
 
 function OnUnitProductionCompleted(playerID, cityID, productionID, objectID, bCanceled, typeModifier)
-	local DEBUG_UNIT_SCRIPT = "debug"
+	--local DEBUG_UNIT_SCRIPT = "debug"
 	local city = GCO.GetCity(playerID, cityID)
 	if productionID ~= ProductionTypes.UNIT then
 		return--if GameInfo.Buildings[objectID] and GameInfo.Buildings[objectID].Unlockers then return end
