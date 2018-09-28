@@ -80,6 +80,7 @@
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
 			<File>GCO_FontIcons.dds</File>
+			<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		</ImportFiles>
 		
         <AddGameplayScripts>
@@ -144,6 +145,13 @@
 				<File Priority="2">Text/GameText.xml</File>
 				<File Priority="1">Text/NameText.xml</File>
 		</UpdateText>
+		
+		<ReplaceUIScript id="GCO_ActionPanel">
+			<Properties>
+				<LuaContext>ActionPanel</LuaContext>
+				<LuaReplace>UI/Replacements/ActionPanel_GCO.lua</LuaReplace>
+			</Properties>
+		</ReplaceUIScript>
 	</InGameActions>
 
 	<FrontEndActions>
@@ -208,6 +216,7 @@
 		<File>UI/CityPanel.lua</File>
 		<File>UI/CitySupport.lua</File>
 		<File>UI/ProductionPanel.lua</File>
+		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>GCO_FontIcons.dds</File>
 	</Files>
 </Mod>

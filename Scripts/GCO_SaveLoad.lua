@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------------------
---	FILE:	 SaveLoad.lua
+--	FILE:	 GCO_SaveLoad.lua
 --  Gedemon (2017)
 -----------------------------------------------------------------------------------------
 
@@ -48,17 +48,6 @@ function SaveMyTables()
 	LuaEvents.SaveTables()
 end
 LuaEvents.FileListQueryComplete.Add( SaveMyTables )
-
--- This should happen just before the autosave
-function SaveOnBarbarianTurnEnd(playerID)
-	local player = Players[playerID]
-	if player:IsBarbarian() then
-		GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "Calling LuaEvents.SaveTables() on Barbarian Turn End...")
-		LuaEvents.SaveTables()
-	end
-end
-Events.RemotePlayerTurnEnd.Add( SaveOnBarbarianTurnEnd )
-
 
 -- This event to handle quick saving
 function OnInputAction( actionID )

@@ -387,7 +387,11 @@ end
 
 function GetMilitaryOrganizationLevel(self)
 	local playerKey = self:GetKey()
-	return ExposedMembers.PlayerData[playerKey].OrganizationLevel or 0
+	if self:IsBarbarian() then
+		return math.floor((ExposedMembers.PlayerData[playerKey].OrganizationLevel or 0) / 2)
+	else
+		return ExposedMembers.PlayerData[playerKey].OrganizationLevel or 0
+	end
 end
 
 function UpdateMilitaryOrganizationLevel(self)
@@ -790,7 +794,7 @@ function DoPlayerTurn( playerID )
 			--LuaEvents.SaveTables()
 		end
 		
-		if playerID == 0 and  Automation.IsActive() then
+		if playerID == 0 then --and Automation.IsActive() then
 			-- Making our own auto save...
 			LuaEvents.SaveTables()
 			startTurnAutoSaveNum = startTurnAutoSaveNum + 1
@@ -799,7 +803,7 @@ function DoPlayerTurn( playerID )
 			saveGame.Name = "GCO-StartTurnAutosave"..tostring(startTurnAutoSaveNum)
 			saveGame.Location = SaveLocations.LOCAL_STORAGE
 			saveGame.Type= SaveTypes.SINGLE_PLAYER
-			saveGame.IsAutosave = false
+			saveGame.IsAutosave = true
 			saveGame.IsQuicksave = false
 			LuaEvents.SaveGameGCO(saveGame)
 		end
@@ -893,20 +897,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Events Functions
 -----------------------------------------------------------------------------------------
-local autoSaveNum = 0
-function LocalPlayerEndTurnSave()
-	-- Making our own auto save...
-	LuaEvents.SaveTables()
-	autoSaveNum = autoSaveNum + 1
-	if autoSaveNum > 5 then autoSaveNum = 1 end
-	local saveGame = {};
-	saveGame.Name = "GCO-EndTurnAutosave"..tostring(autoSaveNum)
-	saveGame.Location = SaveLocations.LOCAL_STORAGE
-	saveGame.Type= SaveTypes.SINGLE_PLAYER
-	saveGame.IsAutosave = false
-	saveGame.IsQuicksave = false
-	LuaEvents.SaveGameGCO(saveGame)
-end
 
 
 
@@ -1016,7 +1006,6 @@ function Initialize()
 	Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
 	Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
 	Events.RemotePlayerTurnEnd.Add( DoTurnForNextPlayerFromRemote )
-	Events.LocalPlayerTurnEnd.Add( LocalPlayerEndTurnSave )
 	Events.LocalPlayerTurnEnd.Add( DoTurnForNextPlayerFromLocal )
 end
 Initialize()
