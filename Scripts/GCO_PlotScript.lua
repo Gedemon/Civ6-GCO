@@ -1704,7 +1704,7 @@ function GetAvailableEmployment(self)
 	local bImproved		= (self:GetImprovementType() ~= NO_IMPROVEMENT)
 	local bSeaResource 	= (self:IsWater() or self:IsLake())
 	
-	local player = Players[self:GetOwner()] or Game.GetLocalPlayer() -- 
+	local player = Players[self:GetOwner()] or Players[Game.GetLocalPlayer()] -- 
 	if player then
 	--if bWorked or bImproved or bSeaResource then
 
