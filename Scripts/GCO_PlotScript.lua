@@ -1704,7 +1704,7 @@ function GetAvailableEmployment(self)
 	local bImproved		= (self:GetImprovementType() ~= NO_IMPROVEMENT)
 	local bSeaResource 	= (self:IsWater() or self:IsLake())
 	
-	local player = Players[self:GetOwner()]
+	local player = Players[self:GetOwner()] or Game.GetLocalPlayer() -- 
 	if player then
 	--if bWorked or bImproved or bSeaResource then
 
@@ -1724,7 +1724,7 @@ function GetAvailableEmployment(self)
 					Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 				end
 			end
-		else
+		else -- I don't like hardcoding, todo: find something else...
 			Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
 		end
 
@@ -1818,7 +1818,6 @@ function SetMaxEmployment(self)
 	local _, maxEmployment = self:GetAvailableEmployment()
 	_cached[plotKey].MaxEmployment = maxEmployment
 end
-
 
 function GetEmployed(self)
 	return math.min(self:GetPopulation(), self:GetMaxEmployment())
