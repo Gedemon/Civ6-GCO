@@ -173,7 +173,7 @@ CityEmploymentFactor 	= {
 }
 
 PlotEmploymentPow		= {
-	["ERA_ANCIENT"] 		= 1.80 , -- 1.80 = Max City pop Pow - 1.00 : this way the summation of all worked plots can't be > to the total city population (using pow 2.80) 
+	["ERA_ANCIENT"] 		= 1.80 , -- 1.80 = Max City pop Pow - 1.00 : this way the summation of all worked plots can't be > to the total city population (using pow 2.80) <- but this is obsolete as we use urban population only to determine city size
 	["ERA_CLASSICAL"] 		= 1.79 ,
 	["ERA_MEDIEVAL"] 		= 1.77 ,
 	["ERA_RENAISSANCE"] 	= 1.75 ,

@@ -3814,16 +3814,21 @@ function RecruitUnits(self, UnitType, number)
 		-- initialize at 0 HP...
 		Dprint( DEBUG_self_SCRIPT, "Initializing unit...")
 		unit:SetDamage(100)
-		local initialHP 		= 0
-		local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)	-- } to do: affected by policies
-		local turnsActive		= ConscriptsBaseActiveTurns									-- |
+		local initialHP 				= 0
+		local playerOrganizationLevel 	= player:GetMilitaryOrganizationLevel()
+		local baseLevelID				= GameInfo.MilitaryOrganisationLevels["LEVEL0"].Index
+		if player:HasPolicyActive(GameInfo.Policies["POLICY_SMALLER_UNITS"].Index) then
+			baseLevelID = GameInfo.MilitaryOrganisationLevels["LEVEL0B"].Index
+		end
+		local organizationLevel	= math.max(baseLevelID , playerOrganizationLevel - 2)	-- } to do: affected by policies
+		local turnsActive		= ConscriptsBaseActiveTurns								-- |
 		
 		local policies	= player:GetActivePolicies()
 		for _, policyID in ipairs(policies) do
 			turnsActive = turnsActive + GameInfo.Policies[policyID].ActiveTurnsLeftBoost
 			local policyType = GameInfo.Policies[policyID].PolicyType
 			if policyType == "POLICY_CONSCRIPTION" or policyType == "POLICY_LEVEE_EN_MASSE" then 
-				organizationLevel = math.max(0 , player:GetMilitaryOrganizationLevel() - 1)
+				organizationLevel = math.max(baseLevelID , playerOrganizationLevel - 1)
 			end
 		end
 
