@@ -9,7 +9,7 @@
   
   
 	<Replace Tag="LOC_BUILDING_BARRACKS_DESCRIPTION"	Language="en_US">
-		<Text>+25% combat experience for all melee and ranged land units trained in this city.[NEWLINE][NEWLINE]May not be built in an Encampment district that already has a Stable.[NEWLINE]When creating an emergency Recruitment Centre, up to four units can be drafted from the city (depending of the available equipment, materiel and personnel).</Text>
+		<Text>+25% combat experience for all melee and ranged land units trained in this city.[NEWLINE][NEWLINE]May not be built in an Encampment district that already has a Stable.[NEWLINE]When creating an emergency Recruitment Centre, two units can be drafted from the city (depending of the available equipment, materiel and personnel).</Text>
 	</Replace>
 		
 	<!--  -->	

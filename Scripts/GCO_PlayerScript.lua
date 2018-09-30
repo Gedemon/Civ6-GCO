@@ -800,7 +800,7 @@ function DoPlayerTurn( playerID )
 			startTurnAutoSaveNum = startTurnAutoSaveNum + 1
 			if startTurnAutoSaveNum > 5 then startTurnAutoSaveNum = 1 end
 			local saveGame = {};
-			saveGame.Name = "GCO-StartTurnAutosave"..tostring(startTurnAutoSaveNum)
+			saveGame.Name = "GCO-StartTurnAutoSave"..tostring(startTurnAutoSaveNum)
 			saveGame.Location = SaveLocations.LOCAL_STORAGE
 			saveGame.Type= SaveTypes.SINGLE_PLAYER
 			saveGame.IsAutosave = true

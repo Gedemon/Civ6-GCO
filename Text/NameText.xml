@@ -70,7 +70,7 @@
 			<Text>An emergency Recruitment Centre, when completed a melee unit will be created from the available personnel and equipment in this city, and the building is removed.[NEWLINE][NEWLINE]Note that this building is not always available, recruitment is limited to war time or when Barbarians are menacing the city.[NEWLINE]The requisition cost of the unit's equipment will be removed from your treasury when it's completed.[NEWLINE]If your city equipment and resources are pillaged by attacking units while the Recruitment Centre is build, the drafted unit may be initialized with a very low health.</Text>
 		</Replace>
 		<Replace Tag="LOC_BUILDING_SMALL_BARRACKS_DESCRIPTION" Language="en_US">
-			<Text>When creating an emergency Recruitment Centre, up to two units can be drafted from the city (depending of the available equipment, materiel and personnel).</Text>
+			<Text>More storage for eqipment and housing for personnel, allowing better availability for the emergency Recruitment Centre.</Text>
 		</Replace>
 		
 		<Replace Tag="LOC_BUILDING_ARTILLATOR_DESCRIPTION" Language="en_US">

@@ -4981,7 +4981,7 @@ end
 
 function CheckForActiveTurnsLeft(self)
 	Dlog("CheckForActiveTurnsLeft for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
-	--local DEBUG_UNIT_SCRIPT = "debug"
+	local DEBUG_UNIT_SCRIPT = "debug"
 	local bRemoveUnit		= false
 	local activeTurnsLeft 	= self:GetProperty("ActiveTurnsLeft")
 	if activeTurnsLeft then
@@ -5009,8 +5009,10 @@ function CheckForActiveTurnsLeft(self)
 				if unitData then
 					local disbandingRatio 		= 0.10 -- to do : lower if under threat
 					local maxPersonnelToDisband = math.min(self:GetMaxPersonnel() * disbandingRatio, self:GetTotalPersonnel())
-					Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding ratio = ", disbandingRatio, ", personnel to disband = ", maxPersonnelToDisband)
-					if maxPersonnelToDisband >= self:GetFrontLinePersonnel() then
+					local frontLinePersonnel	= self:GetFrontLinePersonnel()
+					local minPersonnelLeft		= self:GetPersonnelAtHP(1) 		-- Min personnel left in frontline at HP = 1, to prevent the UpdateFrontLineData function to try to kill the unit.
+					Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding ratio = ", disbandingRatio, ", Personnel to disband = ", maxPersonnelToDisband, ", Front Line Personnel = ", frontLinePersonnel, ", Min Personnel Left = ", minPersonnelLeft)
+					if maxPersonnelToDisband >= (frontLinePersonnel - minPersonnelLeft) then
 						Dprint( DEBUG_UNIT_SCRIPT, "     - Removing unit...")
 						local city = GCO.GetCityFromKey( unitData.HomeCityKey )
 						if city then

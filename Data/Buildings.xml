@@ -26,7 +26,7 @@
 		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		
 		<Row BuildingType="BUILDING_WEAPONSMITH"				Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_CONSTRUCTION" 		EmploymentSize="0.85"	EquipmentStock="250" />
-		<Row BuildingType="BUILDING_ARMORSMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_ENGINEERING" 		EmploymentSize="0.85"	EquipmentStock="250" />
+		<Row BuildingType="BUILDING_ARMORSMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_MACHINERY" 			EmploymentSize="0.85"	EquipmentStock="250" />
 		<Row BuildingType="BUILDING_FARRIER"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_STIRRUPS" 			EmploymentSize="0.85"	EquipmentStock="250" />
 		
 		<Row BuildingType="BUILDING_TREADMILL" 					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_THE_WHEEL" 			EmploymentSize="0.75"	/>
@@ -238,9 +238,8 @@
 		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="50" 	ResourceCreated="EQUIPMENT_IRON_PIKES" 		Ratio="2.4"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_WEAPONSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="50" 	ResourceCreated="EQUIPMENT_LANCES" 			Ratio="3"	MultiResCreated="1"/>
 	
-		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="50" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.2"	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="50" 	ResourceCreated="EQUIPMENT_PLATE_ARMOR" 	Ratio="1"	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="50" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="3"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="30" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.2"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_PLATE_ARMOR" 	Ratio="1"	MultiResCreated="1" />
 		
 		<Row BuildingType="BUILDING_FARRIER" 		ResourceType="EQUIPMENT_WAR_HORSES"	MaxConverted="40" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="0.25"	MultiResRequired="1" />
 		<Row BuildingType="BUILDING_FARRIER" 		ResourceType="RESOURCE_IRON"		MaxConverted="20" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="0.5"		MultiResRequired="1" />
@@ -254,8 +253,7 @@
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_GAMBESON" 		Ratio="1.5"		MultiResCreated="1" />
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_LEATHER" 	MaxConverted="20" 	ResourceCreated="EQUIPMENT_LEATHER_ARMOR" 	Ratio="2.5"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_COPPER" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_BRONZE_ARMOR" 	Ratio="2.5"	/>
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="3.5"		MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.25"	MultiResCreated="1" />		
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="3.5"	/>	
 		
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="5"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="3"	MultiResCreated="1" />
@@ -268,6 +266,7 @@
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="4" 	ResourceCreated="EQUIPMENT_QUADRIREME" 		Ratio="0.25" />
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="4" 	ResourceCreated="EQUIPMENT_CARAVEL" 		Ratio="0.25" />
 		
+		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOOD_PLANKS"			MaxConverted="10" 	ResourceCreated="RESOURCE_WOODEN_HULL_PART" Ratio="0.10" />
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="4" 	ResourceCreated="EQUIPMENT_PRIVATEER" 		Ratio="0.25" 	MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_BOMBARDS"			MaxConverted="20" 	ResourceCreated="EQUIPMENT_PRIVATEER" 		Ratio="0.05" 	MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="8" 	ResourceCreated="EQUIPMENT_FRIGATE" 		Ratio="0.125" 	MultiResRequired="1"  />
@@ -419,7 +418,7 @@
 		
 		<Row BuildingType="BUILDING_SMALL_BARRACKS" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="200"/>		
 		<Row BuildingType="BUILDING_BARRACKS" 			ResourceType="RESOURCE_PERSONNEL" 		Stock="1000"/>
-		<Row BuildingType="BUILDING_MILITARY_ACADEMY" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="750"/>
+		<Row BuildingType="BUILDING_MILITARY_ACADEMY" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="2000"/>
 		
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOOD"			Stock="500"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="20"	FixedValue="1"/>
@@ -428,7 +427,7 @@
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="EQUIPMENT_CARAVEL"		Stock="6"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="25"/>
 		
-		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="30"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD"		ResourceType="RESOURCE_WOOD_PLANKS" 	Stock="60"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_PRIVATEER"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_FRIGATE"		Stock="4"	FixedValue="1"/>

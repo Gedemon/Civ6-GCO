@@ -77,6 +77,9 @@
 			<File>UI/CityPanel.lua</File>
 			<File>UI/CitySupport.lua</File>
 			<File>UI/ProductionPanel.lua</File>
+			<File>UI/EspionageEscape.lua</File>
+			<File>UI/EspionageChooser.lua</File>
+			<File>UI/EspionageOverview.lua</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
 			<File>GCO_FontIcons.dds</File>
@@ -216,6 +219,9 @@
 		<File>UI/CityPanel.lua</File>
 		<File>UI/CitySupport.lua</File>
 		<File>UI/ProductionPanel.lua</File>
+		<File>UI/EspionageEscape.lua</File>
+		<File>UI/EspionageChooser.lua</File>
+		<File>UI/EspionageOverview.lua</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>GCO_FontIcons.dds</File>
 	</Files>

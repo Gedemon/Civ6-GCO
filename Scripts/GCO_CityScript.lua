@@ -3739,10 +3739,10 @@ function CanConstruct(self, buildingType)
 		end
 		
 		if PromotionClassID then
-			--[[
-			-- Allows drafting even without logistic support, the limit being the population in that case
+			---[[
+			-- Don't allows drafting without logistic support
 			local logisticCost		= player:GetLogisticCost(PromotionClassID)
-			local availableLogistic	= GetLogisticSupport(PromotionClassID)
+			local availableLogistic	= player:GetLogisticSupport(PromotionClassID)
 			if logisticCost >= availableLogistic then
 				bCheckSpecial = false
 				requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC_RECRUITS", logisticCost, GameInfo.UnitPromotionClasses[PromotionClassID].Name, availableLogistic )
@@ -6123,10 +6123,10 @@ function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCa
 			
 			local number = 1
 			if city:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_SMALL_BARRACKS"].Index) then
-				number = 2
+				number = 1
 			end
 			if city:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_BARRACKS"].Index) then
-				number = 4
+				number = 2
 			end
 			city:RecruitUnits("UNIT_WARRIOR", number) -- called with the first unit of the melee line, it will be upgraded automatically to the best available with the current equipment in city
 			

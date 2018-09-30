@@ -552,7 +552,7 @@ function GetPotentialOwner( self )
 			end
 		end
 	end
-	return bestPlayer
+	return tonumber(bestPlayer)
 end
 
 function IsTerritorialWaterOf( self, playerID )
@@ -793,6 +793,11 @@ function UpdateOwnership( self )
 			-- Is the plot too far away ?			
 			--table.insert(debugTable, "distance[".. tostring(distance) .."] <= GetCultureFlippingMaxDistance(bestPlayerID)[".. GetCultureFlippingMaxDistance(bestPlayerID) .."] ?")
 			if distance > GetCultureFlippingMaxDistance(bestPlayerID) then return end
+			
+			-- Is there a path from the city to the plot ?
+			local cityPlot	= GetPlot(city:GetX(), city:GetY())
+			local path 		= self:GetPathToPlot(cityPlot, Players[bestPlayerID], "Land", GCO.TradePathBlocked, GetCultureFlippingMaxDistance(bestPlayerID))
+			if not path then return end
 			
 			-- All test passed succesfully, notify the players and change owner...
 			-- to do : notify the players...
@@ -1438,10 +1443,12 @@ function GetNeighbors(node, pPlayer, sRoute, fBlockaded, startPlot, destPlot, ma
 				if maxRange == nil or distanceFromDest <= maxRange then
 			
 					local IsPlotRevealed = false
-					local pPlayerVis = PlayersVisibility[pPlayer:GetID()]
-					if (pPlayerVis ~= nil) then
-						if (pPlayerVis:IsRevealed(adjacentPlot:GetX(), adjacentPlot:GetY())) then -- IsVisible
-						  IsPlotRevealed = true
+					if pPlayer then
+						local pPlayerVis = PlayersVisibility[pPlayer:GetID()]
+						if (pPlayerVis ~= nil) then
+							if (pPlayerVis:IsRevealed(adjacentPlot:GetX(), adjacentPlot:GetY())) then -- IsVisible
+							  IsPlotRevealed = true
+							end
 						end
 					end
 					--Dprint( DEBUG_PLOT_SCRIPT, "-  IsPlotRevealed = ", IsPlotRevealed)
