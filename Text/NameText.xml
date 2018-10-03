@@ -132,6 +132,7 @@
 		<Replace Tag="LOC_EQUIPMENT_IRON_ARMOR_NAME" 				Text="Iron Armor"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_CHAINMAIL_ARMOR_NAME" 			Text="Chainmail Armor"		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_PLATE_ARMOR_NAME" 				Text="Plate Armor"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_UNIFORM_NAME" 					Text="Uniform"				Language="en_US" /> 
 		
 		<Replace Tag="LOC_EQUIPMENT_GALLEY_NAME" 					Text="Galley"				Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_QUADRIREME_NAME" 				Text="Quadrireme"			Language="en_US" /> 

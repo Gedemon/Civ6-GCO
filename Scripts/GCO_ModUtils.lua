@@ -116,6 +116,7 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_IRON_ARMOR"].Index]			= "[ICON_EQUIPMENT_IRON_ARMOR]",
 		[GameInfo.Resources["EQUIPMENT_CHAINMAIL_ARMOR"].Index]		= "[ICON_EQUIPMENT_CHAINMAIL_ARMOR]",
 		[GameInfo.Resources["EQUIPMENT_PLATE_ARMOR"].Index]			= "[ICON_EQUIPMENT_PLATE_ARMOR]",
+		[GameInfo.Resources["EQUIPMENT_UNIFORM"].Index]				= "[ICON_EQUIPMENT_UNIFORM]",
 		
 		[GameInfo.Resources["EQUIPMENT_GALLEY"].Index]				= "[ICON_EQUIPMENT_GALLEY]",
 		[GameInfo.Resources["EQUIPMENT_QUADRIREME"].Index]			= "[ICON_EQUIPMENT_QUADRIREME]",

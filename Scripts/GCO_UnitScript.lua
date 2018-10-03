@@ -2169,14 +2169,16 @@ function GetUnitConscriptionEquipment(unitTypeID, organizationLevelID, sConditio
 end
 
 function GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)
-	local num = 0
+	local num 		= 0
+	local weight 	= 0
 	for equipmentKey, value in pairs(equipmentList) do
 		local equipmentTypeID = tonumber(equipmentKey) -- equipmentList is usually passed from unitData which is using string key
 		if IsEquipmentClass(equipmentTypeID, equipmentClassID) then
-			num = num + value
+			num 	= num + value
+			weight	= weight + (value * EquipmentInfo[equipmentTypeID].Desirability)
 		end
 	end
-	return num
+	return num, weight
 end
 
 function GetEquipmentOfClassInList(equipmentClassID, equipmentList)
@@ -2213,12 +2215,13 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 	
 	local bestUnitType
 	local bestValue 			= 0
-	local percentageTable		= {}
+	local totalWeight			= 0
+	local unitTable				= {}
 	if promotionClassUnits[promotionClassID] then
 		for unitType, _ in pairs(promotionClassUnits[promotionClassID]) do
 			local bEnoughEquipmentForHP	= true
 			local numRequiredClasses	= 0
-			local totalPercent			= 0
+			local unitWeight			= 0
 			
 			local specificEquipmentClasses = GetUnitSpecificEquipmentClasses(unitType) --  { [equipmentClassID] = {PercentageOfPersonnel = integer, IsRequired = boolean} }
 			for equipmentClassID, classData in pairs(specificEquipmentClasses) do
@@ -2249,40 +2252,42 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 							bEnoughEquipmentForHP = false						
 						end
 					end
-										
-					local num 			= GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)					
+
+					local num, weight	= GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)					
 					local ratio 		= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
-					local percent 		= (num) / (requiredNum) * 100 --(num*ratio) / (total) * 100
-					totalPercent 		= totalPercent + percent					
+					local classWeight	= (num * weight) / (requiredNum) -- with the introduction of weight from equipment Desirability, this is not a classWeightage anymore  (num) / (requiredNum) * 100 --(num*ratio) / (total) * 100
+					unitWeight 			= unitWeight + classWeight					
 						
-					--Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
-					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(percent).." percent at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[promotionClassEquipmentClassID].Name))
+					--Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(classWeight).." classWeight at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
+					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." x " ..Indentation8(weight).." ("..Indentation8(classWeight).." classWeight at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[promotionClassEquipmentClassID].Name))
 				end
 			end
-			if numRequiredClasses > 0 and totalPercent > 0 then
-				local mediumPercent = totalPercent / numRequiredClasses
-				table.insert(percentageTable, { Name = Locale.Lookup(GameInfo.Units[unitType].Name), Percent = GCO.ToDecimals(mediumPercent), EnoughEquipmentForHP = bEnoughEquipmentForHP })
-				--if bEnoughEquipmentForHP and (mediumPercent > bestValue or (mediumPercent >= bestValue and (unitType == oldUnitType))) then -- Return the old type if it's equal to the best possible value, return new type only when it's better.
-				if bEnoughEquipmentForHP and mediumPercent >= bestValue then -- check if we should replace the current best choice
-					-- always replace if percentage match is superior
-					-- replace with the unit with the one at the higher construction cost (assuming it means better unit) when percentage match is egal
-					if (mediumPercent > bestValue) or (GameInfo.Units[unitType].Cost > GameInfo.Units[bestUnitType].Cost) then
-						bestValue 		= mediumPercent
+			if numRequiredClasses > 0 and unitWeight > 0 then
+				local mediumWeight = unitWeight / numRequiredClasses
+				totalWeight = totalWeight + mediumWeight
+				table.insert(unitTable, { Name = Locale.Lookup(GameInfo.Units[unitType].Name), Weight = mediumWeight, EnoughEquipmentForHP = bEnoughEquipmentForHP })
+				--if bEnoughEquipmentForHP and (mediumWeight > bestValue or (mediumWeight >= bestValue and (unitType == oldUnitType))) then -- Return the old type if it's equal to the best possible value, return new type only when it's better.
+				if bEnoughEquipmentForHP and mediumWeight >= bestValue then -- check if we should replace the current best choice
+					-- always replace if classWeightage match is superior
+					-- replace with the unit with the one at the higher construction cost (assuming it means better unit) when classWeightage match is egal
+					if (mediumWeight > bestValue) or (GameInfo.Units[unitType].Cost > GameInfo.Units[bestUnitType].Cost) then
+						bestValue 		= mediumWeight
 						bestUnitType 	= unitType
-						Dprint( DEBUG_UNIT_SCRIPT, "New best value.. = ", bestValue.." percent for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
+						Dprint( DEBUG_UNIT_SCRIPT, "New best value.. = ", bestValue.." classWeight for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
 					end
 				end
 			end
 		end
 	end
 
-	table.sort(percentageTable, function(a, b) return a.Percent > b.Percent; end)
+	table.sort(unitTable, function(a, b) return a.Weight > b.Weight; end)
 	local sortedStringTable = {}
-	for _, data in ipairs(percentageTable) do
+	for _, data in ipairs(unitTable) do
+		local percent = GCO.ToDecimals(data.Weight / totalWeight * 100)
 		if data.EnoughEquipmentForHP then
-			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_MATCH_TYPE", data.Percent, data.Name))
+			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_MATCH_TYPE", percent, data.Name))
 		else
-			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_NOT_ENOUGH_EQUIPMENT_MATCH_TYPE", data.Percent, data.Name))
+			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_NOT_ENOUGH_EQUIPMENT_MATCH_TYPE", percent, data.Name))
 		end
 	end	
 	local percentageStr = table.concat(sortedStringTable, "[NEWLINE]")	
@@ -5699,7 +5704,7 @@ Initialize()
 -- Test / Debug
 -----------------------------------------------------------------------------------------
 
--- temp fix when changing unit DB mid-game
+-- temp fix when changing an unit DB entry mid-game to set the new properties (like combat, moves, ...)
 function UnitsUpdateFromDB()
 	for unitKey, unitData in pairs(ExposedMembers.UnitData) do
 		print( GCO.Separator)
