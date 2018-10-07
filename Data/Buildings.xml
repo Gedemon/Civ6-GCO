@@ -71,7 +71,7 @@
 		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	Cost="580" 	MaterielPerProduction="4" />
 		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	Cost="740" 	MaterielPerProduction="6" />
 		
-		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" 			Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ARMORED_WARFARE"	/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" 			Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ARMORED_WARFARE"	PrereqDistrict="DISTRICT_HARBOR" />
 	<!---->
 	</BuildingsGCO>
 
@@ -160,6 +160,8 @@
 		<Row Building="BUILDING_ATOMIC_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	/>
 		<Row Building="BUILDING_ATOMIC_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_UPPER_HOUSING_1" 	/>
+		
+		<Row Building="BUILDING_LARGE_DRY_DOCK" 			PrereqBuilding="BUILDING_SEAPORT" 	/>
 	<!---->
 	</BuildingPrereqs>
 	
@@ -529,40 +531,48 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
 
-		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="1"/>
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="2"/>
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
 		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
 		
-		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="2"/>
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="3"/>
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="2"/>
 		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="2"/>
 		
-		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="3"/>
+		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="4"/>
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="3"/>
-		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="3"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="2"/>
 		
-		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="2"/>
+		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="3"/>
 		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="2"/>
 		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="2"/>
-		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="3"/>
+		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="4"/>
 		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="3"/>
-		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="3"/>
+		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="2"/>
 		
-		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="3"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="4"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="3"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="3"/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="4"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="5"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="4"/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="4"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="3"/>
 		
-		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="4"/>
+		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="5"/>
 		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="4"/>
 		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="4"/>
-		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="5"/>
+		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="6"/>
 		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="5"/>
-		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="5"/>
+		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="4"/>
 	<!---->	
 	</Building_CustomYieldChanges>
+	
+	<Building_YieldPerOutputChanges>
+	
+		<Row BuildingType="BUILDING_LIBRARY" 		YieldType="YIELD_SCIENCE"		YieldChange="0.25"	MaxYieldChange="2"/>
+		<Row BuildingType="BUILDING_UNIVERSITY" 	YieldType="YIELD_SCIENCE"		YieldChange="0.25"	MaxYieldChange="4"/>
+		<Row BuildingType="BUILDING_RESEARCH_LAB" 	YieldType="YIELD_SCIENCE"		YieldChange="0.25"	MaxYieldChange="6"/>	
+	
+	</Building_YieldPerOutputChanges>
 
 	<MutuallyExclusiveBuildings>
 		<Row Building="BUILDING_SMALL_STABLE" 	MutuallyExclusiveBuilding="BUILDING_SMALL_BARRACKS"/>

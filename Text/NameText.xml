@@ -60,7 +60,7 @@
 		<Replace Tag="LOC_BUILDING_ATOMIC_MIDDLE_HOUSING_2_NAME" 	Text="Housing"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_ATOMIC_LOWER_HOUSING_2_NAME" 	Text="Cheap Housing"		Language="en_US" />
 		
-		<Replace Tag="LOC_BUILDING_ATOMIC_LOWER_HOUSING_2_NAME" 	Text="Large Dry Dock"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_LARGE_DRY_DOCK_NAME" 			Text="Large Dry Dock"		Language="en_US" />
 	
 	</LocalizedText>
 	

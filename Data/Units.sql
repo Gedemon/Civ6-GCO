@@ -103,7 +103,7 @@ INSERT INTO UnitsShort
 --																			AntiAirCombat	Stackable			CanCapture															ADVISOR_	YIELD_	PSEUDOYIELD_UNIT_
 --								Cost		Combat	RangedCombat	CanTargetAir		IgnoreMoves		ZoneOfControl		DOMAIN_	FORMATION_CLASS_					DISTRICT_	AdvisorType			PseudoYieldType
 --	'UNIT_'					BaseMoves	Maintenance	|	Range	Bombard		|	AirSlots			BaseSightRange	WMDCapable						PROMOTION_CLASS_	PrereqDistrict			PurchaseYield
-	(UnitType,				BM,	Cs,		Mt,	Cb,		RC,	Rg,		Bd,	CTA,	AAC,AiS,	IM,	Stk,	SR,	ZOC,	Cpt,WMD,	Domain,	FormationClass,	PromotionClass,		District,	Advisor,	PurYld,	PsYld,			)
+	(UnitType,				BM,	Cs,		Mt,	Cb,		RC,	Rg,		Bd,	CTA,	AAC,AiS,	IM,	Stk,	SR,	ZOC,	Cpt,WMD,	Domain,	FormationClass,	PromotionClass,		District,	Advisor,	PurYld,	PsYld			)
 VALUES                              	        	        	        	        	        	        	        	                
 	('MOTORISED_INFANTRY',	4,	540,	7,	78,		0,	0,		0,	'0',	0,	0,		'0','0',	2,	'1',	'1','0',	'LAND',	'LAND_COMBAT',	'MELEE',			null,		'CONQUEST',	'GOLD',	null			),
 	('COMPOSITE_BOWMAN',	2,	85,		2,	22,		32,	2,		0,	'0',	0,	0,		'0','0',	2,	'0',	'1','0',	'LAND',	'LAND_COMBAT',	'RANGED',			null,		'CONQUEST',	'GOLD',	null			),

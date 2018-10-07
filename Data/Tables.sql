@@ -229,8 +229,8 @@ CREATE TABLE IF NOT EXISTS UnitsShort (
 		ZOC BOOLEAN,			-- ZoneOfControl
 		AAC INTEGER,			-- AntiAirCombat
 		Spy BOOLEAN,
-		WMDCapable BOOLEAN,
-		IgnoreMoves BOOLEAN,
+		WMD BOOLEAN,			-- WMDCapable
+		IM BOOLEAN,				-- IgnoreMoves
 		TeamVisibility BOOLEAN,
 		Advisor TEXT,			-- AdvisorType, Without 'ADVISOR_'
 		-- Composition in personnel, vehicles and horses of an unit at full health 
@@ -650,6 +650,17 @@ CREATE TABLE IF NOT EXISTS Building_CustomYieldChanges (
 		PRIMARY KEY(BuildingType, YieldType),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (YieldType) REFERENCES CustomYields(YieldType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
+/* Yields that are related to the city production factor */
+CREATE TABLE IF NOT EXISTS Building_YieldPerOutputChanges (
+		BuildingType TEXT NOT NULL,
+		YieldType TEXT NOT NULL,
+		YieldChange REAL NOT NULL,
+		MaxYieldChange INTEGER,
+		PRIMARY KEY(BuildingType, YieldType),
+		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (YieldType) REFERENCES Yields(YieldType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
 /* BuildingRealPrereqsOR is created in Unlockers.sql and is a copy of BuildingPrereqs */

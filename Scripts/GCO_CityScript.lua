@@ -591,7 +591,7 @@ function RegisterNewCity(playerID, city)
 	if sizeDiff ~= 0 then
 		city:ChangePopulation(sizeDiff)
 		city:UpdateSize()
-		city:ChangeStock(foodResourceID, GCO.Round(city:GetMaxStock(foodResourceID / 2)))
+		city:ChangeStock(foodResourceID, GCO.Round(city:GetMaxStock(foodResourceID)/2))
 		--ExposedMembers.CityData[cityKey].Stock[turnKey][foodResourceKey] = 
 	end
 
