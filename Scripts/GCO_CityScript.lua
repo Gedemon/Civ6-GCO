@@ -552,7 +552,7 @@ function RegisterNewCity(playerID, city)
 	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID) / 100)
 	local lowerClass		= totalPopulation - (upperClass + middleClass)
 	local slaveClass		= 0
-	local startingFood		= GCO.Round(baseFoodStock / 2)
+	local startingFood		= 0 -- (re)initialized at the end of this function --GCO.Round(baseFoodStock / 2)
 	local startingMateriel	= GCO.Round(ResourceStockPerSize * city:GetSize() / 2)
 	local baseFoodCost 		= GCO.GetBaseResourceCost(foodResourceID)
 	local turnKey 			= GCO.GetTurnKey()
@@ -591,9 +591,9 @@ function RegisterNewCity(playerID, city)
 	if sizeDiff ~= 0 then
 		city:ChangePopulation(sizeDiff)
 		city:UpdateSize()
-		city:ChangeStock(foodResourceID, GCO.Round(city:GetMaxStock(foodResourceID)/2))
 		--ExposedMembers.CityData[cityKey].Stock[turnKey][foodResourceKey] = 
 	end
+	city:ChangeStock(foodResourceID, city:GetMaxStock(foodResourceID))--GCO.Round(city:GetMaxStock(foodResourceID)/2))
 
 	LuaEvents.NewCityCreated()
 end
@@ -3707,7 +3707,7 @@ function CanConstruct(self, buildingType)
 	
 	-- check for special recruitment building
 	if row.BuildingType == "BUILDING_RECRUITS" then
-		local PromotionClassID 	= GameInfo.UnitPromotionClasses["PROMOTION_CLASS_MELEE"].Index
+		local promotionClassID 	= GameInfo.UnitPromotionClasses["PROMOTION_CLASS_MELEE"].Index
 		local player			= GCO.GetPlayer(self:GetOwner())
 
 		-- must be at war or under threat from barbarians
@@ -3738,14 +3738,14 @@ function CanConstruct(self, buildingType)
 			end
 		end
 		
-		if PromotionClassID then
+		if promotionClassID then
 			---[[
 			-- Don't allows drafting without logistic support
-			local logisticCost		= player:GetLogisticCost(PromotionClassID)
-			local availableLogistic	= player:GetLogisticSupport(PromotionClassID)
+			local logisticCost		= player:GetLogisticCost(promotionClassID)
+			local availableLogistic	= player:GetLogisticSupport(promotionClassID)
 			if logisticCost >= availableLogistic then
 				bCheckSpecial = false
-				requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC_RECRUITS", logisticCost, GameInfo.UnitPromotionClasses[PromotionClassID].Name, availableLogistic )
+				requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC_RECRUITS", logisticCost, GameInfo.UnitPromotionClasses[promotionClassID].Name, availableLogistic )
 			end
 			--]]
 			
@@ -3753,7 +3753,14 @@ function CanConstruct(self, buildingType)
 			local minPersonnel		= 250
 			local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)
 			if militaryOrganization[organizationLevel] and militaryOrganization[organizationLevel][promotionClassID] then
-				minPersonnel = (militaryOrganization[organizationLevel][promotionClassID].Personnel*0.3)
+				local factor = 1
+				if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_SMALL_BARRACKS"].Index) then
+					factor = 1
+				end
+				if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_BARRACKS"].Index) then
+					factor = 2
+				end
+				minPersonnel = (militaryOrganization[organizationLevel][promotionClassID].FrontLinePersonnel*0.75*factor)
 			end
 			
 			if self:GetPersonnel() < (minPersonnel  - personnelSupply) then
@@ -5766,7 +5773,7 @@ function DoMigration(self)
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /START")
 	
 	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "- Population Migration...")
@@ -5814,7 +5821,7 @@ function DoMigration(self)
 						end
 						
 						local employmentDiff 	= plotEmployment - cityEmployment
-						local migrationWeight	= employmentDiff * workedFactor
+						local migrationWeight	= math.max(0, employmentDiff * workedFactor)
 						plotWeight 				= plotWeight + migrationWeight
 						
 						if migrationWeight > bestMotivationWeight then

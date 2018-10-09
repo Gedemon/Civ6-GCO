@@ -1854,7 +1854,7 @@ function SetInitialMapPopulation()
 	--local DEBUG_PLOT_SCRIPT = "debug"
 
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_PLOT_SCRIPT, "Initializing Map Population...")
+	Dprint( DEBUG_PLOT_SCRIPT, "Initializing Map Population at turn "..tostring(GCO.GetTurnKey()))
 	
 	local iPlotCount = Map.GetPlotCount()
 	for i = 0, iPlotCount - 1 do
@@ -1963,24 +1963,28 @@ end
 function GetUpperClass(self)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
+	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].UpperClass or 0
 end
 
 function GetMiddleClass(self)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
+	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].MiddleClass or 0
 end
 
 function GetLowerClass(self)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
+	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].LowerClass or 0
 end
 
 function GetSlaveClass(self)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
+	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].Slaves or 0
 end
 
@@ -2015,24 +2019,28 @@ end
 function GetPreviousUpperClass(self)
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetPreviousTurnKey()
+	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].UpperClass or 0
 end
 
 function GetPreviousMiddleClass(self )
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetPreviousTurnKey()
+	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].MiddleClass or 0
 end
 
 function GetPreviousLowerClass(self)
 	local plotData 		= self:GetData()
 	local turnKey 		= GCO.GetPreviousTurnKey()
+	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].LowerClass or 0
 end
 
 function GetPreviousSlaveClass(self)
 	local plotData 		= self:GetData()
 	local turnKey 		= GCO.GetPreviousTurnKey()
+	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].Slaves or 0
 end
 
@@ -2534,6 +2542,7 @@ end
 function CleanPlotsData() -- called in GCO_GameScript.lua
 
 	-- remove old data from the table
+	--local DEBUG_PLOT_SCRIPT = "debug"
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "Cleaning PlotData...")	
 	
