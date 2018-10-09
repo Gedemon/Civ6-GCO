@@ -80,6 +80,7 @@
 			<File>UI/EspionageEscape.lua</File>
 			<File>UI/EspionageChooser.lua</File>
 			<File>UI/EspionageOverview.lua</File>
+			<File>UI/UnitPanel.lua</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
 			<File>GCO_FontIcons.dds</File>
@@ -222,6 +223,7 @@
 		<File>UI/EspionageEscape.lua</File>
 		<File>UI/EspionageChooser.lua</File>
 		<File>UI/EspionageOverview.lua</File>
+		<File>UI/UnitPanel.lua</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>GCO_FontIcons.dds</File>
 	</Files>

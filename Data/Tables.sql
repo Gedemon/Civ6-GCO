@@ -171,11 +171,8 @@ CREATE TABLE IF NOT EXISTS UnitsGCO (
 		MandatoryObsoleteTech TEXT,
 		MandatoryObsoleteCivic TEXT,
 		AdvisorType TEXT,
-		-- Composition in personnel, vehicles and horses of an unit at full health 
+		-- Composition in personnel of an unit at full health (for units that doesn't use military organization level)
 		Personnel,
-		Equipment,
-		EquipmentType TEXT,
-		Horses integer,
 		-- Materiel required  
 		Materiel integer, 			-- total value for unit at 100% health, representing general equipement, armement and munitions
 		-- Casualties modifier
@@ -233,7 +230,7 @@ CREATE TABLE IF NOT EXISTS UnitsShort (
 		IM BOOLEAN,				-- IgnoreMoves
 		TeamVisibility BOOLEAN,
 		Advisor TEXT,			-- AdvisorType, Without 'ADVISOR_'
-		-- Composition in personnel, vehicles and horses of an unit at full health 
+		-- Composition in personnel of an unit at full health (for units that doesn't use military organization level)
 		Personnel integer,
 		-- Casualties modifier
 		AntiPersonnel 	integer, 	-- 100 means all personnel casualties are dead, no wounded, no prisonners
@@ -341,19 +338,8 @@ CREATE TABLE IF NOT EXISTS UnitsGCO (
 --DROP TABLE Units;
 --ALTER TABLE temp_Units RENAME TO Units;
 		
--- Composition in personnel, vehicles and horses of an unit at full health 
+-- Composition in personnel of an unit at full health (for units that doesn't use military organization level)
 ALTER TABLE Units ADD COLUMN Personnel integer DEFAULT '0';
---ALTER TABLE Units ADD COLUMN Equipment integer DEFAULT '0';
---ALTER TABLE Units ADD COLUMN EquipmentType TEXT;
---ALTER TABLE Units ADD COLUMN Horses integer DEFAULT '0';
-
--- Materiel required  
---ALTER TABLE Units ADD COLUMN Materiel integer DEFAULT '0'; 				-- total value for unit at 100% health, representing general equipement, armement and munitions
---ALTER TABLE Units ADD COLUMN MaterielPerEquipment integer DEFAULT '0'; 	-- materiel required to replace a vehicle (reparing cost less)
-
--- Fuel usage for mechanized units
---ALTER TABLE Units ADD COLUMN FuelConsumptionPerVehicle real DEFAULT '0';
---ALTER TABLE Units ADD COLUMN FuelType TEXT; -- resource type used as fuel
 
 -- Casualties modifier
 ALTER TABLE Units ADD COLUMN AntiPersonnel 	integer; -- 

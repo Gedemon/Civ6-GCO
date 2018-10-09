@@ -64,15 +64,14 @@
 		<Row ResourceType="EQUIPMENT_BATTLESHIP" 		PrereqTech="TECH_ARMORED_WARFARE"	LogisticCost="7500.00"		MaxPriceVariationPercent="3" NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="100" 	Size="8000" />
 		<Row ResourceType="EQUIPMENT_AIRCRAFT_CARRIER" 	PrereqTech="TECH_COMBINED_ARMS"		LogisticCost="7500.00"		MaxPriceVariationPercent="3" NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="110" 	Size="8000" />
 		<Row ResourceType="EQUIPMENT_MISSILE_CRUISER" 	PrereqTech="TECH_LASERS"			LogisticCost="1500.00"		MaxPriceVariationPercent="3" NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="120" 	Size="4000" />
-
-	</Equipment>
+	</Equipment>	
 	<Equipment> <!-- "Vehicle" -->
 		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			LogisticCost="5.00"		Desirability="10" 	Size="20" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
 		<Row ResourceType="EQUIPMENT_WAR_HORSES"		PrereqTech="TECH_HORSEBACK_RIDING"	LogisticCost="10.00"	Desirability="20" 	Size="10" ObsoleteTech="TECH_COMPOSITES" />
 		<Row ResourceType="EQUIPMENT_ARMORED_HORSES"	PrereqTech="TECH_STIRRUPS"			LogisticCost="25.00"	Desirability="30" 	Size="10" VehicleArmor="50"	ObsoleteTech="TECH_RIFLING" />
 		<Row ResourceType="EQUIPMENT_TANKS"				PrereqTech="TECH_ARMORED_WARFARE"	LogisticCost="75.00"	Desirability="200" 	Size="40" AntiPersonnelArmor="100" 	 AntiVehicleArmor="100" IgnoreVehicleArmor="100" VehicleArmor="200"	/>
 		<Row ResourceType="EQUIPMENT_MODERN_ARMORS"		PrereqTech="TECH_COMPOSITES"		LogisticCost="100.00"	Desirability="250" 	Size="40" AntiPersonnelArmor="200" 	 AntiVehicleArmor="400" IgnoreVehicleArmor="600" VehicleArmor="500"	/>
-	</Equipment>
+	</Equipment>	
 	<Equipment> <!-- Siege Weapons -->
 		<Row ResourceType="EQUIPMENT_CATAPULTS"			PrereqTech="TECH_IRON_WORKING"		LogisticCost="5.00"		Desirability="10" 	AntiPersonnelArmor="10" 	Size="10" ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
 		<Row ResourceType="EQUIPMENT_TREBUCHETS"		PrereqTech="TECH_MACHINERY"			LogisticCost="7.50"		Desirability="20" 	AntiPersonnelArmor="20" 	Size="10" ObsoleteTech="TECH_BALLISTICS"	/>
@@ -81,6 +80,14 @@
 		<Row ResourceType="EQUIPMENT_HOWITZER"			PrereqTech="TECH_STEEL"				LogisticCost="50.00"	Desirability="50" 	AntiPersonnelArmor="100" 	AntiVehicleArmor="50" 	Size="10" />
 		<Row ResourceType="EQUIPMENT_ROCKET_ARTILLERY"	PrereqTech="TECH_GUIDANCE_SYSTEMS"	LogisticCost="100.00"	Desirability="60" 	AntiPersonnelArmor="200" 	AntiVehicleArmor="100" 	Size="40" />
 	</Equipment>
+	<Equipment> <!-- Aircraft -->
+		<Row ResourceType="EQUIPMENT_BIPLANE" 			PrereqTech="TECH_FLIGHT"			LogisticCost="50.00"	MaxPriceVariationPercent="5" SpecialStock="1" NotLoot="1"	Desirability="10" 	Size="25" ObsoleteTech="TECH_ROCKETRY"	/>
+		<Row ResourceType="EQUIPMENT_FIGHTER" 			PrereqTech="TECH_ADVANCED_FLIGHT"	LogisticCost="250.00"	MaxPriceVariationPercent="4" SpecialStock="1" NotLoot="1"	Desirability="20" 	Size="25" ObsoleteTech="TECH_NUCLEAR_FUSION"	/>
+		<Row ResourceType="EQUIPMENT_JET_FIGHTER" 		PrereqTech="TECH_LASERS"			LogisticCost="1000.00"	MaxPriceVariationPercent="3" SpecialStock="1" NotLoot="1"	Desirability="30" 	Size="25" />
+		<Row ResourceType="EQUIPMENT_BOMBER" 			PrereqTech="TECH_ADVANCED_FLIGHT"	LogisticCost="500.00"	MaxPriceVariationPercent="4" SpecialStock="1" NotLoot="1"	Desirability="10" 	Size="25" ObsoleteTech="TECH_NUCLEAR_FUSION"	/>
+		<Row ResourceType="EQUIPMENT_JET_BOMBER" 		PrereqTech="TECH_STEALTH_TECHNOLOGY"LogisticCost="5000.00"	MaxPriceVariationPercent="3" SpecialStock="1" NotLoot="1"	Desirability="20" 	Size="25" />
+	</Equipment>
+
 	<Equipment> <!-- Extra -->
 		<Row ResourceType="EQUIPMENT_UNIFORM"			PrereqTech="TECH_RIFLING"			LogisticCost="0.05"		Desirability="75" 	NoExport="1" SpecialStock="1" NotLoot="1"	/>
 	</Equipment>
@@ -145,6 +152,12 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HELMET"				/>
+		
+		<Row EquipmentClass="EQUIPMENTCLASS_BIPLANE" 			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_FIGHTER" 			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_JET_FIGHTER" 		/>
+		<Row EquipmentClass="EQUIPMENTCLASS_BOMBER" 			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_JET_BOMBER" 		/>
 	</EquipmentClasses>
 	<EquipmentClasses> <!-- Specific to promotion Class -->
 		<Row EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
@@ -161,6 +174,8 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_RANGED_SHIPS"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SUBMARINES"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_AIRCRAFT_CARRIERS"	/>
+		<Row EquipmentClass="EQUIPMENTCLASS_AIR_FIGHTERS"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_AIR_BOMBERS"			/>
 	</EquipmentClasses>
 	
 	<EquipmentTypeClasses> <!-- Specific to Unit types -->
@@ -236,6 +251,12 @@
 		<Row ResourceType="EQUIPMENT_BATTLESHIP" 		EquipmentClass="EQUIPMENTCLASS_BATTLESHIP" 			/>
 		<Row ResourceType="EQUIPMENT_AIRCRAFT_CARRIER" 	EquipmentClass="EQUIPMENTCLASS_AIRCRAFT_CARRIER" 	/>
 		<Row ResourceType="EQUIPMENT_MISSILE_CRUISER" 	EquipmentClass="EQUIPMENTCLASS_MISSILE_CRUISER" 	/>
+		
+		<Row ResourceType="EQUIPMENT_BIPLANE" 			EquipmentClass="EQUIPMENTCLASS_BIPLANE" 			/>
+		<Row ResourceType="EQUIPMENT_FIGHTER" 			EquipmentClass="EQUIPMENTCLASS_FIGHTER" 		/>
+		<Row ResourceType="EQUIPMENT_JET_FIGHTER" 		EquipmentClass="EQUIPMENTCLASS_JET_FIGHTER" 		/>
+		<Row ResourceType="EQUIPMENT_BOMBER" 			EquipmentClass="EQUIPMENTCLASS_BOMBER" 			/>
+		<Row ResourceType="EQUIPMENT_JET_BOMBER" 		EquipmentClass="EQUIPMENTCLASS_JET_BOMBER" 		/>
 	</EquipmentTypeClasses>	
 	
 	<EquipmentTypeClasses> <!-- Specific to promotion Class -->
@@ -324,6 +345,11 @@
 		
 		<Row ResourceType="EQUIPMENT_AIRCRAFT_CARRIER" 	EquipmentClass="EQUIPMENTCLASS_AIRCRAFT_CARRIERS" 	/>
 		
+		<Row ResourceType="EQUIPMENT_BIPLANE" 			EquipmentClass="EQUIPMENTCLASS_AIR_FIGHTERS" 		/>
+		<Row ResourceType="EQUIPMENT_FIGHTER" 			EquipmentClass="EQUIPMENTCLASS_AIR_FIGHTERS" 		/>
+		<Row ResourceType="EQUIPMENT_JET_FIGHTER" 		EquipmentClass="EQUIPMENTCLASS_AIR_FIGHTERS" 		/>
+		<Row ResourceType="EQUIPMENT_BOMBER" 			EquipmentClass="EQUIPMENTCLASS_AIR_BOMBERS" 		/>
+		<Row ResourceType="EQUIPMENT_JET_BOMBER" 		EquipmentClass="EQUIPMENTCLASS_AIR_BOMBERS" 		/>
 	</EquipmentTypeClasses>
 	
 	<EquipmentEffects> <!-- Not coded yet -->
@@ -485,7 +511,7 @@
 		<Row UnitType="UNIT_SUBMARINE" 				EquipmentClass="EQUIPMENTCLASS_SUBMARINE" 			PercentageOfPersonnel="2" />
 		
 		<Row UnitType="UNIT_NUCLEAR_SUBMARINE"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="300" />
-		<Row UnitType="UNIT_NUCLEAR_SUBMARINE"		EquipmentClass="EQUIPMENTCLASS_NUCLEAR_SUBMARINE"	PercentageOfPersonnel="0.75" />
+		<Row UnitType="UNIT_NUCLEAR_SUBMARINE"		EquipmentClass="EQUIPMENTCLASS_NUCLEAR_SUBMARINE"	PercentageOfPersonnel="0.5" />
 		
 		<Row UnitType="UNIT_BATTLESHIP" 			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="350" />
 		<Row UnitType="UNIT_BATTLESHIP" 			EquipmentClass="EQUIPMENTCLASS_BATTLESHIP" 			PercentageOfPersonnel="0.05" />
@@ -516,6 +542,23 @@
 		<Row UnitType="UNIT_ROCKET_ARTILLERY" 		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			PercentageOfPersonnel="400" />
 		<Row UnitType="UNIT_ROCKET_ARTILLERY" 		EquipmentClass="EQUIPMENTCLASS_ROCKET_ARTILLERY"	PercentageOfPersonnel="20" />
 		
+	</UnitEquipmentClasses>
+	<UnitEquipmentClasses> <!-- Equipment Classes used by an Unit Type (Air) -->
+		<Row UnitType="UNIT_BIPLANE"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="200" />
+		<Row UnitType="UNIT_BIPLANE"			EquipmentClass="EQUIPMENTCLASS_BIPLANE"			/>
+		
+		<Row UnitType="UNIT_FIGHTER"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="300" />
+		<Row UnitType="UNIT_FIGHTER"			EquipmentClass="EQUIPMENTCLASS_FIGHTER"	/>
+		
+		<Row UnitType="UNIT_JET_FIGHTER"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="500" />
+		<Row UnitType="UNIT_JET_FIGHTER"		EquipmentClass="EQUIPMENTCLASS_JET_FIGHTER"	/>
+		
+		<Row UnitType="UNIT_BOMBER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="500" />
+		<Row UnitType="UNIT_BOMBER"				EquipmentClass="EQUIPMENTCLASS_BOMBER"			PercentageOfPersonnel="25" 	/>
+		
+		<Row UnitType="UNIT_JET_BOMBER"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="1000" />
+		<Row UnitType="UNIT_JET_BOMBER"			EquipmentClass="EQUIPMENTCLASS_JET_BOMBER"		PercentageOfPersonnel="25" 	/>
+	
 	</UnitEquipmentClasses>
 	
 	<UnitConstructionResources>
@@ -566,6 +609,12 @@
 		
 		<Row PromotionClassType="PROMOTION_CLASS_NAVAL_CARRIER"	EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
 		<Row PromotionClassType="PROMOTION_CLASS_NAVAL_CARRIER"	EquipmentClass="EQUIPMENTCLASS_AIRCRAFT_CARRIERS" 	/>
+		
+		<Row PromotionClassType="PROMOTION_CLASS_AIR_BOMBER"	EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
+		<Row PromotionClassType="PROMOTION_CLASS_AIR_BOMBER"	EquipmentClass="EQUIPMENTCLASS_AIR_BOMBERS" 	/>
+		
+		<Row PromotionClassType="PROMOTION_CLASS_AIR_FIGHTER"	EquipmentClass="EQUIPMENTCLASS_MATERIEL" 			/>
+		<Row PromotionClassType="PROMOTION_CLASS_AIR_FIGHTER"	EquipmentClass="EQUIPMENTCLASS_AIR_FIGHTERS" 	/>
 	</PromotionClassEquipmentClasses>
 	
 </GameInfo>

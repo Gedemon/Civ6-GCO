@@ -19,11 +19,17 @@
 		<Row ResourceType="RESOURCE_STEEL_HULL_PART" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_ELECTRICAL_DEVICES" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	PrereqTech="TECH_ELECTRICITY"/>
 		<Row ResourceType="RESOURCE_ELECTRONIC_COMPONENTS" 		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	PrereqTech="TECH_COMPUTERS"/>
-		<Row ResourceType="RESOURCE_LARGE_STEEL_HULL"			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	PrereqTech="TECH_ARMORED_WARFARE" NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_LARGE_STEEL_HULL"			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_ELECTRONIC_SYSTEM" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
-		<Row ResourceType="RESOURCE_AVIONIC" 					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_ADVANCED_ELECTRONIC_SYSTEM" ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
-		<Row ResourceType="RESOURCE_ADVANCED_AVIONIC" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" NoTransfer="1"	SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_WOODEN_FUSELAGE"			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_LARGE_WOODEN_FUSELAGE"		ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_ALUMINUM_FUSELAGE"			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_LARGE_ALUMINUM_FUSELAGE"	ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_PROPELLER_ENGINE"			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_JET_ENGINE"					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_AVIONIC" 					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
+		<Row ResourceType="RESOURCE_ADVANCED_AVIONIC" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
 		
 	</ResourcesGCO>
 

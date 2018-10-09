@@ -72,6 +72,13 @@
 		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	Cost="740" 	MaterielPerProduction="6" />
 		
 		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" 			Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ARMORED_WARFARE"	PrereqDistrict="DISTRICT_HARBOR" />
+		
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_FLIGHT"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ADVANCED_FLIGHT"		PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
+		<Row BuildingType="BUILDING_PROPELLER_ENGINE_FACTORY" 	Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_FLIGHT"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
+		<Row BuildingType="BUILDING_JET_ENGINE_FACTORY" 		Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ROCKETRY"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>		
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE" 	Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ADVANCED_FLIGHT"		PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
+		
 	<!---->
 	</BuildingsGCO>
 
@@ -162,6 +169,14 @@
 		<Row Building="BUILDING_ATOMIC_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_UPPER_HOUSING_1" 	/>
 		
 		<Row Building="BUILDING_LARGE_DRY_DOCK" 			PrereqBuilding="BUILDING_SEAPORT" 	/>
+		
+		<Row Building="BUILDING_SMALL_AIRCRAFT_FACTORY" 	PrereqBuilding="BUILDING_FACTORY" 	/>
+		<Row Building="BUILDING_LARGE_AIRCRAFT_FACTORY" 	PrereqBuilding="BUILDING_FACTORY" 	/>
+		<Row Building="BUILDING_PROPELLER_ENGINE_FACTORY" 	PrereqBuilding="BUILDING_FACTORY" 	/>
+		<Row Building="BUILDING_JET_ENGINE_FACTORY" 		PrereqBuilding="BUILDING_FACTORY" 	/>
+		<Row Building="BUILDING_AIRCRAFT_ASSEMBLY_LINE" 	PrereqBuilding="BUILDING_FACTORY" 	/>		
+		
+		
 	<!---->
 	</BuildingPrereqs>
 	
@@ -309,6 +324,26 @@
 		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_LARGE_STEEL_HULL"			MaxConverted="4" 	ResourceCreated="EQUIPMENT_MISSILE_CRUISER" Ratio="0.125" 	MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_ADVANCED_ELECTRONIC_SYSTEM"	MaxConverted="12" 	ResourceCreated="EQUIPMENT_MISSILE_CRUISER" Ratio="0.085" 	MultiResRequired="1"  />
 		
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_WOOD_PLANKS"				MaxConverted="10" 	ResourceCreated="RESOURCE_WOODEN_FUSELAGE" 		Ratio="0.025"  	/>
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ALUMINUM"				MaxConverted="50" 	ResourceCreated="RESOURCE_ALUMINUM_FUSELAGE" 	Ratio="0.01"  	/>
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_AVIONIC" 				Ratio="0.125" 	/>
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_ADVANCED_AVIONIC" 	Ratio="0.125" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRONIC_COMPONENTS"	MaxConverted="8" 	ResourceCreated="RESOURCE_ADVANCED_AVIONIC" 	Ratio="0.125" 	MultiResRequired="1"  />
+		
+		<!--
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_WOOD_PLANKS"				MaxConverted="18" 	ResourceCreated="RESOURCE_LARGE_WOODEN_FUSELAGE" 	Ratio="0.015"  	/>
+		-->
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ALUMINUM"				MaxConverted="100" 	ResourceCreated="RESOURCE_LARGE_ALUMINUM_FUSELAGE" 	Ratio="0.005"  	/>
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_AVIONIC" 					Ratio="0.125" 	/>
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_ADVANCED_AVIONIC" 		Ratio="0.125" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRONIC_COMPONENTS"	MaxConverted="8" 	ResourceCreated="RESOURCE_ADVANCED_AVIONIC" 		Ratio="0.125" 	MultiResRequired="1"  />
+		
+		<Row BuildingType="BUILDING_PROPELLER_ENGINE_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_PROPELLER_ENGINE" Ratio="0.125" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_PROPELLER_ENGINE_FACTORY" 	ResourceType="RESOURCE_STEEL"					MaxConverted="8" 	ResourceCreated="RESOURCE_PROPELLER_ENGINE" Ratio="0.125" 	MultiResRequired="1"  />
+		
+		<Row BuildingType="BUILDING_JET_ENGINE_FACTORY" 		ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_JET_ENGINE" Ratio="0.125" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_JET_ENGINE_FACTORY" 		ResourceType="RESOURCE_ELECTRONIC_COMPONENTS"	MaxConverted="8" 	ResourceCreated="RESOURCE_JET_ENGINE" Ratio="0.125" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_JET_ENGINE_FACTORY" 		ResourceType="RESOURCE_ALUMINUM"				MaxConverted="8" 	ResourceCreated="RESOURCE_JET_ENGINE" Ratio="0.125" 	MultiResRequired="1"  />
 	<!---->
 		
 		<Row BuildingType="BUILDING_MARKET" 		ResourceType="RESOURCE_RICE" 		MaxConverted="40" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.85"/>
@@ -351,7 +386,27 @@
 		
 		<Row BuildingType="BUILDING_FACTORY" 			ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRICAL_DEVICES" 	Ratio="0.05"	/>
 		
-		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRONIC_COMPONENTS"Ratio="0.025"/>
+		<Row BuildingType="BUILDING_FACTORY"			ResourceType="RESOURCE_WOODEN_FUSELAGE"			MaxConverted="2"	ResourceCreated="EQUIPMENT_BIPLANE" 		Ratio="1.0"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_FACTORY"			ResourceType="RESOURCE_PROPELLER_ENGINE"		MaxConverted="2"	ResourceCreated="EQUIPMENT_BIPLANE" 		Ratio="1.0"		MultiResRequired="1"/>
+		
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_ALUMINUM_FUSELAGE"		MaxConverted="2"	ResourceCreated="EQUIPMENT_FIGHTER" 		Ratio="1.0"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_PROPELLER_ENGINE"		MaxConverted="2"	ResourceCreated="EQUIPMENT_FIGHTER" 		Ratio="1.0"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_AVIONIC"					MaxConverted="2"	ResourceCreated="EQUIPMENT_FIGHTER" 		Ratio="1.0"		MultiResRequired="1"/>
+		
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_ALUMINUM_FUSELAGE"		MaxConverted="2"	ResourceCreated="EQUIPMENT_JET_FIGHTER" 	Ratio="1.0"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_JET_ENGINE"				MaxConverted="2"	ResourceCreated="EQUIPMENT_JET_FIGHTER" 	Ratio="1.0"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_ADVANCED_AVIONIC"		MaxConverted="2"	ResourceCreated="EQUIPMENT_JET_FIGHTER" 	Ratio="1.0"		MultiResRequired="1"/>
+		
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_LARGE_ALUMINUM_FUSELAGE"	MaxConverted="2"	ResourceCreated="EQUIPMENT_BOMBER" 			Ratio="1.0"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_PROPELLER_ENGINE"		MaxConverted="2"	ResourceCreated="EQUIPMENT_BOMBER" 			Ratio="0.25"	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_AVIONIC"					MaxConverted="2"	ResourceCreated="EQUIPMENT_BOMBER" 			Ratio="1.0"		MultiResRequired="1"/>
+		
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_LARGE_ALUMINUM_FUSELAGE"	MaxConverted="2"	ResourceCreated="EQUIPMENT_JET_BOMBER" 		Ratio="1.0"		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_JET_ENGINE"				MaxConverted="2"	ResourceCreated="EQUIPMENT_JET_BOMBER" 		Ratio="0.25"	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_ADVANCED_AVIONIC"		MaxConverted="2"	ResourceCreated="EQUIPMENT_JET_BOMBER" 		Ratio="1.0"		MultiResRequired="1"/>
+		
+		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRONIC_COMPONENTS"Ratio="0.025"	/>
+		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRICAL_DEVICES" 	Ratio="0.05"	/>
 		
 	</BuildingResourcesConverted>
 
@@ -443,13 +498,35 @@
 		<Row BuildingType="BUILDING_SHIPYARD"		ResourceType="RESOURCE_WOOD_PLANKS" 	Stock="60"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_PRIVATEER"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_FRIGATE"		Stock="4"	FixedValue="1"/>
-		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="50"/>
+		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="50"/>		
 		
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_STEEL_HULL_PART"	Stock="20"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="EQUIPMENT_IRONCLAD"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="EQUIPMENT_SUBMARINE"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="EQUIPMENT_DESTROYER"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="500"/>
+		
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_LARGE_STEEL_HULL"	Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_BATTLESHIP"			Stock="1"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_AIRCRAFT_CARRIER"	Stock="1"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_NUCLEAR_SUBMARINE"	Stock="1"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_MISSILE_CRUISER"	Stock="1"	FixedValue="1"/>
+		
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_WOODEN_FUSELAGE" 	Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ALUMINUM_FUSELAGE" 	Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_AVIONIC" 			Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ADVANCED_AVIONIC" 	Stock="20"	FixedValue="1"/>
+		
+		<!--
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_LARGE_WOODEN_FUSELAGE" 	Stock="20"	FixedValue="1"/>
+		-->
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_LARGE_ALUMINUM_FUSELAGE" Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_AVIONIC" 				Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ADVANCED_AVIONIC" 		Stock="20"	FixedValue="1"/>
+		
+		<Row BuildingType="BUILDING_PROPELLER_ENGINE_FACTORY" 	ResourceType="RESOURCE_PROPELLER_ENGINE" 	Stock="50"	FixedValue="1"/>
+		
+		<Row BuildingType="BUILDING_JET_ENGINE_FACTORY" 		ResourceType="RESOURCE_JET_ENGINE" 			Stock="50"	FixedValue="1"/>	
 		
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_IRON" 			Stock="60"/>
 		<Row BuildingType="BUILDING_BLACKSMITH"		ResourceType="RESOURCE_COPPER" 			Stock="60"/>
@@ -466,6 +543,28 @@
 		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_COAL" 			Stock="250"/>
 		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_MATERIEL" 		Stock="250"/>
 		
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="EQUIPMENT_BIPLANE" 				Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_WOODEN_FUSELAGE" 		Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_PROPELLER_ENGINE" 		Stock="20"	FixedValue="1"/>
+		<!--
+		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_LARGE_WOODEN_FUSELAGE" 	Stock="25"	FixedValue="1"/>
+		-->
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="RESOURCE_AVIONIC" 				Stock="50"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="RESOURCE_ADVANCED_AVIONIC" 		Stock="50"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="RESOURCE_ALUMINUM_FUSELAGE" 		Stock="50"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="RESOURCE_LARGE_ALUMINUM_FUSELAGE" Stock="25"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="RESOURCE_PROPELLER_ENGINE" 		Stock="100"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="RESOURCE_JET_ENGINE" 				Stock="100"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="EQUIPMENT_FIGHTER" 				Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="EQUIPMENT_JET_FIGHTER" 			Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="EQUIPMENT_BOMBER" 				Stock="10"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"		ResourceType="EQUIPMENT_JET_BOMBER" 			Stock="10"	FixedValue="1"/>
+		
+		<Row BuildingType="BUILDING_HANGAR"			ResourceType="EQUIPMENT_BIPLANE" 			Stock="50"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_HANGAR"			ResourceType="EQUIPMENT_FIGHTER" 			Stock="50"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_HANGAR"			ResourceType="EQUIPMENT_JET_FIGHTER" 		Stock="50"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_HANGAR"			ResourceType="EQUIPMENT_BOMBER" 			Stock="30"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_HANGAR"			ResourceType="EQUIPMENT_JET_BOMBER" 		Stock="30"	FixedValue="1"/>
 	<!---->
 	</BuildingStock>
 	

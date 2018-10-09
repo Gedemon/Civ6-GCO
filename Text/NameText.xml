@@ -61,6 +61,13 @@
 		<Replace Tag="LOC_BUILDING_ATOMIC_LOWER_HOUSING_2_NAME" 	Text="Cheap Housing"		Language="en_US" />
 		
 		<Replace Tag="LOC_BUILDING_LARGE_DRY_DOCK_NAME" 			Text="Large Dry Dock"		Language="en_US" />
+		
+		<Replace Tag="LOC_BUILDING_SMALL_AIRCRAFT_FACTORY_NAME" 	Text="Small Aircraft Factory"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_LARGE_AIRCRAFT_FACTORY_NAME" 	Text="Large Aircraft Factory"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_PROPELLER_ENGINE_FACTORY_NAME" 	Text="Propeller Engine Factory"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_JET_ENGINE_FACTORY_NAME" 		Text="Jet Engine Factory"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_AIRCRAFT_ASSEMBLY_LINE_NAME" 	Text="Aircraft Assembly Line"	Language="en_US" />
+		
 	
 	</LocalizedText>
 	
@@ -147,6 +154,12 @@
 		<Replace Tag="LOC_EQUIPMENT_AIRCRAFT_CARRIER_NAME" 			Text="Aircraft Carrier"		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_MISSILE_CRUISER_NAME" 			Text="Missile Cruiser"		Language="en_US" /> 
 		
+		<Replace Tag="LOC_EQUIPMENT_BIPLANE_NAME" 					Text="Biplane"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_FIGHTER_NAME" 					Text="Fighter"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_JET_FIGHTER_NAME" 				Text="Jet Fighter"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_BOMBER_NAME" 					Text="Bomber"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENT_JET_BOMBER_NAME" 				Text="Jet Bomber"			Language="en_US" /> 
+		
 		<Replace Tag="LOC_EQUIPMENTCLASS_MATERIEL_NAME" 			Text="Materiel" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BLUNT_WEAPONS_NAME" 		Text="Blunt Weapons" 		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SLINGS_NAME" 				Text="Slings"				Language="en_US" />
@@ -188,6 +201,12 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_AIRCRAFT_CARRIER_NAME" 	Text="Aircraft Carrier"		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENTCLASS_MISSILE_CRUISER_NAME" 		Text="Missile Cruiser"		Language="en_US" /> 
 		
+		<Replace Tag="LOC_EQUIPMENTCLASS_BIPLANE_NAME" 				Text="Biplane"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_FIGHTER_NAME" 				Text="Fighter"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_JET_FIGHTER_NAME" 			Text="Jet Fighter"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_BOMBER_NAME" 				Text="Bomber"				Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_JET_BOMBER_NAME" 			Text="Jet Bomber"			Language="en_US" /> 
+		
 		<Replace Tag="LOC_EQUIPMENTCLASS_CATAPULTS_NAME"			Text="Catapults" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_TREBUCHETS_NAME"			Text="Trebuchets" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BOMBARDS_NAME"				Text="Bombards" 			Language="en_US" /> 
@@ -204,6 +223,9 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_SKIRMISHER_ARMOR_NAME" 	Text="Skirmisher Armor"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SIEGE_WEAPONS_NAME" 		Text="Siege Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_SHIPS_NAME" 			Text="Melee Ships"			Language="en_US" />
+		
+		<Replace Tag="LOC_EQUIPMENTCLASS_AIR_BOMBERS_NAME" 			Text="Air Bombers"			Language="en_US" /> 
+		<Replace Tag="LOC_EQUIPMENTCLASS_AIR_FIGHTERS_NAME" 		Text="Air Fighters"			Language="en_US" />
 		
 	
 	</LocalizedText>
@@ -228,6 +250,13 @@
 		<Replace Tag="LOC_RESOURCE_ADVANCED_ELECTRONIC_SYSTEM_NAME" 	Text="Advanced Electronic Systems"	Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_AVIONIC_NAME" 						Text="Avionics"						Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_ADVANCED_AVIONIC_NAME" 				Text="Advanced Avionics"			Language="en_US" /> 
+		
+		<Replace Tag="LOC_RESOURCE_WOODEN_FUSELAGE_NAME" 				Text="Wooden Fuselage"				Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_LARGE_WOODEN_FUSELAGE_NAME" 			Text="Large Wooden Fuselage"		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_ALUMINUM_FUSELAGE_NAME" 				Text="Aluminum Fuselage"			Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_LARGE_ALUMINUM_FUSELAGE_NAME" 		Text="Large Aluminum Fuselage"		Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_PROPELLER_ENGINE_NAME" 				Text="Propeller Engine"				Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_JET_ENGINE_NAME" 					Text="Jet Engine"					Language="en_US" /> 		
 		
 	</LocalizedText>
 

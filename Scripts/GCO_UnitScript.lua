@@ -3004,6 +3004,128 @@ function GetMilitaryFormationTypeName(self)
 	if formationType then return GameInfo.MilitaryFormations[formationType].Name or "" end
 end
 
+function GetUnitCompositionToolTip(self)
+
+	local unitData 		= self:GetData()
+	local unitType 		= self:GetUnitType()
+	local unitInfo 		= GameInfo.Units[unitType]
+	local nameString 	= ""
+	local player 		= Players[self:GetOwner()]
+	if unitData then
+	
+		local frontlineStrTitle = Locale.Lookup("LOC_UNITFLAG_ANCIENT_FRONTLINE_TITLE")
+		local reserveStrTitle 	= Locale.Lookup("LOC_UNITFLAG_ANCIENT_RESERVE_TITLE")
+		local rearStrTitle 		= Locale.Lookup("LOC_UNITFLAG_ANCIENT_REAR_TITLE")
+		local era 				= player:GetEra()
+		if era >= GameInfo.Eras["ERA_INDUSTRIAL"].Index then
+			frontlineStrTitle 	= Locale.Lookup("LOC_UNITFLAG_FRONTLINE_TITLE")
+			reserveStrTitle 	= Locale.Lookup("LOC_UNITFLAG_RESERVE_TITLE")
+			rearStrTitle 		= Locale.Lookup("LOC_UNITFLAG_REAR_TITLE")			
+		end
+	
+		-- Condition
+		nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE")
+		nameString = nameString .. "[NEWLINE]" .. self:GetMoraleString()
+		nameString = nameString .. "[NEWLINE][ICON_AntiPersonnel]" .. GCO.Round(self:GetPropertyPercent("AntiPersonnel")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_PersonnelArmor]" .. GCO.Round(self:GetPropertyPercent("PersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_AntiArmor]" .. GCO.Round(self:GetPropertyPercent("AntiPersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_IgnorArmor]" .. GCO.Round(self:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
+		if self:GetLogisticCost() > 0 then
+			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_LOGISTIC_COST", self:GetLogisticCost())
+		end
+		
+		--local bHasComponents = (unitInfo.Personnel + unitInfo.Equipment + unitInfo.Horses + unitInfo.Materiel > 0)
+		local personnel = self:GetComponent("Personnel")
+		local bHasComponents = personnel > 0
+		if bHasComponents then
+			
+			-- "Frontline"
+			nameString = nameString .. "[NEWLINE]" .. frontlineStrTitle
+			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL", personnel, self:GetMaxFrontLinePersonnel()) .. GCO.GetVariationString(self:GetComponentVariation("Personnel"))
+			nameString = nameString .. self:GetFrontLineEquipmentString()
+
+			local bestUnitType, percentageStr = self:GetTypesFromEquipmentList()
+			if bestUnitType and (bestUnitType ~= unitType) then 
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PENDING_TYPE_CHANGE", GameInfo.Units[bestUnitType].Name) -- Locale.Lookup(GameInfo.Units[bestUnitType].Name))
+			end
+			if percentageStr then
+				nameString = nameString .. "[NEWLINE]" .. percentageStr
+			end
+			
+			-- "Reserve" (show even when = 0 if it's a component required in front line)
+			local reserveStr = ""
+			nameString = nameString .. "[NEWLINE]" .. reserveStrTitle
+			if self:GetComponent("PersonnelReserve") 	> 0 then reserveStr = reserveStr .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL_RESERVE", self:GetComponent("PersonnelReserve")) .. GCO.GetVariationString(self:GetComponentVariation("PersonnelReserve")) end
+			reserveStr = reserveStr .. self:GetReserveEquipmentString()
+			--if unitInfo.Horses 		> 0 or unitData.HorsesReserve > 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_HORSES_RESERVE", unitData.HorsesReserve) .. GCO.GetVariationString(self:GetComponentVariation("HorsesReserve")) end
+			--if unitInfo.Materiel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MATERIEL_RESERVE", unitData.MaterielReserve) .. GCO.GetVariationString(self:GetComponentVariation("MaterielReserve")) end
+			if reserveStr ~= "" then
+				nameString = nameString .. reserveStr
+			else
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_EMPTY_RESERVE")
+			end
+		end
+		
+		-- "Rear"
+		local totalPrisoners = GCO.GetTotalPrisoners(unitData)
+		--local bHasExtra = (unitData.WoundedPersonnel + unitData.DamagedEquipment + totalPrisoners + unitData.FoodStock + unitData.FoodStock > 0)
+		local bHasExtra = (unitData.WoundedPersonnel + totalPrisoners + unitData.FoodStock + unitData.FoodStock > 0)
+		if bHasExtra then
+			nameString = nameString .. "[NEWLINE]" .. rearStrTitle
+			if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) .. GCO.GetNeutralVariationString(self:GetComponentVariation("WoundedPersonnel")) end
+			--if unitData.DamagedEquipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_EQUIPMENT", unitData.DamagedEquipment)  .. GCO.GetNeutralVariationString(self:GetComponentVariation("DamagedEquipment"))end
+			if totalPrisoners	 			> 0 then nameString = nameString .. GCO.GetPrisonersStringByCiv(unitData) end	-- "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONERS", totalPrisoners) .. GCO.GetPrisonersStringByCiv(unitData) end
+			if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. self:GetFoodStockString() end
+			if unitData.MedicineStock 		> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MEDICINE_STOCK", unitData.MedicineStock)  .. GCO.GetVariationString(self:GetComponentVariation("MedicineStock"))end
+			if unitData.FuelStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. self:GetFuelStockString(unitData) end
+			nameString = nameString .. self:GetResourcesStockString()
+		end
+			
+		-- Statistics
+		--local bHasStatistics = (unitData.TotalDeath + unitData.TotalEquipmentLost + unitData.TotalHorsesLost > 0)
+		local bHasStatistics = (unitData.TotalDeath + unitData.TotalHorsesLost > 0)				
+		if bHasStatistics then
+		
+			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_STATS_TITLE")					
+			if unitData.TotalDeath 			> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_DEATH", unitData.TotalDeath) end
+			if unitData.TotalKill 			> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_KILL", unitData.TotalKill) end
+			--if unitData.TotalEquipmentLost 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_EQUIPMENT_LOST", unitData.TotalEquipmentLost) end
+			if unitData.TotalHorsesLost 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_HORSES_LOST", unitData.TotalHorsesLost) end
+			
+		end
+			
+		-- Unit Consumption
+		local foodConsumption = self:GetFoodConsumption()
+		local fuelConsumption = self:GetFuelConsumption()
+		local bHasConsumption = ( foodConsumption + fuelConsumption > 0)				
+		if bHasConsumption then
+		
+			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_CONSUMPTION_TITLE")
+			if foodConsumption 				> 0 then nameString = nameString .. self:GetFoodConsumptionString() end
+			if fuelConsumption 				> 0 then nameString = nameString .. self:GetFuelConsumptionString() end
+			
+		end	
+
+		-- Supply Line
+		--if bHasComponents then
+		
+			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TITLE")
+			if unitData.SupplyLineCityKey then
+				local city = GCO.GetCityFromKey( unitData.SupplyLineCityKey )
+				if city then
+					if unitData.SupplyLineEfficiency > 0 then
+						nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", city:GetName(), unitData.SupplyLineEfficiency)
+					else
+						nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR", city:GetName())
+					end
+				end
+			else
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_NO_SUPPLY_LINE")
+			end
+			
+		--end
+	end
+	return nameString
+end
+
+
 -- Floating text
 function ShowCasualtiesFloatingText(CombatData) -- need complete rework with equipment
 	--if true then return end
@@ -5658,6 +5780,7 @@ function AttachUnitFunctions(unit)
 		u.GetResourcesStockString				= GetResourcesStockString
 		u.GetMilitaryFormationSizeString		= GetMilitaryFormationSizeString
 		u.GetMilitaryFormationTypeName			= GetMilitaryFormationTypeName
+		u.GetUnitCompositionToolTip				= GetUnitCompositionToolTip
 		--
 		u.SetName								= SetName
 		
@@ -5708,7 +5831,7 @@ Initialize()
 function UnitsUpdateFromDB()
 	for unitKey, unitData in pairs(ExposedMembers.UnitData) do
 		print( GCO.Separator)
-		local typesToFix = {"UNIT_FIELD_CANNON"}
+		local typesToFix = {"UNIT_BIPLANE"}
 		local unit = GetUnitFromKey ( unitKey )
 		if unit then
 			for i, unitType in ipairs(typesToFix) do

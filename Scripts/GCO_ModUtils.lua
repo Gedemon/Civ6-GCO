@@ -68,16 +68,31 @@ end
 
 
 local ResourceTempIcons = {		-- Table to store temporary icons for resources until new FontIcons could be added...
-		[GameInfo.Resources["RESOURCE_MATERIEL"].Index] 			= "[ICON_RESOURCE_MATERIEL]",
-		--[GameInfo.Resources["RESOURCE_STEEL"].Index] 				= "[ICON_New]",
-		[GameInfo.Resources["RESOURCE_MEDICINE"].Index] 			= "[ICON_Damaged]",
-		[GameInfo.Resources["RESOURCE_FOOD"].Index] 				= "[ICON_Food]",
-		[GameInfo.Resources["RESOURCE_PERSONNEL"].Index]			= "[ICON_Position]",
-		[GameInfo.Resources["RESOURCE_WOODEN_HULL_PART"].Index]		= "[ICON_RESOURCE_WOODEN_HULL_PART]",
-		[GameInfo.Resources["RESOURCE_WOOD_PLANKS"].Index]			= "[ICON_RESOURCE_WOOD_PLANKS]",		
-		[GameInfo.Resources["RESOURCE_STEEL_HULL_PART"].Index]		= "[ICON_New]",
-		[GameInfo.Resources["RESOURCE_ELECTRICAL_DEVICES"].Index]	= "[ICON_RESOURCE_ELECTRICAL_DEVICES]",
-		[GameInfo.Resources["RESOURCE_ELECTRONIC_COMPONENTS"].Index]= "[ICON_New]",
+		[GameInfo.Resources["RESOURCE_MATERIEL"].Index] 					= "[ICON_RESOURCE_MATERIEL]",
+		--[GameInfo.Resources["RESOURCE_STEEL"].Index] 						= "[ICON_New]",
+		[GameInfo.Resources["RESOURCE_MEDICINE"].Index] 					= "[ICON_Damaged]",
+		[GameInfo.Resources["RESOURCE_FOOD"].Index] 						= "[ICON_Food]",
+		[GameInfo.Resources["RESOURCE_PERSONNEL"].Index]					= "[ICON_Position]",
+		[GameInfo.Resources["RESOURCE_WOOD_PLANKS"].Index]					= "[ICON_RESOURCE_WOOD_PLANKS]",
+		
+		[GameInfo.Resources["RESOURCE_WOODEN_HULL_PART"].Index]				= "[ICON_RESOURCE_WOODEN_HULL_PART]",
+		[GameInfo.Resources["RESOURCE_STEEL_HULL_PART"].Index]				= "[ICON_EQUIPMENT_DESTROYER]",
+		[GameInfo.Resources["RESOURCE_LARGE_STEEL_HULL"].Index]				= "[ICON_EQUIPMENT_AIRCRAFT_CARRIER]",
+		
+		[GameInfo.Resources["RESOURCE_ELECTRICAL_DEVICES"].Index]			= "[ICON_RESOURCE_ELECTRICAL_DEVICES]",
+		[GameInfo.Resources["RESOURCE_ELECTRONIC_COMPONENTS"].Index]		= "[ICON_RESOURCE_ELECTRICAL_DEVICES]",
+		[GameInfo.Resources["RESOURCE_ELECTRONIC_SYSTEM"].Index]			= "[ICON_RESOURCE_ELECTRICAL_DEVICES]",
+		[GameInfo.Resources["RESOURCE_ADVANCED_ELECTRONIC_SYSTEM"].Index]	= "[ICON_RESOURCE_ELECTRICAL_DEVICES]",		
+		
+		[GameInfo.Resources["RESOURCE_WOODEN_FUSELAGE"].Index]				= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["RESOURCE_LARGE_WOODEN_FUSELAGE"].Index]		= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["RESOURCE_ALUMINUM_FUSELAGE"].Index]			= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["RESOURCE_LARGE_ALUMINUM_FUSELAGE"].Index]		= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["RESOURCE_PROPELLER_ENGINE"].Index]				= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["RESOURCE_JET_ENGINE"].Index]					= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["RESOURCE_AVIONIC"].Index]						= "[ICON_RESOURCE_ELECTRICAL_DEVICES]",
+		[GameInfo.Resources["RESOURCE_ADVANCED_AVIONIC"].Index]				= "[ICON_RESOURCE_ELECTRICAL_DEVICES]",		
+		
 		[GameInfo.Resources["EQUIPMENT_CHARIOT"].Index]				= "[ICON_EQUIPMENT_CHARIOT]",
 		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]			= "[ICON_EQUIPMENT_WAR_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_ARMORED_HORSES"].Index]		= "[ICON_EQUIPMENT_ARMORED_HORSES]",
@@ -130,6 +145,12 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_BATTLESHIP"].Index]			= "[ICON_EQUIPMENT_BATTLESHIP]",
 		[GameInfo.Resources["EQUIPMENT_AIRCRAFT_CARRIER"].Index]	= "[ICON_EQUIPMENT_AIRCRAFT_CARRIER]",
 		[GameInfo.Resources["EQUIPMENT_MISSILE_CRUISER"].Index]		= "[ICON_EQUIPMENT_MISSILE_CRUISER]",
+		
+		[GameInfo.Resources["EQUIPMENT_BIPLANE"].Index]				= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["EQUIPMENT_FIGHTER"].Index]				= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["EQUIPMENT_JET_FIGHTER"].Index]			= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["EQUIPMENT_BOMBER"].Index]				= "[ICON_EQUIPMENT_FIGHTER]",
+		[GameInfo.Resources["EQUIPMENT_JET_BOMBER"].Index]			= "[ICON_EQUIPMENT_FIGHTER]",
 	}
 
 -- Floating Texts LOD
@@ -330,11 +351,11 @@ local bNoOutput 		= false
 local bErrorToScreen 	= true
 
 local debugFilter = {
-	["debug"] 		= true,
---	["CityScript"] 	= true,
---	["PlayerScript"] = true,
---	["UnitScript"] 	= true,
---	["PlotScript"] 	= true,
+	["debug"] 			= true,
+--	["CityScript"] 		= true,
+--	["PlayerScript"] 	= true,
+--	["UnitScript"] 		= true,
+--	["PlotScript"] 		= true,
 }
 
 function ToggleOutput()

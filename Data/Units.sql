@@ -26,8 +26,8 @@ UPDATE Units SET TraitType = NULL WHERE TraitType != 'TRAIT_BARBARIAN';
 DELETE FROM UnitReplaces;
 
 /* Air */
-UPDATE Units SET Personnel = 75 	Where UnitType = "UNIT_BIPLANE" OR UnitType = "UNIT_FIGHTER" OR UnitType = "UNIT_AMERICAN_P51" OR UnitType = "UNIT_JET_FIGHTER";
-UPDATE Units SET Personnel = 160 	Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
+UPDATE Units SET Personnel = 75, 	PrereqTech = NULL 	Where UnitType = "UNIT_BIPLANE" OR UnitType = "UNIT_FIGHTER" OR UnitType = "UNIT_AMERICAN_P51" OR UnitType = "UNIT_JET_FIGHTER";
+UPDATE Units SET Personnel = 160, 	PrereqTech = NULL 	Where UnitType = "UNIT_BOMBER" OR UnitType = "UNIT_JET_BOMBER";
                                     
 /* Recon */                         
 UPDATE Units SET Personnel = 200 	Where UnitType = "UNIT_SCOUT";
@@ -83,6 +83,7 @@ UPDATE Units SET Personnel = 2000, 	Combat=55, RangedCombat = 60, PrereqCivic=NU
 UPDATE Units SET Personnel = 150, 	PrereqTech = NULL 	Where UnitType = "UNIT_SUBMARINE" or UnitType = "UNIT_GERMAN_UBOAT";
 UPDATE Units SET Personnel = 2500, 	PrereqTech = NULL 	Where UnitType = "UNIT_AIRCRAFT_CARRIER";
 UPDATE Units SET Personnel = 250, 	PrereqTech = NULL 	Where UnitType = "UNIT_DESTROYER";
+UPDATE Units SET Personnel = 250, 	PrereqTech = NULL 	Where UnitType = "UNIT_NUCLEAR_SUBMARINE";
 UPDATE Units SET Personnel = 400, 	PrereqTech = NULL 	Where UnitType = "UNIT_MISSILE_CRUISER";
 
 /* Moar Units */
