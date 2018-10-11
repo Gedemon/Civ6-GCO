@@ -5768,6 +5768,133 @@ function DoTaxes(self)
 	end
 end
 
+function SetMigrationValues(self)
+
+	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
+	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	
+	local cityKey = self:GetKey()
+	if not _cached[cityKey] then
+		_cached[cityKey] = {}
+	end
+	if not _cached[cityKey].Migration then
+		_cached[cityKey].Migration = { 
+			Push 		= {Employment = {}, Housing = {}, Food = {}},
+			Pull 		= {Employment = {}, Housing = {}, Food = {}},
+			Migrants 	= {Employment = {}, Housing = {}, Food = {}},
+			Motivation	= {}
+		}
+	end
+	
+	local cityMigration = _cached[cityKey].Migration
+	
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_CITY_SCRIPT, "- Set Migration values for ".. Locale.Lookup(self:GetName()))
+	local possibleDestination 		= {}
+	local migrantClasses			= {UpperClassID, MiddleClassID, LowerClassID}
+	local housingID					= { [UpperClassID] 	= YieldUpperHousingID, [MiddleClassID] = YieldMiddleHousingID, [LowerClassID] 	= YieldLowerHousingID, } -- to do : something else...
+	--local migrantMotivations		= {"Under threat", "Starvation", "Employment", "Overpopulation"}
+	local migrants					= {}
+	local totalPopulation 			= self:GetUrbanPopulation()
+	
+	-- for now global, but todo : per class employment in cities
+	local employment				= self:GetMaxEmployment()
+	local employed					= self:GetEmployed()
+	local unEmployed				= math.max(0, totalPopulation - employment)
+	
+	-- Copy this block to DoMigration() <<<<<
+	-- todo : no magic numbers !
+	-- new entries in GlobalParameters ? or fields in Population table ? or new linked table(s) ?
+	local employmentWeight			= { [UpperClassID] 	= 0.1, [MiddleClassID] = 5.0, [LowerClassID] 	= 5.0, }
+	local housingWeight				= { [UpperClassID] 	= 2.0, [MiddleClassID] = 1.0, [LowerClassID] 	= 0.5, }
+	local starvationWeight			= { [UpperClassID] 	= 0.2, [MiddleClassID] = 2.0, [LowerClassID] 	= 1.0, }
+	local threatWeight				= { [UpperClassID] 	= 3.0, [MiddleClassID] = 2.0, [LowerClassID] 	= 1.0, }
+	
+	local classesRatio				= {}
+	for i, classID in ipairs(migrantClasses) do
+		classesRatio[classID] = self:GetPopulationClass(classID) / totalPopulation
+	end
+	-- Copy this block to DoMigration() >>>>>
+	
+	Dprint( DEBUG_CITY_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " " totalPopulation " = ", totalPopulation)
+	
+	for _, populationID in pairs(migrantClasses) do
+	
+		local population			= self:GetPopulationClass(populationID)		
+		local housingSize			= self:GetCustomYield( housingID[populationID] )
+		local maxPopulation			= GetPopulationPerSize(housingSize)
+		local bestMotivationWeight	= 0
+		
+		if population > 0 then
+			-- check Migration motivations, from lowest to most important :	
+		
+			-- Employment
+			-- for now global, but todo : per class employment in cities
+			if employment > 0 then
+				cityMigration.Pull.Employment[populationID]	= employment / population
+				cityMigration.Push.Employment[populationID]	= population / employment
+				if cityMigration.Push.Employment[populationID] > 1 then
+					local motivationWeight = cityMigration.Push.Employment[populationID] * employmentWeight[populationID]
+					if motivationWeight > bestMotivationWeight then
+						cityMigration.Motivation[populationID]		= "Employment"
+						bestMotivationWeight						= motivationWeight
+					end
+					cityMigration.Migrants.Employment[populationID]	= unEmployed * classesRatio[populationID]
+				end
+			else
+				cityMigration.Pull.Employment[populationID]	= 0
+				cityMigration.Push.Employment[populationID]	= 0		
+			end
+			Dprint( DEBUG_CITY_SCRIPT, "  - Employment migrants for ...."..Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Employment[populationID]) .."/".. population )
+			
+			-- Housing
+			cityMigration.Pull.Housing[populationID]	= maxPopulation / population
+			cityMigration.Push.Housing[populationID]	= population / maxPopulation	
+			if cityMigration.Push.Housing[populationID] > 1 then 
+				local motivationWeight = cityMigration.Push.Housing[populationID] * housingWeight[populationID]
+				if motivationWeight > bestMotivationWeight then
+					cityMigration.Motivation[populationID]		= "Housing"
+					bestMotivationWeight						= motivationWeight
+				end
+				local overPopulation							= population - maxPopulation
+				cityMigration.Migrants.Housing[populationID]	= overPopulation
+			end
+			--Dprint( DEBUG_CITY_SCRIPT, "  - Overpopulation = ", overPopulation," maxPopulation : ", maxPopulation, " population = ", population)
+			Dprint( DEBUG_CITY_SCRIPT, "  - Overpopulation migrants for "..Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Housing[populationID]) .."/".. population )
+			
+			-- Starvation
+			-- Todo : get values per population class from NeedsEffects instead of global values here
+			local consumptionRatio					= 1
+			local foodNeeded						= city:GetFoodConsumption(consumptionRatio)
+			local foodstock							= city:GetFoodStock()
+			cityMigration.Pull.Food[populationID]	= foodstock / foodNeeded
+			cityMigration.Push.Food[populationID]	= foodNeeded / foodstock
+			if cityMigration.Push.Food > 1 then 
+				local motivationWeight = cityMigration.Push.Housing[populationID] * starvationWeight[populationID]
+				if motivationWeight >= bestMotivationWeight then
+					cityMigration.Motivation[populationID]		= "Food"
+					bestMotivationWeight						= motivationWeight
+				end
+				local starving								= population - (population / cityMigration.Push.Food[populationID])
+				cityMigration.Migrants.Food[populationID]	= starving * classesRatio[populationID]
+			end
+			--Dprint( DEBUG_CITY_SCRIPT, "  - Starving = ", starving," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
+			Dprint( DEBUG_CITY_SCRIPT, "  - Starving migrants for ......"..Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Housing[populationID]) .."/".. population )
+
+			
+			-- Threat
+			--
+			--
+			
+			Dprint( DEBUG_CITY_SCRIPT, "  - Best motivation : ", cityMigration.Motivation[populationID])
+			Dprint( DEBUG_CITY_SCRIPT, "  - Pull.Food ......: ", GCO.ToDecimals(cityMigration.Pull.Food[populationID]), 		" Push.Food ......= ", GCO.ToDecimals(cityMigration.Push.Food[populationID]))
+			Dprint( DEBUG_CITY_SCRIPT, "  - Pull.Housing ...: ", GCO.ToDecimals(cityMigration.Pull.Housing[populationID]), 		" Push.Housing ...= ", GCO.ToDecimals(cityMigration.Push.Housing[populationID]))
+			Dprint( DEBUG_CITY_SCRIPT, "  - Pull.Employment : ", GCO.ToDecimals(cityMigration.Pull.Employment[populationID]), 	" Push.Employment = ", GCO.ToDecimals(cityMigration.Push.Employment[populationID]))
+		end
+	end
+end
+
+
 function DoMigration(self)
 
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /START")
@@ -5933,11 +6060,6 @@ function DoTurnFirstPass(self)
 		CitiesToIgnoreThisTurn[cityKey] = true
 		return
 	end
-
-	-- migration from city center
-	GCO.StartTimer("SetCityRationing for ".. name)
-	self:DoMigration()
-	GCO.ShowTimer("SetCityRationing for ".. name)
 	
 	-- set food rationing
 	GCO.StartTimer("SetCityRationing for ".. name)
@@ -5965,7 +6087,7 @@ function DoTurnFirstPass(self)
 	
 	GCO.StartTimer("DoNeeds for ".. name)
 	self:DoNeeds()
-	GCO.ShowTimer("DoNeeds for ".. name)
+	GCO.ShowTimer("DoNeeds for ".. name)	
 
 	-- sell to foreign cities (do turn for traders ?), reinforce units, use in industry... (orders set in UI ?)
 	GCO.StartTimer("DoIndustries for ".. name)
@@ -5975,6 +6097,11 @@ function DoTurnFirstPass(self)
 	GCO.StartTimer("DoConstruction for ".. name)
 	self:DoConstruction()	
 	GCO.ShowTimer("DoConstruction for ".. name)
+	
+	-- set migration values (note: must Set Needs first)
+	GCO.StartTimer("SetMigrationValues for ".. name)
+	--self:SetMigrationValues()
+	GCO.ShowTimer("SetMigrationValues for ".. name)
 	
 	GCO.StartTimer("DoReinforceUnits for ".. name)
 	self:DoReinforceUnits()
@@ -6001,6 +6128,11 @@ function DoTurnSecondPass(self)
 		return
 	end
 
+	-- migration from city center
+	GCO.StartTimer("DoMigration for ".. name)
+	self:DoMigration()
+	GCO.ShowTimer("DoMigration for ".. name)
+	
 	-- get linked cities and supply demand
 	self:UpdateTransferCities()
 	
@@ -6382,6 +6514,7 @@ function AttachCityFunctions(city)
 	c.DoConstruction					= DoConstruction
 	c.DoNeeds							= DoNeeds
 	c.DoTaxes							= DoTaxes
+	c.SetMigrationValues				= SetMigrationValues
 	c.DoMigration						= DoMigration
 	c.Heal								= Heal
 	c.DoTurnFirstPass					= DoTurnFirstPass
