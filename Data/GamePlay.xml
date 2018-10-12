@@ -36,7 +36,6 @@
 		<Row PopulationType="POPULATION_SLAVE" 		Name="LOC_POPULATION_SLAVE_NAME" 		Description="LOC_POPULATION_SLAVE_DESCRIPTION"/>
 		<Row PopulationType="POPULATION_PERSONNEL" 	Name="LOC_POPULATION_PERSONNEL_NAME" 	Description="LOC_POPULATION_PERSONNEL_DESCRIPTION"/>
 		<Row PopulationType="POPULATION_PRISONERS" 	Name="LOC_POPULATION_PRISONERS_NAME" 	Description="LOC_POPULATION_PRISONERS_DESCRIPTION"/>
-		<Row PopulationType="POPULATION_ALL" 		Name="LOC_POPULATION_ALL_NAME" 			Description="LOC_POPULATION_ALL_DESCRIPTION"/>
 	</Populations>
 	
 	<PopulationNeeds> <!-- to do : add Pow, Factor as in (math.pow(pop, pow)*factor)) for Needed calcul function -->

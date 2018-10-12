@@ -482,6 +482,8 @@
 		
 		<Row Name="EQUIPMENT_FIGHTER" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="15"/>
 		
+		<Row Name="EQUIPMENT_AVIONIC" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="154"/>
+		
 		<Row Name="AntiPersonnel" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="132"/>
 		<Row Name="AntiArmor" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="133"/>
 		<Row Name="IgnorArmor" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="134"/>

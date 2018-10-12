@@ -735,7 +735,6 @@
     <Replace Tag="LOC_POPULATION_SLAVE_NAME" 		Text="Slave Class" 		Language="en_US" /> 
     <Replace Tag="LOC_POPULATION_PERSONNEL_NAME" 	Text="Personnel" 		Language="en_US" />
     <Replace Tag="LOC_POPULATION_PRISONERS_NAME" 	Text="Prisoners" 		Language="en_US" />
-    <Replace Tag="LOC_POPULATION_ALL_NAME" 			Text="All Classes" 		Language="en_US" /> 
   </LocalizedText>
     
   <LocalizedText> <!-- ToolTips Helper Texts -->

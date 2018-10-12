@@ -112,7 +112,7 @@ function UpdatePopulationNeeds(self)
 	for row in GameInfo.PopulationNeeds() do
 		if (not row.StartEra or (row.StartEra and GameInfo.Eras[row.StartEra].Index >= era)) and (not row.EndEra or (row.EndEra and GameInfo.Eras[row.EndEra].Index < era)) then
 			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
-			local populationID 	= GameInfo.Populations[row.PopulationType].Index
+			local populationID 	= GameInfo.Resources[row.PopulationType].Index
 			-- Needs by population
 			if not _cached.PopulationNeeds then _cached.PopulationNeeds = {} end
 			if not _cached.PopulationNeeds[populationID] then _cached.PopulationNeeds[populationID] = {} end

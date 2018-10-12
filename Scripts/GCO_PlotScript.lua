@@ -73,13 +73,12 @@ local populationPerSizepower 	= tonumber(GameInfo.GlobalParameters["CITY_POPULAT
 local maxMigrantPercent			= tonumber(GameInfo.GlobalParameters["PLOT_POPULATION_MAX_MIGRANT_PERCENT"].Value)
 local minMigrantPercent			= tonumber(GameInfo.GlobalParameters["PLOT_POPULATION_MIN_MIGRANT_PERCENT"].Value)
 
-local UpperClassID 				= GameInfo.Populations["POPULATION_UPPER"].Index
-local MiddleClassID 			= GameInfo.Populations["POPULATION_MIDDLE"].Index
-local LowerClassID 				= GameInfo.Populations["POPULATION_LOWER"].Index
-local SlaveClassID 				= GameInfo.Populations["POPULATION_SLAVE"].Index
-local PersonnelClassID			= GameInfo.Populations["POPULATION_PERSONNEL"].Index
-local PrisonersClassID			= GameInfo.Populations["POPULATION_PRISONERS"].Index
-local AllClassID 				= GameInfo.Populations["POPULATION_ALL"].Index
+local UpperClassID 				= GameInfo.Resources["POPULATION_UPPER"].Index
+local MiddleClassID 			= GameInfo.Resources["POPULATION_MIDDLE"].Index
+local LowerClassID 				= GameInfo.Resources["POPULATION_LOWER"].Index
+local SlaveClassID 				= GameInfo.Resources["POPULATION_SLAVE"].Index
+local PersonnelClassID			= GameInfo.Resources["POPULATION_PERSONNEL"].Index
+local PrisonersClassID			= GameInfo.Resources["POPULATION_PRISONERS"].Index
 
 local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
 local UpperClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_BIRTH_RATE_FACTOR"].Value)
@@ -184,7 +183,7 @@ function CreatePlotData()
 		
 		plotData[plotKey] = {
 			Stock					= { [turnKey] = {} },
-			Population				= { [turnKey] = { UpperClass = 0, MiddleClass	= 0, LowerClass = 0,	Slaves = 0} },
+			Population				= { [turnKey] = {} },
 		}
 	end
 	return plotData
@@ -1876,22 +1875,6 @@ function GetSize(self)
 	return math.pow(self:GetPopulation()/1000, 1/populationPerSizepower) --GCO.Round(math.pow(self:GetPopulation()/1000, 1/populationPerSizepower))
 end
 
-function GetPopulation(self)
-	-- temporary waiting for population migration
-	--[[
-	local city = self:GetCity()
-	if city then
-		--return GCO.Round(city:GetRuralPopulation() / city:GetSize())
-		local numPlots = #GCO.GetCityPlots(city)
-		if numPlots > 0 then
-			return GCO.Round(city:GetRuralPopulation() / numPlots)
-		end
-	end
-	return 0
-	--]]
-	return self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
-end
-
 function GetMaxSize(self)
 	local maxSize = 0
 	if (not self:IsWater()) then
@@ -1916,6 +1899,23 @@ function GetMaxSize(self)
 	return math.max(1,maxSize)
 end
 
+-- Legacy methods <<<<<
+function GetPopulation(self)
+	-- temporary waiting for population migration
+	--[[
+	local city = self:GetCity()
+	if city then
+		--return GCO.Round(city:GetRuralPopulation() / city:GetSize())
+		local numPlots = #GCO.GetCityPlots(city)
+		if numPlots > 0 then
+			return GCO.Round(city:GetRuralPopulation() / numPlots)
+		end
+	end
+	return 0
+	--]]
+	return self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+end
+
 function GetPreviousPopulation(self)
 	-- temporary waiting for population migration
 	--[[
@@ -1933,116 +1933,160 @@ function GetPreviousPopulation(self)
 end
 
 function ChangeUpperClass(self, value)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
 	local previous 	= plotData.Population[turnKey].UpperClass or 0
 	plotData.Population[turnKey].UpperClass = math.max(0 , previous + value)
+	--]]
+	self:ChangePopulationClass(UpperClassID, value)
 end
 
 function ChangeMiddleClass(self, value)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
 	local previous 	= plotData.Population[turnKey].MiddleClass or 0
 	plotData.Population[turnKey].MiddleClass = math.max(0 , previous + value)
+	--]]
+	self:ChangePopulationClass(MiddleClassID, value)
 end
 
 function ChangeLowerClass(self, value)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
 	local previous 	= plotData.Population[turnKey].LowerClass or 0
 	plotData.Population[turnKey].LowerClass = math.max(0 , previous + value)
+	--]]
+	self:ChangePopulationClass(LowerClassID, value)
 end
 
 function ChangeSlaveClass(self, value)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
 	local previous 	= plotData.Population[turnKey].Slaves or 0
 	plotData.Population[turnKey].Slaves = math.max(0 , previous + value)
+	--]]
+	self:ChangePopulationClass(SlaveClassID, value)
 end
 
 function GetUpperClass(self)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
 	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].UpperClass or 0
+	--]]
+	return self:GetStock(UpperClassID)
 end
 
 function GetMiddleClass(self)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
 	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].MiddleClass or 0
+	--]]
+	return self:GetStock(MiddleClassID)
 end
 
 function GetLowerClass(self)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
 	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].LowerClass or 0
+	--]]
+	return self:GetStock(LowerClassID)
 end
 
 function GetSlaveClass(self)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetTurnKey()
 	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].Slaves or 0
+	--]]
+	return self:GetStock(SlaveClassID)
 end
 
 function GetPopulationClass(self, populationID)
+	--[[
 	if populationID == UpperClassID 	then return self:GetUpperClass() end
 	if populationID == MiddleClassID 	then return self:GetMiddleClass() end
 	if populationID == LowerClassID 	then return self:GetLowerClass() end
 	if populationID == SlaveClassID 	then return self:GetSlaveClass() end
-	if populationID == AllClassID 		then return self:GetPopulation() end
 	GCO.Error("can't find population class for ID = ", populationID)
 	return 0
+	--]]
+	return self:GetStock(populationID)
 end
 
 function GetPreviousPopulationClass(self, populationID)
+	--[[
 	if populationID == UpperClassID 	then return self:GetPreviousUpperClass() end
 	if populationID == MiddleClassID 	then return self:GetPreviousMiddleClass() end
 	if populationID == LowerClassID 	then return self:GetPreviousLowerClass() end
 	if populationID == SlaveClassID 	then return self:GetPreviousSlaveClass() end
-	if populationID == AllClassID 		then return self:GetPreviousPopulation() end
 	GCO.Error("can't find population class for ID = ", populationID)
 	return 0
+	--]]
+	return self:GetPreviousStock(populationID)
 end
 
 function ChangePopulationClass(self, populationID, value)
+	--[[
 	if populationID == UpperClassID 	then return self:ChangeUpperClass(value) end
 	if populationID == MiddleClassID 	then return self:ChangeMiddleClass(value) end
 	if populationID == LowerClassID 	then return self:ChangeLowerClass(value) end
 	if populationID == SlaveClassID 	then return self:ChangeSlaveClass(value) end
 	GCO.Error("can't find population class for ID = ", populationID)
+	--]]
+	self:ChangeStock(populationID, value)
 end
 
 function GetPreviousUpperClass(self)
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetPreviousTurnKey()
 	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].UpperClass or 0
+	--]]
+	return self:GetPreviousStock(UpperClassID)
 end
 
 function GetPreviousMiddleClass(self )
+	--[[
 	local plotData 	= self:GetData()
 	local turnKey 	= GCO.GetPreviousTurnKey()
 	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].MiddleClass or 0
+	--]]
+	return self:GetPreviousStock(MiddleClassID)
 end
 
 function GetPreviousLowerClass(self)
+	--[[
 	local plotData 		= self:GetData()
 	local turnKey 		= GCO.GetPreviousTurnKey()
 	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].LowerClass or 0
+	--]]
+	return self:GetPreviousStock(LowerClassID)
 end
 
 function GetPreviousSlaveClass(self)
+	--[[
 	local plotData 		= self:GetData()
 	local turnKey 		= GCO.GetPreviousTurnKey()
 	if not plotData.Population[turnKey] then return 0 end
 	return plotData.Population[turnKey].Slaves or 0
+	--]]
+	return self:GetPreviousStock(SlaveClassID)
 end
+-- Legacy methods >>>>>
 
 function GetBirthRate(self)
 	local city = self:GetCity()
@@ -2112,6 +2156,7 @@ function GetStock(self, resourceID)
 	local plotData 		= self:GetData()
 	local turnKey 		= GCO.GetTurnKey()
 	local resourceKey 	= tostring(resourceID)
+	if not plotData.Stock[turnKey] then return 0 end
 	return plotData.Stock[turnKey][resourceKey] or 0
 end
 
@@ -2130,16 +2175,22 @@ function ChangeStock(self, resourceID, value, useType, reference)
 	local plotData 		= self:GetData()
 	local turnKey 		= GCO.GetTurnKey()
 
+	--[[
 	if not reference then reference = NO_REFERENCE_KEY end
 	reference = tostring(reference) -- will be a key in table
-
-	--[[
+	
 	if value > 0 then
 		if not useType then useType = ResourceUseType.OtherIn end
 	else
 		if not useType then useType = ResourceUseType.OtherOut  end
 	end
 	--]]
+	
+	if not plotData.Stock[turnKey] then 
+		GCO.Warning("plotData not initialized for turn"..tostring(turnKey))
+		GCO.DlineFull()
+		plotData.Stock[turnKey] = {}
+	end
 
 	-- Update stock
 	if not plotData.Stock[turnKey][resourceKey] then
@@ -2149,7 +2200,7 @@ function ChangeStock(self, resourceID, value, useType, reference)
 		plotData.Stock[turnKey][resourceKey] = math.max(0 , value)
 	else
 		local newStock = GCO.ToDecimals(plotData.Stock[turnKey][resourceKey] + value)
-		if newStock < -1 then -- allow a rounding error of 1
+		if newStock < -1 then -- allow a rounding error up to 1
 			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[tonumber(resourceID)].Name) .." stock, previous stock = ".. tostring(cityData.Stock[turnKey][resourceKey])..", variation value = "..tostring(value))
 		end
 		plotData.Stock[turnKey][resourceKey] = math.max(0 , newStock)
@@ -2182,6 +2233,7 @@ function GetPreviousStock(self , resourceID)
 	local plotData 		= self:GetData()
 	local turnKey 		= GCO.GetPreviousTurnKey()
 	local resourceKey 	= tostring(resourceID)
+	if not plotData.Stock[turnKey] then return 0 end
 	return plotData.Stock[turnKey][resourceKey] or 0
 end
 
@@ -2210,11 +2262,11 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 		
 		-- get previous turn data
 		local stockData = plotData.Stock[previousTurnKey] 		or {}
-		local popData 	= plotData.Population[previousTurnKey]	or {}
+		--local popData 	= plotData.Population[previousTurnKey]	or {}
 		
 		-- initialize empty tables for the new turn data
 		plotData.Stock[turnKey] 		= {}
-		plotData.Population[turnKey]	= {}
+		--plotData.Population[turnKey]	= {}
 		--plotData.ResourceUse[turnKey]	= {}
 		
 		-- fill the new table with previous turn data
@@ -2222,9 +2274,9 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 			plotData.Stock[turnKey][resourceKey] = value
 		end
 
-		for key, value in pairs(popData) do
-			plotData.Population[turnKey][key] = value
-		end
+		--for key, value in pairs(popData) do
+		--	plotData.Population[turnKey][key] = value
+		--end
 
 	end
 	--Dlog("UpdateDataOnNewTurn /END")
@@ -2415,7 +2467,7 @@ function DoMigration(self)
 				for i, classID in ipairs(migrantClasses) do
 					local classMoving = math.floor(totalPopMoving * classesRatio[classID])
 					if classMoving > 0 then
-						Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Populations[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
+						Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Resources[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
 						self:ChangePopulationClass(classID, -classMoving)
 						plot:ChangePopulationClass(classID, classMoving)
 					end

@@ -151,7 +151,6 @@ local RefPopulationLower	= "POPULATION_LOWER"
 local RefPopulationSlave	= "POPULATION_SLAVE"
 local RefPersonnel			= "POPULATION_PERSONNEL"
 local RefPrisoners			= "POPULATION_PRISONERS"
-local RefPopulationAll		= "POPULATION_ALL"
 
 -- Error checking
 for row in GameInfo.BuildingResourcesConverted() do
@@ -376,13 +375,12 @@ local healOuterDefensesBaseMateriel	= tonumber(GameInfo.GlobalParameters["CITY_H
 local ConscriptsBaseActiveTurns		= tonumber(GameInfo.GlobalParameters["ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS"].Value)
 
 -- Population
-local UpperClassID 				= GameInfo.Populations["POPULATION_UPPER"].Index
-local MiddleClassID 			= GameInfo.Populations["POPULATION_MIDDLE"].Index
-local LowerClassID 				= GameInfo.Populations["POPULATION_LOWER"].Index
-local SlaveClassID 				= GameInfo.Populations["POPULATION_SLAVE"].Index
-local PersonnelClassID			= GameInfo.Populations["POPULATION_PERSONNEL"].Index
-local PrisonersClassID			= GameInfo.Populations["POPULATION_PRISONERS"].Index
-local AllClassID 				= GameInfo.Populations["POPULATION_ALL"].Index
+local UpperClassID 				= GameInfo.Resources["POPULATION_UPPER"].Index
+local MiddleClassID 			= GameInfo.Resources["POPULATION_MIDDLE"].Index
+local LowerClassID 				= GameInfo.Resources["POPULATION_LOWER"].Index
+local SlaveClassID 				= GameInfo.Resources["POPULATION_SLAVE"].Index
+local PersonnelClassID			= GameInfo.Resources["POPULATION_PERSONNEL"].Index
+local PrisonersClassID			= GameInfo.Resources["POPULATION_PRISONERS"].Index
 
 local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
 local UpperClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_BIRTH_RATE_FACTOR"].Value)
@@ -1236,7 +1234,6 @@ function GetPopulationClass(self, populationID)
 	if populationID == MiddleClassID 	then return self:GetMiddleClass() end
 	if populationID == LowerClassID 	then return self:GetLowerClass() end
 	if populationID == SlaveClassID 	then return self:GetSlaveClass() end
-	if populationID == AllClassID 		then return self:GetRealPopulation() end
 	GCO.Error("can't find population class for ID = ", populationID)
 	return 0
 end
@@ -4300,7 +4297,7 @@ function GetPopulationNeedsEffectsString(self) -- draft for a global string
 
 	if _cached[cityKey] and _cached[cityKey].NeedsEffects then --and _cached[cityKey].NeedsEffects[populationID] then
 		for populationID, data1 in pairs(_cached[cityKey].NeedsEffects) do
-			table.insert(returnStrTable, "[ICON_BULLET]"..Locale.Lookup(GameInfo.Populations[populationID].Name))
+			table.insert(returnStrTable, "[ICON_BULLET]"..Locale.Lookup(GameInfo.Resources[populationID].Name))
 			for needsEffectType, data2 in pairs(data1) do
 				for locString, value in pairs(data2) do
 					table.insert(returnStrTable, Locale.Lookup(locString, value))
@@ -5365,14 +5362,14 @@ function DoGrowth(self)
 			local number = self:GetPopulationClass(populationID) + math.floor(self:GetRuralPopulationClass(populationID) / 2)  -- half influence outside city
 			if number > 0 then
 				local variation	= CalculateVar( number, birthRate, deathRate)
-				Dprint( DEBUG_CITY_SCRIPT, "URBAN POPULATION " ..Indentation8("City") .. " <<< " .. Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
+				Dprint( DEBUG_CITY_SCRIPT, "URBAN POPULATION " ..Indentation8("City") .. " <<< " .. Indentation20(Locale.Lookup(GameInfo.Resources[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
 				self:ChangePopulationClass(populationID, variation)
 			end
 		else	-- population loss is occuring on all tiles
 			local number = self:GetPopulationClass(populationID)
 			if number > 0 then
 				local variation	= CalculateVar( number, birthRate, deathRate)
-				Dprint( DEBUG_CITY_SCRIPT, "URBAN POPULATION " ..Indentation8("City") .. " <<< " .. Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
+				Dprint( DEBUG_CITY_SCRIPT, "URBAN POPULATION " ..Indentation8("City") .. " <<< " .. Indentation20(Locale.Lookup(GameInfo.Resources[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
 				self:ChangePopulationClass(populationID, variation)
 				local cityPlots	= GCO.GetCityPlots(self)
 				for _, plotID in ipairs(cityPlots) do			
@@ -5380,7 +5377,7 @@ function DoGrowth(self)
 					if plot and (not plot:IsCity() or plot:IsWater()) then
 						local number 	= math.floor(plot:GetPopulationClass(populationID) / 2) -- half influence outside city
 						local variation	= CalculateVar( number, birthRate, deathRate)
-						Dprint( DEBUG_CITY_SCRIPT, "Rural Population " ..Indentation8(plot:GetX() ..",".. plot:GetY()) .. " >>> " .. Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
+						Dprint( DEBUG_CITY_SCRIPT, "Rural Population " ..Indentation8(plot:GetX() ..",".. plot:GetY()) .. " >>> " .. Indentation20(Locale.Lookup(GameInfo.Resources[populationID].Name)).." : BirthRate = ", birthRate, " DeathRate = ", deathRate, " Initial Population = ", number, " Variation = ", variation )
 						plot:ChangePopulationClass(populationID, variation)
 					end
 				end
@@ -5650,7 +5647,7 @@ function DoNeeds(self)
 	--[[
 	local player = GCO.GetPlayer(self:GetOwner())
 	for row in GameInfo.Populations() do
-		local populationID 		= row.Index
+		local populationID 		= GameInfo.Resources[row.PopulationType].Index
 		local population 		= self:GetPopulationClass(populationID)
 		local populationNeeds 	= player:GetPopulationNeeds(populationID)
 		local maxNeed = 0
@@ -5770,6 +5767,7 @@ end
 
 function SetMigrationValues(self)
 
+	Dlog("SetMigrationValues ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
 	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	
@@ -5785,7 +5783,6 @@ function SetMigrationValues(self)
 			Motivation	= {}
 		}
 	end
-	
 	local cityMigration = _cached[cityKey].Migration
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
@@ -5798,17 +5795,17 @@ function SetMigrationValues(self)
 	local totalPopulation 			= self:GetUrbanPopulation()
 	
 	-- for now global, but todo : per class employment in cities
-	local employment				= self:GetMaxEmployment()
-	local employed					= self:GetEmployed()
+	local employment				= self:GetMaxEmploymentUrban()
+	local employed					= self:GetUrbanEmployed()
 	local unEmployed				= math.max(0, totalPopulation - employment)
 	
 	-- Copy this block to DoMigration() <<<<<
 	-- todo : no magic numbers !
 	-- new entries in GlobalParameters ? or fields in Population table ? or new linked table(s) ?
-	local employmentWeight			= { [UpperClassID] 	= 0.1, [MiddleClassID] = 5.0, [LowerClassID] 	= 5.0, }
-	local housingWeight				= { [UpperClassID] 	= 2.0, [MiddleClassID] = 1.0, [LowerClassID] 	= 0.5, }
-	local starvationWeight			= { [UpperClassID] 	= 0.2, [MiddleClassID] = 2.0, [LowerClassID] 	= 1.0, }
-	local threatWeight				= { [UpperClassID] 	= 3.0, [MiddleClassID] = 2.0, [LowerClassID] 	= 1.0, }
+	local employmentWeight			= { [UpperClassID] 	= 0.10, [MiddleClassID] = 2.00, [LowerClassID] 	= 3.00, }
+	local housingWeight				= { [UpperClassID] 	= 2.00, [MiddleClassID] = 0.75, [LowerClassID] 	= 0.50, }
+	local starvationWeight			= { [UpperClassID] 	= 0.25, [MiddleClassID] = 2.00, [LowerClassID] 	= 3.00, }
+	local threatWeight				= { [UpperClassID] 	= 3.00, [MiddleClassID] = 2.00, [LowerClassID] 	= 1.00, }
 	
 	local classesRatio				= {}
 	for i, classID in ipairs(migrantClasses) do
@@ -5816,7 +5813,7 @@ function SetMigrationValues(self)
 	end
 	-- Copy this block to DoMigration() >>>>>
 	
-	Dprint( DEBUG_CITY_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " " totalPopulation " = ", totalPopulation)
+	Dprint( DEBUG_CITY_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " totalPopulation = ", totalPopulation)
 	
 	for _, populationID in pairs(migrantClasses) do
 	
@@ -5825,31 +5822,35 @@ function SetMigrationValues(self)
 		local maxPopulation			= GetPopulationPerSize(housingSize)
 		local bestMotivationWeight	= 0
 		
+		Dprint( DEBUG_CITY_SCRIPT, "  - "..Indentation20(Locale.ToUpper(GameInfo.Resources[populationID].Name)).." current population = "..Indentation15(population).. " motivations : employment = ".. tostring(employmentWeight[populationID]) ..", housing = ".. housingWeight[populationID] ..", food = ".. tostring(starvationWeight[populationID]))
+		
 		if population > 0 then
 			-- check Migration motivations, from lowest to most important :	
 		
 			-- Employment
 			-- for now global, but todo : per class employment in cities
 			if employment > 0 then
-				cityMigration.Pull.Employment[populationID]	= employment / population
-				cityMigration.Push.Employment[populationID]	= population / employment
+				cityMigration.Pull.Employment[populationID]		= employment / totalPopulation
+				cityMigration.Push.Employment[populationID]		= totalPopulation / employment
+				cityMigration.Migrants.Employment[populationID]	= 0
 				if cityMigration.Push.Employment[populationID] > 1 then
 					local motivationWeight = cityMigration.Push.Employment[populationID] * employmentWeight[populationID]
 					if motivationWeight > bestMotivationWeight then
 						cityMigration.Motivation[populationID]		= "Employment"
 						bestMotivationWeight						= motivationWeight
 					end
-					cityMigration.Migrants.Employment[populationID]	= unEmployed * classesRatio[populationID]
+					cityMigration.Migrants.Employment[populationID]	= math.floor(unEmployed * classesRatio[populationID] * math.min(1, employmentWeight[populationID])) -- Weight affect numbers of migrant when < 1.00
 				end
 			else
 				cityMigration.Pull.Employment[populationID]	= 0
 				cityMigration.Push.Employment[populationID]	= 0		
 			end
-			Dprint( DEBUG_CITY_SCRIPT, "  - Employment migrants for ...."..Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Employment[populationID]) .."/".. population )
+			Dprint( DEBUG_CITY_SCRIPT, "  - Employment migrants for ...."..Indentation20(Locale.Lookup(GameInfo.Resources[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Employment[populationID]) .."/".. population )
 			
 			-- Housing
-			cityMigration.Pull.Housing[populationID]	= maxPopulation / population
-			cityMigration.Push.Housing[populationID]	= population / maxPopulation	
+			cityMigration.Pull.Housing[populationID]		= maxPopulation / population
+			cityMigration.Push.Housing[populationID]		= population / maxPopulation
+			cityMigration.Migrants.Housing[populationID]	= 0
 			if cityMigration.Push.Housing[populationID] > 1 then 
 				local motivationWeight = cityMigration.Push.Housing[populationID] * housingWeight[populationID]
 				if motivationWeight > bestMotivationWeight then
@@ -5857,31 +5858,32 @@ function SetMigrationValues(self)
 					bestMotivationWeight						= motivationWeight
 				end
 				local overPopulation							= population - maxPopulation
-				cityMigration.Migrants.Housing[populationID]	= overPopulation
+				cityMigration.Migrants.Housing[populationID]	= math.floor(overPopulation * math.min(1, housingWeight[populationID]))
 			end
 			--Dprint( DEBUG_CITY_SCRIPT, "  - Overpopulation = ", overPopulation," maxPopulation : ", maxPopulation, " population = ", population)
-			Dprint( DEBUG_CITY_SCRIPT, "  - Overpopulation migrants for "..Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Housing[populationID]) .."/".. population )
+			Dprint( DEBUG_CITY_SCRIPT, "  - Overpopulation migrants for "..Indentation20(Locale.Lookup(GameInfo.Resources[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Housing[populationID]) .."/".. population )
 			
 			-- Starvation
 			-- Todo : get values per population class from NeedsEffects instead of global values here
-			local consumptionRatio					= 1
-			local foodNeeded						= city:GetFoodConsumption(consumptionRatio)
-			local foodstock							= city:GetFoodStock()
-			cityMigration.Pull.Food[populationID]	= foodstock / foodNeeded
-			cityMigration.Push.Food[populationID]	= foodNeeded / foodstock
-			if cityMigration.Push.Food > 1 then 
-				local motivationWeight = cityMigration.Push.Housing[populationID] * starvationWeight[populationID]
+			local consumptionRatio						= 1
+			local foodNeeded							= self:GetFoodConsumption(consumptionRatio)
+			local foodstock								= self:GetFoodStock()
+			cityMigration.Pull.Food[populationID]		= foodstock / foodNeeded
+			cityMigration.Push.Food[populationID]		= foodNeeded / foodstock
+			cityMigration.Migrants.Food[populationID]	= 0
+			
+			if cityMigration.Push.Food[populationID] > 1 then 
+				local motivationWeight = cityMigration.Push.Food[populationID] * starvationWeight[populationID]
 				if motivationWeight >= bestMotivationWeight then
 					cityMigration.Motivation[populationID]		= "Food"
 					bestMotivationWeight						= motivationWeight
 				end
 				local starving								= population - (population / cityMigration.Push.Food[populationID])
-				cityMigration.Migrants.Food[populationID]	= starving * classesRatio[populationID]
+				cityMigration.Migrants.Food[populationID]	= math.floor(starving * classesRatio[populationID] * math.min(1, starvationWeight[populationID]))
 			end
 			--Dprint( DEBUG_CITY_SCRIPT, "  - Starving = ", starving," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
-			Dprint( DEBUG_CITY_SCRIPT, "  - Starving migrants for ......"..Indentation20(Locale.Lookup(GameInfo.Populations[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Housing[populationID]) .."/".. population )
+			Dprint( DEBUG_CITY_SCRIPT, "  - Starving migrants for ......"..Indentation20(Locale.Lookup(GameInfo.Resources[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Food[populationID]) .."/".. population )
 
-			
 			-- Threat
 			--
 			--
@@ -5892,6 +5894,7 @@ function SetMigrationValues(self)
 			Dprint( DEBUG_CITY_SCRIPT, "  - Pull.Employment : ", GCO.ToDecimals(cityMigration.Pull.Employment[populationID]), 	" Push.Employment = ", GCO.ToDecimals(cityMigration.Push.Employment[populationID]))
 		end
 	end
+	Dlog("SetMigrationValues ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 
@@ -5957,7 +5960,7 @@ function DoMigration(self)
 							majorMotivation			= "Employment"
 						end
 						--table.insert (possibleDestination, {PlotID = plotID, MajorMotivation = "Employment", MotivationValue = employmentDiff, Weight = migrationWeight})
-					end				
+					end
 					
 					if plotWeight > 0 then
 						totalWeight = totalWeight + plotWeight
@@ -5974,7 +5977,7 @@ function DoMigration(self)
 					local plot 				= GCO.GetPlotByIndex(destination.PlotID)
 					for i, classID in ipairs(migrantClasses) do
 						local classMoving = math.floor(totalPopMoving * classesRatio[classID])
-						Dprint( DEBUG_CITY_SCRIPT, "   Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Populations[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight) .. " MajorMotivation = "..tostring(destination.MajorMotivation) .. " MotivationValue = "..tostring(destination.MotivationValue))
+						Dprint( DEBUG_CITY_SCRIPT, "   Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Resources[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight) .. " MajorMotivation = "..tostring(destination.MajorMotivation) .. " MotivationValue = "..tostring(destination.MotivationValue))
 						self:ChangePopulationClass(classID, -classMoving)
 						plot:ChangePopulationClass(classID, classMoving)
 					end
@@ -6100,7 +6103,7 @@ function DoTurnFirstPass(self)
 	
 	-- set migration values (note: must Set Needs first)
 	GCO.StartTimer("SetMigrationValues for ".. name)
-	--self:SetMigrationValues()
+	self:SetMigrationValues()
 	GCO.ShowTimer("SetMigrationValues for ".. name)
 	
 	GCO.StartTimer("DoReinforceUnits for ".. name)

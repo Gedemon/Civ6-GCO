@@ -46,6 +46,11 @@ INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequen
 	SELECT ResourcesGCO.ResourceType, 'LOC_' || ResourcesGCO.ResourceType || '_NAME', ResourcesGCO.ResourceClassType, ResourcesGCO.Frequency, ResourcesGCO.PrereqTech, ResourcesGCO.FixedPrice, ResourcesGCO.MaxPriceVariationPercent, ResourcesGCO.NoExport, ResourcesGCO.NoTransfer, ResourcesGCO.SpecialStock, ResourcesGCO.NotLoot
 	FROM ResourcesGCO;
 	
+/* Create new Resources entries from the Population table */
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
+	SELECT Populations.PopulationType, 'LOC_' || Populations.PopulationType || '_NAME', "RESOURCECLASS_POPULATION", 0, NULL, 1, 0, 1, 1, 1, 1
+	FROM Populations;
+	
 /* Create new Resources Types entries from the temporary ResourcesGCO table */
 INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT ResourcesGCO.ResourceType, 'KIND_RESOURCE'
@@ -55,6 +60,11 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT Equipment.ResourceType, 'KIND_RESOURCE'
 	FROM Equipment;	
+	
+/* Create new Resources Types entries from the Populations table */
+INSERT OR REPLACE INTO Types (Type, Kind)
+	SELECT Populations.PopulationType, 'KIND_RESOURCE'
+	FROM Populations;	
 	
 UPDATE EquipmentClasses SET Name = 'LOC_' || EquipmentClasses.EquipmentClass || '_NAME';
 
