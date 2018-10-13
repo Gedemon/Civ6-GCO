@@ -4449,6 +4449,12 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Data for ".. Locale.Lookup(self:GetName()))
+
+	if Game.GetCurrentGameTurn() == GameConfiguration.GetStartTurn() then -- don't update on first turn (NewTurn is called on the first turn of a later era start)
+		GCO.Warning("Aborting UpdateDataOnNewTurn for cities, this is the first turn !")
+		return
+	end
+	
 	local cityKey 			= self:GetKey()
 	local data 				= ExposedMembers.CityData[cityKey]
 	local turnKey 			= GCO.GetTurnKey()
@@ -6127,16 +6133,16 @@ function DoMigration(self)
 							if destination.PlotID then
 								local plot 	= GCO.GetPlotByIndex(destination.PlotID)
 								Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
+								originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
 								self:ChangePopulationClass(populationID, -popMoving)
 								plot:ChangePopulationClass(populationID, popMoving)
-								originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)
 							else
 								local city 	= destination.City
 								local plot	= GCO.GetPlot(city:GetX(), city:GetY())
 								Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to city ("..Locale.Lookup(city:GetName())..") with Weight = "..tostring(destination.Weight))
+								originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)
 								self:ChangePopulationClass(populationID, -popMoving)
 								city:ChangePopulationClass(populationID, popMoving)
-								originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)
 							end
 						end
 					end	

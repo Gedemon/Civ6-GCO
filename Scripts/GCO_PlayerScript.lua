@@ -694,6 +694,11 @@ function UpdateDataOnNewTurn(self)
 	local playerConfig = PlayerConfigurations[self:GetID()]
 	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on new turn for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+	
+	if Game.GetCurrentGameTurn() == GameConfiguration.GetStartTurn() then -- don't update on first turn (NewTurn is called on the first turn of a later era start)
+		GCO.Warning("Aborting UpdateDataOnNewTurn for ".. Locale.Lookup(playerConfig:GetCivilizationShortDescription()) ..", this is the first turn !")
+		return
+	end
 
 	local playerCities = self:GetCities()
 	if playerCities then

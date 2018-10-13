@@ -170,12 +170,8 @@ function PostInitialize() -- everything that may require other context to be loa
 	ExposedMembers.PlotData 			= GCO.LoadTableFromSlot("PlotData") 			or CreatePlotData()
 	InitializePlotFunctions()
 	SetCultureDiffusionRatePer1000()
-end
-
-function OnEnterGame()
 	SetInitialMapPopulation()
 end
-Events.LoadScreenClose.Add(OnEnterGame)
 
 function CreatePlotData()
 	local plotData		= {}
@@ -186,8 +182,7 @@ function CreatePlotData()
 		local turnKey 	= GCO.GetTurnKey()
 		
 		plotData[plotKey] = {
-			Stock					= { [turnKey] = {} },
-			Population				= { [turnKey] = {} },
+			Stock	= { [turnKey] = {} },
 		}
 	end
 	return plotData
@@ -926,12 +921,19 @@ function DiffuseCulture( self )
 end
 
 function DiffuseCultureFromMigrationTo(self, plot, migrants)
-	local origineCulture 				= {}
-	local culturePercent, totalCulture 	= self:GetCulturePercentTable()	
-	local populationRatio 				= migrants / plot:GetPopulation()
+
+	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
+	if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
 	
-	for cultureKey, value in pairs(culturePercent) do
-		local cultureChange	= migrants * (value / 100) * populationRatio
+	local origineCulture 	= {}
+	local cultureTable	 	= self:GetCultureTable()
+	local migrantRatio		= math.min(1, migrants / math.max(1, self:GetPopulation()))
+	local populationRatio 	= math.min(1, migrants / math.max(1, plot:GetPopulation()))
+	local changeRatio		= migrantRatio * populationRatio
+	
+	for cultureKey, value in pairs(cultureTable) do
+		local cultureChange	= math.ceil(value * changeRatio)
+		Dprint( DEBUG_PLOT_SCRIPT, "Changing Culture on plot for cultureID#"..tostring(cultureKey).. " change = ".. tostring(cultureChange) .. " migrantRatio = ", GCO.ToDecimals(migrantRatio), " populationRatio = ", GCO.ToDecimals(populationRatio), " changeRatio = ", GCO.ToDecimals(changeRatio), " origine Culture Value = ", value)
 		plot:ChangeCulture(cultureKey, cultureChange)
 	end
 end
@@ -1875,10 +1877,13 @@ function SetInitialMapPopulation()
 	local iPlotCount = Map.GetPlotCount()
 	for i = 0, iPlotCount - 1 do
 		local plot = GetPlotByIndex(i)
-		if (not plot:IsWater()) and plot:GetPopulation() == 0 then
+		if plot:GetPopulation() > 0 then -- double check in case we're reloading a game on the first turn
+			return
+		end
+		if (not plot:IsWater()) then 
 			local maxSize		= plot:GetMaxSize()
 			local maxPopulation	= GCO.GetPopulationAtSize((maxSize / 4) * eraFactor) 
-			local minPopulation	= math.floor(maxPopulation / 8)
+			local minPopulation	= math.max(1,math.floor(maxPopulation / 8))
 			local population	= minPopulation + TerrainBuilder.GetRandomNumber(maxPopulation - minPopulation, "Add population on plot")
 			
 			Dprint( DEBUG_PLOT_SCRIPT, " - Set " .. Indentation20("population = ".. tostring(population)) .. " at ", plot:GetX(), plot:GetY(), " maxSize = ", maxSize)
@@ -2221,6 +2226,7 @@ function ChangeStock(self, resourceID, value, useType, reference)
 	else
 		local newStock = GCO.ToDecimals(plotData.Stock[turnKey][resourceKey] + value)
 		if newStock < -1 then -- allow a rounding error up to 1
+if not GameInfo.Resources[tonumber(resourceID)] then Dline("Error, can't find resource in table for resourceID#", resourceID) end
 			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[tonumber(resourceID)].Name) .." stock, previous stock = ".. tostring(cityData.Stock[turnKey][resourceKey])..", variation value = "..tostring(value))
 		end
 		plotData.Stock[turnKey][resourceKey] = math.max(0 , newStock)
@@ -2273,6 +2279,12 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "Updating Data for ".. self:GetX(), self:GetY())
+
+	if Game.GetCurrentGameTurn() == GameConfiguration.GetStartTurn() then -- don't update on first turn (NewTurn is called on the first turn of a later era start)
+		GCO.Warning("Aborting UpdateDataOnNewTurn for plots, this is the first turn !")
+		return
+	end
+	
 	local plotData 			= self:GetData()
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey 	= GCO.GetPreviousTurnKey()
@@ -2396,7 +2408,7 @@ function DoMigration(self)
 	if self:IsCity() then return end -- cities handle migration differently
 	
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
-	if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
+	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "- Population Migration from plot ".. self:GetX() ..",".. self:GetY())
@@ -2534,26 +2546,36 @@ function DoMigration(self)
 							if destination.PlotID then
 								local plot = GCO.GetPlotByIndex(destination.PlotID)
 								Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Resources[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
+								self:DiffuseCultureFromMigrationTo(plot, classMoving) -- before changing population values to get the correct numbers on each plot
 								self:ChangePopulationClass(classID, -classMoving)
 								plot:ChangePopulationClass(classID, classMoving)
-								self:DiffuseCultureFromMigrationTo(plot, classMoving)
 							else
 								local city = destination.City
 								local plot = GetPlot(city:GetX(), city:GetY())
 								Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Resources[classID].Name)).. " to city ("..Locale.Lookup(city:GetName())..") with Weight = "..tostring(destination.Weight))
+								self:DiffuseCultureFromMigrationTo(plot, classMoving)
 								self:ChangePopulationClass(classID, -classMoving)
 								city:ChangePopulationClass(classID, classMoving)
-								self:DiffuseCultureFromMigrationTo(plot, classMoving)
 							end
 						end
 					end
 				end
 			end	
 		end
+		
+		-- to do: temporary table with total migration for each destination
+		-- and call DiffuseCultureFromMigrationTo only once per destination
+		-- to prevent culture overflow
 	end
 end
 
 function OnNewTurn()
+
+	if Game.GetCurrentGameTurn() == GameConfiguration.GetStartTurn() then -- don't update on first turn (NewTurn is called on the first turn of a later era start)
+		GCO.Warning("Aborting OnNewTurn() for plots, this is the first turn !")
+		return
+	end
+
 	GCO.StartTimer("Plots DoTurn")
 	local iPlotCount = Map.GetPlotCount()
 	-- First Pass
@@ -2675,7 +2697,7 @@ function CleanPlotsData() -- called in GCO_GameScript.lua
 	Dprint( DEBUG_PLOT_SCRIPT, "Cleaning PlotData...")	
 	
 	for plotKey, data1 in pairs(ExposedMembers.PlotData) do
-		local toClean 	= {"Stock","Population"}
+		local toClean 	= {"Stock"}
 		local maxTurn	= 3
 		for i, dataToClean in ipairs(toClean) do
 			turnTable = {}

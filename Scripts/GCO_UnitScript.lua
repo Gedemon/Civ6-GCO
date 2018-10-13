@@ -4842,7 +4842,13 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 	
 	local unitKey 			= self:GetKey()	
 	if not ExposedMembers.UnitData[unitKey] then
-		Dprint( DEBUG_UNIT_SCRIPT, "Skipping (not initialized ?) :", Locale.Lookup(self:GetName())," key = ",unitKey)
+		--Dprint( DEBUG_UNIT_SCRIPT, "Skipping (not initialized ?) :", Locale.Lookup(self:GetName())," key = ",unitKey)
+		GCO.Warning("Skipping (not initialized ?) :".. Locale.Lookup(self:GetName()) .." key = ",unitKey)
+		return
+	end	
+
+	if Game.GetCurrentGameTurn() == GameConfiguration.GetStartTurn() then -- don't update on first turn (NewTurn is called on the first turn of a later era start)
+		GCO.Warning("Aborting UpdateDataOnNewTurn for ".. Locale.Lookup(self:GetName()) ..", this is the first turn ! key = ",unitKey)
 		return
 	end
 	

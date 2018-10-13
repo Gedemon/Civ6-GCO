@@ -689,7 +689,7 @@
   <LocalizedText> <!-- Plot ToolTip Texts -->
 	
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_TOTAL" Language="en_US">
-      <Text>Total Culture: {1_Num} [ICON_Culture]</Text>
+      <Text>[ICON_GreatWriter] {1_Num} Culture</Text>
     </Replace>	
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE" Language="en_US">
       <Text>{1_Num: number #.##} % {2_Name}</Text>

@@ -885,7 +885,7 @@ function GetTurnKey()
 end
 
 function GetPreviousTurnKey()
-	return tostring(math.max(1, Game.GetCurrentGameTurn()-1))
+	return tostring(math.max(GameConfiguration.GetStartTurn(), Game.GetCurrentGameTurn()-1))
 end
 
 
@@ -1012,7 +1012,7 @@ function GetVariationString(variation)
 	return ""
 end
 
-function GetVariationStringWhiteHigh(variation)
+function GetVariationStringNoColorHigh(variation)
 	if variation > 0 then
 		return " [ICON_PressureUp]+".. Locale.Lookup("{1_Num : number #,###}", variation)
 	elseif variation < 0 then
@@ -1021,7 +1021,7 @@ function GetVariationStringWhiteHigh(variation)
 	return ""
 end
 
-function GetVariationStringWhitePercent(variation)
+function GetVariationStringNoColorPercent(variation)
 	if variation > 0 then
 		return " [ICON_PressureUp]+".. Locale.Lookup("{1_Num : number #.##}", variation)
 	elseif variation < 0 then
@@ -1162,8 +1162,8 @@ function Initialize()
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 				= GetVariationString
-	ExposedMembers.GCO.GetVariationStringWhiteHigh		= GetVariationStringWhiteHigh
-	ExposedMembers.GCO.GetVariationStringWhitePercent	= GetVariationStringWhitePercent
+	ExposedMembers.GCO.GetVariationStringNoColorHigh	= GetVariationStringNoColorHigh
+	ExposedMembers.GCO.GetVariationStringNoColorPercent	= GetVariationStringNoColorPercent
 	ExposedMembers.GCO.GetNeutralVariationString		= GetNeutralVariationString
 	ExposedMembers.GCO.GetVariationStringGreenPositive 	= GetVariationStringGreenPositive
 	ExposedMembers.GCO.GetVariationStringRedPositive	= GetVariationStringRedPositive

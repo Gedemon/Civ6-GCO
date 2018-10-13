@@ -575,7 +575,7 @@ function View(data:table, bIsUpdate:boolean)
 	else
 		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", GCO.Round(size) ))		
 	end
-	table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population)) .. GCO.GetVariationStringWhiteHigh(popVariation))
+	table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population)) .. GCO.GetVariationStringNoColorHigh(popVariation))
 	if totalCulture > 0 then
 		local sortedCulture = {}
 		for playerID, value in pairs (plot:GetCulturePercentTable()) do
@@ -585,13 +585,13 @@ function View(data:table, bIsUpdate:boolean)
 		local numLines = 5
 		local other = 0
 		local iter = 1
-		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ))
+		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ).. GCO.GetVariationStringNoColorHigh(totalCulture - plot:GetTotalPreviousCulture()))
 		for i, t in ipairs(sortedCulture) do
 			if (iter <= numLines) or (#sortedCulture == numLines + 1) then
 				local playerConfig 		= PlayerConfigurations[t.playerID]
 				local percentVariation 	= (plot:GetCulturePer10000(t.playerID) - plot:GetPreviousCulturePer10000(t.playerID)) / 100
 				local civAdjective 		= Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
-				if t.value > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, civAdjective) .. GCO.GetVariationStringWhitePercent(percentVariation)) end
+				if t.value > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, civAdjective) .. GCO.GetVariationStringNoColorPercent(percentVariation)) end
 			else
 				other = other + t.value
 			end
