@@ -899,10 +899,10 @@ function CityBanner.UpdateStats( self : CityBanner)
 					
 					-- Rural Population
 					--[[
-					local UpperClassID 				= GameInfo.Populations["POPULATION_UPPER"].Index
-					local MiddleClassID 			= GameInfo.Populations["POPULATION_MIDDLE"].Index
-					local LowerClassID 				= GameInfo.Populations["POPULATION_LOWER"].Index
-					local SlaveClassID 				= GameInfo.Populations["POPULATION_SLAVE"].Index					
+					local UpperClassID 				= GameInfo.Resources["POPULATION_UPPER"].Index
+					local MiddleClassID 			= GameInfo.Resources["POPULATION_MIDDLE"].Index
+					local LowerClassID 				= GameInfo.Resources["POPULATION_LOWER"].Index
+					local SlaveClassID 				= GameInfo.Resources["POPULATION_SLAVE"].Index					
 					local ruralUpperClass 			= city:GetRuralPopulationClass(UpperClassID)
 					local ruralMiddleClass 			= city:GetRuralPopulationClass(MiddleClassID)
 					local ruralLowerClass 			= city:GetRuralPopulationClass(LowerClassID)

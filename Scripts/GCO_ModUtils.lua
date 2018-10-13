@@ -1012,6 +1012,24 @@ function GetVariationString(variation)
 	return ""
 end
 
+function GetVariationStringWhiteHigh(variation)
+	if variation > 0 then
+		return " [ICON_PressureUp]+".. Locale.Lookup("{1_Num : number #,###}", variation)
+	elseif variation < 0 then
+		return " [ICON_PressureDown]".. Locale.Lookup("{1_Num : number #,###}", variation)
+	end
+	return ""
+end
+
+function GetVariationStringWhitePercent(variation)
+	if variation > 0 then
+		return " [ICON_PressureUp]+".. Locale.Lookup("{1_Num : number #.##}", variation)
+	elseif variation < 0 then
+		return " [ICON_PressureDown]".. Locale.Lookup("{1_Num : number #.##}", variation)
+	end
+	return ""
+end
+
 function GetNeutralVariationString(variation)
 	if variation > 0 then
 		return " [ICON_TradeRouteLarge][COLOR_Blue]+".. tostring(variation).."[ENDCOLOR]"
@@ -1144,6 +1162,8 @@ function Initialize()
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 				= GetVariationString
+	ExposedMembers.GCO.GetVariationStringWhiteHigh		= GetVariationStringWhiteHigh
+	ExposedMembers.GCO.GetVariationStringWhitePercent	= GetVariationStringWhitePercent
 	ExposedMembers.GCO.GetNeutralVariationString		= GetNeutralVariationString
 	ExposedMembers.GCO.GetVariationStringGreenPositive 	= GetVariationStringGreenPositive
 	ExposedMembers.GCO.GetVariationStringRedPositive	= GetVariationStringRedPositive

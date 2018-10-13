@@ -565,15 +565,17 @@ function View(data:table, bIsUpdate:boolean)
 	table.insert(details, "------------------")
 	local totalCulture 	= plot:GetTotalCulture()
 	local population	= plot:GetPopulation()
+	local popVariation	= population - plot:GetPreviousPopulation()
 	local size			= plot:GetSize()
 	
 	if data.IsCity then
 		GCO.AttachCityFunctions(data.OwnerCity)
-		population = data.OwnerCity:GetRealPopulation()
+		population 		= data.OwnerCity:GetRealPopulation()
+		popVariation	= data.OwnerCity:GetUrbanPopulationVariation()
 	else
 		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", GCO.Round(size) ))		
-	end	
-	table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population) ))
+	end
+	table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population)) .. GCO.GetVariationStringWhiteHigh(popVariation))
 	if totalCulture > 0 then
 		local sortedCulture = {}
 		for playerID, value in pairs (plot:GetCulturePercentTable()) do
@@ -586,9 +588,10 @@ function View(data:table, bIsUpdate:boolean)
 		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ))
 		for i, t in ipairs(sortedCulture) do
 			if (iter <= numLines) or (#sortedCulture == numLines + 1) then
-				local playerConfig = PlayerConfigurations[t.playerID]
-				local civAdjective = Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
-				if t.value > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", GCO.ToDecimals(t.value), civAdjective)) end
+				local playerConfig 		= PlayerConfigurations[t.playerID]
+				local percentVariation 	= (plot:GetCulturePer10000(t.playerID) - plot:GetPreviousCulturePer10000(t.playerID)) / 100
+				local civAdjective 		= Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
+				if t.value > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, civAdjective) .. GCO.GetVariationStringWhitePercent(percentVariation)) end
 			else
 				other = other + t.value
 			end
