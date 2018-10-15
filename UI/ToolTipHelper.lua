@@ -352,7 +352,7 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index					
 				local resRequiredName 	= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
 				local resCreatedName 	= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
-				table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED", maxConverted, ratio, resRequiredName, resCreatedName))
+				table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED", maxConverted, maxConverted * ratio, resRequiredName, resCreatedName))
 			end
 		end
 	end
@@ -367,7 +367,7 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 				local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index					
 				local resCreatedName 	= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
 				MaxConverted = math.max(MaxConverted, row.MaxConverted)
-				resCreatedString		= resCreatedString .. Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_RESOURCE_CREATED", row.Ratio, resCreatedName)
+				resCreatedString		= resCreatedString .. Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_RESOURCE_CREATED", MaxConverted * row.Ratio, resCreatedName)
 			end
 		end
 		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_MULTI_CREATED", MaxConverted, resRequiredName, resCreatedString))
@@ -376,15 +376,17 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 	for resourceCreatedID, data1 in pairs(MultiResRequired) do
 		local resCreatedName 	= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
 		local resRequiredString	= ""
+		local maxCreated		= 999999
 		for buildingID, data2 in pairs (data1) do
 			local bSeparator = false
 			for _, row in ipairs(data2) do				
 				local resourceRequiredID = GameInfo.Resources[row.ResourceRequired].Index					
 				local resRequiredName 	= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
-				resRequiredString		= resRequiredString .. Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_RESOURCE_REQUIRED", row.MaxConverted, row.Ratio, resRequiredName)
+				resRequiredString		= resRequiredString .. Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_RESOURCE_REQUIRED", row.MaxConverted, resRequiredName)
+				maxCreated				= math.min(maxCreated, row.MaxConverted * row.Ratio)
 			end
 		end
-		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_MULTI_REQUIRED", resCreatedName, resRequiredString))
+		table.insert(toolTipLines, Locale.Lookup("LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_MULTI_REQUIRED", maxCreated, resCreatedName, resRequiredString))
 	end
 	
 	-- GCO >>>>>

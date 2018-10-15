@@ -45,6 +45,8 @@ DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_ROMAN_FORT'; -- Ro
 --DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_STEPWELL';
 
 INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_FORT', 'UNIT_BUILDER');
+INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_AIRSTRIP', 'UNIT_BUILDER');
+INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_MISSILE_SILO', 'UNIT_BUILDER');
 --INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'UNIT_BUILDER');
 
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_JUNGLE');

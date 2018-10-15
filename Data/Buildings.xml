@@ -71,13 +71,13 @@
 		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	Cost="580" 	MaterielPerProduction="4" />
 		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	Cost="740" 	MaterielPerProduction="6" />
 		
-		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" 			Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ARMORED_WARFARE"	PrereqDistrict="DISTRICT_HARBOR" />
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" 			Cost="240" 	MaterielPerProduction="40"  PrereqTech="TECH_ARMORED_WARFARE"	PrereqDistrict="DISTRICT_HARBOR" />
 		
-		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_FLIGHT"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
-		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ADVANCED_FLIGHT"		PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
-		<Row BuildingType="BUILDING_PROPELLER_ENGINE_FACTORY" 	Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_FLIGHT"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
-		<Row BuildingType="BUILDING_JET_ENGINE_FACTORY" 		Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ROCKETRY"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>		
-		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE" 	Cost="240" 	MaterielPerProduction="60"  PrereqTech="TECH_ADVANCED_FLIGHT"		PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	Cost="240" 	MaterielPerProduction="15"  PrereqTech="TECH_FLIGHT"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	Cost="260" 	MaterielPerProduction="25"  PrereqTech="TECH_ADVANCED_FLIGHT"		PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
+		<Row BuildingType="BUILDING_PROPELLER_ENGINE_FACTORY" 	Cost="220" 	MaterielPerProduction="10"  PrereqTech="TECH_FLIGHT"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
+		<Row BuildingType="BUILDING_JET_ENGINE_FACTORY" 		Cost="220" 	MaterielPerProduction="25"  PrereqTech="TECH_ROCKETRY"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>		
+		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE" 	Cost="280" 	MaterielPerProduction="30"  PrereqTech="TECH_ADVANCED_FLIGHT"		PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
 		
 	<!---->
 	</BuildingsGCO>
@@ -384,7 +384,7 @@
 		<Row BuildingType="BUILDING_FACTORY" 			ResourceType="RESOURCE_STEEL" 		MaxConverted="25" 	ResourceCreated="EQUIPMENT_MODERN_ARMORS" 		Ratio="0.2"	MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_FACTORY" 			ResourceType="RESOURCE_ALUMINUM"	MaxConverted="25" 	ResourceCreated="EQUIPMENT_MODERN_ARMORS" 		Ratio="0.2"	MultiResRequired="1"/>
 		
-		<Row BuildingType="BUILDING_FACTORY" 			ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRICAL_DEVICES" 	Ratio="0.05"	/>
+		<Row BuildingType="BUILDING_FACTORY" 			ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRICAL_DEVICES" 	Ratio="0.15"	/>
 		
 		<Row BuildingType="BUILDING_FACTORY"			ResourceType="RESOURCE_WOODEN_FUSELAGE"			MaxConverted="2"	ResourceCreated="EQUIPMENT_BIPLANE" 		Ratio="1.0"		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_FACTORY"			ResourceType="RESOURCE_PROPELLER_ENGINE"		MaxConverted="2"	ResourceCreated="EQUIPMENT_BIPLANE" 		Ratio="1.0"		MultiResRequired="1"/>
@@ -506,11 +506,13 @@
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="EQUIPMENT_DESTROYER"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="500"/>
 		
-		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_LARGE_STEEL_HULL"	Stock="20"	FixedValue="1"/>
-		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_BATTLESHIP"			Stock="1"	FixedValue="1"/>
-		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_AIRCRAFT_CARRIER"	Stock="1"	FixedValue="1"/>
-		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_NUCLEAR_SUBMARINE"	Stock="1"	FixedValue="1"/>
-		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_MISSILE_CRUISER"	Stock="1"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_LARGE_STEEL_HULL"			Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_ELECTRONIC_SYSTEM"			Stock="10"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_ADVANCED_ELECTRONIC_SYSTEM"	Stock="10"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_BATTLESHIP"					Stock="1"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_AIRCRAFT_CARRIER"			Stock="1"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_NUCLEAR_SUBMARINE"			Stock="1"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="EQUIPMENT_MISSILE_CRUISER"			Stock="1"	FixedValue="1"/>
 		
 		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_WOODEN_FUSELAGE" 	Stock="20"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ALUMINUM_FUSELAGE" 	Stock="20"	FixedValue="1"/>

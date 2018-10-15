@@ -5799,7 +5799,7 @@ function SetMigrationValues(self)
 
 	Dlog("SetMigrationValues ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	
 	local cityKey = self:GetKey()
 	if not _cached[cityKey] then
@@ -5923,7 +5923,7 @@ function DoMigration(self)
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /START")
 	
 	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "- Population Migration for ".. Locale.Lookup(self:GetName()))

@@ -923,18 +923,20 @@ end
 function DiffuseCultureFromMigrationTo(self, plot, migrants)
 
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
-	if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
+	--if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
 	
-	local origineCulture 	= {}
-	local cultureTable	 	= self:GetCultureTable()
-	local migrantRatio		= math.min(1, migrants / math.max(1, self:GetPopulation()))
-	local populationRatio 	= math.min(1, migrants / math.max(1, plot:GetPopulation()))
-	local changeRatio		= migrantRatio * populationRatio
+	local cultureTable	 	= self:GetCultureTable() or {}
+	local leaveRatio		= math.min(1, migrants / math.max(1, self:GetPopulation()))
+	local destinationRatio 	= math.min(1, migrants / math.max(1, plot:GetPopulation()))
+	--local changeRatio		= migrantRatio * populationRatio
 	
 	for cultureKey, value in pairs(cultureTable) do
-		local cultureChange	= math.ceil(value * changeRatio)
-		Dprint( DEBUG_PLOT_SCRIPT, "Changing Culture on plot for cultureID#"..tostring(cultureKey).. " change = ".. tostring(cultureChange) .. " migrantRatio = ", GCO.ToDecimals(migrantRatio), " populationRatio = ", GCO.ToDecimals(populationRatio), " changeRatio = ", GCO.ToDecimals(changeRatio), " origine Culture Value = ", value)
-		plot:ChangeCulture(cultureKey, cultureChange)
+		-- once we have default culture groups on all the map, only use one value ? (cultureRemove)
+		local cultureRemove	= math.ceil(value * leaveRatio)
+		local cultureAdd	= math.ceil(cultureRemove * destinationRatio)
+		Dprint( DEBUG_PLOT_SCRIPT, "Changing Culture on plot (".. self:GetX()..","..self:GetY() ..") for cultureID#"..tostring(cultureKey), Indentation20(" remove = ".. tostring(cultureRemove)).. Indentation20(" leaveRatio = ".. tostring(GCO.ToDecimals(leaveRatio))).. Indentation20(" add = ".. tostring(cultureAdd)).. Indentation20(" destinationRatio = " .. tostring (GCO.ToDecimals(destinationRatio))) .. " origine Culture Value = " .. tostring(value))
+		plot:ChangeCulture(cultureKey, cultureAdd)
+		self:ChangeCulture(cultureKey, -cultureRemove)
 	end
 end
 
@@ -2226,8 +2228,7 @@ function ChangeStock(self, resourceID, value, useType, reference)
 	else
 		local newStock = GCO.ToDecimals(plotData.Stock[turnKey][resourceKey] + value)
 		if newStock < -1 then -- allow a rounding error up to 1
-if not GameInfo.Resources[tonumber(resourceID)] then Dline("Error, can't find resource in table for resourceID#", resourceID) end
-			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[tonumber(resourceID)].Name) .." stock, previous stock = ".. tostring(cityData.Stock[turnKey][resourceKey])..", variation value = "..tostring(value))
+			GCO.Error("Trying to set a negative value to ".. Locale.Lookup(GameInfo.Resources[tonumber(resourceID)].Name) .." stock, previous stock = ".. tostring(plotData.Stock[turnKey][resourceKey])..", variation value = "..tostring(value))
 		end
 		plotData.Stock[turnKey][resourceKey] = math.max(0 , newStock)
 	end
@@ -2487,7 +2488,7 @@ function DoMigration(self)
 					plotWeight = (plotWeight + diffusionValues.Bonus + diffusionValues.Penalty) * diffusionValues.MaxRatio
 					Dprint( DEBUG_PLOT_SCRIPT, "  - After diffusionValues: plotWeight = ", GCO.ToDecimals(plotWeight))
 					totalWeight = totalWeight + plotWeight
-					table.insert (possibleDestination, {PlotID = adjacentPlot:GetIndex(), Weight = plotWeight, MigrationEfficiency = diffusionValues.MaxRatio})
+					table.insert (possibleDestination, {PlotID = adjacentPlot:GetIndex(), Weight = plotWeight, MigrationEfficiency = math.max(1,diffusionValues.MaxRatio)})
 				end
 			end
 		end
@@ -2537,7 +2538,12 @@ function DoMigration(self)
 		for i, destination in ipairs(possibleDestination) do
 			if migrants > 0 and destination.Weight > 0 then
 				-- MigrationEfficiency already affect destination.Weight, but when there is not many possible destination 
-				-- we want to limit the number of migrants over difficult routes, so it's included here too 
+				-- we want to limit the number of migrants over difficult routes, so it's included here too
+				if destination.MigrationEfficiency > 1 then
+					GCO.Warning("MigrationEfficiency = ".. tostring(destination.MigrationEfficiency))
+					for k, v in pairs(destination) do print(k,v) end
+					destination.MigrationEfficiency = 1
+				end
 				local totalPopMoving 	= math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
 				if totalPopMoving > 0 then
 					for i, classID in ipairs(migrantClasses) do

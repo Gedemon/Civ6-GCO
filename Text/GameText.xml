@@ -740,25 +740,25 @@
   <LocalizedText> <!-- ToolTips Helper Texts -->
 	
 	<Replace Tag="LOC_TOOLTIP_BUILDING_RESOURCE_STOCK" Language="en_US">
-      <Text>Can stock {1_Num} {1_Num : plural 1?unit; other?units;} of {2_Name}</Text>
+      <Text>[ICON_STOCK2] {1_Num} {1_Num : plural 1?unit; other?units;} of {2_Name}</Text>
     </Replace>	
 	
 	<Replace Tag="LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED" Language="en_US">
-      <Text>Can use {1_Num} {3_Name} per turn[ICON_Turn] to create {4_Name} ({2_Num} per unit)</Text>
+      <Text>[ICON_TOOLS2] {1_Num} {3_Name} [ICON_GoingTo] {2_Num} {4_Name} per turn[ICON_Turn]</Text>
     </Replace>
 	
 	<Replace Tag="LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_MULTI_CREATED" Language="en_US">
-      <Text>Can use {1_Num} {2_Name} per turn[ICON_Turn] to create: {3_Name}</Text>
+      <Text>[ICON_TOOLS2] {1_Num} {2_Name} [ICON_DOUBLE_GREEN_ARROW] {3_Name}</Text>
     </Replace>
 	<Replace Tag="LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_RESOURCE_CREATED" Language="en_US">
-      <Text>[NEWLINE][ICON_BULLET]{2_Name} ({1_Num} created per unit)</Text>
+      <Text>[NEWLINE][ICON_BULLET][ICON_INDENT][ICON_GoingTo]{1_Num} {2_Name} per turn[ICON_Turn]</Text>
     </Replace>
 	
 	<Replace Tag="LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_MULTI_REQUIRED" Language="en_US">
-      <Text>Can create {1_Name} using: {2_Name}</Text>
+      <Text>[ICON_DOUBLE_GREEN_ARROW] {1_Num} {2_Name} per turn[ICON_Turn] using: {3_Name}</Text>
     </Replace>
 	<Replace Tag="LOC_TOOLTIP_BUILDING_RESOURCE_CONVERTED_RESOURCE_REQUIRED" Language="en_US">
-      <Text>[NEWLINE][ICON_BULLET]{3_Name} ({2_Num} created per unit, up to {1_Num} used per turn[ICON_Turn])</Text>
+      <Text>[NEWLINE][ICON_BULLET][ICON_INDENT][ICON_TOOLS2] {1_Num} {2_Name}</Text>
     </Replace>	
 	
 	<Replace Tag="LOC_TOOLTIP_UNIT_PERSONNEL" Language="en_US">
@@ -779,7 +779,7 @@
     </Replace>
 	
 	<Replace Tag="LOC_TOOLTIP_BUILDING_EQUIPMENT_STOCK" Language="en_US">
-      <Text>Provide {1_Num} storage space for Equipment</Text>
+      <Text>[ICON_STOCK2] {1_Num} storage space for Equipment</Text>
     </Replace>
 	
 	<Replace Tag="LOC_TOOLTIP_BUILDING_EMPLOYMENT" Language="en_US">

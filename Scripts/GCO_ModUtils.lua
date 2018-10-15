@@ -90,8 +90,8 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["RESOURCE_LARGE_ALUMINUM_FUSELAGE"].Index]		= "[ICON_EQUIPMENT_FIGHTER]",
 		[GameInfo.Resources["RESOURCE_PROPELLER_ENGINE"].Index]				= "[ICON_EQUIPMENT_FIGHTER]",
 		[GameInfo.Resources["RESOURCE_JET_ENGINE"].Index]					= "[ICON_EQUIPMENT_FIGHTER]",
-		[GameInfo.Resources["RESOURCE_AVIONIC"].Index]						= "[ICON_EQUIPMENT_AVIONIC]",
-		[GameInfo.Resources["RESOURCE_ADVANCED_AVIONIC"].Index]				= "[ICON_EQUIPMENT_AVIONIC]",		
+		[GameInfo.Resources["RESOURCE_AVIONIC"].Index]						= "[ICON_RESOURCE_AVIONIC]",
+		[GameInfo.Resources["RESOURCE_ADVANCED_AVIONIC"].Index]				= "[ICON_RESOURCE_AVIONIC]",		
 		
 		[GameInfo.Resources["EQUIPMENT_CHARIOT"].Index]				= "[ICON_EQUIPMENT_CHARIOT]",
 		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]			= "[ICON_EQUIPMENT_WAR_HORSES]",
