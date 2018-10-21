@@ -935,7 +935,7 @@ function DiffuseCultureFromMigrationTo(self, plot, migrants)
 		local cultureRemove	= math.ceil(value * leaveRatio)
 		local cultureAdd	= math.ceil(cultureRemove * destinationRatio)
 		Dprint( DEBUG_PLOT_SCRIPT, "Changing Culture on plot (".. self:GetX()..","..self:GetY() ..") for cultureID#"..tostring(cultureKey), Indentation20(" remove = ".. tostring(cultureRemove)).. Indentation20(" leaveRatio = ".. tostring(GCO.ToDecimals(leaveRatio))).. Indentation20(" add = ".. tostring(cultureAdd)).. Indentation20(" destinationRatio = " .. tostring (GCO.ToDecimals(destinationRatio))) .. " origine Culture Value = " .. tostring(value))
-		plot:ChangeCulture(cultureKey, cultureAdd)
+		plot:ChangeCulture(cultureKey, cultureRemove) -- cultureAdd
 		self:ChangeCulture(cultureKey, -cultureRemove)
 	end
 end
@@ -2488,7 +2488,7 @@ function DoMigration(self)
 					plotWeight = (plotWeight + diffusionValues.Bonus + diffusionValues.Penalty) * diffusionValues.MaxRatio
 					Dprint( DEBUG_PLOT_SCRIPT, "  - After diffusionValues: plotWeight = ", GCO.ToDecimals(plotWeight))
 					totalWeight = totalWeight + plotWeight
-					table.insert (possibleDestination, {PlotID = adjacentPlot:GetIndex(), Weight = plotWeight, MigrationEfficiency = math.max(1,diffusionValues.MaxRatio)})
+					table.insert (possibleDestination, {PlotID = adjacentPlot:GetIndex(), Weight = plotWeight, MigrationEfficiency = math.min(1,diffusionValues.MaxRatio)})
 				end
 			end
 		end

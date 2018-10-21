@@ -388,6 +388,7 @@
 	
 	<Types> <!-- Promotion Classes -->
 		<Row Type="PROMOTION_CLASS_SKIRMISHER" 	Kind="KIND_PROMOTION_CLASS"/>
+		<Row Type="PROMOTION_CLASS_CONSCRIPT" 	Kind="KIND_PROMOTION_CLASS"/>
 		<Row Type="PROMOTION_CLASS_CAVALRY" 	Kind="KIND_PROMOTION_CLASS"/>
 		<Row Type="PROMOTION_CLASS_GCO" 		Kind="KIND_PROMOTION_CLASS"/> <!-- Lua handled promotions -->
 	</Types>
@@ -414,6 +415,7 @@
 	
 	<UnitPromotionClasses>
 		<Row PromotionClassType="PROMOTION_CLASS_SKIRMISHER" 	Name="LOC_PROMOTION_CLASS_SKIRMISHER_NAME" />
+		<Row PromotionClassType="PROMOTION_CLASS_CONSCRIPT" 	Name="LOC_PROMOTION_CLASS_CONSCRIPT_NAME" />
 		<Row PromotionClassType="PROMOTION_CLASS_CAVALRY" 		Name="LOC_PROMOTION_CLASS_CAVALRY_NAME" />
 		<Row PromotionClassType="PROMOTION_CLASS_GCO" 			Name="LOC_PROMOTION_CLASS_GCO_NAME" />
 	</UnitPromotionClasses>	

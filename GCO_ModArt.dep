@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<AssetObjects::GameDependencyData>
+    <ID>
+        <name text="GCO Mod Art"/>
+        <id text="d3915174-76b2-49ef-b7ec-97bc6b969496"/>
+    </ID>
+	<RequiredGameArtIDs>
+        <Element>
+            <name text="Warfare Expanded"/>
+            <id text="9612f1e9-9210-4457-afe1-7514f190658a"/>
+        </Element>
+        <Element>
+			<name text="REDWarfareExpanded"/>
+			<id text="36ec8c86-cd6d-49d3-a2da-0575804eed5f"/>
+        </Element>
+	</RequiredGameArtIDs>
+    <SystemDependencies>
+        <Element>
+            <ConsumerName text="Units"/>
+            <ArtDefDependencyPaths>
+                <Element text="GCO_Units.artdef"/>
+            </ArtDefDependencyPaths>
+        </Element>
+    </SystemDependencies>
+</AssetObjects::GameDependencyData>

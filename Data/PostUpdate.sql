@@ -23,7 +23,7 @@ UPDATE Buildings SET PrereqDistrict	=	NULL
 			WHERE EXISTS				(SELECT * FROM BuildingsGCO WHERE Buildings.BuildingType = BuildingsGCO.BuildingType AND BuildingsGCO.PrereqDistrict = 'NONE');
 
 /* BuildingsGCO set "ADVISOR_GENERIC" to AdvisorType by default, handle buildings with no AdvisorType here */	
-UPDATE Buildings SET PrereqDistrict	=	NULL
+UPDATE Buildings SET AdvisorType	=	NULL
 			WHERE EXISTS				(SELECT * FROM BuildingsGCO WHERE Buildings.BuildingType = BuildingsGCO.BuildingType AND BuildingsGCO.AdvisorType = 'NONE');
 
 			
@@ -79,39 +79,84 @@ UPDATE MilitaryFormations			SET Name = 'LOC_' || MilitaryFormations.MilitaryForm
 -- Units
 -----------------------------------------------
 
-/* Update existing Units entries from the temporary BuildingsGCO table (before INSERT) */
+/* Update existing Units entries from the temporary UnitsGCO table (before INSERT) */
+/* Code below is working fine on SQLite manager but not for the game */
 /*
 UPDATE Units SET
-		(UnitType, Name, Cost, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, FormationClass, PromotionClass, AdvisorType)
+		(UnitType, Name, Cost, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, Bombard, RangedCombat, FormationClass, PromotionClass, AdvisorType, Personnel)
 	= (SELECT
-		UnitsGCO.UnitType, 'LOC_' || UnitsGCO.UnitType || '_NAME', UnitsGCO.Cost, UnitsGCO.Maintenance, UnitsGCO.BaseMoves, UnitsGCO.BaseSightRange, UnitsGCO.ZoneOfControl, UnitsGCO.Domain, UnitsGCO.Combat, UnitsGCO.FormationClass, UnitsGCO.PromotionClass, UnitsGCO.AdvisorType
+		UnitsGCO.UnitType,
+		'LOC_' || UnitsGCO.UnitType || '_NAME',
+		ifnull(UnitsGCO.Cost, Units.Cost),
+		ifnull(UnitsGCO.Maintenance, Units.Maintenance),
+		ifnull(UnitsGCO.BaseMoves, Units.BaseMoves),
+		ifnull(UnitsGCO.BaseSightRange, Units.BaseSightRange),
+		ifnull(UnitsGCO.ZoneOfControl, Units.ZoneOfControl),
+		ifnull(UnitsGCO.Domain, Units.Domain),
+		ifnull(UnitsGCO.Combat, Units.Combat),
+		ifnull(UnitsGCO.Bombard, Units.Bombard),
+		ifnull(UnitsGCO.RangedCombat, Units.RangedCombat),
+		ifnull(UnitsGCO.FormationClass, Units.FormationClass),
+		ifnull(UnitsGCO.PromotionClass, Units.PromotionClass),
+		ifnull(UnitsGCO.AdvisorType, Units.AdvisorType),
+		ifnull(UnitsGCO.Personnel, Units.Personnel)
     FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType )
-		WHERE EXISTS ( SELECT * FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType)
-*/
+		WHERE EXISTS ( SELECT * FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType);
+--*/
 
 /*
--- By doing 1 query by column we can set entries in UnitsGCO with just the columns to update and leave the rest empty
---UPDATE Units SET Name = (SELECT 'LOC_' || UnitsGCO.UnitType || '_NAME' FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType)
-UPDATE Units SET BaseMoves 		= (SELECT UnitsShort.BM FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.BM IS NOT NULL) 
-UPDATE Units SET Cost 			= (SELECT UnitsShort.Cs FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.Cs IS NOT NULL) 
-UPDATE Units SET Maintenance 	= (SELECT UnitsShort.Mt FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.Mt IS NOT NULL) 
-UPDATE Units SET Combat 		= (SELECT UnitsShort.Cb FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.Cb IS NOT NULL) 
-UPDATE Units SET RangedCombat	= (SELECT UnitsShort.RC FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.RC IS NOT NULL) 
-UPDATE Units SET Range 			= (SELECT UnitsShort.Rg FROM UnitsShort WHERE UnitsShort.UnitType = Units.UnitType AND UnitsShort.Rg IS NOT NULL) 
-*/
+-- This way we can set entries in UnitsGCO with just the columns to update and leave the rest empty...
+UPDATE Units SET BaseMoves 		= ifnull((SELECT UnitsGCO.BaseMoves 		FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.BaseMoves 		IS NOT NULL) , Units.BaseMoves 		);
+UPDATE Units SET Cost 			= ifnull((SELECT UnitsGCO.Cost 				FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.Cost 			IS NOT NULL) , Units.Cost 			);
+UPDATE Units SET CanTrain 		= ifnull((SELECT UnitsGCO.CanTrain 			FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.CanTrain 		IS NOT NULL) , Units.CanTrain 		);
+UPDATE Units SET Maintenance 	= ifnull((SELECT UnitsGCO.Maintenance 		FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.Maintenance 	IS NOT NULL) , Units.Maintenance	);
+UPDATE Units SET Combat 		= ifnull((SELECT UnitsGCO.Combat 			FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.Combat 			IS NOT NULL) , Units.Combat 		);
+UPDATE Units SET Bombard 		= ifnull((SELECT UnitsGCO.Bombard 			FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.Bombard			IS NOT NULL) , Units.Bombard 		);
+UPDATE Units SET RangedCombat	= ifnull((SELECT UnitsGCO.RangedCombat		FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.RangedCombat	IS NOT NULL) , Units.RangedCombat	);
+UPDATE Units SET Range 			= ifnull((SELECT UnitsGCO.Range 			FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.Range 			IS NOT NULL) , Units.Range 			);
+UPDATE Units SET PromotionClass = ifnull((SELECT UnitsGCO.PromotionClass 	FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.PromotionClass	IS NOT NULL) , Units.PromotionClass	);
 
+--*/
 
-/* Create new Units entries from the temporary BuildingsGCO table  (after UPDATE)*/
-INSERT INTO Units (UnitType, Name, Cost, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, FormationClass, PromotionClass, AdvisorType)
+/* Create new Units entries from the temporary UnitsGCO table (after UPDATE)*/
+--/*
+INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, Bombard, RangedCombat, FormationClass, PromotionClass, AdvisorType, Personnel)
 
-	SELECT UnitsGCO.UnitType, 'LOC_' || UnitsGCO.UnitType || '_NAME', UnitsGCO.Cost, UnitsGCO.Maintenance, UnitsGCO.BaseMoves, UnitsGCO.BaseSightRange, UnitsGCO.ZoneOfControl, UnitsGCO.Domain, UnitsGCO.Combat, UnitsGCO.FormationClass, UnitsGCO.PromotionClass, UnitsGCO.AdvisorType
-	FROM UnitsGCO WHERE NOT EXISTS	(SELECT * FROM Units WHERE Units.UnitType = UnitsGCO.UnitType);
+	SELECT 
+		UnitsGCO.UnitType,
+		'LOC_' || UnitsGCO.UnitType || '_NAME',
+		UnitsGCO.Cost,
+		ifnull(UnitsGCO.CanTrain,1),
+		ifnull(UnitsGCO.Maintenance,0),
+		ifnull(UnitsGCO.BaseMoves,2),
+		ifnull(UnitsGCO.BaseSightRange,2),
+		ifnull(UnitsGCO.ZoneOfControl,1),
+		UnitsGCO.Domain,
+		ifnull(UnitsGCO.Combat,0),
+		ifnull(UnitsGCO.Bombard, 0),
+		ifnull(UnitsGCO.RangedCombat, 0),
+		UnitsGCO.FormationClass,
+		UnitsGCO.PromotionClass,
+		ifnull(UnitsGCO.AdvisorType,'ADVISOR_GENERIC'),
+		ifnull(UnitsGCO.Personnel,0)
+		
+	FROM UnitsGCO WHERE NOT EXISTS (SELECT * FROM Units WHERE Units.UnitType = UnitsGCO.UnitType);
+--*/
 	
 	
-/* Create new Buildings Types entries from the temporary BuildingsGCO table */
-INSERT OR REPLACE INTO Types (Type, Kind)
+/* Create new Units Types entries from the temporary UnitsGCO table */
+INSERT INTO Types (Type, Kind)
 	SELECT UnitsGCO.UnitType, 'KIND_UNIT'
-	FROM UnitsGCO;
+	FROM UnitsGCO WHERE NOT EXISTS (SELECT * FROM Types WHERE Types.Type = UnitsGCO.UnitType);
+	
+/* UnitsGCO set "ADVISOR_GENERIC" to AdvisorType by default, handle Units with no AdvisorType here */	
+UPDATE Units SET AdvisorType	=	NULL
+			WHERE EXISTS (SELECT * FROM UnitsGCO WHERE Units.UnitType = UnitsGCO.UnitType AND UnitsGCO.AdvisorType = 'NONE');
+
+			
+/* Link existing description entries to Units */
+UPDATE Units SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Units.UnitType || '_DESCRIPTION' = Tag AND Language='en_US')
+			WHERE EXISTS			(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Units.UnitType || '_DESCRIPTION' = Tag AND Language='en_US');
 	
 /* temporary for testing before removing completely those columns from the Units table */
 --UPDATE Units SET Materiel = 0, Horses = 0;
@@ -227,7 +272,7 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 (	'UNIT_MACEMAN'							), -- LongSwordsman
 (	'UNIT_EXPLORER'							), -- Skirmisher
 (	'UNIT_TREBUCHET'						),
---(	'UNIT_TERCIO'							), -- check for error on update unit data
+--(	'UNIT_TERCIO'							), -- I can't make units with two different equipment types of the same promotion class
 (	'UNIT_RIFLEMAN'							),
 --(	'UNIT_PHALANX'							),
 --(	'UNIT_PELTAST'							),

@@ -2221,11 +2221,14 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 		for unitType, _ in pairs(promotionClassUnits[promotionClassID]) do
 			local bEnoughEquipmentForHP	= true
 			local numRequiredClasses	= 0
+			--local promotionClass		= {}	-- to count only the different promotion's equipment class (ie Infantry Weapons), not all the unit's equipment class (ie Musket, Pikes classes) that can belong to the same promotion's equipment class
+			-- <- that can't be done, with the current code for healing and upgrade, an unit can only have one equipment class for the corresponding promotion equipment class
 			local unitWeight			= 0
 			
 			local specificEquipmentClasses = GetUnitSpecificEquipmentClasses(unitType) --  { [equipmentClassID] = {PercentageOfPersonnel = integer, IsRequired = boolean} }
 			for equipmentClassID, classData in pairs(specificEquipmentClasses) do
 				if equipmentClassID ~= materielEquipmentClassID and classData.IsRequired then
+					
 					numRequiredClasses 						= numRequiredClasses + 1
 					local promotionClassEquipmentClassID 	= GetLinkedEquipmentClass(unitType, equipmentClassID)
 					local total 							= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
@@ -2255,13 +2258,38 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 
 					local num, weight	= GetNumEquipmentOfClassInList(equipmentClassID, equipmentList)					
 					local ratio 		= GetUnitEquipmentClassRatio(unitType, equipmentClassID)
-					local classWeight	= (num * weight) / (requiredNum) -- with the introduction of weight from equipment Desirability, this is not a classWeightage anymore  (num) / (requiredNum) * 100 --(num*ratio) / (total) * 100
-					unitWeight 			= unitWeight + classWeight					
+					local classWeight	= (num * weight) / (requiredNum) -- with the introduction of weight from equipment Desirability, this is not a percentage anymore  (num) / (requiredNum) * 100 --(num*ratio) / (total) * 100
+					unitWeight 			= unitWeight + classWeight
+					--local classWeight	= weight
 						
 					--Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(classWeight).." classWeight at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
-					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." x " ..Indentation8(weight).." ("..Indentation8(classWeight).." classWeight at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[promotionClassEquipmentClassID].Name))
+					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num)..", required = " ..Indentation8(requiredNum)..", classWeight = " ..Indentation8(weight).." x "..Indentation8(GCO.ToDecimals(num / requiredNum)).." = "..Indentation8(math.floor(classWeight)).." (ratio "..Indentation8(ratio)..")", " for "..Indentation20(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[promotionClassEquipmentClassID].Name))
+
+					--[[
+					if not promotionClass[promotionClassEquipmentClassID] then
+						numRequiredClasses 								= numRequiredClasses + 1
+						promotionClass[promotionClassEquipmentClassID]	= {}
+					end
+					promotionClass[promotionClassEquipmentClassID].Number		= (promotionClass[promotionClassEquipmentClassID].Number or 0) 		+ math.min(num, requiredNum)
+					promotionClass[promotionClassEquipmentClassID].Weight		= (promotionClass[promotionClassEquipmentClassID].Weight or 0) 		+ weight
+					promotionClass[promotionClassEquipmentClassID].RequiredNum	= (promotionClass[promotionClassEquipmentClassID].RequiredNum or 0) + requiredNum
+					promotionClass[promotionClassEquipmentClassID].Ratio		= (promotionClass[promotionClassEquipmentClassID].Ratio or 0) 		+ ratio
+					--]]
 				end
 			end
+			
+			--[[
+			for promotionClassEquipmentClassID, data in pairs(promotionClass) do
+				local num			= data.Number
+				local weight		= data.Weight
+				local requiredNum	= data.RequiredNum
+				local ratio 		= data.Ratio
+				local classWeight	= (weight * num / requiredNum)
+				unitWeight 			= unitWeight + classWeight
+				Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num)..", required = " ..Indentation8(requiredNum)..", classWeight = " ..Indentation8(weight).." x "..Indentation8(GCO.ToDecimals(num / requiredNum)).." = "..Indentation8(math.floor(classWeight)).." (ratio "..Indentation8(ratio)..")", " for "..Indentation20(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[promotionClassEquipmentClassID].Name))
+			end
+			--]]
+			
 			if numRequiredClasses > 0 and unitWeight > 0 then
 				local mediumWeight = unitWeight / numRequiredClasses
 				totalWeight = totalWeight + mediumWeight
@@ -2541,6 +2569,7 @@ function ChangeFrontLineEquipment(self, equipmentID, value)  	-- change number o
 end
 
 function GetTypesFromEquipmentList(self)
+
 	local unitData = self:GetData()
 	if not unitData then
 		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())

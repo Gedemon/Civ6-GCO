@@ -325,7 +325,7 @@
 		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_ADVANCED_ELECTRONIC_SYSTEM"	MaxConverted="12" 	ResourceCreated="EQUIPMENT_MISSILE_CRUISER" Ratio="0.085" 	MultiResRequired="1"  />
 		
 		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_WOOD_PLANKS"				MaxConverted="10" 	ResourceCreated="RESOURCE_WOODEN_FUSELAGE" 		Ratio="0.025"  	/>
-		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ALUMINUM"				MaxConverted="50" 	ResourceCreated="RESOURCE_ALUMINUM_FUSELAGE" 	Ratio="0.01"  	/>
+		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ALUMINUM"				MaxConverted="20" 	ResourceCreated="RESOURCE_ALUMINUM_FUSELAGE" 	Ratio="0.025"  	/>
 		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_AVIONIC" 				Ratio="0.125" 	/>
 		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_ADVANCED_AVIONIC" 	Ratio="0.125" 	MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRONIC_COMPONENTS"	MaxConverted="8" 	ResourceCreated="RESOURCE_ADVANCED_AVIONIC" 	Ratio="0.125" 	MultiResRequired="1"  />
@@ -333,7 +333,7 @@
 		<!--
 		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_WOOD_PLANKS"				MaxConverted="18" 	ResourceCreated="RESOURCE_LARGE_WOODEN_FUSELAGE" 	Ratio="0.015"  	/>
 		-->
-		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ALUMINUM"				MaxConverted="100" 	ResourceCreated="RESOURCE_LARGE_ALUMINUM_FUSELAGE" 	Ratio="0.005"  	/>
+		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ALUMINUM"				MaxConverted="25" 	ResourceCreated="RESOURCE_LARGE_ALUMINUM_FUSELAGE" 	Ratio="0.02"  	/>
 		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_AVIONIC" 					Ratio="0.125" 	/>
 		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRICAL_DEVICES"		MaxConverted="8" 	ResourceCreated="RESOURCE_ADVANCED_AVIONIC" 		Ratio="0.125" 	MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	ResourceType="RESOURCE_ELECTRONIC_COMPONENTS"	MaxConverted="8" 	ResourceCreated="RESOURCE_ADVANCED_AVIONIC" 		Ratio="0.125" 	MultiResRequired="1"  />
@@ -405,8 +405,8 @@
 		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_JET_ENGINE"				MaxConverted="2"	ResourceCreated="EQUIPMENT_JET_BOMBER" 		Ratio="0.25"	MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_AIRCRAFT_ASSEMBLY_LINE"	ResourceType="RESOURCE_ADVANCED_AVIONIC"		MaxConverted="2"	ResourceCreated="EQUIPMENT_JET_BOMBER" 		Ratio="1.0"		MultiResRequired="1"/>
 		
-		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRONIC_COMPONENTS"Ratio="0.025"	/>
-		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRICAL_DEVICES" 	Ratio="0.05"	/>
+		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRONIC_COMPONENTS"Ratio="0.025"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"ResourceType="RESOURCE_COPPER" 		MaxConverted="120" 	ResourceCreated="RESOURCE_ELECTRICAL_DEVICES" 	Ratio="0.05"	MultiResCreated="1" />
 		
 	</BuildingResourcesConverted>
 
@@ -538,6 +538,8 @@
 		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_WOOD" 			Stock="125"/>
 		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_STONE" 			Stock="125"/>
 		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_MATERIEL" 		Stock="125"/>
+		
+		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"	ResourceType="RESOURCE_COPPER" 	Stock="125"/>
 		
 		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_STEEL" 			Stock="250"/>
 		<Row BuildingType="BUILDING_FACTORY"		ResourceType="RESOURCE_IRON" 			Stock="250"/>

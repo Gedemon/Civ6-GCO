@@ -156,6 +156,14 @@
 				<LuaReplace>UI/Replacements/ActionPanel_GCO.lua</LuaReplace>
 			</Properties>
 		</ReplaceUIScript>
+		
+		<!-- Control Arts from the Assets -->
+        <UpdateArt id="GCO_ModArt">
+			<Properties>
+				<LoadOrder>100</LoadOrder>
+			</Properties>
+			<File Priority="10">GCO_ModArt.dep</File>
+        </UpdateArt>
 	</InGameActions>
 
 	<FrontEndActions>
@@ -226,5 +234,6 @@
 		<File>UI/UnitPanel.lua</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>GCO_FontIcons.dds</File>
+		<File>GCO_ModArt.dep</File>
 	</Files>
 </Mod>

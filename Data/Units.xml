@@ -2,13 +2,28 @@
 <GameInfo>
 
 	<!--
-		UnitsGCO : Temporary table to set the new Units.		
+		UnitsGCO : Temporary table used to set the new Units and update the old entries.
+		New units require at least those tags: UnitType, Cost, Domain and FormationClass
 		PostUpdate.sql add the required entries (like <Name>, <Description>, ...) and rows to various tables (like <Types>, <Units>, ...)		
 		By default <AdvisorType> is set to "ADVISOR_GENERIC", you'll need to specify different AdvisorType or use AdvisorType="NONE" for NULL
 	-->
 	
+	<UnitsGCO> <!-- Civilian -->
+		<Row UnitType="UNIT_SETTLER" 			/>
+		<Row UnitType="UNIT_BUILDER" 			/>
+	</UnitsGCO>
+	<UnitsGCO> <!-- Melee -->
+	</UnitsGCO>
+	<UnitsGCO> <!-- Conscripts -->
+		<Row UnitType="UNIT_SPEARMAN" 			CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
+		<Row UnitType="UNIT_PIKEMAN" 			CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
+		<Row UnitType="UNIT_RIFLEMAN" 			CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
+		<Row UnitType="UNIT_INFANTRY" 			CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
+	</UnitsGCO>
 	<UnitsGCO>
-		<Row UnitType="UNIT_MODERN_INFANTRY" Cost="650" Maintenance="8" BaseMoves="2" BaseSightRange="2" ZoneOfControl="true" Domain="DOMAIN_LAND" Combat="85" FormationClass="FORMATION_CLASS_LAND_COMBAT" PromotionClass="PROMOTION_CLASS_MELEE" AdvisorType="ADVISOR_CONQUEST" />
+		<Row UnitType="UNIT_FIELD_CANNON" 		Combat="53" RangedCombat="0"	Bombard="65"	PromotionClass="PROMOTION_CLASS_SIEGE" />
+		<Row UnitType="UNIT_MODERN_INFANTRY" 	Cost="650" 	Maintenance="8" 	Domain="DOMAIN_LAND" Combat="85" FormationClass="FORMATION_CLASS_LAND_COMBAT" PromotionClass="PROMOTION_CLASS_MELEE" AdvisorType="ADVISOR_CONQUEST" />
+		<Row UnitType="UNIT_MODERN_MARINE1" 	Cost="650" 	Maintenance="8" 	Domain="DOMAIN_LAND" Combat="85" FormationClass="FORMATION_CLASS_LAND_COMBAT" PromotionClass="PROMOTION_CLASS_MELEE" AdvisorType="ADVISOR_CONQUEST" />
 	</UnitsGCO>	
 	
 </GameInfo>

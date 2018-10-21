@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS UnitsGCO (
 		MandatoryObsoleteCivic TEXT,
 		AdvisorType TEXT,
 		-- Composition in personnel of an unit at full health (for units that doesn't use military organization level)
-		Personnel,
+		Personnel integer,
 		-- Materiel required  
 		Materiel integer, 			-- total value for unit at 100% health, representing general equipement, armement and munitions
 		-- Casualties modifier

@@ -5,7 +5,7 @@
 */
  
 /* New Parameters */
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CSO_VERSION', 'GCO Alpha .1');
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CSO_VERSION', 'Preview .2');
 
 -----------------------------------------------
 -- Units

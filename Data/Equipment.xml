@@ -26,7 +26,7 @@
 		<Row ResourceType="EQUIPMENT_LANCES"			PrereqTech="TECH_MILITARY_TACTICS"		LogisticCost="1.00"	Toughness="7"	Desirability="45" 	AntiPersonnel="46"	IgnorePersonnelArmor="10" 	ObsoleteTech="TECH_RIFLING"	Size="5" />
 		
 		<Row ResourceType="EQUIPMENT_IRON_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.25"	Toughness="6"	Desirability="50" 	AntiPersonnel="44"	IgnorePersonnelArmor="8" 	ObsoleteTech="TECH_RIFLING"	/>
-		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.35"	Toughness="7"	Desirability="55" 	AntiPersonnel="48"	IgnorePersonnelArmor="12" 	ObsoleteTech="TECH_RIFLING"	Size="2" />
+		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.35"	Toughness="7"	Desirability="51" 	AntiPersonnel="48"	IgnorePersonnelArmor="12" 	ObsoleteTech="TECH_RIFLING"	Size="2" />
 		
 		<Row ResourceType="EQUIPMENT_MUSKETS"			PrereqTech="TECH_METAL_CASTING"			LogisticCost="0.75"	Toughness="7"	Desirability="60" 	AntiPersonnel="50"	IgnorePersonnelArmor="50" 	ObsoleteTech="TECH_REPLACEABLE_PARTS" />
 		
@@ -422,8 +422,8 @@
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
 		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_PIKES" 			PercentageOfPersonnel="50" />
-		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_MUSKETS" 		PercentageOfPersonnel="50" />
+		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_PIKES" 			PercentageOfPersonnel="40" />
+		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_MUSKETS" 		PercentageOfPersonnel="60" />
 		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
