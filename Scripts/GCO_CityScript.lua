@@ -4554,7 +4554,8 @@ function DoRecruitPersonnel(self)
 	--local DEBUG_CITY_SCRIPT = "debug"
 	Dprint( DEBUG_CITY_SCRIPT, "Recruiting Personnel...")
 	local player			= GCO.GetPlayer(self:GetOwner())
-	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel())
+	local populationRatio	= player:GetArmyPersonnelPopulationRatio()
+	local nedded 			= math.max(0, self:GetMaxPersonnel() - self:GetPersonnel()) * populationRatio
 	
 	local maxDraftedPercentage	= player:GetMaxDraftedPercentage()
 	local draftedPercentage		= player:GetDraftedPercentage()
@@ -4582,9 +4583,9 @@ function DoRecruitPersonnel(self)
 	self:ChangeUpperClass(-recruitedGenerals)
 	self:ChangeMiddleClass(-recruitedOfficers)
 	self:ChangeLowerClass(-recruitedSoldiers)
-	self:ChangePersonnel(recruitedGenerals, ResourceUseType.Recruit, RefPopulationUpper)
-	self:ChangePersonnel(recruitedOfficers, ResourceUseType.Recruit, RefPopulationMiddle)
-	self:ChangePersonnel(recruitedSoldiers, ResourceUseType.Recruit, RefPopulationLower)
+	self:ChangePersonnel(math.floor(recruitedGenerals/populationRatio), ResourceUseType.Recruit, RefPopulationUpper)
+	self:ChangePersonnel(math.floor(recruitedOfficers/populationRatio), ResourceUseType.Recruit, RefPopulationMiddle)
+	self:ChangePersonnel(math.floor(recruitedSoldiers/populationRatio), ResourceUseType.Recruit, RefPopulationLower)
 	
 	Dlog("DoRecruitPersonnel /END")
 end
@@ -5289,10 +5290,11 @@ function DoExcedents(self)
 	Dlog("DoExcedents ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, "Handling excedent...")
 
-	local cityKey 	= self:GetKey()
-	local cityData 	= ExposedMembers.CityData[cityKey]
-	local turnKey 	= GCO.GetTurnKey()
-	local player 	= GCO.GetPlayer(self:GetOwner())
+	local cityKey 			= self:GetKey()
+	local cityData 			= ExposedMembers.CityData[cityKey]
+	local turnKey 			= GCO.GetTurnKey()
+	local player 			= GCO.GetPlayer(self:GetOwner())
+	local populationRatio	= player:GetArmyPersonnelPopulationRatio()
 
 	-- surplus personnel is sent back to civil life... (to do : send them to another location if available)
 	local excedentalPersonnel = self:GetPersonnel() - self:GetMaxPersonnel()
@@ -5303,9 +5305,9 @@ function DoExcedents(self)
 		local toMiddle 	= GCO.Round(excedentalPersonnel * PersonnelToMiddleClassRatio)
 		local toLower	= math.max(0, excedentalPersonnel - (toMiddle + toUpper))
 
-		self:ChangeUpperClass(toUpper)
-		self:ChangeMiddleClass(toMiddle)
-		self:ChangeLowerClass(toLower)
+		self:ChangeUpperClass(toUpper * populationRatio)
+		self:ChangeMiddleClass(toMiddle * populationRatio)
+		self:ChangeLowerClass(toLower * populationRatio)
 
 		self:ChangePersonnel(-toUpper, ResourceUseType.Demobilize, RefPopulationUpper)
 		self:ChangePersonnel(-toMiddle, ResourceUseType.Demobilize, RefPopulationMiddle)

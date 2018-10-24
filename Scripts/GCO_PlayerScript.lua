@@ -328,6 +328,11 @@ function GetLogisticSupport(self, PromotionClassID)
 	return logisticSupport
 end
 
+function GetArmyPersonnelPopulationRatio(self) -- the maximum percentage of population in the army
+	local era 				= self:GetEra()
+	return GameInfo.Eras[era].ArmyPersonnelPopulationRatio
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Research functions
@@ -984,6 +989,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.GetMaxDraftedPercentage					= GetMaxDraftedPercentage
 	p.GetDraftedPercentage						= GetDraftedPercentage
 	p.GetDraftEfficiencyPercent					= GetDraftEfficiencyPercent
+	p.GetArmyPersonnelPopulationRatio			= GetArmyPersonnelPopulationRatio
 	
 end
 
