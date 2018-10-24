@@ -314,6 +314,15 @@ UPDATE Eras SET ArmyMaxPercentWarBoost = 6	WHERE EraType='ERA_MODERN';
 UPDATE Eras SET ArmyMaxPercentWarBoost = 7	WHERE EraType='ERA_ATOMIC';
 UPDATE Eras SET ArmyMaxPercentWarBoost = 7	WHERE EraType='ERA_INFORMATION';
 
+UPDATE Eras SET ArmyPersonnelPopulationRatio = 1 	WHERE EraType='ERA_ANCIENT';
+UPDATE Eras SET ArmyPersonnelPopulationRatio = 5 	WHERE EraType='ERA_CLASSICAL';
+UPDATE Eras SET ArmyPersonnelPopulationRatio = 10 	WHERE EraType='ERA_MEDIEVAL';
+UPDATE Eras SET ArmyPersonnelPopulationRatio = 20 	WHERE EraType='ERA_RENAISSANCE';
+UPDATE Eras SET ArmyPersonnelPopulationRatio = 50 	WHERE EraType='ERA_INDUSTRIAL';
+UPDATE Eras SET ArmyPersonnelPopulationRatio = 150	WHERE EraType='ERA_MODERN';
+UPDATE Eras SET ArmyPersonnelPopulationRatio = 200	WHERE EraType='ERA_ATOMIC';
+UPDATE Eras SET ArmyPersonnelPopulationRatio = 250	WHERE EraType='ERA_INFORMATION';
+
 /* ************************ */
 /* Districts & Buildings    */
 /* ************************ */

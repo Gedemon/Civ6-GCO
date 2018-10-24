@@ -148,9 +148,10 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_HI
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_MIDDLE_RANK_RATIO', 		0.10);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_PERSONNEL_LOWER_RANK_RATIO', 		0.88); 	-- Just for reference, the code use difference with high+middle ranks
 
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS', 		6);		-- number of turns before a conscript unit starts disbanding (locked by war)
 
 -- combats
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS', 		6);		-- number of turns before a conscript unit starts disbanding (locked by war)
+
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_HEAVY_DIFFERENCE_VALUE',			10);	-- Minimal damage difference to consider a large victory/defeat
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTIPERSONNEL_PERCENT',		45);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('COMBAT_BASE_ANTITANK_PERCENT',			15);

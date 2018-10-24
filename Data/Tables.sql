@@ -356,6 +356,8 @@ ALTER TABLE Eras ADD COLUMN CultureConquestEnabled integer DEFAULT '100';				-- 
 ALTER TABLE Eras ADD COLUMN ArmyMaxPercentOfPopulation integer DEFAULT '1';				-- max percentage of total population in the army (max personnel when not at war)
 ALTER TABLE Eras ADD COLUMN ArmyMaxPercentWarBoost integer DEFAULT '5';					-- raise max percentage of total population in the army by this value (max personnel when at war)
 
+ALTER TABLE Eras ADD COLUMN ArmyPersonnelPopulationRatio integer DEFAULT '1';			-- Number of Population required to train 1 personnel (this is to compensate the fact that at the scale of the mod we can have real population numbers for cities but not for units)
+
 ALTER TABLE Policies ADD COLUMN ArmyMaxPercentBoost integer DEFAULT '0';				-- raise max percentage of total population in the army by this value (max personnel when at war)
 ALTER TABLE Policies ADD COLUMN ActiveTurnsLeftBoost integer DEFAULT '0';				-- raise max number of turn an unit can be drafted before disbanding 
 
