@@ -115,12 +115,13 @@ UPDATE Units SET Bombard 		= ifnull((SELECT UnitsGCO.Bombard 			FROM UnitsGCO WH
 UPDATE Units SET RangedCombat	= ifnull((SELECT UnitsGCO.RangedCombat		FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.RangedCombat	IS NOT NULL) , Units.RangedCombat	);
 UPDATE Units SET Range 			= ifnull((SELECT UnitsGCO.Range 			FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.Range 			IS NOT NULL) , Units.Range 			);
 UPDATE Units SET PromotionClass = ifnull((SELECT UnitsGCO.PromotionClass 	FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.PromotionClass	IS NOT NULL) , Units.PromotionClass	);
+UPDATE Units SET PseudoYieldType= ifnull((SELECT UnitsGCO.PseudoYieldType 	FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.PseudoYieldType	IS NOT NULL) , Units.PseudoYieldType);
 
 --*/
 
 /* Create new Units entries from the temporary UnitsGCO table (after UPDATE)*/
 --/*
-INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, Bombard, RangedCombat, FormationClass, PromotionClass, AdvisorType, Personnel)
+INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, Bombard, RangedCombat, FormationClass, PromotionClass, AdvisorType, PseudoYieldType, Personnel)
 
 	SELECT 
 		UnitsGCO.UnitType,
@@ -138,6 +139,7 @@ INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseS
 		UnitsGCO.FormationClass,
 		UnitsGCO.PromotionClass,
 		ifnull(UnitsGCO.AdvisorType,'ADVISOR_GENERIC'),
+		UnitsGCO.PseudoYieldType,
 		ifnull(UnitsGCO.Personnel,0)
 		
 	FROM UnitsGCO WHERE NOT EXISTS (SELECT * FROM Units WHERE Units.UnitType = UnitsGCO.UnitType);
