@@ -52,6 +52,16 @@ local initializeEquipmentCo		= false	-- the coroutine thread that will handle eq
 
 local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
+local NO_FEATURE 				= -1
+
+local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
+local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
+local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
+local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
+
+local FeatureRemoveFactor		= tonumber(GameInfo.GlobalParameters["RESOURCE_FROM_FEATURE_REMOVE_FACTOR"].Value)
+local FeatureRemoveEraRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_FROM_FEATURE_REMOVE_ERA_RATIO"].Value)
+
 local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIGHT_RATIO"].Value)
 local mediumRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 local heavyRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
@@ -1366,6 +1376,59 @@ function IsDisbanding(self)
 	return false
 end
 
+function Disband(self) -- Send everyone and everything back to the unit's home or supply city
+
+	local DEBUG_UNIT_SCRIPT = "debug"
+	Dprint( DEBUG_UNIT_SCRIPT, "     - Full disbanding of "..Locale.Lookup(self:GetName()))
+	
+	local unitData 	= self:GetData()	
+	local city = GCO.GetCityFromKey( unitData.HomeCityKey ) or GCO.GetCityFromKey( unitData.SupplyLineCityKey )
+	if city then
+		Dprint( DEBUG_UNIT_SCRIPT, "     - Send everyone and everything back to the home city of ".. Locale.Lookup(city:GetName()))
+		-- personnel
+		local totalPersonnel = self:GetTotalPersonnel()
+		city:ChangeStock(personnelResourceID, totalPersonnel)
+		Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20("Total Personnel").." = ", totalPersonnel)
+		
+		-- special resources
+		local listResources		= {foodResourceID, medicineResourceID} 
+		for _, resourceID in ipairs(listResources) do
+			local stock = self:GetStock(resourceID)
+			if stock > 0 then
+				city:ChangeStock(resourceID, stock)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", stock)
+			end
+		end							
+
+		-- all resource in "stock" (ie not "reserve")
+		for resourceKey, value in pairs(unitData.Stock) do
+			if value > 0 then
+				local resourceID = tonumber(resourceKey)
+				city:ChangeStock(resourceID, value)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
+			end
+		end
+		
+		-- all equipment
+		for resourceID, value in pairs(self:GetFullEquipmentList()) do
+			if value > 0 then
+				city:ChangeStock(resourceID, value)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
+			end
+		end
+		
+		-- Send prisoners to city
+		local cityData = city:GetData()
+		for playerKey, number in pairs(unitData.Prisoners) do
+			if number > 0 then
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners").." = ", number)
+				cityData.Prisoners[playerKey] = cityData.Prisoners[playerKey] + number
+			end
+		end
+	else
+		Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home/supply city...")
+	end
+end
 
 -----------------------------------------------------------------------------------------
 -- Military Organization Level function
@@ -4955,6 +5018,18 @@ function DoFood(self)
 	Dlog("DoFood /END")
 end
 
+function DoCollect(self)
+	Dlog("DoCollect /START")
+	if GameInfo.Units[self:GetType()].UnitType == "UNIT_BUILDER" then
+		local plot	= GCO.GetPlot(self:GetX(), self:GetY())
+		local list 	= plot:GetBaseVisibleResources(self:GetOwner())
+		for resourceID, value in pairs(list) do
+			self:ChangeStock(resourceID, value)
+		end
+	end	
+	Dlog("DoCollect /END")
+end
+
 function DoMorale(self)
 	Dlog("DoMorale /START")
 
@@ -5175,6 +5250,8 @@ function CheckForActiveTurnsLeft(self)
 					local minPersonnelLeft		= self:GetPersonnelAtHP(1) 		-- Min personnel left in frontline at HP = 1, to prevent the UpdateFrontLineData function to try to kill the unit.
 					Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding ratio = ", disbandingRatio, ", Personnel to disband = ", maxPersonnelToDisband, ", Front Line Personnel = ", frontLinePersonnel, ", Min Personnel Left = ", minPersonnelLeft)
 					if maxPersonnelToDisband >= (frontLinePersonnel - minPersonnelLeft) then
+						self:Disband()
+						--[[
 						Dprint( DEBUG_UNIT_SCRIPT, "     - Removing unit...")
 						local city = GCO.GetCityFromKey( unitData.HomeCityKey )
 						if city then
@@ -5222,6 +5299,7 @@ function CheckForActiveTurnsLeft(self)
 						else
 							Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home city...")
 						end
+						--]]
 						bRemoveUnit	= true
 					else
 						Dprint( DEBUG_UNIT_SCRIPT, "     - Removing Personnel from front line...")
@@ -5252,6 +5330,7 @@ function DoTurn(self)
 		return
 	end
 	self:DoFood()
+	self:DoCollect()
 	self:DoMorale()
 	self:DoFuel()
 	self:DoExchange()
@@ -5579,6 +5658,70 @@ function OnUnitPromoted( playerID : number, unitID : number )
 end
 --Events.UnitPromoted.Add( OnUnitPromoted )
 
+
+function OnUnitOperationStarted(ownerID, unitID, operationID)
+
+	local DEBUG_UNIT_SCRIPT = "debug"
+	Dprint( DEBUG_UNIT_SCRIPT, "- Calling OnUnitOperationStarted ", ownerID, unitID, operationID )
+
+	if operationID == UnitOperationTypes.REMOVE_FEATURE then
+		local unit = UnitManager.GetUnit(ownerID, unitID)
+		if unit then
+			local unitData		= unit:GetData()
+			local unitOwner		= GCO.GetPlayer(ownerID)
+			local plot 			= GCO.GetPlot(unit:GetX(), unit:GetY())
+			local featureID 	= plot:GetCached("FeatureType") -- at this point the feature type is already changed in GameCore, so we use the cached value
+			if featureID and featureID ~= NO_FEATURE then
+				local featureRow = GameInfo.Features[featureID]
+				Dprint( DEBUG_UNIT_SCRIPT, "  - Removing ".. Locale.Lookup(featureRow.Name) .. " at position ", unit:GetX(), unit:GetY())
+				local city 				= GCO.GetCityFromKey( unitData.SupplyLineCityKey )
+				local bUpdateCityFlag	= false
+				if FeatureResources[featureID] then
+					for _, data in pairs(FeatureResources[featureID]) do
+						for resourceID, value in pairs(data) do
+							if value > 0 then
+								if unitOwner:IsResourceVisible(resourceID) then
+									local collected 	= GCO.Round(value * FeatureRemoveFactor * (unitOwner:GetEra() + 1) * FeatureRemoveEraRatio)
+									if collected > 0 then
+										local cityPlot		= GCO.IsImprovingResource(improvementID, resourceID)
+										bUpdateCityFlag 	= true
+										city:ChangeStock(resourceID, collected, ResourceUseType.Pillage, unit:GetKey())
+										
+										local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+										if (pLocalPlayerVis ~= nil) then
+											local locationX = city:GetX()
+											local locationY = city:GetY()
+											if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
+												local sText = "+" .. tostring(collected).." "..GCO.GetResourceIcon(resourceID)
+												Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)										
+												Dprint( DEBUG_UNIT_SCRIPT, "  - Sending to ".. Locale.Lookup(city:GetName()) .." ".. sText, " at position ", locationX, locationY)
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+				if bUpdateCityFlag then
+					LuaEvents.CityCompositionUpdated(ownerID, city:GetID())
+				end
+			end
+		end
+	end
+end
+Events.UnitOperationStarted.Add( OnUnitOperationStarted )
+
+function OnUnitChargesChanged( playerID: number, unitID : number, newCharges : number, oldCharges : number )
+	local unit = UnitManager.GetUnit(playerID, unitID)
+	if unit then
+		if newCharges == 0 then
+			unit:Disband()
+		end
+	end
+end
+Events.UnitChargesChanged.Add( OnUnitOperationStarted )
+
 -----------------------------------------------------------------------------------------
 -- General Functions
 -----------------------------------------------------------------------------------------
@@ -5709,6 +5852,7 @@ function AttachUnitFunctions(unit)
 		u.GetProperty							= GetProperty
 		u.SetProperty							= SetProperty
 		u.IsDisbanding							= IsDisbanding
+		u.Disband								= Disband
 		--
 		u.RecordTransaction						= RecordTransaction
 		u.GetTransactionValue					= GetTransactionValue
@@ -5797,6 +5941,7 @@ function AttachUnitFunctions(unit)
 		--
 		u.UpdateDataOnNewTurn					= UpdateDataOnNewTurn
 		u.DoFood 								= DoFood
+		u.DoCollect								= DoCollect
 		u.DoMorale 								= DoMorale
 		u.DoFuel 								= DoFuel
 		u.DoTurn 								= DoTurn

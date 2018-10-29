@@ -104,7 +104,7 @@ UPDATE Units SET
 		WHERE EXISTS ( SELECT * FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType);
 --*/
 
-/*
+--/*
 -- This way we can set entries in UnitsGCO with just the columns to update and leave the rest empty...
 UPDATE Units SET BaseMoves 		= ifnull((SELECT UnitsGCO.BaseMoves 		FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.BaseMoves 		IS NOT NULL) , Units.BaseMoves 		);
 UPDATE Units SET Cost 			= ifnull((SELECT UnitsGCO.Cost 				FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.Cost 			IS NOT NULL) , Units.Cost 			);
@@ -121,7 +121,7 @@ UPDATE Units SET PseudoYieldType= ifnull((SELECT UnitsGCO.PseudoYieldType 	FROM 
 
 /* Create new Units entries from the temporary UnitsGCO table (after UPDATE)*/
 --/*
-INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, Bombard, RangedCombat, FormationClass, PromotionClass, AdvisorType, PseudoYieldType, Personnel)
+INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, Bombard, RangedCombat, Range, FormationClass, PromotionClass, AdvisorType, PseudoYieldType, Personnel)
 
 	SELECT 
 		UnitsGCO.UnitType,
@@ -136,6 +136,7 @@ INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseS
 		ifnull(UnitsGCO.Combat,0),
 		ifnull(UnitsGCO.Bombard, 0),
 		ifnull(UnitsGCO.RangedCombat, 0),
+		ifnull(UnitsGCO.Range, 0),
 		UnitsGCO.FormationClass,
 		UnitsGCO.PromotionClass,
 		ifnull(UnitsGCO.AdvisorType,'ADVISOR_GENERIC'),
@@ -272,7 +273,7 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 (	'UNIT_SNIPER'							), -- Commandos
 (	'UNIT_MODERN_SNIPER'					), -- Special Forces
 (	'UNIT_MACEMAN'							), -- LongSwordsman
-(	'UNIT_EXPLORER'							), -- Skirmisher
+--(	'UNIT_EXPLORER'							), -- Skirmisher
 (	'UNIT_TREBUCHET'						),
 --(	'UNIT_TERCIO'							), -- I can't make units with two different equipment types of the same promotion class
 (	'UNIT_RIFLEMAN'							),
@@ -288,4 +289,6 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 (	'END_OF_INSERT'							);
 
 
-DELETE FROM Units WHERE UnitType NOT IN (SELECT UnitsTokeep.UnitType from UnitsTokeep);
+DELETE FROM Units WHERE UnitType NOT IN (SELECT UnitsTokeep.UnitType from UnitsTokeep UNION SELECT UnitsGCO.UnitType from UnitsGCO);
+
+--DELETE FROM Units WHERE UnitType NOT IN (SELECT UnitsTokeep.UnitType from UnitsTokeep);

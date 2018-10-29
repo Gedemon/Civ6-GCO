@@ -36,47 +36,6 @@ LuaEvents.RestoreCitiesDebugLevel.Add(RestorePreviousDebugLevel)
 -----------------------------------------------------------------------------------------
 -- ENUMS
 -----------------------------------------------------------------------------------------
-local ResourceUseType	= {	-- ENUM for resource use types (string as it it used as a key for saved table)
-		Collect 	= "1",	-- Resources from map (ref = PlotID)
-		Consume		= "2",	-- Used by population or local industries (ref = PopulationType or buildingID or cityKey)
-		Product		= "3",	-- Produced by buildings (industrie) (ref = buildingID)
-		Import		= "4",	-- Received from foreign cities (ref = cityKey)
-		Export		= "5",	-- Send to foreign cities (ref = cityKey)
-		TransferIn	= "6",	-- Reveived from own cities (ref = cityKey)
-		TransferOut	= "7",	-- Send to own cities (ref = cityKey)
-		Supply		= "8",	-- Send to units (ref = unitKey)
-		Pillage		= "9",	-- Received from units (ref = unitKey)
-		OtherIn		= "10",	-- Received from undetermined source
-		OtherOut	= "11",	-- Send to undetermined source
-		Waste		= "12",	-- Destroyed (excedent, ...)
-		Recruit		= "13",	-- Recruit Personnel
-		Demobilize	= "14",	-- Personnel send back to civil life
-		Stolen		= "15", -- Stolen by units (ref = unitKey)
-}
-
-local ProductionTypes = {
-		UNIT		= 0,
-		BUILDING	= 1,
-		DISTRICT 	= 2
-	}
-
-local ReferenceType = { 	-- ENUM for reference types used to determine resource uses
-	Unit			= 1,
-	City			= 2,
-	Plot			= 3,
-	Population		= 4,
-	Building		= 5,
-	PopOrBuilding	= 99,
-}
-
-local SupplyRouteType	= {	-- ENUM for resource trade/transfer route types
-		Trader 	= 1,
-		Road	= 2,
-		River	= 3,
-		Coastal	= 4,
-		Ocean	= 5,
-		Airport	= 6
-}
 
 local NO_IMPROVEMENT 	= -1
 local NO_FEATURE 		= -1
@@ -125,21 +84,6 @@ local SupplyRouteLengthFactor 	= {		-- When calculating supply line efficiency r
 		[SupplyRouteType.Coastal]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
 		[SupplyRouteType.Ocean]		= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_SEA_LENGTH_FACTOR"].Value),
 		[SupplyRouteType.Airport]	= tonumber(GameInfo.GlobalParameters["CITY_ROUTE_AIRPORT_LENGTH_FACTOR"].Value)
-}
-
-local ResourceUseTypeReference	= {	-- Helper to get the reference type for a specific UseType
-	[ResourceUseType.Collect] 		= ReferenceType.Plot,
-	[ResourceUseType.Consume] 		= ReferenceType.PopOrBuilding, -- special case, PopulationType (string) or BuildingID (number)
-	[ResourceUseType.Product] 		= ReferenceType.Building,
-	[ResourceUseType.Import] 		= ReferenceType.City,
-	[ResourceUseType.Export] 		= ReferenceType.City,
-	[ResourceUseType.TransferIn] 	= ReferenceType.City,
-	[ResourceUseType.TransferOut] 	= ReferenceType.City,
-	[ResourceUseType.Supply] 		= ReferenceType.Unit,
-	[ResourceUseType.Pillage] 		= ReferenceType.Unit,
-	[ResourceUseType.Recruit] 		= ReferenceType.Population,
-	[ResourceUseType.Demobilize] 	= ReferenceType.Population,
-	[ResourceUseType.Stolen] 		= ReferenceType.Unit,
 }
 
 -- Reference types for Resource usage
@@ -299,6 +243,10 @@ local PerSizeStockRatio 			= tonumber(GameInfo.GlobalParameters["CITY_PER_SIZE_S
 local PersonnelPerSize	 			= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
 local EquipmentBaseStock 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUIPMENT"].Value)
 local ConstructionMinStockRatio		= tonumber(GameInfo.GlobalParameters["CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO"].Value)
+
+local SurplusWasteFastPercent		= tonumber(GameInfo.GlobalParameters["CITY_SURPLUS_WASTE_FAST_PERCENT"].Value)
+local SurplusWasteSlowPercent		= tonumber(GameInfo.GlobalParameters["CITY_SURPLUS_WASTE_SLOW_PERCENT"].Value)
+local SurplusWastePercent			= tonumber(GameInfo.GlobalParameters["CITY_SURPLUS_WASTE_PERCENT"].Value)
 
 --local MaterielPerBuildingCost		= tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PER_BUIDING_COST"].Value)
 
@@ -2394,7 +2342,8 @@ end
 
 function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 
-	--local DEBUG_CITY_SCRIPT = false
+	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
+	--if Locale.Lookup(self:GetName()) =="Kyoto" and Locale.Lookup(GameInfo.Resources[resourceID].Name) =="Materiel" then DEBUG_CITY_SCRIPT = "debug" end
 	
 	if not resourceID then
 		GCO.Warning("resourceID is nil or false in ChangeStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
@@ -2417,21 +2366,28 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 	if value > 0 and resourceKey ~= personnelResourceKey then
 		if not useType then useType = ResourceUseType.OtherIn end
 		if not unitCost then unitCost = GCO.GetBaseResourceCost(resourceID) end
-		local actualStock	= self:GetStock(resourceID)
-		local actualCost	= self:GetResourceCost(resourceID)
 		local maxStock		= self:GetMaxStock(resourceID)
+		local actualStock	= math.min(self:GetStock(resourceID), maxStock) -- To prevent virtualValue to be negative when the actualStock is > maxStock
+		local actualCost	= self:GetResourceCost(resourceID)
 		local surplus		= math.max(0, (actualStock + value) - maxStock)
 		local virtualStock 	= math.max(actualStock, (math.ceil(maxStock/2)))
 		local virtualValue 	= value - surplus
 		local newCost 		= GCO.ToDecimals((virtualValue*unitCost + virtualStock*actualCost ) / (virtualValue + virtualStock))
+
+		Dprint( DEBUG_CITY_SCRIPT, "newCost = (virtualValue[".. tostring(virtualValue) .."] * unitCost["..tostring(unitCost).."] + virtualStock["..tostring(virtualStock).."]*actualCost["..tostring(actualCost).."] ) / (virtualValue["..tostring(virtualValue).."] + virtualStock["..tostring(virtualStock).."])")
 
 		local surplusStr 	= ""
 		local halfStockStr	= ""
 
 		newCost = math.min(newCost, self:GetMaximumResourceCost(resourceID))
 		newCost = math.max(newCost, self:GetMinimumResourceCost(resourceID))
+		
+		--[[
+		local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
+		newCost = math.max(minCost, math.min(maxCost, actualCost - variation))
+		--]]
 
-		if surplus > 0 then surplusStr 	= "(surplus of "..tostring(surplus).." not effecting price)" end
+		if surplus > 0 then surplusStr 	= "(surplus of "..tostring(surplus).." not affecting price)" end
 		if virtualStock > actualStock then halfStockStr 	= " (using virtual half stock of "..tostring(virtualStock).." for calculation) " end
 
 		Dprint( DEBUG_CITY_SCRIPT, "Update Unit Cost of ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." to "..tostring(newCost), " cost/unit, added "..tostring(value), " unit(s) at "..tostring(unitCost), " cost/unit "..surplusStr.." to stock of ".. tostring(actualStock), " unit(s) at ".. tostring(actualCost), " cost/unit " .. halfStockStr)
@@ -4374,7 +4330,8 @@ end
 function UpdateCosts(self)
 
 	Dlog("UpdateCosts ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = "debug"
+	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
+	--if Locale.Lookup(self:GetName()) =="Kyoto" then DEBUG_CITY_SCRIPT = "debug" end
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey 	= GCO.GetPreviousTurnKey()
@@ -4409,9 +4366,11 @@ function UpdateCosts(self)
 
 				Dprint( DEBUG_CITY_SCRIPT, "- Actualising cost of "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name))," actual cost.. ".. tostring(actualCost)," stock ",stock," maxStock ",maxStock," demand ",demand," supply ",supply)
 
-				if supply > demand or stock == maxStock then
-
-					local turnUntilFull = (maxStock - stock) / (supply - demand) -- (don't worry, supply - demand > 0)
+				if supply > demand or stock >= maxStock then
+					local turnUntilFull = 0
+					if stock < maxStock then
+						turnUntilFull = (maxStock - stock) / (supply - demand) -- (don't worry, supply - demand > 0 if we're here)
+					end
 					if turnUntilFull == 0 then
 						varPercent = math.min(maxVarPercent, MaxCostReductionPercent)
 					else
@@ -4433,7 +4392,6 @@ function UpdateCosts(self)
 					newCost = math.max(minCost, math.min(maxCost, actualCost + variation))
 					self:SetResourceCost(resourceID, newCost)
 					Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...").." new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until empty ".. Indentation8(turnUntilEmpty).." variation ".. Indentation8(variation))
-
 				end
 			end
 		end
@@ -4973,7 +4931,7 @@ function DoIndustries(self)
 
 					-- don't allow excedent if there is no demand
 					local bLimitedByExcedent	= false
-					local stockVariation 	= self:GetStockVariation(resourceCreatedID)
+					local stockVariation 		= self:GetStockVariation(resourceCreatedID)
 					if amountCreated + self:GetStock(resourceCreatedID) > self:GetMaxStock(resourceCreatedID) and stockVariation >= 0 then
 						local maxCreated 	= self:GetMaxStock(resourceCreatedID) - self:GetStock(resourceCreatedID)
 						amountUsed 			= math.floor(maxCreated / row.Ratio)
@@ -5317,21 +5275,26 @@ function DoExcedents(self)
 
 	end
 
-	-- surplus resources are lost
+	-- surplus resources are wasted
 	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
 		local resourceID = tonumber(resourceKey)
 		local excedent = 0
 		local stock = self:GetStock(resourceID)
 		
-		--if not GCO.IsResourceEquipment(resourceID) then
-			excedent = stock - self:GetMaxStock(resourceID)
-		--end
-			
+		
+		-- Obsolete equipment is removed at a faster rate
 		if player:IsObsoleteEquipment(resourceID) then
 			if self:GetNumRequiredInQueue(resourceID) == 0 then
-				excedent = math.ceil(stock / 2)
-			end
+				excedent = math.ceil(stock * SurplusWasteFastPercent / 100)
+			end		
+		-- Used resources are removed at a slower rate	
+		elseif self:GetDemand(resourceID) > 0 or self:GetNumRequiredInQueue(resourceID) > 0 then
+			excedent = math.ceil((stock - self:GetMaxStock(resourceID)) * SurplusWasteSlowPercent / 100)
+		-- Non used resources are removed at normal rate
+		else
+			excedent = math.ceil((stock - self:GetMaxStock(resourceID)) * SurplusWastePercent / 100)
 		end
+		
 		if excedent > 0 then
 			Dprint( DEBUG_CITY_SCRIPT, " - Surplus destroyed = ".. tostring(excedent).." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
 			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
@@ -5794,7 +5757,7 @@ local migrationClassMotivation	= {
 	["Rural"] 		= { [UpperClassID] 	= 0.25, [MiddleClassID] = 1.00, [LowerClassID] 	= 1.00, },	-- Moving away from cities
 	["Urban"] 		= { [UpperClassID] 	= 2.00, [MiddleClassID] = 1.00, [LowerClassID] 	= 1.00, },	-- Moving to other cities
 	["Emigration"] 	= { [UpperClassID] 	= 1.00, [MiddleClassID] = 0.75, [LowerClassID] 	= 0.50, },	-- Moving to foreign cities
-	["Transport"] 	= { [UpperClassID] 	= 1.00, [MiddleClassID] = 0.50, [LowerClassID] 	= 0.10, },	-- Ability to move over distance (max = 1.00) (todo : era dependant)
+	["Transport"] 	= { [UpperClassID] 	= 1.00, [MiddleClassID] = 0.25, [LowerClassID] 	= 0.05, },	-- Ability to move over distance (max = 1.00) (todo : era dependant)
 }
 
 function SetMigrationValues(self)
@@ -5865,8 +5828,9 @@ function SetMigrationValues(self)
 					cityMigration.Migrants.Employment[populationID]	= math.floor(unEmployed * classesRatio[populationID] * math.min(1, migrationClassMotivation.Employment[populationID])) -- Weight affect numbers of migrant when < 1.00
 				end
 			else
-				cityMigration.Pull.Employment[populationID]	= 0
-				cityMigration.Push.Employment[populationID]	= 0		
+				cityMigration.Pull.Employment[populationID]		= 0
+				cityMigration.Push.Employment[populationID]		= 0
+				cityMigration.Migrants.Employment[populationID]	= 0	
 			end
 			Dprint( DEBUG_CITY_SCRIPT, "  - Employment migrants for ...."..Indentation20(Locale.Lookup(GameInfo.Resources[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Employment[populationID]) .."/".. population )
 			
@@ -5946,7 +5910,6 @@ function DoMigration(self)
 		Dprint( DEBUG_CITY_SCRIPT, "  - Max Migrants = ", maxMigrants, " Min Migrants = ", minMigrants)
 		
 		if maxMigrants > 0 then
-		
 			local cityMigration 			= self:GetMigration()
 			
 			local classesRatio				= {}
@@ -5967,187 +5930,194 @@ function DoMigration(self)
 				-- Get the number of migrants for each class from this city
 				for motivation, value in pairs(cityMigration.Migrants) do
 					-- motivations can overlap, so just use the biggest value for this populationID from all motivations 
-					migrants = math.max(value[populationID], migrants ) 
+					migrants = math.max(value[populationID] or 0, migrants ) -- value[populationID] can be nil when the number of population in that class = 0 
 				end
 				-- Max/Min migrant for a populationID are relative to the populationID ratio, to prevent all migrants
 				-- to be of the same populationID when that class has more eager migrants than the max possible value for the whole city population
 				migrants = math.floor(math.min(maxMigrants * classesRatio[populationID], math.max(minMigrants * classesRatio[populationID], migrants)))
 				Dprint( DEBUG_CITY_SCRIPT, "  - Eager migrants for "..Indentation20(Locale.ToUpper(GameInfo.Resources[populationID].Name)).." = ".. tostring(migrants) .."/".. tostring(self:GetPopulationClass(populationID)) .. ", Major motivation = " .. tostring(majorMotivation) )
 			
-				-- Get possible destinations from this city own plots
-				local cityPlots	= GCO.GetCityPlots(self)
-				for _, plotID in ipairs(cityPlots) do
-					local plot = GCO.GetPlotByIndex(plotID)
-					if plot and (not plot:IsCity()) then
-						local plotMigration = plot:GetMigration()
-						if plotMigration then
-							local distance		= Map.GetPlotDistance(self:GetX(), self:GetY(), plot:GetX(), plot:GetY())
-							local efficiency 	= (1 - math.min(0.9, distance / 10)) * migrationClassMotivation["Transport"][populationID]
-							local factor		= migrationClassMotivation["Rural"][populationID] * efficiency
-							local plotWeight 	= 0
-							if majorMotivation == "Greener Pastures" then								
-								plotWeight = 1  -- Any plots will have mimimun attraction for adventurers
-							end
-							Dprint( DEBUG_CITY_SCRIPT, "   - Looking for better conditions on plot (".. plot:GetX() ..",".. plot:GetY().."), Class Factor = ", GCO.ToDecimals(factor))
-							for motivation, pushValues in pairs(cityMigration.Push) do
-								local pushValue		= pushValues[populationID]
-								local weightRatio	= migrationClassMotivation[motivation][populationID] * factor
-								local plotPull		= plotMigration.Pull[motivation] or 0
-								local plotPush		= plotMigration.Push[motivation] or 0
-								-- special case here : use housing plotPull for food motivation (which is the same in a city and its plots) as sending people
-								-- in plots which could maintain more population if they were not attached to a city may help produce more food for the region
-								if motivation == "Food" then
-									plotPull		= plotMigration.Pull["Housing"] or 0
-								end								
-								Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " plotPush = ", GCO.ToDecimals(plotPush), " plotPull = ", GCO.ToDecimals(plotPull))
-								if plotPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
-									if plotPull > 1 then
-										weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
-									end
-									if pushValue > 1 then
-										weightRatio = weightRatio * 5		-- situation is bad on currentPlot
-									end
-									if motivation == majorMotivation then
-										weightRatio = weightRatio * 10		-- this is the most important motivation for migration
-									end
-									local motivationWeight = (plotPull + pushValue) * weightRatio
-									plotWeight = plotWeight + motivationWeight
-									Dprint( DEBUG_CITY_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
-								end				
-							end
-
-							if plotWeight > 0 then
-								totalWeight = totalWeight + plotWeight
-								table.insert (possibleDestination, {PlotID = plot:GetIndex(), Weight = plotWeight, MigrationEfficiency = efficiency})
-							end
-						else
-							GCO.Warning("plotMigration is nil for plot @(".. tostring(plot:GetX())..",".. tostring(plot:GetY())..")")
-						end
-					end
-				end
-				
-				-- Get possible destinations from transfer cities
-				local data 	= self:GetTransferCities() or {}
-				for routeCityKey, routeData in pairs(data) do
-					local city	= GetCityFromKey(routeCityKey)
-					if city then
-
-						local otherCityMigration = city:GetMigration()
-						if otherCityMigration then
-							local cityWeight 	= 0
-							local efficiency	= routeData.Efficiency / 100 * migrationClassMotivation["Transport"][populationID]
-							local factor		= migrationClassMotivation["Urban"][populationID] * efficiency
-							if majorMotivation == "Greener Pastures" then								
-								cityWeight = 1  -- Any city will have mimimun attraction for adventurers
-							end
-							Dprint( DEBUG_CITY_SCRIPT, "   - Looking for better conditions in City of ".. Locale.Lookup(city:GetName()), " Class Factor = ", GCO.ToDecimals(factor))
-							for motivation, pushValues in pairs(cityMigration.Push) do
-								local pushValue		= pushValues[populationID]
-								local weightRatio	= migrationClassMotivation[motivation][populationID] * factor
-								local cityPull		= otherCityMigration.Pull[motivation][populationID] or 0
-								local cityPush		= otherCityMigration.Push[motivation][populationID] or 0
-							
-								Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " cityPush = ", GCO.ToDecimals(cityPush), " cityPull = ", GCO.ToDecimals(cityPull))
-								if cityPush < pushValue then 				-- situation is better in other city than in current city for [motivation]
-									if cityPull > 1 then
-										weightRatio = weightRatio * 2		-- situation is good in other city
-									end
-									if pushValue > 1 then
-										weightRatio = weightRatio * 5		-- situation is bad in current city
-									end
-									if motivation == majorMotivation then
-										weightRatio = weightRatio * 10		-- this is the most important motivation for migration
-									end
-									local motivationWeight = (cityPull + pushValue) * weightRatio
-									cityWeight = cityWeight + motivationWeight
-									Dprint( DEBUG_CITY_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated cityWeight = ", GCO.ToDecimals(cityWeight))
+				if migrants > 0 then
+					-- Get possible destinations from this city own plots
+					local cityPlots	= GCO.GetCityPlots(self)
+					for _, plotID in ipairs(cityPlots) do
+						local plot = GCO.GetPlotByIndex(plotID)
+						if plot and (not plot:IsCity()) then
+							local plotMigration = plot:GetMigration()
+							if plotMigration then
+								local distance		= Map.GetPlotDistance(self:GetX(), self:GetY(), plot:GetX(), plot:GetY())
+								local efficiency 	= (1 - math.min(0.95, distance / 4)) * migrationClassMotivation["Transport"][populationID]
+								local factor		= migrationClassMotivation["Rural"][populationID] * efficiency
+								local plotWeight 	= 0
+								local bWorked 		= (plot:GetWorkerCount() > 0)
+								if majorMotivation == "Greener Pastures" then								
+									plotWeight = 1  -- Any plots will have mimimun attraction for adventurers
 								end
-							end
-
-							if cityWeight > 0 then
-								totalWeight = totalWeight + cityWeight
-								table.insert (possibleDestination, {City = city, Weight = cityWeight, MigrationEfficiency = efficiency})
-							end
-						else
-							GCO.Warning("cityMigration is nil for ".. Locale.Lookup(city:GetName()))
-						end
-					end
-				end
-				
-				-- Get possible destinations from foreign cities
-				local data 	= self:GetExportCities() or {}
-				for routeCityKey, routeData in pairs(data) do
-					local city	= GetCityFromKey(routeCityKey)
-					if city then
-
-						local otherCityMigration = city:GetMigration()
-						if otherCityMigration then
-							local cityWeight 	= 0
-							local efficiency	= routeData.Efficiency / 100 * migrationClassMotivation["Transport"][populationID]
-							local factor		= migrationClassMotivation["Emigration"][populationID] * efficiency
-							if majorMotivation == "Greener Pastures" then								
-								cityWeight = 1  -- Any city will have mimimun attraction for adventurers
-							end
-							Dprint( DEBUG_CITY_SCRIPT, "   - Looking for better conditions in foreign City of ".. Locale.Lookup(city:GetName()), " Class Factor = ", GCO.ToDecimals(factor))
-							for motivation, pushValues in pairs(cityMigration.Push) do
-								local pushValue		= pushValues[populationID]
-								local weightRatio	= migrationClassMotivation[motivation][populationID] * factor
-								local cityPull		= otherCityMigration.Pull[motivation][populationID] or 0
-								local cityPush		= otherCityMigration.Push[motivation][populationID] or 0
-							
-								Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " cityPush = ", GCO.ToDecimals(cityPush), " cityPull = ", GCO.ToDecimals(cityPull))
-								if cityPush < pushValue then 				-- situation is better in other city than in current city for [motivation]
-									if cityPull > 1 then
-										weightRatio = weightRatio * 2		-- situation is good in other city
-									end
-									if pushValue > 1 then
-										weightRatio = weightRatio * 5		-- situation is bad in current city
-									end
-									if motivation == majorMotivation then
-										weightRatio = weightRatio * 10		-- this is the most important motivation for migration
-									end
-									local motivationWeight = (cityPull + pushValue) * weightRatio
-									cityWeight = cityWeight + motivationWeight
-									Dprint( DEBUG_CITY_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated cityWeight = ", GCO.ToDecimals(cityWeight))
+								Dprint( DEBUG_CITY_SCRIPT, "   - Looking for better conditions on plot (".. plot:GetX() ..",".. plot:GetY().."), Class Factor = ", GCO.ToDecimals(factor))
+								for motivation, pushValues in pairs(cityMigration.Push) do
+									local pushValue		= pushValues[populationID]
+									local weightRatio	= migrationClassMotivation[motivation][populationID] * factor
+									local plotPull		= plotMigration.Pull[motivation] or 0
+									local plotPush		= plotMigration.Push[motivation] or 0
+									-- special case here : use housing plotPull for food motivation (which is the same in a city and its plots) as sending people
+									-- in plots which could maintain more population if they were not attached to a city may help produce more food for the region
+									if motivation == "Food" then
+										plotPull		= plotMigration.Pull["Housing"] or 0
+									end								
+									Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " plotPush = ", GCO.ToDecimals(plotPush), " plotPull = ", GCO.ToDecimals(plotPull))
+									if plotPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
+										if plotPull > 1 then
+											weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
+										end
+										if pushValue > 1 then
+											weightRatio = weightRatio * 5		-- situation is bad on currentPlot
+										end
+										if motivation == majorMotivation then
+											weightRatio = weightRatio * 10		-- this is the most important motivation for migration
+										end
+										
+										if bWorked then
+											weightRatio = weightRatio * 10		-- we want migration on worked plots
+										end
+										local motivationWeight = (plotPull + pushValue) * weightRatio
+										plotWeight = plotWeight + motivationWeight
+										Dprint( DEBUG_CITY_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
+									end				
 								end
-							end
 
-							if cityWeight > 0 then
-								totalWeight = totalWeight + cityWeight
-								table.insert (possibleDestination, {City = city, Weight = cityWeight, MigrationEfficiency = efficiency})
-							end
-						else
-							GCO.Warning("cityMigration is nil for ".. Locale.Lookup(city:GetName()))
-						end
-					end
-				end
-			
-				-- Migrate to best destinations
-				table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
-				local numPlotDest = #possibleDestination
-				for i, destination in ipairs(possibleDestination) do
-					if migrants > 0 and destination.Weight > 0 then
-						-- MigrationEfficiency already affect destination.Weight, but when there is not many possible destination 
-						-- we want to limit the number of migrants over long routes, so it's included here too 
-						local popMoving 	= math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
-						if popMoving > 0 then
-							local originePlot	= GCO.GetPlot(self:GetX(), self:GetY())
-							if destination.PlotID then
-								local plot 	= GCO.GetPlotByIndex(destination.PlotID)
-								Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
-								originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
-								self:ChangePopulationClass(populationID, -popMoving)
-								plot:ChangePopulationClass(populationID, popMoving)
+								if plotWeight > 0 then
+									totalWeight = totalWeight + plotWeight
+									table.insert (possibleDestination, {PlotID = plot:GetIndex(), Weight = plotWeight, MigrationEfficiency = efficiency})
+								end
 							else
-								local city 	= destination.City
-								local plot	= GCO.GetPlot(city:GetX(), city:GetY())
-								Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to city ("..Locale.Lookup(city:GetName())..") with Weight = "..tostring(destination.Weight))
-								originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)
-								self:ChangePopulationClass(populationID, -popMoving)
-								city:ChangePopulationClass(populationID, popMoving)
+								GCO.Warning("plotMigration is nil for plot @(".. tostring(plot:GetX())..",".. tostring(plot:GetY())..")")
 							end
 						end
-					end	
+					end
+					
+					-- Get possible destinations from transfer cities
+					local data 	= self:GetTransferCities() or {}
+					for routeCityKey, routeData in pairs(data) do
+						local city	= GetCityFromKey(routeCityKey)
+						if city then
+
+							local otherCityMigration = city:GetMigration()
+							if otherCityMigration then
+								local cityWeight 	= 0
+								local efficiency	= routeData.Efficiency / 100 * migrationClassMotivation["Transport"][populationID]
+								local factor		= migrationClassMotivation["Urban"][populationID] * efficiency
+								if majorMotivation == "Greener Pastures" then								
+									cityWeight = 1  -- Any city will have mimimun attraction for adventurers
+								end
+								Dprint( DEBUG_CITY_SCRIPT, "   - Looking for better conditions in City of ".. Locale.Lookup(city:GetName()), " Class Factor = ", GCO.ToDecimals(factor))
+								for motivation, pushValues in pairs(cityMigration.Push) do
+									local pushValue		= pushValues[populationID]
+									local weightRatio	= migrationClassMotivation[motivation][populationID] * factor
+									local cityPull		= otherCityMigration.Pull[motivation][populationID] or 0
+									local cityPush		= otherCityMigration.Push[motivation][populationID] or 0
+								
+									Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " cityPush = ", GCO.ToDecimals(cityPush), " cityPull = ", GCO.ToDecimals(cityPull))
+									if cityPush < pushValue then 				-- situation is better in other city than in current city for [motivation]
+										if cityPull > 1 then
+											weightRatio = weightRatio * 2		-- situation is good in other city
+										end
+										if pushValue > 1 then
+											weightRatio = weightRatio * 5		-- situation is bad in current city
+										end
+										if motivation == majorMotivation then
+											weightRatio = weightRatio * 10		-- this is the most important motivation for migration
+										end
+										local motivationWeight = (cityPull + pushValue) * weightRatio
+										cityWeight = cityWeight + motivationWeight
+										Dprint( DEBUG_CITY_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated cityWeight = ", GCO.ToDecimals(cityWeight))
+									end
+								end
+
+								if cityWeight > 0 then
+									totalWeight = totalWeight + cityWeight
+									table.insert (possibleDestination, {City = city, Weight = cityWeight, MigrationEfficiency = efficiency})
+								end
+							else
+								GCO.Warning("cityMigration is nil for ".. Locale.Lookup(city:GetName()))
+							end
+						end
+					end
+					
+					-- Get possible destinations from foreign cities
+					local data 	= self:GetExportCities() or {}
+					for routeCityKey, routeData in pairs(data) do
+						local city	= GetCityFromKey(routeCityKey)
+						if city then
+
+							local otherCityMigration = city:GetMigration()
+							if otherCityMigration then
+								local cityWeight 	= 0
+								local efficiency	= routeData.Efficiency / 100 * migrationClassMotivation["Transport"][populationID]
+								local factor		= migrationClassMotivation["Emigration"][populationID] * efficiency
+								if majorMotivation == "Greener Pastures" then								
+									cityWeight = 1  -- Any city will have mimimun attraction for adventurers
+								end
+								Dprint( DEBUG_CITY_SCRIPT, "   - Looking for better conditions in foreign City of ".. Locale.Lookup(city:GetName()), " Class Factor = ", GCO.ToDecimals(factor))
+								for motivation, pushValues in pairs(cityMigration.Push) do
+									local pushValue		= pushValues[populationID]
+									local weightRatio	= migrationClassMotivation[motivation][populationID] * factor
+									local cityPull		= otherCityMigration.Pull[motivation][populationID] or 0
+									local cityPush		= otherCityMigration.Push[motivation][populationID] or 0
+								
+									Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " cityPush = ", GCO.ToDecimals(cityPush), " cityPull = ", GCO.ToDecimals(cityPull))
+									if cityPush < pushValue then 				-- situation is better in other city than in current city for [motivation]
+										if cityPull > 1 then
+											weightRatio = weightRatio * 2		-- situation is good in other city
+										end
+										if pushValue > 1 then
+											weightRatio = weightRatio * 5		-- situation is bad in current city
+										end
+										if motivation == majorMotivation then
+											weightRatio = weightRatio * 10		-- this is the most important motivation for migration
+										end
+										local motivationWeight = (cityPull + pushValue) * weightRatio
+										cityWeight = cityWeight + motivationWeight
+										Dprint( DEBUG_CITY_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated cityWeight = ", GCO.ToDecimals(cityWeight))
+									end
+								end
+
+								if cityWeight > 0 then
+									totalWeight = totalWeight + cityWeight
+									table.insert (possibleDestination, {City = city, Weight = cityWeight, MigrationEfficiency = efficiency})
+								end
+							else
+								GCO.Warning("cityMigration is nil for ".. Locale.Lookup(city:GetName()))
+							end
+						end
+					end
+				
+					-- Migrate to best destinations
+					table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
+					local numPlotDest = #possibleDestination
+					for i, destination in ipairs(possibleDestination) do
+						if migrants > 0 and destination.Weight > 0 then
+							-- MigrationEfficiency already affect destination.Weight, but when there is not many possible destination 
+							-- we want to limit the number of migrants over long routes, so it's included here too 
+							local popMoving 	= math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
+							if popMoving > 0 then
+								local originePlot	= GCO.GetPlot(self:GetX(), self:GetY())
+								if destination.PlotID then
+									local plot 	= GCO.GetPlotByIndex(destination.PlotID)
+									Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
+									originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
+									self:ChangePopulationClass(populationID, -popMoving)
+									plot:ChangePopulationClass(populationID, popMoving)
+								else
+									local city 	= destination.City
+									local plot	= GCO.GetPlot(city:GetX(), city:GetY())
+									Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to city ("..Locale.Lookup(city:GetName())..") with Weight = "..tostring(destination.Weight))
+									originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)
+									self:ChangePopulationClass(populationID, -popMoving)
+									city:ChangePopulationClass(populationID, popMoving)
+								end
+							end
+						end	
+					end
 				end
 			end
 		end
@@ -6437,7 +6407,7 @@ function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCa
 			if city:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_BARRACKS"].Index) then
 				number = 2
 			end
-			city:RecruitUnits("UNIT_WARRIOR", number) -- called with the first unit of the melee line, it will be upgraded automatically to the best available with the current equipment in city
+			city:RecruitUnits("UNIT_LIGHT_SPEARMAN", number) -- called with the first unit of the conscript line, it will be upgraded automatically to the best available with the current equipment in city
 			
 			--LuaEvents.RestoreUnitsDebugLevel()	-- restore previous debug level for UnitScript
 	

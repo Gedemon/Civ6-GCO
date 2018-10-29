@@ -52,6 +52,25 @@ UnitPersonnelType	= {	-- ENUM for trade route level types
 
 
 -----------------------------------------------------------------------------------------
+-- Cities
+-----------------------------------------------------------------------------------------
+
+ProductionTypes = {
+		UNIT		= 0,
+		BUILDING	= 1,
+		DISTRICT 	= 2
+	}
+	
+SupplyRouteType	= {	-- ENUM for resource trade/transfer route types
+		Trader 	= 1,
+		Road	= 2,
+		River	= 3,
+		Coastal	= 4,
+		Ocean	= 5,
+		Airport	= 6
+}
+	
+-----------------------------------------------------------------------------------------
 -- Resources - to do : those are helpers, to move to mod utils with related functions
 -----------------------------------------------------------------------------------------
 IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resource
@@ -99,6 +118,48 @@ for row in GameInfo.TerrainResourcesProduced() do
 end
 
 BaseImprovementMultiplier		= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_IMPROVEMENT_MULTIPLIER"].Value)
+
+ResourceUseType	= {	-- ENUM for resource use types (string as it it used as a key for saved table)
+		Collect 	= "1",	-- Resources from map (ref = PlotID)
+		Consume		= "2",	-- Used by population or local industries (ref = PopulationType or buildingID or cityKey)
+		Product		= "3",	-- Produced by buildings (industrie) (ref = buildingID)
+		Import		= "4",	-- Received from foreign cities (ref = cityKey)
+		Export		= "5",	-- Send to foreign cities (ref = cityKey)
+		TransferIn	= "6",	-- Reveived from own cities (ref = cityKey)
+		TransferOut	= "7",	-- Send to own cities (ref = cityKey)
+		Supply		= "8",	-- Send to units (ref = unitKey)
+		Pillage		= "9",	-- Received from units (ref = unitKey)
+		OtherIn		= "10",	-- Received from undetermined source
+		OtherOut	= "11",	-- Send to undetermined source
+		Waste		= "12",	-- Destroyed (excedent, ...)
+		Recruit		= "13",	-- Recruit Personnel
+		Demobilize	= "14",	-- Personnel send back to civil life
+		Stolen		= "15", -- Stolen by units (ref = unitKey)
+}
+
+ReferenceType = { 	-- ENUM for reference types used to determine resource uses
+	Unit			= 1,
+	City			= 2,
+	Plot			= 3,
+	Population		= 4,
+	Building		= 5,
+	PopOrBuilding	= 99,
+}
+
+ResourceUseTypeReference	= {	-- Helper to get the reference type for a specific UseType
+	[ResourceUseType.Collect] 		= ReferenceType.Plot,
+	[ResourceUseType.Consume] 		= ReferenceType.PopOrBuilding, -- special case, PopulationType (string) or BuildingID (number)
+	[ResourceUseType.Product] 		= ReferenceType.Building,
+	[ResourceUseType.Import] 		= ReferenceType.City,
+	[ResourceUseType.Export] 		= ReferenceType.City,
+	[ResourceUseType.TransferIn] 	= ReferenceType.City,
+	[ResourceUseType.TransferOut] 	= ReferenceType.City,
+	[ResourceUseType.Supply] 		= ReferenceType.Unit,
+	[ResourceUseType.Pillage] 		= ReferenceType.Unit,
+	[ResourceUseType.Recruit] 		= ReferenceType.Population,
+	[ResourceUseType.Demobilize] 	= ReferenceType.Population,
+	[ResourceUseType.Stolen] 		= ReferenceType.Unit,
+}
 
 -----------------------------------------------------------------------------------------
 -- Equipment - to do : those are helpers, to move to mod utils with related functions ?

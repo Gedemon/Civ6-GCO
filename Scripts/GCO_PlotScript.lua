@@ -171,6 +171,15 @@ function PostInitialize() -- everything that may require other context to be loa
 	InitializePlotFunctions()
 	SetCultureDiffusionRatePer1000()
 	SetInitialMapPopulation()
+	CacheMapFeatures()
+end
+
+function CacheMapFeatures()
+	local iPlotCount 	= Map.GetPlotCount()
+	for i = 0, iPlotCount - 1 do
+		local plot 		= GetPlotByIndex(i)
+		plot:SetCached("FeatureType", plot:GetFeatureType())
+	end
 end
 
 function CreatePlotData()
@@ -225,6 +234,18 @@ function GetData(self)
 	local plotData 	= ExposedMembers.PlotData[plotKey]
 	if not plotData then GCO.Warning("plotData is nil for ".. Locale.Lookup(self:GetName())); GCO.DlineFull(); end
 	return plotData
+end
+
+function GetCached(self, key)
+	local plotKey 	= self:GetKey()
+	if not _cached[plotKey] then _cached[plotKey] = {} end
+	return _cached[plotKey][key]
+end
+
+function SetCached(self, key, value)
+	local plotKey 	= self:GetKey()
+	if not _cached[plotKey] then _cached[plotKey] = {} end
+	_cached[plotKey][key] = value
 end
 
 function GetPlotFromKey( key )
@@ -1743,10 +1764,10 @@ function GetAvailableEmployment(self)
 					collected = GCO.Round(collected * BaseImprovementMultiplier)
 				end
 				if resourceActivities[resourceID] then
-					--local resourceEmploymentValue				= self:GetEmploymentValue(collected)
-					--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
-					--availableEmployment 						= availableEmployment + resourceEmploymentValue
-					Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
+					local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+					Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+					availableEmployment 						= availableEmployment + resourceEmploymentValue
+					--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 				end
 			end
 		else -- I don't like hardcoding, todo: find something else...
@@ -1764,10 +1785,10 @@ function GetAvailableEmployment(self)
 							collected = GCO.Round(collected * BaseImprovementMultiplier)
 						end
 						if resourceActivities[resourceID] then 
-							--local resourceEmploymentValue				= self:GetEmploymentValue(collected)
-							--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
-							--availableEmployment 						= availableEmployment + resourceEmploymentValue
-							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
+							local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+							availableEmployment 						= availableEmployment + resourceEmploymentValue
+							--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 						end
 					end
 				end
@@ -1787,10 +1808,10 @@ function GetAvailableEmployment(self)
 							collected = GCO.Round(collected * BaseImprovementMultiplier)
 						end
 						if resourceActivities[resourceID] then
-							--local resourceEmploymentValue				= self:GetEmploymentValue(collected)
-							--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
-							--availableEmployment 						= availableEmployment + resourceEmploymentValue
-							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
+							local resourceEmploymentValue				= self:GetEmploymentValue(collected)
+							Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + resourceEmploymentValue
+							availableEmployment 						= availableEmployment + resourceEmploymentValue
+							--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 						end
 					end
 				end
@@ -1798,6 +1819,7 @@ function GetAvailableEmployment(self)
 		end
 	end
 	
+	--[[
 	local EmploymentByActivities = {}
 	for activity, num in pairs(Employment) do
 		local employments 					= self:GetEmploymentValue(num)
@@ -1806,6 +1828,8 @@ function GetAvailableEmployment(self)
 	end
 	
 	return EmploymentByActivities, availableEmployment
+	--]]
+	return Employment, availableEmployment
 end
 
 -- obsolete >>
@@ -2268,6 +2292,43 @@ function GetStockVariation(self, resourceID)
 	return GCO.ToDecimals(self:GetStock(resourceID) - self:GetPreviousStock(resourceID))
 end
 
+function GetBaseVisibleResources(self, playerID)
+	local resourceValues	= {}
+	local player 			= GCO.GetPlayer(playerID)
+	
+	if player then
+	
+		local function AddResource(resourceID, value)
+			if player:IsResourceVisible(resourceID) then
+				resourceValues[resourceID] = (resourceValues[resourceID] or 0) + value
+			end
+		end
+
+		if self:GetResourceCount() > 0 then
+			local resourceID 	= self:GetResourceType()
+			AddResource(resourceID, self:GetResourceCount())
+		end
+
+		local featureID = self:GetFeatureType()
+		if FeatureResources[featureID] then
+			for _, data in pairs(FeatureResources[featureID]) do
+				for resourceID, value in pairs(data) do
+					AddResource(resourceID, value)
+				end
+			end
+		end
+
+		local terrainID = self:GetTerrainType()
+		if TerrainResources[terrainID] then
+			for _, data in pairs(TerrainResources[terrainID]) do
+				for resourceID, value in pairs(data) do
+					AddResource(resourceID, value)
+				end
+			end
+		end
+	end
+	return resourceValues
+end
 
 -----------------------------------------------------------------------------------------
 -- Plot Doturn
@@ -2459,7 +2520,8 @@ function DoMigration(self)
 			if diffusionValues and adjacentPlot and not (adjacentPlot:IsCity() or adjacentPlot:IsWater()) then
 			
 				local adjacentPlotKey 		= adjacentPlot:GetKey()
-				local adjacentPlotMigration = _cached[adjacentPlotKey].Migration
+				local adjacentPlotMigration = adjacentPlot:GetMigration()
+				local bWorked 				= (adjacentPlot:GetWorkerCount() > 0)
 				local plotWeight			= 0
 				Dprint( DEBUG_PLOT_SCRIPT, "  - Looking for better conditions in ".. DirectionString[direction] .." on plot ".. adjacentPlot:GetX() ..",".. adjacentPlot:GetY().." Diffusion Values : Bonus = "..tostring(diffusionValues.Bonus)..", Penalty = "..tostring(diffusionValues.Penalty)..", Ratio = "..tostring(diffusionValues.MaxRatio))
 				for motivation, pushValue in pairs(plotMigration.Push) do
@@ -2477,6 +2539,9 @@ function DoMigration(self)
 						end
 						if motivation == plotMigration.Motivation then
 							weightRatio = weightRatio * 10		-- this is the most important motivation for migration
+						end
+						if bWorked then
+							weightRatio = weightRatio * 10		-- we want migration on worked plots
 						end
 						local motivationWeight = (adjacentPull + pushValue) * weightRatio
 						plotWeight = plotWeight + motivationWeight
@@ -2654,6 +2719,19 @@ function EmploymentValueUpdate(x,y)
 	end
 end
 
+function OnFeatureChanged(x,y)
+	local DEBUG_PLOT_SCRIPT = "debug"
+	Dprint( DEBUG_PLOT_SCRIPT, "Feature changed at ", x,y)
+	
+	local plot 		= GetPlot(x,y)	
+	local featureID = plot:GetCached("FeatureType")
+
+	Dprint( DEBUG_PLOT_SCRIPT, "  - from FeatureID#", featureID)
+	Dprint( DEBUG_PLOT_SCRIPT, "  - to   FeatureID#", plot:GetFeatureType())
+	
+	plot:SetCached("FeatureType", plot:GetFeatureType())
+end
+
 Events.ImprovementAddedToMap.Add(DiffusionValueUpdate)
 Events.ImprovementRemovedFromMap.Add(DiffusionValueUpdate)
 Events.FeatureRemovedFromMap.Add(DiffusionValueUpdate)
@@ -2666,6 +2744,9 @@ Events.ImprovementRemovedFromMap.Add(EmploymentValueUpdate)
 Events.FeatureRemovedFromMap.Add(EmploymentValueUpdate)
 Events.FeatureAddedToMap.Add(EmploymentValueUpdate)
 Events.ResourceVisibilityChanged.Add(EmploymentValueUpdate)
+
+Events.FeatureRemovedFromMap.Add(OnFeatureChanged)
+Events.FeatureAddedToMap.Add(OnFeatureChanged)
 
 -----------------------------------------------------------------------------------------
 -- Functions passed from UI Context
@@ -2737,6 +2818,8 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	
 	p.GetKey						= GetKey
 	p.GetData						= GetData
+	p.GetCached						= GetCached
+	p.SetCached						= SetCached
 	p.GetCity						= GetCity
 	p.GetEraType					= GetEraType
 	p.GetPlotDiffusionValuesTo		= GetPlotDiffusionValuesTo
@@ -2812,6 +2895,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.GetResources					= GetResources
 	p.GetPreviousStock				= GetPreviousStock
 	p.ChangeStock 					= ChangeStock
+	p.GetBaseVisibleResources		= GetBaseVisibleResources
 	--
 	p.IsEOfRiver					= IsEOfRiver
 	p.IsSEOfRiver					= IsSEOfRiver

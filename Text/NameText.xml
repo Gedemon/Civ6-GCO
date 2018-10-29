@@ -98,6 +98,7 @@
 	<LocalizedText> <!-- Equipment -->
 		
 		<Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 					Text="Chariot" 				Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENT_HORSES_NAME" 					Text="Trained Horses"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENT_WAR_HORSES_NAME" 				Text="War Horses" 			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_ARMORED_HORSES_NAME" 			Text="Armored Horses" 		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENT_TANKS_NAME" 					Text="Tanks" 				Language="en_US" />
@@ -118,6 +119,7 @@
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_CLUB_NAME" 				Text="Wooden Clubs" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_STONE_AXES_NAME" 				Text="Stone Axes"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_SPIKED_CLUB_NAME" 				Text="Spiked Clubs"			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENT_STONE_SPEARS_NAME"				Text="Stone-Tipped Spears"	Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_WOODEN_SPEARS_NAME"				Text="Wooden Spears" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_BRONZE_SPEARS_NAME" 			Text="Bronze Spears" 		Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENT_IRON_SPEARS_NAME" 				Text="Iron Spears"			Language="en_US" /> 
@@ -167,11 +169,13 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_LONGBOWS_NAME"				Text="Longbows"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CROSSBOWS_NAME"			Text="Crossbows"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CHARIOT_NAME" 				Text="Chariot"				Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_HORSES_NAME" 				Text="Trained Horses"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_WAR_HORSES_NAME" 			Text="War Horses"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_TANKS_NAME" 				Text="Tanks" 				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_MODERN_ARMORD_NAME" 		Text="Modern Armors" 		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_ARMORED_HORSES_NAME" 		Text="Armored Horses"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SWORDS_NAME" 				Text="Swords"				Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_PRIMITIVE_SPEARS_NAME"		Text="Primitive Spears"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SPEARS_NAME" 				Text="Spears"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_PIKES_NAME" 				Text="Pikes"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_LANCES_NAME" 				Text="Lances"				Language="en_US" />
@@ -215,14 +219,20 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_ROCKET_ARTILLERY_NAME"		Text="Rocket Artillery"		Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_WEAPONS_NAME" 		Text="Infantry Weapons"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_CONSCRIPT_WEAPONS_NAME"	Text="Infantry Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SKIRMISHER_WEAPON_NAME" 	Text="Skirmisher Weapons"	Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_RANGED_WEAPON_NAME" 		Text="Ranged Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_WEAPONS_NAME" 		Text="Cavalry Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_VEHICLE_NAME" 		Text="Cavalry Equipment"	Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_ARMOR_NAME" 			Text="Infantry Armor"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_CONSCRIPT_ARMOR_NAME" 		Text="Infantry Armor"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_ARMOR_NAME" 		Text="Cavalry Armor"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SKIRMISHER_ARMOR_NAME" 	Text="Skirmisher Armor"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_RANGED_ARMOR_NAME" 		Text="Ranged Armor"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SIEGE_WEAPONS_NAME" 		Text="Siege Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_SHIPS_NAME" 			Text="Melee Ships"			Language="en_US" />
+		
+		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_EXTRA_NAME" 		Text="Cavalry Special"		Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_AIR_BOMBERS_NAME" 			Text="Air Bombers"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENTCLASS_AIR_FIGHTERS_NAME" 		Text="Air Fighters"			Language="en_US" />
@@ -260,14 +270,31 @@
 		
 	</LocalizedText>
 
-	<LocalizedText> <!-- Units -->	
-		<Replace Tag="LOC_UNIT_EXPLORER_NAME" 			Text="Skirmisher" 		Language="en_US" />
-		<Replace Tag="LOC_UNIT_SNIPER_NAME" 			Text="Commando" 		Language="en_US" />
-		<Replace Tag="LOC_UNIT_MODERN_SNIPER_NAME" 		Text="Special Forces" 	Language="en_US" />
-		<Replace Tag="LOC_UNIT_MODERN_INFANTRY_NAME" 	Text="Modern Infantry" 	Language="en_US" />
+	<LocalizedText> <!-- Units -->
+		<Replace Tag="LOC_UNIT_LIGHT_PHALANX_NAME" 		Text="Light Phalanx" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_HEAVY_PHALANX_NAME" 		Text="Heavy Phalanx" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_LIGHT_SPEARMAN_NAME" 	Text="Light Spearman" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_HEAVY_SPEARMAN_NAME" 	Text="Heavy Spearman" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_LIGHT_SWORDSMAN_NAME" 	Text="Light Swordsman" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_HEAVY_PIKEMAN_NAME" 		Text="Heavy Pikeman" 		Language="en_US" />
+		
+		<Replace Tag="LOC_UNIT_JAGER_NAME" 				Text="Infantry" 			Language="en_US" />
+		<Replace Tag="LOC_UNIT_MARINE_NAME" 			Text="Infantry" 			Language="en_US" />
+		<Replace Tag="LOC_UNIT_MODERN_MARINE2_NAME" 	Text="Infantry" 			Language="en_US" />
+		
+		<Replace Tag="LOC_UNIT_SLINGER_SCOUT_NAME" 		Text="Slinger Scout" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_PELTAST_NAME" 			Text="Peltast"		 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_ARCHER_SCOUT_NAME" 		Text="Archer Scout" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_HUNTSMAN_NAME" 			Text="Huntsman" 			Language="en_US" />		
+		<Replace Tag="LOC_UNIT_FORESTER_NAME" 			Text="Forester" 			Language="en_US" />
+		<Replace Tag="LOC_UNIT_SNIPER_NAME" 			Text="Commando" 			Language="en_US" />
+		<Replace Tag="LOC_UNIT_MODERN_SNIPER_NAME" 		Text="Special Forces" 		Language="en_US" />
+		
+		<Replace Tag="LOC_UNIT_MODERN_INFANTRY_NAME" 	Text="Infantry" 			Language="en_US" />
 	</LocalizedText>
 	
 	<LocalizedText> <!-- Promotions -->	
+		<Replace Tag="LOC_PROMOTION_CLASS_CONSCRIPT_NAME" 			Text="Conscript"		 		Language="en_US" />
 		<Replace Tag="LOC_PROMOTION_CLASS_SKIRMISHER_NAME" 			Text="Skirmisher"		 		Language="en_US" />
 		<Replace Tag="LOC_PROMOTION_CLASS_CAVALRY_NAME" 			Text="Cavalry"			 		Language="en_US" />
 		

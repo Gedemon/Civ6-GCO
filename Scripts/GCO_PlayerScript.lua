@@ -317,7 +317,7 @@ function GetLogisticCost(self, PromotionClassID)
 	return logisticCost
 end
 
-function GetLogisticSupport(self, PromotionClassID)
+function GetLogisticSupport(self, PromotionClassID) -- the logistic support available from personnel in cities 
 	local logisticSupport 		= self:GetPersonnelInCities()
 	local promotionClassType 	= GameInfo.UnitPromotionClasses[PromotionClassID].PromotionClassType
 	if promotionClassType == "PROMOTION_CLASS_SKIRMISHER" then

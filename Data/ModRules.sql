@@ -39,6 +39,18 @@ UPDATE Improvements SET PrereqTech ='TECH_CASTLES', 		DefenseModifier = 4, Grant
 UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 	DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ALCAZAR';
 UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 	SameAdjacentValid = 1 WHERE ImprovementType ='IMPROVEMENT_GREAT_WALL';
 
+UPDATE Improvement_YieldChanges SET YieldChange = 3 WHERE ImprovementType ='IMPROVEMENT_FARM' 		AND YieldType="YIELD_FOOD";
+UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_PASTURE' 	AND YieldType="YIELD_FOOD";
+UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_PLANTATION' AND YieldType="YIELD_FOOD";
+UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_CAMP' 		AND YieldType="YIELD_FOOD";
+
+UPDATE Adjacency_YieldChanges	SET YieldChange = 2 WHERE ID ='Farms_MedievalAdjacency';
+UPDATE Adjacency_YieldChanges	SET YieldChange = 3 WHERE ID ='Farms_MechanizedAdjacency';
+
+INSERT OR REPLACE INTO Improvement_Adjacencies(ImprovementType, YieldChangeId) VALUES ('IMPROVEMENT_FARM', 'Farms_DefaultAdjacency');
+INSERT OR REPLACE INTO Adjacency_YieldChanges (ID, Description, YieldType, YieldChange, TilesRequired, AdjacentImprovement, ObsoleteTech, ObsoleteCivic) 
+				VALUES ('Farms_DefaultAdjacency', 'Placeholder', 'YIELD_FOOD', 1, 2,'IMPROVEMENT_FARM','TECH_REPLACEABLE_PARTS','CIVIC_FEUDALISM');
+
 DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_KURGAN';
 DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_COLOSSAL_HEAD';
 DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_ROMAN_FORT'; -- Roman Fort use the exact same art as fort !

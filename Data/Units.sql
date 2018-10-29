@@ -88,6 +88,9 @@ UPDATE Units SET Personnel = 400, 	PrereqTech = NULL 	Where UnitType = "UNIT_MIS
 
 /* Moar Units */
 UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_LONGBOWMAN";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_PELTAST";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_PHALANX";
+UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_LANDSKNECHT";
 UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_TREBUCHET";
 UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_MEDIEVAL_HORSEMAN";
 UPDATE Units SET PrereqTech = NULL 	Where UnitType = "UNIT_MACEMAN";

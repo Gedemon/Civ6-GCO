@@ -52,6 +52,11 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LUXURY_STOCK
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					300);	-- base stock for equipment 		(not related to city size)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		12);	-- unit of materiel produced 		= CITY_MATERIEL_PRODUCTION_PER_SIZE * CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO',	0.5);	-- minimum stock for construction 	= CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO * stock
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_SURPLUS_WASTE_FAST_PERCENT',		50);	-- Percentage of surplus wasted each turn (faste rate for obsolete equipment)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_SURPLUS_WASTE_SLOW_PERCENT',		5);		-- Percentage of surplus wasted each turn (slow rate when resource is demanded)
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_SURPLUS_WASTE_PERCENT',				10);	-- Percentage of surplus wasted each turn (normal rate)
+
 --INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PER_BUIDING_COST',			4);	-- unit of materiel used by unit of cost for buiding construction
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PERSONNEL_PER_SIZE', 				250);	-- base housing for personnel 	= CITY_PERSONNEL_PER_SIZE + CitySize
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STARTING_POPULATION_BONUS', 		2500);	-- value added to the starting population of a new city (to do : Settlers with different size for late game)
@@ -247,6 +252,9 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_COST_MAX
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_COST_MAX_REDUCTION_PERCENT',	25);	-- Max cost reduction from supply/demand per turn
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_COST_MAX_FROM_BASE_FACTOR',		10);	-- was 4
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_COST_MIN_FROM_BASE_FACTOR',		0.10);	-- was 0.25
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_FROM_FEATURE_REMOVE_FACTOR',	75);	-- Resource collected from feature = baseValue * FeatureRemoveFactor * (Era + 1) * FeatureRemoveEraRatio
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_FROM_FEATURE_REMOVE_ERA_RATIO',	0.35);	-- Higher value means more resources collected
 
 -- UI
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UI_MAX_PRISONERS_LINE_IN_TOOLTIP',		2);		-- Number of lines showing prisonners nationality in unit's flag 

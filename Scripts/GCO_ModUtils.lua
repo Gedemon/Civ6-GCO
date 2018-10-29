@@ -94,6 +94,7 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["RESOURCE_ADVANCED_AVIONIC"].Index]				= "[ICON_RESOURCE_AVIONIC]",		
 		
 		[GameInfo.Resources["EQUIPMENT_CHARIOT"].Index]				= "[ICON_EQUIPMENT_CHARIOT]",
+		[GameInfo.Resources["EQUIPMENT_HORSES"].Index]				= "[ICON_EQUIPMENT_WAR_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]			= "[ICON_EQUIPMENT_WAR_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_ARMORED_HORSES"].Index]		= "[ICON_EQUIPMENT_ARMORED_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_LANCES"].Index]				= "[ICON_EQUIPMENT_LANCES]",
@@ -103,6 +104,7 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_WOODEN_CLUB"].Index]			= "[ICON_EQUIPMENT_CLUB]",
 		[GameInfo.Resources["EQUIPMENT_STONE_AXES"].Index]			= "[ICON_EQUIPMENT_CLUB]",
 		[GameInfo.Resources["EQUIPMENT_SPIKED_CLUB"].Index]			= "[ICON_EQUIPMENT_CLUB]",
+		[GameInfo.Resources["EQUIPMENT_STONE_SPEARS"].Index]		= "[ICON_EQUIPMENT_SPEARS]",
 		[GameInfo.Resources["EQUIPMENT_WOODEN_SPEARS"].Index]		= "[ICON_EQUIPMENT_SPEARS]",
 		[GameInfo.Resources["EQUIPMENT_BRONZE_SPEARS"].Index]		= "[ICON_EQUIPMENT_SPEARS]",
 		[GameInfo.Resources["EQUIPMENT_IRON_SPEARS"].Index]			= "[ICON_EQUIPMENT_SPEARS]",
