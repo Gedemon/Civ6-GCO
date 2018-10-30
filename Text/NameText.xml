@@ -176,6 +176,7 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_ARMORED_HORSES_NAME" 		Text="Armored Horses"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SWORDS_NAME" 				Text="Swords"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_PRIMITIVE_SPEARS_NAME"		Text="Primitive Spears"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_METAL_SPEARS_NAME"			Text="Metal Spears"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SPEARS_NAME" 				Text="Spears"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_PIKES_NAME" 				Text="Pikes"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_LANCES_NAME" 				Text="Lances"				Language="en_US" />
@@ -232,7 +233,7 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_SIEGE_WEAPONS_NAME" 		Text="Siege Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_SHIPS_NAME" 			Text="Melee Ships"			Language="en_US" />
 		
-		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_EXTRA_NAME" 		Text="Cavalry Special"		Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_EXTRA_NAME" 		Text="Cavalry Equipment"	Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_AIR_BOMBERS_NAME" 			Text="Air Bombers"			Language="en_US" /> 
 		<Replace Tag="LOC_EQUIPMENTCLASS_AIR_FIGHTERS_NAME" 		Text="Air Fighters"			Language="en_US" />

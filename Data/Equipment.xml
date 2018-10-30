@@ -46,13 +46,13 @@
 		<Row ResourceType="EQUIPMENT_CROSSBOWS"			PrereqTech="TECH_MACHINERY"			LogisticCost="0.50"	Desirability="55" 	AntiPersonnel="50"	IgnorePersonnelArmor="25"	ObsoleteTech="TECH_RIFLING"		/>
 	</Equipment>
 	<Equipment> <!-- Personnel Armor -->
-		<Row ResourceType="EQUIPMENT_LINOTHORAX"											LogisticCost="0.10"	Toughness="3"	Desirability="11" 	PersonnelArmor="10" ObsoleteTech="TECH_MACHINERY" />
-		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											LogisticCost="0.15"	Toughness="3"	Desirability="12" 	PersonnelArmor="15" ObsoleteTech="TECH_ENGINEERING" />
-		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		PrereqTech="TECH_BRONZE_WORKING"	LogisticCost="0.50"	Toughness="5"	Desirability="13" 	PersonnelArmor="25" ObsoleteTech="TECH_ENGINEERING" />
-		<Row ResourceType="EQUIPMENT_GAMBESON"			PrereqTech="TECH_MILITARY_TACTICS"	LogisticCost="0.15"	Toughness="6"	Desirability="20" 	PersonnelArmor="30" ObsoleteTech="TECH_RIFLING"	/>
-		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		PrereqTech="TECH_IRON_WORKING"		LogisticCost="0.25"	Toughness="15"	Desirability="21" 	PersonnelArmor="35" ObsoleteTech="TECH_RIFLING"	/>
-		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			LogisticCost="1.50"	Toughness="20"	Desirability="30" 	PersonnelArmor="50" Size="2" ObsoleteTech="TECH_RIFLING"	/>
-		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	LogisticCost="2.50"	Toughness="30"	Desirability="31" 	PersonnelArmor="80" Size="5" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"											LogisticCost="0.10"	Toughness="3"	Desirability="31" 	PersonnelArmor="10" ObsoleteTech="TECH_MACHINERY" />
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"											LogisticCost="0.15"	Toughness="3"	Desirability="42" 	PersonnelArmor="15" ObsoleteTech="TECH_ENGINEERING" />
+		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		PrereqTech="TECH_BRONZE_WORKING"	LogisticCost="0.50"	Toughness="5"	Desirability="45" 	PersonnelArmor="25" ObsoleteTech="TECH_ENGINEERING" />
+		<Row ResourceType="EQUIPMENT_GAMBESON"			PrereqTech="TECH_MILITARY_TACTICS"	LogisticCost="0.15"	Toughness="6"	Desirability="50" 	PersonnelArmor="30" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		PrereqTech="TECH_IRON_WORKING"		LogisticCost="0.25"	Toughness="15"	Desirability="51" 	PersonnelArmor="35" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR" 	PrereqTech="TECH_MACHINERY"			LogisticCost="1.50"	Toughness="20"	Desirability="60" 	PersonnelArmor="50" Size="2" ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		PrereqTech="TECH_APPRENTICESHIP"	LogisticCost="2.50"	Toughness="30"	Desirability="61" 	PersonnelArmor="80" Size="5" ObsoleteTech="TECH_RIFLING"	/>
 	</Equipment>
 	<Equipment> <!-- Ships -->
 		<Row ResourceType="EQUIPMENT_GALLEY"			PrereqTech="TECH_SAILING"			LogisticCost="50.00"		MaxPriceVariationPercent="6" NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="10" 	Size="400" ObsoleteTech="TECH_SQUARE_RIGGING"	/>
@@ -69,7 +69,7 @@
 		<Row ResourceType="EQUIPMENT_MISSILE_CRUISER" 	PrereqTech="TECH_LASERS"			LogisticCost="1500.00"		MaxPriceVariationPercent="3" NoExport="1" SpecialStock="1" NotLoot="1"	Desirability="120" 	Size="4000" />
 	</Equipment>	
 	<Equipment> <!-- "Vehicle" -->
-		<Row ResourceType="EQUIPMENT_HORSES"												LogisticCost="7.00"		Desirability="10" 	Size="10" ObsoleteTech="TECH_HORSEBACK_RIDING" />
+		<Row ResourceType="EQUIPMENT_HORSES"												LogisticCost="7.00"		Desirability="40" 	Size="10" ObsoleteTech="TECH_HORSEBACK_RIDING" />
 		<Row ResourceType="EQUIPMENT_CHARIOT"			PrereqTech="TECH_THE_WHEEL"			LogisticCost="5.00"		Desirability="40" 	Size="20" ObsoleteTech="TECH_HORSEBACK_RIDING"	/>
 		<Row ResourceType="EQUIPMENT_WAR_HORSES"		PrereqTech="TECH_HORSEBACK_RIDING"	LogisticCost="10.00"	Desirability="50" 	Size="10" ObsoleteTech="TECH_COMPOSITES" />
 		<Row ResourceType="EQUIPMENT_ARMORED_HORSES"	PrereqTech="TECH_STIRRUPS"			LogisticCost="25.00"	Desirability="100" 	Size="10" VehicleArmor="50"	ObsoleteTech="TECH_RIFLING" />
@@ -591,6 +591,7 @@
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_SPEARS"		/>
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_WAR_HORSES"	/>
 		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
+		<Row UnitType="UNIT_HORSEMAN"				EquipmentClass="EQUIPMENTCLASS_CHARIOT" 		PercentageOfPersonnel="25" IsRequired="0" />
 		
 		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="12" />
 		<Row UnitType="UNIT_MEDIEVAL_HORSEMAN"		EquipmentClass="EQUIPMENTCLASS_LANCES"		/>
@@ -694,7 +695,8 @@
 	
 	<UnitConstructionResources>
 		<Row UnitType="UNIT_SETTLER"			ResourceType="RESOURCE_MATERIEL"	Quantity="750" />
-		<Row UnitType="UNIT_BUILDER"			ResourceType="RESOURCE_MATERIEL"	Quantity="350" />		
+		<Row UnitType="UNIT_BUILDER"			ResourceType="RESOURCE_MATERIEL"	Quantity="350" />
+		<!--
 		<Row UnitType="UNIT_GALLEY" 			ResourceType="RESOURCE_WOOD" 		Quantity="100" />
 		<Row UnitType="UNIT_QUADRIREME" 		ResourceType="RESOURCE_WOOD" 		Quantity="200" />
 		<Row UnitType="UNIT_CARAVEL" 			ResourceType="RESOURCE_WOOD" 		Quantity="100" />
@@ -707,6 +709,7 @@
 		<Row UnitType="UNIT_BATTLESHIP" 		ResourceType="RESOURCE_STEEL" 		Quantity="1200" />
 		<Row UnitType="UNIT_AIRCRAFT_CARRIER" 	ResourceType="RESOURCE_STEEL" 		Quantity="1500" />
 		<Row UnitType="UNIT_MISSILE_CRUISER" 	ResourceType="RESOURCE_STEEL" 		Quantity="1000" />
+		-->
 		
 	</UnitConstructionResources>
 	

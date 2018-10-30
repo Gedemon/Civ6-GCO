@@ -223,12 +223,12 @@
 		<Row BuildingType="BUILDING_WINDMILL" 		ResourceType="RESOURCE_RICE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1.00"/>
 		<Row BuildingType="BUILDING_WINDMILL" 		ResourceType="RESOURCE_WHEAT" 		MaxConverted="20" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1.00"/>
 	<!---->	
-		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_CATTLE" 		MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.5"		MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_CATTLE" 		MaxConverted="30" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="0.25"	MultiResCreated="1"/>		
+		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_CATTLE" 		MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="1.50"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_CATTLE" 		MaxConverted="30" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1.00"	MultiResCreated="1"/>		
 		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_DEER" 		MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.25"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_DEER" 		MaxConverted="30" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="0.5"		MultiResCreated="1"/>		
+		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_DEER" 		MaxConverted="30" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="0.75"	MultiResCreated="1"/>		
 		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_SHEEP" 		MaxConverted="30" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="0.25"	MultiResCreated="1"/>
-		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_SHEEP" 		MaxConverted="30" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="0.25"	MultiResCreated="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_SHEEP" 		MaxConverted="30" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="0.75"	MultiResCreated="1"/>
 		
 		<Row BuildingType="BUILDING_HERBALIST" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="0.5"/>
 		
@@ -271,11 +271,11 @@
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_BOMBARDS" 		Ratio="0.5"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_CANNONS" 		Ratio="0.5"	MultiResCreated="1" />
 		
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_LINOTHORAX" 		Ratio="1.5"		MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_GAMBESON" 		Ratio="1.5"		MultiResCreated="1" />
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_LEATHER" 	MaxConverted="20" 	ResourceCreated="EQUIPMENT_LEATHER_ARMOR" 	Ratio="2.5"	/>
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_LINOTHORAX" 		Ratio="2.5"		MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_GAMBESON" 		Ratio="2.5"		MultiResCreated="1" />
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_LEATHER" 	MaxConverted="20" 	ResourceCreated="EQUIPMENT_LEATHER_ARMOR" 	Ratio="3.0"	/>
 		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_COPPER" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_BRONZE_ARMOR" 	Ratio="2.5"	/>
-		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="3.5"	/>	
+		<Row BuildingType="BUILDING_ARMORER" 		ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_IRON_ARMOR" 		Ratio="2.5"	/>	
 		
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="5"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_LONGBOWS" 		Ratio="3"	MultiResCreated="1" />

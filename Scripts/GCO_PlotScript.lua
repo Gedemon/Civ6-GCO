@@ -1771,7 +1771,8 @@ function GetAvailableEmployment(self)
 				end
 			end
 		else -- I don't like hardcoding, todo: find something else...
-			Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
+			Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetEmploymentValue(self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index))
+			--Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
 		end
 
 		local featureID = self:GetFeatureType()
