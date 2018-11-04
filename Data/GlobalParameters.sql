@@ -64,8 +64,6 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_BASE_FOOD_ST
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_PER_SIZE_POWER',			2.8);	-- CityPopulation = math.pow(citySize, CITY_POPULATION_PER_SIZE_POWER) * 1000)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_MAX_MIGRANT_PERCENT',	50.00);	-- Max percentage of CityPopulation that can migrate each turn
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_POPULATION_MIN_MIGRANT_PERCENT',	0.05);	-- Min percentage of CityPopulation that can migrate each turn
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MAX_MIGRANT_PERCENT',	50.00);	-- Max percentage of PlotPopulation that can migrate each turn
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MIN_MIGRANT_PERCENT',	1.00);	-- Min percentage of PlotPopulation that can migrate each turn
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_REQUIRED_RESOURCE_BASE_FACTOR',		1.50);	-- Balance factor for required resources
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PRODUCED_RESOURCE_BASE_FACTOR',		1.00);	-- Balance factor for produced resources
@@ -239,6 +237,12 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_CLO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_LINKED_TO_HOME',			1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_FAR_FROM_HOME',			-1);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_NO_WAY_HOME',				-2);
+
+-- Plots
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MAX_MIGRANT_PERCENT',	50.00);	-- Max percentage of PlotPopulation that can migrate each turn
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MIN_MIGRANT_PERCENT',	1.00);	-- Min percentage of PlotPopulation that can migrate each turn
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_BASE_EMPLOYMENT',				8.00);	-- Max employment from number of a specific resource on a plot
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_IMPROVED_EMPLOYMENT',			12.00);	-- Max employment from number of a specific resource on a plot improved for that resource
 
 -- Resources
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_PILLAGE_MULTIPLIER',		4);		-- Multiplier for resources pillaged on a plot

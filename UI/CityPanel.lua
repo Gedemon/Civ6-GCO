@@ -11,6 +11,8 @@ include( "SupportFunctions" );			-- Round(), Clamp(), DarkenLightenColor()
 include( "ToolTipHelper" );	
 
 -- GCO <<<<<
+include( "GCO_PlayerConfig" )
+
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------

@@ -9,8 +9,8 @@
 -----------------------------------------------
 
 /* Create new Buildings entries from the temporary BuildingsGCO table */
-INSERT OR REPLACE INTO Buildings (BuildingType, Name, PrereqTech, PrereqDistrict, Cost, NoPedia, MaterielPerProduction, AdvisorType, EquipmentStock, Coast, EmploymentSize)
-	SELECT BuildingsGCO.BuildingType, 'LOC_' || BuildingsGCO.BuildingType || '_NAME', BuildingsGCO.PrereqTech, BuildingsGCO.PrereqDistrict, BuildingsGCO.Cost, BuildingsGCO.NoPedia, BuildingsGCO.MaterielPerProduction, BuildingsGCO.AdvisorType, BuildingsGCO.EquipmentStock, BuildingsGCO.Coast, BuildingsGCO.EmploymentSize
+INSERT OR REPLACE INTO Buildings (BuildingType, Name, PrereqTech, PrereqDistrict, Cost, NoPedia, MaterielPerProduction, AdvisorType, EquipmentStock, Coast, EmploymentSize, ObsoleteEra)
+	SELECT BuildingsGCO.BuildingType, 'LOC_' || BuildingsGCO.BuildingType || '_NAME', BuildingsGCO.PrereqTech, BuildingsGCO.PrereqDistrict, BuildingsGCO.Cost, BuildingsGCO.NoPedia, BuildingsGCO.MaterielPerProduction, BuildingsGCO.AdvisorType, BuildingsGCO.EquipmentStock, BuildingsGCO.Coast, BuildingsGCO.EmploymentSize, BuildingsGCO.ObsoleteEra
 	FROM BuildingsGCO;
 	
 /* Create new Buildings Types entries from the temporary BuildingsGCO table */
@@ -31,11 +31,38 @@ UPDATE Buildings SET AdvisorType	=	NULL
 UPDATE Buildings SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Buildings.BuildingType || '_DESCRIPTION' = Tag AND Language='en_US')
 			WHERE EXISTS				(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Buildings.BuildingType || '_DESCRIPTION' = Tag AND Language='en_US');
 
-
+/* Set modifiers for Buildings Upgrades */	
+INSERT INTO Modifiers (ModifierId, ModifierType)
+	SELECT 'PRODUCTION_BONUS_FROM_' || BuildingUpgrades.BuildingType, 'MODIFIER_SINGLE_CITY_ADJUST_BUILDING_PRODUCTION'
+	FROM BuildingUpgrades;
+	
+INSERT INTO ModifierArguments (ModifierId, Name, Value)
+	SELECT 'PRODUCTION_BONUS_FROM_' || BuildingUpgrades.BuildingType, 'BuildingType', BuildingUpgrades.UpgradeType
+	FROM BuildingUpgrades;
+	
+INSERT INTO ModifierArguments (ModifierId, Name, Value)
+	SELECT 'PRODUCTION_BONUS_FROM_' || BuildingUpgrades.BuildingType, 'Amount', BuildingUpgrades.ProductionBonus
+	FROM BuildingUpgrades;
+	
+INSERT INTO BuildingModifiers (BuildingType, ModifierId)
+	SELECT BuildingUpgrades.BuildingType, 'PRODUCTION_BONUS_FROM_' || BuildingUpgrades.BuildingType
+	FROM BuildingUpgrades;
+			
 -----------------------------------------------
 -- Resources
 -----------------------------------------------
-		
+
+/* Starting resources */
+DELETE from CivilizationRequestedResource;
+INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
+	SELECT Civilizations.CivilizationType, 'RESOURCE_STONE', 1 FROM Civilizations;	
+INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
+	SELECT Civilizations.CivilizationType, 'RESOURCE_HORSES', 1 FROM Civilizations;		
+INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
+	SELECT Civilizations.CivilizationType, 'RESOURCE_WHEAT', 1 FROM Civilizations WHERE Ethnicity = 'ETHNICITY_MEDIT' OR  Ethnicity = 'ETHNICITY_EURO' OR  Ethnicity = 'ETHNICITY_SOUTHAM';	
+INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
+	SELECT Civilizations.CivilizationType, 'RESOURCE_RICE', 1 FROM Civilizations WHERE Ethnicity = 'ETHNICITY_ASIAN' OR  Ethnicity = 'ETHNICITY_AFRICAN';
+	
 /* Create new Resources entries from the Equipment table */
 INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
 	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech, Equipment.FixedPrice, Equipment.MaxPriceVariationPercent, Equipment.NoExport, Equipment.NoTransfer, Equipment.SpecialStock, Equipment.NotLoot

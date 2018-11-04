@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
 
-   <IconTextureAtlases>
+   <IconTextureAtlases>	<!-- Buildings Icons -->
        <!-- Atlas A (Old 64 Icons) -->
        <Row Name="ICON_ToT_ATLAS_BUILDINGS_A" 		IconSize="32" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_32.dds"/>
        <Row Name="ICON_ToT_ATLAS_BUILDINGS_A" 		IconSize="38" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_A_38.dds"/>
@@ -86,6 +86,9 @@
 
 		<Row Name="ICON_BUILDING_WEAPONSMITH"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="54"/>
 		<Row Name="ICON_BUILDING_WEAPONSMITH_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="54"/>
+		
+		<Row Name="ICON_BUILDING_BLADESMITH"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="53"/>
+		<Row Name="ICON_BUILDING_BLADESMITH_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="53"/>
 
 		<Row Name="ICON_BUILDING_FARRIER"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="1"/>
 		<Row Name="ICON_BUILDING_FARRIER_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="1"/>
@@ -101,6 +104,12 @@
 
 		<Row Name="ICON_BUILDING_MARKET_EXTENSION"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="60"/>
 		<Row Name="ICON_BUILDING_MARKET_EXTENSION_FOW"			Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="60"/>
+
+		<Row Name="ICON_BUILDING_INDUSTRIAL_MARKET"				Atlas="ICON_ToT_ATLAS_BUILDINGS_B" 		Index="11"/>
+		<Row Name="ICON_BUILDING_INDUSTRIAL_MARKET_FOW"			Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" 	Index="11"/>
+
+		<Row Name="ICON_BUILDING_HYPERMARKET"					Atlas="ICON_ToT_ATLAS_BUILDINGS_B" 		Index="36"/>
+		<Row Name="ICON_BUILDING_HYPERMARKET_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" 	Index="36"/>
 
 		<Row Name="ICON_BUILDING_ANCIENT_LOWER_HOUSING_1"		Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="12"/>
 		<Row Name="ICON_BUILDING_ANCIENT_LOWER_HOUSING_1_FOW"	Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="12"/>
@@ -543,5 +552,10 @@
 		
 		<Replace Name="ICON_UNIT_ARCHER_SCOUT"				Atlas="ICON_ATLAS_UNITS"					Index="19"/>
 		<Replace Name="ICON_UNIT_ARCHER_SCOUT_PORTRAIT"		Atlas="ICON_ATLAS_UNIT_PORTRAITS"			Index="27"/>
+		
+        <Replace Name="ICON_UNIT_HUNTSMAN"					Atlas="ICON_ATLAS_UNITS" 					Index="19"/>
+        <Replace Name="ICON_UNIT_HUNTSMAN_FOW"				Atlas="ICON_ATLAS_UNITS_FOW"				Index="19"/>
+        <Replace Name="ICON_UNIT_HUNTSMAN_PORTRAIT"			Atlas="ICON_ATLAS_MOAR_UNITS_PORTRAITS"		Index="11"/>
 	</IconDefinitions>
-  </GameInfo>
+	
+</GameInfo>

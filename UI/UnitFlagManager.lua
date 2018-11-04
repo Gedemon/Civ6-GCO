@@ -10,6 +10,7 @@ include( "Civ6Common" );
 -- GCO <<<<<
 
 include( "GCO_TypeEnum" )
+include( "GCO_PlayerConfig" )
 
 -----------------------------------------------------------------------------------------
 -- Initialize Functions

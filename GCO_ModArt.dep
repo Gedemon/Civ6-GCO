@@ -13,13 +13,44 @@
 			<name text="REDWarfareExpanded"/>
 			<id text="36ec8c86-cd6d-49d3-a2da-0575804eed5f"/>
         </Element>
+        <Element>
+			<name text="GCO"/>
+			<id text="cf31281d-783b-47dd-bc58-992ed862bb74"/>
+        </Element>
 	</RequiredGameArtIDs>
     <SystemDependencies>
         <Element>
             <ConsumerName text="Units"/>
             <ArtDefDependencyPaths>
                 <Element text="GCO_Units.artdef"/>
+				<Element text="GCO_Cultures.artdef"/>
             </ArtDefDependencyPaths>
         </Element>
+		<Element>
+			<ConsumerName text="Civilizations"/>
+			<ArtDefDependencyPaths>
+				<Element text="Civilizations.artdef"/>
+			</ArtDefDependencyPaths>
+			<LibraryDependencies/>
+			<LoadsLibraries>false</LoadsLibraries>
+		</Element>
+		<Element>
+			<ConsumerName text="Cultures"/>
+			<ArtDefDependencyPaths>
+				<Element text="Cultures.artdef"/>
+			</ArtDefDependencyPaths>
+			<LibraryDependencies/>
+			<LoadsLibraries>false</LoadsLibraries>
+		</Element>
+		<Element>
+			<ConsumerName text="LeaderFallback"/>
+			<ArtDefDependencyPaths>
+				<Element text="GCO_FallbackLeaders.artdef"/>
+			</ArtDefDependencyPaths>
+			<LibraryDependencies>
+				<Element text="LeaderFallback"/>
+			</LibraryDependencies>
+			<LoadsLibraries>true</LoadsLibraries>
+		</Element>
     </SystemDependencies>
 </AssetObjects::GameDependencyData>

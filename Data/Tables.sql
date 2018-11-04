@@ -682,9 +682,18 @@ CREATE TABLE BuildingUpgrades (
 		BuildingType TEXT NOT NULL UNIQUE,
 		UpgradeType TEXT NOT NULL,
 		ProductionBonus INTEGER,
-		PRIMARY KEY(BuildingType, UpgradeType),
+		PRIMARY KEY(BuildingType), -- , UpgradeType --< needed ?
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (UpgradeType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+
+CREATE TABLE GovernmentNames (
+		GovernmentType TEXT NOT NULL,
+		Male TEXT NOT NULL,
+		Female TEXT NOT NULL,
+		ShortName TEXT NOT NULL,
+		LongName TEXT NOT NULL,
+		PRIMARY KEY(GovernmentType)
 	);
 	
 -----------------------------------------------

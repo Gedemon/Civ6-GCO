@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+  <LocalizedText>
+    <Replace Tag="LOC_GCO_SETUP_CREATE_GAME" Language="en_US">
+      <Text>Create game</Text>
+    </Replace>
+  </LocalizedText> 
+</GameData>

@@ -891,11 +891,13 @@ local barbarianUnits = {
 	["ERA_ANCIENT"] 		= 
 		{
 			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_HEAVY_CHARIOT", 	},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_WARRIOR", 			AltType = "UNIT_SPEARMAN", AltProbability = 30 },
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_WARRIOR", },
+			["PROMOTION_CLASS_CONSCRIPT"] 		= { Type = "UNIT_SPEARMAN",			AltType = "UNIT_LIGHT_SPEARMAN", AltProbability = 60 },
 			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_GALLEY", 			},
-			["PROMOTION_CLASS_SKIRMISHER"]		= { Type = "UNIT_SLINGER", 			AltType = "UNIT_ARCHER", AltProbability = 30 },
+			["PROMOTION_CLASS_SKIRMISHER"]		= { Type = "UNIT_SLINGER_SCOUT",	AltType = "UNIT_PELTAST", AltProbability = 50 },
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_SLINGER",			AltType = "UNIT_SLINGER_SCOUT", AltProbability = 75  },
 			--["PROMOTION_CLASS_SIEGE"] 			= { },
 			--["PROMOTION_CLASS_SUPPORT"] 		= { },
 	
@@ -907,7 +909,8 @@ local barbarianUnits = {
 			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_GALLEY", 			},
-			["PROMOTION_CLASS_SKIRMISHER"] 		= { Type = "UNIT_ARCHER", 			},
+			["PROMOTION_CLASS_SKIRMISHER"]		= { Type = "UNIT_ARCHER_SCOUT",		},
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_ARCHER",			AltType = "UNIT_ARCHER_SCOUT", AltProbability = 75  },
 			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
 			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_BATTERING_RAM", 	},	
 		} ,
@@ -1089,6 +1092,18 @@ function GetData(self)
 			toRegister[unitKey] = currentTurn		
 		end
 	end
+end
+
+function GetCached(self, key)
+	local unitKey 	= self:GetKey()
+	if not _cached[unitKey] then _cached[unitKey] = {} end
+	return _cached[unitKey][key]
+end
+
+function SetCached(self, key, value)
+	local unitKey 	= self:GetKey()
+	if not _cached[unitKey] then _cached[unitKey] = {} end
+	_cached[unitKey][key] = value
 end
 
 function UpdateFrontLineData(self, bForceSynchronization) -- that function will have to be called after we change the structure of an unit (upgrading, downgrading, new military organization level, ...)
@@ -4692,7 +4707,7 @@ function CheckComponentsHP(unit, str, bNoWarning)
 			unit:UpdateFrontLineData(true)
 			correctionStr = "[NEWLINE]Trying to synchronize for next check..."
 		end
-		GCO.Error("Data inconsistency detected for :[NEWLINE] "..Locale.Lookup(unit:GetName()).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr)
+		GCO.Warning("Data inconsistency detected for :[NEWLINE] "..Locale.Lookup(unit:GetName()).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr) -- Error
 	end
 	
 	return (bIsCoreSynchronized and bIsDataSynchronized), bIsCoreSynchronized, bIsDataSynchronized
@@ -4907,19 +4922,6 @@ end
 function GetSupplyLineLengthFactor(self)
 	return GetUnitSupplyLineLengthFactor(self:GetType(), self:GetOrganizationLevel())
 end
-
--- Events functions
-function OnUnitMoveComplete(playerID, unitID, iX, iY)
-	local unit = UnitManager.GetUnit(playerID, unitID)
-	if unit then
-		unit:SetSupplyLine()
-		LuaEvents.UnitsCompositionUpdated(playerID, unitID)
-		local unitData = unit:GetData()
-		unitData.LastX = iX
-		unitData.LastY = iY
-	end
-end
-Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 
 
 -----------------------------------------------------------------------------------------
@@ -5467,9 +5469,8 @@ local barbarianCamps = {
 			["EQUIPMENT_WOODEN_BOWS"]		= 1000,
 			["EQUIPMENT_BRONZE_SPEARS"]		= 1000,
 			["EQUIPMENT_BRONZE_SWORDS"]		= 800,
-			["EQUIPMENT_IRON_SWORDS"]		= 200,
-			["EQUIPMENT_LEATHER_ARMOR"]		= 80,
-			["EQUIPMENT_LINOTHORAX"]		= 100,
+			["EQUIPMENT_LEATHER_ARMOR"]		= 280,
+			["EQUIPMENT_LINOTHORAX"]		= 300,
 			
 	
 		} ,
@@ -5481,8 +5482,9 @@ local barbarianCamps = {
 			["EQUIPMENT_BRONZE_SPEARS"]		= 1000,
 			["EQUIPMENT_BRONZE_SWORDS"]		= 800,
 			["EQUIPMENT_IRON_SWORDS"]		= 200,
-			["EQUIPMENT_BRONZE_ARMOR"]		= 80,
-			["EQUIPMENT_LINOTHORAX"]		= 100,
+			["EQUIPMENT_BRONZE_ARMOR"]		= 180,
+			["EQUIPMENT_LEATHER_ARMOR"]		= 280,
+			["EQUIPMENT_LINOTHORAX"]		= 300,
 		} ,
 	["ERA_MEDIEVAL"] 		=
 		{
@@ -5669,7 +5671,7 @@ function OnUnitOperationStarted(ownerID, unitID, operationID)
 		if unit then
 			local unitData		= unit:GetData()
 			local unitOwner		= GCO.GetPlayer(ownerID)
-			local plot 			= GCO.GetPlot(unit:GetX(), unit:GetY())
+			local plot 			= GCO.GetPlot(unitData.LastX, unitData.LastY) -- Builder may have been removed from the map when this is called 
 			local featureID 	= plot:GetCached("FeatureType") -- at this point the feature type is already changed in GameCore, so we use the cached value
 			if featureID and featureID ~= NO_FEATURE then
 				local featureRow = GameInfo.Features[featureID]
@@ -5722,9 +5724,41 @@ function OnUnitChargesChanged( playerID: number, unitID : number, newCharges : n
 end
 Events.UnitChargesChanged.Add( OnUnitOperationStarted )
 
+-- Events functions
+function OnUnitMoveComplete(playerID, unitID, iX, iY)
+	local unit = UnitManager.GetUnit(playerID, unitID)
+	if unit then
+		unit:SetSupplyLine()
+		LuaEvents.UnitsCompositionUpdated(playerID, unitID)
+		local unitData = unit:GetData()
+		unitData.LastX = iX
+		unitData.LastY = iY
+	end
+end
+Events.UnitMoveComplete.Add(OnUnitMoveComplete)
+
+
 -----------------------------------------------------------------------------------------
 -- General Functions
 -----------------------------------------------------------------------------------------
+
+function UpdateUnitsCache() -- called after loading
+	--[[
+	local DEBUG_UNIT_SCRIPT = "debug"
+	
+	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_UNIT_SCRIPT, "Updating UnitCache...")
+	
+	local count = 0
+	for unitKey, unitData in pairs(ExposedMembers.UnitData) do
+		local unit = GetUnitFromKey ( unitKey )
+		if unit then
+		end
+	end
+	--]]
+end
+
+
 function UpdateUnitsData() -- called in GCO_GameScript.lua
 
 	--local DEBUG_UNIT_SCRIPT = "UnitScript"
@@ -5772,15 +5806,15 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 						--unit:SetDamage(unit:GetMaxDamage() - virtualHP)
 						unit:SetHP(virtualHP)
 					end
-					GCO.Error("Desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr)
+					GCO.Warning("Desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr) -- Error
 				else
 					if math.abs(coreHP-virtualHP) < 15 then 
 						unit:UpdateFrontLineData(true)
 						correctionStr = "[NEWLINE]Trying to synchronize by updating FrontLine..."
 					end
-					GCO.Error("Desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr)
+					GCO.Warning("Desynchronization detected in UpdateUnitsData() for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[unit:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(unit:GetOwner()).."[NEWLINE]Core HP = "..tostring(coreHP)..", virtual HP = ",tostring(virtualHP)..correctionStr) -- Error
 				end
-				ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
+				--ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
 			end
 			
 			if unit:GetDamage() < maxHP then
@@ -5846,6 +5880,8 @@ function AttachUnitFunctions(unit)
 		u.GetKey								= GetKey
 		u.UpdateFrontLineData					= UpdateFrontLineData
 		u.GetData								= GetData
+		u.GetCached								= GetCached
+		u.SetCached								= SetCached
 		u.IsCombat								= IsCombat
 		u.CanGetFullReinforcement				= CanGetFullReinforcement
 		u.GetLogisticCost						= GetLogisticCost

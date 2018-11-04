@@ -68,6 +68,9 @@ local LuxuryStockRatio 			= tonumber(GameInfo.GlobalParameters["CITY_LUXURY_STOC
 local PersonnelPerSize	 		= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
 local EquipmentBaseStock 		= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUIPMENT"].Value)
 
+local MaxBaseEmployement 		= tonumber(GameInfo.GlobalParameters["PLOT_MAX_BASE_EMPLOYMENT"].Value)
+local MaxImprovedEmployement	= tonumber(GameInfo.GlobalParameters["PLOT_MAX_IMPROVED_EMPLOYMENT"].Value)
+
 -- Population
 local populationPerSizepower 	= tonumber(GameInfo.GlobalParameters["CITY_POPULATION_PER_SIZE_POWER"].Value)
 local maxMigrantPercent			= tonumber(GameInfo.GlobalParameters["PLOT_POPULATION_MAX_MIGRANT_PERCENT"].Value)
@@ -1742,13 +1745,12 @@ local resourceActivities = {
 
 }
 function GetAvailableEmployment(self)
-	local EmploymentString 	= ""
-	local Employment 		= {}
+	local EmploymentString 		= ""
+	local Employment 			= {}
 	local availableEmployment	= 0
-
-	local bWorked 		= (self:GetWorkerCount() > 0)
-	local bImproved		= (self:GetImprovementType() ~= NO_IMPROVEMENT)
-	local bSeaResource 	= (self:IsWater() or self:IsLake())
+	local bWorked 				= (self:GetWorkerCount() > 0)
+	local bImproved				= (self:GetImprovementType() ~= NO_IMPROVEMENT)
+	local bSeaResource 			= (self:IsWater() or self:IsLake())
 	
 	local player = Players[self:GetOwner()] or Players[Game.GetLocalPlayer()] -- 
 	if player then
@@ -1758,10 +1760,10 @@ function GetAvailableEmployment(self)
 		if self:GetResourceCount() > 0 then
 			local resourceID 	= self:GetResourceType()
 			if player:IsResourceVisible(resourceID) then
-				local collected 			= self:GetResourceCount()
+				local collected 			= math.min(self:GetResourceCount(), MaxBaseEmployement)
 				local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 				if bImprovedForResource then
-					collected = GCO.Round(collected * BaseImprovementMultiplier)
+					collected = math.min(collected * BaseImprovementMultiplier, MaxImprovedEmployement)
 				end
 				if resourceActivities[resourceID] then
 					local resourceEmploymentValue				= self:GetEmploymentValue(collected)
@@ -1770,7 +1772,7 @@ function GetAvailableEmployment(self)
 					--Employment[resourceActivities[resourceID]] 	= (Employment[resourceActivities[resourceID]] or 0) + collected
 				end
 			end
-		else -- I don't like hardcoding, todo: find something else...
+		elseif not self:IsWater() then  -- I don't like hardcoding, todo: find something else...
 			Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetEmploymentValue(self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index))
 			--Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
 		end
@@ -1780,10 +1782,10 @@ function GetAvailableEmployment(self)
 			for _, data in pairs(FeatureResources[featureID]) do
 				for resourceID, value in pairs(data) do
 					if player:IsResourceVisible(resourceID) then
-						local collected 			= value
+						local collected 			= math.min(value, MaxBaseEmployement)
 						local bImprovedForResource	= (IsImprovementForFeature[improvementID] and IsImprovementForFeature[improvementID][featureID])
 						if bImprovedForResource then
-							collected = GCO.Round(collected * BaseImprovementMultiplier)
+							collected = math.min(collected * BaseImprovementMultiplier, MaxImprovedEmployement)
 						end
 						if resourceActivities[resourceID] then 
 							local resourceEmploymentValue				= self:GetEmploymentValue(collected)
@@ -1802,11 +1804,11 @@ function GetAvailableEmployment(self)
 			for _, data in pairs(TerrainResources[terrainID]) do
 				for resourceID, value in pairs(data) do
 					if player:IsResourceVisible(resourceID) then
-						local collected 	= value
+						local collected 	= math.min(value, MaxBaseEmployement)
 						local resourceCost 	= GCO.GetBaseResourceCost(resourceID)
 						local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 						if bImprovedForResource then
-							collected = GCO.Round(collected * BaseImprovementMultiplier)
+							collected = math.min(collected * BaseImprovementMultiplier, MaxImprovedEmployement)
 						end
 						if resourceActivities[resourceID] then
 							local resourceEmploymentValue				= self:GetEmploymentValue(collected)

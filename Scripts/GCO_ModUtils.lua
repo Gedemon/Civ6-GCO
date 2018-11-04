@@ -103,7 +103,6 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_CROSSBOWS"].Index]			= "[ICON_EQUIPMENT_CROSSBOWS]",
 		[GameInfo.Resources["EQUIPMENT_WOODEN_CLUB"].Index]			= "[ICON_EQUIPMENT_CLUB]",
 		[GameInfo.Resources["EQUIPMENT_STONE_AXES"].Index]			= "[ICON_EQUIPMENT_CLUB]",
-		[GameInfo.Resources["EQUIPMENT_SPIKED_CLUB"].Index]			= "[ICON_EQUIPMENT_CLUB]",
 		[GameInfo.Resources["EQUIPMENT_STONE_SPEARS"].Index]		= "[ICON_EQUIPMENT_SPEARS]",
 		[GameInfo.Resources["EQUIPMENT_WOODEN_SPEARS"].Index]		= "[ICON_EQUIPMENT_SPEARS]",
 		[GameInfo.Resources["EQUIPMENT_BRONZE_SPEARS"].Index]		= "[ICON_EQUIPMENT_SPEARS]",

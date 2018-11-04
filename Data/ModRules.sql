@@ -6,6 +6,13 @@
 
 
 /* ************************ */
+/*    Vanilla Game Fixes    */
+/* ************************ */
+
+UPDATE Leaders SET Sex = 'Female' WHERE LeaderType = 'LEADER_JADWIGA'; -- What ??? Should that be done with each DLC Female leaders ???
+
+
+/* ************************ */
 /* Remove GoodyHuts bonuses */
 /* ************************ */
 --/* 

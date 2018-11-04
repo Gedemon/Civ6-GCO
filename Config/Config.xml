@@ -1,3 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
+	<Parameters>
+		<!--	Add specific resources around TSL (see CivilizationRequestedResource table and PostConfig.sql)
+		-->
+		<Row ParameterId="RequestedResources" 	Name="LOC_MAP_RESOURCES_REQUESTED_NAME" Description="LOC_MAP_RESOURCES_REQUESTED_DESCRIPTION" Domain="RequestedResources" DefaultValue="PLACEMENT_REQUEST" ConfigurationGroup="Map" ConfigurationId="RequestedResources" GroupId="MapOptions" Visible="0" SortIndex="295"/>
+	</Parameters>
 </GameInfo>

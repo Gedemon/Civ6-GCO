@@ -69,12 +69,13 @@ local smallerUnitsPolicyID 			= GameInfo.Policies["POLICY_SMALLER_UNITS"].Index
 
 local GCO 	= {}
 local pairs = pairs
+local Dprint, Dline, Dlog
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	GCO 		= ExposedMembers.GCO
-	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
-	Dline		= GCO.Dline					-- output current code line number to firetuner/log
-	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
-	pairs 		= GCO.OrderedPairs
+	GCO 			= ExposedMembers.GCO
+	Dprint 			= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
+	Dline			= GCO.Dline					-- output current code line number to firetuner/log
+	Dlog			= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	pairs 			= GCO.OrderedPairs
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
@@ -82,14 +83,18 @@ LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
 	Dprint( DEBUG_PLAYER_SCRIPT, "--------------------------- Saving PlayerData ---------------------------")
-	GCO.SaveTableToSlot(ExposedMembers.PlayerData, "PlayerData")
+	GCO.SaveTableToSlot(ExposedMembers.PlayerData, "PlayerData")	
+	Dprint( DEBUG_PLAYER_SCRIPT, "------------------------ Saving PlayerConfigData ------------------------")
+	GCO.SaveTableToSlot(ExposedMembers.GCO.PlayerConfigData, "PlayerConfigData")
 end
 LuaEvents.SaveTables.Add(SaveTables)
 
 function PostInitialize() -- everything that may require other context to be loaded first
-	ExposedMembers.PlayerData = GCO.LoadTableFromSlot("PlayerData") or {}
+	ExposedMembers.PlayerData 			= GCO.LoadTableFromSlot("PlayerData") or {}
+	ExposedMembers.GCO.PlayerConfigData = GCO.LoadTableFromSlot("PlayerConfigData") or {}
 	InitializePlayerFunctions()
 	InitializePlayerData() -- after InitializePlayerFunctions
+	SetPlayerDefines()
 end
 
 function InitializePlayerData()
@@ -101,7 +106,14 @@ function InitializePlayerData()
 	end
 end
 
-
+function SetPlayerDefines()
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		local player = Players[playerID]
+		if player then
+			player:Define()
+		end	
+	end
+end
 
 -----------------------------------------------------------------------------------------
 -- PlayerData functions
@@ -184,11 +196,39 @@ function GetData(self)
 	return playerData
 end
 
+function GetConfig(self)
+	return GCO.GetPlayerConfig(self:GetID())
+end
 
 
 -----------------------------------------------------------------------------------------
 -- General functions
 -----------------------------------------------------------------------------------------	
+
+function Define(self)
+	local playerConfig		= self:GetConfig()
+	local CivTypeName		= playerConfig:GetCivilizationTypeName()
+	local LeaderTypeName	= playerConfig:GetLeaderTypeName()
+	local governement		= self:GetCurrentGovernment()
+	local civAdjective 		= GameInfo.Civilizations[CivTypeName].Adjective
+	local civName			= GameInfo.Civilizations[CivTypeName].Name
+	local leaderName		= GameInfo.Leaders[LeaderTypeName].Name
+	local leaderSex			= GameInfo.Leaders[LeaderTypeName].Sex
+	local namesRow
+	if GameInfo.Governments[governement] and self:GetCities() and self:GetCities():GetCount() > 0 then
+		local governmentType 	= GameInfo.Governments[governement].GovernmentType
+		namesRow				= GameInfo.GovernmentNames[governmentType]
+	else -- Tribesmen
+		namesRow				= GameInfo.GovernmentNames["GOVERNMENT_TRIBE"]
+	end
+	playerConfig:SetKeyValue("LeaderName", 						Locale.Lookup(namesRow[leaderSex], leaderName))
+	playerConfig:SetKeyValue("CivilizationShortDescription", 	Locale.Lookup(namesRow.ShortName, civAdjective))
+	playerConfig:SetKeyValue("CivilizationDescription", 		Locale.Lookup(namesRow.LongName, civName))
+	
+	self:UpdateUnitsFlags()
+	self:UpdateCitiesBanners()
+	Events.PlayerInfoChanged(self:GetID()) -- to force update in DiplomacyRibbon
+end
 
 function CanTrain(self, unitType) -- global check, used to show the unit in the build list, the tests for materiel/equipment and others limits are done at the city level 
 	local row 	= GameInfo.Units[unitType]
@@ -215,8 +255,12 @@ function HasPolicyActive(self, policyID)
 	return GCO.HasPolicyActive(self, policyID)
 end
 
-function GetActivePolicies(self, policyID)
+function GetActivePolicies(self)
 	return GCO.GetActivePolicies(self)
+end
+
+function GetCurrentGovernment(self)
+	return GCO.GetCurrentGovernment(self)
 end
 
 function IsObsoleteEquipment(self, equipmentTypeID)
@@ -794,8 +838,9 @@ function DoPlayerTurn( playerID )
 		--GCO.ShowTimer("DoCitiesTurn for ".. tostring(playerName))
 		
 		-- update flags after resources transfers
-		player:UpdateUnitsFlags()
-		player:UpdateCitiesBanners()
+		player:Define()
+		--player:UpdateUnitsFlags()
+		--player:UpdateCitiesBanners()
 		player:SetCurrentTurn()
 		
 		LuaEvents.ShowTimerLog(playerID)
@@ -943,7 +988,9 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	
 	p.GetKey									= GetKey
 	p.GetData									= GetData
+	p.GetConfig									= GetConfig
 	p.InitializeData							= InitializeData
+	p.Define									= Define
 	--
 	p.ProceedTransaction						= ProceedTransaction
 	p.RecordTransaction							= RecordTransaction
@@ -954,6 +1001,8 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.IsResourceVisible							= IsResourceVisible
 	p.HasPolicyActive							= HasPolicyActive
 	p.GetActivePolicies							= GetActivePolicies
+	p.GetCurrentGovernment						= GetCurrentGovernment
+	--
 	p.IsObsoleteEquipment						= IsObsoleteEquipment
 	p.CanTrain									= CanTrain
 	--

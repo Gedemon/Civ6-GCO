@@ -105,6 +105,15 @@ end
 
 
 -----------------------------------------------------------------------------------------
+-- Move Research/Civic popup
+-----------------------------------------------------------------------------------------
+function MoveTechPopUp()
+	ContextPtr:LookUpControl("/InGame/TechCivicCompletedPopup"):SetOffsetX((ContextPtr:LookUpControl("/InGame/TechCivicCompletedPopup"):GetSizeX() - ContextPtr:LookUpControl("/InGame/TechCivicCompletedPopup/PopupBackgroundImage"):GetSizeX())/2)
+	--ContextPtr:LookUpControl("/InGame/TechCivicCompletedPopup"):SetOffsetY(-(ContextPtr:LookUpControl("/InGame/TechCivicCompletedPopup"):GetSizeY() - ContextPtr:LookUpControl("/InGame/TechCivicCompletedPopup/PopupBackgroundImage"):GetSizeY())/2)
+end
+
+
+-----------------------------------------------------------------------------------------
 -- Hide unused items
 -----------------------------------------------------------------------------------------
 
@@ -123,6 +132,9 @@ function OnEnterGame()
 	ContextPtr:LookUpControl("/InGame/CityPanelOverview/ReligionButton"):SetHide(true)
 	
 	ContextPtr:LookUpControl("/InGame/TopOptionsMenu/RestartButton"):RegisterCallback( Mouse.eLClick, OnRestartGame );
+	
+	-- Move research popup to top/right	
+	ContextPtr:LookUpControl("/InGame/TechCivicCompletedPopup"):RegisterWhenShown(MoveTechPopUp)	
 	
 end
 Events.LoadScreenClose.Add(OnEnterGame)

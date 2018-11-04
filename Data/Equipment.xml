@@ -13,7 +13,6 @@
 	<Equipment> <!-- Melee/Cavalry Weapons -->
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"												LogisticCost="0.05"	Toughness="1"	Desirability="21" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
 		<Row ResourceType="EQUIPMENT_STONE_AXES"												LogisticCost="0.05"	Toughness="1"	Desirability="22" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
-<!-- To Remove -->	<Row ResourceType="EQUIPMENT_SPIKED_CLUB"												LogisticCost="0.05"	Toughness="2"	Desirability="23" 	AntiPersonnel="32"	AntiPersonnelArmor="10" 	ObsoleteTech="TECH_IRON_WORKING"	/>
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"												LogisticCost="0.05"	Toughness="1"	Desirability="30" 	AntiPersonnel="27"								ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
 		<Row ResourceType="EQUIPMENT_STONE_SPEARS"												LogisticCost="0.05"	Toughness="1"	Desirability="31" 	AntiPersonnel="28"								ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
@@ -38,7 +37,7 @@
 		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	PrereqTech="TECH_SYNTHETIC_MATERIALS"	LogisticCost="4.00"	Toughness="7"	Desirability="90" 	AntiPersonnel="150"	IgnorePersonnelArmor="140" />
 	</Equipment>
 	<Equipment> <!-- Skirmisher Weapons -->		
-		<Row ResourceType="EQUIPMENT_SLINGS"												LogisticCost="0.05"	Desirability="25" 	AntiPersonnel="20"	ObsoleteTech="TECH_ARCHERY"		/>
+		<Row ResourceType="EQUIPMENT_SLINGS"												LogisticCost="0.05"	Desirability="25" 	AntiPersonnel="20"	ObsoleteTech="TECH_CONSTRUCTION"/>
 		<!-- Desirabilities set in relation to EQUIPMENTCLASS_SPEARS used by Peltast (to do : EQUIPMENT_JAVELIN) -->
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"		PrereqTech="TECH_ARCHERY"			LogisticCost="0.10"	Desirability="35" 	AntiPersonnel="30"	ObsoleteTech="TECH_MACHINERY"	/>
 		<Row ResourceType="EQUIPMENT_LONGBOWS"			PrereqTech="TECH_CONSTRUCTION"		LogisticCost="0.25"	Desirability="45" 	AntiPersonnel="40"	ObsoleteTech="TECH_GUNPOWDER"	/>
@@ -197,7 +196,6 @@
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_STONE_AXES"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
-		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
 		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
 		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
@@ -285,7 +283,6 @@
 		<Row ResourceType="EQUIPMENT_STONE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_STONE_AXES"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
-		<Row ResourceType="EQUIPMENT_SPIKED_CLUB"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		EquipmentClass="EQUIPMENTCLASS_MELEE_WEAPONS"		/>

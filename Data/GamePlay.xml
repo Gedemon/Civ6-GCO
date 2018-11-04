@@ -396,22 +396,22 @@
 	</MilitaryFormationStructures>	
 	<MilitaryFormationStructures> <!-- PROMOTION_CLASS_CAVALRY -->
 		
-		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BAND" 														SizeString="I"		FrontLinePersonnel="200" 	ReservePersonnel="10" 	/>
-		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="II"		FrontLinePersonnel="300" 	ReservePersonnel="20" 	/>
-		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	SizeString="III"	FrontLinePersonnel="500" 	ReservePersonnel="50" 	/>
-		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="III"	FrontLinePersonnel="700" 	ReservePersonnel="200" 	/>
-		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="800" 	ReservePersonnel="250" 	/>
-		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="X"		FrontLinePersonnel="900" 	ReservePersonnel="400" 	/>
+		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BAND" 														SizeString="I"		FrontLinePersonnel="100" 	ReservePersonnel="10" 	/>
+		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="II"		FrontLinePersonnel="200" 	ReservePersonnel="20" 	/>
+		<Row OrganisationLevelType="LEVEL2" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	SizeString="III"	FrontLinePersonnel="400" 	ReservePersonnel="40" 	/>
+		<Row OrganisationLevelType="LEVEL3" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="III"	FrontLinePersonnel="600" 	ReservePersonnel="180" 	/>
+		<Row OrganisationLevelType="LEVEL4" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="700" 	ReservePersonnel="250" 	/>
+		<Row OrganisationLevelType="LEVEL5" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="X"		FrontLinePersonnel="800" 	ReservePersonnel="400" 	/>
 		<Row OrganisationLevelType="LEVEL6" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_DIVISION" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="XX"		FrontLinePersonnel="1000" 	ReservePersonnel="750" 	/>
 		<Row OrganisationLevelType="LEVEL7" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_DIVISION" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_6"	SizeString="XX"		FrontLinePersonnel="1200" 	ReservePersonnel="1200" /> 	<!-- Division = 200-300 tanks -->
 		<Row OrganisationLevelType="LEVEL8" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="600" 	ReservePersonnel="600" 	/> 	<!-- Brigade = 150-200 tanks -->
 		
-		<Row OrganisationLevelType="LEVEL0B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BAND" 														SizeString="I"		FrontLinePersonnel="160" 	ReservePersonnel="10" 	/>
-		<Row OrganisationLevelType="LEVEL1B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 													SizeString="II"		FrontLinePersonnel="240" 	ReservePersonnel="20" 	/>
-		<Row OrganisationLevelType="LEVEL2B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="III"	FrontLinePersonnel="400" 	ReservePersonnel="40" 	/>
-		<Row OrganisationLevelType="LEVEL3B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	SizeString="III"	FrontLinePersonnel="560" 	ReservePersonnel="160" 	/>
-		<Row OrganisationLevelType="LEVEL4B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="X"		FrontLinePersonnel="640" 	ReservePersonnel="200" 	/>
-		<Row OrganisationLevelType="LEVEL5B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="720" 	ReservePersonnel="320" 	/>
+		<Row OrganisationLevelType="LEVEL0B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BAND" 														SizeString="I"		FrontLinePersonnel="60" 	ReservePersonnel="10" 	/>
+		<Row OrganisationLevelType="LEVEL1B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 													SizeString="II"		FrontLinePersonnel="140" 	ReservePersonnel="20" 	/>
+		<Row OrganisationLevelType="LEVEL2B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="III"	FrontLinePersonnel="300" 	ReservePersonnel="40" 	/>
+		<Row OrganisationLevelType="LEVEL3B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_COMPANY" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	SizeString="III"	FrontLinePersonnel="460" 	ReservePersonnel="140" 	/>
+		<Row OrganisationLevelType="LEVEL4B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="X"		FrontLinePersonnel="540" 	ReservePersonnel="200" 	/>
+		<Row OrganisationLevelType="LEVEL5B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="620" 	ReservePersonnel="320" 	/>
 		<Row OrganisationLevelType="LEVEL6B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="X"		FrontLinePersonnel="800" 	ReservePersonnel="600" 	/>
 		<Row OrganisationLevelType="LEVEL7B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_5"	SizeString="X"		FrontLinePersonnel="960" 	ReservePersonnel="960" 	/>
 		<Row OrganisationLevelType="LEVEL8B" 	PromotionClassType="PROMOTION_CLASS_CAVALRY" 	MilitaryFormationType="FORMATION_BRIGADE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_3"	SizeString="X"		FrontLinePersonnel="480" 	ReservePersonnel="480" 	/>
@@ -745,5 +745,39 @@
 		<Row ProjectType="PROJECT_TAXES" YieldType="YIELD_GOLD" PercentOfProductionRate="15"/>
 	</Project_YieldConversions>
 	
+	<!--		GOVERNMENTS
+	
+	
+	-->
+	<GovernmentNames>
+		<Row GovernmentType="GOVERNMENT_TRIBE" 				Male="LOC_MALE_TRIBE_NAME" 				Female="LOC_FEMALE_TRIBE_NAME" 				ShortName="LOC_SHORT_TRIBE_NAME" 				LongName="LOC_LONG_TRIBE_NAME" 				/>
+		<Row GovernmentType="GOVERNMENT_CHIEFDOM" 			Male="LOC_MALE_CHIEFDOM_NAME" 			Female="LOC_FEMALE_CHIEFDOM_NAME" 			ShortName="LOC_SHORT_CHIEFDOM_NAME" 			LongName="LOC_LONG_CHIEFDOM_NAME" 			/>
+		<Row GovernmentType="GOVERNMENT_AUTOCRACY" 			Male="LOC_MALE_AUTOCRACY_NAME" 			Female="LOC_FEMALE_AUTOCRACY_NAME" 			ShortName="LOC_SHORT_AUTOCRACY_NAME" 			LongName="LOC_LONG_AUTOCRACY_NAME" 			/>
+		<Row GovernmentType="GOVERNMENT_OLIGARCHY" 			Male="LOC_MALE_OLIGARCHY_NAME" 			Female="LOC_FEMALE_OLIGARCHY_NAME" 			ShortName="LOC_SHORT_OLIGARCHY_NAME" 			LongName="LOC_LONG_OLIGARCHY_NAME" 			/>
+		<Row GovernmentType="GOVERNMENT_CLASSICAL_REPUBLIC"	Male="LOC_MALE_CLASSICAL_REPUBLIC_NAME"	Female="LOC_FEMALE_CLASSICAL_REPUBLIC_NAME"	ShortName="LOC_SHORT_CLASSICAL_REPUBLIC_NAME"	LongName="LOC_LONG_CLASSICAL_REPUBLIC_NAME"	/>
+		<Row GovernmentType="GOVERNMENT_MONARCHY" 			Male="LOC_MALE_MONARCHY_NAME"			Female="LOC_FEMALE_MONARCHY_NAME"			ShortName="LOC_SHORT_MONARCHY_NAME"				LongName="LOC_LONG_MONARCHY_NAME"			/>
+		<Row GovernmentType="GOVERNMENT_THEOCRACY" 			Male="LOC_MALE_THEOCRACY_NAME"			Female="LOC_FEMALE_THEOCRACY_NAME"			ShortName="LOC_SHORT_THEOCRACY_NAME"			LongName="LOC_LONG_THEOCRACY_NAME"			/>
+		<Row GovernmentType="GOVERNMENT_MERCHANT_REPUBLIC"	Male="LOC_MALE_MERCHANT_REPUBLIC_NAME"	Female="LOC_FEMALE_MERCHANT_REPUBLIC_NAME"	ShortName="LOC_SHORT_MERCHANT_REPUBLIC_NAME"	LongName="LOC_LONG_MERCHANT_REPUBLIC_NAME"	/>
+		<Row GovernmentType="GOVERNMENT_FASCISM"			Male="LOC_MALE_FASCISM_NAME"			Female="LOC_FEMALE_FASCISM_NAME"			ShortName="LOC_SHORT_FASCISM_NAME"			 	LongName="LOC_LONG_FASCISM_NAME"			/>
+		<Row GovernmentType="GOVERNMENT_COMMUNISM"			Male="LOC_MALE_COMMUNISM_NAME"			Female="LOC_FEMALE_COMMUNISM_NAME"			ShortName="LOC_SHORT_COMMUNISM_NAME"			LongName="LOC_LONG_COMMUNISM_NAME"			/>
+		<Row GovernmentType="GOVERNMENT_DEMOCRACY"			Male="LOC_MALE_DEMOCRACY_NAME"			Female="LOC_FEMALE_DEMOCRACY_NAME"			ShortName="LOC_SHORT_DEMOCRACY_NAME"			LongName="LOC_LONG_DEMOCRACY_NAME"			/>
+	</GovernmentNames>
+	
+	<!-- DIPLOACTION: useless without DLL access ?
+	<Types>
+		<Row Type="DIPLOACTION_TEST" Kind="KIND_DIPLOMATIC_ACTION"/>
+	</Types>	
+	<DiplomaticActions>
+		<Row DiplomaticActionType="DIPLOACTION_TEST" Name="LOC_DIPLOACTION_TEST_NAME" Description="LOC_DIPLOACTION_TEST_DESCRIPTION" Agreement="true" Duration="15" />
+	
+	</DiplomaticActions>
+	
+	<DiplomaticStateActions>
+		<Row StateType="DIPLO_STATE_ALLIED" 			DiplomaticActionType="DIPLOACTION_TEST" Worth="100" Cost="0"/>
+		<Row StateType="DIPLO_STATE_DECLARED_FRIEND"	DiplomaticActionType="DIPLOACTION_TEST" Worth="0" Cost="200"/>
+		<Row StateType="DIPLO_STATE_FRIENDLY"			DiplomaticActionType="DIPLOACTION_TEST" Worth="0" Cost="200"/>
+		<Row StateType="DIPLO_STATE_NEUTRAL"			DiplomaticActionType="DIPLOACTION_TEST" Worth="-200" Cost="200"/>
+	</DiplomaticStateActions>
+	-->
 	
 </GameInfo>

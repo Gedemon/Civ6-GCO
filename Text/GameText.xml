@@ -806,6 +806,15 @@
       <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name} {4_Name}</Text>
     </Replace>
 	
+	<Replace Tag="LOC_PRODUCTION_UPGRADE_TO" Language="en_US">
+		<Text>Upgrade to {1_Building}</Text>
+	</Replace>
+	<Replace Tag="LOC_PRODUCTION_REPLACE" Language="en_US">
+		<Text>Replace the following buildings:</Text>
+	</Replace>
+	<Replace Tag="LOC_PRODUCTION_BULLET_BUILDING" Language="en_US">
+		<Text>[ICON_Bullet] {1_Building}</Text>
+	</Replace>
 	<Replace Tag="LOC_PRODUCTION_REQUIRES_ANY_BUILDING" Language="en_US">
 		<Text>Requires any of the following buildings:</Text>
 	</Replace>
@@ -1100,6 +1109,82 @@
     <Replace Tag="LOC_YIELD_MIDDLE_HOUSING_NAME" 	Text="Middle Class Housing"	Language="en_US" />
     <Replace Tag="LOC_YIELD_LOWER_HOUSING_NAME" 	Text="Lower Class Housing"	Language="en_US" />
 	
-  </LocalizedText>  
+  </LocalizedText>
+  
+  <LocalizedText> <!-- Government Naming -->
+	<!--
+    <Replace Tag="LOC_MALE_TRIBE_NAME" 				Text="Patriarch {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_MALE_CHIEFDOM_NAME" 			Text="Chieftain {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_MALE_AUTOCRACY_NAME" 			Text="Emperor {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_MALE_OLIGARCHY_NAME" 			Text="Imperator {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_MALE_CLASSICAL_REPUBLIC_NAME"	Text="Citizen {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_MALE_MONARCHY_NAME"			Text="King {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_MALE_THEOCRACY_NAME"			Text="Holy Emperor {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_MALE_MERCHANT_REPUBLIC_NAME"	Text="Doge {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_MALE_FASCISM_NAME"			Text="Supreme Leader {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_MALE_COMMUNISM_NAME"			Text="General Secretary {1_Name}"	Language="en_US" />
+    <Replace Tag="LOC_MALE_DEMOCRACY_NAME"			Text="President {1_Name}"			Language="en_US" />
+	
+    <Replace Tag="LOC_FEMALE_TRIBE_NAME" 				Text="Matriarch {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_CHIEFDOM_NAME" 			Text="Chieftess {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_AUTOCRACY_NAME" 			Text="Empress {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_FEMALE_OLIGARCHY_NAME" 			Text="Imperatess {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_CLASSICAL_REPUBLIC_NAME"	Text="Citizen {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_FEMALE_MONARCHY_NAME"				Text="Queen {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_FEMALE_THEOCRACY_NAME"			Text="Holy Empress {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_FEMALE_MERCHANT_REPUBLIC_NAME"	Text="Dogaressa {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_FASCISM_NAME"				Text="Supreme Leader {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_FEMALE_COMMUNISM_NAME"			Text="General Secretary {1_Name}"	Language="en_US" />
+    <Replace Tag="LOC_FEMALE_DEMOCRACY_NAME"			Text="President {1_Name}"			Language="en_US" />
+	-->
+    <Replace Tag="LOC_MALE_TRIBE_NAME" 				Text="Patriarch of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_MALE_CHIEFDOM_NAME" 			Text="Chieftain of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_MALE_AUTOCRACY_NAME" 			Text="Emperor of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_MALE_OLIGARCHY_NAME" 			Text="Imperator of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_MALE_CLASSICAL_REPUBLIC_NAME"	Text="Citizen of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_MALE_MONARCHY_NAME"			Text="King of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_MALE_THEOCRACY_NAME"			Text="Holy Emperor of {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_MALE_MERCHANT_REPUBLIC_NAME"	Text="Doge of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_MALE_FASCISM_NAME"			Text="Supreme Leader of {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_MALE_COMMUNISM_NAME"			Text="General Secretary of {1_Name}"	Language="en_US" />
+    <Replace Tag="LOC_MALE_DEMOCRACY_NAME"			Text="President of {1_Name}"			Language="en_US" />
+	
+    <Replace Tag="LOC_FEMALE_TRIBE_NAME" 				Text="Matriarch of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_CHIEFDOM_NAME" 			Text="Chieftess of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_AUTOCRACY_NAME" 			Text="Empress of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_FEMALE_OLIGARCHY_NAME" 			Text="Imperatess of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_CLASSICAL_REPUBLIC_NAME"	Text="Citizen of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_FEMALE_MONARCHY_NAME"				Text="Queen of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_FEMALE_THEOCRACY_NAME"			Text="Holy Empress of {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_FEMALE_MERCHANT_REPUBLIC_NAME"	Text="Dogaressa of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_FASCISM_NAME"				Text="Supreme Leader of {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_FEMALE_COMMUNISM_NAME"			Text="General Secretary of {1_Name}"	Language="en_US" />
+    <Replace Tag="LOC_FEMALE_DEMOCRACY_NAME"			Text="President of {1_Name}"			Language="en_US" />
+	
+    <Replace Tag="LOC_SHORT_TRIBE_NAME" 				Text="{1_Name} tribesmen"		Language="en_US" />
+    <Replace Tag="LOC_SHORT_CHIEFDOM_NAME" 				Text="{1_Name} clansmen"		Language="en_US" />
+    <Replace Tag="LOC_SHORT_AUTOCRACY_NAME" 			Text="{1_Name} people"			Language="en_US" />
+    <Replace Tag="LOC_SHORT_OLIGARCHY_NAME" 			Text="{1_Name} people"			Language="en_US" />
+    <Replace Tag="LOC_SHORT_CLASSICAL_REPUBLIC_NAME"	Text="{1_Name} citizens"		Language="en_US" />
+    <Replace Tag="LOC_SHORT_MONARCHY_NAME"				Text="{1_Name} vassals"			Language="en_US" />
+    <Replace Tag="LOC_SHORT_THEOCRACY_NAME"				Text="{1_Name} vassals"			Language="en_US" />
+    <Replace Tag="LOC_SHORT_MERCHANT_REPUBLIC_NAME"		Text="{1_Name} citizens"		Language="en_US" />
+    <Replace Tag="LOC_SHORT_FASCISM_NAME"			 	Text="{1_Name} people"			Language="en_US" />
+    <Replace Tag="LOC_SHORT_COMMUNISM_NAME"				Text="{1_Name} people"			Language="en_US" />
+    <Replace Tag="LOC_SHORT_DEMOCRACY_NAME"				Text="{1_Name} citizens"		Language="en_US" />
+	
+    <Replace Tag="LOC_LONG_TRIBE_NAME" 					Text="Tribe of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_LONG_CHIEFDOM_NAME" 				Text="Clan of {1_Name}"					Language="en_US" />
+    <Replace Tag="LOC_LONG_AUTOCRACY_NAME" 				Text="Empire of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_LONG_OLIGARCHY_NAME" 				Text="Oligarchy of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_LONG_CLASSICAL_REPUBLIC_NAME"		Text="Republic of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_LONG_MONARCHY_NAME"				Text="Kingdom of {1_Name}"				Language="en_US" />
+    <Replace Tag="LOC_LONG_THEOCRACY_NAME"				Text="Holy Empire of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_LONG_MERCHANT_REPUBLIC_NAME"		Text="Free cities of {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_LONG_FASCISM_NAME"				Text="Superior Nation of {1_Name}"		Language="en_US" />
+    <Replace Tag="LOC_LONG_COMMUNISM_NAME"				Text="People's Republic of {1_Name}"	Language="en_US" />
+    <Replace Tag="LOC_LONG_DEMOCRACY_NAME"				Text="Democratic Republic of {1_Name}"	Language="en_US" />
+	
+  </LocalizedText> 
 
 </GameData>

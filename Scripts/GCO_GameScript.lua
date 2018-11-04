@@ -17,15 +17,22 @@ include( "GCO_SmallUtils" )
 -----------------------------------------------------------------------------------------
 DEBUG_GAME_SCRIPT = "GameScript"
 
+-- Helpers to get Resources base number on map (also used to determine employment)
 local ResClassCount = {
-		["RESOURCECLASS_LUXURY"] 	= 1,
+		["RESOURCECLASS_LUXURY"] 	= 2,
 		["RESOURCECLASS_STRATEGIC"]	= 5,
-		["RESOURCECLASS_BONUS"]		= 2
+		["RESOURCECLASS_BONUS"]		= 4
 	}
 	
 local ResTypeBonus = {
-		["RESOURCE_HORSES"] 	= 5,
+		["RESOURCE_HORSES"] 	= 8,
 	}
+
+local ResBaseNum = {}
+for row in GameInfo.Resources() do
+	ResBaseNum[row.ResourceType] 	= (ResClassCount[row.ResourceClassType] or 1) + (ResTypeBonus[row.ResourceType] or 0)
+	ResBaseNum[row.Index] 			= (ResClassCount[row.ResourceClassType] or 1) + (ResTypeBonus[row.ResourceType] or 0)
+end
 
 	
 -----------------------------------------------------------------------------------------
@@ -91,6 +98,11 @@ Events.LoadGameViewStateDone.Add( UpdateCachedData )
 -----------------------------------------------------------------------------------------
 -- Resources
 -----------------------------------------------------------------------------------------
+function GetBaseResourceNumOnMap(resourceID)
+	return ResBaseNum[resourceID]
+end
+
+
 function SetResourcesCount()
 
 	if Game.GetCurrentGameTurn() > GameConfiguration.GetStartTurn() then -- only called on first turn
@@ -102,13 +114,10 @@ function SetResourcesCount()
 		local plot = Map.GetPlotByIndex(i)
 		local resCount = plot:GetResourceCount() 
 		if resCount > 0 then
-			local row 		= GameInfo.Resources[plot:GetResourceType()]
-			local baseNum 	= ResClassCount[row.ResourceClassType] or 1
-			if ResTypeBonus[row.ResourceType] then 
-				baseNum = baseNum + ResTypeBonus[row.ResourceType]
-			end
-			local num		= Game.GetRandNum(baseNum+1)+baseNum
-			ResourceBuilder.SetResourceType(plot, row.Index, num)
+			local resourceID 	= GameInfo.Resources[plot:GetResourceType()].Index
+			local baseNum 		= GetBaseResourceNumOnMap(resourceID)
+			local num			= Game.GetRandNum(baseNum+1)+baseNum
+			ResourceBuilder.SetResourceType(plot, resourceID, num)
 		end
 	end
 end
@@ -199,7 +208,9 @@ function Initialize()
 	
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	-- Era
-	ExposedMembers.GCO.GetGameEra 			= GetGameEra
+	ExposedMembers.GCO.GetGameEra 				= GetGameEra
+	-- Resources
+	ExposedMembers.GCO.GetBaseResourceNumOnMap 	= GetBaseResourceNumOnMap
 
 	-- initialization	
 	ExposedMembers.GameScript_Initialized 	= true

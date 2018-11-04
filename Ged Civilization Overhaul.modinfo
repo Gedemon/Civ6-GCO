@@ -56,12 +56,18 @@
 		<Mod id="432232e6-7d07-4c16-9262-cc28795d72c5" title="Ged Assets" />
 	</Dependencies>
 
+	<Blocks>
+		<Mod id="8670da15-d435-44ea-9758-7438cb321411" title="R.E.D. Modpack" />
+		<Mod id="61bdd50b-fa31-4d5b-9171-e239cca827a2" title="YnAMP - Basic Modern Civilizations" />
+	</Blocks>
+	
 	<InGameActions>
 		<UpdateIcons id="GCO_ICONS">
 		    <Properties>
 				<LoadOrder>100</LoadOrder>
 		    </Properties>
 			<File>Data/Icons.xml</File>
+			<File>Data/CivilizationIcons.xml</File>
 		</UpdateIcons>
 		<ImportFiles id="GCO_IMPORT">
 			<File>UI/UnitFlagManager.lua</File>
@@ -81,10 +87,14 @@
 			<File>UI/EspionageChooser.lua</File>
 			<File>UI/EspionageOverview.lua</File>
 			<File>UI/UnitPanel.lua</File>
+			<File>UI/CivilizationIcon.lua</File>
+			<File>UI/LeaderIcon.lua</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
-			<File>GCO_FontIcons.dds</File>
+            <File>Scripts/GCO_PlayerConfig.lua</File>
 			<File>UI/Replacements/ActionPanel_GCO.lua</File>
+			<File>Art/dom_blank.dds</File>
+			<File>Art/GCO_FontIcons.dds</File>
 		</ImportFiles>
 		
         <AddGameplayScripts>
@@ -135,19 +145,33 @@
 				<File Priority="100">Data/Equipment.xml</File>
 				<File Priority="100">Data/Resources.xml</File>				
 				<File Priority="100">Text/NameText.xml</File> <!-- Add buildings, units, ... name & descriptions here to automate table filling -->
+				<File Priority="100">Data/CivilizationTable.sql</File>
 				<File Priority="90">Data/CombatRules.sql</File>
 				<File Priority="90">Data/Units.sql</File>
 				<File Priority="90">Data/ModRules.sql</File>
+				<File Priority="10">Data/CivilizationData.sql</File>
 				<File Priority="2">Data/PostUpdate.sql</File>
 				<File Priority="1">Data/Unlockers.sql</File>
-		</UpdateDatabase>	
+				<File Priority="1">Data/BaseGameFix.xml</File>	
+				<File Priority="1">Data/Colors.xml</File>
+				<File Priority="1">Data/TSL.xml</File>
+		</UpdateDatabase>
+		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
+           	<Properties>
+				<LoadOrder>200060</LoadOrder>
+           	</Properties>
+			<File>custom.sql</File>
+			<File>custom.xml</File>
+		</UpdateDatabase>
 		<UpdateText id="GCO_DEFAULT_LOC">
            	<Properties>
 				<LoadOrder>100700</LoadOrder>
            	</Properties>
+				<File Priority="9">Data/CivilizationTable.sql</File>
 				<File Priority="9">Text/ExternalText.xml</File>
-				<File Priority="2">Text/GameText.xml</File>
-				<File Priority="1">Text/NameText.xml</File>
+				<File Priority="5">Text/GameText.xml</File>
+				<File Priority="2">Text/NameText.xml</File>
+				<File Priority="1">Text/CivilizationsText.sql</File>
 		</UpdateText>
 		
 		<ReplaceUIScript id="GCO_ActionPanel">
@@ -174,6 +198,36 @@
 			<File>Config/Config.xml</File>
 			<File>Config/Config.sql</File>
 		</UpdateDatabase>
+		<UpdateDatabase id="GCO_POST_SETTING">		
+           	<Properties>
+				<LoadOrder>100800</LoadOrder>
+           	</Properties>
+			<File Priority="9">Data/CivilizationTable.sql</File>
+			<File Priority="2">Config/CivilizationsConfig.sql</File>
+			<File Priority="1">Config/PostConfig.sql</File>
+		</UpdateDatabase>
+		<UpdateText id="GCO_SETTING_LOC">
+           	<Properties>
+				<LoadOrder>100800</LoadOrder>
+           	</Properties>
+			<File Priority="9">Data/CivilizationTable.sql</File>
+			<File Priority="9">Text/ConfigText.xml</File>
+			<File Priority="1">Text/CivilizationsText.sql</File>
+		</UpdateText>
+		<UpdateIcons id="GCO_SETTING_ICONS">
+           	<Properties>
+				<LoadOrder>100000</LoadOrder>
+           	</Properties>
+			<File>Data/CivilizationIcons.xml</File>
+		</UpdateIcons>
+		<ImportFiles id="GCO_SETTING_IMPORT">
+           	<Properties>
+				<!-- High load order to make sure GCO AdvancedSetup plots is loaded after the version of other mods, including YnAMP --> 
+				<LoadOrder>1000005</LoadOrder>
+           	</Properties>
+			<File>UI/AdvancedSetup.lua</File>
+			<File>UI/AdvancedSetup.xml</File>
+		</ImportFiles>
 	</FrontEndActions>
 
 	<Files>
@@ -181,6 +235,7 @@
 		<File>Data/GamePlay.xml</File>
 		<File>Data/GlobalParameters.sql</File>
 		<File>Data/Icons.xml</File>
+		<File>Data/CivilizationIcons.xml</File>
 		<File>Data/CultureDiffusionParameters.sql</File>
 		<File>Data/CombatRules.sql</File>
 		<File>Data/ModRules.sql</File>
@@ -190,13 +245,22 @@
 		<File>Text/ExternalText.xml</File>
 		<File>Text/GameText.xml</File>
 		<File>Text/NameText.xml</File>
+		<File>Text/ConfigText.xml</File>
 		<File>Data/Buildings.xml</File>
 		<File>Data/Units.xml</File>
 		<File>Data/Equipment.xml</File>
 		<File>Data/Resources.xml</File>
+		<File>Data/CivilizationTable.sql</File>
+		<File>Data/CivilizationData.sql</File>
+		<File>Data/BaseGameFix.xml</File>	
+		<File>Data/Colors.xml</File>
+		<File>Data/TSL.xml</File>
 		<File>Text/ConfigText.xml</File>
+		<File>Text/CivilizationsText.sql</File>
 		<File>Config/Config.xml</File>
 		<File>Config/Config.sql</File>
+		<File>Config/CivilizationsConfig.sql</File>
+		<File>Config/PostConfig.sql</File>
 		<File>Scripts/GCO_ModUtils.lua</File>
 		<File>Scripts/GCO_PlayerScript.lua</File>
 		<File>Scripts/GCO_CityScript.lua</File>
@@ -213,8 +277,11 @@
 		<File>Scripts/GCO_AIUnitScript.lua</File>
         <File>Scripts/GCO_SmallUtils.lua</File>
         <File>Scripts/GCO_TypeEnum.lua</File>
+		<File>Scripts/GCO_PlayerConfig.lua</File>
 		<File>InGame/GCO_ModInGame.lua</File>
 		<File>InGame/GCO_ModInGame.xml</File>
+		<File>UI/AdvancedSetup.lua</File>
+		<File>UI/AdvancedSetup.xml</File>
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/UnitFlagManager.xml</File>
 		<File>UI/CityBannerManager.lua</File>
@@ -232,8 +299,11 @@
 		<File>UI/EspionageChooser.lua</File>
 		<File>UI/EspionageOverview.lua</File>
 		<File>UI/UnitPanel.lua</File>
+		<File>UI/CivilizationIcon.lua</File>
+		<File>UI/LeaderIcon.lua</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
-		<File>GCO_FontIcons.dds</File>
+		<File>Art/dom_blank.dds</File>
+		<File>Art/GCO_FontIcons.dds</File>
 		<File>GCO_ModArt.dep</File>
 	</Files>
 </Mod>

@@ -623,18 +623,25 @@ function View(data:table, bIsUpdate:boolean)
 		end
 		for resourceID, v in pairs(data.Resources) do
 			local improvementMultiplier = 1
+			local outputPerYield		= plot:GetOutputPerYield()
 			local resName 				= GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)
 			local improvementNeeded		= GCO.GetResourceImprovementID(resourceID)
 			local improvementStr		= ""
+			local bIsImproved			= false
 			if improvementNeeded then
 				if improvementID == improvementNeeded then
-					improvementMultiplier = BaseImprovementMultiplier
-					improvementStr = " [COLOR:Civ6Green](" ..Locale.Lookup("LOC_PLOT_TOOLTIP_IMPROVEMENT_MULTIPLIER", BaseImprovementMultiplier, GameInfo.Improvements[improvementNeeded].Name)..")[ENDCOLOR]"
+					improvementMultiplier 	= BaseImprovementMultiplier
+					bIsImproved				= true
+					improvementStr 			= " [COLOR:Civ6Green](" ..Locale.Lookup("LOC_PLOT_TOOLTIP_IMPROVEMENT_MULTIPLIER", BaseImprovementMultiplier, GameInfo.Improvements[improvementNeeded].Name)..")[ENDCOLOR]"
 				else
-					improvementStr = " [COLOR:Civ6Red](" ..Locale.Lookup("LOC_PLOT_TOOLTIP_IMPROVEMENT_MULTIPLIER", BaseImprovementMultiplier, GameInfo.Improvements[improvementNeeded].Name)..")[ENDCOLOR]"
+					improvementStr 			= " [COLOR:Civ6Red](" ..Locale.Lookup("LOC_PLOT_TOOLTIP_IMPROVEMENT_MULTIPLIER", BaseImprovementMultiplier, GameInfo.Improvements[improvementNeeded].Name)..")[ENDCOLOR]"
 				end
 			end
-			local str = tostring(GCO.ToDecimals(v * improvementMultiplier * plot:GetOutputPerYield())) .. resName .. "(".. tostring(v) ..")" .. improvementStr
+			local collected = v * improvementMultiplier * outputPerYield
+			if bIsImproved then
+				collected = math.max(v, collected)
+			end
+			local str = tostring(GCO.ToDecimals(collected)) .. resName .. "(".. tostring(v) ..")" .. improvementStr
 			table.insert(details, str)
 		end
 	end

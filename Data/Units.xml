@@ -36,8 +36,6 @@
 	<UnitsGCO> <!-- Conscripts -->
 	<!--
 		<Row UnitType="UNIT_FUSILLIER" 			Cost="290" 	Maintenance="4"	Combat="53"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST"  />
-		<Row UnitType="UNIT_RIFLEMAN" 			Cost="350" 	Maintenance="4"	Combat="60"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
-		<Row UnitType="UNIT_INFANTRY" 			Cost="430" 	Maintenance="6" Combat="70"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
 
 	-->
 		<Row UnitType="UNIT_LIGHT_SPEARMAN" 	Cost="50"	Maintenance="1"	Combat="20"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />	
@@ -45,6 +43,8 @@
 		<Row UnitType="UNIT_HEAVY_SPEARMAN" 	Cost="90"	Maintenance="2"	Combat="30"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_PIKEMAN" 			Cost="200" 	Maintenance="3" Combat="41"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
 		<Row UnitType="UNIT_HEAVY_PIKEMAN" 		Cost="220"	Maintenance="3"	Combat="45"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />
+		<Row UnitType="UNIT_RIFLEMAN" 			Cost="350" 	Maintenance="4"	Combat="60"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
+		<Row UnitType="UNIT_INFANTRY" 			Cost="430" 	Maintenance="6" Combat="70"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
 		<Row UnitType="UNIT_MODERN_INFANTRY" 	Cost="600" 	Maintenance="8" Combat="80" CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />
 	
 	</UnitsGCO>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameInfo>	
+	<!-- Those table can't be empty else the human player will not spawn -->
+	<StartBiasResources>
+		<Row CivilizationType="CIVILIZATION_BARBARIAN" ResourceType="RESOURCE_HORSES" Tier="2"/>
+	</StartBiasResources>
+	<StartBiasFeatures>
+		<Row CivilizationType="CIVILIZATION_BARBARIAN" FeatureType="FEATURE_JUNGLE" Tier="2"/>
+	</StartBiasFeatures>
+	<StartBiasTerrains>
+		<Row CivilizationType="CIVILIZATION_BARBARIAN" TerrainType="TERRAIN_COAST" Tier="1"/>
+	</StartBiasTerrains>
+	<StartBiasRivers>
+		<Row CivilizationType="CIVILIZATION_BARBARIAN" Tier="3"/>
+	</StartBiasRivers>
+</GameInfo>

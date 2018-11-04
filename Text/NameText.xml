@@ -21,9 +21,12 @@
 		<Replace Tag="LOC_BUILDING_ARTILLATOR_NAME"					Text="Artillator"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_ARMORER_NAME"					Text="Armorer"	 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FOUNDRY_NAME"					Text="Foundry"	 				Language="en_US" />
-		<Replace Tag="LOC_BUILDING_MARKET_EXTENSION_NAME"			Text="Market Extension"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_MARKET_EXTENSION_NAME"			Text="Large Market"				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_INDUSTRIAL_MARKET_NAME"			Text="SuperMarket"				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_HYPERMARKET_NAME"				Text="HyperMarket"				Language="en_US" />
 		
 		<Replace Tag="LOC_BUILDING_WEAPONSMITH_NAME"				Text="Weaponsmith"	 			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_BLADESMITH_NAME"					Text="Bladesmith"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_ARMORSMITH_NAME"					Text="Armorsmith"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FARRIER_NAME"					Text="Farrier"	 				Language="en_US" />
 							
@@ -82,10 +85,13 @@
 		
 		<Replace Tag="LOC_BUILDING_ARTILLATOR_DESCRIPTION" Language="en_US">
 			<Text>A building for the makers of bows, arrows, and other archery goods.</Text>
-		</Replace>		
+		</Replace>
+		<Replace Tag="LOC_BUILDING_BLADESMITH_DESCRIPTION" Language="en_US">
+			<Text>Allows the production of various Swords, which may raise the supply cost for your units</Text>
+		</Replace>
 		<Replace Tag="LOC_BUILDING_WEAPONSMITH_DESCRIPTION" Language="en_US">
 			<Text>Allows the production of Steel Weapons, which may raise the supply cost for your units</Text>
-		</Replace>		
+		</Replace>
 		<Replace Tag="LOC_BUILDING_ARMORSMITH_DESCRIPTION" Language="en_US">
 			<Text>A building for forging armour (such as greaves, breastplates and legplates).[NEWLINE]Allows the production of Plate Armor, which may raise the supply cost for your units</Text>
 		</Replace>		
