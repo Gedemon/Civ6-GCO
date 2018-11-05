@@ -20,7 +20,7 @@ DEBUG_GAME_SCRIPT = "GameScript"
 -- Helpers to get Resources base number on map (also used to determine employment)
 local ResClassCount = {
 		["RESOURCECLASS_LUXURY"] 	= 2,
-		["RESOURCECLASS_STRATEGIC"]	= 5,
+		["RESOURCECLASS_STRATEGIC"]	= 6,
 		["RESOURCECLASS_BONUS"]		= 4
 	}
 	
@@ -116,7 +116,7 @@ function SetResourcesCount()
 		if resCount > 0 then
 			local resourceID 	= GameInfo.Resources[plot:GetResourceType()].Index
 			local baseNum 		= GetBaseResourceNumOnMap(resourceID)
-			local num			= Game.GetRandNum(baseNum+1)+baseNum
+			local num			= math.ceil(Game.GetRandNum(baseNum+1)+(baseNum/2))
 			ResourceBuilder.SetResourceType(plot, resourceID, num)
 		end
 	end

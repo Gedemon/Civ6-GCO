@@ -1393,7 +1393,7 @@ end
 
 function Disband(self) -- Send everyone and everything back to the unit's home or supply city
 
-	local DEBUG_UNIT_SCRIPT = "debug"
+	--local DEBUG_UNIT_SCRIPT = "debug"
 	Dprint( DEBUG_UNIT_SCRIPT, "     - Full disbanding of "..Locale.Lookup(self:GetName()))
 	
 	local unitData 	= self:GetData()	
@@ -3915,8 +3915,8 @@ local combatEnd		= {}
 function OnCombat( combatResult )
 
 	--local DEBUG_UNIT_SCRIPT = "UnitScript"
-	if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
-	if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
+	--if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
+	--if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
 	
 	-- for console debugging...
 	ExposedMembers.lastCombat = combatResult
@@ -4271,8 +4271,8 @@ function OnCombat( combatResult )
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	--]]
 	
-	if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
-	if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
+	--if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
+	--if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
 	
 	combatEnd[combatCount] = true
 end
@@ -4600,6 +4600,7 @@ function HealingControl (playerID, unitID, newDamage, prevDamage)
 	if unit then
 		local unitKey 	= unit:GetKey()
 		local data 		= ExposedMembers.UnitData[unitKey]
+		if not data then GCO.Warning("unitData is nil in HealingControl for " .. self:GetName(), self:GetKey()); return end
 		local testHP 	= unit:GetMaxDamage() - unit:GetDamage()
 		local value		= testHP - data.testHP
 		local change	= prevDamage - newDamage
@@ -4618,6 +4619,7 @@ function HealingControl (playerID, unitID, newDamage, prevDamage)
 		if change > 0 and UnitLastHealingValue[unitKey] ~= change then -- that unit has received health outside the mod control (like when pillaging, hardcoding is bad Firaxis, bad ! no jokes, I have hundred of lines of codes in there to handle this and the asynchronous events related to units damage and combat...)
 			--ExposedMembers.UI.LookAtPlot(unit:GetX(), unit:GetY(), 0.3)
 			local plot = Map.GetPlot(unit:GetX(), unit:GetY())
+			if not plot then plot = Map.GetPlot(data.LastX, data.LastY) end
 			Dprint( DEBUG_UNIT_SCRIPT, "Reverting unexpected healing : +"..tostring(change).." HP for "..tostring(GameInfo.Units[unit:GetType()].UnitType).." id#".. tostring(unit:GetKey()).." player#"..tostring(unit:GetOwner()), ", in city = ", plot:IsCity())
 			unit:SetDamage(prevDamage)
 		--elseif UnitDelayedHealing[unitKey] then -- now that combat damage has been applied, try to heal units marked for delayed healing again (the Heal function will check for desync again)
@@ -5220,7 +5222,7 @@ end
 
 function CheckForActiveTurnsLeft(self)
 	Dlog("CheckForActiveTurnsLeft for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
-	local DEBUG_UNIT_SCRIPT = "debug"
+	--local DEBUG_UNIT_SCRIPT = "debug"
 	local bRemoveUnit		= false
 	local activeTurnsLeft 	= self:GetProperty("ActiveTurnsLeft")
 	if activeTurnsLeft then

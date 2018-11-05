@@ -1303,6 +1303,8 @@ end
 function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, tradeRouteLevel)
 
 	--local DEBUG_CITY_SCRIPT = "debug"
+	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
+	--if Locale.Lookup(self:GetName()) =="Urumqi" or Locale.Lookup(transferCity:GetName()) =="Urumqi" then DEBUG_CITY_SCRIPT = "debug" end
 
 	local selfKey 		= self:GetKey()
 	local transferKey 	= transferCity:GetKey()
@@ -1751,7 +1753,10 @@ function UpdateExportCities(self)
 	local name 		= Locale.Lookup(self:GetName())
 	GCO.StartTimer("UpdateExportCities for ".. name)
 	Dlog("UpdateExportCities ".. name.." /START")
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	
+	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
+	--if Locale.Lookup(self:GetName()) =="Urumqi" then DEBUG_CITY_SCRIPT = "debug" end
+	
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
 	local selfKey 				= self:GetKey()	
@@ -1781,10 +1786,11 @@ function UpdateExportCities(self)
 			
 			if iPlayer ~= ownerID and pDiplo:HasMet( ownerID ) then
 				if (not pDiplo:IsAtWarWith( ownerID )) then
-					Dprint( DEBUG_CITY_SCRIPT, "- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+					Dprint( DEBUG_CITY_SCRIPT, "- searching for possible trade routes with "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()).. ", tradeRouteLevel = ", tradeRouteLevel)
 					local playerCities 	= player:GetCities()
 					for _, transferCity in playerCities:Members() do
 						local distance = Map.GetPlotDistance(self:GetX(), self:GetY(), transferCity:GetX(), transferCity:GetY())
+						Dprint( DEBUG_CITY_SCRIPT, Indentation20(Locale.Lookup(transferCity:GetName())).. " Distance = ".. tostring(distance) )
 						table.insert(citiesList, { TransferCity = transferCity, Distance = distance, TradeRouteLevel = tradeRouteLevel })
 					end
 				else -- remove routes if exist
@@ -1807,17 +1813,17 @@ function UpdateExportCities(self)
 	for _, cityData in ipairs(citiesList) do
 		local transferCity	= cityData.TransferCity
 		local transferKey 	= transferCity:GetKey()	
-		
+		Dprint( DEBUG_CITY_SCRIPT, Indentation20("   ".. Locale.Lookup(transferCity:GetName())))
 		if transferKey ~= selfKey and transferCity:IsInitialized() then
 			if CitiesOutOfReach[selfKey][transferKey] then
 				-- Update rate is relative to route length
 				local distance			= cityData.Distance
 				local turnSinceUpdate	= currentTurn - CitiesOutOfReach[selfKey][transferKey]
 				if turnSinceUpdate > distance / 2 then
-					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." was marked out of reach ".. tostring(turnSinceUpdate) .." turns ago, unmarking for next turn...")
+					Dprint( DEBUG_CITY_SCRIPT, "   - distance = "..tostring(distance).." was marked out of reach ".. tostring(turnSinceUpdate) .." turns ago, unmarking for next turn...")
 					CitiesOutOfReach[selfKey][transferKey] = nil
 				else
-					Dprint( DEBUG_CITY_SCRIPT, " - ".. Locale.Lookup(transferCity:GetName()) .." at distance = "..tostring(distance).." is marked out of reach since ".. tostring(turnSinceUpdate) .." turns")
+					Dprint( DEBUG_CITY_SCRIPT, "   - at distance = "..tostring(distance).." is marked out of reach since ".. tostring(turnSinceUpdate) .." turns")
 				end
 			else
 				local tradeRouteLevel = cityData.TradeRouteLevel
@@ -1834,6 +1840,7 @@ function UpdateExportCities(self)
 						local routeLength 		= #tradeRoute.PathPlots
 						local turnSinceUpdate	= currentTurn - tradeRoute.LastUpdate
 						if turnSinceUpdate > routeLength / 2 then
+							Dprint( DEBUG_CITY_SCRIPT, "   - (turnSinceUpdate > routeLength / 2)")
 							bNeedUpdate = true								
 						end
 						
@@ -1842,23 +1849,31 @@ function UpdateExportCities(self)
 							for i=1, #tradeRoute.PathPlots do
 								local plot = Map.GetPlotByIndex(tradeRoute.PathPlots[i])
 								if GCO.TradePathBlocked(plot, Players[self:GetOwner()]) then
+									Dprint( DEBUG_CITY_SCRIPT, "   - Found blockade on path")
 									bNeedUpdate = true
 									break
 								end
 							end
 						end									
-						
-						-- Update Diplomatic relations (That shouldn't require to update the Route itself)
-						if tradeRouteLevel ~= tradeRoute.TradeRouteLevel then
-							tradeRoute.TradeRouteLevel = tradeRouteLevel
-							--bNeedUpdate = true
-						end
 					else	-- trader routes are updated on change
+						Dprint( DEBUG_CITY_SCRIPT, "   - Previous trader route found")
 						bNeedUpdate = false
 					end
+						
+					-- Update Diplomatic relations (That shouldn't require to update the Route itself)
+					if tradeRouteLevel ~= tradeRoute.TradeRouteLevel then
+						tradeRoute.TradeRouteLevel = tradeRouteLevel
+						Dprint( DEBUG_CITY_SCRIPT, "   - Changing tradeRouteLevel to level #".. tostring(tradeRouteLevel))
+					end
 				else
+					Dprint( DEBUG_CITY_SCRIPT, "   - No previous trade route")
 					bNeedUpdate = true
 				end
+				
+				Dprint( DEBUG_CITY_SCRIPT, "   - Need update : ", bNeedUpdate)
+				Dprint( DEBUG_CITY_SCRIPT, "   - availableLandRoutes. = ", availableLandRoutes)
+				Dprint( DEBUG_CITY_SCRIPT, "   - availableRiverRoutes = ", availableRiverRoutes)
+				Dprint( DEBUG_CITY_SCRIPT, "   - availableSeaRoutes.. = ", availableSeaRoutes)
 				
 				if bNeedUpdate then
 					--[[ -- now updated on route change
@@ -2050,7 +2065,8 @@ Events.TradeRouteActivityChanged.Add(OnTradeRouteActivityChanged)
 function ExportToForeignCities(self)
 	Dlog("ExportToForeignCities ".. Locale.Lookup(self:GetName()).." /START")
 	
-	--local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
+	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
+	--if Locale.Lookup(self:GetName()) =="Urumqi" then DEBUG_CITY_SCRIPT = "debug" end
 
 	Dprint( DEBUG_CITY_SCRIPT, "Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
@@ -2105,6 +2121,8 @@ function ExportToForeignCities(self)
 							end
 						end
 					end
+				else
+					Dprint( DEBUG_CITY_SCRIPT, "   - Not allowed to trade ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." at tradeRouteLevel".. tostring(tradeRouteLevel))
 				end
 			end
 			loop = loop + 1
@@ -2208,6 +2226,10 @@ end
 
 function GetRequirements(self, fromCity)
 	--local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
+	
+	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
+	--if Locale.Lookup(self:GetName()) =="Luzhou" and Locale.Lookup(fromCity:GetName()) =="Urumqi" then DEBUG_CITY_SCRIPT = "debug" end
+	
 	local selfKey 				= self:GetKey()
 	local player 				= GCO.GetPlayer(self:GetOwner())
 	local fromplayerID			= fromCity:GetOwner()
@@ -2231,23 +2253,26 @@ function GetRequirements(self, fromCity)
 	for row in GameInfo.Resources() do
 		local resourceID 			= row.Index
 		
+		Dprint( DEBUG_CITY_SCRIPT, Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .. Indentation20("... strategic").. tostring(row.ResourceClassType == "RESOURCECLASS_STRATEGIC"))
+		Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... equipment") .. tostring( GCO.IsResourceEquipment(resourceID)))
+		
 		if resourceTradeLevel[tradeRouteLevel][resourceID] then
 		
-			Dprint( DEBUG_CITY_SCRIPT, Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .. Indentation20("... strategic").. tostring(row.ResourceClassType == "RESOURCECLASS_STRATEGIC"))
-			Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... equipment") .. tostring( GCO.IsResourceEquipment(resourceID)))
 			local bCanRequest 			= false
 			local bCanTradeResource 	= (not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute))))
-			Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... can trade") .. tostring(bCanTradeResource),"no export",row.NoExport,"external route",bExternalRoute,"no transfer",row.NoTransfer,"internal route",(not bExternalRoute))
-			if bCanTradeResource and not player:IsObsoleteEquipment(resourceCreatedID) then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources, do not ask for obsolete resource
+			Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... can trade") .. tostring(bCanTradeResource),", no export = ",row.NoExport," external route = ",bExternalRoute,", no transfer = ",row.NoTransfer,", internal route = ",(not bExternalRoute))
+			if bCanTradeResource and not player:IsObsoleteEquipment(resourceID) then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources, do not ask for obsolete resource
 				local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
 				if numResourceNeeded > 0 then
 					local bPriorityRequest	= false
-					if fromCity then -- function was called to only request resources available in "fromCity"
+					if fromCity then -- function was called to only request resources available in "fromCity" --<-- note : we have to rewrite the function if we want that behavior, cause it will crash if fromCity is nil !
 						local efficiency 	= fromCity:GetRouteEfficiencyTo(self)
 						local transportCost = fromCity:GetTransportCostTo(self)
 						local bHasStock		= fromCity:GetStock(resourceID) > 0
 						if bHasStock then
-							Dprint( DEBUG_CITY_SCRIPT, "    - check for ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", fromCity:GetResourceCost(resourceID) * transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
+							Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... has stock").. Locale.Lookup(GameInfo.Resources[resourceID].Name), " efficiency", efficiency, " "..fromName.." stock", fromCity:GetStock(resourceID) ," "..cityName.." stock", self:GetStock(resourceID) ," "..fromName.." cost", fromCity:GetResourceCost(resourceID)," transport cost", fromCity:GetResourceCost(resourceID) * transportCost, " "..cityName.." cost", self:GetResourceCost(resourceID))
+						else
+							Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. "... no stock")
 						end
 						local bHasMoreStock 	= true -- (fromCity:GetStock(resourceID) > self:GetStock(resourceID)) --< must find another check, this one doesn't allow small city at full stock to transfer to big city at low stock (but still higher than small city max stock) use percentage stock instead ?
 						local fromCost			= fromCity:GetResourceCost(resourceID)
@@ -2267,6 +2292,8 @@ function GetRequirements(self, fromCity)
 
 						if bHasStock and bHasMoreStock and (bIsLowerCost or bPriorityRequest or self:GetStock(resourceID) == 0) then
 							bCanRequest = true
+						else
+							Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... bCanRequest").. tostring(bCanRequest), ", (bOtherHasStock ["..tostring(bHasStock).."] and bHasMoreStock["..tostring(bHasMoreStock).."] and (bIsLowerCost["..tostring(bIsLowerCost).."] or bPriorityRequest["..tostring(bPriorityRequest).."] or bSelfHasNoStock["..tostring(self:GetStock(resourceID) == 0).."])")
 						end
 					else
 						bCanRequest = true
@@ -2274,10 +2301,16 @@ function GetRequirements(self, fromCity)
 					if bCanRequest then
 						requirements.Resources[resourceID] 		= numResourceNeeded
 						requirements.HasPrecedence[resourceID] 	= bPriorityRequest
-						Dprint( DEBUG_CITY_SCRIPT, "- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID])..", Priority = "..tostring(bPriorityRequest))
+						Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... Required ").. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(requirements.Resources[resourceID])..", Priority = "..tostring(bPriorityRequest))
 					end
+				else
+					Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. "... No demand")
 				end
+			else
+				Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. "... Can't trade or obsolete")
 			end
+		else
+			Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. "... Insufficient tradeRouteLevel at " .. tostring( tradeRouteLevel))
 		end
 	end
 
