@@ -241,8 +241,8 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_CHANGE_NO_
 -- Plots
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MAX_MIGRANT_PERCENT',	50.00);	-- Max percentage of PlotPopulation that can migrate each turn
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MIN_MIGRANT_PERCENT',	1.00);	-- Min percentage of PlotPopulation that can migrate each turn
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_BASE_EMPLOYMENT',				8.00);	-- Max employment from number of a specific resource on a plot
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_IMPROVED_EMPLOYMENT',			12.00);	-- Max employment from number of a specific resource on a plot improved for that resource
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_BASE_EMPLOYMENT',				10);	-- Max employment from number of a specific resource on a plot
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_IMPROVED_EMPLOYMENT',			14);	-- Max employment from number of a specific resource on a plot improved for that resource
 
 -- Resources
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_PILLAGE_MULTIPLIER',		4);		-- Multiplier for resources pillaged on a plot
