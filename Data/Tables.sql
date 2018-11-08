@@ -695,7 +695,7 @@ CREATE TABLE GovernmentNames (
 		LongName TEXT NOT NULL,
 		PRIMARY KEY(GovernmentType)
 	);
-	
+
 -----------------------------------------------
 -- Edit Tables
 -----------------------------------------------

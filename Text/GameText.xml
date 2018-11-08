@@ -194,7 +194,7 @@
       <Text>[COLOR_Grey]---------------------- Food Stock ---------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_OTHER_STOCK_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]--------------------- Other Stock ---------------------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]--------------------- Luxuries Stock ---------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_CONSUMPTION_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------- Consumption -------------------[ENDCOLOR]</Text>
@@ -253,9 +253,12 @@
       <Text>{4_Name} {1_Num} / {2_Num} {3_Name}</Text>
     </Replace>
 	
+    <Replace Tag="LOC_CITYBANNER_FOOD_PERCENTAGE" Language="en_US">
+      <Text>[ICON_Food]{1_Name} {2_Num: number #.##}% Stock</Text>
+    </Replace>	
     <Replace Tag="LOC_CITYBANNER_FOOD_RATION" Language="en_US">
       <Text>[ICON_Food] {1_Num} / {2_Num} Food</Text>
-    </Replace>	
+    </Replace>
     <Replace Tag="LOC_CITYBANNER_FOOD_RATION_LIGHT_RATIONING" Language="en_US">
       <Text>[ICON_FoodDeficit] [COLOR_Civ6Yellow]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6Yellow]Food[ENDCOLOR]</Text>
     </Replace>	

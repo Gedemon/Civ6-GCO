@@ -729,6 +729,11 @@ function CityBanner.SetColor( self : CityBanner )
 		self.m_Instance.CityPopulation:SetColor( frontColor, 0 );
 		self.m_Instance.CityPopulation:SetColor( darkerBackColor, 1 );
 		-- GCO <<<<<
+		--self.m_Instance.DynamicContentFill:SetColor( backColor );
+		--self.m_Instance.DynamicContentFill2:SetColor( darkerBackColor );
+		--self.m_Instance.DynamicContentFill3:SetColor( brighterBackColor );
+		--self.m_Instance.DynamicContentFillOver:SetColor( frontColor );
+		--self.m_Instance.DynamicContentFillOut:SetColor( brighterBackColor );
 		--if not self:IsTeam() then self.m_Instance.CivIcon:SetColor( frontColor ); end
 		-- GCO >>>>>
 	elseif (self.m_Type == BANNERTYPE_AERODROME) then
@@ -839,7 +844,20 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self.m_Instance.CityPopTurnsLeft:SetColorByName("StatNormalCS");
 				end	
 
+			self.m_Instance.CityPopulation:SetText(GetCityPopulationText(self, currentPopulation));
+
+			if (self.m_Player == Players[localPlayerID]) then			--Only show growth data if the player is you
+				local popTooltip:string = GetPopulationTooltip(self, turnsUntilGrowth, currentPopulation, foodSurplus);
+				self.m_Instance.CityPopulation:SetToolTipString(popTooltip);
+				if turnsUntilGrowth ~= 0 then
+				self.m_Instance.CityPopTurnsLeft:SetText(turnsUntilGrowth);
+				else
+					self.m_Instance.CityPopTurnsLeft:SetText("-");
+				end
+			end
+
 			-- GCO <<<<<
+		--if GCO and GCO.GetCity then	
 			local city = GCO.GetCity(pCity:GetOwner(), pCity:GetID())  -- to get a CityScript context city
 			local foodStock, maxFoodStock, population, popVariation
 			if city then
@@ -937,37 +955,81 @@ function CityBanner.UpdateStats( self : CityBanner)
 				--cityString = cityString .. "[NEWLINE]"
 					
 				-- Personnel				
-				if city:GetPersonnel() > 0 then
+				--if city:GetPersonnel() > 0 then
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
-				end
+				--end
 				
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. city:GetFoodStockString()
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. city:GetFoodConsumptionString() -- Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
-								
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_NEEDS_TITLE")
 				cityString = cityString .. "[NEWLINE]" .. city:GetPopulationNeedsEffectsString()
 				
 				popTooltip = cityString
+			--[[
+				foodpct = Clamp( foodStock / maxFoodStock, 0.0, 1.0 )
+				foodpctNextTurn = 0
+				local foodVar = city:GetStockVariation(foodResourceID)
+				if foodVar > 0 then				
+					foodpctNextTurn = Clamp( (foodStock + foodVar) / maxFoodStock, 0.0, 1.0 )
+				end
+				
+				urbanPopulation		= city:GetUrbanPopulation()
+				urbanPopulationVar	= city:GetUrbanPopulationVariation()
+				
+				local nextPop		= GCO.GetPopulationPerSize(citySize+1)
+				local prevPop		= GCO.GetPopulationPerSize(citySize)-- -1)
+			--]]
+				local poppct = Clamp( (urbanPopulation-prevPop) / nextPop, 0.0, 1.0 )
+				poppctNextTurn = 0
+				if urbanPopulationVar > 0 then				
+					poppctNextTurn = Clamp( (urbanPopulation + urbanPopulationVar) / nextPop, 0.0, 1.0 )
+				end
+				
+				local growthIndicator = ""
+				if urbanPopulationVar > 0 then
+					growthIndicator = "[ICON_PressureUp]"
+				elseif urbanPopulationVar < 0 then
+					growthIndicator = "[ICON_PressureDown]"
+				end
+				
+				self.m_Instance.CityPopulation:SetToolTipString(popTooltip);
+				self.m_Instance.CityPopTurnsLeft:SetText(growthIndicator);
+				
+				self.m_Instance.CityPopulationMeter:SetPercent(poppct);
+				self.m_Instance.CityPopulationNextTurn:SetPercent(poppctNextTurn);
+				
+				-- Tooltips
+				local resourceStockStringTable = city:GetResourcesStockStringTable()
+				
+				local foodToolTip = Locale.Lookup("LOC_CITYBANNER_FOOD_TITLE").."[NEWLINE]"..city:GetFoodStockString()
+				foodToolTip = foodToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
+				foodToolTip = foodToolTip .. "[NEWLINE]" .. city:GetFoodConsumptionString() -- Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
+				foodToolTip = foodToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_TITLE").."[NEWLINE]".. table.concat(resourceStockStringTable["Food"])
+				self.m_Instance.FoodIcon:SetToolTipString(foodToolTip);
+				
+				local strategicToolTip = Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE") .. table.concat(resourceStockStringTable["Strategic"])
+				self.m_Instance.StrategicStockIcon:SetToolTipString(strategicToolTip);
+				
+				local otherToolTip = Locale.Lookup("LOC_CITYBANNER_OTHER_STOCK_TITLE") .. table.concat(resourceStockStringTable["Other"])
+				self.m_Instance.LuxuriesStockIcon:SetToolTipString(otherToolTip);
+				
+				local equipmentToolTip = Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE").. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+				equipmentToolTip = equipmentToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE") .. table.concat(resourceStockStringTable["Equipment"])
+				self.m_Instance.EquipmentStockIcon:SetToolTipString(equipmentToolTip)
+				
 			else
 				print("WARNING : GCO.GetCity(pCity:GetOwner(), pCity:GetID()) is nil for Owner = ", pCity:GetOwner(), " ID = ",  pCity:GetID())
 			end
+			
+			-- hide unused icons
+			if self.m_Instance.CityHousingInsufficientIcon ~= nil then self.m_Instance.CityHousingInsufficientIcon:SetHide(true) end
+			if self.m_Instance.CityOccupiedIcon ~= nil then self.m_Instance.CityOccupiedIcon:SetHide(true) end
+			if self.m_Instance.CityAmenitiesInsufficientIcon ~= nil then self.m_Instance.CityAmenitiesInsufficientIcon:SetHide(true) end
+			
 			-- GCO >>>>>
+		--end
 
-			self.m_Instance.CityPopulation:SetText(GetCityPopulationText(self, currentPopulation));
-
-			if (self.m_Player == Players[localPlayerID]) then			--Only show growth data if the player is you
-				local popTooltip:string = GetPopulationTooltip(self, turnsUntilGrowth, currentPopulation, foodSurplus);
-				self.m_Instance.CityPopulation:SetToolTipString(popTooltip);
-				if turnsUntilGrowth ~= 0 then
-				self.m_Instance.CityPopTurnsLeft:SetText(turnsUntilGrowth);
-				else
-					self.m_Instance.CityPopTurnsLeft:SetText("-");
-				end
-			end
-
+			-- GCO <<<<<
+			--[[
 			local food             :number = pCityGrowth:GetFood();
 			local growthThreshold  :number = pCityGrowth:GetGrowthThreshold();
 			local foodpct          :number = Clamp( food / growthThreshold, 0.0, 1.0 );
@@ -977,27 +1039,6 @@ function CityBanner.UpdateStats( self : CityBanner)
 				foodpctNextTurn = (food + foodGainNextTurn) / growthThreshold;
 				foodpctNextTurn = Clamp( foodpctNextTurn, 0.0, 1.0 );
 			end
-			
-			-- GCO <<<<<
-			if city then
-				foodpct = Clamp( foodStock / maxFoodStock, 0.0, 1.0 )
-				foodpctNextTurn = 0
-				local foodVar = city:GetStockVariation(foodResourceID)
-				if foodVar > 0 then				
-					foodpctNextTurn = Clamp( (foodStock + foodVar) / maxFoodStock, 0.0, 1.0 )
-				end
-				
-				local growthIndicator = ""
-				if popVariation > 0 then
-					growthIndicator = "[ICON_PressureUp]"
-				elseif popVariation < 0 then
-					growthIndicator = "[ICON_PressureDown]"
-				end
-				
-				self.m_Instance.CityPopulation:SetToolTipString(popTooltip);
-				self.m_Instance.CityPopTurnsLeft:SetText(growthIndicator);
-			end
-			-- GCO >>>>>
 			
 			self.m_Instance.CityPopulationMeter:SetPercent(foodpct);
 			self.m_Instance.CityPopulationNextTurn:SetPercent(foodpctNextTurn);
@@ -1011,6 +1052,10 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self.m_Instance.CityHousingInsufficientIcon:SetHide(true);
 				end
 			end
+			--]]
+			-- GCO >>>>>
+			
+			
 
 			--- CITY PRODUCTION ---
 			if (localPlayerID == pCity:GetOwner()) then
@@ -1197,6 +1242,8 @@ function CityBanner.UpdateStats( self : CityBanner)
 				self.m_Instance.CityUnderSiegeIcon:SetHide(true);
 			end
 
+			-- GCO <<<<<
+			--[[
 			-- Update occupied icon
 			if pCity:IsOccupied() then
 				self.m_Instance.CityOccupiedIcon:SetHide(false);
@@ -1204,8 +1251,6 @@ function CityBanner.UpdateStats( self : CityBanner)
 				self.m_Instance.CityOccupiedIcon:SetHide(true);
 			end
 
-			-- GCO <<<<<
-			--[[
 			-- Update insufficient housing icon
 			if self.m_Instance.CityHousingInsufficientIcon ~= nil then
 				if pCityGrowth:GetHousing() < pCity:GetPopulation() then
@@ -1214,10 +1259,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self.m_Instance.CityHousingInsufficientIcon:SetHide(true);
 				end
 			end
-			--]]
-			if self.m_Instance.CityHousingInsufficientIcon ~= nil then self.m_Instance.CityHousingInsufficientIcon:SetHide(true); end
-			-- GCO >>>>>
-
+			
 			-- Update insufficient amenities icon
 			if self.m_Instance.CityAmenitiesInsufficientIcon ~= nil then
 				self.m_Instance.CityAmenitiesInsufficientIcon:SetToolTipString(Locale.Lookup("LOC_CITY_BANNER_AMENITIES_INSUFFICIENT"));
@@ -1227,6 +1269,9 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self.m_Instance.CityAmenitiesInsufficientIcon:SetHide(true);
 				end
 			end
+			--]]			
+			-- GCO >>>>>
+			
 			--------------------------------------
 		else -- it should be a miniBanner
 			
@@ -1443,6 +1488,7 @@ function CityBanner.UpdateName( self : CityBanner )
 			end
 			
 			-- GCO <<<<<
+		--if GCO and GCO.GetCity then	
 			local city = GCO.GetCity(pCity:GetOwner(), pCity:GetID())  -- to get a CityScript context city
 			
 			if city then
@@ -1451,7 +1497,7 @@ function CityBanner.UpdateName( self : CityBanner )
 				local cityData = ExposedMembers.CityData[cityKey]
 				local cityString = capitalIcon .. Locale.ToUpper(pCity:GetName()).. " - " .. Locale.Lookup("LOC_CITY_BANNER_WEALTH", city:GetWealth())
 				if cityData then
-					
+					--[[
 					-- Personnel				
 					if city:GetPersonnel() > 0 then
 						cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
@@ -1474,6 +1520,7 @@ function CityBanner.UpdateName( self : CityBanner )
 					
 					--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
 					--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
+					--]]
 					
 					function ShowSupplyLine()
 						--if bShownSupplyLine then return end
@@ -1591,11 +1638,12 @@ function CityBanner.UpdateName( self : CityBanner )
 					end
 					self.m_Instance.CityBannerButton:RegisterMouseExitCallback(OnMouseOut)				
 					
-					self.m_Instance.CityName:SetToolTipString(cityString);
+					--self.m_Instance.CityName:SetToolTipString(cityString);
 				else
 					print("WARNING : GCO.GetCity(pCity:GetOwner(), pCity:GetID()) is nil for Owner = ", pCity:GetOwner(), " ID = ",  pCity:GetID())
 				end
 			end
+		--end
 			-- GCO >>>>>
 
 			self.m_Instance.CityQuestIcon:SetToolTipString(questTooltip);

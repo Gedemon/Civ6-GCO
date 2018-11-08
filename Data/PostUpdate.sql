@@ -51,17 +51,6 @@ INSERT INTO BuildingModifiers (BuildingType, ModifierId)
 -----------------------------------------------
 -- Resources
 -----------------------------------------------
-
-/* Starting resources */
-DELETE from CivilizationRequestedResource;
-INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
-	SELECT Civilizations.CivilizationType, 'RESOURCE_STONE', 1 FROM Civilizations;	
-INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
-	SELECT Civilizations.CivilizationType, 'RESOURCE_HORSES', 1 FROM Civilizations;		
-INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
-	SELECT Civilizations.CivilizationType, 'RESOURCE_WHEAT', 1 FROM Civilizations WHERE Ethnicity = 'ETHNICITY_MEDIT' OR  Ethnicity = 'ETHNICITY_EURO' OR  Ethnicity = 'ETHNICITY_SOUTHAM';	
-INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
-	SELECT Civilizations.CivilizationType, 'RESOURCE_RICE', 1 FROM Civilizations WHERE Ethnicity = 'ETHNICITY_ASIAN' OR  Ethnicity = 'ETHNICITY_AFRICAN';
 	
 /* Create new Resources entries from the Equipment table */
 INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
@@ -319,3 +308,16 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 DELETE FROM Units WHERE UnitType NOT IN (SELECT UnitsTokeep.UnitType from UnitsTokeep UNION SELECT UnitsGCO.UnitType from UnitsGCO);
 
 --DELETE FROM Units WHERE UnitType NOT IN (SELECT UnitsTokeep.UnitType from UnitsTokeep);
+
+
+
+/* Starting resources (last as this will cause a DB error if YnAMP is not activated */
+DELETE from CivilizationRequestedResource;
+INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
+	SELECT Civilizations.CivilizationType, 'RESOURCE_STONE', 1 FROM Civilizations;	
+INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
+	SELECT Civilizations.CivilizationType, 'RESOURCE_HORSES', 1 FROM Civilizations;		
+INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
+	SELECT Civilizations.CivilizationType, 'RESOURCE_WHEAT', 1 FROM Civilizations WHERE Ethnicity = 'ETHNICITY_MEDIT' OR  Ethnicity = 'ETHNICITY_EURO' OR  Ethnicity = 'ETHNICITY_SOUTHAM';	
+INSERT OR REPLACE INTO CivilizationRequestedResource (Civilization, Resource, Quantity)
+	SELECT Civilizations.CivilizationType, 'RESOURCE_RICE', 1 FROM Civilizations WHERE Ethnicity = 'ETHNICITY_ASIAN' OR  Ethnicity = 'ETHNICITY_AFRICAN';

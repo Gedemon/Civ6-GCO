@@ -1088,6 +1088,37 @@ function GetEquipmentPropertyString(equipmentID)
 	return str
 end
 
+function GetPercentBarString(value, bInvertedColors, bNoGradient, color)
+	if value == 0 then
+		return (bInvertedColors and "[ICON_EMPTY20PERCENT][ICON_EMPTY20PERCENT][ICON_EMPTY20PERCENT][ICON_EMPTY20PERCENT][ICON_EMPTY20PERCENT]") or "[ICON_EMPTY20PERCENT_RED][ICON_EMPTY20PERCENT_RED][ICON_EMPTY20PERCENT_RED][ICON_EMPTY20PERCENT_RED][ICON_EMPTY20PERCENT_RED]"
+	end
+	
+	-- 5 icons for a value between 1 and 100 (value > 100 will return a filled bar)
+	local numHalfIcons	= Round(value / 10)
+	local numFullIcons 	= math.floor(numHalfIcons / 2)
+	local bHalfIcon		= value - (numFullIcons*20) >= 5
+	local buildStr 		= {}
+	local ColorTable	= (not bInvertedColors and {"_RED", "_ORANGE", "_YELLOW", "_OLIVE", "_GREEN"}) or {"_GREEN", "_OLIVE", "_YELLOW", "_ORANGE", "_RED"}
+	local ColorToString	= {["black"] = "_BLACK", ["green"] = "_GREEN", ["red"] = "_RED" }
+	local colorStr		= (color ~= nil and ColorToString[color]) or "_BLACK"
+	
+	if bNoGradient and color == nil then
+		colorStr = ColorTable[math.max(1,numFullIcons)] 
+	end
+	
+	for iconNum = 1, 5 do
+		local IconSuffix = (color == nil and ColorTable[iconNum]) or colorStr
+		if iconNum <= numFullIcons then		
+			table.insert(buildStr, "[ICON_20PERCENT".. IconSuffix .."]")
+		elseif iconNum == numFullIcons + 1 and bHalfIcon then
+			table.insert(buildStr, "[ICON_10PERCENT".. IconSuffix .."]")		
+		else
+			table.insert(buildStr, "[ICON_EMPTY20PERCENT]")
+		end
+	end
+	return table.concat(buildStr)
+end
+
 --=====================================================================================--
 -- Share functions for other contexts
 --=====================================================================================--
@@ -1169,6 +1200,7 @@ function Initialize()
 	ExposedMembers.GCO.GetVariationStringGreenPositive 	= GetVariationStringGreenPositive
 	ExposedMembers.GCO.GetVariationStringRedPositive	= GetVariationStringRedPositive
 	ExposedMembers.GCO.GetEquipmentPropertyString		= GetEquipmentPropertyString
+	ExposedMembers.GCO.GetPercentBarString				= GetPercentBarString
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true
 end

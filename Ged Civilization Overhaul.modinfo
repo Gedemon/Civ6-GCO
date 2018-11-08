@@ -73,6 +73,7 @@
 			<File>UI/UnitFlagManager.lua</File>
 			<File>UI/UnitFlagManager.xml</File>
 			<File>UI/CityBannerManager.lua</File>
+			<File>UI/CityBannerManager.xml</File>
 			<File>UI/PlotToolTip.lua</File>
 			<File>UI/TopPanel.lua</File>
 			<File>UI/ToolTipHelper.lua</File>
@@ -285,6 +286,7 @@
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/UnitFlagManager.xml</File>
 		<File>UI/CityBannerManager.lua</File>
+		<File>UI/CityBannerManager.xml</File>
 		<File>UI/PlotToolTip.lua</File>
 		<File>UI/TopPanel.lua</File>
 		<File>UI/ToolTipHelper.lua</File>

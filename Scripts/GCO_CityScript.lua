@@ -4274,6 +4274,82 @@ end
 	return strFull
 end
 
+function GetResourcesStockStringTable(self)
+	local cityKey 			= self:GetKey()
+	local turnKey 			= GCO.GetTurnKey()
+	local previousTurnKey	= GCO.GetPreviousTurnKey()
+	local data 				= ExposedMembers.CityData[cityKey]
+	local strFull			= ""
+	local equipmentList		= {}
+	local foodList			= {}
+	local strategicList		= {}
+	local otherList			= {}
+	local stringTable		= {["Equipment"] = {}, ["Food"] = {}, ["Strategic"] = {}, ["Other"] = {}, }
+	if not data.Stock[turnKey] then return end
+local count = 0
+	for resourceKey, value in pairs(data.Stock[turnKey]) do
+		local resourceID 		= tonumber(resourceKey)
+		---[[
+--Dline(count)
+count = count + 1
+--Dline(resourceKey, type(resourceKey))
+--Dline(value, type(value))
+if type(value) == "table" then for k, v in pairs(value) do print(k,v) end
+else 
+--]]
+		if (value + self:GetSupplyAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetSupplyAtTurn(resourceID, turnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
+
+			local stockVariation 	= self:GetStockVariation(resourceID)
+			local resourceCost 		= self:GetResourceCost(resourceID)
+			local costVariation 	= self:GetResourceCostVariation(resourceID)
+			local resRow 			= GameInfo.Resources[resourceID]
+			local str 				= ""
+			local bIsEquipmentMaker = GCO.IsResourceEquipmentMaker(resourceID)
+			
+			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))
+			str = str .. GCO.GetVariationString(stockVariation)
+			local costVarStr = GCO.GetVariationStringRedPositive(costVariation)
+			if resourceCost > 0 then
+				str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
+			end
+			
+			if GCO.IsResourceEquipment(resourceID) then
+				table.insert(equipmentList, { String = str, Order = EquipmentInfo[resourceID].Desirability })
+			elseif resRow.ResourceClassType == "RESOURCECLASS_STRATEGIC" or bIsEquipmentMaker then
+				local equipmentMaker = 0
+				if bIsEquipmentMaker then equipmentMaker = 1 end
+				table.insert(strategicList, { String = str, Order = equipmentMaker })
+			elseif GCO.IsResourceFood(resourceID) then --or resourceKey == foodResourceKey then
+				table.insert(foodList, { String = str, Order = value })
+			elseif resourceKey ~= foodResourceKey then -- food is displayed separately
+				table.insert(otherList, { String = str, Order = value })
+			end			
+		end
+end
+	end
+	table.sort(equipmentList, function(a, b) return a.Order > b.Order; end)
+	table.sort(strategicList, function(a, b) return a.Order > b.Order; end)
+	table.sort(foodList, function(a, b) return a.Order > b.Order; end)
+	table.sort(otherList, function(a, b) return a.Order > b.Order; end)
+	--strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE")
+	for i, data in ipairs(equipmentList) do
+		table.insert(stringTable["Equipment"], data.String)
+	end
+	--strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE")
+	for i, data in ipairs(strategicList) do
+		table.insert(stringTable["Strategic"], data.String)
+	end
+	--strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_TITLE")
+	for i, data in ipairs(foodList) do
+		table.insert(stringTable["Food"], data.String)
+	end
+	--strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_OTHER_STOCK_TITLE")
+	for i, data in ipairs(otherList) do
+		table.insert(stringTable["Other"], data.String)
+	end
+	return stringTable
+end
+
 function GetFoodStockString(self)
 	local maxFoodStock 			= self:GetMaxStock(foodResourceID)
 	local foodStock 			= self:GetStock(foodResourceID)
@@ -4283,17 +4359,18 @@ function GetFoodStockString(self)
 	local resourceCost 			= self:GetResourceCost(foodResourceID)
 	local costVariation 		= self:GetResourceCostVariation(foodResourceID)
 
-	local str 					= ""
+	local pctFood				= foodStock / maxFoodStock * 100
+	local str 					= Locale.Lookup("LOC_CITYBANNER_FOOD_PERCENTAGE", GCO.GetPercentBarString(pctFood), pctFood) .. " " ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR")--""
 	if cityRationning <= Starvation then
-		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_STARVATION", foodStock, maxFoodStock)
+		str = str ..Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_STARVATION", foodStock, maxFoodStock)
 	elseif cityRationning <= heavyRationing then
-		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
+		str = str ..Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_HEAVY_RATIONING", foodStock, maxFoodStock)
 	elseif cityRationning <= mediumRationing then
-		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_MEDIUM_RATIONING", foodStock, maxFoodStock)
+		str = str ..Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_MEDIUM_RATIONING", foodStock, maxFoodStock)
 	elseif cityRationning <= lightRationing then
-		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_LIGHT_RATIONING", foodStock, maxFoodStock)
+		str = str ..Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_LIGHT_RATIONING", foodStock, maxFoodStock)
 	else
-		str = Locale.Lookup("LOC_CITYBANNER_FOOD_RATION", foodStock, maxFoodStock)
+		str = str ..Locale.Lookup("LOC_CITYBANNER_FOOD_RATION", foodStock, maxFoodStock)
 	end
 	str = str ..GCO.GetVariationString(foodStockVariation)
 
@@ -6798,6 +6875,7 @@ function AttachCityFunctions(city)
 	if not c.DoRecruitPersonnel					then c.DoRecruitPersonnel					= DoRecruitPersonnel                 end
 	-- text
 	if not c.GetResourcesStockString			then c.GetResourcesStockString				= GetResourcesStockString            end
+	if not c.GetResourcesStockStringTable		then c.GetResourcesStockStringTable			= GetResourcesStockStringTable       end
 	if not c.GetFoodStockString 				then c.GetFoodStockString 					= GetFoodStockString                 end
 	if not c.GetFoodConsumptionString			then c.GetFoodConsumptionString				= GetFoodConsumptionString           end
 	if not c.GetResourceUseToolTipStringForTurn	then c.GetResourceUseToolTipStringForTurn	= GetResourceUseToolTipStringForTurn end
