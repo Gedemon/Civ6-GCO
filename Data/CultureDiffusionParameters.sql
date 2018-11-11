@@ -179,6 +179,7 @@ UPDATE Eras SET CultureMinimumForAcquisitionMod ='100'	, CultureDiffusionThresho
 --
 -- Variations by Features
 UPDATE Features SET CultureThreshold = 125 	, CulturePenalty = 10 	, CultureMaxPercent = 80	WHERE FeatureType 	= 'FEATURE_FOREST';
+UPDATE Features SET CultureThreshold = 200 	, CulturePenalty = 30 	, CultureMaxPercent = 60	WHERE FeatureType 	= 'FEATURE_FOREST_DENSE';
 UPDATE Features SET CultureThreshold = 450 	, CulturePenalty = 60 	, CultureMaxPercent = 20	WHERE FeatureType 	= 'FEATURE_JUNGLE';
 UPDATE Features SET CultureThreshold = 500 	, CulturePenalty = 65 	, CultureMaxPercent = 20	WHERE FeatureType 	= 'FEATURE_MARSH';
 UPDATE Features SET CultureThreshold = 750 	, CulturePenalty = 75 	, CultureMaxPercent = 10	WHERE Impassable 	= 1;

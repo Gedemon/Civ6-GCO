@@ -734,8 +734,8 @@ function CityBanner.SetColor( self : CityBanner )
 		--self.m_Instance.DynamicContentFill3:SetColor( brighterBackColor );
 		--self.m_Instance.DynamicContentFillOver:SetColor( frontColor );
 		--self.m_Instance.DynamicContentFillOut:SetColor( brighterBackColor );
-		--if not self:IsTeam() then self.m_Instance.CivIcon:SetColor( frontColor ); end
 		-- GCO >>>>>
+		if not self:IsTeam() then self.m_Instance.CivIcon:SetColor( frontColor ); end
 	elseif (self.m_Type == BANNERTYPE_AERODROME) then
 		if self.m_Instance.AerodromeUnitsButton_Base ~= nil then
 			self.m_Instance.AerodromeUnitsButton_Base:SetColor( backColor );
@@ -978,10 +978,10 @@ function CityBanner.UpdateStats( self : CityBanner)
 				local nextPop		= GCO.GetPopulationPerSize(citySize+1)
 				local prevPop		= GCO.GetPopulationPerSize(citySize)-- -1)
 			--]]
-				local poppct = Clamp( (urbanPopulation-prevPop) / nextPop, 0.0, 1.0 )
+				local poppct = Clamp( (urbanPopulation-prevPop) / (nextPop-prevPop), 0.0, 1.0 )
 				poppctNextTurn = 0
 				if urbanPopulationVar > 0 then				
-					poppctNextTurn = Clamp( (urbanPopulation + urbanPopulationVar) / nextPop, 0.0, 1.0 )
+					poppctNextTurn = Clamp( ((urbanPopulation-prevPop) + urbanPopulationVar) / (nextPop-prevPop), 0.0, 1.0 )
 				end
 				
 				local growthIndicator = ""

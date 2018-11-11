@@ -52,5 +52,34 @@
 			</LibraryDependencies>
 			<LoadsLibraries>true</LoadsLibraries>
 		</Element>
+		<Element>
+			<ConsumerName text="Landmarks"/>
+			<ArtDefDependencyPaths>
+				<Element text="CityGenerators.artdef"/>
+				<Element text="Landmarks.artdef"/>
+			</ArtDefDependencyPaths>
+			<LibraryDependencies>
+				<Element text="CityBuildings"/>
+				<Element text="TileBase"/>
+			</LibraryDependencies>
+			<LoadsLibraries>true</LoadsLibraries>
+		</Element>
+		<Element>
+			<ConsumerName text="Features"/>
+			<ArtDefDependencyPaths>
+				<Element text="Features.artdef"/>
+				<Element text="Clutter.artdef"/>
+			</ArtDefDependencyPaths>
+			<LibraryDependencies/>
+			<LoadsLibraries>true</LoadsLibraries>
+		</Element>
+		<Element>
+			<ConsumerName text="Clutter"/>
+			<ArtDefDependencyPaths>
+				<Element text="Clutter.artdef"/>
+			</ArtDefDependencyPaths>
+			<LibraryDependencies/>
+			<LoadsLibraries>true</LoadsLibraries>
+		</Element>
     </SystemDependencies>
 </AssetObjects::GameDependencyData>

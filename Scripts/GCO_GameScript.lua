@@ -34,6 +34,9 @@ for row in GameInfo.Resources() do
 	ResBaseNum[row.Index] 			= (ResClassCount[row.ResourceClassType] or 1) + (ResTypeBonus[row.ResourceType] or 0)
 end
 
+local forestID		= GameInfo.Features["FEATURE_FOREST"].Index
+local denseID		= GameInfo.Features["FEATURE_FOREST_DENSE"].Index
+local sparseID		= GameInfo.Features["FEATURE_FOREST_SPARSE"].Index
 	
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
@@ -122,6 +125,64 @@ function SetResourcesCount()
 	end
 end
 
+function SetExtraFeatures()
+
+	if Game.GetCurrentGameTurn() > GameConfiguration.GetStartTurn() then -- only called on first turn
+		return
+	end
+	local iPlotCount 	= Map.GetPlotCount()
+	local numSparse		= 0
+	local numDense		= 0
+	
+	for pass = 0, 2 do
+		for i = 0, iPlotCount - 1 do
+			local plot	= Map.GetPlotByIndex(i)
+			if plot then
+				local forestCount = CountAdjacentForest(plot:GetX(), plot:GetY())
+				if forestCount > 0 then
+					local bIsForest = (plot:GetFeatureType() == forestID)
+					--print("Pass #".. pass ..", counted ".. tostring(forestCount) .. " forest plots around pos ", plot:GetX(), plot:GetY(), " bIsForest = ", bIsForest)
+					if bIsForest then
+						local randomNum = TerrainBuilder.GetRandomNumber( (6-forestCount)*100, "change to dense forest")
+						--print("  - RandomNum = ", randomNum, " NumResources = ",  plot:GetResourceCount() )
+						if (forestCount >= 2 and randomNum < 100) then
+							if plot:GetResourceCount() == 0  then -- and TerrainBuilder.CanHaveFeature(plot, denseID)
+								--print("  - Adding dense forest")
+								TerrainBuilder.SetFeatureType(plot, denseID)
+								numDense = numDense + 1
+							end
+						end
+					else
+						local randomNum = TerrainBuilder.GetRandomNumber( (6-forestCount)*100, "add sparse forest")
+						--print("  - RandomNum = ", randomNum, " NumResources = ",  plot:GetResourceCount() )
+						if randomNum < 100 and plot:GetResourceCount() == 0 and TerrainBuilder.CanHaveFeature(plot, sparseID) then --
+							--print("  - Adding sparse forest")
+							TerrainBuilder.SetFeatureType(plot, sparseID)
+							numSparse = numSparse + 1
+						end
+					end
+				end
+			end
+		end
+	end
+	print("Added ".. tostring(numDense)  .." dense forests")
+	print("Added ".. tostring(numSparse)  .." sparse forests")
+end
+
+function CountAdjacentForest(iX, iY)
+	local adjacentPlot;
+	local count = 0
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		adjacentPlot = Map.GetAdjacentPlot(iX, iY, direction);
+		if (adjacentPlot ~= nil) then
+			if (adjacentPlot:GetFeatureType() == forestID) or (adjacentPlot:GetFeatureType() == denseID)  then
+				count = count + 1
+			end
+		end
+	end
+	return count
+end
+
 
 -----------------------------------------------------------------------------------------
 -- Game Era
@@ -205,6 +266,7 @@ GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)
 function Initialize()
 	KillAllCS()
 	SetResourcesCount()
+	SetExtraFeatures()
 	
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	-- Era

@@ -5663,6 +5663,13 @@ end
 --Events.UnitPromoted.Add( OnUnitPromoted )
 
 
+local forestID		= GameInfo.Features["FEATURE_FOREST"].Index
+local denseID		= GameInfo.Features["FEATURE_FOREST_DENSE"].Index
+local sparseID		= GameInfo.Features["FEATURE_FOREST_SPARSE"].Index
+local FeatureRemovedChangeTo	= {
+	[denseID] 	= forestID,
+	[forestID] 	= sparseID,
+}
 function OnUnitOperationStarted(ownerID, unitID, operationID)
 
 	local DEBUG_UNIT_SCRIPT = "debug"
@@ -5687,24 +5694,40 @@ function OnUnitOperationStarted(ownerID, unitID, operationID)
 								if unitOwner:IsResourceVisible(resourceID) then
 									local collected 	= GCO.Round(value * FeatureRemoveFactor * (unitOwner:GetEra() + 1) * FeatureRemoveEraRatio)
 									if collected > 0 then
-										local cityPlot		= GCO.IsImprovingResource(improvementID, resourceID)
-										bUpdateCityFlag 	= true
-										city:ChangeStock(resourceID, collected, ResourceUseType.Pillage, unit:GetKey())
-										
-										local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
-										if (pLocalPlayerVis ~= nil) then
-											local locationX = city:GetX()
-											local locationY = city:GetY()
-											if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
-												local sText = "+" .. tostring(collected).." "..GCO.GetResourceIcon(resourceID)
-												Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)										
-												Dprint( DEBUG_UNIT_SCRIPT, "  - Sending to ".. Locale.Lookup(city:GetName()) .." ".. sText, " at position ", locationX, locationY)
+										if city then
+											bUpdateCityFlag 	= true
+											city:ChangeStock(resourceID, collected, ResourceUseType.Pillage, unit:GetKey())
+											
+											local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+											if (pLocalPlayerVis ~= nil) then
+												local locationX = city:GetX()
+												local locationY = city:GetY()
+												if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
+													local sText = "+" .. tostring(collected).." "..GCO.GetResourceIcon(resourceID)
+													Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)										
+													Dprint( DEBUG_UNIT_SCRIPT, "  - Sending to ".. Locale.Lookup(city:GetName()) .." ".. sText, " at position ", locationX, locationY)
+												end
+											end
+										else										
+											unit:ChangeStock(resourceID, collected)
+											local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+											if (pLocalPlayerVis ~= nil) then
+												local locationX = unit:GetX()
+												local locationY = unit:GetY()
+												if (pLocalPlayerVis:IsVisible(locationX, locationY)) then
+													local sText = "+" .. tostring(collected).." "..GCO.GetResourceIcon(resourceID)
+													Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)										
+													Dprint( DEBUG_UNIT_SCRIPT, "  - Collected by ".. Locale.Lookup(unit:GetName()) .." ".. sText, " at position ", locationX, locationY)
+												end
 											end
 										end
 									end
 								end
 							end
 						end
+					end
+					if FeatureRemovedChangeTo[featureID] then
+						TerrainBuilder.SetFeatureType(plot, FeatureRemovedChangeTo[featureID])
 					end
 				end
 				if bUpdateCityFlag then

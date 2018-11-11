@@ -3,7 +3,7 @@
 
 	<Kinds>
 		<Row Kind="KIND_CUSTOM_YIELD"/>
-	</Kinds>	
+	</Kinds>
 	
 	<Types> <!-- Yields -->
 		<!--
@@ -61,8 +61,44 @@
 		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>	
 	</CustomYields>
 
-	<!-- 
-		GAME SPEEDS
+	<!-- 		FEATURES
+		
+	-->
+	
+	<Types> 
+		<!---->
+		<Row Type="FEATURE_FOREST_SPARSE" Kind="KIND_FEATURE"/>
+		<Row Type="FEATURE_FOREST_DENSE" Kind="KIND_FEATURE"/>
+		<!---->
+	</Types>
+	
+	<Features>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		Name="LOC_FEATURE_FOREST_DENSE_NAME"	RemoveTech="TECH_MINING" Removable="true" Forest="true" AddCivic="CIVIC_CONSERVATION" SightThroughModifier="1" DefenseModifier="4" MovementChange="2" Appeal="+1" AntiquityPriority="2"/>
+		<Row FeatureType="FEATURE_FOREST_SPARSE"	Name="LOC_FEATURE_FOREST_SPARSE_NAME"	RemoveTech="TECH_MINING" Removable="true" Forest="true" AddCivic="CIVIC_CONSERVATION" SightThroughModifier="1" DefenseModifier="1" MovementChange="0" Appeal="+1" AntiquityPriority="2"/>
+
+	</Features>
+	
+	<Feature_ValidTerrains>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		TerrainType="TERRAIN_GRASS"/>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		TerrainType="TERRAIN_PLAINS"/>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		TerrainType="TERRAIN_TUNDRA"/>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		TerrainType="TERRAIN_GRASS_HILLS"/>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		TerrainType="TERRAIN_PLAINS_HILLS"/>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		TerrainType="TERRAIN_TUNDRA_HILLS"/>
+		
+		<Row FeatureType="FEATURE_FOREST_SPARSE"	TerrainType="TERRAIN_GRASS"/>
+		<Row FeatureType="FEATURE_FOREST_SPARSE"	TerrainType="TERRAIN_PLAINS"/>
+		<Row FeatureType="FEATURE_FOREST_SPARSE"	TerrainType="TERRAIN_TUNDRA"/>
+		<Row FeatureType="FEATURE_FOREST_SPARSE"	TerrainType="TERRAIN_GRASS_HILLS"/>
+		<Row FeatureType="FEATURE_FOREST_SPARSE"	TerrainType="TERRAIN_PLAINS_HILLS"/>
+		<Row FeatureType="FEATURE_FOREST_SPARSE"	TerrainType="TERRAIN_TUNDRA_HILLS"/>
+	</Feature_ValidTerrains>
+	<Feature_YieldChanges>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
+		<Row FeatureType="FEATURE_FOREST_SPARSE"	YieldType="YIELD_PRODUCTION" YieldChange="1"/>
+	</Feature_YieldChanges>
+	
+	<!-- 		GAME SPEEDS
 		
 	-->
 	
@@ -265,8 +301,7 @@
 		</Row>
 	</GameSpeed_Turns>
 
-	<!-- 
-		MILITARY ORGANIZATION
+	<!-- 		MILITARY ORGANIZATION
 		
 	-->
 	

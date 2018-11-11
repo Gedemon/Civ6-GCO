@@ -68,6 +68,8 @@ INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) V
 INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_MISSILE_SILO', 'UNIT_BUILDER');
 --INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'UNIT_BUILDER');
 
+INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_FOREST_DENSE');
+INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_FOREST_SPARSE');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_JUNGLE');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_STEPWELL', 'FEATURE_JUNGLE');
 
@@ -375,6 +377,7 @@ DELETE FROM BuildingReplaces WHERE CivUniqueBuildingType ='BUILDING_ELECTRONICS_
 DELETE FROM BuildingPrereqs WHERE Building ='BUILDING_SHIPYARD';
 
 UPDATE Buildings SET MaterielPerProduction = '3',	EmploymentSize ='0.75' WHERE BuildingType ='BUILDING_GRANARY';
+--UPDATE Buildings SET MaterielPerProduction = '3',	EmploymentSize ='0.75' WHERE BuildingType ='BUILDING_GRANARY';
 
 UPDATE Buildings SET EmploymentSize ='0.35' WHERE BuildingType ='BUILDING_LIBRARY';
 UPDATE Buildings SET EmploymentSize ='0.40' WHERE BuildingType ='BUILDING_ARENA';
@@ -397,6 +400,9 @@ UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_RESEAR
 UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_POWER_PLANT';
 UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_STADIUM';
 UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_AIRPORT';
+
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_GRANARY';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_MONUMENT';
 
 UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT_CITY_CENTER';
 
@@ -446,7 +452,6 @@ DELETE FROM Buildings WHERE PurchaseYield='YIELD_FAITH';
 DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
 DELETE FROM Buildings WHERE BuildingType='BUILDING_TEMPLE';
 DELETE FROM Buildings WHERE BuildingType='BUILDING_STAVE_CHURCH';
-DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
 DELETE FROM Units WHERE PurchaseYield='YIELD_FAITH';
 --*/
 

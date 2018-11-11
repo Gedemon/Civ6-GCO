@@ -8,6 +8,11 @@
 		By default <PrereqDistrict> is set to "DISTRICT_CITY_CENTER", you'll need to specify different PrereqDistrict or use PrereqDistrict="NONE" for NULL
 	-->
 	<BuildingsGCO>
+		<!--
+		<Row BuildingType="BUILDING_MONUMENT_GCO" 				Cost="60" 	AdvisorType="ADVISOR_CULTURE"/>
+		<Row BuildingType="BUILDING_GRANARY_GCO" 				Cost="65" 	MaterielPerProduction="3"	EmploymentSize="0.75" PrereqTech="TECH_POTTERY" AdvisorType="ADVISOR_GENERIC"/>
+		<!---->
+
 		
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 			Cost="1" 	NoPedia="1" EmploymentSize="2.00"/>
 		
@@ -695,10 +700,11 @@
 	</BuildingStock>
 	
 	<Building_YieldChanges>
-		
 		<Replace BuildingType="BUILDING_RECRUITS" 			YieldType="YIELD_PRODUCTION" 	YieldChange="2"/>
 		<Replace BuildingType="BUILDING_RECRUITS" 			YieldType="YIELD_GOLD" 			YieldChange="2"/>
-		
+		<!--
+		<Replace BuildingType="BUILDING_MONUMENT_GCO"		YieldType="YIELD_CULTURE"		YieldChange="2"/>
+		<!---->
 		<Replace BuildingType="BUILDING_STONEMASON" 		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 		<Replace BuildingType="BUILDING_CARPENTER" 			YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 		<Replace BuildingType="BUILDING_BLACKSMITH" 		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
@@ -712,6 +718,9 @@
 		<Replace BuildingType="BUILDING_ARTILLATOR" 		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 	
 		<Replace BuildingType="BUILDING_GRANARY" 			YieldType="YIELD_FOOD" YieldChange="3"/>
+		<!--
+		<Replace BuildingType="BUILDING_GRANARY_GCO"		YieldType="YIELD_FOOD" YieldChange="3"/>
+		<!---->
 		<Replace BuildingType="BUILDING_WATER_MILL" 		YieldType="YIELD_FOOD" YieldChange="3"/>
 		<Replace BuildingType="BUILDING_LIGHTHOUSE" 		YieldType="YIELD_FOOD" YieldChange="2"/>
 		<Replace BuildingType="BUILDING_SEAPORT" 			YieldType="YIELD_FOOD" YieldChange="3"/>
@@ -834,6 +843,9 @@
 	
 	<StartingBuildings>
 		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_MONUMENT" District="DISTRICT_CITY_CENTER"/>
+		<!--
+		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_MONUMENT_GCO" District="DISTRICT_CITY_CENTER"/>
+		<!---->
 		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_CARPENTER" District="DISTRICT_CITY_CENTER"/>
 		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_STONEMASON" District="DISTRICT_CITY_CENTER"/>
 		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_BUTCHERY" District="DISTRICT_CITY_CENTER"/>

@@ -15,7 +15,7 @@
 	<!--  -->	
 	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION"	Language="en_US">
 		<Text>May create new cities.</Text>
-	</Replace>	
+	</Replace>
 	
 	<Replace Tag="LOC_TECH_STEEL_NAME"	Language="en_US">
 		<Text>Industrial Steel</Text>
@@ -29,6 +29,10 @@
 	</Replace>	
 	<Replace Tag="LOC_IMPROVEMENT_GREAT_WALL_DESCRIPTION"	Language="en_US">
 		<Text>Unlocks the Builder ability to construct the Great Wall.[NEWLINE][NEWLINE]Provides an increase to [ICON_Strength] Defense. Bonus to [ICON_Gold] Gold if adjacent to other segments. Additional [ICON_Culture] Culture and [ICON_Tourism] Tourism as you advance through the Technology Tree for adjacent segments. Must be built in a line along the borders of your empire.</Text>
+	</Replace>
+	
+	<Replace Tag="LOC_FEATURE_FOREST_NAME"	Language="en_US">
+		<Text>Forest</Text>
 	</Replace>
 
   </LocalizedText>
@@ -562,6 +566,11 @@
 	
   </LocalizedText>
 
+  <LocalizedText> <!-- Features -->	
+	<Replace Tag="LOC_FEATURE_FOREST_DENSE_NAME"			Text="Dense Forest"				Language="en_US" />
+	<Replace Tag="LOC_FEATURE_FOREST_SPARSE_NAME"			Text="Sparse Forest"			Language="en_US" />
+  </LocalizedText>
+  
   <LocalizedText> <!-- Floating Texts -->
   
 	<!-- Casualties -->
@@ -1111,7 +1120,6 @@
     <Replace Tag="LOC_YIELD_UPPER_HOUSING_NAME" 	Text="Upper Class Housing"	Language="en_US" />
     <Replace Tag="LOC_YIELD_MIDDLE_HOUSING_NAME" 	Text="Middle Class Housing"	Language="en_US" />
     <Replace Tag="LOC_YIELD_LOWER_HOUSING_NAME" 	Text="Lower Class Housing"	Language="en_US" />
-	
   </LocalizedText>
   
   <LocalizedText> <!-- Government Naming -->

@@ -1,0 +1,865 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<AssetObjects..ArtDefSet>
+	<m_Version>
+		<major>4</major>
+		<minor>0</minor>
+		<build>290</build>
+		<revision>177</revision>
+	</m_Version>
+	<m_TemplateName text="CityGenerators"/>
+	<m_RootCollections>
+		<Element>
+			<m_CollectionName text="Generator"/>
+			<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+			<Element>
+				<m_Fields>
+					<m_Values>
+						<Element class="AssetObjects..BoolValue">
+							<m_bValue>true</m_bValue>
+							<m_ParamName text="Var_EnableSpines"/>
+						</Element>
+						<Element class="AssetObjects..Coord2DValue">
+						<!--
+							<m_x>0.200000</m_x>
+							<m_y>0.500000</m_y>
+						-->
+							<m_x>1.200000</m_x>
+							<m_y>1.500000</m_y>
+							<m_ParamName text="Var_SpineWidthRange"/>
+						</Element>
+						<Element class="AssetObjects..FloatValue">
+							<m_fValue>0.000000</m_fValue>
+							<m_ParamName text="Var_BlockMaxVariation"/>
+						</Element>
+						<Element class="AssetObjects..FloatValue">
+							<m_fValue>1.000000</m_fValue>
+							<m_ParamName text="Var_ModelScale"/>
+						</Element>
+						<Element class="AssetObjects..Coord2DValue">
+							<m_x>0.000000</m_x>
+							<m_y>0.000000</m_y>
+							<m_ParamName text="Var_BlockHeightRange"/>
+						</Element>
+						<Element class="AssetObjects..Coord2DValue">
+						<!--
+							<m_x>1.100000</m_x>
+							<m_y>1.600000</m_y>
+						-->
+							<m_x>1.100000</m_x>
+							<m_y>1.600000</m_y>
+							<m_ParamName text="Var_SpineLengthRange"/>
+						</Element>
+						<Element class="AssetObjects..StringValue">
+							<m_Value text="HEX_SPINED"/>
+							<m_ParamName text="Var_Mode"/>
+						</Element>
+						<Element class="AssetObjects..ArtDefReferenceValue">
+							<m_ElementName text="CityCenter_BlockList"/>
+							<m_RootCollectionName text="GeneratorBlockList"/>
+							<m_ArtDefPath text="CityGenerators.artdef"/>
+							<m_CollectionIsLocked>true</m_CollectionIsLocked>
+							<m_TemplateName text="CityGenerators"/>
+							<m_ParamName text="Var_BlockList"/>
+						</Element>
+					</m_Values>
+				</m_Fields>
+				<m_ChildCollections>
+					<Element>
+						<m_CollectionName text="GrowthStage"/>
+						<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..IntValue">
+										<m_nValue>1</m_nValue>
+										<m_ParamName text="Var_Population"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.050000</m_fValue>
+										<m_ParamName text="Var_FillerOccupancy"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.750000</m_fValue>
+										<m_ParamName text="Var_FillerRatio"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>12.000000</m_fValue>
+										<m_ParamName text="Var_CityArea"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.031250</m_fValue>
+										<m_ParamName text="Var_ScatterGrouping"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="1"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+								<!--
+									<Element class="AssetObjects..IntValue">
+										<m_nValue>22</m_nValue>
+										<m_ParamName text="Var_Population"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>1.000000</m_fValue>
+										<m_ParamName text="Var_FillerOccupancy"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.300000</m_fValue>
+										<m_ParamName text="Var_FillerRatio"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>48.000000</m_fValue>
+										<m_ParamName text="Var_CityArea"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.031250</m_fValue>
+										<m_ParamName text="Var_ScatterGrouping"/>
+									</Element>
+								-->
+									<Element class="AssetObjects..IntValue">
+										<m_nValue>22</m_nValue>
+										<m_ParamName text="Var_Population"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>1.000000</m_fValue>
+										<m_ParamName text="Var_FillerOccupancy"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.100000</m_fValue>
+										<m_ParamName text="Var_FillerRatio"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>96.000000</m_fValue>
+										<m_ParamName text="Var_CityArea"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.031250</m_fValue>
+										<m_ParamName text="Var_ScatterGrouping"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="22"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..IntValue">
+										<m_nValue>14</m_nValue>
+										<m_ParamName text="Var_Population"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>48.000000</m_fValue>
+										<m_ParamName text="Var_CityArea"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.300000</m_fValue>
+										<m_ParamName text="Var_FillerRatio"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.250000</m_fValue>
+										<m_ParamName text="Var_FillerOccupancy"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.031250</m_fValue>
+										<m_ParamName text="Var_ScatterGrouping"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="14"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..IntValue">
+										<m_nValue>0</m_nValue>
+										<m_ParamName text="Var_Population"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.000000</m_fValue>
+										<m_ParamName text="Var_CityArea"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.000000</m_fValue>
+										<m_ParamName text="Var_FillerRatio"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.000000</m_fValue>
+										<m_ParamName text="Var_FillerOccupancy"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.000000</m_fValue>
+										<m_ParamName text="Var_ScatterGrouping"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="0"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+					<Element>
+						<m_CollectionName text="EraDistribution"/>
+						<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..ArtDefReferenceValue">
+										<m_ElementName text="ARTERA_ANCIENT"/>
+										<m_RootCollectionName text="ArtEra"/>
+										<m_ArtDefPath text="Eras.artdef"/>
+										<m_CollectionIsLocked>true</m_CollectionIsLocked>
+										<m_TemplateName text="Eras"/>
+										<m_ParamName text="Era"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections>
+								<Element>
+									<m_CollectionName text="Distribution"/>
+									<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_ANCIENT"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>0</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="ARTERA_ANCIENT"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+								</Element>
+							</m_ChildCollections>
+							<m_Name text="ARTERA_ANCIENT"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..ArtDefReferenceValue">
+										<m_ElementName text="ARTERA_CLASSICAL"/>
+										<m_RootCollectionName text="ArtEra"/>
+										<m_ArtDefPath text="Eras.artdef"/>
+										<m_CollectionIsLocked>true</m_CollectionIsLocked>
+										<m_TemplateName text="Eras"/>
+										<m_ParamName text="Era"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections>
+								<Element>
+									<m_CollectionName text="Distribution"/>
+									<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_ANCIENT"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>1</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution001"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_CLASSICAL"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>0</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution002"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+								</Element>
+							</m_ChildCollections>
+							<m_Name text="ARTERA_CLASSICAL"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..ArtDefReferenceValue">
+										<m_ElementName text="ARTERA_INDUSTRIAL"/>
+										<m_RootCollectionName text="ArtEra"/>
+										<m_ArtDefPath text="Eras.artdef"/>
+										<m_CollectionIsLocked>true</m_CollectionIsLocked>
+										<m_TemplateName text="Eras"/>
+										<m_ParamName text="Era"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections>
+								<Element>
+									<m_CollectionName text="Distribution"/>
+									<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_CLASSICAL"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>1</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution002"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_INDUSTRIAL"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>0</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution003"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+								</Element>
+							</m_ChildCollections>
+							<m_Name text="ARTERA_INDUSTRIAL"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..ArtDefReferenceValue">
+										<m_ElementName text="ARTERA_MODERN"/>
+										<m_RootCollectionName text="ArtEra"/>
+										<m_ArtDefPath text="Eras.artdef"/>
+										<m_CollectionIsLocked>true</m_CollectionIsLocked>
+										<m_TemplateName text="Eras"/>
+										<m_ParamName text="Era"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections>
+								<Element>
+									<m_CollectionName text="Distribution"/>
+									<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_CLASSICAL"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>2</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution001"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_INDUSTRIAL"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>1</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution002"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_MODERN"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>0</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>0.500000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution003"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+								</Element>
+							</m_ChildCollections>
+							<m_Name text="ARTERA_MODERN"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+				</m_ChildCollections>
+				<m_Name text="Gen_CityCenter"/>
+				<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+			</Element>			
+			<Element>
+				<m_Fields>
+					<m_Values>
+						<Element class="AssetObjects..BoolValue">
+							<m_bValue>true</m_bValue>
+							<m_ParamName text="Var_EnableSpines"/>
+						</Element>
+						<Element class="AssetObjects..Coord2DValue">
+							<m_x>0.500000</m_x>
+							<m_y>0.500000</m_y>
+							<m_ParamName text="Var_SpineWidthRange"/>
+						</Element>
+						<Element class="AssetObjects..FloatValue">
+							<m_fValue>0.000000</m_fValue>
+							<m_ParamName text="Var_BlockMaxVariation"/>
+						</Element>
+						<Element class="AssetObjects..FloatValue">
+							<m_fValue>1.000000</m_fValue>
+							<m_ParamName text="Var_ModelScale"/>
+						</Element>
+						<Element class="AssetObjects..Coord2DValue">
+							<m_x>0.000000</m_x>
+							<m_y>0.000000</m_y>
+							<m_ParamName text="Var_BlockHeightRange"/>
+						</Element>
+						<Element class="AssetObjects..Coord2DValue">
+							<m_x>1.000000</m_x>
+							<m_y>1.000000</m_y>
+							<m_ParamName text="Var_SpineLengthRange"/>
+						</Element>
+						<Element class="AssetObjects..StringValue">
+							<m_Value text="HEX_SPINED"/> <!-- HEX_ONLY -->
+							<m_ParamName text="Var_Mode"/>
+						</Element>
+						<Element class="AssetObjects..ArtDefReferenceValue">
+							<m_ElementName text="GenericDistrict_BlockList"/>
+							<m_RootCollectionName text="GeneratorBlockList"/>
+							<m_ArtDefPath text="CityGenerators.artdef"/>
+							<m_CollectionIsLocked>true</m_CollectionIsLocked>
+							<m_TemplateName text="CityGenerators"/>
+							<m_ParamName text="Var_BlockList"/>
+						</Element>
+					</m_Values>
+				</m_Fields>
+				<m_ChildCollections>
+					<Element>
+						<m_CollectionName text="GrowthStage"/>
+						<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..IntValue">
+										<m_nValue>1</m_nValue>
+										<m_ParamName text="Var_Population"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>1.000000</m_fValue>
+										<m_ParamName text="Var_FillerOccupancy"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>1.000000</m_fValue>
+										<m_ParamName text="Var_FillerRatio"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.500000</m_fValue>
+										<m_ParamName text="Var_CityArea"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.031250</m_fValue>
+										<m_ParamName text="Var_ScatterGrouping"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="1"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..IntValue">
+										<m_nValue>22</m_nValue>
+										<m_ParamName text="Var_Population"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>1.000000</m_fValue>
+										<m_ParamName text="Var_FillerOccupancy"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>1.000000</m_fValue>
+										<m_ParamName text="Var_FillerRatio"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>12.000000</m_fValue>
+										<m_ParamName text="Var_CityArea"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.031250</m_fValue>
+										<m_ParamName text="Var_ScatterGrouping"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="22"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..IntValue">
+										<m_nValue>0</m_nValue>
+										<m_ParamName text="Var_Population"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.000000</m_fValue>
+										<m_ParamName text="Var_CityArea"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.000000</m_fValue>
+										<m_ParamName text="Var_FillerRatio"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.000000</m_fValue>
+										<m_ParamName text="Var_FillerOccupancy"/>
+									</Element>
+									<Element class="AssetObjects..FloatValue">
+										<m_fValue>0.000000</m_fValue>
+										<m_ParamName text="Var_ScatterGrouping"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections/>
+							<m_Name text="0"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+					<Element>
+						<m_CollectionName text="EraDistribution"/>
+						<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..ArtDefReferenceValue">
+										<m_ElementName text="ARTERA_ANCIENT"/>
+										<m_RootCollectionName text="ArtEra"/>
+										<m_ArtDefPath text="Eras.artdef"/>
+										<m_CollectionIsLocked>true</m_CollectionIsLocked>
+										<m_TemplateName text="Eras"/>
+										<m_ParamName text="Era"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections>
+								<Element>
+									<m_CollectionName text="Distribution"/>
+									<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_ANCIENT"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>0</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="ARTERA_ANCIENT"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+								</Element>
+							</m_ChildCollections>
+							<m_Name text="ARTERA_ANCIENT"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..ArtDefReferenceValue">
+										<m_ElementName text="ARTERA_CLASSICAL"/>
+										<m_RootCollectionName text="ArtEra"/>
+										<m_ArtDefPath text="Eras.artdef"/>
+										<m_CollectionIsLocked>true</m_CollectionIsLocked>
+										<m_TemplateName text="Eras"/>
+										<m_ParamName text="Era"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections>
+								<Element>
+									<m_CollectionName text="Distribution"/>
+									<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_ANCIENT"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>1</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution001"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_CLASSICAL"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>0</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution002"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+								</Element>
+							</m_ChildCollections>
+							<m_Name text="ARTERA_CLASSICAL"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..ArtDefReferenceValue">
+										<m_ElementName text="ARTERA_INDUSTRIAL"/>
+										<m_RootCollectionName text="ArtEra"/>
+										<m_ArtDefPath text="Eras.artdef"/>
+										<m_CollectionIsLocked>true</m_CollectionIsLocked>
+										<m_TemplateName text="Eras"/>
+										<m_ParamName text="Era"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections>
+								<Element>
+									<m_CollectionName text="Distribution"/>
+									<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_CLASSICAL"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>0</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution002"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+								</Element>
+							</m_ChildCollections>
+							<m_Name text="ARTERA_INDUSTRIAL"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+						<Element>
+							<m_Fields>
+								<m_Values>
+									<Element class="AssetObjects..ArtDefReferenceValue">
+										<m_ElementName text="ARTERA_MODERN"/>
+										<m_RootCollectionName text="ArtEra"/>
+										<m_ArtDefPath text="Eras.artdef"/>
+										<m_CollectionIsLocked>true</m_CollectionIsLocked>
+										<m_TemplateName text="Eras"/>
+										<m_ParamName text="Era"/>
+									</Element>
+								</m_Values>
+							</m_Fields>
+							<m_ChildCollections>
+								<Element>
+									<m_CollectionName text="Distribution"/>
+									<m_ReplaceMergedCollectionElements>false</m_ReplaceMergedCollectionElements>
+									<Element>
+										<m_Fields>
+											<m_Values>
+												<Element class="AssetObjects..ArtDefReferenceValue">
+													<m_ElementName text="ARTERA_CLASSICAL"/>
+													<m_RootCollectionName text="ArtEra"/>
+													<m_ArtDefPath text="Eras.artdef"/>
+													<m_CollectionIsLocked>true</m_CollectionIsLocked>
+													<m_TemplateName text="Eras"/>
+													<m_ParamName text="Era"/>
+												</Element>
+												<Element class="AssetObjects..IntValue">
+													<m_nValue>0</m_nValue>
+													<m_ParamName text="OrderFromCenter"/>
+												</Element>
+												<Element class="AssetObjects..FloatValue">
+													<m_fValue>1.000000</m_fValue>
+													<m_ParamName text="Weight"/>
+												</Element>
+											</m_Values>
+										</m_Fields>
+										<m_ChildCollections/>
+										<m_Name text="Distribution001"/>
+										<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+									</Element>
+								</Element>
+							</m_ChildCollections>
+							<m_Name text="ARTERA_MODERN"/>
+							<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+						</Element>
+					</Element>
+				</m_ChildCollections>
+				<m_Name text="Gen_GenericDistrict"/>
+				<m_AppendMergedParameterCollections>false</m_AppendMergedParameterCollections>
+			</Element>
+		</Element>
+	</m_RootCollections>
+</AssetObjects..ArtDefSet>
+

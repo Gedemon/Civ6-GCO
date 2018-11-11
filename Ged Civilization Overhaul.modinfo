@@ -139,7 +139,6 @@
 				<LoadOrder>100050</LoadOrder>
            	</Properties>
 				<File Priority="100">Data/GlobalParameters.sql</File>
-				<File Priority="100">Data/CultureDiffusionParameters.sql</File>
 				<File Priority="100">Data/GamePlay.xml</File>
 				<File Priority="100">Data/Buildings.xml</File>
 				<File Priority="100">Data/Units.xml</File>
@@ -147,6 +146,7 @@
 				<File Priority="100">Data/Resources.xml</File>				
 				<File Priority="100">Text/NameText.xml</File> <!-- Add buildings, units, ... name & descriptions here to automate table filling -->
 				<File Priority="100">Data/CivilizationTable.sql</File>
+				<File Priority="95">Data/CultureDiffusionParameters.sql</File>
 				<File Priority="90">Data/CombatRules.sql</File>
 				<File Priority="90">Data/Units.sql</File>
 				<File Priority="90">Data/ModRules.sql</File>
