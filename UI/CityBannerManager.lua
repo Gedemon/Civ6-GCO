@@ -1004,17 +1004,23 @@ function CityBanner.UpdateStats( self : CityBanner)
 				foodToolTip = foodToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
 				foodToolTip = foodToolTip .. "[NEWLINE]" .. city:GetFoodConsumptionString() -- Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
 				foodToolTip = foodToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_TITLE").."[NEWLINE]".. table.concat(resourceStockStringTable["Food"])
-				self.m_Instance.FoodIcon:SetToolTipString(foodToolTip);
+				self.m_Instance.FoodIcon:SetToolTipString(foodToolTip)
 				
 				local strategicToolTip = Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE") .. table.concat(resourceStockStringTable["Strategic"])
-				self.m_Instance.StrategicStockIcon:SetToolTipString(strategicToolTip);
+				self.m_Instance.StrategicStockIcon:SetToolTipString(strategicToolTip)
 				
 				local otherToolTip = Locale.Lookup("LOC_CITYBANNER_OTHER_STOCK_TITLE") .. table.concat(resourceStockStringTable["Other"])
-				self.m_Instance.LuxuriesStockIcon:SetToolTipString(otherToolTip);
+				self.m_Instance.LuxuriesStockIcon:SetToolTipString(otherToolTip)
 				
 				local equipmentToolTip = Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE").. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
 				equipmentToolTip = equipmentToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE") .. table.concat(resourceStockStringTable["Equipment"])
 				self.m_Instance.EquipmentStockIcon:SetToolTipString(equipmentToolTip)
+				
+				local housingToolTip = Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE").."[NEWLINE]"..city:GetHousingToolTip()
+				self.m_Instance.HousingIcon:SetToolTipString(housingToolTip)
+				
+				local healthToolTip = Locale.Lookup("LOC_CITYBANNER_HEALTH_TITLE").."[NEWLINE]"..city:GetHealthString()
+				self.m_Instance.HealthIcon:SetToolTipString(healthToolTip)
 				
 			else
 				print("WARNING : GCO.GetCity(pCity:GetOwner(), pCity:GetID()) is nil for Owner = ", pCity:GetOwner(), " ID = ",  pCity:GetID())

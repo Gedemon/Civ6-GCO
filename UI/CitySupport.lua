@@ -549,6 +549,7 @@ function GetCityData( pCity:table )
 	
 	local maxPopulation		= upperHousing + middleHousing + lowerHousing + slaveClass -- slave class doesn't use housing space	
 	
+	--[[
 	local housingToolTip	= Locale.Lookup("LOC_HUD_CITY_TOTAL_HOUSING", realPopulation, maxPopulation)
 	housingToolTip	= housingToolTip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") ..Locale.Lookup("LOC_HUD_CITY_UPPER_HOUSING", upperHousing - upperHousingAvailable, upperHousing)
 	if upperClass - upperLookingForMiddle > 0 then
@@ -570,8 +571,9 @@ function GetCityData( pCity:table )
 	if lowerClass > 0 then
 		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", lowerClass)
 	end
+	--]]
 	
-	data.HousingToolTip		= housingToolTip
+	data.HousingToolTip		= pCity:GetHousingToolTip()
 	data.HousingText		= Locale.Lookup("LOC_HUD_CITY_HOUSING_OCCUPATION")
 	
 	data.MaxPopulation		= maxPopulation

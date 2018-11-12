@@ -1119,6 +1119,27 @@ function GetPercentBarString(value, bInvertedColors, bNoGradient, color)
 	return table.concat(buildStr)
 end
 
+function GetEvaluationStringFromValue(value, maxValue, minValue, name, EvaluationStrings, EvaluationColors)
+	local EvaluationStrings	= EvaluationStrings or {"LOC_EVALUATION_VERY_BAD","LOC_EVALUATION_BAD","LOC_EVALUATION_AVERAGE","LOC_EVALUATION_GOOD","LOC_EVALUATION_VERY_GOOD"}
+	local EvaluationColors	= EvaluationColors or {"COLOR_Civ6DarkRed","COLOR_OperationChance_Orange","NONE","NONE","COLOR_Civ6Green"}
+	local range 			= maxValue - minValue -- 200 if (-100 to 100)
+	local valueInRange		= (range / 2) + (math.max(minValue, math.min(maxValue, value))) -- 100 if 0
+	local percentage		= (valueInRange / ((range > 0 and range) or valueInRange)) * 100 -- 50 if 0
+	local stringPosition	= math.max(1,Round(percentage * #EvaluationStrings / 100)) -- 3 if 0
+	local colorPosition		= math.max(1,Round(percentage * #EvaluationColors / 100)) -- 3 if 0
+	local returnString		= Locale.Lookup("LOC_EVALUATION_NUMBER", value) --(value > 0 and "+"..tostring(value)) or tostring(value)
+	if name then
+		returnString = returnString .. " " .. Locale.Lookup("LOC_EVALUATION_STRING_WITH_NAME", EvaluationStrings[stringPosition], name)
+	else
+		returnString = returnString .. " " .. Locale.Lookup("LOC_EVALUATION_STRING", EvaluationStrings[stringPosition])
+	end
+	if EvaluationColors[colorPosition] ~= "NONE" then
+		returnString = "[".. EvaluationColors[colorPosition] .."]" .. returnString .. "[ENDCOLOR]"
+	end
+	return returnString
+end
+
+
 --=====================================================================================--
 -- Share functions for other contexts
 --=====================================================================================--
@@ -1201,6 +1222,7 @@ function Initialize()
 	ExposedMembers.GCO.GetVariationStringRedPositive	= GetVariationStringRedPositive
 	ExposedMembers.GCO.GetEquipmentPropertyString		= GetEquipmentPropertyString
 	ExposedMembers.GCO.GetPercentBarString				= GetPercentBarString
+	ExposedMembers.GCO.GetEvaluationStringFromValue		= GetEvaluationStringFromValue
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true
 end

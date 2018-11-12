@@ -1094,16 +1094,39 @@ function GetData(self)
 	end
 end
 
+function GetCache(self)
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	return _cached[selfKey]
+end
+
 function GetCached(self, key)
-	local unitKey 	= self:GetKey()
-	if not _cached[unitKey] then _cached[unitKey] = {} end
-	return _cached[unitKey][key]
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	return _cached[selfKey][key]
 end
 
 function SetCached(self, key, value)
-	local unitKey 	= self:GetKey()
-	if not _cached[unitKey] then _cached[unitKey] = {} end
-	_cached[unitKey][key] = value
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	_cached[selfKey][key] = value
+end
+
+function GetValue(self, key)
+	local Data = self:GetData()
+	if not Data then
+		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())
+		return
+	end
+	return Data[key]
+end
+
+function SetValue(self, key, value)
+	local Data = self:GetData()
+	if not Data then
+		GCO.Error("unitData is nil for " .. self:GetName(), self:GetKey() .. "[NEWLINE]Trying to set ".. tostring(key) .." value to " ..tostring(value))
+	end
+	Data[key] = value
 end
 
 function UpdateFrontLineData(self, bForceSynchronization) -- that function will have to be called after we change the structure of an unit (upgrading, downgrading, new military organization level, ...)
@@ -1362,24 +1385,10 @@ function GetLogisticCost(self)
 	return GCO.Round(logisticCost)
 end
 
-function GetProperty(self, property)
-	local unitData = self:GetData()
-	if not unitData then
-		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())
-		return 0
-	end
-	return unitData[property]
-end
-
-function SetProperty(self, property, value)
-	local unitKey = self:GetKey()
-	ExposedMembers.UnitData[unitKey][property] = value
-end
-
 function IsDisbanding(self)
-	local activeTurnsLeft = self:GetProperty("ActiveTurnsLeft")
+	local activeTurnsLeft = self:GetValue("ActiveTurnsLeft")
 	if activeTurnsLeft and activeTurnsLeft <= 1 then
-		if self:GetProperty("UnitPersonnelType") == UnitPersonnelType.Conscripts then
+		if self:GetValue("UnitPersonnelType") == UnitPersonnelType.Conscripts then
 			local player = GCO.GetPlayer(self:GetOwner())
 			if player:IsAtWar() then
 				return false
@@ -1988,7 +1997,7 @@ function GetRequirements(self, bTotal)
 	return requirements
 end
 
-function GetComponent(self, component)
+function GetComponent(self, component) -- personnel, personnelReserve and other components with a current/previous turn value. todo: change to a table with turnKeys instead 
 	local unitData = self:GetData()
 	if not unitData then
 		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())
@@ -5224,11 +5233,11 @@ function CheckForActiveTurnsLeft(self)
 	Dlog("CheckForActiveTurnsLeft for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
 	--local DEBUG_UNIT_SCRIPT = "debug"
 	local bRemoveUnit		= false
-	local activeTurnsLeft 	= self:GetProperty("ActiveTurnsLeft")
+	local activeTurnsLeft 	= self:GetValue("ActiveTurnsLeft")
 	if activeTurnsLeft then
 		Dprint( DEBUG_UNIT_SCRIPT, "Handle Turns Active Left for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .. " current =  ".. tostring(activeTurnsLeft))
 		-- Update active turns left
-		local personnelType 	= self:GetProperty("UnitPersonnelType")
+		local personnelType 	= self:GetValue("UnitPersonnelType")
 		local bLocked		= false
 		if personnelType == UnitPersonnelType.Conscripts then
 			local player = GCO.GetPlayer(self:GetOwner())
@@ -5239,8 +5248,8 @@ function CheckForActiveTurnsLeft(self)
 		end
 
 		activeTurnsLeft	= activeTurnsLeft - 1
-		self:SetProperty("ActiveTurnsLeft", activeTurnsLeft)
-		Dprint( DEBUG_UNIT_SCRIPT, " - ActiveTurnsLeft = " .. tostring(self:GetProperty("ActiveTurnsLeft")))
+		self:SetValue("ActiveTurnsLeft", activeTurnsLeft)
+		Dprint( DEBUG_UNIT_SCRIPT, " - ActiveTurnsLeft = " .. tostring(self:GetValue("ActiveTurnsLeft")))
 		
 		-- start disbanding if no turns left
 		if activeTurnsLeft < 0 and not bLocked then
@@ -5905,13 +5914,14 @@ function AttachUnitFunctions(unit)
 		u.GetKey								= GetKey
 		u.UpdateFrontLineData					= UpdateFrontLineData
 		u.GetData								= GetData
+		u.GetCache								= GetCache
 		u.GetCached								= GetCached
 		u.SetCached								= SetCached
+		u.GetValue								= GetValue
+		u.SetValue								= SetValue
 		u.IsCombat								= IsCombat
 		u.CanGetFullReinforcement				= CanGetFullReinforcement
 		u.GetLogisticCost						= GetLogisticCost
-		u.GetProperty							= GetProperty
-		u.SetProperty							= SetProperty
 		u.IsDisbanding							= IsDisbanding
 		u.Disband								= Disband
 		--

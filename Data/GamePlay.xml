@@ -55,7 +55,7 @@
 	</Yields>
 	
 	<CustomYields>
-		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_Damaged]" OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_HEALTH2]"	OccupiedCityChange="0"/>
 		<Row YieldType="YIELD_UPPER_HOUSING"	Name="LOC_YIELD_UPPER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
 		<Row YieldType="YIELD_MIDDLE_HOUSING"	Name="LOC_YIELD_MIDDLE_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
 		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>	
@@ -760,13 +760,34 @@
 		
 	-->
 	<Types>
-		<Row Type="TECH_ARMORED_WARFARE" Kind="KIND_TECH"/>
+		<Row Type="TECH_HERBALISM" 			Kind="KIND_TECH"/>
+		<Row Type="TECH_AGRICULTURE"		Kind="KIND_TECH"/>
+		<Row Type="TECH_SURGERY"			Kind="KIND_TECH"/>
+		<Row Type="TECH_ARMORED_WARFARE"	Kind="KIND_TECH"/>
 	</Types>	
 	<Technologies>
-		<Replace TechnologyType="TECH_ARMORED_WARFARE" 	Name="LOC_TECH_ARMORED_WARFARE_NAME" 	Cost="1350" AdvisorType="ADVISOR_CONQUEST" 		EraType="ERA_MODERN" UITreeRow="2"/>
+		<!-- Ancient Era-->
+		<Replace TechnologyType="TECH_HERBALISM" 		Name="LOC_TECH_HERBALISM_NAME" 			Cost="25" 	AdvisorType="ADVISOR_TECHNOLOGY" 	EraType="ERA_ANCIENT"	UITreeRow="-1"	Description="LOC_TECH_HERBALISM_DESCRIPTION"/>
+		<Replace TechnologyType="TECH_AGRICULTURE" 		Name="LOC_TECH_AGRICULTURE_NAME" 		Cost="25" 	AdvisorType="ADVISOR_GENERIC" 		EraType="ERA_ANCIENT"	UITreeRow="-3"/>
+		<!-- Classical Era-->
+		<Replace TechnologyType="TECH_SURGERY" 			Name="LOC_TECH_SURGERY_NAME" 			Cost="200" 	AdvisorType="ADVISOR_TECHNOLOGY" 	EraType="ERA_CLASSICAL"	UITreeRow="0"	Description="LOC_TECH_SURGERY_DESCRIPTION"/>
+		<!-- modern Era-->
+		<Replace TechnologyType="TECH_ARMORED_WARFARE" 	Name="LOC_TECH_ARMORED_WARFARE_NAME" 	Cost="1350" AdvisorType="ADVISOR_CONQUEST" 		EraType="ERA_MODERN"	UITreeRow="2"/>
 		
 	</Technologies>
-
+	<TechnologyPrereqs>
+		<!-- Ancient Era-->
+		<Row 	Technology="TECH_IRRIGATION" 	PrereqTech="TECH_AGRICULTURE"/>
+		<Row 	Technology="TECH_ASTROLOGY" 	PrereqTech="TECH_AGRICULTURE"/>
+		<!-- Classical Era-->
+		<Row 	Technology="TECH_SURGERY" 		PrereqTech="TECH_WRITING"/>
+		<Row 	Technology="TECH_SURGERY" 		PrereqTech="TECH_HERBALISM"/>
+		<!-- modern Era-->
+		<Row 	Technology="TECH_ARMORED_WARFARE" 	PrereqTech="TECH_COMBUSTION"/>
+		<Row 	Technology="TECH_COMBINED_ARMS" 	PrereqTech="TECH_ARMORED_WARFARE"/>
+	
+	</TechnologyPrereqs>
+	
 	<!-- 		PROJECTS
 		
 	-->

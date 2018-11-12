@@ -239,16 +239,39 @@ function GetData(self)
 	return plotData
 end
 
+function GetCache(self)
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	return _cached[selfKey]
+end
+
 function GetCached(self, key)
-	local plotKey 	= self:GetKey()
-	if not _cached[plotKey] then _cached[plotKey] = {} end
-	return _cached[plotKey][key]
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	return _cached[selfKey][key]
 end
 
 function SetCached(self, key, value)
-	local plotKey 	= self:GetKey()
-	if not _cached[plotKey] then _cached[plotKey] = {} end
-	_cached[plotKey][key] = value
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	_cached[selfKey][key] = value
+end
+
+function GetValue(self, key)
+	local Data = self:GetData()
+	if not Data then
+		GCO.Warning("plotData is nil for " .. tostring(self:GetX())..",".. tostring(self:GetY()).." #".. tostring(self:GetKey()))
+		return 0
+	end
+	return Data[key]
+end
+
+function SetValue(self, key, value)
+	local Data = self:GetData()
+	if not Data then
+		GCO.Error("plotData is nil for " .. tostring(self:GetX())..",".. tostring(self:GetY()).." #".. tostring(self:GetKey()) .. "[NEWLINE]Trying to set ".. tostring(key) .." value to " ..tostring(value))
+	end
+	Data[key] = value
 end
 
 function GetPlotFromKey( key )
@@ -2821,8 +2844,11 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	
 	p.GetKey						= GetKey
 	p.GetData						= GetData
+	p.GetCache						= GetCache
 	p.GetCached						= GetCached
 	p.SetCached						= SetCached
+	p.GetValue						= GetValue
+	p.SetValue						= SetValue
 	p.GetCity						= GetCity
 	p.GetEraType					= GetEraType
 	p.GetPlotDiffusionValuesTo		= GetPlotDiffusionValuesTo

@@ -127,9 +127,19 @@
 
   </LocalizedText>
   
-  <LocalizedText> <!-- Common -->
+  <LocalizedText> <!-- Common / various -->
 	
-    <Replace Tag="LOC_TOOLTIP_SEPARATOR"	Text="[NEWLINE][COLOR_Grey]------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" /> 	
+    <Replace Tag="LOC_TOOLTIP_SEPARATOR"			Text="[NEWLINE][COLOR_Grey]--------------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" />
+	
+	<Replace Tag="LOC_EVALUATION_STRING_WITH_NAME"	Text="({1_Name} {2_Name})" 			Language="en_US" />
+	<Replace Tag="LOC_EVALUATION_STRING"			Text="({1_Name})" 					Language="en_US" />
+	<Replace Tag="LOC_EVALUATION_NUMBER"			Text="{1_Num : number +#.#;-#.#}" 	Language="en_US" />	
+	
+	<Replace Tag="LOC_EVALUATION_VERY_BAD"			Text="Very bad" 			Language="en_US" />
+	<Replace Tag="LOC_EVALUATION_BAD"				Text="Bad" 					Language="en_US" />
+	<Replace Tag="LOC_EVALUATION_AVERAGE"			Text="Average" 				Language="en_US" />
+	<Replace Tag="LOC_EVALUATION_GOOD"				Text="Good" 				Language="en_US" />
+	<Replace Tag="LOC_EVALUATION_VERY_GOOD"			Text="Very good" 			Language="en_US" />
 
   </LocalizedText>
   
@@ -211,6 +221,9 @@
     </Replace>
     <Replace Tag="LOC_CITYBANNER_URBAN_EMPLOYMENT_TITLE" Language="en_US">
       <Text>[COLOR_Grey]----------------- Urban Employment ---------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_HEALTH_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------------------ Health ------------------------[ENDCOLOR]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_TOTAL_POPULATION" Language="en_US">
@@ -324,6 +337,59 @@
     </Replace>
     <Replace Tag="LOC_CITYBANNER_URBAN_PRODUCTION_OUTPUT" Language="en_US">
       <Text>x {1_Num} resource/equipment production (Size {2_Num} city)</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_CITYBANNER_HEALTH_PERCENTAGE" Language="en_US">
+      <Text>[ICON_HEALTH]{1_Name} {2_Name}</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_HEALTH_NAME" Language="en_US">
+      <Text>Health</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_HEALTH_CHANGE" Language="en_US">
+      <Text>[ICON_HEALTH] Variation per turn = {1_Name}</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_HEALTH_BONUS_FROM_FOREST" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Forests</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_BONUS_FROM_FRESH_FOOD" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Fresh Food</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_BONUS_FROM_FRESH_WATER" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Fresh Water</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_BONUS_FROM_BUILDINGS" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Buildings</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_BONUS_FROM_FOOD_DIVERSITY" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Food Diversity</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_BONUS_FROM_SALT" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Food Preservation (Salt)</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_BONUS_FROM_TECHS" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Technologies</Text>
+    </Replace>
+	
+	
+	
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_POPULATION" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Population</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_FLOODPLAINS" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Floodplains</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_JUNGLE" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Jungle</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_MARSH" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Marshes</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_FRESH_WATER" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Lack of Fresh Water</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Food Rationing</Text>
     </Replace>
 
   </LocalizedText>

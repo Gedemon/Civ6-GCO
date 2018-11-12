@@ -206,6 +206,15 @@ for row in GameInfo.BuildingUpgrades() do
 	table.insert(BuildingReplacements[upgradeID], buildingID)
 end
 
+-- List of Buildings which provide Health
+local BuildingHealth = {}
+for row in GameInfo.Building_CustomYieldChanges() do
+	if row.YieldType == "YIELD_HEALTH" then
+		local buildingType 			= row.BuildingType
+		local buildingID 			= GameInfo.Buildings[buildingType].Index
+		BuildingHealth[buildingID]	= row.YieldChange
+	end
+end
 
 -- Helper to get the resources that can be traded at a specific trade level (filled after initialization) 
 local resourceTradeLevel = { 
@@ -553,7 +562,7 @@ function RegisterNewCity(playerID, city)
 		--ExposedMembers.CityData[cityKey].Stock[turnKey][foodResourceKey] = 
 	end
 	city:ChangeStock(foodResourceID, city:GetMaxStock(foodResourceID))--GCO.Round(city:GetMaxStock(foodResourceID)/2))
-
+	
 	LuaEvents.NewCityCreated()
 end
 
@@ -771,6 +780,41 @@ function GetData(self)
 	local cityData 	= ExposedMembers.CityData[cityKey]
 	if not cityData then GCO.Warning("cityData is nil for ".. Locale.Lookup(self:GetName())); GCO.DlineFull(); end
 	return cityData
+end
+
+function GetCache(self)
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	return _cached[selfKey]
+end
+
+function GetCached(self, key)
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	return _cached[selfKey][key]
+end
+
+function SetCached(self, key, value)
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	_cached[selfKey][key] = value
+end
+
+function GetValue(self, key)
+	local Data = self:GetData()
+	if not Data then
+		GCO.Warning("cityData is nil for " .. self:GetName(), self:GetKey())
+		return 0
+	end
+	return Data[key]
+end
+
+function SetValue(self, key, value)
+	local Data = self:GetData()
+	if not Data then
+		GCO.Error("cityData is nil for " .. self:GetName(), self:GetKey() .. "[NEWLINE]Trying to set ".. tostring(key) .." value to " ..tostring(value))
+	end
+	Data[key] = value
 end
 
 function GetCityFromKey ( cityKey )
@@ -2328,7 +2372,7 @@ end
 
 function GetAvailableStockForUnits(self, resourceID)
 
-	local turnKey 			= GCO.GetPreviousTurnKey()
+	local turnKey 		= GCO.GetPreviousTurnKey()
 	local supply		= self:GetSupplyAtTurn(resourceID, turnKey)
 	local sharedSupply	= GCO.Round(supply / 4)
 	local minStockLeft 	= self:GetMinimalStockForUnits(resourceID)--GCO.Round(self:GetMaxStock(resourceID)*minPercentLeft/100)
@@ -2765,7 +2809,10 @@ function GetDemand(self, resourceID)
 	demand = demand + self:GetDemandAtTurn(resourceID, previousTurn)
 
 	return demand
+end
 
+function GetSupply(self, resourceID)
+	return self:GetSupplyAtTurn(resourceID, GCO.GetPreviousTurnKey())
 end
 
 function GetSupplyAtTurn(self, resourceID, turn, iteration)
@@ -3875,10 +3922,10 @@ function RecruitUnits(self, UnitType, number)
 		GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
 		GCO.AttachUnitFunctions(unit)
 		unit:InitializeEquipment()
-		unit:SetProperty("CanChangeOrganization", nil)
-		unit:SetProperty("ActiveTurnsLeft", turnsActive)
-		unit:SetProperty("HomeCityKey", self:GetKey())	-- send back personnel/equipment/resources here on disbanding (with no income from selling)
-		unit:SetProperty("UnitPersonnelType", UnitPersonnelType.Conscripts)
+		unit:SetValue("CanChangeOrganization", nil)
+		unit:SetValue("ActiveTurnsLeft", turnsActive)
+		unit:SetValue("HomeCityKey", self:GetKey())	-- send back personnel/equipment/resources here on disbanding (with no income from selling)
+		unit:SetValue("UnitPersonnelType", UnitPersonnelType.Conscripts)
 		
 		-- get full reinforcement...
 		Dprint( DEBUG_self_SCRIPT, "Getting full reinforcement...")
@@ -4196,9 +4243,42 @@ function GetOutputPerYield(self)
 	return math.max(1, self:GetUrbanProductionFactor() * self:GetSize())
 end
 
+
+----------------------------------------------
+-- Health function
+----------------------------------------------
+
+
 ----------------------------------------------
 -- Texts function
 ----------------------------------------------
+function GetHealthString(self)
+
+	if not self:GetCached("Health") then self:SetHealthValues() end	
+	
+	local health		= self:GetValue("Health") or 0
+	local healthPct		= (100 + (health)) / 2 -- to do: no hardcoding of the max (+100) and min (-100) health values
+	local healthStr		= GCO.GetEvaluationStringFromValue(health, 100, -100) -- GCO.GetEvaluationStringFromValue(health, 100, -100, "LOC_CITYBANNER_HEALTH_NAME")
+	local returnStr		= Locale.Lookup("LOC_CITYBANNER_HEALTH_PERCENTAGE", GCO.GetPercentBarString(healthPct), healthStr) .. " " ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR")--""
+	local change		= 0
+	local healthValues	= self:GetCached("Health") or {}
+	local changeTable	= {}
+	local strTable 		= {}
+	
+	if healthValues.Condensed then
+		for cause, value in pairs(healthValues.Condensed) do
+			change = change + value
+			table.insert(changeTable, {Text = cause, Value = value})
+		end
+	end
+	
+	table.sort(changeTable, function(a, b) return a.Value > b.Value; end)
+	for _, data in ipairs(changeTable) do
+		table.insert(strTable, Locale.Lookup(data.Text, data.Value))
+	end
+	return returnStr .. table.concat(strTable, "[NEWLINE]") ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("LOC_CITYBANNER_HEALTH_CHANGE", GCO.GetEvaluationStringFromValue(change, 15, -15))
+end
+
 function GetResourcesStockString(self)
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
@@ -4331,19 +4411,15 @@ end
 	table.sort(strategicList, function(a, b) return a.Order > b.Order; end)
 	table.sort(foodList, function(a, b) return a.Order > b.Order; end)
 	table.sort(otherList, function(a, b) return a.Order > b.Order; end)
-	--strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE")
 	for i, data in ipairs(equipmentList) do
 		table.insert(stringTable["Equipment"], data.String)
 	end
-	--strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE")
 	for i, data in ipairs(strategicList) do
 		table.insert(stringTable["Strategic"], data.String)
 	end
-	--strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_TITLE")
 	for i, data in ipairs(foodList) do
 		table.insert(stringTable["Food"], data.String)
 	end
-	--strFull = strFull .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_OTHER_STOCK_TITLE")
 	for i, data in ipairs(otherList) do
 		table.insert(stringTable["Other"], data.String)
 	end
@@ -4422,7 +4498,49 @@ function GetPopulationNeedsEffectsString(self) -- draft for a global string
 	return table.concat(returnStrTable, "[NEWLINE]")
 end
 
+function GetHousingToolTip(self)
+	local upperClass		= self:GetUpperClass()
+	local middleClass		= self:GetMiddleClass()
+	local lowerClass		= self:GetLowerClass()
+	local slaveClass		= self:GetSlaveClass()
+	local upperHousingSize	= self:GetCustomYield( GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index )
+	local upperHousing		= GCO.GetPopulationPerSize(upperHousingSize)
+	local upperHousingAvailable	= math.max( 0, upperHousing - upperClass)
+	local upperLookingForMiddle	= math.max( 0, upperClass - upperHousing)
+	local middleHousingSize	= self:GetCustomYield( GameInfo.CustomYields["YIELD_MIDDLE_HOUSING"].Index )
+	local middleHousing		= GCO.GetPopulationPerSize(middleHousingSize)
+	local middleHousingAvailable	= math.max( 0, middleHousing - middleClass - upperLookingForMiddle)
+	local middleLookingForLower		= math.max( 0, (middleClass + upperLookingForMiddle) - middleHousing)
+	local lowerHousingSize	= self:GetCustomYield( GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index )
+	local lowerHousing		= GCO.GetPopulationPerSize(lowerHousingSize)
+	local lowerHousingAvailable	= math.max( 0, lowerHousing - lowerClass - middleLookingForLower)
+	local realPopulation	= self:GetRealPopulation()	
+	
+	local maxPopulation		= upperHousing + middleHousing + lowerHousing + slaveClass -- slave class doesn't use housing space	
 
+	local housingToolTip	= Locale.Lookup("LOC_HUD_CITY_TOTAL_HOUSING", realPopulation, maxPopulation)
+	housingToolTip	= housingToolTip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") ..Locale.Lookup("LOC_HUD_CITY_UPPER_HOUSING", upperHousing - upperHousingAvailable, upperHousing)
+	if upperClass - upperLookingForMiddle > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", upperClass - upperLookingForMiddle)
+	end
+	
+	housingToolTip	= housingToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_HUD_CITY_MIDDLE_HOUSING", middleHousing - middleHousingAvailable, middleHousing)
+	if upperLookingForMiddle > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_UPPER_CLASS", upperLookingForMiddle)
+	end
+	if middleClass - middleLookingForLower > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", middleClass - middleLookingForLower)
+	end
+	
+	housingToolTip	= housingToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_HUD_CITY_LOWER_HOUSING", lowerHousing - lowerHousingAvailable, lowerHousing)
+	if middleLookingForLower > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_MIDDLE_CLASS", middleLookingForLower)
+	end
+	if lowerClass > 0 then
+		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", lowerClass)
+	end
+	return housingToolTip
+end
 -----------------------------------------------------------------------------------------
 -- Do Turn for Cities
 -----------------------------------------------------------------------------------------
@@ -6287,7 +6405,7 @@ function Heal(self)
 	Dprint( DEBUG_CITY_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
 
 	local playerID		= self:GetOwner()
-	local cityCenter 	= self:GetDistricts():GetDistrict("DISTRICT_CITY_CENTER")
+	local cityCenter 	= self:GetDistricts():GetDistrict(GameInfo.Districts["DISTRICT_CITY_CENTER"].Index)
 	local cityDamage	= cityCenter:GetDamage(DefenseTypes.DISTRICT_GARRISON)
 	local wallDamage	= cityCenter:GetDamage(DefenseTypes.DISTRICT_OUTER)
 	
@@ -6338,6 +6456,144 @@ function Heal(self)
 		
 		end
 	end
+end
+
+function UpdateHealth(self)
+	local change		= 0
+	local currentHealth = self:GetValue("Health") or 0
+	local healthValues	= self:GetCached("Health") or {}
+	if healthValues.Condensed then
+		for cause, value in pairs(healthValues.Condensed) do
+			change = change + value
+		end
+	end
+	local newHealth = math.max(-100, math.min(100, currentHealth + change))
+	self:SetValue("Health", GCO.ToDecimals(newHealth))
+end
+
+function SetHealthValues(self)
+
+	Dlog("SetHealthValues ".. Locale.Lookup(self:GetName()).." /START")
+	
+	local cache 		= self:GetCache()
+	cache.Health 		= { Detailed = {}, Condensed = {}} -- reset values
+	local health 		= cache.Health
+	local selfPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
+	local player		= GCO.GetPlayer(self:GetOwner())
+
+	
+	-- Penalty from Population size
+	local populationSize	= self:GetSize()
+	health.Detailed["LOC_HEALTH_PENALTY_FROM_POPULATION"]	= - populationSize
+	health.Condensed["LOC_HEALTH_PENALTY_FROM_POPULATION"]	= - populationSize
+	
+	-- Change from Features and local resources (to do : move to XML ?)
+	local ChangeHealthFeatures = {
+		[GameInfo.Features["FEATURE_FLOODPLAINS"].Index] 	= -1,
+		[GameInfo.Features["FEATURE_JUNGLE"].Index] 		= -2,
+		[GameInfo.Features["FEATURE_MARSH"].Index] 			= -3,
+		[GameInfo.Features["FEATURE_FOREST"].Index] 		= 1,
+		[GameInfo.Features["FEATURE_FOREST_DENSE"].Index]	= 2,
+		[GameInfo.Features["FEATURE_FOREST_SPARSE"].Index]	= 0.5,
+	}
+	local StringsFromFeatures = {
+		[GameInfo.Features["FEATURE_FLOODPLAINS"].Index] 	= "LOC_HEALTH_PENALTY_FROM_FLOODPLAINS",
+		[GameInfo.Features["FEATURE_JUNGLE"].Index] 		= "LOC_HEALTH_PENALTY_FROM_JUNGLE",
+		[GameInfo.Features["FEATURE_MARSH"].Index] 			= "LOC_HEALTH_PENALTY_FROM_MARSH",
+		[GameInfo.Features["FEATURE_FOREST"].Index] 		= "LOC_HEALTH_BONUS_FROM_FOREST",
+		[GameInfo.Features["FEATURE_FOREST_DENSE"].Index]	= "LOC_HEALTH_BONUS_FROM_FOREST",
+		[GameInfo.Features["FEATURE_FOREST_SPARSE"].Index]	= "LOC_HEALTH_BONUS_FROM_FOREST",	
+	}
+	local cityPlots	= GCO.GetCityPlots(self)
+	for _, plotID in ipairs(cityPlots) do
+		local plot = GCO.GetPlotByIndex(plotID)
+		if plot and (not plot:IsCity()) then
+			local featureID 	= plot:GetFeatureType()
+			local resourceID 	= plot:GetResourceType()
+			if ChangeHealthFeatures[featureID] then
+				health.Condensed[StringsFromFeatures[featureID]] = (health.Condensed[StringsFromFeatures[featureID]] or 0) + (ChangeHealthFeatures[featureID] / Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), plot:GetX(), plot:GetY()))
+			end
+			if GCO.IsResourceFood(resourceID) then
+				health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] = (health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] or 0) + (1 / Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), plot:GetX(), plot:GetY()))
+			end
+		end
+	end
+	
+	-- Resources in stock
+	local stock					= self:GetResources()
+	local countFoodVariation	= 0
+	
+	for resourceKey, value in pairs(stock) do
+		local resourceID = tonumber(resourceKey)
+		if GCO.IsResourceFood(resourceID) and (value > 0 or self:GetSupply(resourceID) > 0) then
+			countFoodVariation = countFoodVariation + 1
+		end
+		if resourceID == GameInfo.Resources["RESOURCE_SALT"].Index and (value > 0 or self:GetSupply(resourceID) > 0) then
+			health.Condensed["LOC_HEALTH_BONUS_FROM_SALT"] = 2
+		end
+	end
+	if countFoodVariation > 1 then
+		health.Condensed["LOC_HEALTH_BONUS_FROM_FOOD_DIVERSITY"] = countFoodVariation * 0.5
+	end
+	
+	-- Fresh Water
+	local bHasFreshWater 	= false
+	local freshWaterBonus	= 3
+	if selfPlot:IsFreshWater() then
+		bHasFreshWater = true
+	end
+	
+	local district 	= self:GetDistricts():GetDistrict(GameInfo.Districts["DISTRICT_AQUEDUCT"].Index)
+	if district and district:IsComplete() then
+		if bHasFreshWater then -- Get additional health from Aqueduct
+			freshWaterBonus = 5
+		else
+			bHasFreshWater = true
+		end
+	end
+	
+	if bHasFreshWater then
+		health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_WATER"] = freshWaterBonus
+	else
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FRESH_WATER"] = -3
+	end
+	
+	-- Food Rationing
+	local cityRationning = self:GetValue("FoodRatio") or 1
+	if 		cityRationning <= Starvation 		then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING"] = -8
+
+	elseif 	cityRationning <= heavyRationing 	then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING"] = -4
+
+	elseif cityRationning <= mediumRationing 	then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING"] = -2
+
+	elseif cityRationning <= lightRationing 	then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING"] = -1
+	end
+	
+	-- Buildings
+	local buildings = self:GetBuildings()		
+	for buildingID, value in pairs(BuildingHealth) do
+		if buildings and buildings:HasBuilding(buildingID) then
+			health.Condensed["LOC_HEALTH_BONUS_FROM_BUILDINGS"] = (health.Condensed["LOC_HEALTH_BONUS_FROM_BUILDINGS"] or 0) + value
+		end
+	end
+	
+	-- Change from Techs (to do : move to XML ?)
+	local ChangeHealthTechs = {
+		[GameInfo.Technologies["TECH_HERBALISM"].Index] 	= 1,
+		[GameInfo.Technologies["TECH_SURGERY"].Index] 		= 1,
+	}
+	for techID, value in pairs(ChangeHealthTechs) do
+		local pScience = player:GetTechs()
+		if pScience:HasTech(techID) then
+			health.Condensed["LOC_HEALTH_BONUS_FROM_TECHS"] = (health.Condensed["LOC_HEALTH_BONUS_FROM_TECHS"] or 0) + value
+		end
+	end
+	
+	Dlog("SetHealthValues ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoTurnFirstPass(self)
@@ -6496,6 +6752,11 @@ function DoTurnFourthPass(self)
 	--self:SetProductionFactorFromBuildings()
 	self:SetEmploymentFactorFromBuildings()
 	GCO.ShowTimer("CitySize/SocialClasses for ".. name)
+	
+	GCO.StartTimer("Set Health for ".. name)
+	self:SetHealthValues()
+	self:UpdateHealth()
+	GCO.ShowTimer("Set Health  for ".. name)
 
 	-- last...
 	GCO.StartTimer("DoExcedents for ".. name)
@@ -6636,6 +6897,18 @@ function OnCityFocusChange( playerID, cityID )
 end
 Events.CityFocusChanged.Add(OnCityFocusChange );
 
+function OnCityInitialized( playerID: number, cityID : number, cityX : number, cityY : number )
+	
+	--print("CityAddedToMap - " .. tostring(playerID) .. ":" .. tostring(cityID) .. " " .. tostring(cityX) .. "x" .. tostring(cityY));
+
+	local city = GetCity(playerID, cityID)
+	
+	-- calling SetHealthValues() here because the initial call from the City Banner Manager is done before the City plots are initialized 
+	city:SetHealthValues()
+	LuaEvents.CityCompositionUpdated(playerID, cityID)
+end
+Events.CityInitialized.Add(OnCityInitialized)
+
 
 -----------------------------------------------------------------------------------------
 -- Functions passed from UI Context
@@ -6728,203 +7001,214 @@ end
 function AttachCityFunctions(city)
 	if not city then return end
 	local c = getmetatable(city).__index
-	if not c.IsInitialized						then c.IsInitialized						= IsInitialized						 end
-	if not c.UpdateSize							then c.UpdateSize							= UpdateSize                         end
-	if not c.GetSize							then c.GetSize								= GetSize                            end
-	if not c.GetRealSize						then c.GetRealSize							= GetRealSize                        end
-	if not c.GetRealPopulation					then c.GetRealPopulation					= GetRealPopulation                  end
-	if not c.SetRealPopulation					then c.SetRealPopulation					= SetRealPopulation                  end
-	if not c.GetRealPopulationVariation			then c.GetRealPopulationVariation			= GetRealPopulationVariation         end
-	if not c.GetKey								then c.GetKey								= GetKey                             end
-	if not c.GetData							then c.GetData								= GetData                            end
-	if not c.UpdateDataOnNewTurn				then c.UpdateDataOnNewTurn					= UpdateDataOnNewTurn                end
-	if not c.GetWealth							then c.GetWealth							= GetWealth                          end
-	if not c.SetWealth							then c.SetWealth							= SetWealth                          end
-	if not c.UpdateCosts						then c.UpdateCosts							= UpdateCosts                        end
-	if not c.RecordTransaction					then c.RecordTransaction					= RecordTransaction                  end
-	if not c.GetTransactionValue				then c.GetTransactionValue					= GetTransactionValue                end
+	if not c.IsInitialized						then c.IsInitialized						= IsInitialized							end
+	if not c.UpdateSize							then c.UpdateSize							= UpdateSize                        	end
+	if not c.GetSize							then c.GetSize								= GetSize                           	end
+	if not c.GetRealSize						then c.GetRealSize							= GetRealSize                       	end
+	if not c.GetRealPopulation					then c.GetRealPopulation					= GetRealPopulation                 	end
+	if not c.SetRealPopulation					then c.SetRealPopulation					= SetRealPopulation                 	end
+	if not c.GetRealPopulationVariation			then c.GetRealPopulationVariation			= GetRealPopulationVariation        	end
+	if not c.GetKey								then c.GetKey								= GetKey                            	end
+	if not c.GetData							then c.GetData								= GetData                           	end
+	if not c.GetCache							then c.GetCache								= GetCache                          	end
+	if not c.GetCached							then c.GetCached							= GetCached                         	end
+	if not c.SetCached							then c.SetCached							= SetCached                         	end
+	if not c.GetValue							then c.GetValue								= GetValue                          	end
+	if not c.SetValue							then c.SetValue								= SetValue                          	end
+	if not c.UpdateDataOnNewTurn				then c.UpdateDataOnNewTurn					= UpdateDataOnNewTurn               	end
+	if not c.GetWealth							then c.GetWealth							= GetWealth                         	end
+	if not c.SetWealth							then c.SetWealth							= SetWealth                         	end
+	if not c.UpdateCosts						then c.UpdateCosts							= UpdateCosts                       	end
+	if not c.RecordTransaction					then c.RecordTransaction					= RecordTransaction                 	end
+	if not c.GetTransactionValue				then c.GetTransactionValue					= GetTransactionValue               	end
 	-- resources
-	if not c.GetMaxStock						then c.GetMaxStock							= GetMaxStock                        end
-	if not c.GetStock 							then c.GetStock 							= GetStock                           end
-	if not c.GetResources						then c.GetResources							= GetResources                       end
-	if not c.GetPreviousStock					then c.GetPreviousStock						= GetPreviousStock                   end
-	if not c.ChangeStock 						then c.ChangeStock 							= ChangeStock                        end
-	if not c.ChangeBuildingQueueStock			then c.ChangeBuildingQueueStock				= ChangeBuildingQueueStock           end
-	if not c.ClearBuildingQueueStock			then c.ClearBuildingQueueStock				= ClearBuildingQueueStock            end
-	if not c.GetBuildingQueueStock				then c.GetBuildingQueueStock				= GetBuildingQueueStock              end
-	if not c.GetBuildingQueueAllStock			then c.GetBuildingQueueAllStock				= GetBuildingQueueAllStock           end
-	if not c.GetNumRequiredInQueue				then c.GetNumRequiredInQueue				= GetNumRequiredInQueue              end
-	if not c.GetStockVariation					then c.GetStockVariation					= GetStockVariation                  end
-	if not c.GetMinimumResourceCost				then c.GetMinimumResourceCost				= GetMinimumResourceCost             end
-	if not c.GetMaximumResourceCost				then c.GetMaximumResourceCost				= GetMaximumResourceCost             end
-	if not c.GetResourceCost					then c.GetResourceCost						= GetResourceCost                    end
-	if not c.SetResourceCost					then c.SetResourceCost						= SetResourceCost                    end
-	if not c.ChangeResourceCost					then c.ChangeResourceCost					= ChangeResourceCost                 end
-	if not c.GetPreviousResourceCost			then c.GetPreviousResourceCost				= GetPreviousResourceCost            end
-	if not c.GetResourceCostVariation			then c.GetResourceCostVariation				= GetResourceCostVariation           end
-	if not c.GetMaxPercentLeftToRequest			then c.GetMaxPercentLeftToRequest			= GetMaxPercentLeftToRequest         end
-	if not c.GetMaxPercentLeftToImport			then c.GetMaxPercentLeftToImport			= GetMaxPercentLeftToImport          end
-	if not c.GetMinPercentLeftToExport			then c.GetMinPercentLeftToExport			= GetMinPercentLeftToExport          end
-	if not c.GetSizeStockRatio					then c.GetSizeStockRatio					= GetSizeStockRatio                  end
-	if not c.GetAvailableStockForUnits			then c.GetAvailableStockForUnits			= GetAvailableStockForUnits          end
-	if not c.GetAvailableStockForCities			then c.GetAvailableStockForCities			= GetAvailableStockForCities         end
-	if not c.GetAvailableStockForExport			then c.GetAvailableStockForExport			= GetAvailableStockForExport         end
-	if not c.GetAvailableStockForIndustries 	then c.GetAvailableStockForIndustries 		= GetAvailableStockForIndustries     end
-	if not c.GetMinimalStockForExport			then c.GetMinimalStockForExport				= GetMinimalStockForExport           end
-	if not c.GetMinimalStockForUnits			then c.GetMinimalStockForUnits				= GetMinimalStockForUnits            end
-	if not c.GetMinimalStockForCities			then c.GetMinimalStockForCities				= GetMinimalStockForCities           end
-	if not c.GetMinimalStockForIndustries		then c.GetMinimalStockForIndustries			= GetMinimalStockForIndustries       end
-	if not c.GetResourcesStockTable				then c.GetResourcesStockTable				= GetResourcesStockTable             end
-	if not c.GetResourcesSupplyTable			then c.GetResourcesSupplyTable				= GetResourcesSupplyTable            end
-	if not c.GetResourcesDemandTable			then c.GetResourcesDemandTable				= GetResourcesDemandTable            end
-	if not c.GetExportCitiesTable				then c.GetExportCitiesTable					= GetExportCitiesTable               end
-	if not c.GetTransferCitiesTable				then c.GetTransferCitiesTable				= GetTransferCitiesTable             end
-	if not c.GetSupplyLinesTable				then c.GetSupplyLinesTable					= GetSupplyLinesTable                end
+	if not c.GetMaxStock						then c.GetMaxStock							= GetMaxStock                       	end
+	if not c.GetStock 							then c.GetStock 							= GetStock                          	end
+	if not c.GetResources						then c.GetResources							= GetResources                      	end
+	if not c.GetPreviousStock					then c.GetPreviousStock						= GetPreviousStock                  	end
+	if not c.ChangeStock 						then c.ChangeStock 							= ChangeStock                       	end
+	if not c.ChangeBuildingQueueStock			then c.ChangeBuildingQueueStock				= ChangeBuildingQueueStock          	end
+	if not c.ClearBuildingQueueStock			then c.ClearBuildingQueueStock				= ClearBuildingQueueStock           	end
+	if not c.GetBuildingQueueStock				then c.GetBuildingQueueStock				= GetBuildingQueueStock             	end
+	if not c.GetBuildingQueueAllStock			then c.GetBuildingQueueAllStock				= GetBuildingQueueAllStock          	end
+	if not c.GetNumRequiredInQueue				then c.GetNumRequiredInQueue				= GetNumRequiredInQueue             	end
+	if not c.GetStockVariation					then c.GetStockVariation					= GetStockVariation                 	end
+	if not c.GetMinimumResourceCost				then c.GetMinimumResourceCost				= GetMinimumResourceCost            	end
+	if not c.GetMaximumResourceCost				then c.GetMaximumResourceCost				= GetMaximumResourceCost            	end
+	if not c.GetResourceCost					then c.GetResourceCost						= GetResourceCost                   	end
+	if not c.SetResourceCost					then c.SetResourceCost						= SetResourceCost                   	end
+	if not c.ChangeResourceCost					then c.ChangeResourceCost					= ChangeResourceCost                	end
+	if not c.GetPreviousResourceCost			then c.GetPreviousResourceCost				= GetPreviousResourceCost           	end
+	if not c.GetResourceCostVariation			then c.GetResourceCostVariation				= GetResourceCostVariation          	end
+	if not c.GetMaxPercentLeftToRequest			then c.GetMaxPercentLeftToRequest			= GetMaxPercentLeftToRequest        	end
+	if not c.GetMaxPercentLeftToImport			then c.GetMaxPercentLeftToImport			= GetMaxPercentLeftToImport         	end
+	if not c.GetMinPercentLeftToExport			then c.GetMinPercentLeftToExport			= GetMinPercentLeftToExport         	end
+	if not c.GetSizeStockRatio					then c.GetSizeStockRatio					= GetSizeStockRatio                 	end
+	if not c.GetAvailableStockForUnits			then c.GetAvailableStockForUnits			= GetAvailableStockForUnits         	end
+	if not c.GetAvailableStockForCities			then c.GetAvailableStockForCities			= GetAvailableStockForCities        	end
+	if not c.GetAvailableStockForExport			then c.GetAvailableStockForExport			= GetAvailableStockForExport        	end
+	if not c.GetAvailableStockForIndustries 	then c.GetAvailableStockForIndustries 		= GetAvailableStockForIndustries    	end
+	if not c.GetMinimalStockForExport			then c.GetMinimalStockForExport				= GetMinimalStockForExport          	end
+	if not c.GetMinimalStockForUnits			then c.GetMinimalStockForUnits				= GetMinimalStockForUnits           	end
+	if not c.GetMinimalStockForCities			then c.GetMinimalStockForCities				= GetMinimalStockForCities          	end
+	if not c.GetMinimalStockForIndustries		then c.GetMinimalStockForIndustries			= GetMinimalStockForIndustries      	end
+	if not c.GetResourcesStockTable				then c.GetResourcesStockTable				= GetResourcesStockTable            	end
+	if not c.GetResourcesSupplyTable			then c.GetResourcesSupplyTable				= GetResourcesSupplyTable           	end
+	if not c.GetResourcesDemandTable			then c.GetResourcesDemandTable				= GetResourcesDemandTable           	end
+	if not c.GetExportCitiesTable				then c.GetExportCitiesTable					= GetExportCitiesTable              	end
+	if not c.GetTransferCitiesTable				then c.GetTransferCitiesTable				= GetTransferCitiesTable            	end
+	if not c.GetSupplyLinesTable				then c.GetSupplyLinesTable					= GetSupplyLinesTable               	end
 	--
-	if not c.GetMaxEquipmentStock				then c.GetMaxEquipmentStock					= GetMaxEquipmentStock               end
-	if not c.GetMaxEquipmentStorage				then c.GetMaxEquipmentStorage				= GetMaxEquipmentStorage             end
-	if not c.GetEquipmentStorageLeft			then c.GetEquipmentStorageLeft				= GetEquipmentStorageLeft            end
+	if not c.GetMaxEquipmentStock				then c.GetMaxEquipmentStock					= GetMaxEquipmentStock              	end
+	if not c.GetMaxEquipmentStorage				then c.GetMaxEquipmentStorage				= GetMaxEquipmentStorage            	end
+	if not c.GetEquipmentStorageLeft			then c.GetEquipmentStorageLeft				= GetEquipmentStorageLeft           	end
 	--
-	if not c.GetMaxPersonnel					then c.GetMaxPersonnel						= GetMaxPersonnel                    end
-	if not c.GetPersonnel						then c.GetPersonnel							= GetPersonnel                       end
-	if not c.GetPreviousPersonnel				then c.GetPreviousPersonnel					= GetPreviousPersonnel               end
-	if not c.ChangePersonnel					then c.ChangePersonnel						= ChangePersonnel                    end
+	if not c.GetMaxPersonnel					then c.GetMaxPersonnel						= GetMaxPersonnel                   	end
+	if not c.GetPersonnel						then c.GetPersonnel							= GetPersonnel                      	end
+	if not c.GetPreviousPersonnel				then c.GetPreviousPersonnel					= GetPreviousPersonnel              	end
+	if not c.ChangePersonnel					then c.ChangePersonnel						= ChangePersonnel                   	end
 	--
-	if not c.GetMaxInternalLandRoutes   		then c.GetMaxInternalLandRoutes   			= GetMaxInternalLandRoutes           end
-	if not c.GetMaxInternalRiverRoutes  		then c.GetMaxInternalRiverRoutes  			= GetMaxInternalRiverRoutes          end
-	if not c.GetMaxInternalSeaRoutes    		then c.GetMaxInternalSeaRoutes    			= GetMaxInternalSeaRoutes            end
-	if not c.GetMaxExternalLandRoutes   		then c.GetMaxExternalLandRoutes   			= GetMaxExternalLandRoutes           end
-	if not c.GetMaxExternalRiverRoutes  		then c.GetMaxExternalRiverRoutes  			= GetMaxExternalRiverRoutes          end
-	if not c.GetMaxExternalSeaRoutes    		then c.GetMaxExternalSeaRoutes    			= GetMaxExternalSeaRoutes            end
+	if not c.GetMaxInternalLandRoutes   		then c.GetMaxInternalLandRoutes   			= GetMaxInternalLandRoutes          	end
+	if not c.GetMaxInternalRiverRoutes  		then c.GetMaxInternalRiverRoutes  			= GetMaxInternalRiverRoutes         	end
+	if not c.GetMaxInternalSeaRoutes    		then c.GetMaxInternalSeaRoutes    			= GetMaxInternalSeaRoutes           	end
+	if not c.GetMaxExternalLandRoutes   		then c.GetMaxExternalLandRoutes   			= GetMaxExternalLandRoutes          	end
+	if not c.GetMaxExternalRiverRoutes  		then c.GetMaxExternalRiverRoutes  			= GetMaxExternalRiverRoutes         	end
+	if not c.GetMaxExternalSeaRoutes    		then c.GetMaxExternalSeaRoutes    			= GetMaxExternalSeaRoutes           	end
 	--
-	if not c.UpdateLinkedUnits					then c.UpdateLinkedUnits					= UpdateLinkedUnits                  end
-	if not c.GetLinkedUnits						then c.GetLinkedUnits						= GetLinkedUnits                     end
-	if not c.UpdateTransferCities				then c.UpdateTransferCities					= UpdateTransferCities               end
-	if not c.UpdateExportCities					then c.UpdateExportCities					= UpdateExportCities                 end
-	if not c.UpdateCitiesConnection				then c.UpdateCitiesConnection				= UpdateCitiesConnection             end
-	if not c.DoReinforceUnits					then c.DoReinforceUnits						= DoReinforceUnits                   end
-	if not c.GetTransferCities					then c.GetTransferCities					= GetTransferCities                  end
-	if not c.GetExportCities					then c.GetExportCities						= GetExportCities                    end
-	if not c.TransferToCities					then c.TransferToCities						= TransferToCities                   end
-	if not c.ExportToForeignCities				then c.ExportToForeignCities				= ExportToForeignCities              end
-	if not c.GetNumResourceNeeded				then c.GetNumResourceNeeded					= GetNumResourceNeeded               end
-	if not c.GetRouteEfficiencyTo				then c.GetRouteEfficiencyTo					= GetRouteEfficiencyTo               end
-	if not c.GetMaxRouteLength					then c.GetMaxRouteLength					= GetMaxRouteLength                  end
-	if not c.SetMaxRouteLength					then c.SetMaxRouteLength					= SetMaxRouteLength                  end
-	if not c.GetTransportCostTo					then c.GetTransportCostTo					= GetTransportCostTo                 end
-	if not c.GetRequirements					then c.GetRequirements						= GetRequirements                    end
-	if not c.GetDemand							then c.GetDemand							= GetDemand                          end
-	if not c.GetSupplyAtTurn					then c.GetSupplyAtTurn						= GetSupplyAtTurn                    end
-	if not c.GetDemandAtTurn					then c.GetDemandAtTurn						= GetDemandAtTurn                    end
-	if not c.GetUseTypeAtTurn					then c.GetUseTypeAtTurn						= GetUseTypeAtTurn                   end
-	if not c.GetAverageUseTypeOnTurns			then c.GetAverageUseTypeOnTurns				= GetAverageUseTypeOnTurns           end
+	if not c.UpdateLinkedUnits					then c.UpdateLinkedUnits					= UpdateLinkedUnits                 	end
+	if not c.GetLinkedUnits						then c.GetLinkedUnits						= GetLinkedUnits                    	end
+	if not c.UpdateTransferCities				then c.UpdateTransferCities					= UpdateTransferCities              	end
+	if not c.UpdateExportCities					then c.UpdateExportCities					= UpdateExportCities                	end
+	if not c.UpdateCitiesConnection				then c.UpdateCitiesConnection				= UpdateCitiesConnection            	end
+	if not c.DoReinforceUnits					then c.DoReinforceUnits						= DoReinforceUnits                  	end
+	if not c.GetTransferCities					then c.GetTransferCities					= GetTransferCities                 	end
+	if not c.GetExportCities					then c.GetExportCities						= GetExportCities                   	end
+	if not c.TransferToCities					then c.TransferToCities						= TransferToCities                  	end
+	if not c.ExportToForeignCities				then c.ExportToForeignCities				= ExportToForeignCities             	end
+	if not c.GetNumResourceNeeded				then c.GetNumResourceNeeded					= GetNumResourceNeeded              	end
+	if not c.GetRouteEfficiencyTo				then c.GetRouteEfficiencyTo					= GetRouteEfficiencyTo              	end
+	if not c.GetMaxRouteLength					then c.GetMaxRouteLength					= GetMaxRouteLength                 	end
+	if not c.SetMaxRouteLength					then c.SetMaxRouteLength					= SetMaxRouteLength                 	end
+	if not c.GetTransportCostTo					then c.GetTransportCostTo					= GetTransportCostTo                	end
+	if not c.GetRequirements					then c.GetRequirements						= GetRequirements                   	end
+	if not c.GetDemand							then c.GetDemand							= GetDemand                         	end
+	if not c.GetSupply							then c.GetSupply							= GetSupply								end
+	if not c.GetSupplyAtTurn					then c.GetSupplyAtTurn						= GetSupplyAtTurn                   	end
+	if not c.GetDemandAtTurn					then c.GetDemandAtTurn						= GetDemandAtTurn                   	end
+	if not c.GetUseTypeAtTurn					then c.GetUseTypeAtTurn						= GetUseTypeAtTurn                  	end
+	if not c.GetAverageUseTypeOnTurns			then c.GetAverageUseTypeOnTurns				= GetAverageUseTypeOnTurns          	end
 	--
-	if not c.DoGrowth							then c.DoGrowth								= DoGrowth                           end
-	if not c.GetBirthRate						then c.GetBirthRate							= GetBirthRate                       end
-	if not c.GetDeathRate						then c.GetDeathRate							= GetDeathRate                       end
-	if not c.DoExcedents						then c.DoExcedents							= DoExcedents                        end
-	if not c.DoFood								then c.DoFood								= DoFood                             end
-	if not c.DoIndustries						then c.DoIndustries							= DoIndustries                       end
-	if not c.DoConstruction						then c.DoConstruction						= DoConstruction                     end
-	if not c.DoNeeds							then c.DoNeeds								= DoNeeds                            end
-	if not c.DoTaxes							then c.DoTaxes								= DoTaxes                            end
-	if not c.SetMigrationValues					then c.SetMigrationValues					= SetMigrationValues                 end
-	if not c.DoMigration						then c.DoMigration							= DoMigration                        end
-	if not c.Heal								then c.Heal									= Heal                               end
-	if not c.DoTurnFirstPass					then c.DoTurnFirstPass						= DoTurnFirstPass                    end
-	if not c.DoTurnSecondPass					then c.DoTurnSecondPass						= DoTurnSecondPass                   end
-	if not c.DoTurnThirdPass					then c.DoTurnThirdPass						= DoTurnThirdPass                    end
-	if not c.DoTurnFourthPass					then c.DoTurnFourthPass						= DoTurnFourthPass                   end
-	if not c.GetFoodStock						then c.GetFoodStock							= GetFoodStock                       end
-	if not c.GetFoodConsumption 				then c.GetFoodConsumption 					= GetFoodConsumption                 end
-	if not c.GetFoodRationing					then c.GetFoodRationing						= GetFoodRationing                   end
-	if not c.GetFoodNeededByPopulationFactor	then c.GetFoodNeededByPopulationFactor		= GetFoodNeededByPopulationFactor    end
-	if not c.DoCollectResources					then c.DoCollectResources					= DoCollectResources                 end
-	if not c.SetCityRationing					then c.SetCityRationing						= SetCityRationing                   end
-	if not c.SetUnlockers						then c.SetUnlockers							= SetUnlockers                       end
+	if not c.DoGrowth							then c.DoGrowth								= DoGrowth                          	end
+	if not c.GetBirthRate						then c.GetBirthRate							= GetBirthRate                      	end
+	if not c.GetDeathRate						then c.GetDeathRate							= GetDeathRate                      	end
+	if not c.DoExcedents						then c.DoExcedents							= DoExcedents                       	end
+	if not c.DoFood								then c.DoFood								= DoFood                            	end
+	if not c.DoIndustries						then c.DoIndustries							= DoIndustries                      	end
+	if not c.DoConstruction						then c.DoConstruction						= DoConstruction                    	end
+	if not c.DoNeeds							then c.DoNeeds								= DoNeeds                           	end
+	if not c.DoTaxes							then c.DoTaxes								= DoTaxes                           	end
+	if not c.SetMigrationValues					then c.SetMigrationValues					= SetMigrationValues                	end
+	if not c.DoMigration						then c.DoMigration							= DoMigration                       	end
+	if not c.Heal								then c.Heal									= Heal                              	end
+	if not c.DoTurnFirstPass					then c.DoTurnFirstPass						= DoTurnFirstPass                   	end
+	if not c.DoTurnSecondPass					then c.DoTurnSecondPass						= DoTurnSecondPass                  	end
+	if not c.DoTurnThirdPass					then c.DoTurnThirdPass						= DoTurnThirdPass                   	end
+	if not c.DoTurnFourthPass					then c.DoTurnFourthPass						= DoTurnFourthPass                  	end
+	if not c.GetFoodStock						then c.GetFoodStock							= GetFoodStock                      	end
+	if not c.GetFoodConsumption 				then c.GetFoodConsumption 					= GetFoodConsumption                	end
+	if not c.GetFoodRationing					then c.GetFoodRationing						= GetFoodRationing                  	end
+	if not c.GetFoodNeededByPopulationFactor	then c.GetFoodNeededByPopulationFactor		= GetFoodNeededByPopulationFactor   	end
+	if not c.DoCollectResources					then c.DoCollectResources					= DoCollectResources                	end
+	if not c.SetCityRationing					then c.SetCityRationing						= SetCityRationing                  	end
+	if not c.SetUnlockers						then c.SetUnlockers							= SetUnlockers                      	end
 	--
-	if not c.DoSocialClassStratification		then c.DoSocialClassStratification			= DoSocialClassStratification        end
-	if not c.ChangeUpperClass					then c.ChangeUpperClass						= ChangeUpperClass                   end
-	if not c.ChangeMiddleClass					then c.ChangeMiddleClass					= ChangeMiddleClass                  end
-	if not c.ChangeLowerClass					then c.ChangeLowerClass						= ChangeLowerClass                   end
-	if not c.ChangeSlaveClass					then c.ChangeSlaveClass						= ChangeSlaveClass                   end
-	if not c.GetUpperClass						then c.GetUpperClass						= GetUpperClass                      end
-	if not c.GetMiddleClass						then c.GetMiddleClass						= GetMiddleClass                     end
-	if not c.GetLowerClass						then c.GetLowerClass						= GetLowerClass                      end
-	if not c.GetSlaveClass						then c.GetSlaveClass						= GetSlaveClass                      end
-	if not c.GetPreviousUpperClass				then c.GetPreviousUpperClass				= GetPreviousUpperClass              end
-	if not c.GetPreviousMiddleClass				then c.GetPreviousMiddleClass				= GetPreviousMiddleClass             end
-	if not c.GetPreviousLowerClass				then c.GetPreviousLowerClass				= GetPreviousLowerClass              end
-	if not c.GetPreviousSlaveClass				then c.GetPreviousSlaveClass				= GetPreviousSlaveClass              end
-	if not c.GetMaxUpperClass					then c.GetMaxUpperClass						= GetMaxUpperClass                   end
-	if not c.GetMinUpperClass					then c.GetMinUpperClass						= GetMinUpperClass                   end
-	if not c.GetMaxMiddleClass					then c.GetMaxMiddleClass					= GetMaxMiddleClass                  end
-	if not c.GetMinMiddleClass					then c.GetMinMiddleClass					= GetMinMiddleClass                  end
-	if not c.GetMaxLowerClass					then c.GetMaxLowerClass						= GetMaxLowerClass                   end
-	if not c.GetMinLowerClass					then c.GetMinLowerClass						= GetMinLowerClass                   end
-	if not c.GetPopulationClass					then c.GetPopulationClass					= GetPopulationClass                 end
-	if not c.ChangePopulationClass				then c.ChangePopulationClass				= ChangePopulationClass              end
-	if not c.GetPopulationDeathRate				then c.GetPopulationDeathRate				= GetPopulationDeathRate             end
-	if not c.SetPopulationDeathRate				then c.SetPopulationDeathRate				= SetPopulationDeathRate             end
-	if not c.GetBasePopulationDeathRate			then c.GetBasePopulationDeathRate			= GetBasePopulationDeathRate         end
-	if not c.GetPopulationBirthRate				then c.GetPopulationBirthRate				= GetPopulationBirthRate             end
-	if not c.SetPopulationBirthRate				then c.SetPopulationBirthRate				= SetPopulationBirthRate             end
-	if not c.GetBasePopulationBirthRate			then c.GetBasePopulationBirthRate			= GetBasePopulationBirthRate         end
-	if not c.GetMigration						then c.GetMigration							= GetMigration                       end
+	if not c.DoSocialClassStratification		then c.DoSocialClassStratification			= DoSocialClassStratification       	end
+	if not c.ChangeUpperClass					then c.ChangeUpperClass						= ChangeUpperClass                  	end
+	if not c.ChangeMiddleClass					then c.ChangeMiddleClass					= ChangeMiddleClass                 	end
+	if not c.ChangeLowerClass					then c.ChangeLowerClass						= ChangeLowerClass                  	end
+	if not c.ChangeSlaveClass					then c.ChangeSlaveClass						= ChangeSlaveClass                  	end
+	if not c.GetUpperClass						then c.GetUpperClass						= GetUpperClass                     	end
+	if not c.GetMiddleClass						then c.GetMiddleClass						= GetMiddleClass                    	end
+	if not c.GetLowerClass						then c.GetLowerClass						= GetLowerClass                     	end
+	if not c.GetSlaveClass						then c.GetSlaveClass						= GetSlaveClass                     	end
+	if not c.GetPreviousUpperClass				then c.GetPreviousUpperClass				= GetPreviousUpperClass             	end
+	if not c.GetPreviousMiddleClass				then c.GetPreviousMiddleClass				= GetPreviousMiddleClass            	end
+	if not c.GetPreviousLowerClass				then c.GetPreviousLowerClass				= GetPreviousLowerClass             	end
+	if not c.GetPreviousSlaveClass				then c.GetPreviousSlaveClass				= GetPreviousSlaveClass             	end
+	if not c.GetMaxUpperClass					then c.GetMaxUpperClass						= GetMaxUpperClass                  	end
+	if not c.GetMinUpperClass					then c.GetMinUpperClass						= GetMinUpperClass                  	end
+	if not c.GetMaxMiddleClass					then c.GetMaxMiddleClass					= GetMaxMiddleClass                 	end
+	if not c.GetMinMiddleClass					then c.GetMinMiddleClass					= GetMinMiddleClass                 	end
+	if not c.GetMaxLowerClass					then c.GetMaxLowerClass						= GetMaxLowerClass                  	end
+	if not c.GetMinLowerClass					then c.GetMinLowerClass						= GetMinLowerClass                  	end
+	if not c.GetPopulationClass					then c.GetPopulationClass					= GetPopulationClass                	end
+	if not c.ChangePopulationClass				then c.ChangePopulationClass				= ChangePopulationClass             	end
+	if not c.GetPopulationDeathRate				then c.GetPopulationDeathRate				= GetPopulationDeathRate            	end
+	if not c.SetPopulationDeathRate				then c.SetPopulationDeathRate				= SetPopulationDeathRate            	end
+	if not c.GetBasePopulationDeathRate			then c.GetBasePopulationDeathRate			= GetBasePopulationDeathRate        	end
+	if not c.GetPopulationBirthRate				then c.GetPopulationBirthRate				= GetPopulationBirthRate            	end
+	if not c.SetPopulationBirthRate				then c.SetPopulationBirthRate				= SetPopulationBirthRate            	end
+	if not c.GetBasePopulationBirthRate			then c.GetBasePopulationBirthRate			= GetBasePopulationBirthRate        	end
+	if not c.GetMigration						then c.GetMigration							= GetMigration                      	end
 	--
-	if not c.DoRecruitPersonnel					then c.DoRecruitPersonnel					= DoRecruitPersonnel                 end
+	if not c.DoRecruitPersonnel					then c.DoRecruitPersonnel					= DoRecruitPersonnel					end
 	-- text
-	if not c.GetResourcesStockString			then c.GetResourcesStockString				= GetResourcesStockString            end
-	if not c.GetResourcesStockStringTable		then c.GetResourcesStockStringTable			= GetResourcesStockStringTable       end
-	if not c.GetFoodStockString 				then c.GetFoodStockString 					= GetFoodStockString                 end
-	if not c.GetFoodConsumptionString			then c.GetFoodConsumptionString				= GetFoodConsumptionString           end
-	if not c.GetResourceUseToolTipStringForTurn	then c.GetResourceUseToolTipStringForTurn	= GetResourceUseToolTipStringForTurn end
-	if not c.GetPopulationNeedsEffectsString	then c.GetPopulationNeedsEffectsString		= GetPopulationNeedsEffectsString    end
+	if not c.GetHealthString					then c.GetHealthString						= GetHealthString						end
+	if not c.GetResourcesStockString			then c.GetResourcesStockString				= GetResourcesStockString           	end
+	if not c.GetResourcesStockStringTable		then c.GetResourcesStockStringTable			= GetResourcesStockStringTable      	end
+	if not c.GetFoodStockString 				then c.GetFoodStockString 					= GetFoodStockString                	end
+	if not c.GetFoodConsumptionString			then c.GetFoodConsumptionString				= GetFoodConsumptionString          	end
+	if not c.GetResourceUseToolTipStringForTurn	then c.GetResourceUseToolTipStringForTurn	= GetResourceUseToolTipStringForTurn	end
+	if not c.GetPopulationNeedsEffectsString	then c.GetPopulationNeedsEffectsString		= GetPopulationNeedsEffectsString   	end
+	if not c.GetHousingToolTip					then c.GetHousingToolTip					= GetHousingToolTip   					end
 	--              
-	if not c.CanConstruct						then c.CanConstruct							= CanConstruct                       end
-	if not c.CanTrain							then c.CanTrain								= CanTrain                           end
-	if not c.GetProductionTurnsLeft				then c.GetProductionTurnsLeft				= GetProductionTurnsLeft             end
-	if not c.GetProductionYield					then c.GetProductionYield					= GetProductionYield                 end
-	if not c.GetConstructionEfficiency			then c.GetConstructionEfficiency			= GetConstructionEfficiency          end
-	if not c.SetConstructionEfficiency			then c.SetConstructionEfficiency			= SetConstructionEfficiency          end
-	if not c.GetProductionProgress				then c.GetProductionProgress				= GetProductionProgress              end
-	if not c.RecruitUnits						then c.RecruitUnits							= RecruitUnits                       end
+	if not c.CanConstruct						then c.CanConstruct							= CanConstruct                      	end
+	if not c.CanTrain							then c.CanTrain								= CanTrain                          	end
+	if not c.GetProductionTurnsLeft				then c.GetProductionTurnsLeft				= GetProductionTurnsLeft            	end
+	if not c.GetProductionYield					then c.GetProductionYield					= GetProductionYield                	end
+	if not c.GetConstructionEfficiency			then c.GetConstructionEfficiency			= GetConstructionEfficiency         	end
+	if not c.SetConstructionEfficiency			then c.SetConstructionEfficiency			= SetConstructionEfficiency         	end
+	if not c.GetProductionProgress				then c.GetProductionProgress				= GetProductionProgress             	end
+	if not c.RecruitUnits						then c.RecruitUnits							= RecruitUnits                      	end
 	--
-	if not c.IsCoastal							then c.IsCoastal							= IsCoastal                          end
-	if not c.GetSeaRange						then c.GetSeaRange							= GetSeaRange                        end
+	if not c.IsCoastal							then c.IsCoastal							= IsCoastal                        		end
+	if not c.GetSeaRange						then c.GetSeaRange							= GetSeaRange                       	end
 	--
-	if not c.GetCityYield						then c.GetCityYield							= GetCityYield                       end
-	if not c.GetCustomYield						then c.GetCustomYield						= GetCustomYield                     end
-	if not c.TurnCreated						then c.TurnCreated							= TurnCreated                        end
+	if not c.GetCityYield						then c.GetCityYield							= GetCityYield                      	end
+	if not c.GetCustomYield						then c.GetCustomYield						= GetCustomYield                    	end
+	if not c.TurnCreated						then c.TurnCreated							= TurnCreated                       	end
 	--
-	if not c.GetEraType							then c.GetEraType							= GetEraType                         end
-	if not c.GetUrbanEmploymentSize				then c.GetUrbanEmploymentSize				= GetUrbanEmploymentSize             end
-	if not c.GetCityEmploymentPow				then c.GetCityEmploymentPow					= GetCityEmploymentPow               end
-	if not c.GetCityEmploymentFactor			then c.GetCityEmploymentFactor				= GetCityEmploymentFactor            end
-	if not c.GetEmploymentSize					then c.GetEmploymentSize					= GetEmploymentSize                  end
-	if not c.GetPlotEmploymentPow				then c.GetPlotEmploymentPow					= GetPlotEmploymentPow               end
-	if not c.GetPlotEmploymentFactor			then c.GetPlotEmploymentFactor				= GetPlotEmploymentFactor            end
-	if not c.GetMaxEmploymentRural				then c.GetMaxEmploymentRural				= GetMaxEmploymentRural              end
-	if not c.GetMaxEmploymentUrban				then c.GetMaxEmploymentUrban				= GetMaxEmploymentUrban              end
-	if not c.SetMaxEmploymentRural				then c.SetMaxEmploymentRural				= SetMaxEmploymentRural              end
-	if not c.SetMaxEmploymentUrban				then c.SetMaxEmploymentUrban				= SetMaxEmploymentUrban              end
-	if not c.GetProductionFactorFromBuildings	then c.GetProductionFactorFromBuildings		= GetProductionFactorFromBuildings   end
-	if not c.SetProductionFactorFromBuildings	then c.SetProductionFactorFromBuildings		= SetProductionFactorFromBuildings   end
-	if not c.GetEmploymentFactorFromBuildings	then c.GetEmploymentFactorFromBuildings		= GetEmploymentFactorFromBuildings   end
-	if not c.SetEmploymentFactorFromBuildings	then c.SetEmploymentFactorFromBuildings		= SetEmploymentFactorFromBuildings   end
-	if not c.GetMaxEmploymentFromBuildings		then c.GetMaxEmploymentFromBuildings		= GetMaxEmploymentFromBuildings      end
-	if not c.GetTotalPopulation					then c.GetTotalPopulation					= GetTotalPopulation                 end
-	if not c.GetTotalPopulationVariation		then c.GetTotalPopulationVariation			= GetTotalPopulationVariation        end
-	if not c.GetUrbanPopulation					then c.GetUrbanPopulation					= GetUrbanPopulation                 end
-	if not c.GetUrbanPopulationVariation		then c.GetUrbanPopulationVariation			= GetUrbanPopulationVariation        end
-	if not c.GetRuralPopulation					then c.GetRuralPopulation					= GetRuralPopulation                 end
-	if not c.GetRuralPopulationClass			then c.GetRuralPopulationClass				= GetRuralPopulationClass            end
-	if not c.GetPreviousRuralPopulationClass	then c.GetPreviousRuralPopulationClass		= GetPreviousRuralPopulationClass    end
-	if not c.GetRuralPopulationVariation		then c.GetRuralPopulationVariation			= GetRuralPopulationVariation        end
-	if not c.GetUrbanEmployed					then c.GetUrbanEmployed						= GetUrbanEmployed                   end
-	if not c.GetUrbanActivityFactor				then c.GetUrbanActivityFactor				= GetUrbanActivityFactor             end
-	if not c.GetUrbanProductionFactor			then c.GetUrbanProductionFactor				= GetUrbanProductionFactor           end
-	if not c.GetOutputPerYield					then c.GetOutputPerYield					= GetOutputPerYield                  end
+	if not c.GetEraType							then c.GetEraType							= GetEraType                        	end
+	if not c.GetUrbanEmploymentSize				then c.GetUrbanEmploymentSize				= GetUrbanEmploymentSize            	end
+	if not c.GetCityEmploymentPow				then c.GetCityEmploymentPow					= GetCityEmploymentPow              	end
+	if not c.GetCityEmploymentFactor			then c.GetCityEmploymentFactor				= GetCityEmploymentFactor           	end
+	if not c.GetEmploymentSize					then c.GetEmploymentSize					= GetEmploymentSize                 	end
+	if not c.GetPlotEmploymentPow				then c.GetPlotEmploymentPow					= GetPlotEmploymentPow              	end
+	if not c.GetPlotEmploymentFactor			then c.GetPlotEmploymentFactor				= GetPlotEmploymentFactor           	end
+	if not c.GetMaxEmploymentRural				then c.GetMaxEmploymentRural				= GetMaxEmploymentRural             	end
+	if not c.GetMaxEmploymentUrban				then c.GetMaxEmploymentUrban				= GetMaxEmploymentUrban             	end
+	if not c.SetMaxEmploymentRural				then c.SetMaxEmploymentRural				= SetMaxEmploymentRural             	end
+	if not c.SetMaxEmploymentUrban				then c.SetMaxEmploymentUrban				= SetMaxEmploymentUrban             	end
+	if not c.GetProductionFactorFromBuildings	then c.GetProductionFactorFromBuildings		= GetProductionFactorFromBuildings  	end
+	if not c.SetProductionFactorFromBuildings	then c.SetProductionFactorFromBuildings		= SetProductionFactorFromBuildings  	end
+	if not c.GetEmploymentFactorFromBuildings	then c.GetEmploymentFactorFromBuildings		= GetEmploymentFactorFromBuildings  	end
+	if not c.SetEmploymentFactorFromBuildings	then c.SetEmploymentFactorFromBuildings		= SetEmploymentFactorFromBuildings  	end
+	if not c.GetMaxEmploymentFromBuildings		then c.GetMaxEmploymentFromBuildings		= GetMaxEmploymentFromBuildings     	end
+	if not c.GetTotalPopulation					then c.GetTotalPopulation					= GetTotalPopulation                	end
+	if not c.GetTotalPopulationVariation		then c.GetTotalPopulationVariation			= GetTotalPopulationVariation       	end
+	if not c.GetUrbanPopulation					then c.GetUrbanPopulation					= GetUrbanPopulation                	end
+	if not c.GetUrbanPopulationVariation		then c.GetUrbanPopulationVariation			= GetUrbanPopulationVariation       	end
+	if not c.GetRuralPopulation					then c.GetRuralPopulation					= GetRuralPopulation                	end
+	if not c.GetRuralPopulationClass			then c.GetRuralPopulationClass				= GetRuralPopulationClass           	end
+	if not c.GetPreviousRuralPopulationClass	then c.GetPreviousRuralPopulationClass		= GetPreviousRuralPopulationClass   	end
+	if not c.GetRuralPopulationVariation		then c.GetRuralPopulationVariation			= GetRuralPopulationVariation       	end
+	if not c.GetUrbanEmployed					then c.GetUrbanEmployed						= GetUrbanEmployed                  	end
+	if not c.GetUrbanActivityFactor				then c.GetUrbanActivityFactor				= GetUrbanActivityFactor            	end
+	if not c.GetUrbanProductionFactor			then c.GetUrbanProductionFactor				= GetUrbanProductionFactor          	end
+	if not c.GetOutputPerYield					then c.GetOutputPerYield					= GetOutputPerYield						end
+	--
+	if not c.UpdateHealth						then c.UpdateHealth							= UpdateHealth							end
+	if not c.SetHealthValues					then c.SetHealthValues						= SetHealthValues						end
 
 end
 

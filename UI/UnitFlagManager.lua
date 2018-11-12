@@ -858,12 +858,12 @@ function UnitFlag.UpdateName( self )
 			self.m_Instance.ArmyMarker:SetHide(true);
 		end	
 		
-		local activeTurnsLeft = pUnit:GetProperty("ActiveTurnsLeft")
+		local activeTurnsLeft = pUnit:GetValue("ActiveTurnsLeft")
 		if activeTurnsLeft then
 			self.m_Instance.ActiveTurnsLeft:SetHide(false);
 			self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Turn]")
 			local toolTipString = Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_BEFORE_DISBANDING", activeTurnsLeft)
-			if pUnit:GetProperty("UnitPersonnelType") == UnitPersonnelType.Conscripts then
+			if pUnit:GetValue("UnitPersonnelType") == UnitPersonnelType.Conscripts then
 				local player = GCO.GetPlayer(pUnit:GetOwner())
 				if player:IsAtWar() then
 					toolTipString = Locale.Lookup("LOC_UNITFLAG_DISBANDING_LOCKED_BY_WAR", activeTurnsLeft)

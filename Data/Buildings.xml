@@ -19,7 +19,7 @@
 		<Row BuildingType="BUILDING_RECRUITS" 					Cost="1" 	NoPedia="1"/>
 			
 		<Row BuildingType="BUILDING_BUTCHERY" 					Cost="80" 	MaterielPerProduction="3" PrereqTech="TECH_ANIMAL_HUSBANDRY"	EmploymentSize="1.00"	ObsoleteEra="ERA_MEDIEVAL"/>
-		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_POTTERY" 			EmploymentSize="0.30"/>
+		<Row BuildingType="BUILDING_HERBALIST" 					Cost="60" 	MaterielPerProduction="2" PrereqTech="TECH_HERBALISM" 			EmploymentSize="0.30"/>
 		<Row BuildingType="BUILDING_FISH_MARKET" 				Cost="70" 	MaterielPerProduction="2" PrereqTech="TECH_SAILING" 			EmploymentSize="1.00"	ObsoleteEra="ERA_MEDIEVAL"/>
 		<Row BuildingType="BUILDING_FRUIT_MARKET" 				Cost="90" 	MaterielPerProduction="3" PrereqTech="TECH_IRRIGATION" 			EmploymentSize="1.00"	ObsoleteEra="ERA_INDUSTRIAL"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="1.00"	EquipmentStock="250" />

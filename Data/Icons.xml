@@ -108,8 +108,8 @@
 		<Row Name="ICON_BUILDING_INDUSTRIAL_MARKET"				Atlas="ICON_ToT_ATLAS_BUILDINGS_B" 		Index="11"/>
 		<Row Name="ICON_BUILDING_INDUSTRIAL_MARKET_FOW"			Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" 	Index="11"/>
 
-		<Row Name="ICON_BUILDING_HYPERMARKET"					Atlas="ICON_ToT_ATLAS_BUILDINGS_B" 		Index="36"/>
-		<Row Name="ICON_BUILDING_HYPERMARKET_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_B_FOW" 	Index="36"/>
+		<Row Name="ICON_BUILDING_HYPERMARKET"					Atlas="ICON_ToT_ATLAS_BUILDINGS_C" 		Index="36"/>
+		<Row Name="ICON_BUILDING_HYPERMARKET_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_C_FOW" 	Index="36"/>
 
 		<Row Name="ICON_BUILDING_ANCIENT_LOWER_HOUSING_1"		Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="12"/>
 		<Row Name="ICON_BUILDING_ANCIENT_LOWER_HOUSING_1_FOW"	Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="12"/>
@@ -390,12 +390,20 @@
 	</IconDefinitions>
   
 	<IconDefinitions> 	<!-- TECH ICONS -->
+		<Row Name="ICON_TECH_HERBALISM" 			Atlas="ICON_ATLAS_TECH"		Index="5" />
+		<Row Name="ICON_TECH_HERBALISM_FOW" 		Atlas="ICON_ATLAS_TECH_FOW"	Index="5" />		
+		<Row Name="ICON_TECH_AGRICULTURE" 			Atlas="ICON_ATLAS_TECH"		Index="5" />
+		<Row Name="ICON_TECH_AGRICULTURE_FOW" 		Atlas="ICON_ATLAS_TECH_FOW"	Index="5" />
+		
+		<Row Name="ICON_TECH_SURGERY"				Atlas="ICON_ATLAS_TECH"		Index="16" />
+		<Row Name="ICON_TECH_SURGERY_FOW"			Atlas="ICON_ATLAS_TECH_FOW"	Index="16" />
 		<!--
 		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_UNITS" 		Index="78"/>
 		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_UNITS_FOW" 	Index="78"/>
 		 -->
 		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_TECH"		Index="49" />
 		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_TECH_FOW"	Index="49" />
+		
 	</IconDefinitions>
 	
 	

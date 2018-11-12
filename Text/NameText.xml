@@ -322,7 +322,18 @@
 	</LocalizedText>
 	
 	<LocalizedText> <!-- Technologies -->	
+		<Replace Tag="LOC_TECH_HERBALISM_NAME" 			Text="Herbalism"		Language="en_US" />
+		<Replace Tag="LOC_TECH_AGRICULTURE_NAME" 		Text="Agriculture"		Language="en_US" />
+		<Replace Tag="LOC_TECH_SURGERY_NAME" 			Text="Surgery"			Language="en_US" />
 		<Replace Tag="LOC_TECH_ARMORED_WARFARE_NAME" 	Text="Armored Warfare"	Language="en_US" />
+		
+		
+		<Replace Tag="LOC_TECH_SURGERY_DESCRIPTION"	Language="en_US">
+			<Text>+1 [ICON_HEALTH2] in all cities.</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_HERBALISM_DESCRIPTION"	Language="en_US">
+			<Text>+1 [ICON_HEALTH2] in all cities.</Text>
+		</Replace>
 	</LocalizedText>
 	
 	<LocalizedText> <!-- Projects -->	

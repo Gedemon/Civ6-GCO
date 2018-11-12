@@ -46,6 +46,8 @@ UPDATE Improvements SET PrereqTech ='TECH_CASTLES', 		DefenseModifier = 4, Grant
 UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 	DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ALCAZAR';
 UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 	SameAdjacentValid = 1 WHERE ImprovementType ='IMPROVEMENT_GREAT_WALL';
 
+UPDATE Improvements SET PrereqTech ='TECH_AGRICULTURE'		WHERE ImprovementType ='IMPROVEMENT_FARM';
+
 UPDATE Improvement_YieldChanges SET YieldChange = 3 WHERE ImprovementType ='IMPROVEMENT_FARM' 		AND YieldType="YIELD_FOOD";
 UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_PASTURE' 	AND YieldType="YIELD_FOOD";
 UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_PLANTATION' AND YieldType="YIELD_FOOD";
@@ -241,10 +243,10 @@ INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ROCKETRY', 
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ROCKETRY', 'TECH_CHEMISTRY');
 UPDATE Technologies SET Cost = 1580, UITreeRow = -1 WHERE TechnologyType ='TECH_ROCKETRY';
 
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ARMORED_WARFARE', 'TECH_COMBUSTION');
+--INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ARMORED_WARFARE', 'TECH_COMBUSTION');
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_COMBINED_ARMS';
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBINED_ARMS', 'TECH_ARMORED_WARFARE');
+--INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBINED_ARMS', 'TECH_ARMORED_WARFARE');
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBINED_ARMS', 'TECH_FLIGHT');
 
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBINED_ARMS', 'TECH_RADIO');
