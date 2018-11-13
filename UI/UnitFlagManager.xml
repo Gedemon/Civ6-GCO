@@ -79,15 +79,21 @@
           <Label Anchor="C,C" Offset="-1,0" String="[ICON_Army]"/>
         </Container>
 		
-        <!-- GCO <<<<< -->
-        <!-- Military Formation -->
-        <Container ID="MilitaryFormationMarker" Size="10,10" Anchor="C,T" Hidden="1" Offset="1,2">
-          <Label ID="MilitaryFormationString" Anchor="C,C" Offset="-1,0" Style="FontNormal14" String=""/>
-        </Container>
-        <!-- Turns before disbanding -->
-        <Container ID="ActiveTurnsLeft" Size="10,10" Anchor="R,B" Hidden="1" Offset="0,0">
-          <Label ID="ActiveTurnsLeftString" Anchor="C,C" Offset="-1,0" Style="FontNormal14" String=""/>
-        </Container>
+        <!-- GCO <<<<< --> 
+		<!-- Military Formation -->
+		<Container ID="MilitaryFormationMarker" Size="10,10" Anchor="C,T" Hidden="1" Offset="1,2">
+		  <Label ID="MilitaryFormationString" Anchor="C,C" Offset="-1,0" Style="FontNormal14" String=""/>
+		</Container>
+		<Stack ID="InfoIcons" Anchor="R,C" StackGrowth="Down" Offset="0,0">
+			<!-- Health -->
+			<Container ID="HealthMarker" Size="10,14" Anchor="R,C" Hidden="0" Offset="0,0">
+			  <Label ID="HealthIcon" Anchor="C,C" Offset="-1,0" Style="FontNormal14" String="[ICON_HEALTH]"/>
+			</Container>
+			<!-- Turns before disbanding -->
+			<Container ID="ActiveTurnsLeft" Size="10,14" Anchor="R,C" Hidden="0" Offset="0,0">
+			  <Label ID="ActiveTurnsLeftString" Anchor="C,C" Offset="-1,0" Style="FontNormal14" String=""/>
+			</Container>
+		</Stack>
         <!-- GCO >>>>> -->
         
         <Container ID="AirUnitContainer" Anchor="C,T" Offset="0,-16" Hidden="1">

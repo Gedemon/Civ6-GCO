@@ -182,9 +182,10 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_ARMORED_HORSES_NAME" 		Text="Armored Horses"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SWORDS_NAME" 				Text="Swords"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_PRIMITIVE_SPEARS_NAME"		Text="Primitive Spears"		Language="en_US" />
-		<Replace Tag="LOC_EQUIPMENTCLASS_METAL_SPEARS_NAME"			Text="Metal Spears"				Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_METAL_SPEARS_NAME"			Text="Metal Spears"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SPEARS_NAME" 				Text="Spears"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_PIKES_NAME" 				Text="Pikes"				Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_PIKES_AND_SWORDS_NAME"		Text="Pikes and Swords"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_LANCES_NAME" 				Text="Lances"				Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_MUSKETS_NAME"				Text="Muskets"				Language="en_US" />

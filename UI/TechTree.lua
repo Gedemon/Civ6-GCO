@@ -723,6 +723,8 @@ function PopulateNode(node, playerTechData)
 	local live		:table = playerTechData[DATA_FIELD_LIVEDATA][node.Type];	-- live (changing) data
 	local artInfo	:table = STATUS_ART[live.Status];							-- art/styles for this state
 
+	-- GCO <<<<<
+	--[[
 	if(live.Status == ITEM_STATUS.RESEARCHED) then
 		for _,prereqId in pairs(item.Prereqs) do
 			if(prereqId ~= PREREQ_ID_TREE_START) then
@@ -757,6 +759,8 @@ function PopulateNode(node, playerTechData)
 			end
 		end
 	end
+	--]]
+	-- GCO >>>>>
 
 	node.NodeName:SetColor( artInfo.TextColor0, 0 );
 	node.NodeName:SetColor( artInfo.TextColor1, 1 );

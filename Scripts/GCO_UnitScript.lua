@@ -434,6 +434,8 @@ local unitTableEnum = {
 	MedicineStock				= 54,
 	PreviousMedicineStock		= 55,
 	UnitLastHealingValue		= 56,
+	Health						= 57,
+	TurnsAtSea					= 58,
 	
 	EndOfEnum				= 99
 }                           
@@ -662,6 +664,8 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizati
 		SupplyLineCityKey		= nil,
 		SupplyLineEfficiency 	= 0,
 		HomeCityKey				= nil,
+		Health					= 0,	-- not the HitPoints, but the Health value for diseases
+		TurnsAtSea				= 0,
 	}
 
 	-- Mark the unit for delayed equipment initialization so we can get the equipment list from a city build queue as OnCityProductionCompleted is called after UnitAddedToMap
@@ -3241,6 +3245,34 @@ function GetUnitCompositionToolTip(self)
 	return nameString
 end
 
+---[[
+function GetHealthString(self)
+	-- We're reusing CityBanner texts in this function.. to do : undefined (ie city or unit) health texts in LocalizedDatabase ?
+	if not self:GetCached("Health") then self:SetHealthValues() end	
+	
+	local health		= self:GetValue("Health") or 0
+	local healthPct		= (100 + (health)) / 2 -- to do: no hardcoding of the max (+100) and min (-100) health values
+	local healthStr		= GCO.GetEvaluationStringFromValue(health, 100, -100) -- GCO.GetEvaluationStringFromValue(health, 100, -100, "LOC_CITYBANNER_HEALTH_NAME")
+	local returnStr		= Locale.Lookup("LOC_CITYBANNER_HEALTH_PERCENTAGE", GCO.GetPercentBarString(healthPct), healthStr) .. " " ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR")--""
+	local change		= 0
+	local healthValues	= self:GetCached("Health") or {}
+	local changeTable	= {}
+	local strTable 		= {}
+	
+	if healthValues.Condensed then
+		for cause, value in pairs(healthValues.Condensed) do
+			change = change + value
+			table.insert(changeTable, {Text = cause, Value = value})
+		end
+	end
+	
+	table.sort(changeTable, function(a, b) return a.Value > b.Value; end)
+	for _, data in ipairs(changeTable) do
+		table.insert(strTable, Locale.Lookup(data.Text, data.Value))
+	end
+	return returnStr .. table.concat(strTable, "[NEWLINE]") ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("LOC_CITYBANNER_HEALTH_CHANGE", GCO.GetEvaluationStringFromValue(change, 20, -20))
+end
+--]]
 
 -- Floating text
 function ShowCasualtiesFloatingText(CombatData) -- need complete rework with equipment
@@ -5337,17 +5369,203 @@ function CheckForActiveTurnsLeft(self)
 	return bRemoveUnit
 end
 
+---[[
+function UpdateHealth(self)
+	local change		= 0
+	local currentHealth = self:GetValue("Health") or 0
+	local healthValues	= self:GetCached("Health") or {}
+	if healthValues.Condensed then
+		for cause, value in pairs(healthValues.Condensed) do
+			change = change + value
+		end
+	end
+	local newHealth = math.max(-100, math.min(100, currentHealth + change))
+	self:SetValue("Health", GCO.ToDecimals(newHealth))
+end
+
+function SetHealthValues(self)
+
+	Dlog("SetHealthValues ".. Locale.Lookup(self:GetName()).." /START")
+	
+	local cache 		= self:GetCache()
+	local unitData 		= self:GetData()
+	cache.Health 		= { Detailed = {}, Condensed = {}} -- reset values
+	local health 		= cache.Health
+	local selfPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
+	local player		= GCO.GetPlayer(self:GetOwner())
+	local pScience 		= player:GetTechs()
+	
+	-- Change from Features, Terrains and local resources (to do : move to XML ?)
+	-- to do : winter clothes, get resistance to cold from ratio of winter clothes per personnel
+	-- and apply health effect from cold terrain (tundra, snow)
+	local ChangeHealthFeatures = {
+		[GameInfo.Features["FEATURE_ICE"].Index] 			= -20,
+		[GameInfo.Features["FEATURE_FLOODPLAINS"].Index] 	= -10,
+		[GameInfo.Features["FEATURE_JUNGLE"].Index] 		= -15,
+		[GameInfo.Features["FEATURE_MARSH"].Index] 			= -20,
+		[GameInfo.Features["FEATURE_FOREST"].Index] 		= 5,
+		[GameInfo.Features["FEATURE_FOREST_DENSE"].Index]	= 10,
+		[GameInfo.Features["FEATURE_FOREST_SPARSE"].Index]	= 2.5,
+	}
+	local StringsFromFeatures = {
+		[GameInfo.Features["FEATURE_ICE"].Index] 			= "LOC_HEALTH_PENALTY_FROM_COLD",
+		[GameInfo.Features["FEATURE_FLOODPLAINS"].Index] 	= "LOC_HEALTH_PENALTY_FROM_FLOODPLAINS",
+		[GameInfo.Features["FEATURE_JUNGLE"].Index] 		= "LOC_HEALTH_PENALTY_FROM_JUNGLE",
+		[GameInfo.Features["FEATURE_MARSH"].Index] 			= "LOC_HEALTH_PENALTY_FROM_MARSH",
+		[GameInfo.Features["FEATURE_FOREST"].Index] 		= "LOC_HEALTH_BONUS_FROM_FOREST",
+		[GameInfo.Features["FEATURE_FOREST_DENSE"].Index]	= "LOC_HEALTH_BONUS_FROM_FOREST",
+		[GameInfo.Features["FEATURE_FOREST_SPARSE"].Index]	= "LOC_HEALTH_BONUS_FROM_FOREST",	
+	}
+	local desertTerrain		= {
+		[GameInfo.Terrains["TERRAIN_DESERT"].Index] 		= true,
+		[GameInfo.Terrains["TERRAIN_DESERT_HILLS"].Index] 	= true,
+	}
+	local ChangeHealthTerrains = {
+		[GameInfo.Terrains["TERRAIN_DESERT"].Index] 		= -10,
+		[GameInfo.Terrains["TERRAIN_DESERT_HILLS"].Index] 	= -10,
+		[GameInfo.Terrains["TERRAIN_TUNDRA"].Index] 		= -7.5,
+		[GameInfo.Terrains["TERRAIN_TUNDRA_HILLS"].Index] 	= -7.5,
+		[GameInfo.Terrains["TERRAIN_SNOW"].Index]			= -12.5,
+		[GameInfo.Terrains["TERRAIN_SNOW_HILLS"].Index]		= -12.5,
+	}
+	local StringsFromTerrains = {
+		[GameInfo.Terrains["TERRAIN_DESERT"].Index] 		= "LOC_HEALTH_PENALTY_FROM_HEAT",
+		[GameInfo.Terrains["TERRAIN_DESERT_HILLS"].Index] 	= "LOC_HEALTH_PENALTY_FROM_HEAT",
+		[GameInfo.Terrains["TERRAIN_TUNDRA"].Index] 		= "LOC_HEALTH_PENALTY_FROM_COLD",
+		[GameInfo.Terrains["TERRAIN_TUNDRA_HILLS"].Index] 	= "LOC_HEALTH_PENALTY_FROM_COLD",
+		[GameInfo.Terrains["TERRAIN_SNOW"].Index]			= "LOC_HEALTH_PENALTY_FROM_COLD",
+		[GameInfo.Terrains["TERRAIN_SNOW_HILLS"].Index]		= "LOC_HEALTH_PENALTY_FROM_COLD",	
+	}
+	local bHasFreshWater 	= false
+	--local bIsNearWater 		= false
+	local bIsMiddleDesert	= true
+	local bIsOnDesert		= true
+	if selfPlot then
+		local featureID 		= selfPlot:GetFeatureType()
+		local resourceID 		= selfPlot:GetResourceType()
+		local terrainID 		= selfPlot:GetTerrainType()
+		bHasFreshWater 			= selfPlot:IsFreshWater()
+		if ChangeHealthFeatures[featureID] then
+			health.Condensed[StringsFromFeatures[featureID]] = (health.Condensed[StringsFromFeatures[featureID]] or 0) + ChangeHealthFeatures[featureID]
+		end
+		if GCO.IsResourceFood(resourceID) then
+			health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] = (health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] or 0) + 5
+		end
+		if ChangeHealthTerrains[terrainID] then
+			health.Condensed[StringsFromTerrains[terrainID]] = (health.Condensed[StringsFromTerrains[terrainID]] or 0) + ChangeHealthTerrains[terrainID]
+		end
+		if not desertTerrain[terrainID] then
+			bIsOnDesert 	= false
+			bIsMiddleDesert = false
+		end
+	end
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		plot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction);
+		if plot then
+			local featureID 	= plot:GetFeatureType()
+			local resourceID 	= plot:GetResourceType()
+			local terrainID 	= plot:GetTerrainType()
+			--bIsNearWater 		= plot:IsFreshWater()
+			if ChangeHealthFeatures[featureID] then
+				health.Condensed[StringsFromFeatures[featureID]] = (health.Condensed[StringsFromFeatures[featureID]] or 0) + (ChangeHealthFeatures[featureID] / 8)
+			end
+			if GCO.IsResourceFood(resourceID) then
+				health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] = (health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] or 0) + 1.25
+			end
+			if ChangeHealthTerrains[terrainID] then
+				health.Condensed[StringsFromTerrains[terrainID]] = (health.Condensed[StringsFromTerrains[terrainID]] or 0) + (ChangeHealthTerrains[terrainID] / 8)
+			end
+			if not desertTerrain[terrainID] then
+				bIsMiddleDesert = false
+			end
+		end
+	end
+	
+	-- Fresh Water
+	if bHasFreshWater then
+		health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_WATER"] = 10
+	--elseif (bIsOnDesert or bIsMiddleDesert) and (not bIsNearWater) then
+	elseif bIsMiddleDesert then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FRESH_WATER"] = -25
+	elseif bIsOnDesert then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FRESH_WATER"] = -12.5
+	end
+	--end
+	
+	-- Resources in stock
+	for resourceKey, value in pairs(unitData.Stock) do
+		local resourceID = tonumber(resourceKey)
+		--[[ -- to do : code something for max stock of food resource and use food resource if not enough food ration left before rationing
+		if GCO.IsResourceFood(resourceID) and (value > 0 or self:GetSupply(resourceID) > 0) then
+			countFoodVariation = countFoodVariation + 1
+		end
+		if resourceID == GameInfo.Resources["RESOURCE_SALT"].Index and (value > 0 or self:GetSupply(resourceID) > 0) then
+			health.Condensed["LOC_HEALTH_BONUS_FROM_SALT"] = 2
+		end
+		--]]
+		
+		-- Bonus from Medicine stock medicineResourceID
+		if resourceID == medicineResourceID and (value > 0 or self:GetSupply(resourceID) > 0) then
+			health.Condensed["LOC_HEALTH_BONUS_FROM_MEDICINE"] = 5
+		end
+	end
+	
+	-- Food Rationing
+	local rationing = self:GetFoodConsumptionRatio()
+	if 	rationing <= heavyRationing 	then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING"] = -20
+
+	elseif rationing <= mediumRationing 	then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING"] = -10
+
+	elseif rationing <= lightRationing 	then
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING"] = -5
+	end
+	
+	-- Change from Techs (to do : move to XML ?)
+	local ChangeHealthTechs = {
+		[GameInfo.Technologies["TECH_HERBALISM"].Index] 	= 5,
+		[GameInfo.Technologies["TECH_SURGERY"].Index] 		= 5,
+	}
+	for techID, value in pairs(ChangeHealthTechs) do
+		if pScience:HasTech(techID) then
+			health.Condensed["LOC_HEALTH_BONUS_FROM_TECHS"] = (health.Condensed["LOC_HEALTH_BONUS_FROM_TECHS"] or 0) + value
+		end
+	end
+	
+	-- On sea
+	local turnsAtSea = self:GetValue("TurnsAtSea") or 0
+	if turnsAtSea > 0 then
+		-- todo : tech effects
+		health.Condensed["LOC_HEALTH_PENALTY_FROM_BEING_AT_SEA"] = -(turnsAtSea * 15)
+	end
+	
+	Dlog("SetHealthValues ".. Locale.Lookup(self:GetName()).." /END")
+end
+--]]
+
 function DoTurn(self)
 	local unitData = self:GetData()
 	if not unitData then
 		return
 	end
+	
+	-- On sea (do we want a separate funtion to update that ?)
+	local selfPlot = GCO.GetPlot(self:GetX(), self:GetY())
+	if selfPlot and selfPlot:IsWater() and (not selfPlot:IsAdjacentToLand())then
+		self:SetValue("TurnsAtSea", (self:GetValue("TurnsAtSea") or 0) + 1)
+	else
+		self:SetValue("TurnsAtSea", 0)
+	end
+	
 	self:DoFood()
 	self:DoCollect()
 	self:DoMorale()
 	self:DoFuel()
 	self:DoExchange()
 	self:SetSupplyLine()
+	self:SetHealthValues()
+	self:UpdateHealth()
 end
 
 function HealingUnits(playerID)
@@ -6018,6 +6236,8 @@ function AttachUnitFunctions(unit)
 		u.DoTurn 								= DoTurn
 		u.DoExchange							= DoExchange
 		u.CheckForActiveTurnsLeft				= CheckForActiveTurnsLeft
+		u.UpdateHealth							= UpdateHealth
+		u.SetHealthValues						= SetHealthValues
 		--
 		
 		-- flag strings
@@ -6032,6 +6252,7 @@ function AttachUnitFunctions(unit)
 		u.GetMilitaryFormationSizeString		= GetMilitaryFormationSizeString
 		u.GetMilitaryFormationTypeName			= GetMilitaryFormationTypeName
 		u.GetUnitCompositionToolTip				= GetUnitCompositionToolTip
+		u.GetHealthString						= GetHealthString
 		--
 		u.SetName								= SetName
 		

@@ -13,14 +13,14 @@
 		<Row UnitType="UNIT_BUILDER" 			/>
 	</UnitsGCO>
 	<UnitsGCO> <!-- Melee -->
-	<!--
+	<!---- >
 		<Row UnitType="UNIT_GRENADIER" 			Cost="300"	Maintenance="5"	Combat="60"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_INFANTRY2"		 	Cost="450"	Maintenance="6"	Combat="72"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_MOTORIZED_INFANTRY"	Cost="460"	Maintenance="7"	Combat="75"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" BaseMoves="4"	/>
 		<Row UnitType="UNIT_MODERN_INFANTRY2"	Cost="600" 	Maintenance="8" Combat="82" PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_MECHANIZED_INFANTRY"Cost="610"	Maintenance="8" Combat="85"/>
 		<Row UnitType="UNIT_MODERN_MARINE"		Cost="610"	Maintenance="8" Combat="85"/>
-	-->
+	<!---->
 		<Row UnitType="UNIT_LIGHT_PHALANX" 		Cost="50"	Maintenance="1"	Combat="22"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_PHALANX"	 		Cost="65"	Maintenance="1"	Combat="27"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_LIGHT_SWORDSMAN"	Cost="70"	Maintenance="2"	Combat="30"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
@@ -34,10 +34,10 @@
 		<Row UnitType="UNIT_MODERN_MARINE2"		Cost="600" 	Maintenance="8" Combat="82" PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 	</UnitsGCO>
 	<UnitsGCO> <!-- Conscripts -->
-	<!--
+	<!---- >
 		<Row UnitType="UNIT_FUSILLIER" 			Cost="290" 	Maintenance="4"	Combat="53"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST"  />
 
-	-->
+	<!---->
 		<Row UnitType="UNIT_LIGHT_SPEARMAN" 	Cost="50"	Maintenance="1"	Combat="20"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />	
 		<Row UnitType="UNIT_SPEARMAN" 			Cost="65" 	Maintenance="1" Combat="25" CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
 		<Row UnitType="UNIT_HEAVY_SPEARMAN" 	Cost="90"	Maintenance="2"	Combat="30"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />
@@ -49,23 +49,34 @@
 	
 	</UnitsGCO>
 	<UnitsGCO> <!-- Marines -->
-	<!--
+	<!---- >
 		<Row UnitType="UNIT_MODERN_MARINE1" 	Cost="650" 	Maintenance="8" Combat="85" PromotionClass="PROMOTION_CLASS_MARINES" FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_CONQUEST" />
-	-->
+	<!---->
 	</UnitsGCO>	
 	<UnitsGCO> <!-- skirmishers -->
-	<!--
-		<Row UnitType="UNIT_RIFLEMAN_SCOUT" 	Cost="380" 	Maintenance="5" Combat="50"	BaseMoves="3"	RangedCombat="55" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
-	-->
-		<Row UnitType="UNIT_SLINGER_SCOUT" 		Cost="30" 	Maintenance="1" Combat="3" 	BaseMoves="3"	RangedCombat="8" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
-		<Row UnitType="UNIT_PELTAST" 			Cost="60" 	Maintenance="1" Combat="8"	BaseMoves="3"	RangedCombat="13" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
-		<Row UnitType="UNIT_ARCHER_SCOUT" 		Cost="90" 	Maintenance="2" Combat="14" BaseMoves="3"	RangedCombat="19" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
-		<Row UnitType="UNIT_HUNTSMAN" 			Cost="120" 	Maintenance="2" Combat="20"	BaseMoves="3"	RangedCombat="25" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
-		<Row UnitType="UNIT_FORESTER" 			Cost="160" 	Maintenance="3" Combat="30"	BaseMoves="3"	RangedCombat="35" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
-		<Row UnitType="UNIT_RANGER" 			Cost="260" 	Maintenance="4" Combat="40"	BaseMoves="3"	RangedCombat="45" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
-		<Row UnitType="UNIT_SNIPER" 			Cost="500" 	Maintenance="6" Combat="60"	BaseMoves="3"	RangedCombat="65" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
-		<Row UnitType="UNIT_MODERN_SNIPER" 		Cost="650" 	Maintenance="7" Combat="70"	BaseMoves="3"	RangedCombat="75" 	Range="1"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+	<!---- >
+		<Row UnitType="UNIT_RIFLEMAN_SCOUT" 	Cost="380" 	Maintenance="5" Combat="50"	BaseMoves="3"	RangedCombat="55" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+	<!---->
+		<Row UnitType="UNIT_SLINGER_SCOUT" 		Cost="30" 	Maintenance="1" Combat="3" 	BaseMoves="3"	RangedCombat="8" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+		<Row UnitType="UNIT_PELTAST" 			Cost="60" 	Maintenance="1" Combat="8"	BaseMoves="3"	RangedCombat="13" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+		<Row UnitType="UNIT_ARCHER_SCOUT" 		Cost="90" 	Maintenance="2" Combat="14" BaseMoves="3"	RangedCombat="19" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+		<Row UnitType="UNIT_HUNTSMAN" 			Cost="120" 	Maintenance="2" Combat="20"	BaseMoves="3"	RangedCombat="25" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+		<Row UnitType="UNIT_FORESTER" 			Cost="160" 	Maintenance="3" Combat="30"	BaseMoves="3"	RangedCombat="35" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+		<Row UnitType="UNIT_RANGER" 			Cost="260" 	Maintenance="4" Combat="40"	BaseMoves="3"	RangedCombat="45" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+		<Row UnitType="UNIT_SNIPER" 			Cost="500" 	Maintenance="6" Combat="60"	BaseMoves="3"	RangedCombat="65" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
+		<Row UnitType="UNIT_MODERN_SNIPER" 		Cost="650" 	Maintenance="7" Combat="70"	BaseMoves="3"	RangedCombat="75" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_SKIRMISHER" FormationClass="FORMATION_CLASS_RECON" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC" PseudoYieldType="PSEUDOYIELD_UNIT_EXPLORER"	/>
 	
+	</UnitsGCO>
+	<UnitsGCO>	<!-- Ranged -->
+	<!---- >
+		<Row UnitType="UNIT_SLINGER" 			Cost="35" 	Maintenance="1" Combat="5" 	RangedCombat="15" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
+		<Row UnitType="UNIT_ARCHER" 			Cost="50" 	Maintenance="1" Combat="15" RangedCombat="25" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
+		<Row UnitType="UNIT_COMPOSITE_BOWMAN" 	Cost="85" 	Maintenance="1" Combat="22" RangedCombat="32" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
+		<Row UnitType="UNIT_ARCHER" 			Cost="50" 	Maintenance="1" Combat="15" RangedCombat="25" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
+		<Row UnitType="UNIT_ARCHER" 			Cost="50" 	Maintenance="1" Combat="15" RangedCombat="25" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
+	
+		<Row UnitType="UNIT_FIELD_CANNON" 		Combat="53" RangedCombat="0"	Bombard="65"	PromotionClass="PROMOTION_CLASS_SIEGE" />
+	<!---->
 	</UnitsGCO>
 	<UnitsGCO>
 		<Row UnitType="UNIT_FIELD_CANNON" 		Combat="53" RangedCombat="0"	Bombard="65"	PromotionClass="PROMOTION_CLASS_SIEGE" />

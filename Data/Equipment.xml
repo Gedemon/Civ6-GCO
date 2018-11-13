@@ -25,23 +25,23 @@
 		
 		<Row ResourceType="EQUIPMENT_LANCES"			PrereqTech="TECH_MILITARY_TACTICS"		LogisticCost="1.00"	Toughness="7"	Desirability="45" 	AntiPersonnel="46"	IgnorePersonnelArmor="10" 	ObsoleteTech="TECH_RIFLING"	Size="5" />
 		
-		<Row ResourceType="EQUIPMENT_IRON_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.25"	Toughness="6"	Desirability="50" 	AntiPersonnel="44"	IgnorePersonnelArmor="8" 	ObsoleteTech="TECH_RIFLING"	/>
-		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.35"	Toughness="7"	Desirability="51" 	AntiPersonnel="48"	IgnorePersonnelArmor="12" 	ObsoleteTech="TECH_RIFLING"	Size="2" />
+		<Row ResourceType="EQUIPMENT_IRON_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.25"	Toughness="6"	Desirability="70" 	AntiPersonnel="44"	IgnorePersonnelArmor="8" 	ObsoleteTech="TECH_RIFLING"	/>
+		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		PrereqTech="TECH_MILITARY_ENGINEERING"	LogisticCost="0.35"	Toughness="7"	Desirability="71" 	AntiPersonnel="48"	IgnorePersonnelArmor="12" 	ObsoleteTech="TECH_RIFLING"	Size="2" />
 		
-		<Row ResourceType="EQUIPMENT_MUSKETS"			PrereqTech="TECH_METAL_CASTING"			LogisticCost="0.75"	Toughness="7"	Desirability="60" 	AntiPersonnel="50"	IgnorePersonnelArmor="50" 	ObsoleteTech="TECH_REPLACEABLE_PARTS" />
+		<Row ResourceType="EQUIPMENT_MUSKETS"			PrereqTech="TECH_METAL_CASTING"			LogisticCost="0.75"	Toughness="7"	Desirability="80" 	AntiPersonnel="50"	IgnorePersonnelArmor="50" 	ObsoleteTech="TECH_REPLACEABLE_PARTS" />
 		
-		<Row ResourceType="EQUIPMENT_RIFLES"			PrereqTech="TECH_RIFLING"				LogisticCost="1.25"	Toughness="7"	Desirability="70" 	AntiPersonnel="55"	IgnorePersonnelArmor="100" 	ObsoleteTech="TECH_COMPOSITES" />
+		<Row ResourceType="EQUIPMENT_RIFLES"			PrereqTech="TECH_RIFLING"				LogisticCost="1.25"	Toughness="7"	Desirability="90" 	AntiPersonnel="55"	IgnorePersonnelArmor="100" 	ObsoleteTech="TECH_COMPOSITES" />
 		
-		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	PrereqTech="TECH_REPLACEABLE_PARTS"		LogisticCost="3.00"	Toughness="7"	Desirability="80" 	AntiPersonnel="100"	IgnorePersonnelArmor="120" />
+		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	PrereqTech="TECH_REPLACEABLE_PARTS"		LogisticCost="3.00"	Toughness="7"	Desirability="100" 	AntiPersonnel="100"	IgnorePersonnelArmor="120" />
 		
-		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	PrereqTech="TECH_SYNTHETIC_MATERIALS"	LogisticCost="4.00"	Toughness="7"	Desirability="90" 	AntiPersonnel="150"	IgnorePersonnelArmor="140" />
+		<Row ResourceType="EQUIPMENT_ASSAULT_RIFLES"	PrereqTech="TECH_SYNTHETIC_MATERIALS"	LogisticCost="4.00"	Toughness="7"	Desirability="110" 	AntiPersonnel="150"	IgnorePersonnelArmor="140" />
 	</Equipment>
 	<Equipment> <!-- Skirmisher Weapons -->		
 		<Row ResourceType="EQUIPMENT_SLINGS"												LogisticCost="0.05"	Desirability="25" 	AntiPersonnel="20"	ObsoleteTech="TECH_CONSTRUCTION"/>
 		<!-- Desirabilities set in relation to EQUIPMENTCLASS_SPEARS used by Peltast (to do : EQUIPMENT_JAVELIN) -->
 		<Row ResourceType="EQUIPMENT_WOODEN_BOWS"		PrereqTech="TECH_ARCHERY"			LogisticCost="0.10"	Desirability="35" 	AntiPersonnel="30"	ObsoleteTech="TECH_MACHINERY"	/>
 		<Row ResourceType="EQUIPMENT_LONGBOWS"			PrereqTech="TECH_CONSTRUCTION"		LogisticCost="0.25"	Desirability="45" 	AntiPersonnel="40"	ObsoleteTech="TECH_GUNPOWDER"	/>
-		<!-- After Longwos, the next units in the line share "Melee" weapons starting with EQUIPMENT_MUSKETS) -->
+		<!-- After Longbows, the next units in the line share "Melee" weapons starting with EQUIPMENT_MUSKETS) -->
 		<Row ResourceType="EQUIPMENT_CROSSBOWS"			PrereqTech="TECH_MACHINERY"			LogisticCost="0.50"	Desirability="55" 	AntiPersonnel="50"	IgnorePersonnelArmor="25"	ObsoleteTech="TECH_RIFLING"		/>
 	</Equipment>
 	<Equipment> <!-- Personnel Armor -->
@@ -127,6 +127,7 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_LANCES"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_SWORDS"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_PIKES"				/>
+		<Row EquipmentClass="EQUIPMENTCLASS_PIKES_AND_SWORDS"	/>
 		<Row EquipmentClass="EQUIPMENTCLASS_MUSKETS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_RIFLES"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES"	/>
@@ -226,6 +227,11 @@
 		
 		<Row ResourceType="EQUIPMENT_IRON_PIKES"		EquipmentClass="EQUIPMENTCLASS_PIKES"			/>
 		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		EquipmentClass="EQUIPMENTCLASS_PIKES"			/>
+		
+		<Row ResourceType="EQUIPMENT_IRON_SWORDS"		EquipmentClass="EQUIPMENTCLASS_PIKES_AND_SWORDS"/>
+		<Row ResourceType="EQUIPMENT_STEEL_SWORDS"		EquipmentClass="EQUIPMENTCLASS_PIKES_AND_SWORDS"/>
+		<Row ResourceType="EQUIPMENT_IRON_PIKES"		EquipmentClass="EQUIPMENTCLASS_PIKES_AND_SWORDS"/>
+		<Row ResourceType="EQUIPMENT_STEEL_PIKES"		EquipmentClass="EQUIPMENTCLASS_PIKES_AND_SWORDS"/>
 		
 		<Row ResourceType="EQUIPMENT_MUSKETS"			EquipmentClass="EQUIPMENTCLASS_MUSKETS"			/>
 		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_RIFLES"			/>
@@ -498,7 +504,7 @@
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
-		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_SWORDS" />
+		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_PIKES_AND_SWORDS" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />

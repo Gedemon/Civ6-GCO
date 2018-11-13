@@ -767,7 +767,9 @@ function UnitFlag.UpdatePromotions( self )
 		local iLevyTurnsRemaining = GetLevyTurnsRemaining(pUnit);
 		if (iLevyTurnsRemaining >= 0) then
 			self.m_Instance.UnitNumPromotions:SetText("[ICON_Turn]");
-			self.m_Instance.Promotion_Flag:SetHide(false);
+			-- GCO <<<<<
+			--self.m_Instance.Promotion_Flag:SetHide(false);
+			-- GCO >>>>>
 		-- Otherwise, show the experience level
 		else
 			local unitExperience = pUnit:GetExperience();
@@ -785,7 +787,9 @@ function UnitFlag.UpdatePromotions( self )
 					self.m_Instance.Promotion_Flag:SetToolTipString(tooltipString);
 					--]]
 					self.m_Instance.UnitNumPromotions:SetText(#promotionList);
-					self.m_Instance.Promotion_Flag:SetHide(false);
+					-- GCO <<<<<
+					--self.m_Instance.Promotion_Flag:SetHide(false);
+					-- GCO >>>>>
 				end
 			end
 		end
@@ -1080,6 +1084,7 @@ function UnitFlag.UpdateName( self )
 		-- GCO >>>>>
 		
 		self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) );
+		self.m_Instance.HealthIcon:SetToolTipString(pUnit:GetHealthString())
 	end
 end
 

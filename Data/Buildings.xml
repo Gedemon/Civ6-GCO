@@ -116,9 +116,12 @@
 	</DynamicModifiers>
 	
 	<BuildingModifiers>
-		<Replace BuildingType="BUILDING_MARKET"			ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
-		<Replace BuildingType="BUILDING_BANK"			ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
-		<Replace BuildingType="BUILDING_STOCK_EXCHANGE"	ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
+		<Replace BuildingType="BUILDING_MARKET"				ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
+		<Replace BuildingType="BUILDING_MARKET_EXTENSION"	ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_MARKET"	ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
+		<Replace BuildingType="BUILDING_HYPERMARKET"		ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
+		<Replace BuildingType="BUILDING_BANK"				ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
+		<Replace BuildingType="BUILDING_STOCK_EXCHANGE"		ModifierId="COMMERCIAL_HUB_TRADE_ROUTE_CAPACITY" />
 	</BuildingModifiers>
 	
 	<BuildingUpgrades>

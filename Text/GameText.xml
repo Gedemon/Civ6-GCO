@@ -340,13 +340,13 @@
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_HEALTH_PERCENTAGE" Language="en_US">
-      <Text>[ICON_HEALTH]{1_Name} {2_Name}</Text>
+      <Text>[ICON_HEALTH2]{1_Name} {2_Name}</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_HEALTH_NAME" Language="en_US">
       <Text>Health</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_HEALTH_CHANGE" Language="en_US">
-      <Text>[ICON_HEALTH] Variation per turn = {1_Name}</Text>
+      <Text>[ICON_HEALTH2] Variation per turn = {1_Name}</Text>
     </Replace>
 	
     <Replace Tag="LOC_HEALTH_BONUS_FROM_FOREST" Language="en_US">
@@ -372,7 +372,6 @@
     </Replace>
 	
 	
-	
     <Replace Tag="LOC_HEALTH_PENALTY_FROM_POPULATION" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Population</Text>
     </Replace>
@@ -391,6 +390,16 @@
     <Replace Tag="LOC_HEALTH_PENALTY_FROM_FOOD_RATIONING" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Food Rationing</Text>
     </Replace>
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_HEAT" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Heat</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_COLD" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Cold</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_PENALTY_FROM_BEING_AT_SEA" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From being far from land</Text>
+    </Replace>
+	
 
   </LocalizedText>
     
