@@ -450,36 +450,54 @@ STATUS_ART[ITEM_STATUS.RESEARCHED]	= { Name="RESEARCHED",	TextColor0=0xaaffffff,
 
 		--]]
 
+		function Highlight(node, artInfo, alphaValue)
+			local alphaValue = alphaValue or 1
+			node.NodeName:SetColor( artInfo.TextColor0, 0 );
+			node.NodeName:SetColor( artInfo.TextColor1, 1 );
+			if artInfo.FillTexture ~= nil then
+				node.FillTexture:SetHide( false );
+				node.FillTexture:SetTexture( artInfo.FillTexture );
+			else
+				node.FillTexture:SetHide( true );
+			end
+			if artInfo.IsButton then
+				node.OtherStates:SetHide( true );
+				node.NodeButton:SetTextureOffsetVal( artInfo.BGU, artInfo.BGV );
+			else
+				node.OtherStates:SetHide( false );
+				node.OtherStates:SetTextureOffsetVal( artInfo.BGU, artInfo.BGV );
+			end
+			node.NodeButton:SetAlpha(alphaValue)
+			node.OtherStates:SetAlpha(alphaValue)
+			node.Turns:SetColor( artInfo.TextColor0, 0 )
+			node.Turns:SetColor( artInfo.TextColor1, 1 )
+			node.BoostText:SetColor( artInfo.TextColor0, 0 )
+			node.BoostText:SetColor( artInfo.TextColor1, 1 )		
+		end
+		
 		function ShowPrereq()
 			
 			local artInfo	:table = STATUS_ART[ITEM_STATUS.CURRENT];							-- art/styles for this state
 
-			for i,itemType in pairs(item.Prereqs) do
-				if itemType ~= "_TREESTART" then
-					local otherNode:table = m_uiNodes[itemType]
-					--otherNode.NodeName:SetText( itemType );
-					--otherNode.NodeButton:SetColor(0x66ffffff);
-					otherNode.NodeName:SetColor( artInfo.TextColor0, 0 );
-					otherNode.NodeName:SetColor( artInfo.TextColor1, 1 );
-					if artInfo.FillTexture ~= nil then
-						otherNode.FillTexture:SetHide( false );
-						otherNode.FillTexture:SetTexture( artInfo.FillTexture );
-					else
-						otherNode.FillTexture:SetHide( true );
+			for i,firstRankType in pairs(item.Prereqs) do
+				if firstRankType ~= "_TREESTART" then
+					local firstRankNode:table = m_uiNodes[firstRankType]
+					Highlight(firstRankNode, artInfo, 0.85)
+					
+					local firstRankItem = m_kItemDefaults[firstRankType]
+					for j, secondRankType in pairs(firstRankItem.Prereqs) do
+						if secondRankType ~= "_TREESTART" then
+							local secondRankNode:table = m_uiNodes[secondRankType]
+							Highlight(secondRankNode, artInfo, 0.65)
+							local secondRankItem = m_kItemDefaults[secondRankType]
+							for k, thirdRankType in pairs(secondRankItem.Prereqs) do
+								if thirdRankType ~= "_TREESTART" then
+									local thirdRankNode:table = m_uiNodes[thirdRankType]
+									Highlight(thirdRankNode, artInfo, 0.45)
+								end
+							end
+						end
 					end
-					if artInfo.IsButton then
-						otherNode.OtherStates:SetHide( true );
-						otherNode.NodeButton:SetTextureOffsetVal( artInfo.BGU, artInfo.BGV );
-					else
-						otherNode.OtherStates:SetHide( false );
-						otherNode.OtherStates:SetTextureOffsetVal( artInfo.BGU, artInfo.BGV );
-					end
-					otherNode.NodeButton:SetAlpha(0.85)
-					otherNode.OtherStates:SetAlpha(0.85)
-					otherNode.Turns:SetColor( artInfo.TextColor0, 0 )
-					otherNode.Turns:SetColor( artInfo.TextColor1, 1 )
-					otherNode.BoostText:SetColor( artInfo.TextColor0, 0 )
-					otherNode.BoostText:SetColor( artInfo.TextColor1, 1 )
 				end
 			end			
 		end
@@ -489,8 +507,28 @@ STATUS_ART[ITEM_STATUS.RESEARCHED]	= { Name="RESEARCHED",	TextColor0=0xaaffffff,
 					local live		:table = m_kCurrentData[DATA_FIELD_LIVEDATA][itemType];	-- live (changing) data
 					local artInfo	:table = STATUS_ART[live.Status];							-- art/styles for this state
 					local otherNode	:table = m_uiNodes[itemType]
-					--otherNode.NodeName:SetText( Locale.Lookup(GameInfo.Technologies[itemType].Name) );
-					--otherNode.NodeButton:SetColor(0x66ffffff);
+					Highlight(otherNode, artInfo, 1)
+					
+					local firstRankItem = m_kItemDefaults[itemType]
+					for j, secondRankType in pairs(firstRankItem.Prereqs) do
+						if secondRankType ~= "_TREESTART" then
+							local live			:table = m_kCurrentData[DATA_FIELD_LIVEDATA][secondRankType];	-- live (changing) data
+							local artInfo		:table = STATUS_ART[live.Status];							-- art/styles for this state
+							local secondRankNode:table = m_uiNodes[secondRankType]
+							Highlight(secondRankNode, artInfo, 1)
+							local secondRankItem = m_kItemDefaults[secondRankType]
+							for k, thirdRankType in pairs(secondRankItem.Prereqs) do
+								if thirdRankType ~= "_TREESTART" then
+									local live			:table = m_kCurrentData[DATA_FIELD_LIVEDATA][thirdRankType];	-- live (changing) data
+									local artInfo		:table = STATUS_ART[live.Status];							-- art/styles for this state
+									local thirdRankNode	:table = m_uiNodes[thirdRankType]
+									Highlight(thirdRankNode, artInfo, 1)
+								end
+							end
+						end
+					end
+					
+					--[[
 					otherNode.NodeName:SetColor( artInfo.TextColor0, 0 );
 					otherNode.NodeName:SetColor( artInfo.TextColor1, 1 );
 					if artInfo.FillTexture ~= nil then
@@ -512,6 +550,7 @@ STATUS_ART[ITEM_STATUS.RESEARCHED]	= { Name="RESEARCHED",	TextColor0=0xaaffffff,
 					otherNode.Turns:SetColor( artInfo.TextColor1, 1 )
 					otherNode.BoostText:SetColor( artInfo.TextColor0, 0 )
 					otherNode.BoostText:SetColor( artInfo.TextColor1, 1 )
+					--]]
 				end
 			end	
 		end
