@@ -53,6 +53,7 @@ local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
 	SocialStratificationReq	= 4,
 	DeathRateReq			= 5,
 	BirthRateReq			= 6,
+	Consumption				= 7, -- NeedsEffects[PopulationID][NeedsEffectType.Consumption][Locale.Lookup("LOC_RESOURCE_CONSUMED_BY_NEED", resName, resIcon)] 		= consumedValue
 	}
 
 -----------------------------------------------------------------------------------------
@@ -350,6 +351,15 @@ local LowerClassID 				= GameInfo.Resources["POPULATION_LOWER"].Index
 local SlaveClassID 				= GameInfo.Resources["POPULATION_SLAVE"].Index
 local PersonnelClassID			= GameInfo.Resources["POPULATION_PERSONNEL"].Index
 local PrisonersClassID			= GameInfo.Resources["POPULATION_PRISONERS"].Index
+
+local PopulationRefFromID = {
+	[UpperClassID] 				= RefPopulationUpper,
+	[MiddleClassID] 			= RefPopulationMiddle,
+	[LowerClassID] 				= RefPopulationLower,
+	[SlaveClassID] 				= RefPopulationSlave,
+	[PersonnelClassID]			= RefPersonnel,
+	[PrisonersClassID]			= RefPrisoners,
+}
 
 local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
 local UpperClassBirthRateFactor 	= tonumber(GameInfo.GlobalParameters["CITY_UPPER_CLASS_BIRTH_RATE_FACTOR"].Value)
@@ -4481,15 +4491,27 @@ function GetFoodConsumptionString(self)
 end
 
 function GetPopulationNeedsEffectsString(self) -- draft for a global string
-	local returnStrTable 	= {}
-	local cityKey 			= self:GetKey()
 
-	if _cached[cityKey] and _cached[cityKey].NeedsEffects then --and _cached[cityKey].NeedsEffects[populationID] then
-		for populationID, data1 in pairs(_cached[cityKey].NeedsEffects) do
+	if not self:GetCached("NeedsEffects") then self:SetNeedsValues() end
+
+	local returnStrTable 	= {}
+	local NeedsEffects		= self:GetCached("NeedsEffects") or {}
+	local needClasses		= {UpperClassID, MiddleClassID, LowerClassID}
+	
+	if NeedsEffects then --and _cached[cityKey].NeedsEffects[populationID] then
+		for populationID, data1 in pairs(NeedsEffects) do
+		-- for _, populationID in pairs(needClasses) do 
+			--local data1 = NeedsEffects[populationID]
 			table.insert(returnStrTable, "[ICON_BULLET]"..Locale.Lookup(GameInfo.Resources[populationID].Name))
 			for needsEffectType, data2 in pairs(data1) do
-				for locString, value in pairs(data2) do
-					table.insert(returnStrTable, Locale.Lookup(locString, value))
+				if needsEffectType == NeedsEffectType.Consumption then
+					for resourceID, value in pairs(data2) do
+						table.insert(returnStrTable, "[ICON_INDENT][ICON_BULLET]"..Locale.Lookup("LOC_RESOURCE_CONSUMED_BY_NEED", GameInfo.Resources[resourceID].Name, GCO.GetResourceIcon(resourceID), value))
+					end				
+				else
+					for locString, value in pairs(data2) do
+						table.insert(returnStrTable, "[ICON_INDENT][ICON_BULLET]"..Locale.Lookup(locString, value))
+					end
 				end
 			end
 		end
@@ -5649,23 +5671,43 @@ function DoFood(self)
 end
 
 function DoNeeds(self)
-
 	Dlog("DoNeeds ".. Locale.Lookup(self:GetName()).." /START")
 	--local DEBUG_CITY_SCRIPT = "CityScript"
 
 	Dprint( DEBUG_CITY_SCRIPT, "handling Population needs...")
+	
+	local cache 		= self:GetCache() or {}
+	local NeedsEffects	= cache.NeedsEffects
+	if NeedsEffects then --and _cached[cityKey].NeedsEffects[populationID] then
+		for populationID, data in pairs(NeedsEffects) do
+			local consumption = data[NeedsEffectType.Consumption] 
+			if consumption then
+				for resourceID, value in pairs(consumption) do
+					self:ChangeStock(resourceID, - value, ResourceUseType.Consume, PopulationRefFromID[populationID])
+				end
+			end
+		end
+	end
+	Dlog("DoNeeds ".. Locale.Lookup(self:GetName()).." /END")
+end
 
-	local cityKey = self:GetKey()
+function SetNeedsValues(self)
+
+	Dlog("SetNeedsValues ".. Locale.Lookup(self:GetName()).." /START")
+	--local DEBUG_CITY_SCRIPT = "CityScript"
+
+	Dprint( DEBUG_CITY_SCRIPT, "Setting Population needs...")
 
 	--
 	-- (re)initialize cached table
 	--
-	if not _cached[cityKey] then _cached[cityKey] = {} end
-	_cached[cityKey].NeedsEffects = {
-		[UpperClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
-		[MiddleClassID] = { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
-		[LowerClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
+	local cache 		= self:GetCache()
+	cache.NeedsEffects 	= {
+		--[UpperClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
+		--[MiddleClassID] = { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
+		--[LowerClassID] 	= { [NeedsEffectType.BirthRate] = {},  [NeedsEffectType.DeathRate] = {},	[NeedsEffectType.SocialStratification] = {},	[NeedsEffectType.SocialStratificationReq] = {},},
 	}
+	local NeedsEffects	= cache.NeedsEffects
 
 	--
 	-- Private functions
@@ -5673,6 +5715,12 @@ function DoNeeds(self)
 	local GetMaxPercentFromLowDiff 	= GCO.GetMaxPercentFromLowDiff	-- Return a higher value if lowerValue is high 	(maxEffectValue, higherValue, lowerValue)
 	local GetMaxPercentFromHighDiff = GCO.GetMaxPercentFromHighDiff	-- Return a higher value if lowerValue is low	(maxEffectValue, higherValue, lowerValue)
 	local LimitEffect				= GCO.LimitEffect				-- Keep effectValue never equals to maxEffectValue (maxEffectValue, effectValue)
+	
+	function AddNeeds(populationID, EffectType, locKey, value)
+		if not NeedsEffects[populationID] then NeedsEffects[populationID] = {} end
+		if not NeedsEffects[populationID][EffectType] then NeedsEffects[populationID][EffectType] = {} end
+		NeedsEffects[populationID][EffectType][locKey] = value
+	end
 
 	local upperPopulation		= self:GetPopulationClass(UpperClassID)
 	local middlePopulation		= self:GetPopulationClass(MiddleClassID)
@@ -5710,7 +5758,8 @@ function DoNeeds(self)
 			local lowerValue 		= eaten
 			local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 			effectValue				= LimitEffect(maxEffectValue, effectValue)
-			_cached[cityKey].NeedsEffects[classID][NeedsEffectType.DeathRate]["LOC_DEATHRATE_FROM_FOOD_RATIONING"] = effectValue
+			--NeedsEffects[classID][NeedsEffectType.DeathRate]["LOC_DEATHRATE_FROM_FOOD_RATIONING"] = effectValue
+			AddNeeds(classID, NeedsEffectType.DeathRate, "LOC_DEATHRATE_FROM_FOOD_RATIONING", effectValue)
 			Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_DEATHRATE_FROM_FOOD_RATIONING", effectValue))
 		end
 		return eaten
@@ -5734,12 +5783,24 @@ function DoNeeds(self)
 	self:SetPopulationDeathRate(SlaveClassID)
 
 	-- Eat Food
-	self:ChangeStock(foodResourceID, - upperFood, ResourceUseType.Consume, RefPopulationUpper	)
-	self:ChangeStock(foodResourceID, - middleFood, ResourceUseType.Consume, RefPopulationMiddle	)
-	self:ChangeStock(foodResourceID, - lowerFood, ResourceUseType.Consume, RefPopulationLower	)
-	self:ChangeStock(foodResourceID, - slaveFood, ResourceUseType.Consume, RefPopulationSlave	)
-	self:ChangeStock(foodResourceID, - personnelFood, ResourceUseType.Consume, RefPersonnel	)
-
+	--self:ChangeStock(foodResourceID, - upperFood, ResourceUseType.Consume, RefPopulationUpper	)
+	--self:ChangeStock(foodResourceID, - middleFood, ResourceUseType.Consume, RefPopulationMiddle	)
+	--self:ChangeStock(foodResourceID, - lowerFood, ResourceUseType.Consume, RefPopulationLower	)
+	--self:ChangeStock(foodResourceID, - slaveFood, ResourceUseType.Consume, RefPopulationSlave	)
+	--self:ChangeStock(foodResourceID, - personnelFood, ResourceUseType.Consume, RefPersonnel	)
+	
+	AddNeeds(UpperClassID, NeedsEffectType.Consumption, foodResourceID, upperFood)
+	AddNeeds(MiddleClassID, NeedsEffectType.Consumption, foodResourceID, middleFood)
+	AddNeeds(LowerClassID, NeedsEffectType.Consumption, foodResourceID, lowerFood)
+	AddNeeds(SlaveClassID, NeedsEffectType.Consumption, foodResourceID, slaveFood)
+	AddNeeds(PersonnelClassID, NeedsEffectType.Consumption, foodResourceID, personnelFood)
+--[[	
+	NeedsEffects[UpperClassID][NeedsEffectType.Consumption][foodResourceID] 		= upperFood
+	NeedsEffects[MiddleClassID][NeedsEffectType.Consumption][foodResourceID] 		= middleFood
+	NeedsEffects[LowerClassID][NeedsEffectType.Consumption][foodResourceID] 		= lowerFood
+	NeedsEffects[SlaveClassID][NeedsEffectType.Consumption][foodResourceID] 		= slaveFood
+	NeedsEffects[PersonnelClassID][NeedsEffectType.Consumption][Locale.Lookup("LOC_RESOURCE_CONSUMED_BY_NEED", GameInfo.Resources[foodResourceID].Name, GCO.GetResourceIcon(foodResourceID))] 	= personnelFood
+--]]
 
 	--
 	-- Birth Rate Effects
@@ -5774,7 +5835,8 @@ function DoNeeds(self)
 		local higherValue 		= (upperHousing / 2)
 		local lowerValue 		= upperHousingAvailable - (upperHousing / 2)
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
-		_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		--NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		AddNeeds(UpperClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
 	elseif upperGrowthRateLeft > 0 and (upperHousingAvailable < upperHousing * 25 / 100) and (middleHousingAvailable < middleHousing * 25 / 100) then -- BirthRate malus from low housing left (upper class can use middle class housing if available)
 		local maxEffectValue 	= upperGrowthRateLeft
@@ -5782,7 +5844,8 @@ function DoNeeds(self)
 		local lowerValue 		= upperHousingAvailable + middleHousingAvailable
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 		effectValue				= LimitEffect(maxEffectValue, effectValue)
-		_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		--NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		AddNeeds(UpperClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
 		upperGrowthRateLeft = upperGrowthRateLeft - effectValue
 	end
@@ -5795,7 +5858,8 @@ function DoNeeds(self)
 		local higherValue 		= (middleHousing / 2)
 		local lowerValue 		= middleHousingAvailable - (middleHousing / 2)
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
-		_cached[cityKey].NeedsEffects[MiddleClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		--NeedsEffects[MiddleClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		AddNeeds(MiddleClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
 	elseif middleGrowthRateLeft > 0 and (middleHousingAvailable < middleHousing * 25 / 100) and (lowerHousingAvailable < lowerHousing * 25 / 100)  then -- BirthRate malus from low housing left (middle class can use lower class housing if available)
 		local maxEffectValue 	= middleGrowthRateLeft
@@ -5803,7 +5867,8 @@ function DoNeeds(self)
 		local lowerValue 		= middleHousingAvailable + lowerHousingAvailable
 		local effectValue		= GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue)
 		effectValue				= LimitEffect(maxEffectValue, effectValue)
-		_cached[cityKey].NeedsEffects[MiddleClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		--NeedsEffects[MiddleClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		AddNeeds(MiddleClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
 		middleGrowthRateLeft = middleGrowthRateLeft - effectValue
 	end
@@ -5816,7 +5881,8 @@ function DoNeeds(self)
 		local higherValue 		= (lowerHousing / 2)
 		local lowerValue 		= lowerHousingAvailable - (lowerHousing / 2)
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
-		_cached[cityKey].NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		--NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
+		AddNeeds(LowerClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
 	elseif lowerGrowthRateLeft > 0 and lowerHousingAvailable < lowerHousing * 25 / 100  then -- BirthRate malus from low housing left
 		local maxEffectValue 	= lowerGrowthRateLeft
@@ -5824,7 +5890,8 @@ function DoNeeds(self)
 		local lowerValue 		= lowerHousingAvailable
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 		effectValue				= LimitEffect(maxEffectValue, effectValue)
-		_cached[cityKey].NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		--NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
+		AddNeeds(LowerClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
 		lowerGrowthRateLeft = lowerGrowthRateLeft - effectValue
 	end
@@ -5868,9 +5935,14 @@ function DoNeeds(self)
 			local lowerValue 		= maxLuxuriesConsumed--minLuxuriesNeeded
 			local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 			--effectValue				= LimitEffect(maxEffectValue, effectValue)
-			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES"] 		= effectValue
-			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES"] 	= totalLuxuries
-			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_CONSUMED_LUXURIES"] 	= maxLuxuriesConsumed
+			--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES"] 		= effectValue
+			--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES"] 	= totalLuxuries
+			--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_CONSUMED_LUXURIES"] 	= maxLuxuriesConsumed
+			
+			AddNeeds(UpperClassID, NeedsEffectType.SocialStratification, "LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES", effectValue)
+			AddNeeds(UpperClassID, NeedsEffectType.SocialStratificationReq, "LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES", totalLuxuries)
+			AddNeeds(UpperClassID, NeedsEffectType.SocialStratificationReq, "LOC_SOCIAL_STRATIFICATION_CONSUMED_LUXURIES", maxLuxuriesConsumed)
+			
 			Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_BONUS_FROM_LUXURIES", effectValue))
 		elseif totalLuxuries < minLuxuriesNeeded then -- Social Stratification penalty from not enough luxuries
 			local maxEffectValue 	= maxNegativeEffectValue
@@ -5878,20 +5950,28 @@ function DoNeeds(self)
 			local lowerValue 		= totalLuxuries
 			local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 			--effectValue				= LimitEffect(maxEffectValue, effectValue)
-			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES"] 	= - effectValue
-			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES"] 	= totalLuxuries
-			_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_REQUIRED_LUXURIES"] 	= minLuxuriesNeeded
+			--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES"] 	= - effectValue
+			--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES"] 	= totalLuxuries
+			--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_REQUIRED_LUXURIES"] 		= minLuxuriesNeeded
+			
+			AddNeeds(UpperClassID, NeedsEffectType.SocialStratification, "LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", effectValue)
+			AddNeeds(UpperClassID, NeedsEffectType.SocialStratificationReq, "LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES", totalLuxuries)
+			AddNeeds(UpperClassID, NeedsEffectType.SocialStratificationReq, "LOC_SOCIAL_STRATIFICATION_REQUIRED_LUXURIES", minLuxuriesNeeded)
+			
 			Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", - effectValue))
 		end
 		
 		local ratio = maxLuxuriesConsumed / totalLuxuries
 		for resourceID, value in pairs(luxuryTable) do
 			local consumed = GCO.Round(value * ratio)
-			self:ChangeStock(resourceID, - consumed, ResourceUseType.Consume, RefPopulationUpper)
+			--self:ChangeStock(resourceID, - consumed, ResourceUseType.Consume, RefPopulationUpper)
+			--NeedsEffects[UpperClassID][NeedsEffectType.Consumption][Locale.Lookup("LOC_RESOURCE_CONSUMED_BY_NEED", GameInfo.Resources[resourceID].Name, GCO.GetResourceIcon(resourceID))] 		= consumed
+			AddNeeds(UpperClassID, NeedsEffectType.Consumption, resourceID, consumed)
 		end
 		
 	else
-		_cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES"] = -maxNegativeEffectValue
+		--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]["LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES"] = -maxNegativeEffectValue
+		AddNeeds(UpperClassID, NeedsEffectType.SocialStratification, "LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", -maxNegativeEffectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxNegativeEffectValue, minLuxuriesNeeded, totalLuxuries, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", - maxNegativeEffectValue))
 	end
 
@@ -5915,6 +5995,8 @@ function DoNeeds(self)
 		end
 	end
 	--]]
+	
+	Dlog("SetNeedsValues ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoSocialClassStratification(self)
@@ -6636,6 +6718,7 @@ function DoTurnFirstPass(self)
 	GCO.ShowTimer("DoFood for ".. name)
 	
 	GCO.StartTimer("DoNeeds for ".. name)
+	self:SetNeedsValues()
 	self:DoNeeds()
 	GCO.ShowTimer("DoNeeds for ".. name)	
 
@@ -7106,6 +7189,7 @@ function AttachCityFunctions(city)
 	if not c.DoIndustries						then c.DoIndustries							= DoIndustries                      	end
 	if not c.DoConstruction						then c.DoConstruction						= DoConstruction                    	end
 	if not c.DoNeeds							then c.DoNeeds								= DoNeeds                           	end
+	if not c.SetNeedsValues						then c.SetNeedsValues						= SetNeedsValues						end
 	if not c.DoTaxes							then c.DoTaxes								= DoTaxes                           	end
 	if not c.SetMigrationValues					then c.SetMigrationValues					= SetMigrationValues                	end
 	if not c.DoMigration						then c.DoMigration							= DoMigration                       	end

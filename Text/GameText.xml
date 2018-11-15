@@ -633,11 +633,17 @@
     </Replace>
     <Replace Tag="LOC_SOCIAL_STRATIFICATION_CONSUMED_LUXURIES" Language="en_US">
       <Text>[COLOR_Civ6Green]{1_Num}[ENDCOLOR] consumed Luxuries.</Text>
-    </Replace>	
+    </Replace>
 	
     <Replace Tag="LOC_PERCENTAGE_FROM_BUILDING" Language="en_US">
       <Text>{1_Name} from {2_Buildings}.</Text>
     </Replace>
+	
+    <Replace Tag="LOC_RESOURCE_CONSUMED_BY_NEED" Language="en_US">
+      <Text>{3_Num : number #.##} {2_Name} {1_Name} consumed.</Text>
+    </Replace>
+	
+	
 	
   </LocalizedText>
 

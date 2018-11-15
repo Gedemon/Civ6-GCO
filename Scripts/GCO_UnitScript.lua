@@ -5387,8 +5387,13 @@ function SetHealthValues(self)
 
 	Dlog("SetHealthValues ".. Locale.Lookup(self:GetName()).." /START")
 	
-	local cache 		= self:GetCache()
 	local unitData 		= self:GetData()
+	if not unitData then
+		GCO.Warning("unitData[unitKey] is nil in SetHealthValues() for " .. self:GetName(),  self:GetKey())
+		return
+	end
+	
+	local cache 		= self:GetCache()
 	cache.Health 		= { Detailed = {}, Condensed = {}} -- reset values
 	local health 		= cache.Health
 	local selfPlot 		= GCO.GetPlot(self:GetX(), self:GetY())

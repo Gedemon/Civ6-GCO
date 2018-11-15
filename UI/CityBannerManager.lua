@@ -1022,6 +1022,9 @@ function CityBanner.UpdateStats( self : CityBanner)
 				local healthToolTip = Locale.Lookup("LOC_CITYBANNER_HEALTH_TITLE").."[NEWLINE]"..city:GetHealthString()
 				self.m_Instance.HealthIcon:SetToolTipString(healthToolTip)
 				
+				local populationNeedsToolTip = Locale.Lookup("LOC_CITYBANNER_POPULATION_NEEDS_TITLE").."[NEWLINE]"..city:GetPopulationNeedsEffectsString()
+				self.m_Instance.StabilityIcon:SetToolTipString(populationNeedsToolTip)
+				
 			else
 				print("WARNING : GCO.GetCity(pCity:GetOwner(), pCity:GetID()) is nil for Owner = ", pCity:GetOwner(), " ID = ",  pCity:GetID())
 			end
