@@ -2886,6 +2886,7 @@ function GetDemandAtTurn(self, resourceID, turn)
 end
 
 function GetUseTypeAtTurn(self, resourceID, useType, turn)
+	local turn			= turn or GCO.GetPreviousTurnKey()
 	local resourceKey 	= tostring(resourceID)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= tostring(turn)
@@ -4320,7 +4321,7 @@ else
 			local str 				= ""
 			local bIsEquipmentMaker = GCO.IsResourceEquipmentMaker(resourceID)
 			
-			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))
+			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID), GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey)))
 			str = str .. GCO.GetVariationString(stockVariation)
 			local costVarStr = GCO.GetVariationStringRedPositive(costVariation)
 			if resourceCost > 0 then
@@ -4397,10 +4398,23 @@ else
 			local bIsEquipmentMaker = GCO.IsResourceEquipmentMaker(resourceID)
 			
 			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))
+			
+			local product 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
+			local collect 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
+			--local import 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
+			--local transferIn 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
+			
+			if product > 0 then
+				str = str .." [[ICON_TOOLS2]+"..tostring(product).."]"
+			end
+			if collect > 0 then
+				str = str .." [[ICON_Terrain]+"..tostring(collect).."]"
+			end
+			
 			str = str .. GCO.GetVariationString(stockVariation)
 			local costVarStr = GCO.GetVariationStringRedPositive(costVariation)
 			if resourceCost > 0 then
-				str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
+				str = str .." [".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr.."]"
 			end
 			
 			if GCO.IsResourceEquipment(resourceID) then

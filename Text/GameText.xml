@@ -267,7 +267,7 @@
     </Replace>
 	
 	<Replace Tag="LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK" Language="en_US">
-      <Text>{4_Name} {1_Num} / {2_Num} {3_Name}</Text>
+      <Text>{4_Name} [{1_Num}/{2_Num}] {3_Name}</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_FOOD_PERCENTAGE" Language="en_US">
