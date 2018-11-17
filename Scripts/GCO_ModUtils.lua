@@ -198,11 +198,16 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 end
 
 local GCO = {}
+local OptionGet
+local OptionSet
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if IsInitializedGCO() then 	
 		print ("All GCO script files loaded...")
 		print ("Game loading time for all scripts = "..tostring(Automation.GetTime() - LoadTimer))
-		GCO = ExposedMembers.GCO					-- contains functions from other contexts
+		GCO 		= ExposedMembers.GCO						-- contains functions from other contexts
+		OptionGet	= ExposedMembers.GCO.Options.GetUserOption	-- or Options.GetAppOption
+		OptionSet	= ExposedMembers.GCO.Options.SetUserOption	-- or Options.SetAppOption
+		OptionSave	= ExposedMembers.GCO.Options.SaveOptions
 		print ("Exposed Functions from other contexts initialized...")
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		-- tell all other scripts that they can initialize now
@@ -343,6 +348,28 @@ end
 function LimitEffect(maxEffectValue, effectValue)							-- Keep effectValue never equals to maxEffectValue
 	return ToDecimals(maxEffectValue*effectValue/(maxEffectValue+1))
 end
+
+
+--=====================================================================================--
+-- Bitwise Operators from http://lua-users.org/wiki/BitwiseOperators
+--=====================================================================================--
+function bit(p)
+  return 2 ^ (p - 1)  -- 1-based indexing
+end
+
+-- Typical call:  if hasbit(x, bit(3)) then ...
+function hasbit(x, p)
+  return x % (p + p) >= p       
+end
+
+function setbit(x, p)
+  return hasbit(x, p) and x or x + p
+end
+
+function clearbit(x, p)
+  return hasbit(x, p) and x - p or x
+end
+
 
 --=====================================================================================--
 -- Debug
@@ -1141,6 +1168,43 @@ end
 
 
 --=====================================================================================--
+-- GCO Options
+--=====================================================================================--
+local OptionSection			= "Interface"					-- "Interface" if OptionGet = Options.GetUserOption, "UI" if OptionGet = Options.GetAppOption
+local OptionTypeOverride 	= "PlayHistoricMomentAnimation" -- even if R&F is disabled by GCO, we can't use this else it would mess with people using R&F (maybe check if R&F use "value = 0" or "value = 1" to use the option, and overwrite when this is set to the one not used ?)
+local OptionsGCO			= {"Test1", "Test2"} 			-- to do : XML table 
+local OptionsBit			= {}
+
+for i, optionType in ipairs(OptionsGCO) do
+	OptionsBit[optionType] = bit(i)
+end
+
+function IsOptionActive(optionType)
+	if OptionsBit[optionType] then
+		local optionsValue	= OptionGet(OptionSection, OptionTypeOverride)
+		return hasbit(optionsValue, OptionsBit[optionType])
+	else
+		Warning("GCO Option not registered :" .. tostring(optionType))
+	end
+end
+
+function ChangeOption(optionType, bValue)
+	if OptionsBit[optionType] then
+		local optionsValue	= OptionGet(OptionSection, OptionTypeOverride)
+		if bValue == true then
+			optionsValue = setbit(optionsValue, OptionsBit[optionType])
+		else
+			optionsValue = clearbit(optionsValue, OptionsBit[optionType])		
+		end
+		OptionSet(OptionSection, OptionTypeOverride, optionsValue)
+		OptionSave()
+	else
+		Warning("GCO Option not registered :" .. tostring(optionType))	
+	end
+end
+
+
+--=====================================================================================--
 -- Share functions for other contexts
 --=====================================================================================--
 
@@ -1223,6 +1287,9 @@ function Initialize()
 	ExposedMembers.GCO.GetEquipmentPropertyString		= GetEquipmentPropertyString
 	ExposedMembers.GCO.GetPercentBarString				= GetPercentBarString
 	ExposedMembers.GCO.GetEvaluationStringFromValue		= GetEvaluationStringFromValue
+	-- Options
+	ExposedMembers.GCO.IsOptionActive					= IsOptionActive
+	ExposedMembers.GCO.ChangeOption						= ChangeOption
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true
 end

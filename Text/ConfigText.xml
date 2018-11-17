@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
+
+  <FontStyleSheets>  <!-- Style -->
+	<Replace Language="en_US">
+		<StyleSheet>Civ6_FontStyles_GCO.xml</StyleSheet>
+		<DefaultFont>MinionPro-Medium.otf</DefaultFont>
+	</Replace>
+  </FontStyleSheets>
+  
   <LocalizedText>
     <Replace Tag="LOC_GCO_SETUP_CREATE_GAME" Language="en_US">
       <Text>Create game</Text>
     </Replace>
-  </LocalizedText> 
+  </LocalizedText>
+
 </GameData>

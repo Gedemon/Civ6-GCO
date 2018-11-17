@@ -1090,8 +1090,9 @@ function GetMaxUpperClass(self)
 		end
 	end
 	
-	if _cached[cityKey] and _cached[cityKey].NeedsEffects and _cached[cityKey].NeedsEffects[UpperClassID] then
-		local data = _cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]
+	local NeedsEffects	= self:GetCached("NeedsEffects") or {}
+	if NeedsEffects[UpperClassID] then
+		local data = NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification] or {}
 		for key, value in pairs(data) do		
 			table.insert(returnStrTable, Locale.Lookup(key, value))
 			maxPercent = maxPercent + value
@@ -1116,8 +1117,9 @@ function GetMinUpperClass(self)
 		end
 	end
 	
-	if _cached[cityKey] and _cached[cityKey].NeedsEffects and _cached[cityKey].NeedsEffects[UpperClassID] then
-		local data = _cached[cityKey].NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification]
+	local NeedsEffects	= self:GetCached("NeedsEffects") or {}
+	if NeedsEffects[UpperClassID] then
+		local data = NeedsEffects[UpperClassID][NeedsEffectType.SocialStratification] or {}
 		for key, value in pairs(data) do		
 			table.insert(returnStrTable, Locale.Lookup(key, value))
 			minPercent = minPercent + value
@@ -4397,7 +4399,9 @@ else
 			local str 				= ""
 			local bIsEquipmentMaker = GCO.IsResourceEquipmentMaker(resourceID)
 			
-			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))
+			--str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))
+			-- [{1_Num}/{2_Num}
+			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", resRow.Name, GCO.GetResourceIcon(resourceID))
 			
 			local product 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
 			local collect 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
@@ -4410,6 +4414,7 @@ else
 			if collect > 0 then
 				str = str .." [[ICON_Terrain]+"..tostring(collect).."]"
 			end
+			str = str .. " " ..Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK_MAX_STOCK", value, self:GetMaxStock(resourceID))
 			
 			str = str .. GCO.GetVariationString(stockVariation)
 			local costVarStr = GCO.GetVariationStringRedPositive(costVariation)
@@ -6018,14 +6023,14 @@ function DoSocialClassStratification(self)
 	--local DEBUG_CITY_SCRIPT = "CityScript"
 	
 	Dlog("DoSocialClassStratification ".. Locale.Lookup(self:GetName()).." /START")
-	local totalPopultation = self:GetRealPopulation()
+	local totalPopulation = self:GetRealPopulation()
 
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: totalPopultation = ", totalPopultation)
+	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: totalPopulation = ", totalPopulation)
 
 	local maxUpper = self:GetMaxUpperClass()
 	local minUpper = self:GetMinUpperClass()
-
+	
 	local maxMiddle = self:GetMaxMiddleClass()
 	local minMiddle = self:GetMinMiddleClass()
 
@@ -6092,6 +6097,7 @@ function DoSocialClassStratification(self)
 		self:ChangeMiddleClass(-toMove)
 		self:ChangeLowerClass(toMove)
 	end
+	Dlog("DoSocialClassStratification ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoTaxes(self)

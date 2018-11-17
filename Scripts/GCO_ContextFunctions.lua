@@ -231,6 +231,7 @@ function Initialize()
 	ExposedMembers.UI 								= UI
 	ExposedMembers.Calendar							= Calendar
 	ExposedMembers.CombatTypes 						= CombatTypes
+	ExposedMembers.GCO.Options						= Options
 	
 	ExposedMembers.ContextFunctions_Initialized 	= true
 end

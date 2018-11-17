@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 
+  <FontStyleSheets>  <!-- Style -->
+	<Replace Language="en_US">
+		<StyleSheet>Civ6_FontStyles_GCO.xml</StyleSheet>
+		<DefaultFont>MinionPro-Medium.otf</DefaultFont>
+	</Replace>
+  </FontStyleSheets>
+  
 		<!-- ++++++++++++++++++++++++++ -->
 		<!-- +        Replacing       + -->
 		<!-- ++++++++++++++++++++++++++ -->
@@ -129,7 +136,7 @@
   
   <LocalizedText> <!-- Common / various -->
 	
-    <Replace Tag="LOC_TOOLTIP_SEPARATOR"			Text="[NEWLINE][COLOR_Grey]--------------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" />
+    <Replace Tag="LOC_TOOLTIP_SEPARATOR"			Text="[NEWLINE][COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" />
 	
 	<Replace Tag="LOC_EVALUATION_STRING_WITH_NAME"	Text="({1_Name} {2_Name})" 			Language="en_US" />
 	<Replace Tag="LOC_EVALUATION_STRING"			Text="({1_Name})" 					Language="en_US" />
@@ -266,8 +273,16 @@
       <Text>[ICON_{4_Name}] {1_Num} / {2_Num} {3_Name}</Text>
     </Replace>
 	
+	<!--
 	<Replace Tag="LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK" Language="en_US">
-      <Text>{4_Name} [{1_Num}/{2_Num}] {3_Name}</Text>
+      <Text>{4_Name} {3_Name} [{1_Num}/{2_Num}]</Text>
+    </Replace>
+	<!---->
+	<Replace Tag="LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK" Language="en_US">
+      <Text>{2_Name} {1_Name}</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_RESOURCE_STOCK_MAX_STOCK" Language="en_US">
+      <Text>[{1_Num}/{2_Num}[ICON_STOCK2]]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_FOOD_PERCENTAGE" Language="en_US">

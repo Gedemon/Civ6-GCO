@@ -1006,7 +1006,11 @@ function CityBanner.UpdateStats( self : CityBanner)
 				foodToolTip = foodToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_TITLE").."[NEWLINE]".. table.concat(resourceStockStringTable["Food"])
 				self.m_Instance.FoodIcon:SetToolTipString(foodToolTip)
 				
-				local strategicToolTip = Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE") .. table.concat(resourceStockStringTable["Strategic"])
+				--self.m_Instance.StrategicStockIcon:SetToolTipType("TTText")
+				--local strategicToolTip = Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE") .. "[NEWLINE][COLOR_Grey][ Stock&Prices ][ENDCOLOR][ Production&Consumption ][COLOR_Grey][ Import&Export ][ENDCOLOR]" .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. table.concat(resourceStockStringTable["Strategic"])
+				local strategicToolTip = "STRATEGIC RESOURCES STOCK" .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. "[ICON_MOUSE_LEFT][COLOR_Grey][ Stock&Prices ][ENDCOLOR][ Production&Consumption ][COLOR_Grey][ Import&Export ][ENDCOLOR][NEWLINE][ICON_MOUSE_RIGHT][ Simple ][COLOR_Grey][ Detailed ][ENDCOLOR][COLOR_Grey][ Condensed ][ENDCOLOR]" 
+				strategicToolTip = strategicToolTip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. "[ICON_TOOLS2] : City Production(+) / Consumption(-)[NEWLINE][ICON_Terrain] : Surrounding Terrain Production[NEWLINE][ICON_STOCK2] : Current Stock / Storage Space[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+ positive[ENDCOLOR] or [ICON_PressureDown][COLOR_Civ6Red]- negative[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] Price per unit of Resource and [COLOR_Civ6Red]+[ENDCOLOR]/[COLOR_Civ6Green]-[ENDCOLOR] Price Variation"
+				strategicToolTip = strategicToolTip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. table.concat(resourceStockStringTable["Strategic"])
 				self.m_Instance.StrategicStockIcon:SetToolTipString(strategicToolTip)
 				
 				local otherToolTip = Locale.Lookup("LOC_CITYBANNER_OTHER_STOCK_TITLE") .. table.concat(resourceStockStringTable["Other"])

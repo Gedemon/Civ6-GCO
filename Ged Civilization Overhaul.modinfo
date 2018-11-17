@@ -74,8 +74,11 @@
 			<File>UI/UnitFlagManager.xml</File>
 			<File>UI/CityBannerManager.lua</File>
 			<File>UI/CityBannerManager.xml</File>
+			<File>UI/Civ6_FontStyles_GCO.xml</File>
+			<File>UI/Civ6_Styles.xml</File>
 			<File>UI/PlotToolTip.lua</File>
 			<File>UI/TopPanel.lua</File>
+			<File>UI/ToolTips.xml</File>
 			<File>UI/ToolTipHelper.lua</File>
 			<File>UI/ToolTipHelper_PlayerYields.lua</File>
 			<File>UI/WorldViewIconsManager.lua</File>
@@ -229,6 +232,8 @@
            	</Properties>
 			<File>UI/AdvancedSetup.lua</File>
 			<File>UI/AdvancedSetup.xml</File>
+			<File>UI/Civ6_FontStyles_GCO.xml</File>
+			<File>UI/Civ6_Styles.xml</File>
 		</ImportFiles>
 	</FrontEndActions>
 
@@ -284,6 +289,8 @@
 		<File>InGame/GCO_ModInGame.xml</File>
 		<File>UI/AdvancedSetup.lua</File>
 		<File>UI/AdvancedSetup.xml</File>
+		<File>UI/Civ6_FontStyles_GCO.xml</File>
+		<File>UI/Civ6_Styles.xml</File>
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/UnitFlagManager.xml</File>
 		<File>UI/CityBannerManager.lua</File>
