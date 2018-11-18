@@ -137,6 +137,7 @@
   <LocalizedText> <!-- Common / various -->
 	
     <Replace Tag="LOC_TOOLTIP_SEPARATOR"			Text="[NEWLINE][COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" />
+    <Replace Tag="LOC_TOOLTIP_SEPARATOR_NO_LB"		Text="[COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR]" 	Language="en_US" />
 	
 	<Replace Tag="LOC_EVALUATION_STRING_WITH_NAME"	Text="({1_Name} {2_Name})" 			Language="en_US" />
 	<Replace Tag="LOC_EVALUATION_STRING"			Text="({1_Name})" 					Language="en_US" />
@@ -215,7 +216,7 @@
       <Text>[COLOR_Grey]---------------------- Food Stock ---------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_OTHER_STOCK_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]--------------------- Luxuries Stock ---------------------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]--------------------- Other Stock ---------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_CONSUMPTION_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------- Consumption -------------------[ENDCOLOR]</Text>
@@ -283,6 +284,75 @@
     </Replace>
 	<Replace Tag="LOC_CITYBANNER_RESOURCE_STOCK_MAX_STOCK" Language="en_US">
       <Text>[{1_Num}/{2_Num}[ICON_STOCK2]]</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_STOCK_TAB" Language="en_US">
+      <Text>Stock&amp;Prices</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_PRODUCTION_TAB" Language="en_US">
+      <Text>Production&amp;Consumption</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_TRADE_TAB" Language="en_US">
+      <Text>Import&amp;Export</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD" Language="en_US">
+      <Text>Simple</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD" Language="en_US">
+      <Text>Detailed</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD" Language="en_US">
+      <Text>Condensed</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_DETAILED_STOCK_LEGEND" Language="en_US">
+      <Text>[ICON_Charges] : City Production[NEWLINE][ICON_Terrain] : Surrounding Terrain Production[NEWLINE][ICON_STOCK2] : Current Stock / Storage Space[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+ positive[ENDCOLOR] or [ICON_PressureDown][COLOR_Civ6Red]- negative[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] [COLOR_Gold]Price per unit[ENDCOLOR] of Resource and [COLOR_Civ6Red]+[ENDCOLOR]/[COLOR_Civ6Green]-[ENDCOLOR] Price Variation</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_SIMPLE_STOCK_LEGEND" Language="en_US">
+      <Text>[ICON_STOCK2] : Current Stock / Storage Space[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+ positive[ENDCOLOR] or [ICON_PressureDown][COLOR_Civ6Red]- negative[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] : [COLOR_Gold]Price per unit[ENDCOLOR] of Resource and [COLOR_Civ6Red]+[ENDCOLOR]/[COLOR_Civ6Green]-[ENDCOLOR] Price Variation</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_DETAILED_PRODUCTION_LEGEND" Language="en_US">
+      <Text>[ICON_Charges] : City Production[NEWLINE][ICON_Terrain] : Surrounding Terrain Production[NEWLINE][ICON_TOOLS] : Used by Buildings[NEWLINE][ICON_Production] : Used for City construction (Units, Buildings, Projects ...)[NEWLINE][ICON_Citizen] : Consumption by Citizen[NEWLINE][ICON_STOCK2] : Current Stock / Storage Space[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+ positive[ENDCOLOR] or [ICON_PressureDown][COLOR_Civ6Red]- negative[ENDCOLOR] Stock Variation</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_SIMPLE_PRODUCTION_LEGEND" Language="en_US">
+      <Text>[ICON_Charges] : City Production[NEWLINE][ICON_Terrain] : Surrounding Terrain Production[NEWLINE][ICON_TOOLS] : Consumption in City[NEWLINE][ICON_STOCK2] : Current Stock / Storage Space[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+ positive[ENDCOLOR] or [ICON_PressureDown][COLOR_Civ6Red]- negative[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] : [COLOR_Gold]Price per unit[ENDCOLOR] of Resource</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_DETAILED_TRADE_LEGEND" Language="en_US">
+      <Text>[ICON_TradingPost] : Import(+)/Export(-) from/to Foreign Cities[NEWLINE][ICON_TradeRoute] : Received(+)/Send(-) from/to your other Cities[NEWLINE][ICON_Unit] : Received(+)/Send(-) from/to your Units[NEWLINE][ICON_UP_DOWN] : [COLOR_Civ6Green]positive (+)[ENDCOLOR] or [COLOR_Civ6Red]negative (-)[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] : [COLOR_Gold]Price per unit[ENDCOLOR] of Resource</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_SIMPLE_TRADE_LEGEND" Language="en_US">
+      <Text>[ICON_TradeRoute] : Sum of all exchange with other Cities[NEWLINE][ICON_Unit] : Sum of all exchange with your Units[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+ positive[ENDCOLOR] or [ICON_PressureDown][COLOR_Civ6Red]- negative[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] : [COLOR_Gold]Price per unit[ENDCOLOR] of Resource and [COLOR_Civ6Red]+[ENDCOLOR]/[COLOR_Civ6Green]-[ENDCOLOR] Price Variation</Text>
+    </Replace>	
+
+	<Replace Tag="LOC_CITYBANNER_DETAILED_STOCK_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]          [ICON_Charges]/[ICON_Terrain]     [Icon_STOCK2]   [ICON_PressureUp][ICON_PressureDown]     [ICON_Gold]</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_SIMPLE_STOCK_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]                     [Icon_STOCK2]     [ICON_PressureUp][ICON_PressureDown]    [ICON_Gold]</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_DETAILED_PRODUCTION_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]           [ICON_Charges]/[ICON_Terrain]  [ICON_TOOLS]  [ICON_Production]   [ICON_Citizen]    [Icon_STOCK2]    [ICON_PressureUp][ICON_PressureDown]</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_SIMPLE_PRODUCTION_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]           [ICON_Charges]/[ICON_Terrain]   [ICON_TOOLS]    [Icon_STOCK2]   [ICON_PressureUp][ICON_PressureDown]    [ICON_Gold]</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_DETAILED_TRADE_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]           [ICON_TradingPost]       [ICON_TradeRoute]       [ICON_Unit]     [ICON_UP_DOWN]  [ICON_Gold]</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_SIMPLE_TRADE_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]                    [ICON_TradeRoute]    [ICON_Unit] [ICON_PressureUp][ICON_PressureDown]    [ICON_Gold]</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_CONDENSED_LEGEND" Language="en_US">
+      <Text>[ICON_Terrain] / [ICON_Charges] : Terrain&amp;City Production(+) / City Consumption(-)[NEWLINE][ICON_TradeRoute] : Transfer and trade In(+) or Out (-)[NEWLINE][ICON_STOCK2] : Current Stock / Storage Space[NEWLINE][ICON_UP_DOWN] : [COLOR_Civ6Green]positive (+)[ENDCOLOR] or [COLOR_Civ6Red]negative (-)[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] : [COLOR_Gold]Price per unit[ENDCOLOR] of Resource and [COLOR_Civ6Red]+[ENDCOLOR]/[COLOR_Civ6Green]-[ENDCOLOR] Price Variation</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_CONDENSED_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]         [ICON_Terrain]/[ICON_Charges]    [ICON_TradeRoute]      [Icon_STOCK2]   [ICON_UP_DOWN]   [ICON_Gold]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_FOOD_PERCENTAGE" Language="en_US">

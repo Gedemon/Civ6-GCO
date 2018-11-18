@@ -1057,6 +1057,7 @@ function UnitFlag.UpdateName( self )
 		end
 
 		function ShowSupplyLine()
+			if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
 			if not unitData then print("WTF ??? unitData[unitkey] is nil in ShowSupplyLine for key = "..tostring(unitKey)) return end
 			if not unitData.SupplyLineCityKey then return end
 			--if bShownSupplyLine then return end
@@ -1237,6 +1238,12 @@ function UnitFlag.SetPosition( self, worldX : number, worldY : number, worldZ : 
 						end
 					end
 				end
+				
+				-- GCO <<<<<
+				if (pCity ~= nil) then
+					cityBannerYOffset = m_zoomMultiplier * 25 - 50
+				end
+				-- GCO >>>>>
 
 			end
 		end
@@ -2169,6 +2176,7 @@ LuaEvents.UnitsCompositionUpdated.Add(OnUnitsCompositionUpdated)
 
 function OnMouseOut()
 	bShownSupplyLine = false
+	if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
 	if UILens.IsLensActive("TradeRoute") then
 		-- Make sure to switch back to default lens
 		UILens.SetActive("Default");

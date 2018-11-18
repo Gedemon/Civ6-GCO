@@ -277,3 +277,10 @@ BaseUrbanPercent 		= {
 	["ERA_ATOMIC"] 			= 60 ,
 	["ERA_INFORMATION"] 	= 70 ,
 }
+
+
+-----------------------------------------------------------------------------------------
+-- Custom Tooltips Tabs & Modes
+-----------------------------------------------------------------------------------------
+resourceTabs			= {"LOC_CITYBANNER_TOOLTIP_STOCK_TAB", "LOC_CITYBANNER_TOOLTIP_PRODUCTION_TAB", "LOC_CITYBANNER_TOOLTIP_TRADE_TAB"}
+resourceModes			= {"LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD", "LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD", "LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD"}

@@ -25,8 +25,48 @@ function InitializeUtilityFunctions()
 end
 LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
-local bShownSupplyLine 	= false
-local foodResourceID 	= GameInfo.Resources["RESOURCE_FOOD"].Index
+local bShownSupplyLine 			= false
+local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
+local sCurrentResourceTooltip	= nil
+local currentBannerCity			= nil
+
+local resourceToolTipTab	= 1 --"LOC_CITYBANNER_TOOLTIP_STOCK_TAB"
+local resourceToolTipMode	= 2 --"LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD"
+
+local TooltipParameters		= {
+		["LOC_CITYBANNER_TOOLTIP_STOCK_TAB"] = {
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD"] 		= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_SIMPLE_STOCK_LEGEND", 		Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_SIMPLE_STOCK_HEADER",},
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD"] 	= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_DETAILED_STOCK_LEGEND", 		Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_DETAILED_STOCK_HEADER",},
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD"] 	= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_CONDENSED_LEGEND", 			Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_CONDENSED_HEADER",},	
+		},
+		["LOC_CITYBANNER_TOOLTIP_PRODUCTION_TAB"] = {
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD"] 		= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_SIMPLE_PRODUCTION_LEGEND", 	Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_SIMPLE_PRODUCTION_HEADER",},
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD"] 	= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_DETAILED_PRODUCTION_LEGEND", 	Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_DETAILED_PRODUCTION_HEADER",},
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD"] 	= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_CONDENSED_LEGEND", 			Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_CONDENSED_HEADER",},	
+		},
+		["LOC_CITYBANNER_TOOLTIP_TRADE_TAB"] = {
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD"] 		= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_SIMPLE_TRADE_LEGEND", 		Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_SIMPLE_TRADE_HEADER",},
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD"] 	= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_DETAILED_TRADE_LEGEND", 		Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_DETAILED_TRADE_HEADER",},
+			["LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD"] 	= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_CONDENSED_LEGEND", 			Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_CONDENSED_HEADER",},	
+		},
+	}
+
+function OnInputHandler( pInputStruct:table )
+
+	--if not sCurrentResourceTooltip then return end
+
+	local msg = pInputStruct:GetMessageType( );
+--print("test", msg, MouseEvents.LButtonDown, MouseEvents.RButtonDown)
+
+	if msg == MouseEvents.LButtonDown then
+		print("LButtonDown")
+
+	elseif msg == MouseEvents.RButtonDown then
+		print("RButtonDown")
+	end
+
+	return false;
+end
 -- GCO >>>>>
 
 -- ===========================================================================
@@ -861,6 +901,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 			local city = GCO.GetCity(pCity:GetOwner(), pCity:GetID())  -- to get a CityScript context city
 			local foodStock, maxFoodStock, population, popVariation
 			if city then
+				currentBannerCity	= city
 				local cityKey 		= city:GetKey()
 				
 				local citySize 		= city:GetSize()
@@ -997,35 +1038,273 @@ function CityBanner.UpdateStats( self : CityBanner)
 				self.m_Instance.CityPopulationMeter:SetPercent(poppct);
 				self.m_Instance.CityPopulationNextTurn:SetPercent(poppctNextTurn);
 				
+				-- ===============
 				-- Tooltips
-				local resourceStockStringTable = city:GetResourcesStockStringTable()
+				-- ===============
+				function CleanToolTip()
+					LuaEvents.HideCustomToolTip()
+					sCurrentResourceTooltip = nil
+				end
 				
-				local foodToolTip = Locale.Lookup("LOC_CITYBANNER_FOOD_TITLE").."[NEWLINE]"..city:GetFoodStockString()
-				foodToolTip = foodToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_CONSUMPTION_TITLE")
-				foodToolTip = foodToolTip .. "[NEWLINE]" .. city:GetFoodConsumptionString() -- Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK", city:GetFoodConsumption())
-				foodToolTip = foodToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_TITLE").."[NEWLINE]".. table.concat(resourceStockStringTable["Food"])
-				self.m_Instance.FoodIcon:SetToolTipString(foodToolTip)
+				function HideToolTip()
+					LuaEvents.HideCustomToolTip()
+				end
 				
-				--self.m_Instance.StrategicStockIcon:SetToolTipType("TTText")
-				--local strategicToolTip = Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE") .. "[NEWLINE][COLOR_Grey][ Stock&Prices ][ENDCOLOR][ Production&Consumption ][COLOR_Grey][ Import&Export ][ENDCOLOR]" .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. table.concat(resourceStockStringTable["Strategic"])
-				local strategicToolTip = "STRATEGIC RESOURCES STOCK" .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. "[ICON_MOUSE_LEFT][COLOR_Grey][ Stock&Prices ][ENDCOLOR][ Production&Consumption ][COLOR_Grey][ Import&Export ][ENDCOLOR][NEWLINE][ICON_MOUSE_RIGHT][ Simple ][COLOR_Grey][ Detailed ][ENDCOLOR][COLOR_Grey][ Condensed ][ENDCOLOR]" 
-				strategicToolTip = strategicToolTip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. "[ICON_TOOLS2] : City Production(+) / Consumption(-)[NEWLINE][ICON_Terrain] : Surrounding Terrain Production[NEWLINE][ICON_STOCK2] : Current Stock / Storage Space[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+ positive[ENDCOLOR] or [ICON_PressureDown][COLOR_Civ6Red]- negative[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] Price per unit of Resource and [COLOR_Civ6Red]+[ENDCOLOR]/[COLOR_Civ6Green]-[ENDCOLOR] Price Variation"
-				strategicToolTip = strategicToolTip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. table.concat(resourceStockStringTable["Strategic"])
-				self.m_Instance.StrategicStockIcon:SetToolTipString(strategicToolTip)
+				function ChangeTab()
+					--print("ChangeTab", sCurrentResourceTooltip)
+					if sCurrentResourceTooltip then
+						resourceToolTipTab = (resourceToolTipTab + 1 > #resourceTabs and 1) or (resourceToolTipTab + 1)
+						--print(resourceTabs[resourceToolTipTab])
+						HideToolTip()
+						self:UpdateStats()
+						if sCurrentResourceTooltip == "Strategic" then
+							ShowStrategicToolTip()
+						elseif sCurrentResourceTooltip == "Other" then
+							ShowOtherToolTip()
+						elseif sCurrentResourceTooltip == "Food" then
+							ShowFoodToolTip()
+						elseif sCurrentResourceTooltip == "Equipment" then
+							ShowEquipmentToolTip()
+						end
+					end
+				end
+				function ChangeMode()
+					--print("ChangeMode", sCurrentResourceTooltip)
+					if sCurrentResourceTooltip then
+						resourceToolTipMode = (resourceToolTipMode + 1 > #resourceModes and 1) or (resourceToolTipMode + 1)
+						--print(resourceModes[resourceToolTipMode])
+						HideToolTip()
+						self:UpdateStats()
+						if sCurrentResourceTooltip == "Strategic" then
+							ShowStrategicToolTip()
+						elseif sCurrentResourceTooltip == "Other" then
+							ShowOtherToolTip()
+						elseif sCurrentResourceTooltip == "Food" then
+							ShowFoodToolTip()
+						elseif sCurrentResourceTooltip == "Equipment" then
+							ShowEquipmentToolTip()
+						end
+					end
+				end
 				
-				local otherToolTip = Locale.Lookup("LOC_CITYBANNER_OTHER_STOCK_TITLE") .. table.concat(resourceStockStringTable["Other"])
-				self.m_Instance.LuxuriesStockIcon:SetToolTipString(otherToolTip)
+				self.m_Instance.DynamicContentButton:RegisterCallback	(Mouse.eLClick,	ChangeTab)
+				self.m_Instance.DynamicContentButton:RegisterCallback	(Mouse.eRClick,	ChangeMode)
 				
+				local resourceStockStringTable = city:GetResourcesStockStringTable(resourceToolTipTab, resourceToolTipMode)
+				
+				-- Food
+				local foodParameters	= {}
+				function RefreshFoodParameters()
+
+					local textStr 				= "[ICON_MOUSE_LEFT]"
+					local resourceTabLoc		= resourceTabs[resourceToolTipTab]
+					local resourceModeLoc		= resourceModes[resourceToolTipMode]
+					local bCondensedMode		= (resourceModes[resourceToolTipMode] == "LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD")
+					for i, loc in ipairs(resourceTabs) do
+						if i == resourceToolTipTab then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .. "[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					textStr = textStr .. "[NEWLINE][ICON_MOUSE_RIGHT]"					
+					for i, loc in ipairs(resourceModes) do
+						if i == resourceToolTipMode then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .."[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					
+					-- Special presentation for food Tooltip, using 1 more slot
+					foodParameters.Title1	= Locale.Lookup("LOC_CITYBANNER_FOOD_TITLE")
+					foodParameters.Text1	= textStr
+					foodParameters.Title2	= Locale.Lookup("LOC_CITYBANNER_FOOD_STOCK_TITLE")
+					foodParameters.Text2	= city:GetFoodStockString() .. "[NEWLINE]" .. city:GetFoodConsumptionString()
+					
+					for key, loc in pairs(TooltipParameters[resourceTabLoc][resourceModeLoc]) do
+						foodParameters[key] = Locale.Lookup(loc)
+					end
+					if bCondensedMode then
+						foodParameters.ListSmall	= table.concat(resourceStockStringTable["Food"])
+						foodParameters.List4		= nil
+					else
+						foodParameters.List4		= table.concat(resourceStockStringTable["Food"])
+						foodParameters.ListSmall	= nil
+					end
+				end
+				RefreshFoodParameters()
+				
+				function ShowFoodToolTip()
+					self:UpdateStats()
+					LuaEvents.ShowCustomToolTip(foodParameters)
+					sCurrentResourceTooltip = "Food"
+				end				
+				self.m_Instance.FoodIcon:RegisterMouseEnterCallback(ShowFoodToolTip)
+				self.m_Instance.FoodIcon:RegisterMouseExitCallback(CleanToolTip)
+				--self.m_Instance.FoodIcon:SetToolTipString(foodToolTip)
+				
+				-- Strategic
+				local strategicParameters	= {}
+				function RefreshStrategicParameters()
+
+					local textStr 				= "[ICON_MOUSE_LEFT]"
+					local resourceTabLoc		= resourceTabs[resourceToolTipTab]
+					local resourceModeLoc		= resourceModes[resourceToolTipMode]
+					local bCondensedMode		= (resourceModes[resourceToolTipMode] == "LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD")
+					for i, loc in ipairs(resourceTabs) do
+						if i == resourceToolTipTab then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .. "[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					textStr = textStr .. "[NEWLINE][ICON_MOUSE_RIGHT]"					
+					for i, loc in ipairs(resourceModes) do
+						if i == resourceToolTipMode then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .."[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					
+					strategicParameters.Title1	= Locale.Lookup("LOC_CITYBANNER_STRATEGIC_STOCK_TITLE")
+					strategicParameters.Text1	= textStr
+					for key, loc in pairs(TooltipParameters[resourceTabLoc][resourceModeLoc]) do
+						strategicParameters[key] = Locale.Lookup(loc)
+					end
+					if bCondensedMode then
+						strategicParameters.ListSmall	= table.concat(resourceStockStringTable["Strategic"])
+						strategicParameters.List4		= nil
+					else
+						strategicParameters.List4		= table.concat(resourceStockStringTable["Strategic"])
+						strategicParameters.ListSmall	= nil
+					end
+				end
+				RefreshStrategicParameters()
+				
+				function ShowStrategicToolTip()
+					self:UpdateStats()
+					LuaEvents.ShowCustomToolTip(strategicParameters)
+					sCurrentResourceTooltip = "Strategic"
+				end				
+				self.m_Instance.StrategicStockIcon:RegisterMouseEnterCallback(ShowStrategicToolTip)
+				self.m_Instance.StrategicStockIcon:RegisterMouseExitCallback(CleanToolTip)
+				
+		
+				-- Other Resources
+				local otherParameters	= {}
+				function RefreshOtherParameters()
+
+					local textStr 				= "[ICON_MOUSE_LEFT]"
+					local resourceTabLoc		= resourceTabs[resourceToolTipTab]
+					local resourceModeLoc		= resourceModes[resourceToolTipMode]
+					local bCondensedMode		= (resourceModes[resourceToolTipMode] == "LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD")
+					for i, loc in ipairs(resourceTabs) do
+						if i == resourceToolTipTab then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .. "[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					textStr = textStr .. "[NEWLINE][ICON_MOUSE_RIGHT]"					
+					for i, loc in ipairs(resourceModes) do
+						if i == resourceToolTipMode then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .."[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					
+					otherParameters.Title1	= Locale.Lookup("LOC_CITYBANNER_OTHER_STOCK_TITLE")
+					otherParameters.Text1	= textStr
+					for key, loc in pairs(TooltipParameters[resourceTabLoc][resourceModeLoc]) do
+						otherParameters[key] = Locale.Lookup(loc)
+					end
+					if bCondensedMode then
+						otherParameters.ListSmall	= table.concat(resourceStockStringTable["Other"])
+						otherParameters.List4		= nil
+					else
+						otherParameters.List4		= table.concat(resourceStockStringTable["Other"])
+						otherParameters.ListSmall	= nil
+					end
+				end
+				RefreshOtherParameters()				
+				
+				function ShowOtherToolTip()
+					self:UpdateStats()
+					LuaEvents.ShowCustomToolTip(otherParameters)
+					sCurrentResourceTooltip = "Other"
+				end				
+				self.m_Instance.LuxuriesStockIcon:RegisterMouseEnterCallback(ShowOtherToolTip)
+				self.m_Instance.LuxuriesStockIcon:RegisterMouseExitCallback(CleanToolTip)
+				
+				-- Equipment
 				local equipmentToolTip = Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE").. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
 				equipmentToolTip = equipmentToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE") .. table.concat(resourceStockStringTable["Equipment"])
-				self.m_Instance.EquipmentStockIcon:SetToolTipString(equipmentToolTip)
 				
+				
+				local equipmentParameters	= {}
+				function RefreshEquipmentParameters()
+
+					local textStr 				= "[ICON_MOUSE_LEFT]"
+					local resourceTabLoc		= resourceTabs[resourceToolTipTab]
+					local resourceModeLoc		= resourceModes[resourceToolTipMode]
+					local bCondensedMode		= (resourceModes[resourceToolTipMode] == "LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD")
+					for i, loc in ipairs(resourceTabs) do
+						if i == resourceToolTipTab then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .. "[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					textStr = textStr .. "[NEWLINE][ICON_MOUSE_RIGHT]"					
+					for i, loc in ipairs(resourceModes) do
+						if i == resourceToolTipMode then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .."[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					
+					-- Special presentation for food Tooltip, using 1 more slot
+					equipmentParameters.Title1	= Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE") --LOC_CITYBANNER_FOOD_TITLE
+					equipmentParameters.Text1	= textStr
+					equipmentParameters.Title2	= Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
+					equipmentParameters.Text2	= Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+					
+					for key, loc in pairs(TooltipParameters[resourceTabLoc][resourceModeLoc]) do
+						equipmentParameters[key] = Locale.Lookup(loc)
+					end
+					if bCondensedMode then
+						equipmentParameters.ListSmall	= table.concat(resourceStockStringTable["Equipment"])
+						equipmentParameters.List4		= nil
+					else
+						equipmentParameters.List4		= table.concat(resourceStockStringTable["Equipment"])
+						equipmentParameters.ListSmall	= nil
+					end
+				end
+				RefreshEquipmentParameters()
+				
+				function ShowEquipmentToolTip()
+					self:UpdateStats()
+					LuaEvents.ShowCustomToolTip(equipmentParameters)
+					sCurrentResourceTooltip = "Equipment"
+				end				
+				self.m_Instance.EquipmentStockIcon:RegisterMouseEnterCallback(ShowEquipmentToolTip)
+				self.m_Instance.EquipmentStockIcon:RegisterMouseExitCallback(CleanToolTip)
+				
+				--self.m_Instance.EquipmentStockIcon:SetToolTipString(equipmentToolTip)
+				
+				-- Housing / Employment
 				local housingToolTip = Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE").."[NEWLINE]"..city:GetHousingToolTip()
 				self.m_Instance.HousingIcon:SetToolTipString(housingToolTip)
 				
+				-- Health
 				local healthToolTip = Locale.Lookup("LOC_CITYBANNER_HEALTH_TITLE").."[NEWLINE]"..city:GetHealthString()
 				self.m_Instance.HealthIcon:SetToolTipString(healthToolTip)
 				
+				-- Population Needs & Stability/Unrest
 				local populationNeedsToolTip = Locale.Lookup("LOC_CITYBANNER_POPULATION_NEEDS_TITLE").."[NEWLINE]"..city:GetPopulationNeedsEffectsString()
 				self.m_Instance.StabilityIcon:SetToolTipString(populationNeedsToolTip)
 				
@@ -1536,6 +1815,7 @@ function CityBanner.UpdateName( self : CityBanner )
 					--]]
 					
 					function ShowSupplyLine()
+						if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
 						--if bShownSupplyLine then return end
 						local cityList = {}
 						
@@ -1644,6 +1924,7 @@ function CityBanner.UpdateName( self : CityBanner )
 					
 					function OnMouseOut()
 						bShownSupplyLine = false
+						if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
 						if UILens.IsLensActive("TradeRoute") then
 							-- Make sure to switch back to default lens
 							UILens.SetActive("Default");
@@ -3132,6 +3413,10 @@ function Initialize()
 
 	ContextPtr:SetInitHandler( OnContextInitialize );
 	ContextPtr:SetShutdown( OnShutdown );
+	
+	-- GCO <<<<<
+	ContextPtr:SetInputHandler( OnInputHandler, true )
+	-- GCO >>>>>
 
 	Events.BeginWonderReveal.Add(				OnBeginWonderReveal );
 	Events.BuildingChanged.Add(					OnBuildingChanged);

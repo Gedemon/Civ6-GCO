@@ -259,9 +259,9 @@
 		<Replace Tag="LOC_RESOURCE_PLANTS_NAME" 						Text="Plants" 						Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_LEATHER_NAME" 						Text="Leather" 						Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_MEDICINE_NAME" 						Text="Medicine" 					Language="en_US" />
-		<Replace Tag="LOC_RESOURCE_WOODEN_HULL_PART_NAME" 				Text="Hull (Wood)" 					Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_STEEL_HULL_PART_NAME" 				Text="Hull (Steel)" 				Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_LARGE_STEEL_HULL_NAME" 				Text="Large Hull (Steel)"			Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_WOODEN_HULL_PART_NAME" 				Text="Wood Hull" 					Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_STEEL_HULL_PART_NAME" 				Text="Steel Hull"	 				Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_LARGE_STEEL_HULL_NAME" 				Text="Large Steel Hull"				Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_ELECTRICAL_DEVICES_NAME" 			Text="Electrical Devices"			Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_ELECTRONIC_COMPONENTS_NAME" 			Text="Electronic Components"		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_ELECTRONIC_SYSTEM_NAME" 				Text="Electronic Systems"			Language="en_US" /> 

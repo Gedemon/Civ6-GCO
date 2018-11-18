@@ -4367,7 +4367,7 @@ end
 	return strFull
 end
 
-function GetResourcesStockStringTable(self)
+function GetResourcesStockStringTable(self, resourceToolTipTab, resourceToolTipMode)
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey	= GCO.GetPreviousTurnKey()
@@ -4398,22 +4398,194 @@ else
 			local resRow 			= GameInfo.Resources[resourceID]
 			local str 				= ""
 			local bIsEquipmentMaker = GCO.IsResourceEquipmentMaker(resourceID)
+			local product 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
+			local collect 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
+
+			local import 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
+			local transferIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
+	 		local pillage 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey))
+	 		local otherIn 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey))
 			
+			local consume 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, turnKey))
+	 		local export 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Export, turnKey))
+	 		local transferOut 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferOut, turnKey))
+	 		local supply 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Supply, turnKey))
+	 		local stolen 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)) -- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
+	 		local otherOut 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherOut, turnKey))
+	
+			local bSimpleMode		= (resourceModes[resourceToolTipMode] == "LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD")
+			local bCondensedMode	= (resourceModes[resourceToolTipMode] == "LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD")
+			
+			if bCondensedMode then -- unique mode
+			
+				local localProd	= product + collect
+				local tradeIn	= import + transferIn + pillage + otherIn
+				local tradeOut	= export + transferOut + supply + stolen + otherOut
+				
+				str = GCO.GetResourceIcon(resourceID)
+				str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 9)
+				
+				if localProd > 0 then
+					str = str .. " |+" .. Indentation(localProd, 3, true).."/-"..Indentation(consume, 3, true)
+				else
+					str = str .. " | " .. Indentation("0", 3, true).."/-"..Indentation(consume, 3, true)
+				end
+				
+				if tradeIn > 0 then
+					str = str .. " |+" .. Indentation(tradeIn, 3, true).."/-"..Indentation(tradeOut, 3, true)
+				else
+					str = str .. " | " .. Indentation("0", 3, true).."/-"..Indentation(tradeOut, 3, true)
+				end
+				
+				str = str .. " |" .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
+				str = str .. " |" .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
+				str = str .. " |[COLOR_Gold]" .. Indentation(resourceCost, 4, true).."[ENDCOLOR]"
+				str = str .. " " .. (costVariation < 0 and "[COLOR_Civ6Green]-"..Indentation(-costVariation, 4, true) or "[COLOR_Civ6Red]+"..Indentation(costVariation, 4, true)) .."[ENDCOLOR]"
+				str = str .. "[NEWLINE]"
+			
+			elseif resourceTabs[resourceToolTipTab] == "LOC_CITYBANNER_TOOLTIP_STOCK_TAB" then
+			
+				--test Indentation(str, maxLength, bAlignRight, bShowSpace)
+				str = GCO.GetResourceIcon(resourceID)
+				
+				if bSimpleMode then
+					local bShowSpace 	= true
+					local bAlignRight	= false
+					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name).." ", 14, bAlignRight, bShowSpace)
+					str = str .. " | " .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
+					str = str .. " | " .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
+				else
+					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 8)
+					if product > 0 then
+						str = str .. "|[ICON_Charges]+" .. Indentation(product, 3, true)
+					elseif collect > 0 then
+						str = str .. "|[ICON_Terrain]+" ..Indentation(collect, 3, true)
+					else
+						str = str .. "|[ICON_INDENT] " .. Indentation("0", 3, true)
+					end
+					str = str .. "|" .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
+					str = str .. "| " .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
+				end
+				str = str .. "| [COLOR_Gold]" .. Indentation(resourceCost, 4, true).."[ENDCOLOR]"
+				str = str .. " " .. (costVariation < 0 and "[COLOR_Civ6Green]-"..Indentation(-costVariation, 4, true) or "[COLOR_Civ6Red]+"..Indentation(costVariation, 4, true)) .."[ENDCOLOR]"
+				str = str .. "[NEWLINE]"
+				
+			elseif resourceTabs[resourceToolTipTab] == "LOC_CITYBANNER_TOOLTIP_PRODUCTION_TAB" then
+			
+				str = GCO.GetResourceIcon(resourceID)
+				
+				if bSimpleMode then
+					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 9)
+					if product > 0 then
+						str = str .. "|[ICON_Charges]+" .. Indentation(product, 3, true)
+					elseif collect > 0 then
+						str = str .. "|[ICON_Terrain]+" ..Indentation(collect, 3, true)
+					else
+						str = str .. "|[ICON_INDENT] " .. Indentation("0", 3, true)
+					end
+					str = str .. "|-" .. Indentation(consume, 3, true)
+					str = str .. "|" .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
+					str = str .. "|" .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
+					str = str .. "| [COLOR_Gold]" .. Indentation(resourceCost, 4, true).."[ENDCOLOR]"
+					str = str .. " " .. (costVariation < 0 and "[COLOR_Civ6Green]-"..Indentation(-costVariation, 4, true) or "[COLOR_Civ6Red]+"..Indentation(costVariation, 4, true)) .."[ENDCOLOR]"
+					str = str .. "[NEWLINE]"
+				else
+					-- special case for detailed consumption to get City (construction), building or population usage
+					local buildingUsage	= 0
+					local popUsage		= 0
+					local cityUsage		= 0
+					if data.ResourceUse and data.ResourceUse[turnKey] then
+						local useData = data.ResourceUse[turnKey][resourceKey]
+						if useData and useData[ResourceUseType.Consume] then
+							for key, value in pairs(useData[ResourceUseType.Consume]) do
+								if key ~= NO_REFERENCE_KEY then
+									if string.find(key, ",") then -- this is a city or unit key
+										cityUsage		= cityUsage + value
+									elseif string.len(key) > 5 then -- this lenght means Population type string
+										popUsage		= popUsage + value
+									else -- buildingKey
+										buildingUsage	= buildingUsage + value
+									end
+								end
+							end
+						end
+					end
+					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 9)
+					if product > 0 then
+						str = str .. "|[ICON_Charges]+" .. Indentation(product, 3, true)
+					elseif collect > 0 then
+						str = str .. "|[ICON_Terrain]+" ..Indentation(collect, 3, true)
+					else
+						str = str .. "|[ICON_INDENT] " .. Indentation("-", 3, true)
+					end
+					str = str .. "|-" .. Indentation(buildingUsage, 3, true)
+					str = str .. "|-" .. Indentation(cityUsage, 3, true)
+					str = str .. "|-" .. Indentation(popUsage, 3, true)
+					str = str .. "|" .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
+					str = str .. "|" .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
+					str = str .. "[NEWLINE]"
+				
+				end
+				
+			elseif resourceTabs[resourceToolTipTab] == "LOC_CITYBANNER_TOOLTIP_TRADE_TAB" then
+			
+				str = GCO.GetResourceIcon(resourceID)
+				
+				if bSimpleMode then
+					local trade			= import + transferIn - export - transferOut
+					local supply		= pillage - supply
+					local bShowSpace 	= true
+					local bAlignRight	= false
+					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name).." ", 14, bAlignRight, bShowSpace)
+					if trade > 0 then
+						str = str .. " |+" .. Indentation(trade, 4, true)
+					elseif trade < 0 then
+						str = str .. " |-" .. Indentation(-trade, 4, true)
+					else
+						str = str .. " | " .. Indentation(trade, 4, true)					
+					end
+					if supply > 0 then
+						str = str .. " |+" .. Indentation(supply, 4, true)
+					elseif supply < 0 then
+						str = str .. " |-" .. Indentation(-supply, 4, true)
+					else
+						str = str .. " | " .. Indentation(supply, 4, true)					
+					end
+					str = str .. " | " .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
+					str = str .. "| [COLOR_Gold]" .. Indentation(resourceCost, 4, true).."[ENDCOLOR]"
+					str = str .. " " .. (costVariation < 0 and "[COLOR_Civ6Green]-"..Indentation(-costVariation, 4, true) or "[COLOR_Civ6Red]+"..Indentation(costVariation, 4, true)) .."[ENDCOLOR]"
+				else
+					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 6)
+					str = str .. "|+" .. Indentation(import, 3, true).. "/-" .. Indentation(export, 3, true)
+					str = str .. "|+" .. Indentation(transferIn, 3, true).. "/-" .. Indentation(transferOut, 3, true)
+					str = str .. "|+" .. Indentation(pillage, 3, true).. "/-" .. Indentation(supply, 3, true)
+					
+					--str = str .. "|" .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
+					str = str .. "|" .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
+					str = str .. "|[COLOR_Gold]" .. Indentation(resourceCost, 4, true).."[ENDCOLOR]"
+				end
+				str = str .. "[NEWLINE]"
+				
+			else
+				GCO.Warning("resourceToolTipTab not registered :", resourceToolTipTab)
+			end
+			
+			---[[
 			--str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))
 			-- [{1_Num}/{2_Num}
-			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", resRow.Name, GCO.GetResourceIcon(resourceID))
+			--str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", resRow.Name, GCO.GetResourceIcon(resourceID))
 			
-			local product 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
-			local collect 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
 			--local import 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
 			--local transferIn 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
 			
-			if product > 0 then
-				str = str .." [[ICON_TOOLS2]+"..tostring(product).."]"
-			end
-			if collect > 0 then
-				str = str .." [[ICON_Terrain]+"..tostring(collect).."]"
-			end
+			---[[
+			--if product > 0 then
+			--	str = str .." [[ICON_TOOLS2]+"..tostring(product).."]"
+			--end
+			--if collect > 0 then
+			--	str = str .." [[ICON_Terrain]+"..tostring(collect).."]"
+			--end
+			--[[
 			str = str .. " " ..Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK_MAX_STOCK", value, self:GetMaxStock(resourceID))
 			
 			str = str .. GCO.GetVariationString(stockVariation)
@@ -4421,14 +4593,16 @@ else
 			if resourceCost > 0 then
 				str = str .." [".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr.."]"
 			end
+			--]]
 			
 			if GCO.IsResourceEquipment(resourceID) then
 				table.insert(equipmentList, { String = str, Order = EquipmentInfo[resourceID].Desirability })
-			elseif resRow.ResourceClassType == "RESOURCECLASS_STRATEGIC" or bIsEquipmentMaker then
+			elseif resRow.ResourceClassType == "RESOURCECLASS_STRATEGIC" or bIsEquipmentMaker then			
+			
 				local equipmentMaker = 0
 				if bIsEquipmentMaker then equipmentMaker = 1 end
 				table.insert(strategicList, { String = str, Order = equipmentMaker })
-			elseif GCO.IsResourceFood(resourceID) then --or resourceKey == foodResourceKey then
+			elseif GCO.IsResourceFood(resourceID) or resourceKey == foodResourceKey then
 				table.insert(foodList, { String = str, Order = value })
 			elseif resourceKey ~= foodResourceKey then -- food is displayed separately
 				table.insert(otherList, { String = str, Order = value })
@@ -4465,7 +4639,7 @@ function GetFoodStockString(self)
 	local costVariation 		= self:GetResourceCostVariation(foodResourceID)
 
 	local pctFood				= foodStock / maxFoodStock * 100
-	local str 					= Locale.Lookup("LOC_CITYBANNER_FOOD_PERCENTAGE", GCO.GetPercentBarString(pctFood), pctFood) .. " " ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR")--""
+	local str 					= Locale.Lookup("LOC_CITYBANNER_FOOD_PERCENTAGE", GCO.GetPercentBarString(pctFood), pctFood) .. "[NEWLINE]"-- ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR")--""
 	if cityRationning <= Starvation then
 		str = str ..Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_STARVATION", foodStock, maxFoodStock)
 	elseif cityRationning <= heavyRationing then
@@ -4582,6 +4756,8 @@ function GetHousingToolTip(self)
 	end
 	return housingToolTip
 end
+
+
 -----------------------------------------------------------------------------------------
 -- Do Turn for Cities
 -----------------------------------------------------------------------------------------
