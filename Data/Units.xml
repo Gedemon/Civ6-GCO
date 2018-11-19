@@ -14,6 +14,7 @@
 	</UnitsGCO>
 	<UnitsGCO> <!-- Melee -->
 	<!---- >
+		<Row UnitType="UNIT_HEAVY_LANDSKNECHT" 	Cost="200"	Maintenance="3"	Combat="45"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_GRENADIER" 			Cost="300"	Maintenance="5"	Combat="60"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_INFANTRY2"		 	Cost="450"	Maintenance="6"	Combat="72"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_MOTORIZED_INFANTRY"	Cost="460"	Maintenance="7"	Combat="75"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" BaseMoves="4"	/>
@@ -27,7 +28,8 @@
 		<Row UnitType="UNIT_HEAVY_PHALANX" 		Cost="90"	Maintenance="2"	Combat="32"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_SWORDSMAN" 			Cost="95" 	Maintenance="3" Combat="36" />
 		<Row UnitType="UNIT_LANDSKNECHT" 		Cost="200"	Maintenance="3"	Combat="45"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
-		<Row UnitType="UNIT_MACEMAN" 			Cost="210" 	Maintenance="4" Combat="47" />
+		<Row UnitType="UNIT_HEAVY_LANDSKNECHT" 	Cost="200"	Maintenance="3"	Combat="47"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
+		<Row UnitType="UNIT_MACEMAN" 			Cost="220" 	Maintenance="5" Combat="50" />
 		<Row UnitType="UNIT_MUSKETMAN" 			Cost="240" 	Maintenance="4" Combat="54" />
 		<Row UnitType="UNIT_JAGER" 				Cost="360"	Maintenance="5"	Combat="66"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
 		<Row UnitType="UNIT_MARINE"		 		Cost="450"	Maintenance="6"	Combat="72"	PromotionClass="PROMOTION_CLASS_MELEE"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"  AdvisorType="ADVISOR_CONQUEST" />
@@ -71,11 +73,10 @@
 	<!---- >
 		<Row UnitType="UNIT_SLINGER" 			Cost="35" 	Maintenance="1" Combat="5" 	RangedCombat="15" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
 		<Row UnitType="UNIT_ARCHER" 			Cost="50" 	Maintenance="1" Combat="15" RangedCombat="25" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
-		<Row UnitType="UNIT_COMPOSITE_BOWMAN" 	Cost="85" 	Maintenance="1" Combat="22" RangedCombat="32" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
-		<Row UnitType="UNIT_ARCHER" 			Cost="50" 	Maintenance="1" Combat="15" RangedCombat="25" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
-		<Row UnitType="UNIT_ARCHER" 			Cost="50" 	Maintenance="1" Combat="15" RangedCombat="25" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
+		<Row UnitType="UNIT_COMPOSITE_BOWMAN" 	Cost="85" 	Maintenance="2" Combat="22" RangedCombat="32" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
+		<Row UnitType="UNIT_LONGBOWMAN" 		Cost="180" 	Maintenance="3" Combat="30" RangedCombat="40" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
+		<Row UnitType="UNIT_FIELD_CANNON" 		Cost="330" 	Maintenance="5" Combat="50" RangedCombat="60" 	Range="1"	ZoneOfControl="false"	PromotionClass="PROMOTION_CLASS_RANGED"		FormationClass="FORMATION_CLASS_RANGED" Domain="DOMAIN_LAND" AdvisorType="ADVISOR_GENERIC"	/>
 	
-		<Row UnitType="UNIT_FIELD_CANNON" 		Combat="53" RangedCombat="0"	Bombard="65"	PromotionClass="PROMOTION_CLASS_SIEGE" />
 	<!---->
 	</UnitsGCO>
 	<UnitsGCO>

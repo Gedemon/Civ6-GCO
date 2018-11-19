@@ -554,6 +554,11 @@
         <Replace Name="ICON_UNIT_HEAVY_PHALANX_FOW"			Atlas="ICON_ATLAS_MISSING_UNITS" 			Index="8"/>
 		<Replace Name="ICON_UNIT_HEAVY_PHALANX_PORTRAIT"	Atlas="ICON_ATLAS_MISSING_UNITS_PORTRAITS"	Index="8"/>
 		
+		<Replace Name="ICON_UNIT_HEAVY_LANDSKNECHT" 		Atlas="ICON_ATLAS_MOAR_UNITS" 				Index="14"/>
+		<Replace Name="ICON_UNIT_HEAVY_LANDSKNECHT_BLACK" 	Atlas="ICON_ATLAS_MOAR_UNITS"				Index="14"/>
+		<Replace Name="ICON_UNIT_HEAVY_LANDSKNECHT_WHITE" 	Atlas="ICON_ATLAS_MOAR_UNITS"				Index="14"/>
+		<Replace Name="ICON_UNIT_HEAVY_LANDSKNECHT_PORTRAIT"Atlas="ICON_ATLAS_MOAR_UNITS_PORTRAITS" 	Index="14"/>
+		
         <Replace Name="ICON_UNIT_JAGER" 					Atlas="ICON_ATLAS_MOAR_UNITS"				Index="1"/>
         <Replace Name="ICON_UNIT_JAGER_PORTRAIT"			Atlas="ICON_ATLAS_MOAR_UNITS_PORTRAITS"		Index="1"/>
 		
@@ -589,6 +594,11 @@
         <Replace Name="ICON_UNIT_HUNTSMAN"					Atlas="ICON_ATLAS_UNITS" 					Index="19"/>
         <Replace Name="ICON_UNIT_HUNTSMAN_FOW"				Atlas="ICON_ATLAS_UNITS_FOW"				Index="19"/>
         <Replace Name="ICON_UNIT_HUNTSMAN_PORTRAIT"			Atlas="ICON_ATLAS_MOAR_UNITS_PORTRAITS"		Index="11"/>
+		
+        <Replace Name="ICON_UNIT_FORESTER" 					Atlas="ICON_ATLAS_MOAR_UNITS" 				Index="40"/>
+        <Replace Name="ICON_UNIT_FORESTER_BLACK" 			Atlas="ICON_ATLAS_MOAR_UNITS" 				Index="40"/>
+        <Replace Name="ICON_UNIT_FORESTER_WHITE" 			Atlas="ICON_ATLAS_MOAR_UNITS" 				Index="40"/>
+        <Replace Name="ICON_UNIT_FORESTER_PORTRAIT" 		Atlas="ICON_ATLAS_MOAR_UNITS_PORTRAITS" 	Index="40"/>
 	</IconDefinitions>
 	
 </GameInfo>

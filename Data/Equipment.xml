@@ -370,6 +370,7 @@
 		<Row ResourceType="EQUIPMENT_IRON_SPEARS"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_LANCES"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_RIFLES"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_AUTOMATIC_RIFLES"	EquipmentClass="EQUIPMENTCLASS_CAVALRY_WEAPONS"		/>
 		
 		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
 		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_CAVALRY_ARMOR"		/>
@@ -514,11 +515,23 @@
 		<Row UnitType="UNIT_LANDSKNECHT"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_LANDSKNECHT"			EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
+		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_PIKES" />
+		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" />
+		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		
+		<!--
+			The code can't handle that kind of unit directly...
+			maybe with an additional equipmentClass (ie EQUIPMENTCLASS_MELEE_ALTERNATE_WEAPONS containing only Muskets equipment)
+			set in the Melee PromotionClass ?
+			Would we also need a specific Unit equipmentClass (ie EQUIPMENTCLASS_MUSKETS_ALTERNATE) ?
+		-- >
 		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_PIKES" 			PercentageOfPersonnel="40" />
 		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_MUSKETS" 		PercentageOfPersonnel="60" />
 		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_TERCIO"					EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<!---->
 		
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_MUSKETS" />

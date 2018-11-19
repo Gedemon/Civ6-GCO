@@ -196,15 +196,26 @@ for row in GameInfo.BuildingConstructionResources() do
 	table.insert(buildingConstructionResources[buildingID], {ResourceID = resourceID, Quantity = row.Quantity})
 end
 
--- Helper to get the upgrades for Buildings (which buildings a Building is replacing)
-local BuildingReplacements	= {}
+-- Helper to get 
+local BuildingReplacements	= {} -- cached table to get the upgrades for Buildings (which buildings a Building is directly replacing)
+local BuildingUpgrade		= {} -- cached table to get which building is directly replacing a Building 
 for row in GameInfo.BuildingUpgrades() do
 	local buildingType 	= row.BuildingType
 	local upgradeType 	= row.UpgradeType
 	local buildingID 	= GameInfo.Buildings[buildingType].Index
 	local upgradeID		= GameInfo.Buildings[upgradeType].Index
+	BuildingUpgrade[buildingID]	= upgradeID
 	if not BuildingReplacements[upgradeID] then BuildingReplacements[upgradeID] = {} end
 	table.insert(BuildingReplacements[upgradeID], buildingID)
+end
+
+local BuildingFullUpgrades	= {} -- All buildings that are replacing a Building, directly or indirectly
+for buildingID, upgradeID in pairs(BuildingUpgrade) do
+	BuildingFullUpgrades[buildingID] = {}
+	while (upgradeID ~= nil) do
+		table.insert(BuildingFullUpgrades[buildingID], upgradeID)
+		upgradeID = BuildingUpgrade[upgradeID]
+	end
 end
 
 -- List of Buildings which provide Health
@@ -3677,6 +3688,7 @@ function CanConstruct(self, buildingType)
 	
 	-- check for upgrade already build
 	local bCheckNoUpgradeBuild = true
+	--[[
 	if GameInfo.BuildingUpgrades[buildingType] then
 		local upgradeType	= GameInfo.BuildingUpgrades[buildingType].UpgradeType
 		local upgradeRow	= GameInfo.Buildings[upgradeType]
@@ -3687,6 +3699,16 @@ function CanConstruct(self, buildingType)
 			table.insert(preReqStr, "[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_UPGRADE_TO", upgradeRow.Name))
 		end
 	end	
+	--]]
+	if BuildingFullUpgrades[buildingID] then
+		for _, upgradeID in ipairs(BuildingFullUpgrades[buildingID]) do
+			if self:GetBuildings():HasBuilding(upgradeID) then
+				bCheckNoUpgradeBuild = false
+			elseif BuildingUpgrade[buildingID] == upgradeID then -- this is the direct upgrade to this building
+				table.insert(preReqStr, "[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_UPGRADE_TO", GameInfo.Buildings[upgradeID].Name))
+			end
+		end
+	end
 	
 	-- add string for replacement
 	local replacements		= BuildingReplacements[buildingID]
