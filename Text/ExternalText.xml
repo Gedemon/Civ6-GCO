@@ -41,7 +41,7 @@
 			<Text>Landsknecht</Text>
 		</Replace>
 		<Replace Tag="LOC_UNIT_LANDSKNECHT_DESCRIPTION" Language="en_US">
-			<Text>German unique Medieval Era unit that replaces Pikeman. Half the cost of Pikeman but must be purchased with gold.</Text>
+			<Text>Medieval Era Melee unit.</Text>
 		</Replace>
 		<Replace Tag="LOC_UNIT_PHALANX_NAME" Language="en_US">
 			<Text>Phalanx</Text>

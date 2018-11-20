@@ -285,6 +285,7 @@
 		<Replace Tag="LOC_UNIT_HEAVY_SPEARMAN_NAME" 	Text="Heavy Spearman" 		Language="en_US" />
 		<Replace Tag="LOC_UNIT_LIGHT_SWORDSMAN_NAME" 	Text="Light Swordsman" 		Language="en_US" />
 		<Replace Tag="LOC_UNIT_HEAVY_PIKEMAN_NAME" 		Text="Heavy Pikeman" 		Language="en_US" />
+		<Replace Tag="LOC_UNIT_HEAVY_LANDSKNECHT_NAME" 	Text="Heavy Landsknecht" 	Language="en_US" />
 		
 		<Replace Tag="LOC_UNIT_JAGER_NAME" 				Text="Infantry" 			Language="en_US" />
 		<Replace Tag="LOC_UNIT_MARINE_NAME" 			Text="Infantry" 			Language="en_US" />
