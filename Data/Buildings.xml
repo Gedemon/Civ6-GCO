@@ -202,7 +202,7 @@
 	</BuildingPopulationEffect>
 	
 	<BuildingPrereqs>
-	<!---- >
+	<!---->
 		
 		<Row Building="BUILDING_ANCIENT_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	/>
