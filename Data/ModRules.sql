@@ -476,9 +476,10 @@ DELETE FROM Building_YieldChanges WHERE YieldType ='YIELD_FAITH';
 /* Units                    */
 /* ************************ */
 --/*
-UPDATE Units SET PopulationCost ='0';
-UPDATE Units SET PrereqPopulation ='0';
-UPDATE Units SET StrategicResource = NULL;
+UPDATE Units SET PopulationCost 	='0';
+UPDATE Units SET PrereqPopulation 	='0';
+UPDATE Units SET StrategicResource 	= NULL;
+UPDATE Units SET MustPurchase 		='0';
 --*/
 
 /* ************************ */

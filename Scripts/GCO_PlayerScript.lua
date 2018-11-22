@@ -200,6 +200,40 @@ function GetConfig(self)
 	return GCO.GetPlayerConfig(self:GetID())
 end
 
+function GetCache(self)
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	return _cached[selfKey]
+end
+
+function GetCached(self, key)
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	return _cached[selfKey][key]
+end
+
+function SetCached(self, key, value)
+	local selfKey 	= self:GetKey()
+	if not _cached[selfKey] then _cached[selfKey] = {} end
+	_cached[selfKey][key] = value
+end
+
+function GetValue(self, key)
+	local Data = self:GetData()
+	if not Data then
+		GCO.Warning("playerData is nil for " .. self:GetName(), self:GetKey())
+		return
+	end
+	return Data[key]
+end
+
+function SetValue(self, key, value)
+	local Data = self:GetData()
+	if not Data then
+		GCO.Error("playerData is nil for " .. self:GetName(), self:GetKey() .. "[NEWLINE]Trying to set ".. tostring(key) .." value to " ..tostring(value))
+	end
+	Data[key] = value
+end
 
 -----------------------------------------------------------------------------------------
 -- General functions
@@ -459,6 +493,26 @@ function UpdateMilitaryOrganizationLevel(self)
 		self:SetMilitaryOrganizationLevel(organizationLevel)
 	end
 end
+
+function GetConscriptOrganizationLevel(self)
+
+	local playerOrganizationLevel 	= self:GetMilitaryOrganizationLevel()
+	local baseLevelID				= GameInfo.MilitaryOrganisationLevels["LEVEL0"].Index
+	if self:HasPolicyActive(GameInfo.Policies["POLICY_SMALLER_UNITS"].Index) then
+		baseLevelID = GameInfo.MilitaryOrganisationLevels["LEVEL0B"].Index
+	end
+	local organizationLevel	= math.max(baseLevelID , playerOrganizationLevel - 2)
+	
+	local policies	= self:GetActivePolicies()
+	for _, policyID in ipairs(policies) do
+		local policyType = GameInfo.Policies[policyID].PolicyType
+		if policyType == "POLICY_CONSCRIPTION" or policyType == "POLICY_LEVEE_EN_MASSE" then 
+			organizationLevel = math.max(baseLevelID , playerOrganizationLevel - 1)
+		end
+	end
+	return organizationLevel
+end
+
 
 -- Events
 function OnCivicCompleted(playerID, civicID) -- this function assume that Civics related to Military Organisation Levels are sequential (else the level could downgrade if a later civics is researched before an older)
@@ -740,7 +794,10 @@ function UpdateCitiesBanners(self)
 end
 
 function UpdateDataOnNewTurn(self)
-	local playerConfig = PlayerConfigurations[self:GetID()]
+	local playerConfig 	= PlayerConfigurations[self:GetID()]
+	local cache 		= self:GetCache()
+	cache.NumResource	= {} -- reset values
+	local NumResource	= cache.NumResource
 	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on new turn for "..Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 	
@@ -754,6 +811,10 @@ function UpdateDataOnNewTurn(self)
 		for i, city in playerCities:Members() do
 			GCO.AttachCityFunctions(city)
 			city:UpdateDataOnNewTurn()
+			for resourceKey, value in pairs(city:GetResources() or {}) do
+				local resourceID		= tonumber(resourceKey)
+				NumResource[resourceID] = (NumResource[resourceID] or 0) + value
+			end
 		end
 	end
 	
@@ -770,9 +831,11 @@ function UpdateDataOnNewTurn(self)
 end
 
 function UpdateDataOnLoad(self)
-
 	local playerConfig 	= PlayerConfigurations[self:GetID()]
 	local name 			= Locale.Lookup(playerConfig:GetCivilizationShortDescription())
+	local cache 		= self:GetCache()
+	cache.NumResource	= {} -- reset values
+	local NumResource	= cache.NumResource
 	GCO.StartTimer("UpdateCachedData for "..name)
 	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLAYER_SCRIPT, "- Updating Data on (re)Loading for "..name)
@@ -783,6 +846,10 @@ function UpdateDataOnLoad(self)
 			GCO.AttachCityFunctions(city)
 			city:UpdateTransferCities()
 			city:UpdateExportCities()
+			for resourceKey, value in pairs(city:GetResources() or {}) do
+				local resourceID		= tonumber(resourceKey)
+				NumResource[resourceID] = (NumResource[resourceID] or 0) + value
+			end
 		end
 	end
 	
@@ -989,6 +1056,11 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.GetKey									= GetKey
 	p.GetData									= GetData
 	p.GetConfig									= GetConfig
+	p.GetCache									= GetCache
+	p.GetCached									= GetCached
+	p.SetCached									= SetCached
+	p.GetValue									= GetValue
+	p.SetValue									= SetValue
 	p.InitializeData							= InitializeData
 	p.Define									= Define
 	--
@@ -1009,6 +1081,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	p.SetMilitaryOrganizationLevel				= SetMilitaryOrganizationLevel
 	p.GetMilitaryOrganizationLevel				= GetMilitaryOrganizationLevel
 	p.UpdateMilitaryOrganizationLevel			= UpdateMilitaryOrganizationLevel
+	p.GetConscriptOrganizationLevel				= GetConscriptOrganizationLevel
 	--
 	p.IsKnownTech								= IsKnownTech
 	p.SetKnownTech								= SetKnownTech

@@ -980,6 +980,28 @@
       <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name}, {4_Num} available in stock, {5_Num} supplied. {6_Name}</Text>
     </Replace>
 	
+	<Replace Tag="LOC_PRODUCTION_NO_THREAT_RECRUITS" Language="en_US">
+		<Text>[COLOR_Civ6Red]No threat detected[ENDCOLOR]</Text>
+    </Replace>
+	<Replace Tag="LOC_PRODUCTION_NO_PERSONNEL_RECRUITS" Language="en_US">
+		<Text>[COLOR_Civ6Red]Missing {3_Num} personnel[ENDCOLOR] ([COLOR_Civ6Red]{1_Num}[ENDCOLOR] available, {2_Num} required)</Text>
+    </Replace>
+	<!---- >
+	<Replace Tag="LOC_PRODUCTION_NO_EQUIPMENT_RECRUITS" Language="en_US">
+		<Text>[COLOR_Civ6Red]Missing {4_Num} {2_Name}[ENDCOLOR] ([COLOR_Civ6Red]{3_Num}[ENDCOLOR] available, {1_Num} required)</Text>
+    </Replace>
+	<!---->
+	<Replace Tag="LOC_PRODUCTION_NO_EQUIPMENT_RECRUITS" Language="en_US">
+		<Text>[COLOR_Civ6Red]Not enough equipment for Recruits[ENDCOLOR]</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_PRODUCTION_NO_LOGISTIC_SUPPORT" Language="en_US">
+		<Text>[COLOR_Civ6Red]Missing {4_Num} Logistic support for {2_Name}[ENDCOLOR] ([COLOR_Civ6Red]{3_Num}[ENDCOLOR] available, {1_Num} required)</Text>
+    </Replace>
+	<Replace Tag="LOC_PRODUCTION_RECRUIT_TYPE" Language="en_US">
+		<Text>Recruited unit type : [COLOR_Civ6Green]{1_Name}[ENDCOLOR]</Text>
+    </Replace>
+	
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_TOTAL" Language="en_US">
       <Text>[ICON_Bullet] {3_Num} {1_Name} {2_Name} {4_Name}</Text>
     </Replace>

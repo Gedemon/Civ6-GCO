@@ -139,6 +139,25 @@
 		<Replace BuildingType="BUILDING_MARKET_EXTENSION"	UpgradeType="BUILDING_INDUSTRIAL_MARKET"	ProductionBonus="100" />
 		<Replace BuildingType="BUILDING_INDUSTRIAL_MARKET"	UpgradeType="BUILDING_HYPERMARKET"			ProductionBonus="100" />
 		
+		
+	<!---- >
+		<Replace BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 		UpgradeType="BUILDING_ANCIENT_LOWER_HOUSING_2" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 		UpgradeType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 		UpgradeType="BUILDING_ANCIENT_UPPER_HOUSING_2" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 		UpgradeType="BUILDING_ANCIENT_LOWER_HOUSING_3" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 		UpgradeType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 		UpgradeType="BUILDING_ANCIENT_UPPER_HOUSING_3" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 		UpgradeType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 		UpgradeType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 		UpgradeType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	UpgradeType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	UpgradeType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	UpgradeType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_1" 		UpgradeType="BUILDING_ATOMIC_LOWER_HOUSING_2" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 		UpgradeType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_1" 		UpgradeType="BUILDING_ATOMIC_UPPER_HOUSING_2" 		ProductionBonus="100" />
+	<!---->
+		
 	</BuildingUpgrades>
 
 	<BuildingPopulationEffect>
@@ -183,7 +202,7 @@
 	</BuildingPopulationEffect>
 	
 	<BuildingPrereqs>
-	<!---->
+	<!---- >
 		
 		<Row Building="BUILDING_ANCIENT_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	/>
@@ -197,11 +216,6 @@
 		<Row Building="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" />
 		<Row Building="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	/>
 		
-		<Row Building="BUILDING_BLADESMITH"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
-		<Row Building="BUILDING_WEAPONSMITH"				PrereqBuilding="BUILDING_BLACKSMITH" 	/>
-		<Row Building="BUILDING_ARMORSMITH"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
-		<Row Building="BUILDING_FARRIER"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
-		
 		<Row Building="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	/>
 		<Row Building="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	/>
@@ -209,6 +223,13 @@
 		<Row Building="BUILDING_ATOMIC_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	/>
 		<Row Building="BUILDING_ATOMIC_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_UPPER_HOUSING_1" 	/>
+		
+	<!---->
+		
+		<Row Building="BUILDING_BLADESMITH"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
+		<Row Building="BUILDING_WEAPONSMITH"				PrereqBuilding="BUILDING_BLACKSMITH" 	/>
+		<Row Building="BUILDING_ARMORSMITH"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
+		<Row Building="BUILDING_FARRIER"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
 		
 		<Row Building="BUILDING_LARGE_DRY_DOCK" 			PrereqBuilding="BUILDING_SEAPORT" 	/>
 		

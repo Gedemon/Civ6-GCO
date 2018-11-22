@@ -1910,7 +1910,7 @@ function Refresh()
 			
 			-- GCO <<<<<
 			--if row.Hash ~= currentProductionHash and (not row.MustPurchase or cityBuildings:IsPillaged(row.Hash)) and buildQueue:CanProduce( row.Hash, true ) then
-			if not row.Unlockers and row.Hash ~= currentProductionHash and (not row.MustPurchase or cityBuildings:IsPillaged(row.Hash)) and buildQueue:CanProduce( row.Hash, true ) then
+			if not row.Unlockers and row.Hash ~= currentProductionHash and (not row.MustPurchase or cityBuildings:IsPillaged(row.Hash)) then--and buildQueue:CanProduce( row.Hash, true ) then
 			-- GCO >>>>>
 				local isCanStart, results			 = buildQueue:CanProduce( row.Hash, false, true );
 				local isDisabled			:boolean = not isCanStart;
@@ -1922,8 +1922,8 @@ function Refresh()
 				sToolTip = sToolTip .. ComposeProductionCostString( iProductionProgress, iProductionCost );
 				
 				-- GCO <<<<<
-				if isCanStart then
-					local bCanConstruct, requirementStr, prereqStr = selectedCity:CanConstruct(row.BuildingType)
+				local bCanConstruct, requirementStr, prereqStr, bCanShow = selectedCity:CanConstruct(row.BuildingType)
+				if bCanShow and not (row.IsWonder and (not bCanStart)) then --isCanStart then
 					sToolTip = ToolTipHelper.GetBuildingToolTip( row.Hash, playerID, selectedCity ) .. prereqStr .. ComposeProductionCostString( iProductionProgress, iProductionCost ) .. requirementStr
 				-- GCO >>>>>
 			
@@ -1976,7 +1976,7 @@ function Refresh()
 			-- GCO <<<<<
 			--if row.Hash ~= currentProductionHash and not row.MustPurchase and buildQueue:CanProduce( row.Hash, true ) then
 			GCO.InitializePlayerFunctions(pPlayer)
-			if row.Hash ~= currentProductionHash and not row.MustPurchase and (buildQueue:CanProduce( row.Hash, true ) or pPlayer:CanTrain(row.UnitType)) then
+			if row.Hash ~= currentProductionHash and not row.MustPurchase then --and (buildQueue:CanProduce( row.Hash, true ) or pPlayer:CanTrain(row.UnitType)) then
 			-- GCO >>>>>
 				local isCanProduceExclusion, results	 = buildQueue:CanProduce( row.Hash, false, true );
 				local isDisabled				:boolean = not isCanProduceExclusion;
@@ -1988,8 +1988,8 @@ function Refresh()
 				sToolTip = sToolTip .. ComposeProductionCostString( nProductionProgress, nProductionCost );
 				
 				-- GCO <<<<<
-				if isCanProduceExclusion then
-					local bCanTrain, requirementStr = selectedCity:CanTrain(row.UnitType)
+				local bCanTrain, requirementStr, bCanShow = selectedCity:CanTrain(row.UnitType)
+				if bCanShow then --isCanProduceExclusion then
 					sToolTip = sToolTip .. requirementStr
 				-- GCO >>>>>
 				

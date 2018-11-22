@@ -2665,6 +2665,17 @@ function GetResources(self)
 	return ExposedMembers.CityData[cityKey].Stock[turnKey] or {}
 end
 
+function GetEquipmentList(self)
+	local equipmentList	= {}
+	for resourceKey, value in pairs(self:GetResources()) do
+		local resourceID = tonumber(resourceKey)
+		if GCO.IsResourceEquipment(resourceID) then
+			equipmentList[resourceID] = value
+		end
+	end
+	return equipmentList
+end
+
 function GetPreviousStock(self , resourceID)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetPreviousTurnKey()
@@ -3479,40 +3490,21 @@ end
 function CanTrain(self, unitType)
 
 	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT	
-
-	local cityKey 	= self:GetKey()
-	local unitID 	= GameInfo.Units[unitType].Index
-	
 	--if GameInfo.Units["UNIT_HORSEMAN"].Index == unitID and Game.GetLocalPlayer() == self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_PALACE"].Index) and Game.GetLocalPlayer() == self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "CanTrain for "..Locale.Lookup(GameInfo.Units[unitType].Name).." in "..Locale.Lookup(self:GetName()))
 
-	-- check for required buildings (any required)
-	local bCheckBuildingOR
-	if UnitPrereqBuildingOR[unitID] then
-		for buildingID, _ in ipairs(UnitPrereqBuildingOR[unitID]) do
-			if self:GetBuildings():HasBuilding(buildingID) then bCheckBuildingOR = true end
-		end
-	else
-		bCheckBuildingOR = true
-	end
-
-	-- check for required buildings (all required)
-	local bCheckBuildingAND
-	if UnitPrereqBuildingAND[unitID] then
-		for buildingID, _ in ipairs(UnitPrereqBuildingAND[unitID]) do
-			if not self:GetBuildings():HasBuilding(buildingID) then bCheckBuildingAND = false end
-		end
-	else
-		bCheckBuildingAND = true
-	end
-
+	local row				= GameInfo.Units[unitType]
+	local unitID 			= row.Index
 	local player			= GCO.GetPlayer(self:GetOwner())	
 	local organizationLevel = player:GetMilitaryOrganizationLevel()
-
+	local NumResource		= player:GetCached("NumResource") or {}
 	local bHasComponents 	= true
+	local bCanShow			= true -- can this unit been shown in the production Panel
 	local production 		= self:GetProductionYield()
-	local turnsToBuild 		= math.max(1, math.ceil(GameInfo.Units[unitType].Cost / production))
+	local turnsToBuild 		= math.max(1, math.ceil(row.Cost / production))
 	local turnsLeft 		= self:GetProductionTurnsLeft(unitType) or turnsToBuild
 	local resTable 			= GCO.GetUnitConstructionResources(unitID, organizationLevel)
 	local resOrTable 		= GCO.GetUnitConstructionOrResources(unitID, organizationLevel)
@@ -3523,6 +3515,31 @@ function CanTrain(self, unitType)
 	local previousTurn		= math.max(0, turn - 1 )
 	local costPerTurn		= 0
 
+	-- check for required buildings (any required)
+	local bCheckBuildingOR
+	if UnitPrereqBuildingOR[unitID] then
+		for buildingID, _ in ipairs(UnitPrereqBuildingOR[unitID]) do
+			if self:GetBuildings():HasBuilding(buildingID) then bCheckBuildingOR = true end
+		end
+	else
+		bCheckBuildingOR = true
+	end
+	-- check for required buildings (all required)
+	local bCheckBuildingAND
+	if UnitPrereqBuildingAND[unitID] then
+		for buildingID, _ in ipairs(UnitPrereqBuildingAND[unitID]) do
+			if not self:GetBuildings():HasBuilding(buildingID) then bCheckBuildingAND = false end
+		end
+	else
+		bCheckBuildingAND = true
+	end
+	
+	if not (row.CanTrain) then
+		bCanShow = false
+	elseif (row.TraitType == "TRAIT_BARBARIAN") then
+		bCanShow = false
+	end
+	
 	-- Check if this unit is already in production queue
 	local reservedResource 	= self:GetBuildingQueueAllStock(unitType)
 	local bAddStr 			= false
@@ -3533,7 +3550,10 @@ function CanTrain(self, unitType)
 
 	-- check components needed
 	for resourceID, value in pairs(resTable) do
-
+		if not NumResource[resourceID] then
+			bCanShow = false  -- don't show Units for which we don't have one of the required resource in any city
+		end
+	
 		local reserved 					= self:GetBuildingQueueStock(resourceID, unitType)
 		local needPerTurn 				= math.ceil( (value - reserved) / turnsLeft)
 		local stock						= self:GetStock(resourceID)
@@ -3571,10 +3591,15 @@ function CanTrain(self, unitType)
 	for equipmentClass, resourceTable in pairs(resOrTable) do
 
 		local totalNeeded 		= resourceTable.Value
+		local bIsKnown			= false -- to check if there is at least one equipment of that class available in all this player's cities
 		local alreadyStocked 	= 0
 		-- get the number of resource already stocked for that class...
 		for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
 			alreadyStocked = alreadyStocked + self:GetBuildingQueueStock(resourceID, unitType)
+			if NumResource[resourceID] then bIsKnown = true end
+		end
+		if not bIsKnown then
+			bCanShow = false
 		end
 
 		local value 				= totalNeeded - alreadyStocked
@@ -3666,7 +3691,7 @@ function CanTrain(self, unitType)
 		if logisticCost >= availableLogistic then
 			Dprint( DEBUG_CITY_SCRIPT, "Can't train ".. Locale.Lookup(GameInfo.Units[unitType].Name) .." of ".. Locale.Lookup(GameInfo.UnitPromotionClasses[PromotionClassID].Name) .." class, failed check on logistic : available = ".. tostring(availableLogistic)..",  current cost = " .. tostring(logisticCost))
 			bCheckLogistic = false
-			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC", logisticCost, GameInfo.UnitPromotionClasses[PromotionClassID].Name, availableLogistic )
+			requirementStr = requirementStr .. "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC_SUPPORT", logisticCost, GameInfo.UnitPromotionClasses[PromotionClassID].Name, availableLogistic, logisticCost - availableLogistic )
 		end
 	end
 
@@ -3676,15 +3701,34 @@ function CanTrain(self, unitType)
 	requirementStr = "[NEWLINE]" .. totalStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr
 	Dprint( DEBUG_CITY_SCRIPT, requirementStr)
 
-	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCheckLogistic), requirementStr
+	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCheckLogistic), requirementStr, bCanShow
 end
 
 function CanConstruct(self, buildingType)
 
-	local row 			= GameInfo.Buildings[buildingType]
-	local buildingID 	= row.Index
-	local preReqStr 	= {}
-	local bCheckSpecial = true
+	local row 				= GameInfo.Buildings[buildingType]
+	local buildingID 		= row.Index
+	local cityBuildings		= self:GetBuildings()
+	local preReqStr 		= {}
+	local bCheckSpecial 	= true
+	local bCanShow			= true -- can this building been shown in the production Panel
+	local player 			= GCO.GetPlayer(self:GetOwner())
+	local pScience 			= player:GetTechs()
+	local prereqTech 		= GameInfo.Buildings[buildingType].PrereqTech
+	local bHasComponents 	= true
+	local production 		= self:GetProductionYield()
+	local turnsToBuild 		= math.max(1, math.ceil(row.Cost / production))
+	local resTable 			= GCO.GetBuildingConstructionResources(buildingType)
+	local requirementStr 	= {} -- table to build the string
+	local reservedStr		= Locale.Lookup("LOC_ALREADY_RESERVED_RESOURCE")
+	local totalStr			= Locale.Lookup("LOC_PRODUCTION_TOTAL_REQUIREMENT")
+	
+	-- Can we show this in the production panel ?
+	if cityBuildings:HasBuilding(buildingID) and (not row.BuildingType == "BUILDING_RECRUITS") then -- at this point the game has not registered that BUILDING_RECRUITS was removed ?
+		bCanShow = false
+	elseif prereqTech and not (pScience:HasTech(GameInfo.Technologies[prereqTech].Index)) then
+		bCanShow = false
+	end
 	
 	-- check for upgrade already build
 	local bCheckNoUpgradeBuild = true
@@ -3703,7 +3747,8 @@ function CanConstruct(self, buildingType)
 	if BuildingFullUpgrades[buildingID] then
 		for _, upgradeID in ipairs(BuildingFullUpgrades[buildingID]) do
 			if self:GetBuildings():HasBuilding(upgradeID) then
-				bCheckNoUpgradeBuild = false
+				bCheckNoUpgradeBuild 	= false
+				bCanShow				= false
 			elseif BuildingUpgrade[buildingID] == upgradeID then -- this is the direct upgrade to this building
 				table.insert(preReqStr, "[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_UPGRADE_TO", GameInfo.Buildings[upgradeID].Name))
 			end
@@ -3758,7 +3803,8 @@ function CanConstruct(self, buildingType)
 	local bCoastalCheck = true
 	if (row.Coast and row.PrereqDistrict == "DISTRICT_CITY_CENTER") then
 		if not self:IsCoastal() then
-			bCoastalCheck = false
+			bCoastalCheck 	= false
+			bCanShow		= false
 			--preReqStr = preReqStr.."[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_REQUIRES_COASTAL_FAIL")
 		else
 			--preReqStr = preReqStr.."[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_REQUIRES_COASTAL_CHECKED")
@@ -3766,16 +3812,6 @@ function CanConstruct(self, buildingType)
 	end
 
 	-- check components
-	local bHasComponents 	= true
-
-	local production 		= self:GetProductionYield()
-	local turnsToBuild 		= math.max(1, math.ceil(row.Cost / production))
-
-	local resTable 			= GCO.GetBuildingConstructionResources(buildingType)
-	local requirementStr 	= {} -- table to build the string
-	local reservedStr		= Locale.Lookup("LOC_ALREADY_RESERVED_RESOURCE")
-	local totalStr			= Locale.Lookup("LOC_PRODUCTION_TOTAL_REQUIREMENT")
-	
 	table.insert(requirementStr, Locale.Lookup("LOC_PRODUCTION_PER_TURN_REQUIREMENT"))
 	
 	-- Check if this unit is already in production queue
@@ -3821,8 +3857,8 @@ function CanConstruct(self, buildingType)
 	
 	-- check for special recruitment building
 	if row.BuildingType == "BUILDING_RECRUITS" then
-		local promotionClassID 	= GameInfo.UnitPromotionClasses["PROMOTION_CLASS_MELEE"].Index
-		local player			= GCO.GetPlayer(self:GetOwner())
+		local promotionClassID 	= GameInfo.UnitPromotionClasses["PROMOTION_CLASS_CONSCRIPT"].Index
+		local unitType 			= GameInfo.Units["UNIT_LIGHT_SPEARMAN"].Index -- first unit in conscript class
 
 		-- must be at war or under threat from barbarians
 		if not player:IsAtWar() then
@@ -3859,36 +3895,55 @@ function CanConstruct(self, buildingType)
 			local availableLogistic	= player:GetLogisticSupport(promotionClassID)
 			if logisticCost >= availableLogistic then
 				bCheckSpecial = false
-				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC_RECRUITS", logisticCost, GameInfo.UnitPromotionClasses[promotionClassID].Name, availableLogistic ))
+				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_LOGISTIC_SUPPORT", logisticCost, GameInfo.UnitPromotionClasses[promotionClassID].Name, availableLogistic, logisticCost - availableLogistic ))
 			end
 			--]]
 			
 			local personnelSupply	= self:GetStockVariation(personnelResourceID)
 			local minPersonnel		= 250
-			local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)
+			local organizationLevel	= player:GetConscriptOrganizationLevel()
+			
+			--local organizationLevel	= math.max(0 , player:GetMilitaryOrganizationLevel() - 2)
 			if militaryOrganization[organizationLevel] and militaryOrganization[organizationLevel][promotionClassID] then
 				local factor = 1
 				if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_SMALL_BARRACKS"].Index) then
 					factor = 1
 				end
 				if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_BARRACKS"].Index) then
-					factor = 2
+					factor = 2.4 -- (*0.75 = 1.8 = 1 full unit + 1 at 80 HP)
 				end
 				minPersonnel = (militaryOrganization[organizationLevel][promotionClassID].FrontLinePersonnel*0.75*factor)
 			end
 			
 			if self:GetPersonnel() < (minPersonnel  - personnelSupply) then
 				bCheckSpecial = false
-				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_PERSONNEL_RECRUITS", self:GetPersonnel(), minPersonnel ))
+				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_PERSONNEL_RECRUITS", self:GetPersonnel(), minPersonnel, minPersonnel - self:GetPersonnel() ))
 			end
 			
+			
 			---[[
-			-- promotionClassEquipmentClasses[promotionID]
-			local equipmentClasses = promotionClassEquipmentClasses[promotionID]
+			-- Get type
+			local equipmentList		= self:GetEquipmentList()
+			local recruitType		= nil
+			if promotionClassID then 
+				recruitType = GCO.GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, unitType, 75, organizationLevel)
+			end
+			if recruitType then
+				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RECRUIT_TYPE", GameInfo.Units[recruitType].Name))
+			else
+				bCheckSpecial = false
+				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_EQUIPMENT_RECRUITS"))
+			end
+			--]]
+			
+			--[[
+			-- promotionClassEquipmentClasses[promotionClassID]
+			local equipmentClasses = promotionClassEquipmentClasses[promotionClassID]
 			if equipmentClasses then
 				for classType, classData in pairs(equipmentClasses) do
 					local equipmentTypes 	= GCO.GetEquipmentTypes(classType)
-					local required			= classData.PercentageOfPersonnel * minPersonnel
+Dline( classData, classData.PercentageOfPersonnel, minPersonnel)
+					local required			= classData.PercentageOfPersonnel * minPersonnel -- PercentageOfPersonnel can be nil in this table !
 					local available			= 0
 					if equipmentTypes then
 						for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
@@ -3903,9 +3958,8 @@ function CanConstruct(self, buildingType)
 					end
 				end
 			end
-			
+			--]]
 		end
-	
 	end
 	
 	-- construct the complete requirement string
@@ -3913,7 +3967,7 @@ function CanConstruct(self, buildingType)
 	if bAddStr then requirementStr = reservedStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr end
 	requirementStr = "[NEWLINE]" .. totalStr .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. requirementStr
 
-	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck and bCheckSpecial and bCheckNoUpgradeBuild), requirementStr, table.concat(preReqStr)
+	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck and bCheckSpecial and bCheckNoUpgradeBuild), requirementStr, table.concat(preReqStr), bCanShow
 end
 
 function RecruitUnits(self, UnitType, number)
@@ -3937,21 +3991,12 @@ function RecruitUnits(self, UnitType, number)
 		Dprint( DEBUG_self_SCRIPT, "Initializing unit...")
 		unit:SetDamage(100)
 		local initialHP 				= 0
-		local playerOrganizationLevel 	= player:GetMilitaryOrganizationLevel()
-		local baseLevelID				= GameInfo.MilitaryOrganisationLevels["LEVEL0"].Index
-		if player:HasPolicyActive(GameInfo.Policies["POLICY_SMALLER_UNITS"].Index) then
-			baseLevelID = GameInfo.MilitaryOrganisationLevels["LEVEL0B"].Index
-		end
-		local organizationLevel	= math.max(baseLevelID , playerOrganizationLevel - 2)	-- } to do: affected by policies
-		local turnsActive		= ConscriptsBaseActiveTurns								-- |
+		local organizationLevel			= player:GetConscriptOrganizationLevel()
+		local turnsActive				= ConscriptsBaseActiveTurns
 		
 		local policies	= player:GetActivePolicies()
 		for _, policyID in ipairs(policies) do
 			turnsActive = turnsActive + GameInfo.Policies[policyID].ActiveTurnsLeftBoost
-			local policyType = GameInfo.Policies[policyID].PolicyType
-			if policyType == "POLICY_CONSCRIPTION" or policyType == "POLICY_LEVEE_EN_MASSE" then 
-				organizationLevel = math.max(baseLevelID , playerOrganizationLevel - 1)
-			end
 		end
 
 		GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
@@ -4965,7 +5010,10 @@ end
 
 function SetUnlockers(self)
 	Dlog("SetUnlockers ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = false
+	
+	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT	
+	--if GameInfo.Units["UNIT_HORSEMAN"].Index == unitID and Game.GetLocalPlayer() == self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_PALACE"].Index) and Game.GetLocalPlayer() == self:GetOwner() then SetDebugLevel("debug") end
 
 	Dprint( DEBUG_CITY_SCRIPT, "Setting unlocker buildings for ".. Locale.Lookup(self:GetName()), " production = ", self:GetProductionYield())
 
@@ -5009,6 +5057,8 @@ function SetUnlockers(self)
 			end
 		end
 	end
+	
+	--if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_PALACE"].Index) and Game.GetLocalPlayer() == self:GetOwner() then RestorePreviousDebugLevel() end
 
 	Dlog("SetUnlockers ".. Locale.Lookup(self:GetName()).." /STOP")
 end
@@ -7326,6 +7376,7 @@ function AttachCityFunctions(city)
 	if not c.GetMaxStock						then c.GetMaxStock							= GetMaxStock                       	end
 	if not c.GetStock 							then c.GetStock 							= GetStock                          	end
 	if not c.GetResources						then c.GetResources							= GetResources                      	end
+	if not c.GetEquipmentList					then c.GetEquipmentList						= GetEquipmentList						end
 	if not c.GetPreviousStock					then c.GetPreviousStock						= GetPreviousStock                  	end
 	if not c.ChangeStock 						then c.ChangeStock 							= ChangeStock                       	end
 	if not c.ChangeBuildingQueueStock			then c.ChangeBuildingQueueStock				= ChangeBuildingQueueStock          	end

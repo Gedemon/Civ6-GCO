@@ -2389,7 +2389,8 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 				if bEnoughEquipmentForHP and mediumWeight >= bestValue then -- check if we should replace the current best choice
 					-- always replace if classWeightage match is superior
 					-- replace with the unit with the one at the higher construction cost (assuming it means better unit) when classWeightage match is egal
-					if (mediumWeight > bestValue) or (GameInfo.Units[unitType].Cost > GameInfo.Units[bestUnitType].Cost) then
+					local bHigherCost = (bestUnitType and GameInfo.Units[unitType].Cost > GameInfo.Units[bestUnitType].Cost) or true
+					if (mediumWeight > bestValue) or bHigherCost then
 						bestValue 		= mediumWeight
 						bestUnitType 	= unitType
 						Dprint( DEBUG_UNIT_SCRIPT, "New best value.. = ", bestValue.." classWeight for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
@@ -6289,6 +6290,7 @@ function ShareFunctions()
 	ExposedMembers.GCO.RegisterNewUnit						= RegisterNewUnit
 	ExposedMembers.GCO.ChangeUnitTo							= ChangeUnitTo
 	ExposedMembers.GCO.GetEquipmentTypes					= GetEquipmentTypes
+	ExposedMembers.GCO.GetUnitTypeFromEquipmentList			= GetUnitTypeFromEquipmentList
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end
