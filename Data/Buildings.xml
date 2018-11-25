@@ -61,23 +61,23 @@
 		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_APPRENTICESHIP" />
 		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_APPRENTICESHIP" />
 		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_APPRENTICESHIP" />
-		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	Cost="120" 	MaterielPerProduction="3" />
-		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	Cost="180" 	MaterielPerProduction="4" />
-		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="6" />
+		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	Cost="120" 	MaterielPerProduction="3" PrereqTech="TECH_APPRENTICESHIP" NoPedia="1" />
+		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	Cost="180" 	MaterielPerProduction="4" PrereqTech="TECH_APPRENTICESHIP" NoPedia="1" />
+		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="6" PrereqTech="TECH_APPRENTICESHIP" NoPedia="1" />
 		
 		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	Cost="240" 	MaterielPerProduction="3" PrereqTech="TECH_SANITATION"	/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	Cost="300" 	MaterielPerProduction="4" PrereqTech="TECH_SANITATION"	/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	Cost="340" 	MaterielPerProduction="6" PrereqTech="TECH_SANITATION"	/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="3" />
-		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	Cost="300" 	MaterielPerProduction="4" />
-		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	Cost="340" 	MaterielPerProduction="6" />		
+		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	Cost="240" 	MaterielPerProduction="3" PrereqTech="TECH_SANITATION"	NoPedia="1" />
+		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	Cost="300" 	MaterielPerProduction="4" PrereqTech="TECH_SANITATION"	NoPedia="1" />
+		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	Cost="340" 	MaterielPerProduction="6" PrereqTech="TECH_SANITATION"	NoPedia="1" />		
 		
 		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_1" 	Cost="420" 	MaterielPerProduction="3" PrereqTech="TECH_PLASTICS"	/>
 		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	Cost="580" 	MaterielPerProduction="4" PrereqTech="TECH_PLASTICS"	/>
 		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_1" 	Cost="740" 	MaterielPerProduction="6" PrereqTech="TECH_PLASTICS"	/>
-		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_2" 	Cost="420" 	MaterielPerProduction="3" />
-		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	Cost="580" 	MaterielPerProduction="4" />
-		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	Cost="740" 	MaterielPerProduction="6" />
+		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_2" 	Cost="420" 	MaterielPerProduction="3" PrereqTech="TECH_PLASTICS"	NoPedia="1" />
+		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	Cost="580" 	MaterielPerProduction="4" PrereqTech="TECH_PLASTICS"	NoPedia="1" />
+		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	Cost="740" 	MaterielPerProduction="6" PrereqTech="TECH_PLASTICS"	NoPedia="1" />
 		
 		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" 			Cost="240" 	MaterielPerProduction="40"  PrereqTech="TECH_ARMORED_WARFARE"	PrereqDistrict="DISTRICT_HARBOR" />
 		

@@ -11,8 +11,8 @@
 		<Row ResourceType="RESOURCE_MATERIEL" ResourceClassType="RESOURCECLASS_MATERIEL" Size="10" /> <!-- Size 10 to compensate CITY_TRADE_INCOME_EQUIPMENT_RATIO (=0.1) applied to all equipment cost -->
 	</Equipment>
 	<Equipment> <!-- Melee/Cavalry Weapons -->
-		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"												LogisticCost="0.05"	Toughness="1"	Desirability="21" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
-		<Row ResourceType="EQUIPMENT_STONE_AXES"												LogisticCost="0.05"	Toughness="1"	Desirability="22" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"												LogisticCost="0.05"	Toughness="1"	Desirability="11" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
+		<Row ResourceType="EQUIPMENT_STONE_AXES"												LogisticCost="0.05"	Toughness="1"	Desirability="12" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
 		
 		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"												LogisticCost="0.05"	Toughness="1"	Desirability="30" 	AntiPersonnel="27"								ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
 		<Row ResourceType="EQUIPMENT_STONE_SPEARS"												LogisticCost="0.05"	Toughness="1"	Desirability="31" 	AntiPersonnel="28"								ObsoleteTech="TECH_MILITARY_ENGINEERING"	/>
@@ -311,6 +311,8 @@
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
 		<Row ResourceType="EQUIPMENT_UNIFORM"			EquipmentClass="EQUIPMENTCLASS_MELEE_ARMOR"			/>
 		
+		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_CONSCRIPT_WEAPONS"		/>
+		<Row ResourceType="EQUIPMENT_STONE_AXES"		EquipmentClass="EQUIPMENTCLASS_CONSCRIPT_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_STONE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_CONSCRIPT_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_WOODEN_SPEARS"		EquipmentClass="EQUIPMENTCLASS_CONSCRIPT_WEAPONS"		/>
 		<Row ResourceType="EQUIPMENT_BRONZE_SPEARS"		EquipmentClass="EQUIPMENTCLASS_CONSCRIPT_WEAPONS"		/>
@@ -552,6 +554,11 @@
 		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by units of the Conscripts PromotionClass -->
+		
+		<Row UnitType="UNIT_CONSCRIPT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
+		<Row UnitType="UNIT_CONSCRIPT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
+		<Row UnitType="UNIT_CONSCRIPT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
+		<Row UnitType="UNIT_CONSCRIPT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
 		<Row UnitType="UNIT_LIGHT_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_LIGHT_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_PRIMITIVE_SPEARS" />

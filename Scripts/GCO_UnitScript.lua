@@ -2139,7 +2139,7 @@ function GetUnitEquipmentClass(unitTypeID, equipmentClassID)
 	end
 end
 
-function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID) -- to do : cached table with values per unitTypeID
+function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID, promotionID) 		-- return equipment class ratio for unitTypeID (promotionID optional, avoid extra checks when it can be passed)
 
 	if not equipmentClassID then return 1 end
 	
@@ -2150,7 +2150,7 @@ function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID) -- to do : cac
 	if _cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] then return _cached.UnitEquipmentClassRatio[unitTypeID][equipmentClassID] end
 	
 	local percentageOfPersonnel = 0
-	local promotionID = GetUnitPromotionClassID(unitTypeID)
+	local promotionID = promotionID or GetUnitPromotionClassID(unitTypeID)
 	local linkedClass = GetLinkedEquipmentClass(unitTypeID, equipmentClassID)
 	
 	--Dline(GameInfo.Units[unitTypeID].UnitType, unitTypeID, promotionID, personnel, GameInfo.EquipmentClasses[equipmentClassID].EquipmentClass, equipmentClassID, linkedClass, promotionClassEquipmentClasses, unitEquipmentClasses)
@@ -2187,8 +2187,8 @@ function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID) -- to do : cac
 	return ratio
 end
 
-function GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, equipmentClassID) -- to do : cached table with values per equipment/unit updated on organization/type change
-	return GCO.Round(personnel * GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID)) -- math.ceil
+function GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, equipmentClassID, promotionID) -- to do : cached table with values per equipment/unit updated on organization/type change
+	return math.ceil(personnel * GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID, promotionID)) -- math.ceil or GCO.Round ?
 end
 
 function GetUnitEquipmentClassBaseAmount(unitTypeID, equipmentClassID, organizationLevelID)
@@ -2285,6 +2285,9 @@ end
 
 function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType, HP, organizationLevel)
 	
+	local DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT
+	if GameInfo.Units[oldUnitType].UnitType == "UNIT_CONSCRIPT_WARRIOR" then DEBUG_UNIT_SCRIPT = "debug" end
+	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name) .. " current type = " ..GameInfo.Units[oldUnitType].Name)
 	
@@ -2325,7 +2328,7 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 					local total 							= GetNumEquipmentOfClassInList(promotionClassEquipmentClassID, equipmentList)
 					
 					if total == 0 then
-						if specificEquipmentClasses.__orderedIndex then specificEquipmentClasses.__orderedIndex = nil end
+						specificEquipmentClasses.__orderedIndex = nil -- manual cleanup for orderedpair
 						break
 					end
 					
@@ -2334,7 +2337,7 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 					local requiredNum	= GetUnitEquipmentClassNumberForPersonnel(unitType, personelAtHP, equipmentClassID)
 					
 					if requiredNum == 0 then
-						if specificEquipmentClasses.__orderedIndex then specificEquipmentClasses.__orderedIndex = nil end
+						specificEquipmentClasses.__orderedIndex = nil -- manual cleanup for orderedpair
 						break
 					end
 					
@@ -2426,6 +2429,39 @@ function IsUnitRequiringEquipmentClass(unitTypeID, equipmentClassID)
 	else
 		return unitEquipmentClasses[unitTypeID] and unitEquipmentClasses[unitTypeID][equipmentClassID] and unitEquipmentClasses[unitTypeID][equipmentClassID].IsRequired
 	end
+end
+
+function GetAvailableEquipmentForUnitPromotionClassFromList(unitTypeID, promotionClassID, personnel, resourceList, organizationLevel)
+	
+	local DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT
+	if GameInfo.Units[unitTypeID].UnitType == "UNIT_CONSCRIPT_WARRIOR" then DEBUG_UNIT_SCRIPT = "debug" end
+	
+	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_UNIT_SCRIPT, "GetAvailableEquipmentForUnitPromotionClassFromList for UnitType "..Locale.Lookup(GameInfo.Units[unitTypeID].Name).." personnel = "..tostring(personnel))
+	
+	local availableEquipment 	= {}
+	local equipmentClasses		= promotionClassEquipmentClasses[promotionClassID]
+	if equipmentClasses then
+		for classType, classData in pairs(equipmentClasses) do
+			Dprint( DEBUG_UNIT_SCRIPT, "- EQUIPMENT CLASS : ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)))
+			local equipmentTypes 	= GetEquipmentTypes(classType)
+			local maxRequired		= GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, classType, promotionClassID)--self:GetMaxEquipmentFrontLine(classType)
+			local bestNum 			= 0
+			if equipmentTypes then
+				for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
+					local equipmentID = data.EquipmentID
+					local num = resourceList[equipmentID] or 0--self:GetFrontLineEquipment(equipmentID)
+					-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
+					--bestNum = bestNum + num
+					--equipmentNeed[equipmentID] = math.max(0, maxFrontLine - bestNum)
+					availableEquipment[equipmentID] = math.min(maxRequired, num)
+					Dprint( DEBUG_UNIT_SCRIPT, "Adding to list : " .. Indentation20(Locale.Lookup(GameInfo.Resources[equipmentID].Name)) .. " num = "..Indentation8(availableEquipment[equipmentID])..", maxRequired = "..Indentation8(maxRequired)..", Still required = "..Indentation8(maxRequired - num)..", total equipment checked = "..Indentation8(bestNum))
+					maxRequired = math.max(0, maxRequired - num)
+				end
+			end
+		end
+	end
+	return availableEquipment
 end
 
 -- Unit functions
@@ -5406,7 +5442,7 @@ function SetHealthValues(self)
 	-- and apply health effect from cold terrain (tundra, snow)
 	local ChangeHealthFeatures = {
 		[GameInfo.Features["FEATURE_ICE"].Index] 			= -20,
-		[GameInfo.Features["FEATURE_FLOODPLAINS"].Index] 	= -10,
+		[GameInfo.Features["FEATURE_FLOODPLAINS"].Index] 	= -2.5,
 		[GameInfo.Features["FEATURE_JUNGLE"].Index] 		= -15,
 		[GameInfo.Features["FEATURE_MARSH"].Index] 			= -20,
 		[GameInfo.Features["FEATURE_FOREST"].Index] 		= 5,
@@ -6276,21 +6312,22 @@ end
 function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	--
-	ExposedMembers.GCO.GetUnit 								= GetUnit
-	ExposedMembers.GCO.GetUnitFromKey 						= GetUnitFromKey
-	ExposedMembers.GCO.AttachUnitFunctions 					= AttachUnitFunctions
-	ExposedMembers.GCO.GetBasePersonnelReserve 				= GetBasePersonnelReserve
-	ExposedMembers.GCO.GetBaseMaterielReserve 				= GetBaseMaterielReserve
-	ExposedMembers.GCO.GetUnitConstructionResources			= GetUnitConstructionResources
-	ExposedMembers.GCO.GetUnitConstructionOrResources		= GetUnitConstructionOrResources
-	ExposedMembers.GCO.GetUnitConstructionOptionalResources	= GetUnitConstructionOptionalResources
-	ExposedMembers.GCO.GetUnitConscriptionEquipment			= GetUnitConscriptionEquipment
-	ExposedMembers.GCO.UpdateUnitsData 						= UpdateUnitsData
-	ExposedMembers.GCO.GetUnitPromotionClassID 				= GetUnitPromotionClassID
-	ExposedMembers.GCO.RegisterNewUnit						= RegisterNewUnit
-	ExposedMembers.GCO.ChangeUnitTo							= ChangeUnitTo
-	ExposedMembers.GCO.GetEquipmentTypes					= GetEquipmentTypes
-	ExposedMembers.GCO.GetUnitTypeFromEquipmentList			= GetUnitTypeFromEquipmentList
+	ExposedMembers.GCO.GetUnit 												= GetUnit
+	ExposedMembers.GCO.GetUnitFromKey 										= GetUnitFromKey
+	ExposedMembers.GCO.AttachUnitFunctions 									= AttachUnitFunctions
+	ExposedMembers.GCO.GetBasePersonnelReserve 								= GetBasePersonnelReserve
+	ExposedMembers.GCO.GetBaseMaterielReserve 								= GetBaseMaterielReserve
+	ExposedMembers.GCO.GetUnitConstructionResources							= GetUnitConstructionResources
+	ExposedMembers.GCO.GetUnitConstructionOrResources						= GetUnitConstructionOrResources
+	ExposedMembers.GCO.GetUnitConstructionOptionalResources					= GetUnitConstructionOptionalResources
+	ExposedMembers.GCO.GetUnitConscriptionEquipment							= GetUnitConscriptionEquipment
+	ExposedMembers.GCO.UpdateUnitsData 										= UpdateUnitsData
+	ExposedMembers.GCO.GetUnitPromotionClassID 								= GetUnitPromotionClassID
+	ExposedMembers.GCO.RegisterNewUnit										= RegisterNewUnit
+	ExposedMembers.GCO.ChangeUnitTo											= ChangeUnitTo
+	ExposedMembers.GCO.GetEquipmentTypes									= GetEquipmentTypes
+	ExposedMembers.GCO.GetUnitTypeFromEquipmentList							= GetUnitTypeFromEquipmentList
+	ExposedMembers.GCO.GetAvailableEquipmentForUnitPromotionClassFromList	= GetAvailableEquipmentForUnitPromotionClassFromList
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end

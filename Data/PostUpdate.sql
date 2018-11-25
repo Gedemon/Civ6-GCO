@@ -307,8 +307,6 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 
 DELETE FROM Units WHERE UnitType NOT IN (SELECT UnitsTokeep.UnitType from UnitsTokeep UNION SELECT UnitsGCO.UnitType from UnitsGCO);
 
---DELETE FROM Units WHERE UnitType NOT IN (SELECT UnitsTokeep.UnitType from UnitsTokeep);
-
 
 
 /* Starting resources (last as this will cause a DB error if YnAMP is not activated */

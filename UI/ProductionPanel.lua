@@ -1923,7 +1923,7 @@ function Refresh()
 				
 				-- GCO <<<<<
 				local bCanConstruct, requirementStr, prereqStr, bCanShow = selectedCity:CanConstruct(row.BuildingType)
-				if bCanShow and not (row.IsWonder and (not bCanStart)) then --isCanStart then
+				if (bCanShow or bCanStart) and not (row.IsWonder and (not bCanStart)) then --isCanStart then
 					sToolTip = ToolTipHelper.GetBuildingToolTip( row.Hash, playerID, selectedCity ) .. prereqStr .. ComposeProductionCostString( iProductionProgress, iProductionCost ) .. requirementStr
 				-- GCO >>>>>
 			
@@ -1989,7 +1989,7 @@ function Refresh()
 				
 				-- GCO <<<<<
 				local bCanTrain, requirementStr, bCanShow = selectedCity:CanTrain(row.UnitType)
-				if bCanShow then --isCanProduceExclusion then
+				if (bCanShow or isCanProduceExclusion) then --isCanProduceExclusion then
 					sToolTip = sToolTip .. requirementStr
 				-- GCO >>>>>
 				

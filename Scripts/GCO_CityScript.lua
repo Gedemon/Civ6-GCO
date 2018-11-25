@@ -2603,7 +2603,7 @@ function GetNumRequiredInQueue(self, resourceID)
 				if resTable[resourceKey] then
 					resNeeded = resNeeded + math.max(0, resTable[resourceID] - data[resourceKey])
 				end
-				for equipmentClass, resourceTable in pairs(resOrTable) do				
+				for equipmentClass, resourceTable in pairs(resOrTable) do
 					local totalNeeded 		= resourceTable.Value
 					local alreadyStocked 	= 0
 					local bInResOrTable		= false
@@ -2617,8 +2617,12 @@ function GetNumRequiredInQueue(self, resourceID)
 					end				
 				end
 				Dprint( DEBUG_CITY_SCRIPT, " - Required by item in build queue for ".. tostring(itemBuild) .." in ".. self:GetName() .." : ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(resNeeded) .. " already stocked = " .. tostring(data[resourceKey]))
+				
+				cityData.BuildQueue.__orderedIndex = nil  -- manual cleanup for orderedpair
 				return resNeeded
-			else -- to do...
+			else -- to do: other item types ?
+			
+				cityData.BuildQueue.__orderedIndex = nil  -- manual cleanup for orderedpair
 				return 0
 			end
 		end
@@ -2666,11 +2670,16 @@ function GetResources(self)
 end
 
 function GetEquipmentList(self)
+	local DEBUG_CITY_SCRIPT		= DEBUG_CITY_SCRIPT
+	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_CITY_SCRIPT, "Get Equipment list for "..Locale.Lookup(self:GetName()))
 	local equipmentList	= {}
 	for resourceKey, value in pairs(self:GetResources()) do
 		local resourceID = tonumber(resourceKey)
 		if GCO.IsResourceEquipment(resourceID) then
 			equipmentList[resourceID] = value
+			Dprint( DEBUG_CITY_SCRIPT, "  - adding " .. tostring(value) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." to list")
 		end
 	end
 	return equipmentList
@@ -3497,6 +3506,8 @@ function CanTrain(self, unitType)
 	Dprint( DEBUG_CITY_SCRIPT, "CanTrain for "..Locale.Lookup(GameInfo.Units[unitType].Name).." in "..Locale.Lookup(self:GetName()))
 
 	local row				= GameInfo.Units[unitType]
+	local prereqTech 		= row.PrereqTech
+	local prereqCivic		= row.PrereqCivic
 	local unitID 			= row.Index
 	local player			= GCO.GetPlayer(self:GetOwner())	
 	local organizationLevel = player:GetMilitaryOrganizationLevel()
@@ -3537,6 +3548,12 @@ function CanTrain(self, unitType)
 	if not (row.CanTrain) then
 		bCanShow = false
 	elseif (row.TraitType == "TRAIT_BARBARIAN") then
+		bCanShow = false
+	elseif prereqTech then -- the UI side will show units with prereq techs/civics only when they can be started
+		bCanShow = false
+	elseif prereqCivic then
+		bCanShow = false
+	elseif row.UnitType == "UNIT_SPY" then -- special case, shown only if the UI says it can be produced
 		bCanShow = false
 	end
 	
@@ -3715,6 +3732,7 @@ function CanConstruct(self, buildingType)
 	local player 			= GCO.GetPlayer(self:GetOwner())
 	local pScience 			= player:GetTechs()
 	local prereqTech 		= GameInfo.Buildings[buildingType].PrereqTech
+	local prereqCivic		= GameInfo.Buildings[buildingType].PrereqCivic
 	local bHasComponents 	= true
 	local production 		= self:GetProductionYield()
 	local turnsToBuild 		= math.max(1, math.ceil(row.Cost / production))
@@ -3724,26 +3742,16 @@ function CanConstruct(self, buildingType)
 	local totalStr			= Locale.Lookup("LOC_PRODUCTION_TOTAL_REQUIREMENT")
 	
 	-- Can we show this in the production panel ?
-	if cityBuildings:HasBuilding(buildingID) and (not row.BuildingType == "BUILDING_RECRUITS") then -- at this point the game has not registered that BUILDING_RECRUITS was removed ?
+	if cityBuildings:HasBuilding(buildingID) and row.BuildingType ~= "BUILDING_RECRUITS" then -- at this point the game has not registered that BUILDING_RECRUITS was removed ?
 		bCanShow = false
 	elseif prereqTech and not (pScience:HasTech(GameInfo.Technologies[prereqTech].Index)) then
+		bCanShow = false
+	elseif prereqCivic then -- the UI side will show those buildings when they can be started
 		bCanShow = false
 	end
 	
 	-- check for upgrade already build
 	local bCheckNoUpgradeBuild = true
-	--[[
-	if GameInfo.BuildingUpgrades[buildingType] then
-		local upgradeType	= GameInfo.BuildingUpgrades[buildingType].UpgradeType
-		local upgradeRow	= GameInfo.Buildings[upgradeType]
-		local upgradeID 	= upgradeRow.Index
-		if self:GetBuildings():HasBuilding(upgradeID) then
-			bCheckNoUpgradeBuild = false
-		else
-			table.insert(preReqStr, "[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_UPGRADE_TO", upgradeRow.Name))
-		end
-	end	
-	--]]
 	if BuildingFullUpgrades[buildingID] then
 		for _, upgradeID in ipairs(BuildingFullUpgrades[buildingID]) do
 			if self:GetBuildings():HasBuilding(upgradeID) then
@@ -3814,12 +3822,12 @@ function CanConstruct(self, buildingType)
 	-- check components
 	table.insert(requirementStr, Locale.Lookup("LOC_PRODUCTION_PER_TURN_REQUIREMENT"))
 	
-	-- Check if this unit is already in production queue
+	-- Check if this building is already in production queue
 	local reservedResource 	= self:GetBuildingQueueAllStock(buildingType)
 	local bAddStr 			= false
-	for resourceKey, value in pairs(reservedResource) do
+	--for resourceKey, value in pairs(reservedResource) do
+	if not GCO.IsEmpty(reservedResource) then
 		bAddStr = true
-		--break -- to do : use table.next
 	end
 
 	for resourceID, value in pairs(resTable) do
@@ -3858,7 +3866,7 @@ function CanConstruct(self, buildingType)
 	-- check for special recruitment building
 	if row.BuildingType == "BUILDING_RECRUITS" then
 		local promotionClassID 	= GameInfo.UnitPromotionClasses["PROMOTION_CLASS_CONSCRIPT"].Index
-		local unitType 			= GameInfo.Units["UNIT_LIGHT_SPEARMAN"].Index -- first unit in conscript class
+		local unitType 			= GameInfo.Units["UNIT_CONSCRIPT_WARRIOR"].Index -- first unit in conscript class
 
 		-- must be at war or under threat from barbarians
 		if not player:IsAtWar() then
@@ -3873,7 +3881,8 @@ function CanConstruct(self, buildingType)
 								local aUnits = Units.GetUnitsInPlot(pEdgePlot)
 								for i, unit in ipairs(aUnits) do
 									local unitOwner = GCO.GetPlayer(unit:GetOwner())
-									if unitOwner:IsBarbarian() then
+									-- check Domain
+									if unitOwner:IsBarbarian() and not ("DOMAIN_SEA" == GameInfo.Units[unit:GetType()].Domain) then
 										bNoThreat = false
 									end
 								end
@@ -3899,7 +3908,8 @@ function CanConstruct(self, buildingType)
 			end
 			--]]
 			
-			local personnelSupply	= self:GetStockVariation(personnelResourceID)
+			local personnelSupply	= math.max(0, self:GetStockVariation(personnelResourceID))
+			local maxPersonnel		= 300
 			local minPersonnel		= 250
 			local organizationLevel	= player:GetConscriptOrganizationLevel()
 			
@@ -3912,7 +3922,8 @@ function CanConstruct(self, buildingType)
 				if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_BARRACKS"].Index) then
 					factor = 2.4 -- (*0.75 = 1.8 = 1 full unit + 1 at 80 HP)
 				end
-				minPersonnel = (militaryOrganization[organizationLevel][promotionClassID].FrontLinePersonnel*0.75*factor)
+				maxPersonnel = militaryOrganization[organizationLevel][promotionClassID].FrontLinePersonnel*factor
+				minPersonnel = maxPersonnel*0.75
 			end
 			
 			if self:GetPersonnel() < (minPersonnel  - personnelSupply) then
@@ -3920,11 +3931,9 @@ function CanConstruct(self, buildingType)
 				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_PERSONNEL_RECRUITS", self:GetPersonnel(), minPersonnel, minPersonnel - self:GetPersonnel() ))
 			end
 			
-			
-			---[[
 			-- Get type
-			local equipmentList		= self:GetEquipmentList()
-			local recruitType		= nil
+			local equipmentList	=  GCO.GetAvailableEquipmentForUnitPromotionClassFromList(unitType, promotionClassID, maxPersonnel, self:GetEquipmentList(), organizationLevel)
+			local recruitType	= nil
 			if promotionClassID then 
 				recruitType = GCO.GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, unitType, 75, organizationLevel)
 			end
@@ -3934,31 +3943,6 @@ function CanConstruct(self, buildingType)
 				bCheckSpecial = false
 				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_EQUIPMENT_RECRUITS"))
 			end
-			--]]
-			
-			--[[
-			-- promotionClassEquipmentClasses[promotionClassID]
-			local equipmentClasses = promotionClassEquipmentClasses[promotionClassID]
-			if equipmentClasses then
-				for classType, classData in pairs(equipmentClasses) do
-					local equipmentTypes 	= GCO.GetEquipmentTypes(classType)
-Dline( classData, classData.PercentageOfPersonnel, minPersonnel)
-					local required			= classData.PercentageOfPersonnel * minPersonnel -- PercentageOfPersonnel can be nil in this table !
-					local available			= 0
-					if equipmentTypes then
-						for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
-							local equipmentID = data.EquipmentID
-							local num = self:GetStock(equipmentID)
-							available = available + num
-						end
-					end
-					if required > available then
-						bCheckSpecial = false
-						table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_NO_EQUIPMENT_RECRUITS", required, GameInfo.EquipmentClasses[classType].Name, available ))
-					end
-				end
-			end
-			--]]
 		end
 	end
 	
@@ -4467,6 +4451,7 @@ else
 			local bIsEquipmentMaker = GCO.IsResourceEquipmentMaker(resourceID)
 			local product 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
 			local collect 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
+			local localProd			= product + collect
 
 			local import 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
 			local transferIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
@@ -4485,7 +4470,6 @@ else
 			
 			if bCondensedMode then -- unique mode
 			
-				local localProd	= product + collect
 				local tradeIn	= import + transferIn + pillage + otherIn
 				local tradeOut	= export + transferOut + supply + stolen + otherOut
 				
@@ -4523,10 +4507,10 @@ else
 					str = str .. " | " .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
 				else
 					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 8)
-					if product > 0 then
-						str = str .. "|[ICON_Charges]+" .. Indentation(product, 3, true)
+					if product > 0 and product > collect then
+						str = str .. "|[ICON_Charges]+" .. Indentation(localProd, 3, true)
 					elseif collect > 0 then
-						str = str .. "|[ICON_Terrain]+" ..Indentation(collect, 3, true)
+						str = str .. "|[ICON_Terrain]+" ..Indentation(localProd, 3, true)
 					else
 						str = str .. "|[ICON_INDENT] " .. Indentation("0", 3, true)
 					end
@@ -4543,10 +4527,10 @@ else
 				
 				if bSimpleMode then
 					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 9)
-					if product > 0 then
-						str = str .. "|[ICON_Charges]+" .. Indentation(product, 3, true)
+					if product > 0 and product > collect then
+						str = str .. "|[ICON_Charges]+" .. Indentation(localProd, 3, true)
 					elseif collect > 0 then
-						str = str .. "|[ICON_Terrain]+" ..Indentation(collect, 3, true)
+						str = str .. "|[ICON_Terrain]+" ..Indentation(localProd, 3, true)
 					else
 						str = str .. "|[ICON_INDENT] " .. Indentation("0", 3, true)
 					end
@@ -4578,10 +4562,10 @@ else
 						end
 					end
 					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 9)
-					if product > 0 then
-						str = str .. "|[ICON_Charges]+" .. Indentation(product, 3, true)
+					if product > 0 and product > collect then
+						str = str .. "|[ICON_Charges]+" .. Indentation(localProd, 3, true)
 					elseif collect > 0 then
-						str = str .. "|[ICON_Terrain]+" ..Indentation(collect, 3, true)
+						str = str .. "|[ICON_Terrain]+" ..Indentation(localProd, 3, true)
 					else
 						str = str .. "|[ICON_INDENT] " .. Indentation("-", 3, true)
 					end
@@ -4636,31 +4620,6 @@ else
 			else
 				GCO.Warning("resourceToolTipTab not registered :", resourceToolTipTab)
 			end
-			
-			---[[
-			--str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", value, self:GetMaxStock(resourceID), resRow.Name, GCO.GetResourceIcon(resourceID))
-			-- [{1_Num}/{2_Num}
-			--str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RESOURCE_TEMP_ICON_STOCK", resRow.Name, GCO.GetResourceIcon(resourceID))
-			
-			--local import 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
-			--local transferIn 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
-			
-			---[[
-			--if product > 0 then
-			--	str = str .." [[ICON_TOOLS2]+"..tostring(product).."]"
-			--end
-			--if collect > 0 then
-			--	str = str .." [[ICON_Terrain]+"..tostring(collect).."]"
-			--end
-			--[[
-			str = str .. " " ..Locale.Lookup("LOC_CITYBANNER_RESOURCE_STOCK_MAX_STOCK", value, self:GetMaxStock(resourceID))
-			
-			str = str .. GCO.GetVariationString(stockVariation)
-			local costVarStr = GCO.GetVariationStringRedPositive(costVariation)
-			if resourceCost > 0 then
-				str = str .." [".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr.."]"
-			end
-			--]]
 			
 			if GCO.IsResourceEquipment(resourceID) then
 				table.insert(equipmentList, { String = str, Order = EquipmentInfo[resourceID].Desirability })
@@ -6828,9 +6787,19 @@ function SetHealthValues(self)
 	local cache 		= self:GetCache()
 	cache.Health 		= { Detailed = {}, Condensed = {}} -- reset values
 	local health 		= cache.Health
+	local currentHealth = self:GetValue("Health") or 0
 	local selfPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
 	local player		= GCO.GetPlayer(self:GetOwner())
 
+	-- Normalization
+	if currentHealth ~= 0 then
+		local normalisation = - GCO.Round(currentHealth / 10)
+		if normalisation > 0 then
+			health.Condensed["LOC_HEALTH_NORMALIZATION_UP"]		= normalisation
+		elseif normalisation < 0 then
+			health.Condensed["LOC_HEALTH_NORMALIZATION_DOWN"]	= normalisation		
+		end
+	end
 	
 	-- Penalty from Population size
 	local populationSize	= self:GetSize()
@@ -6839,7 +6808,7 @@ function SetHealthValues(self)
 	
 	-- Change from Features and local resources (to do : move to XML ?)
 	local ChangeHealthFeatures = {
-		[GameInfo.Features["FEATURE_FLOODPLAINS"].Index] 	= -1,
+		[GameInfo.Features["FEATURE_FLOODPLAINS"].Index] 	= -0.5,
 		[GameInfo.Features["FEATURE_JUNGLE"].Index] 		= -2,
 		[GameInfo.Features["FEATURE_MARSH"].Index] 			= -3,
 		[GameInfo.Features["FEATURE_FOREST"].Index] 		= 1,
@@ -7331,6 +7300,7 @@ end
 function GetSupplyRouteString(iType)
 	for key, routeType in pairs(SupplyRouteType) do
 		if routeType == iType then
+			SupplyRouteType.__orderedIndex = nil -- manual cleanup for orderedpair
 			return key
 		end
 	end

@@ -50,23 +50,6 @@ local TooltipParameters		= {
 			["LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD"] 	= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_CONDENSED_LEGEND", 			Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_CONDENSED_HEADER",},	
 		},
 	}
-
-function OnInputHandler( pInputStruct:table )
-
-	--if not sCurrentResourceTooltip then return end
-
-	local msg = pInputStruct:GetMessageType( );
---print("test", msg, MouseEvents.LButtonDown, MouseEvents.RButtonDown)
-
-	if msg == MouseEvents.LButtonDown then
-		print("LButtonDown")
-
-	elseif msg == MouseEvents.RButtonDown then
-		print("RButtonDown")
-	end
-
-	return false;
-end
 -- GCO >>>>>
 
 -- ===========================================================================

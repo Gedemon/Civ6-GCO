@@ -24,9 +24,10 @@ UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMAL
 --UPDATE GameSpeed_Turns SET MonthIncrement = MonthIncrement * 0.5, TurnsPerIncrement = TurnsPerIncrement * 2;
 
 /* ************************ */
-/* No resources harvesting  */
+/* Resources                */
 /* ************************ */
 DELETE FROM Resource_Harvests;
+DELETE FROM Resources WHERE ResourceType='RESOURCE_NITER';
 
 /* ************************ */
 /* Deals                    */
@@ -113,6 +114,8 @@ INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) 
 /* Features                 */
 /* ************************ */
 DELETE FROM Feature_Removes;
+INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_GRASS');
+INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_PLAINS');
 
 
 /* ************************ */

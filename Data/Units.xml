@@ -40,6 +40,7 @@
 		<Row UnitType="UNIT_FUSILLIER" 			Cost="290" 	Maintenance="4"	Combat="53"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST"  />
 
 	<!---->
+		<Row UnitType="UNIT_CONSCRIPT_WARRIOR" 	Cost="40"	Maintenance="1"	Combat="17"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />	
 		<Row UnitType="UNIT_LIGHT_SPEARMAN" 	Cost="50"	Maintenance="1"	Combat="20"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />	
 		<Row UnitType="UNIT_SPEARMAN" 			Cost="65" 	Maintenance="1" Combat="25" CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT" />
 		<Row UnitType="UNIT_HEAVY_SPEARMAN" 	Cost="90"	Maintenance="2"	Combat="30"	CanTrain="false"	PromotionClass="PROMOTION_CLASS_CONSCRIPT"	FormationClass="FORMATION_CLASS_LAND_COMBAT" Domain="DOMAIN_LAND"	AdvisorType="ADVISOR_CONQUEST" />

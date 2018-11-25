@@ -456,6 +456,13 @@
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Technologies</Text>
     </Replace>
 	
+    <Replace Tag="LOC_HEALTH_NORMALIZATION_UP" Language="en_US">
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Health balance</Text>
+    </Replace>
+    <Replace Tag="LOC_HEALTH_NORMALIZATION_DOWN" Language="en_US">
+      <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Health balance</Text>
+    </Replace>
+	
 	
     <Replace Tag="LOC_HEALTH_PENALTY_FROM_POPULATION" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Population</Text>
@@ -999,7 +1006,7 @@
 		<Text>[COLOR_Civ6Red]Missing {4_Num} Logistic support for {2_Name}[ENDCOLOR] ([COLOR_Civ6Red]{3_Num}[ENDCOLOR] available, {1_Num} required)</Text>
     </Replace>
 	<Replace Tag="LOC_PRODUCTION_RECRUIT_TYPE" Language="en_US">
-		<Text>Recruited unit type : [COLOR_Civ6Green]{1_Name}[ENDCOLOR]</Text>
+		<Text>Recruited unit type : [COLOR_OperationChance_Green]{1_Name}[ENDCOLOR]</Text>
     </Replace>
 	
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_TOTAL" Language="en_US">

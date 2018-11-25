@@ -1519,7 +1519,7 @@ function PopulateSearchData()
 		local buildingType = Locale.Lookup("LOC_BUILDING_NAME");
 		local wonderTypeName = Locale.Lookup("LOC_WONDER_NAME");
 		for row in GameInfo.Buildings() do
-			if(row.PrereqTech) then
+			if(row.PrereqTech) and not (row.NoPedia) then
 				local tags = {buildingTypeName};
 				if(row.IsWonder) then
 					table.insert(tags, wonderTypeName);

@@ -221,61 +221,6 @@ function OnLoadGameViewStateDone()
 end
 Events.LoadGameViewStateDone.Add( OnLoadGameViewStateDone )
 
-
---=====================================================================================--
--- http://lua-users.org/wiki/SortedIteration
--- Ordered table iterator, allow to iterate on the natural order of the keys of a table.
---=====================================================================================--
-function __genOrderedIndex( t )
-    local orderedIndex = {}
-    for key in pairs (t) do
-        table.insert ( orderedIndex, key )
-    end
-    table.sort ( orderedIndex )
-    return orderedIndex
-end
-
-function orderedNext(t, state)
-    -- Equivalent of the next function, but returns the keys in the alphabetic
-    -- order.  We use a temporary ordered key table that is stored in the
-    -- table being iterated.
-
-    local key = nil
-    --print("orderedNext: state = "..tostring(state) )
-    if state == nil then
-        -- the first time, generate the index
-        t.__orderedIndex = __genOrderedIndex( t )
-        key = t.__orderedIndex[1]
-    else
-        -- fetch the next value
-        for i = 1, #t.__orderedIndex do
-            if t.__orderedIndex[i] == state then
-                key = t.__orderedIndex[i+1]
-            end
-        end
-    end
-
-    if key and type(key) ~= "table" then
-        return key, t[key]
-    end
-
-	if key and type(key) == "table" then
-		print("WARNING: key = table in orderedPairs")
-		for k, v in pairs(key) do print(k,v) end
-	end
-	
-    -- no more value to return, cleanup
-    t.__orderedIndex = nil
-    return
-end
-
-function orderedPairs(t)
-    -- Equivalent of the pairs() function on tables.  Allows to iterate
-    -- in order
-    return orderedNext, t, nil
-end
-
-
 --=====================================================================================--
 -- Maths/Tables
 --=====================================================================================--
@@ -628,6 +573,63 @@ function MarkFlagUpdateSafe()
 	bSafeToCallFlagUpdate = true
 end
 LuaEvents.StartPlayerTurn.Add(MarkFlagUpdateSafe)
+
+
+--=====================================================================================--
+-- http://lua-users.org/wiki/SortedIteration
+-- Ordered table iterator, allow to iterate on the natural order of the keys of a table.
+--=====================================================================================--
+function __genOrderedIndex( t )
+    local orderedIndex = {}
+    for key in pairs (t) do
+        table.insert ( orderedIndex, key )
+    end
+    table.sort ( orderedIndex )
+    return orderedIndex
+end
+
+function orderedNext(t, state)
+    -- Equivalent of the next function, but returns the keys in the alphabetic
+    -- order.  We use a temporary ordered key table that is stored in the
+    -- table being iterated.
+
+    local key = nil
+    --print("orderedNext: state = "..tostring(state) )
+    if state == nil and t.__orderedIndex then
+		Error("__orderedIndex already exists on orderedNext first call")
+	end
+    if state == nil then
+        -- the first time, generate the index
+        t.__orderedIndex = __genOrderedIndex( t )
+        key = t.__orderedIndex[1]
+    else
+        -- fetch the next value
+        for i = 1, #t.__orderedIndex do
+            if t.__orderedIndex[i] == state then
+                key = t.__orderedIndex[i+1]
+            end
+        end
+    end
+
+    if key and type(key) ~= "table" then
+        return key, t[key]
+    end
+
+	if key and type(key) == "table" then
+		Error("key = table in orderedPairs")
+		for k, v in pairs(key) do print(k,v) end
+	end
+	
+    -- no more value to return, cleanup
+    t.__orderedIndex = nil
+    return
+end
+
+function orderedPairs(t)
+    -- Equivalent of the pairs() function on tables.  Allows to iterate
+    -- in order
+    return orderedNext, t, nil
+end
 
 
 --=====================================================================================--

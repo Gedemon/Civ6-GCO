@@ -390,19 +390,19 @@
 	</IconDefinitions>
   
 	<IconDefinitions> 	<!-- TECH ICONS -->
-		<Row Name="ICON_TECH_HERBALISM" 			Atlas="ICON_ATLAS_TECH"		Index="5" />
-		<Row Name="ICON_TECH_HERBALISM_FOW" 		Atlas="ICON_ATLAS_TECH_FOW"	Index="5" />		
-		<Row Name="ICON_TECH_AGRICULTURE" 			Atlas="ICON_ATLAS_TECH"		Index="5" />
-		<Row Name="ICON_TECH_AGRICULTURE_FOW" 		Atlas="ICON_ATLAS_TECH_FOW"	Index="5" />
+		<Row Name="ICON_TECH_HERBALISM" 			Atlas="ICON_ATLAS_TECH"			Index="5" />
+		<Row Name="ICON_TECH_HERBALISM_FOW" 		Atlas="ICON_ATLAS_TECH_FOW"		Index="5" />		
+		<Row Name="ICON_TECH_AGRICULTURE" 			Atlas="ICON_ATLAS_TECH"			Index="5" />
+		<Row Name="ICON_TECH_AGRICULTURE_FOW" 		Atlas="ICON_ATLAS_TECH_FOW"		Index="5" />
 		
-		<Row Name="ICON_TECH_SURGERY"				Atlas="ICON_ATLAS_TECH"		Index="16" />
-		<Row Name="ICON_TECH_SURGERY_FOW"			Atlas="ICON_ATLAS_TECH_FOW"	Index="16" />
+		<Row Name="ICON_TECH_SURGERY"				Atlas="ICON_ATLAS_CIVICS"		Index="8" />
+		<Row Name="ICON_TECH_SURGERY_FOW"			Atlas="ICON_ATLAS_CIVICS_FOW"	Index="8" />
 		<!--
 		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_UNITS" 		Index="78"/>
 		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_UNITS_FOW" 	Index="78"/>
 		 -->
-		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_TECH"		Index="49" />
-		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_TECH_FOW"	Index="49" />
+		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_TECH"			Index="49" />
+		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_TECH_FOW"		Index="49" />
 		
 	</IconDefinitions>
 	
@@ -597,7 +597,16 @@
 		
         <Replace Name="ICON_UNIT_FORESTER" 					Atlas="ICON_ATLAS_UNITS" 					Index="54"/>
         <Replace Name="ICON_UNIT_FORESTER_FOW" 				Atlas="ICON_ATLAS_UNITS_FOW" 				Index="54"/>
-        <Replace Name="ICON_UNIT_FORESTER_PORTRAIT" 		Atlas="ICON_ATLAS_MOAR_UNITS_PORTRAITS" 	Index="40"/>
+        <Replace Name="ICON_UNIT_FORESTER_PORTRAIT" 		Atlas="ICON_ATLAS_MOAR_UNITS_PORTRAITS" 	Index="40"/>		
+		
+		<Replace Name="ICON_UNIT_CONSCRIPT_WARRIOR"			Atlas="ICON_ATLAS_UNITS"					Index="20"/>
+		<Replace Name="ICON_UNIT_CONSCRIPT_WARRIOR_FOW"		Atlas="ICON_ATLAS_UNITS_FOW"				Index="20"/>
+		
+		<Replace Name="ICON_UNIT_WARRIOR_PORTRAIT"						Atlas="ICON_ATLAS_UNIT_PORTRAITS"					Index="18"/>
+		<Replace Name="ICON_ETHNICITY_ASIAN_UNIT_WARRIOR_PORTRAIT"		Atlas="ICON_ATLAS_ASIAN_UNIT_PORTRAITS"				Index="18"/>
+		<Replace Name="ICON_ETHNICITY_MEDIT_UNIT_WARRIOR_PORTRAIT"		Atlas="ICON_ATLAS_MEDITERRANEAN_UNIT_PORTRAITS"		Index="18"/>
+		<Replace Name="ICON_ETHNICITY_SOUTHAM_UNIT_WARRIOR_PORTRAIT"	Atlas="ICON_ATLAS_SOUTH_AMERICAN_UNIT_PORTRAITS"	Index="18"/>
+		<Replace Name="ICON_ETHNICITY_AFRICAN_UNIT_WARRIOR_PORTRAIT"	Atlas="ICON_ATLAS_AFRICAN_UNIT_PORTRAITS"			Index="18"/>
 	</IconDefinitions>
 	
 </GameInfo>

@@ -279,6 +279,9 @@
 	</LocalizedText>
 
 	<LocalizedText> <!-- Units -->
+	
+		<Replace Tag="LOC_UNIT_CONSCRIPT_WARRIOR_NAME" 	Text="Hunters"				Language="en_US" />
+		
 		<Replace Tag="LOC_UNIT_LIGHT_PHALANX_NAME" 		Text="Light Phalanx" 		Language="en_US" />
 		<Replace Tag="LOC_UNIT_HEAVY_PHALANX_NAME" 		Text="Heavy Phalanx" 		Language="en_US" />
 		<Replace Tag="LOC_UNIT_LIGHT_SPEARMAN_NAME" 	Text="Light Spearman" 		Language="en_US" />
