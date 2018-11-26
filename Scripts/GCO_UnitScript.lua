@@ -177,7 +177,7 @@ for unitTypeID, equipmentClasses in pairs(unitEquipmentClasses) do
 					equipmentUnitTypes[equipmentData.EquipmentID] = { [unitTypeID] = equipmentClassID }
 				elseif equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID] then
 					-- can't use GCO.Error or GCO.Warning functions at this point
-					print("ERROR : Equipment Type ".. Locale.Lookup(GameInfo.Resources[equipmentData.EquipmentID].Name) .." in multiple classes (".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID]].Name) ..", ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name) .." for unit type "..Locale.Lookup(GameInfo.units[unitTypeID].Name))
+					print("ERROR : Equipment Type ".. Locale.Lookup(GameInfo.Resources[equipmentData.EquipmentID].Name) .." in multiple classes")-- (".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID]].Name) ..", ".. Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name) .." for unit type "..Locale.Lookup(GameInfo.units[unitTypeID].Name))
 				else
 					equipmentUnitTypes[equipmentData.EquipmentID][unitTypeID] = equipmentClassID
 				end				

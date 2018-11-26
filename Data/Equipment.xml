@@ -155,6 +155,7 @@
 		
 		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_LIGHTARMOR"			/>
@@ -245,6 +246,14 @@
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		
+		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	/>
+		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	/>
+		<Row ResourceType="EQUIPMENT_LEATHER_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	/>
+		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	/>
+		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	/>
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	/>
+		
+		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"		/>
@@ -504,6 +513,10 @@
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SWORDS" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" />
+		<!-- To allow that we need to rethink the GetEquipmentClass() function and associed tables -- >
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" PercentageOfPersonnel="70" />
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	IsRequired="0" />
+		<!---->
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
