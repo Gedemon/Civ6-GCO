@@ -81,7 +81,7 @@ INSERT INTO CivilizationConfiguration
 --(	'PAKISTAN',		'StandardPlayers',	NULL,					NULL,					'WHITE',		'ASIAN',	'ISLAMABAD',	'Pakistan',			'Pakistani',	'Islamic Republic of Pakistan',         'Pakistani Government'		),
 --(	'PERU',			'StandardPlayers',	NULL,					NULL,					'WHITE',		'SOUTHAM',	'LIMA',			'Peru',				'Peruvian',		'Republic of Peru',            			'Peruvian Government'		),
 --(	'PHILIPPINES',	'StandardPlayers',	NULL,					NULL,					'YELLOW',		'ASIAN',	'MANILA',		'The Philippines',	'Philippine',	'Republic of the Philippines',          'Philippine Government'	),
---(	'POLAND',		'StandardPlayers',	NULL,					NULL,					'WHITE',		'EURO',		'WARSAW',		'Poland',			'Polish',		'Republic of Poland',					'Polish Government'		),
+(	'POLAND',		'StandardPlayers',	NULL,					NULL,					'WHITE',		'EURO',		'WARSAW',		'Poland',			'Polish',		'Republic of Poland',					'Polish Government'		),
 (	'PORTUGAL',		'StandardPlayers',	NULL,					NULL,					'YELLOW',		'EURO',		'LISBON',		'Portugal',			'Portuguese',	'Portuguese Republic',					'Portuguese Government'	),
 --(	'ROMANIA',		'StandardPlayers',	NULL,					NULL,					'YELLOW',		'EURO',		'BUCHAREST',	'Romania',			'Romanian',		'Romania',                              'Romanian Government'		),
 (	'RUSSIA',		'StandardPlayers',	NULL,					NULL,					'WHITE',		'EURO',		'MOSCOW',		'Russia', 			'Russian',		'Russian Federation',					'Russian Government'		),
