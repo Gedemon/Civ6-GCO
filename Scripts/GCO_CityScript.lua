@@ -5226,7 +5226,16 @@ function DoCollectResources(self)
 			if  pTech:HasTech(GameInfo.Technologies["TECH_CARTOGRAPHY"].Index) then
 				sRouteType = "Ocean"
 			end
-			local cityPlot 	= GCO.GetPlot(self:GetX(), self:GetY())
+			local cityPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
+			local pBuildings	= self:GetBuildings()
+			local pDistricts	= self:GetDistricts()
+			local harbor		= pDistricts:GetDistrict(GameInfo.Districts["DISTRICT_HARBOR"].Index)
+			local bHasBoat		= harbor or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index)
+			
+			if harbor then
+				cityPlot 		= GCO.GetPlot(harbor:GetX(), harbor:GetY())
+			end
+			
 			for ring = 1, seaRange do
 				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
 					local plotOwner = pEdgePlot:GetOwner()
@@ -5251,7 +5260,7 @@ function DoCollectResources(self)
 											table.insert(cityPlots, pEdgePlot:GetIndex())-- owned plots are already in a cityPlots list and are not shared
 										end
 										Dprint( DEBUG_CITY_SCRIPT, "-- Adding Sea plots for resource collection, route length = ", routeLength, " sea range = ", seaRange, " resource = ", Locale.Lookup(GameInfo.Resources[resourceID].Name), " at ", pEdgePlot:GetX(), pEdgePlot:GetY() )
-										if (pEdgePlot:GetImprovementType() == NO_IMPROVEMENT) and self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then
+										if (pEdgePlot:GetImprovementType() == NO_IMPROVEMENT) and bHasBoat then
 											local improvementID = GCO.GetResourceImprovementID(resourceID)
 											if improvementID then
 												ImprovementBuilder.SetImprovementType(pEdgePlot, improvementID, NO_PLAYER)

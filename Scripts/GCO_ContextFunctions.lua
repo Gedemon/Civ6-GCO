@@ -41,6 +41,13 @@ LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 
 -- ===========================================================================
+-- Calendar functions
+-- ===========================================================================
+function GetTurnYear(turn)
+	return Calendar.GetTurnYearForGame(turn)
+end
+
+-- ===========================================================================
 -- Cities functions
 -- ===========================================================================
 function GetCityCultureYield(plot)
@@ -409,6 +416,8 @@ function Initialize()
 	-- Set shared table
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end	
 	
+	-- calendar
+	ExposedMembers.GCO.GetTurnYear					= GetTurnYear
 	-- cities
 	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
 	ExposedMembers.GCO.GetCityPlots					= GetCityPlots

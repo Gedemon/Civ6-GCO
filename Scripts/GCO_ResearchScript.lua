@@ -446,7 +446,7 @@ function Research:DoTurn()
 			counter			= counter + 1
 			for techID, _ in pairs(techList) do
 				local prevLeft 	= yieldLeft
-				local arg 		= { MaxContributionPercent = ResearchTechMax[techID][researchType] or 100, BaseValue = yieldLeft}
+				local arg 		= { MaxContributionPercent = ResearchTechMax[techID][researchType] or 100, BaseValue = share}
 				yieldLeft 		= self:AddContribution(techID, nil, nil, researchType, nil, arg)
 				if yieldLeft == prevLeft then -- this tech can't progress from that ResearchType anymore
 					table.insert(toRemove, techID)
@@ -765,7 +765,7 @@ function Research:ChangeYield(researchType, x, y, contributionType, value)
 	
 	if not data.RsrchF[rsrchKey] then data.RsrchF[rsrchKey] = {} end
 	
-	data.RsrchF[rsrchKey][cntrKey] = (data.RsrchF[rsrchKey][cntrKey] or 0) + value
+	data.RsrchF[rsrchKey][cntrKey] = GCO.ToDecimals((data.RsrchF[rsrchKey][cntrKey] or 0) + value)
 	
 	if x and y and self.PlayerID == Game.GetLocalPlayer() then
 		local pLocalPlayerVis = PlayersVisibility[self.PlayerID]

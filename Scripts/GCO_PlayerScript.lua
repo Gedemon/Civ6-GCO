@@ -114,6 +114,7 @@ function SetPlayerDefines()
 		end	
 	end
 end
+--Events.LoadScreenClose.Add(SetPlayerDefines)
 
 -----------------------------------------------------------------------------------------
 -- PlayerData functions
@@ -240,24 +241,96 @@ end
 -----------------------------------------------------------------------------------------	
 
 function Define(self)
+
+	local DEBUG_PLAYER_SCRIPT = "debug"
+	
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLAYER_SCRIPT, "Defining properties for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))
+	
 	local playerConfig		= self:GetConfig()
-	local CivTypeName		= playerConfig:GetCivilizationTypeName()
-	local LeaderTypeName	= playerConfig:GetLeaderTypeName()
+	local civTypeName		= playerConfig:GetCivilizationTypeName()
+	--local leaderTypeName	= playerConfig:GetLeaderTypeName()
 	local governement		= self:GetCurrentGovernment()
-	local civAdjective 		= GameInfo.Civilizations[CivTypeName].Adjective
-	local civName			= GameInfo.Civilizations[CivTypeName].Name
-	local leaderName		= GameInfo.Leaders[LeaderTypeName].Name
-	local leaderSex			= GameInfo.Leaders[LeaderTypeName].Sex
-	local namesRow
+	local civAdjective 		= GameInfo.Civilizations[civTypeName].Adjective
+	local civName			= GameInfo.Civilizations[civTypeName].Name
+	local currentTurn		= Game.GetCurrentGameTurn()
+	local currentYear		= GCO.GetTurnYear(currentTurn)
+	local maxTurnsDiff 		= tonumber(GameInfo.GlobalParameters["LEADERS_REIGN_MAX_TURNS_DIFFERENCE"].Value)
+	local maxYearsDiff		= GCO.GetTurnYear(currentTurn + maxTurnsDiff) - currentYear
+	local genderPrefix		= { Male = "MALE_", Female = "FEMALE_" }
+	local bestDiff			= maxYearsDiff + 1
+	local rootName			= nil
+	local leaderRow			= nil
+	
+	-- Get Governement RootName (= TypeName)
 	if GameInfo.Governments[governement] and self:GetCities() and self:GetCities():GetCount() > 0 then
-		local governmentType 	= GameInfo.Governments[governement].GovernmentType
-		namesRow				= GameInfo.GovernmentNames[governmentType]
+		rootName 	= GameInfo.Governments[governement].GovernmentType
 	else -- Tribesmen
-		namesRow				= GameInfo.GovernmentNames["GOVERNMENT_TRIBE"]
+		rootName	= "GOVERNMENT_TRIBE"
 	end
-	playerConfig:SetKeyValue("LeaderName", 						Locale.Lookup(namesRow[leaderSex], leaderName))
-	playerConfig:SetKeyValue("CivilizationShortDescription", 	Locale.Lookup(namesRow.ShortName, civAdjective))
-	playerConfig:SetKeyValue("CivilizationDescription", 		Locale.Lookup(namesRow.LongName, civName))
+	Dprint( DEBUG_PLAYER_SCRIPT, "- Government rootName = ", rootName)
+
+	-- Get leader
+	Dprint( DEBUG_PLAYER_SCRIPT, "- loocking for Leader at year = ", currentYear, " maxYearsDiff = ", maxYearsDiff )
+	for row in GameInfo.LeadersTimeLine() do
+		if row.CivilizationType == civTypeName then
+			Dprint( DEBUG_PLAYER_SCRIPT, "- Testing: ", row.LeaderName, row.StartDate, row.EndDate )
+			if row.StartDate >= currentYear and row.EndDate <= currentYear then
+				-- don't look further
+				leaderRow	= row
+				Dprint( DEBUG_PLAYER_SCRIPT, "  - VALIDATING LEADER: Current year is in Reign" )
+				break
+			end
+			local diff = math.min( math.abs(row.StartDate - currentYear), math.abs(row.EndDate - currentYear) )
+			if diff < bestDiff then
+				Dprint( DEBUG_PLAYER_SCRIPT, "  - Marking as best Choice, with years diff = ", diff )
+				leaderRow 	= row
+				bestDiff	= diff
+			else
+				Dprint( DEBUG_PLAYER_SCRIPT, "  - Discarding, years diff is too high at ", diff )
+			end
+		end
+	end
+	
+	-- Build LOC_NAMES
+	local LeaderName		= nil -- Leader naming		ex: "Patriach {leaderName}" or "Patriach of {civName}"
+	local ShortDescription	= nil -- Short naming		ex: "{civAdjective} tribesmen"
+	local Description		= nil -- Long naming		ex: "Tribe of {civName}"
+	local LOC_CIV_SPECIFIC	= nil -- temp var to test for Civilization Specific texts in the Localized DB 
+	
+	if leaderRow ~= nil then
+		local LOC_LEADER	= "LOC_".. genderPrefix[leaderRow.Gender] .. rootName .. "_NAME"
+		LOC_CIV_SPECIFIC	= "LOC_".. civTypeName .. "_".. genderPrefix[leaderRow.Gender] .. rootName .. "_NAME"
+		LeaderName			= Locale.Lookup(LOC_CIV_SPECIFIC, leaderRow.LeaderName)
+		if LeaderName == LOC_CIV_SPECIFIC then -- there was no localized civ-specific text found
+			LeaderName		= Locale.Lookup(LOC_LEADER, leaderRow.LeaderName)
+		end
+	else
+		local LOC_LEADER	= "LOC_UNKNOWN_" .. rootName .. "_NAME"
+		LOC_CIV_SPECIFIC	= "LOC_".. civTypeName .. "_UNKNOWN_" .. rootName .. "_NAME"
+		LeaderName			= Locale.Lookup(LOC_CIV_SPECIFIC, civName)
+		if LeaderName == LOC_CIV_SPECIFIC then -- there was no localized civ-specific text found
+			LeaderName		= Locale.Lookup(LOC_LEADER, civName)
+		end
+	end
+		
+	local LOC_SHORT		= "LOC_SHORT_".. rootName .. "_NAME"
+	LOC_CIV_SPECIFIC	= "LOC_SHORT_".. civTypeName .. "_" .. rootName .. "_NAME"
+	ShortDescription	= Locale.Lookup(LOC_CIV_SPECIFIC, civAdjective)
+	if ShortDescription == LOC_CIV_SPECIFIC then -- there was no localized civ-specific text found
+		ShortDescription	= Locale.Lookup(LOC_SHORT, civAdjective)
+	end
+		
+	local LOC_LONG		= "LOC_LONG_".. rootName .. "_NAME"
+	LOC_CIV_SPECIFIC	= "LOC_LONG_".. civTypeName .. "_" .. rootName .. "_NAME"
+	Description			= Locale.Lookup(LOC_CIV_SPECIFIC, civName)
+	if Description == LOC_CIV_SPECIFIC then -- there was no localized civ-specific text found
+		Description		= Locale.Lookup(LOC_LONG, civName)
+	end
+	
+	playerConfig:SetKeyValue("LeaderName", 						LeaderName)
+	playerConfig:SetKeyValue("CivilizationShortDescription", 	ShortDescription)
+	playerConfig:SetKeyValue("CivilizationDescription", 		Description)
 	
 	self:UpdateUnitsFlags()
 	self:UpdateCitiesBanners()

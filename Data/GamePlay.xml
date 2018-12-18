@@ -793,23 +793,32 @@
 		<Row ProjectType="PROJECT_TAXES" YieldType="YIELD_GOLD" PercentOfProductionRate="15"/>
 	</Project_YieldConversions>
 	
-	<!--		GOVERNMENTS
+	<!--		LEADERS TIMELINE
 	
 	
 	-->
-	<GovernmentNames>
-		<Row GovernmentType="GOVERNMENT_TRIBE" 				Male="LOC_MALE_TRIBE_NAME" 				Female="LOC_FEMALE_TRIBE_NAME" 				ShortName="LOC_SHORT_TRIBE_NAME" 				LongName="LOC_LONG_TRIBE_NAME" 				/>
-		<Row GovernmentType="GOVERNMENT_CHIEFDOM" 			Male="LOC_MALE_CHIEFDOM_NAME" 			Female="LOC_FEMALE_CHIEFDOM_NAME" 			ShortName="LOC_SHORT_CHIEFDOM_NAME" 			LongName="LOC_LONG_CHIEFDOM_NAME" 			/>
-		<Row GovernmentType="GOVERNMENT_AUTOCRACY" 			Male="LOC_MALE_AUTOCRACY_NAME" 			Female="LOC_FEMALE_AUTOCRACY_NAME" 			ShortName="LOC_SHORT_AUTOCRACY_NAME" 			LongName="LOC_LONG_AUTOCRACY_NAME" 			/>
-		<Row GovernmentType="GOVERNMENT_OLIGARCHY" 			Male="LOC_MALE_OLIGARCHY_NAME" 			Female="LOC_FEMALE_OLIGARCHY_NAME" 			ShortName="LOC_SHORT_OLIGARCHY_NAME" 			LongName="LOC_LONG_OLIGARCHY_NAME" 			/>
-		<Row GovernmentType="GOVERNMENT_CLASSICAL_REPUBLIC"	Male="LOC_MALE_CLASSICAL_REPUBLIC_NAME"	Female="LOC_FEMALE_CLASSICAL_REPUBLIC_NAME"	ShortName="LOC_SHORT_CLASSICAL_REPUBLIC_NAME"	LongName="LOC_LONG_CLASSICAL_REPUBLIC_NAME"	/>
-		<Row GovernmentType="GOVERNMENT_MONARCHY" 			Male="LOC_MALE_MONARCHY_NAME"			Female="LOC_FEMALE_MONARCHY_NAME"			ShortName="LOC_SHORT_MONARCHY_NAME"				LongName="LOC_LONG_MONARCHY_NAME"			/>
-		<Row GovernmentType="GOVERNMENT_THEOCRACY" 			Male="LOC_MALE_THEOCRACY_NAME"			Female="LOC_FEMALE_THEOCRACY_NAME"			ShortName="LOC_SHORT_THEOCRACY_NAME"			LongName="LOC_LONG_THEOCRACY_NAME"			/>
-		<Row GovernmentType="GOVERNMENT_MERCHANT_REPUBLIC"	Male="LOC_MALE_MERCHANT_REPUBLIC_NAME"	Female="LOC_FEMALE_MERCHANT_REPUBLIC_NAME"	ShortName="LOC_SHORT_MERCHANT_REPUBLIC_NAME"	LongName="LOC_LONG_MERCHANT_REPUBLIC_NAME"	/>
-		<Row GovernmentType="GOVERNMENT_FASCISM"			Male="LOC_MALE_FASCISM_NAME"			Female="LOC_FEMALE_FASCISM_NAME"			ShortName="LOC_SHORT_FASCISM_NAME"			 	LongName="LOC_LONG_FASCISM_NAME"			/>
-		<Row GovernmentType="GOVERNMENT_COMMUNISM"			Male="LOC_MALE_COMMUNISM_NAME"			Female="LOC_FEMALE_COMMUNISM_NAME"			ShortName="LOC_SHORT_COMMUNISM_NAME"			LongName="LOC_LONG_COMMUNISM_NAME"			/>
-		<Row GovernmentType="GOVERNMENT_DEMOCRACY"			Male="LOC_MALE_DEMOCRACY_NAME"			Female="LOC_FEMALE_DEMOCRACY_NAME"			ShortName="LOC_SHORT_DEMOCRACY_NAME"			LongName="LOC_LONG_DEMOCRACY_NAME"			/>
-	</GovernmentNames>
+
+	<LeadersTimeLine>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Narmer"			Gender="Male"	StartDate="-3200"	EndDate="-3100"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Djoser"			Gender="Male"	StartDate="-2686"	EndDate="-2649"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Snefru"			Gender="Male"	StartDate="-2650"	EndDate="-2550"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Khufu"			Gender="Male"	StartDate="-2589"	EndDate="-2566"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Khafre"			Gender="Male"	StartDate="-2560"	EndDate="-2535"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Pepi II"			Gender="Male"	StartDate="-2278"	EndDate="-2184"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Senusret I"		Gender="Male"	StartDate="-1971"	EndDate="-1926"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Ahmose I"			Gender="Male"	StartDate="-1549"	EndDate="-1524"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Amenhotep I"		Gender="Male"	StartDate="-1525"	EndDate="-1504"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Thutmose II"		Gender="Male"	StartDate="-1493"	EndDate="-1479"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Hatshepsut"		Gender="Female"	StartDate="-1478"	EndDate="-1458"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Akhenaten"		Gender="Male"	StartDate="-1353"	EndDate="-1336"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Nefertiti"		Gender="Female"	StartDate="-1334"	EndDate="-1332"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Tutankhamun"		Gender="Male"	StartDate="-1332"	EndDate="-1323"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Seti I"			Gender="Male"	StartDate="-1290"	EndDate="-1278"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="RamsesII"			Gender="Male"	StartDate="-1279"	EndDate="-1213"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Merenptah"		Gender="Male"	StartDate="-1214"	EndDate="-1203"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Twosret"			Gender="Female"	StartDate="-1195"	EndDate="-1189"	/>
+		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Cleopatra"		Gender="Female"	StartDate="-51"		EndDate="-30"	/>
+	</LeadersTimeLine>
 	
 	<!-- DIPLOACTION: useless without DLL access ?
 	<Types>

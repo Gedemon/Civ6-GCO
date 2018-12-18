@@ -648,6 +648,7 @@
 		<!-- Tiers III -->
 		<Row 	Technology="TECH_MYSTICISM" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_MAP_MAKING" 		ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="90"/>
+		<Row 	Technology="TECH_MAP_MAKING" 		ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_FOREIGN_TRADE"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_FOREIGN_TRADE"		ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_MASONRY"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
@@ -659,12 +660,15 @@
 	</TechnologyResearchContribution>
 	<TechnologyResearchContribution>	<!-- Classical Era -->
 		<!-- Tiers I -->
-		<Row 	Technology="TECH_POLYTHEISM" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
-		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
-		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
-		<Row 	Technology="TECH_IRON_WORKING" 		ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_POLYTHEISM" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_CELESTIAL_NAVIGATION"	ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_CELESTIAL_NAVIGATION"	ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_IRON_WORKING"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_IRON_WORKING"			ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_IRON_WORKING" 			ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="25"/>
 		<!-- Tiers II -->
 		<Row 	Technology="TECH_MONOTHEISM" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_SHIPBUILDING"		ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_MILITARY_TRAINING"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers III -->
 		<Row 	Technology="TECH_THEOLOGY" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>

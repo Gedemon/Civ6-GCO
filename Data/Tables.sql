@@ -709,14 +709,16 @@ CREATE TABLE BuildingUpgrades (
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (UpgradeType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
-
-CREATE TABLE GovernmentNames (
-		GovernmentType TEXT NOT NULL,
-		Male TEXT NOT NULL,
-		Female TEXT NOT NULL,
-		ShortName TEXT NOT NULL,
-		LongName TEXT NOT NULL,
-		PRIMARY KEY(GovernmentType)
+	
+CREATE TABLE LeadersTimeLine (
+		CivilizationType TEXT NOT NULL,
+		LeaderName TEXT NOT NULL,
+		Gender TEXT  NOT NULL DEFAULT 'Male' CHECK (Gender IN ('Male', 'Female')),
+		StartDate INTEGER NOT NULL,
+		EndDate INTEGER NOT NULL,
+		GovernmentType TEXT,
+		PRIMARY KEY(CivilizationType, LeaderName),
+		FOREIGN KEY (CivilizationType) REFERENCES Civilizations(CivilizationType)
 	);
 
 CREATE TABLE TechnologyContributionTypes (

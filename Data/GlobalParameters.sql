@@ -200,6 +200,9 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FUEL_CONSUMPTION_
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FUEL_CONSUMPTION_MEDIUM_RATIO',			0.25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('FUEL_CONSUMPTION_HEAVY_RATIO',			0.10);
 
+-- leaders
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('LEADERS_REIGN_MAX_TURNS_DIFFERENCE',		20);	-- Allow to pick leaders for whoses the reign have started/ended earlier/later than the current game's turn
+
 -- morale
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_BAD_PERCENT',						25);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('MORALE_LOW_PERCENT',						50);

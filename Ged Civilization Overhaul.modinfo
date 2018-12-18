@@ -74,8 +74,6 @@
 			<File>UI/UnitFlagManager.xml</File>
 			<File>UI/CityBannerManager.lua</File>
 			<File>UI/CityBannerManager.xml</File>
-			<File>UI/Civ6_FontStyles_GCO.xml</File>
-			<File>UI/Civ6_Styles.xml</File>
 			<File>UI/PlotToolTip.lua</File>
 			<File>UI/TopPanel.lua</File>
 			<File>UI/ToolTips.xml</File>
@@ -158,25 +156,20 @@
 				<File Priority="100">Data/Resources.xml</File>
 				<File Priority="100">Data/CityNames.xml</File>
 				<File Priority="100">Data/Technologies.xml</File>
-				<File Priority="100">Text/NameText.xml</File> <!-- Add buildings, units, ... name & descriptions here to automate table filling -->
+				<File Priority="100">Text/NameText.xml</File> <!-- Add buildings, units, ... name & descriptions here to automate table filling in PostUpdate.sql -->
 				<File Priority="100">Data/CivilizationTable.sql</File>
 				<File Priority="95">Data/CultureDiffusionParameters.sql</File>
 				<File Priority="90">Data/CombatRules.sql</File>
 				<File Priority="90">Data/Units.sql</File>
 				<File Priority="90">Data/ModRules.sql</File>
 				<File Priority="10">Data/CivilizationData.sql</File>
+				<File Priority="5">custom.sql</File>
+				<File Priority="5">custom.xml</File>
 				<File Priority="2">Data/PostUpdate.sql</File>
 				<File Priority="1">Data/Unlockers.sql</File>
 				<File Priority="1">Data/BaseGameFix.xml</File>	
 				<File Priority="1">Data/Colors.xml</File>
 				<File Priority="1">Data/TSL.xml</File>
-		</UpdateDatabase>
-		<UpdateDatabase id="GCO_USER_CUSTOMIZATION">
-           	<Properties>
-				<LoadOrder>200060</LoadOrder>
-           	</Properties>
-			<File>custom.sql</File>
-			<File>custom.xml</File>
 		</UpdateDatabase>
 		<UpdateText id="GCO_DEFAULT_LOC">
            	<Properties>
@@ -184,9 +177,10 @@
            	</Properties>
 				<File Priority="9">Data/CivilizationTable.sql</File>
 				<File Priority="9">Text/ExternalText.xml</File>
-				<File Priority="5">Text/GameText.xml</File>
-				<File Priority="5">Text/CityNamesText.xml</File>
-				<File Priority="2">Text/NameText.xml</File>
+				<File Priority="8">Text/GameText.xml</File>
+				<File Priority="8">Text/CityNamesText.xml</File>
+				<File Priority="5">Text/NameText.xml</File>
+				<File Priority="2">customText.xml</File>
 				<File Priority="1">Text/CivilizationsText.sql</File>
 		</UpdateText>
 		
@@ -238,17 +232,18 @@
 		</UpdateIcons>
 		<ImportFiles id="GCO_SETTING_IMPORT">
            	<Properties>
-				<!-- High load order to make sure GCO AdvancedSetup plots is loaded after the version of other mods, including YnAMP --> 
+				<!-- High load order to make sure GCO AdvancedSetup is loaded after the version of other mods, including YnAMP --> 
 				<LoadOrder>1000005</LoadOrder>
            	</Properties>
 			<File>UI/AdvancedSetup.lua</File>
 			<File>UI/AdvancedSetup.xml</File>
-			<File>UI/Civ6_FontStyles_GCO.xml</File>
-			<File>UI/Civ6_Styles.xml</File>
 		</ImportFiles>
 	</FrontEndActions>
 
 	<Files>
+		<File>custom.sql</File>
+		<File>custom.xml</File>
+		<File>customText.xml</File>
 		<File>Data/Tables.sql</File>
 		<File>Data/GamePlay.xml</File>
 		<File>Data/GlobalParameters.sql</File>
@@ -304,8 +299,6 @@
 		<File>InGame/GCO_ModInGame.xml</File>
 		<File>UI/AdvancedSetup.lua</File>
 		<File>UI/AdvancedSetup.xml</File>
-		<File>UI/Civ6_FontStyles_GCO.xml</File>
-		<File>UI/Civ6_Styles.xml</File>
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/UnitFlagManager.xml</File>
 		<File>UI/CityBannerManager.lua</File>
