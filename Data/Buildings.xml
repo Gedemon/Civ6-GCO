@@ -24,15 +24,18 @@
 		<Row BuildingType="BUILDING_FRUIT_MARKET" 				Cost="90" 	MaterielPerProduction="3" PrereqTech="TECH_IRRIGATION" 			EmploymentSize="1.00"	ObsoleteEra="ERA_INDUSTRIAL"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="1.00"	EquipmentStock="250" />
 		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING"		EmploymentSize="1.00"	EquipmentStock="250" 	ObsoleteEra="ERA_INDUSTRIAL"/>
-		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" 										EmploymentSize="0.50"	EquipmentStock="300"/>
+		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_WARRIOR_CODE"		EmploymentSize="0.50"	EquipmentStock="300"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="2.00"	Coast = "1"  			ObsoleteEra="ERA_INDUSTRIAL"/>
 		
+		<Row BuildingType="BUILDING_BRICKMAKER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"	PrereqTech="TECH_MASONRY" />
 		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		
 		<Row BuildingType="BUILDING_WEAPONSMITH"				Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_CONSTRUCTION" 		EmploymentSize="0.25"	EquipmentStock="100" 	ObsoleteEra="ERA_INDUSTRIAL"/>
 		<Row BuildingType="BUILDING_ARMORSMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_MACHINERY" 			EmploymentSize="0.25"	EquipmentStock="100" />
+		<!--
 		<Row BuildingType="BUILDING_FARRIER"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_STIRRUPS" 			EmploymentSize="0.25"	EquipmentStock="100" />
+		-->
 		<Row BuildingType="BUILDING_BLADESMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_BRONZE_WORKING" 	EmploymentSize="0.25"	EquipmentStock="100" 	ObsoleteEra="ERA_INDUSTRIAL"/>
 		
 		<Row BuildingType="BUILDING_TREADMILL" 					Cost="80" 	MaterielPerProduction="4" PrereqTech="TECH_THE_WHEEL" 			EmploymentSize="0.75"	/>
@@ -224,12 +227,13 @@
 		<Row Building="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	/>
 		<Row Building="BUILDING_ATOMIC_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_UPPER_HOUSING_1" 	/>
 		
-	<!---->
+		<!--
+		<Row Building="BUILDING_FARRIER"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
+		-->
 		
 		<Row Building="BUILDING_BLADESMITH"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
 		<Row Building="BUILDING_WEAPONSMITH"				PrereqBuilding="BUILDING_BLACKSMITH" 	/>
 		<Row Building="BUILDING_ARMORSMITH"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
-		<Row Building="BUILDING_FARRIER"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
 		
 		<Row Building="BUILDING_LARGE_DRY_DOCK" 			PrereqBuilding="BUILDING_SEAPORT" 	/>
 		
@@ -253,9 +257,12 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_FISH" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CRABS" 		MaxConverted="1" 	ResourceCreated="RESOURCE_FOOD" 			Ratio="0.5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_STONE" 		MaxConverted="1" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_WOOD" 		MaxConverted="1" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE"	ResourceType="RESOURCE_MATERIEL" 	MaxConverted="1" 	ResourceCreated="EQUIPMENT_SLINGS" 			Ratio="25"/>
+		
+		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_CLAY" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="5"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="2"	MultiResCreated="1" />
@@ -328,8 +335,10 @@
 		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="30" 	ResourceCreated="EQUIPMENT_CHAINMAIL_ARMOR" Ratio="1.2"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_ARMORSMITH" 	ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_PLATE_ARMOR" 	Ratio="1"	MultiResCreated="1" />
 		
+		<!--
 		<Row BuildingType="BUILDING_FARRIER" 		ResourceType="EQUIPMENT_WAR_HORSES"	MaxConverted="40" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="0.25"	MultiResRequired="1" />
 		<Row BuildingType="BUILDING_FARRIER" 		ResourceType="RESOURCE_IRON"		MaxConverted="20" 	ResourceCreated="EQUIPMENT_ARMORED_HORSES" 	Ratio="0.5"		MultiResRequired="1" />
+		-->
 		
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_MUSKETS" 		Ratio="10"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_FOUNDRY"		ResourceType="RESOURCE_IRON" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_RIFLES" 			Ratio="10"	MultiResCreated="1" />
@@ -370,10 +379,12 @@
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_STEEL_HULL_PART"		MaxConverted="8" 	ResourceCreated="EQUIPMENT_DESTROYER" 		Ratio="0.125" 	MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_ELECTRICAL_DEVICES"	MaxConverted="8" 	ResourceCreated="EQUIPMENT_DESTROYER" 		Ratio="0.125" 	MultiResRequired="1"  />
 		
+		<!--
 		<Row BuildingType="BUILDING_SMALL_BARRACKS" ResourceType="RESOURCE_MATERIEL"			MaxConverted="1" 	ResourceCreated="EQUIPMENT_UNIFORM" Ratio="500" />
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_MATERIEL"			MaxConverted="1" 	ResourceCreated="EQUIPMENT_UNIFORM" Ratio="500" />
 		<Row BuildingType="BUILDING_BARRACKS" 		ResourceType="RESOURCE_MATERIEL"			MaxConverted="1" 	ResourceCreated="EQUIPMENT_UNIFORM" Ratio="500" />
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_MATERIEL"			MaxConverted="1" 	ResourceCreated="EQUIPMENT_UNIFORM" Ratio="500" />
+		-->
 		
 		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" ResourceType="RESOURCE_STEEL"				MaxConverted="100" 	ResourceCreated="RESOURCE_LARGE_STEEL_HULL" Ratio="0.01" />
 		
@@ -535,6 +546,9 @@
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_MATERIEL" 	Stock="25"/>
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 		Stock="25"/>
 		
+		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_MATERIEL" 	Stock="25"/>
+		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_CLAY" 		Stock="50"/>		
+		
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_RICE" 		Stock="50"/>
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_WHEAT" 		Stock="50"/>
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_FOOD" 		Stock="100"/>
@@ -622,21 +636,28 @@
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="RESOURCE_HORSES" 			Stock="800"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_HORSES" 		Stock="700"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="700"	FixedValue="1"/>
-		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="400"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_CHARIOT" 		Stock="50"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 			Stock="300"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_HORSES" 		Stock="200"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_WAR_HORSES" 	Stock="200"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_CATTLE" 			Stock="25"	/>
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_SHEEP" 			Stock="25"	/>
+		
+		<!--
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="100"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_ARMORED_HORSES" Stock="400"	FixedValue="1"/>
+		-->
 		
 		<Row BuildingType="BUILDING_SMALL_BARRACKS" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="200"/>		
 		<Row BuildingType="BUILDING_BARRACKS" 			ResourceType="RESOURCE_PERSONNEL" 		Stock="1000"/>
 		<Row BuildingType="BUILDING_MILITARY_ACADEMY" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="2000"/>
 		
+		<!--
 		<Row BuildingType="BUILDING_SMALL_BARRACKS" ResourceType="EQUIPMENT_UNIFORM"		Stock="1000" />
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="EQUIPMENT_UNIFORM"		Stock="1000" />
 		<Row BuildingType="BUILDING_BARRACKS" 		ResourceType="EQUIPMENT_UNIFORM"		Stock="1000" />
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_UNIFORM"		Stock="1000" />
+		-->
 		
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOOD"			Stock="500"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="20"	FixedValue="1"/>
@@ -728,7 +749,8 @@
 		<Replace BuildingType="BUILDING_RECRUITS" 			YieldType="YIELD_GOLD" 			YieldChange="2"/>
 		<!--
 		<Replace BuildingType="BUILDING_MONUMENT_GCO"		YieldType="YIELD_CULTURE"		YieldChange="2"/>
-		<!---->
+		<!---->		
+		<Replace BuildingType="BUILDING_BRICKMAKER" 		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 		<Replace BuildingType="BUILDING_STONEMASON" 		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 		<Replace BuildingType="BUILDING_CARPENTER" 			YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 		<Replace BuildingType="BUILDING_BLACKSMITH" 		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
@@ -806,6 +828,27 @@
 	<!---->
 		<Row BuildingType="BUILDING_HERBALIST" YieldType="YIELD_HEALTH" YieldChange="1"/>
 		
+		<Row BuildingType="BUILDING_SMALL_BARRACKS"	YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE"	YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_BARRACKS"		YieldType="YIELD_RESEARCH_MILITARY" YieldChange="2"/>
+		<Row BuildingType="BUILDING_STABLE"			YieldType="YIELD_RESEARCH_MILITARY" YieldChange="2"/>
+		
+		<Row BuildingType="BUILDING_CITY_SHIPYARD"	YieldType="YIELD_RESEARCH_NAVAL" YieldChange="2"/>
+				
+		<Row BuildingType="BUILDING_BLACKSMITH"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="2"/>
+		<Row BuildingType="BUILDING_CARPENTER"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
+		<Row BuildingType="BUILDING_STONEMASON"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
+		<Row BuildingType="BUILDING_BRICKMAKER"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
+		
+		<Row BuildingType="BUILDING_FISH_MARKET"		YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="1"/>
+		<Row BuildingType="BUILDING_BUTCHERY"			YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="1"/>
+		<Row BuildingType="BUILDING_FRUIT_MARKET"		YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="1"/>
+		<Row BuildingType="BUILDING_MARKET"				YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="3"/>
+		<Row BuildingType="BUILDING_MARKET_EXTENSION"	YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="5"/>
+		
+		<Row BuildingType="BUILDING_SHRINE"				YieldType="YIELD_RESEARCH_INSPIRATION" YieldChange="1"/>
+		<Row BuildingType="BUILDING_TEMPLE"				YieldType="YIELD_RESEARCH_INSPIRATION" YieldChange="3"/>
+		
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_LOWER_HOUSING" 	YieldChange="2"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
@@ -857,9 +900,10 @@
 		<Row Building="BUILDING_SMALL_STABLE" 	MutuallyExclusiveBuilding="BUILDING_SMALL_BARRACKS"/>
 		<Row Building="BUILDING_SMALL_BARRACKS" MutuallyExclusiveBuilding="BUILDING_SMALL_STABLE"/>
 		
+		<!--
 		<Row Building="BUILDING_BLADESMITH"		MutuallyExclusiveBuilding="BUILDING_FARRIER" 		/>
-		
 		<Row Building="BUILDING_FARRIER"		MutuallyExclusiveBuilding="BUILDING_BLADESMITH" 	/>
+		-->
 		
 		<Row Building="BUILDING_ELECTRONICS_FACTORY" 	MutuallyExclusiveBuilding="BUILDING_FACTORY"/>
 		<Row Building="BUILDING_FACTORY" 				MutuallyExclusiveBuilding="BUILDING_ELECTRONICS_FACTORY"/>
@@ -870,6 +914,7 @@
 		<!--
 		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_MONUMENT_GCO" District="DISTRICT_CITY_CENTER"/>
 		<!---->
+		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_BRICKMAKER" District="DISTRICT_CITY_CENTER"/>
 		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_CARPENTER" District="DISTRICT_CITY_CENTER"/>
 		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_STONEMASON" District="DISTRICT_CITY_CENTER"/>
 		<Replace Era="ERA_MEDIEVAL" Building="BUILDING_BUTCHERY" District="DISTRICT_CITY_CENTER"/>

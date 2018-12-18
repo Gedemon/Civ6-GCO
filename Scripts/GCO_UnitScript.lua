@@ -2286,7 +2286,7 @@ end
 function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType, HP, organizationLevel)
 	
 	local DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT
-	if GameInfo.Units[oldUnitType].UnitType == "UNIT_CONSCRIPT_WARRIOR" then DEBUG_UNIT_SCRIPT = "debug" end
+	--if GameInfo.Units[oldUnitType].UnitType == "UNIT_CONSCRIPT_WARRIOR" then DEBUG_UNIT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name) .. " current type = " ..GameInfo.Units[oldUnitType].Name)
@@ -2434,7 +2434,7 @@ end
 function GetAvailableEquipmentForUnitPromotionClassFromList(unitTypeID, promotionClassID, personnel, resourceList, organizationLevel)
 	
 	local DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT
-	if GameInfo.Units[unitTypeID].UnitType == "UNIT_CONSCRIPT_WARRIOR" then DEBUG_UNIT_SCRIPT = "debug" end
+	--if GameInfo.Units[unitTypeID].UnitType == "UNIT_CONSCRIPT_WARRIOR" then DEBUG_UNIT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "GetAvailableEquipmentForUnitPromotionClassFromList for UnitType "..Locale.Lookup(GameInfo.Units[unitTypeID].Name).." personnel = "..tostring(personnel))
@@ -3992,7 +3992,7 @@ local combatStart 	= {}
 local combatEnd		= {}
 function OnCombat( combatResult )
 
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	--if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
 	--if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
 	
@@ -4005,10 +4005,12 @@ function OnCombat( combatResult )
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Starting Combat #"..tostring(combatCount))
 	Dprint( DEBUG_UNIT_SCRIPT, "--============================================--")
 
-	local attacker = combatResult[CombatResultParameters.ATTACKER]
-	local defender = combatResult[CombatResultParameters.DEFENDER]
+	local attacker 		= combatResult[CombatResultParameters.ATTACKER]
+	local defender 		= combatResult[CombatResultParameters.DEFENDER]
+	
+	local locX, locY	= combatResult[CombatResultParameters.LOCATION].x, combatResult[CombatResultParameters.LOCATION].y
 
-	local combatType = combatResult[CombatResultParameters.COMBAT_TYPE]
+	local combatType	= combatResult[CombatResultParameters.COMBAT_TYPE]
 
 	attacker.IsUnit 	= attacker[CombatResultParameters.ID].type == ComponentType.UNIT
 	defender.IsUnit 	= defender[CombatResultParameters.ID].type == ComponentType.UNIT
@@ -4018,7 +4020,9 @@ function OnCombat( combatResult )
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Attacker is " .. tostring(componentString[attacker[CombatResultParameters.ID].type]) ..", Damage = " .. attacker[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]))
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Defender is " .. tostring(componentString[defender[CombatResultParameters.ID].type]) ..", Damage = " .. defender[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]))
 
+	---==========================================---
 	-- We need to set some info before handling the change in the units composition
+	---==========================================---
 	if attacker.IsUnit then
 		attacker.IsAttacker = true
 		-- attach everything required by the update functions from the base CombatResultParameters
@@ -4026,7 +4030,8 @@ function OnCombat( combatResult )
 		attacker.InitialHP 	= attacker.FinalHP + attacker[CombatResultParameters.DAMAGE_TO]
 		attacker.Damage 	= attacker[CombatResultParameters.DAMAGE_TO]
 		attacker.IsDead 	= attacker[CombatResultParameters.FINAL_DAMAGE_TO] > attacker[CombatResultParameters.MAX_HIT_POINTS]
-		attacker.playerID 	= tostring(attacker[CombatResultParameters.ID].player) -- playerID is a key for Prisoners table <- to do : separate ID, key
+		attacker.playerID 	= attacker[CombatResultParameters.ID].player
+		attacker.playerKey 	= tostring(attacker[CombatResultParameters.ID].player)
 		attacker.unitID 	= attacker[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
 		attacker = AddCombatInfoTo(attacker)
@@ -4043,7 +4048,8 @@ function OnCombat( combatResult )
 		defender.InitialHP 	= defender.FinalHP + defender[CombatResultParameters.DAMAGE_TO]
 		defender.Damage 	= defender[CombatResultParameters.DAMAGE_TO]
 		defender.IsDead 	= defender[CombatResultParameters.FINAL_DAMAGE_TO] > defender[CombatResultParameters.MAX_HIT_POINTS]
-		defender.playerID 	= tostring(defender[CombatResultParameters.ID].player)
+		defender.playerID 	= defender[CombatResultParameters.ID].player
+		defender.playerKey 	= tostring(defender[CombatResultParameters.ID].player)
 		defender.unitID 	= defender[CombatResultParameters.ID].id
 		-- add information needed to handle casualties made to the other opponent (including unitKey)
 		defender = AddCombatInfoTo(defender)
@@ -4064,7 +4070,9 @@ function OnCombat( combatResult )
 		end
 	end
 	
+	---==========================================---
 	-- Error control
+	---==========================================---
 	---[[
 	if attacker.unit then
 		local testHP = attacker.unit:GetMaxDamage() - attacker.unit:GetDamage()
@@ -4101,6 +4109,11 @@ function OnCombat( combatResult )
 		--defender.unitData.HP = testHP
 	end	
 	
+
+	---==========================================---
+	-- Handle casualties
+	---==========================================---
+	
 	if attacker.IsUnit then --and not attacker.IsDead then
 		CheckComponentsHP(attacker.unit, "attacker before handling combat casualties", true)
 	end
@@ -4112,8 +4125,7 @@ function OnCombat( combatResult )
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Casualties in Combat #"..tostring(combatCount))
 	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 	--]]
-
-	-- Handle casualties
+	
 	if attacker.IsUnit then -- and attacker[CombatResultParameters.DAMAGE_TO] > 0 (we must fill data for even when the unit didn't take damage, else we'll have to check for nil entries before all operations...)
 		if attacker.unit then
 			if attacker.unitData then
@@ -4161,12 +4173,71 @@ function OnCombat( combatResult )
 		defender.unitData.LastCombatType = combatType
 	end
 	
+	---==========================================---
+	-- GCO Lua Events
+	---==========================================---
+	
+	-- Melee Combat
+	if combatType == CombatTypes.MELEE then
+		if defender.IsLandUnit then
+			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_DEFENSE", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
+			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
+		end
+		if attacker.IsLandUnit then
+			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_ATTACK", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+		end
+	end
+	
+	-- Ranged Combat
+	if combatType == CombatTypes.RANGED or combatType == CombatTypes.BOMBARD then
+		LuaEvents.ResearchGCO("EVENT_RANGED_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
+		LuaEvents.ResearchGCO("EVENT_RANGED_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+		if defender.IsLandUnit and attacker.IsLandUnit then
+			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_DEFENSE", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
+			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
+			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_ATTACK", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+		end
+	end
+	
+	-- Land Combat
+	if defender.IsLandUnit and attacker.IsLandUnit then
+		LuaEvents.ResearchGCO("EVENT_LAND_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
+		LuaEvents.ResearchGCO("EVENT_LAND_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+		if attacker.unit then
+			LuaEvents.LandCombatVS(defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
+		end
+		if defender.unit then
+			LuaEvents.LandCombatVS(attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
+		end
+	end
+	
+	-- Combat VS / With
+	if attacker.IsUnit and defender.IsUnit then
+		if attacker.unit then
+			LuaEvents.ResearchGCO("EVENT_COMBAT_VS", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
+			LuaEvents.ResearchGCO("EVENT_DEFEND_VS", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
+			LuaEvents.ResearchGCO("EVENT_ATTACK_WITH", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
+			LuaEvents.ResearchGCO("EVENT_COMBAT_WITH", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
+		end
+		if defender.unit then
+			LuaEvents.ResearchGCO("EVENT_COMBAT_VS", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
+			LuaEvents.ResearchGCO("EVENT_ATTACK_VS", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
+			LuaEvents.ResearchGCO("EVENT_DEFEND_WITH", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
+			LuaEvents.ResearchGCO("EVENT_COMBAT_WITH", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
+		end	
+	end
 
+
+	---==========================================---
+	-- Plundering (with some bonuses to attack)
+	---==========================================---
+	
 	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 	--Dprint( DEBUG_UNIT_SCRIPT, "-- Plundering in Combat #"..tostring(combatCount))
 	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
-
-	-- Plundering (with some bonuses to attack)
+	
 	if defender.IsLandUnit and combatType == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
 
 		if defender.IsDead and attacker.unit then
@@ -4204,7 +4275,7 @@ function OnCombat( combatResult )
 			attacker.unit:ChangeComponent("PersonnelReserve", attacker.LiberatedPrisoners)
 			attacker.unit:ChangeComponent("FoodStock", attacker.FoodGained)
 			-- To do : prisonners by nationality
-			attacker.unitData.Prisoners[defender.playerID]	= attacker.unitData.Prisoners[defender.playerID] + attacker.Prisoners
+			attacker.unitData.Prisoners[defender.playerKey]	= attacker.unitData.Prisoners[defender.playerKey] + attacker.Prisoners
 
 		else
 			-- attacker
@@ -4229,7 +4300,7 @@ function OnCombat( combatResult )
 					end
 				end
 				
-				attacker.unitData.Prisoners[defender.playerID]	= attacker.unitData.Prisoners[defender.playerID] + attacker.Prisoners
+				attacker.unitData.Prisoners[defender.playerKey]	= attacker.unitData.Prisoners[defender.playerKey] + attacker.Prisoners
 			end
 			
 			-- defender
@@ -4258,13 +4329,15 @@ function OnCombat( combatResult )
 					end
 				end
 				
-				defender.unitData.Prisoners[attacker.playerID]	= defender.unitData.Prisoners[attacker.playerID] + defender.Prisoners
+				defender.unitData.Prisoners[attacker.playerKey]	= defender.unitData.Prisoners[attacker.playerKey] + defender.Prisoners
 			end
 		end
 
 	end
 
+	---==========================================---
 	-- Plundering city resources
+	---==========================================---
 	if defender.district and combatType == CombatTypes.MELEE and attacker.unit then
 		local districtRow	= GameInfo.Districts[defender.districtType]
 		Dprint( DEBUG_UNIT_SCRIPT, "Check to Plunder a District...")		
@@ -4310,6 +4383,10 @@ function OnCombat( combatResult )
 		end
 	end
 	
+	---==========================================---
+	-- Updating flags
+	---==========================================---
+	
 	-- Update unit's flag & visualize for attacker
 	if attacker.unit then
 		ShowCombatPlunderingFloatingText(attacker)
@@ -4322,6 +4399,10 @@ function OnCombat( combatResult )
 		LuaEvents.UnitsCompositionUpdated(defender.playerID, defender.unitID)
 	end
 	
+	
+	---==========================================---
+	-- Last control
+	---==========================================---
 	---[[
 	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Control in Combat #"..tostring(combatCount))

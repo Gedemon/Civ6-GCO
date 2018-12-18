@@ -93,6 +93,9 @@ local ITEM_STATUS					:table  = {
 									READY		= 2,
 									CURRENT		= 3,
 									RESEARCHED	= 4,
+									-- GCO <<<<<
+									PREREQ		= 5,
+									-- GCO >>>>>
 								};
 local LINE_LENGTH_BEFORE_CURVE		:number = 20;			-- How long to make a line before a node before it curves
 local PADDING_NODE_STACK_Y			:number = 0;
@@ -116,7 +119,9 @@ STATUS_ART[ITEM_STATUS.BLOCKED]		= { Name="BLOCKED",		TextColor0=0xff202726, Tex
 STATUS_ART[ITEM_STATUS.READY]		= { Name="READY",		TextColor0=0xaaffffff, TextColor1=0x88000000, FillTexture=nil,									BGU=0,BGV=0,				IsButton=true,	BoltOn=false,	IconBacking=PIC_METER_BACK  };
 STATUS_ART[ITEM_STATUS.CURRENT]		= { Name="CURRENT",		TextColor0=0xaaffffff, TextColor1=0x88000000, FillTexture=nil,									BGU=0,BGV=(SIZE_NODE_Y*4),	IsButton=false,	BoltOn=true,	IconBacking=PIC_METER_BACK };
 STATUS_ART[ITEM_STATUS.RESEARCHED]	= { Name="RESEARCHED",	TextColor0=0xaaffffff, TextColor1=0x88000000, FillTexture="TechTree_GearButtonTile_Done.dds",	BGU=0,BGV=(SIZE_NODE_Y*5),	IsButton=false,	BoltOn=true,	IconBacking=PIC_METER_BACK_DONE  };
-
+--GCO <<<<<
+STATUS_ART[ITEM_STATUS.PREREQ]		= { Name="PREREQ",		TextColor0=0xffffff00, TextColor1=0x00000000, FillTexture=nil,			BGU=0,BGV=(SIZE_NODE_Y*4),	IsButton=false,	BoltOn=true,	IconBacking=PIC_METER_BACK };
+-- GCO >>>>>
 
 
 -- ===========================================================================
@@ -449,6 +454,8 @@ STATUS_ART[ITEM_STATUS.CURRENT]		= { Name="CURRENT",		TextColor0=0xaaffffff, Tex
 STATUS_ART[ITEM_STATUS.RESEARCHED]	= { Name="RESEARCHED",	TextColor0=0xaaffffff, TextColor1=0x88000000, FillTexture="TechTree_GearButtonTile_Done.dds",	BGU=0,BGV=(SIZE_NODE_Y*5),	IsButton=false,	BoltOn=true,	IconBacking=PIC_METER_BACK_DONE  };
 
 		--]]
+		--STATUS_ART[ITEM_STATUS.RESEARCHED]	= { Name="RESEARCHED",	TextColor0=0xaaffffff, TextColor1=0x88000000, FillTexture="TechTree_GearButtonTile_Done.dds",	BGU=0,BGV=(SIZE_NODE_Y*5),	IsButton=false,	BoltOn=true,	IconBacking=PIC_METER_BACK_DONE  };
+
 
 		function Highlight(node, artInfo, alphaValue)
 			local alphaValue = alphaValue or 1
@@ -477,7 +484,7 @@ STATUS_ART[ITEM_STATUS.RESEARCHED]	= { Name="RESEARCHED",	TextColor0=0xaaffffff,
 		
 		function ShowPrereq()
 			
-			local artInfo	:table = STATUS_ART[ITEM_STATUS.CURRENT];							-- art/styles for this state
+			local artInfo	:table = STATUS_ART[ITEM_STATUS.PREREQ];							-- art/styles for this state
 
 			for i,firstRankType in pairs(item.Prereqs) do
 				if firstRankType ~= "_TREESTART" then
@@ -907,7 +914,7 @@ function PopulateNode(node, playerTechData)
 	else
 		node.Bolt:SetTexture(PIC_BOLT_OFF);
 	end
-
+	
 	node.NodeButton:SetToolTipString(ToolTipHelper.GetToolTip(item.Type, Game.GetLocalPlayer()));
 	node.IconBacking:SetTexture(artInfo.IconBacking);
 
@@ -1328,7 +1335,9 @@ function PopulateItemData( tableName:string, tableColumn:string, prereqTableName
 	end
 
 	for row:table in GameInfo[tableName]() do
-
+-- GCO <<<<<
+if row.UITreeRow <= ROW_MAX and row.UITreeRow >= ROW_MIN then
+-- GCO >>>>>
 		local entry:table	= {};
 		entry.Type			= row[tableColumn];
 		entry.Name			= row.Name;
@@ -1380,7 +1389,10 @@ function PopulateItemData( tableName:string, tableColumn:string, prereqTableName
 			m_kEraCounter[entry.EraType] = 0;
 		end
 		m_kEraCounter[entry.EraType] = m_kEraCounter[entry.EraType] + 1;
-	end
+	end	
+-- GCO <<<<<
+end
+-- GCO >>>>>
 end
 
 
@@ -1519,7 +1531,7 @@ function PopulateSearchData()
 		local buildingType = Locale.Lookup("LOC_BUILDING_NAME");
 		local wonderTypeName = Locale.Lookup("LOC_WONDER_NAME");
 		for row in GameInfo.Buildings() do
-			if(row.PrereqTech) and not (row.NoPedia) then
+			if(row.PrereqTech) then
 				local tags = {buildingTypeName};
 				if(row.IsWonder) then
 					table.insert(tags, wonderTypeName);

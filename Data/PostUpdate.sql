@@ -82,14 +82,156 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT Populations.PopulationType, 'KIND_RESOURCE'
 	FROM Populations;	
 	
-UPDATE EquipmentClasses SET Name = 'LOC_' || EquipmentClasses.EquipmentClass || '_NAME';
 
 -----------------------------------------------
--- Auto set names tag
+-- Auto set names tag for new tables
 -----------------------------------------------
 
+UPDATE EquipmentClasses 			SET Name = 'LOC_' || EquipmentClasses.EquipmentClass || '_NAME';
 UPDATE MilitaryOrganisationLevels	SET Name = 'LOC_' || MilitaryOrganisationLevels.OrganisationLevelType || '_NAME';
 UPDATE MilitaryFormations			SET Name = 'LOC_' || MilitaryFormations.MilitaryFormationType || '_NAME';
+UPDATE TechnologyContributionTypes	SET Name = 'LOC_' || TechnologyContributionTypes.ContributionType || '_NAME';
+
+
+-----------------------------------------------
+-- Technologies
+-----------------------------------------------
+
+-- Add custom yields for Research Types
+INSERT OR REPLACE INTO CustomYields (YieldType , Name, IconString)
+	SELECT 'YIELD_' || T.ContributionType, T.Name, T.IconString
+	FROM TechnologyContributionTypes AS T WHERE IsResearch ='1';	
+
+-- No boost
+DELETE FROM Boosts;
+
+-- TechnologyPrereqs is completly redone
+DELETE FROM TechnologyPrereqs;
+INSERT OR REPLACE INTO TechnologyPrereqs (Technology, PrereqTech)
+	SELECT Technology, PrereqTech
+	FROM TechnologyPrereqsGCO;	
+
+--/*
+-- This way we can set entries in TechnologiesGCO with just the columns to update and leave the rest empty...
+UPDATE Technologies SET Cost 			= ifnull((SELECT TechnologiesGCO.Cost 			FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.Cost 			IS NOT NULL) , Technologies.Cost 			);
+UPDATE Technologies SET Repeatable 		= ifnull((SELECT TechnologiesGCO.Repeatable 	FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.Repeatable 		IS NOT NULL) , Technologies.Repeatable 		);
+UPDATE Technologies SET EmbarkUnitType 	= ifnull((SELECT TechnologiesGCO.EmbarkUnitType FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.EmbarkUnitType 	IS NOT NULL) , Technologies.EmbarkUnitType	);
+UPDATE Technologies SET EmbarkAll 		= ifnull((SELECT TechnologiesGCO.EmbarkAll 		FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.EmbarkAll 		IS NOT NULL) , Technologies.EmbarkAll 		);
+UPDATE Technologies SET Description 	= ifnull((SELECT TechnologiesGCO.Description 	FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.Description		IS NOT NULL) , Technologies.Description 	);
+UPDATE Technologies SET EraType			= ifnull((SELECT TechnologiesGCO.EraType		FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.EraType			IS NOT NULL) , Technologies.EraType			);
+UPDATE Technologies SET AdvisorType 	= ifnull((SELECT TechnologiesGCO.AdvisorType 	FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.AdvisorType 	IS NOT NULL) , Technologies.AdvisorType 	);
+UPDATE Technologies SET Critical 		= ifnull((SELECT TechnologiesGCO.Critical 		FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.Critical 		IS NOT NULL) , Technologies.Critical 		);
+UPDATE Technologies SET BarbarianFree 	= ifnull((SELECT TechnologiesGCO.BarbarianFree 	FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.BarbarianFree	IS NOT NULL) , Technologies.BarbarianFree	);
+UPDATE Technologies SET UITreeRow		= ifnull((SELECT TechnologiesGCO.UITreeRow 		FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.UITreeRow		IS NOT NULL) , Technologies.UITreeRow		);
+--*/
+
+/* Create new Technologies entries from the temporary TechnologiesGCO table (after UPDATE)*/
+--/*
+INSERT INTO Technologies (TechnologyType, Name, Cost, Repeatable, EmbarkUnitType, EmbarkAll, Description, EraType, AdvisorType, Critical, BarbarianFree, UITreeRow)
+
+	SELECT 
+		TechnologiesGCO.TechnologyType,
+		'LOC_' || TechnologiesGCO.TechnologyType || '_NAME',
+		TechnologiesGCO.Cost,
+		ifnull(TechnologiesGCO.Repeatable,0),
+		TechnologiesGCO.EmbarkUnitType,
+		ifnull(TechnologiesGCO.EmbarkAll,0),
+		TechnologiesGCO.Description,
+		TechnologiesGCO.EraType,
+		ifnull(TechnologiesGCO.AdvisorType,'ADVISOR_GENERIC'),
+		ifnull(TechnologiesGCO.Critical,0),
+		ifnull(TechnologiesGCO.BarbarianFree, 0),
+		ifnull(TechnologiesGCO.UITreeRow, 0)
+		
+	FROM TechnologiesGCO WHERE NOT EXISTS (SELECT * FROM Technologies WHERE Technologies.TechnologyType = TechnologiesGCO.TechnologyType);
+--*/
+	
+	
+/* Create new Technologies Types entries from the temporary TechnologiesGCO table */
+INSERT INTO Types (Type, Kind)
+	SELECT TechnologiesGCO.TechnologyType, 'KIND_TECH'
+	FROM TechnologiesGCO WHERE NOT EXISTS (SELECT * FROM Types WHERE Types.Type = TechnologiesGCO.TechnologyType);
+
+/* Link existing description entries (set in NamesTexts.xml) to Technologies */
+UPDATE Technologies SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Technologies.TechnologyType || '_DESCRIPTION' = Tag AND Language='en_US')
+				WHERE EXISTS			(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Technologies.TechnologyType || '_DESCRIPTION' = Tag AND Language='en_US');
+
+/* Link existing name entries for Techs imported from Civics */
+UPDATE Technologies SET Name	=	(SELECT Name FROM Civics WHERE Civics.Name = 'LOC_CIVIC_' || substr(Technologies.TechnologyType,6) || '_NAME')
+				WHERE EXISTS		(SELECT Name FROM Civics WHERE Civics.Name = 'LOC_CIVIC_' || substr(Technologies.TechnologyType,6) || '_NAME');
+				
+/* Link existing Description entries for Techs imported from Civics */
+UPDATE Technologies SET Description	=	(SELECT Description FROM Civics WHERE Civics.Description = 'LOC_CIVIC_' || substr(Technologies.TechnologyType,6) || '_DESCRIPTION')
+				WHERE EXISTS			(SELECT Description FROM Civics WHERE Civics.Description = 'LOC_CIVIC_' || substr(Technologies.TechnologyType,6) || '_DESCRIPTION');
+
+/* Move Policies to Tech tree */
+UPDATE Policies SET PrereqCivic = NULL, PrereqTech = (SELECT TechnologyType FROM Technologies WHERE Policies.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Policies.PrereqCivic,7))
+				WHERE EXISTS		(SELECT TechnologyType FROM Technologies WHERE Policies.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Policies.PrereqCivic,7));
+				
+/* Move Buildings to Tech tree */
+UPDATE Buildings SET PrereqCivic = NULL, PrereqTech = (SELECT TechnologyType FROM Technologies WHERE Buildings.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Buildings.PrereqCivic,7))
+				WHERE EXISTS		(SELECT TechnologyType FROM Technologies WHERE Buildings.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Buildings.PrereqCivic,7));
+
+/* Move Resources to Tech tree */
+UPDATE Resources SET PrereqCivic = NULL, PrereqTech = (SELECT TechnologyType FROM Technologies WHERE Resources.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Resources.PrereqCivic,7))
+				WHERE EXISTS		(SELECT TechnologyType FROM Technologies WHERE Resources.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Resources.PrereqCivic,7));
+
+/* Move Districts to Tech tree */
+UPDATE Districts SET PrereqCivic = NULL, PrereqTech = (SELECT TechnologyType FROM Technologies WHERE Districts.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Districts.PrereqCivic,7))
+				WHERE EXISTS		(SELECT TechnologyType FROM Technologies WHERE Districts.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Districts.PrereqCivic,7));
+
+/* Move Improvements to Tech tree */
+UPDATE Improvements SET PrereqCivic = NULL, PrereqTech = (SELECT TechnologyType FROM Technologies WHERE Improvements.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Improvements.PrereqCivic,7))
+				WHERE EXISTS		(SELECT TechnologyType FROM Technologies WHERE Improvements.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Improvements.PrereqCivic,7));
+
+/* Move Units to Tech tree */
+UPDATE Units SET PrereqCivic = NULL, PrereqTech = (SELECT TechnologyType FROM Technologies WHERE Units.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Units.PrereqCivic,7))
+				WHERE EXISTS		(SELECT TechnologyType FROM Technologies WHERE Units.PrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(Units.PrereqCivic,7));
+
+/* Move DiplomaticActions to Tech tree */
+UPDATE DiplomaticActions SET InitiatorPrereqCivic = NULL, InitiatorPrereqTech = (SELECT TechnologyType FROM Technologies WHERE DiplomaticActions.InitiatorPrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(DiplomaticActions.InitiatorPrereqCivic,7))
+				WHERE EXISTS		(SELECT TechnologyType FROM Technologies WHERE DiplomaticActions.InitiatorPrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(DiplomaticActions.InitiatorPrereqCivic,7));
+UPDATE DiplomaticActions SET TargetPrereqCivic = NULL, TargetPrereqTech = (SELECT TechnologyType FROM Technologies WHERE DiplomaticActions.TargetPrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(DiplomaticActions.TargetPrereqCivic,7))
+				WHERE EXISTS		(SELECT TechnologyType FROM Technologies WHERE DiplomaticActions.TargetPrereqCivic IS NOT NULL AND Technologies.TechnologyType = 'TECH_' || substr(DiplomaticActions.TargetPrereqCivic,7));
+
+/* Create new Technologies Modifiers entries from the CivicModifiers table */
+INSERT INTO TechnologyModifiers (TechnologyType, ModifierId)
+	SELECT 'TECH_' || substr(C.CivicType,7), C.ModifierId
+	FROM CivicModifiers AS C WHERE EXISTS (SELECT TechnologyType FROM Technologies WHERE Technologies.TechnologyType = 'TECH_' || substr(C.CivicType,7));
+
+/* Technology cost */
+UPDATE Technologies SET Cost = Cost*2.00 WHERE EraType ='ERA_ANCIENT';
+UPDATE Technologies SET Cost = Cost*2.20 WHERE EraType ='ERA_CLASSICAL';
+UPDATE Technologies SET Cost = Cost*2.40 WHERE EraType ='ERA_MEDIEVAL';
+UPDATE Technologies SET Cost = Cost*2.70 WHERE EraType ='ERA_RENAISSANCE';
+UPDATE Technologies SET Cost = Cost*3.00 WHERE EraType ='ERA_INDUSTRIAL';
+UPDATE Technologies SET Cost = Cost*3.40 WHERE EraType ='ERA_MODERN';
+UPDATE Technologies SET Cost = Cost*3.80 WHERE EraType ='ERA_ARMS_RACE';
+UPDATE Technologies SET Cost = Cost*4.30 WHERE EraType ='ERA_ATOMIC';
+UPDATE Technologies SET Cost = Cost*4.80 WHERE EraType ='ERA_INFORMATION';
+UPDATE Technologies SET Cost = Cost*5.50 WHERE EraType ='ERA_FUTURE';
+
+
+--UPDATE Eras SET EraTechBackgroundTexture = 'TechTree_BG_ARMRACE' WHERE EraType ='ERA_MODERN';
+
+/*
+INSERT INTO TechnologyPrereqs(Technology, PrereqTech)
+	SELECT TechnologyType, TechnologyType
+	FROM Technologies WHERE substr(Technologies.TechnologyType,1,11) = 'TECH_UNLOCK';
+--*/
+	
+/* Civics cost 
+UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_ANCIENT';
+UPDATE Civics SET Cost = Cost*1.60 WHERE EraType ='ERA_CLASSICAL';
+UPDATE Civics SET Cost = Cost*1.80 WHERE EraType ='ERA_MEDIEVAL';
+UPDATE Civics SET Cost = Cost*2.00 WHERE EraType ='ERA_RENAISSANCE';
+UPDATE Civics SET Cost = Cost*2.30 WHERE EraType ='ERA_INDUSTRIAL';
+UPDATE Civics SET Cost = Cost*2.70 WHERE EraType ='ERA_MODERN';
+UPDATE Civics SET Cost = Cost*3.20 WHERE EraType ='ERA_ATOMIC';
+UPDATE Civics SET Cost = Cost*3.80 WHERE EraType ='ERA_INFORMATION';
+*/
+
+UPDATE Civics SET Cost = 999999;
 
 -----------------------------------------------
 -- Units

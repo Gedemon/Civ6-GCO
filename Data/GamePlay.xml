@@ -61,6 +61,30 @@
 		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>	
 	</CustomYields>
 
+	<!-- 		ERAS
+		
+	-->
+	
+	<Types> 
+		<!---->
+		<Row Type="ERA_ARMS_RACE"	Kind="KIND_ERA"/>
+		<Row Type="ERA_FUTURE"		Kind="KIND_ERA"/>
+		<!---->
+	</Types>
+	
+	<Eras>
+		<Update>
+			<Where EraType="ERA_INFORMATION" />
+			<Set ChronologyIndex="9" />
+		</Update>
+		<Update>
+			<Where EraType="ERA_ATOMIC" />
+			<Set ChronologyIndex="8" />
+		</Update>
+		<Row EraType="ERA_ARMS_RACE" 	Name="LOC_ERA_ARMS_RACE_NAME" 	Description="LOC_ERA_ARMS_RACE_DESCRIPTION" ChronologyIndex="7"		WarmongerPoints="24" GreatPersonBaseCost="860"	EraTechBackgroundTexture="TechTree_BG_ARMRACE" 		EraCivicBackgroundTexture="TechTree_BG_ARMRACE" 	WarmongerLevelDescription="LOC_WARMONGER_LEVEL_EGREGIOUS" EmbarkedUnitStrength="53"/>
+		<Row EraType="ERA_FUTURE" 		Name="LOC_ERA_FUTURE_NAME" 		Description="LOC_ERA_FUTURE_DESCRIPTION" 	ChronologyIndex="10"	WarmongerPoints="24" GreatPersonBaseCost="1400"	EraTechBackgroundTexture="TechTree_BGInformation" 	EraCivicBackgroundTexture="TechTree_BGInformation" 	WarmongerLevelDescription="LOC_WARMONGER_LEVEL_EGREGIOUS" EmbarkedUnitStrength="58"/>
+	</Eras>
+	
 	<!-- 		FEATURES
 		
 	-->
@@ -750,43 +774,11 @@
 		<Row PolicyType="POLICY_TRADE_TAX" 		Name="LOC_POLICY_TRADE_TAX_NAME" 		Description="LOC_POLICY_TRADE_TAX_DESCRIPTION" 			PrereqCivic="CIVIC_FOREIGN_TRADE" 		GovernmentSlotType="SLOT_ECONOMIC"/>
 		<Row PolicyType="POLICY_TRADE_TAX" 		Name="LOC_POLICY_TRADE_TAX_NAME" 		Description="LOC_POLICY_TRADE_TAX_DESCRIPTION" 			PrereqCivic="CIVIC_FOREIGN_TRADE" 		GovernmentSlotType="SLOT_ECONOMIC"/>
 	-->
-		<Row PolicyType="POLICY_SMALLER_UNITS" 	Name="LOC_POLICY_SMALLER_UNITS_NAME" 	Description="LOC_POLICY_SMALLER_UNITS_DESCRIPTION" 		PrereqCivic="CIVIC_MILITARY_TRADITION" 	GovernmentSlotType="SLOT_MILITARY"/>
+		<Row PolicyType="POLICY_SMALLER_UNITS" 	Name="LOC_POLICY_SMALLER_UNITS_NAME" 	Description="LOC_POLICY_SMALLER_UNITS_DESCRIPTION" 		PrereqTech="TECH_MILITARY_TRADITION" 	GovernmentSlotType="SLOT_MILITARY"/>
 		
-		<Row PolicyType="POLICY_UPPER_TAX" 		Name="LOC_POLICY_UPPER_TAX_NAME" 		Description="LOC_POLICY_UPPER_TAX_DESCRIPTION" 			PrereqCivic="CIVIC_STATE_WORKFORCE" 	GovernmentSlotType="SLOT_ECONOMIC"/>
-		<Row PolicyType="POLICY_MIDDLE_TAX" 	Name="LOC_POLICY_MIDDLE_TAX_NAME" 		Description="LOC_POLICY_MIDDLE_TAX_DESCRIPTION" 		PrereqCivic="CIVIC_STATE_WORKFORCE" 	GovernmentSlotType="SLOT_ECONOMIC"/>
+		<Row PolicyType="POLICY_UPPER_TAX" 		Name="LOC_POLICY_UPPER_TAX_NAME" 		Description="LOC_POLICY_UPPER_TAX_DESCRIPTION" 			PrereqTech="TECH_CURRENCY" 			GovernmentSlotType="SLOT_ECONOMIC"/>
+		<Row PolicyType="POLICY_MIDDLE_TAX" 	Name="LOC_POLICY_MIDDLE_TAX_NAME" 		Description="LOC_POLICY_MIDDLE_TAX_DESCRIPTION" 		PrereqTech="TECH_CURRENCY" 			GovernmentSlotType="SLOT_ECONOMIC"/>
 	</Policies>
-	
-	<!-- 		TECHNOLOGIES
-		
-	-->
-	<Types>
-		<Row Type="TECH_HERBALISM" 			Kind="KIND_TECH"/>
-		<Row Type="TECH_AGRICULTURE"		Kind="KIND_TECH"/>
-		<Row Type="TECH_SURGERY"			Kind="KIND_TECH"/>
-		<Row Type="TECH_ARMORED_WARFARE"	Kind="KIND_TECH"/>
-	</Types>	
-	<Technologies>
-		<!-- Ancient Era-->
-		<Replace TechnologyType="TECH_HERBALISM" 		Name="LOC_TECH_HERBALISM_NAME" 			Cost="25" 	AdvisorType="ADVISOR_TECHNOLOGY" 	EraType="ERA_ANCIENT"	UITreeRow="-1"	Description="LOC_TECH_HERBALISM_DESCRIPTION"/>
-		<Replace TechnologyType="TECH_AGRICULTURE" 		Name="LOC_TECH_AGRICULTURE_NAME" 		Cost="25" 	AdvisorType="ADVISOR_GENERIC" 		EraType="ERA_ANCIENT"	UITreeRow="-3"/>
-		<!-- Classical Era-->
-		<Replace TechnologyType="TECH_SURGERY" 			Name="LOC_TECH_SURGERY_NAME" 			Cost="200" 	AdvisorType="ADVISOR_TECHNOLOGY" 	EraType="ERA_CLASSICAL"	UITreeRow="0"	Description="LOC_TECH_SURGERY_DESCRIPTION"/>
-		<!-- modern Era-->
-		<Replace TechnologyType="TECH_ARMORED_WARFARE" 	Name="LOC_TECH_ARMORED_WARFARE_NAME" 	Cost="1350" AdvisorType="ADVISOR_CONQUEST" 		EraType="ERA_MODERN"	UITreeRow="2"/>
-		
-	</Technologies>
-	<TechnologyPrereqs>
-		<!-- Ancient Era-->
-		<Row 	Technology="TECH_IRRIGATION" 	PrereqTech="TECH_AGRICULTURE"/>
-		<Row 	Technology="TECH_ASTROLOGY" 	PrereqTech="TECH_AGRICULTURE"/>
-		<!-- Classical Era-->
-		<Row 	Technology="TECH_SURGERY" 		PrereqTech="TECH_WRITING"/>
-		<Row 	Technology="TECH_SURGERY" 		PrereqTech="TECH_HERBALISM"/>
-		<!-- modern Era-->
-		<Row 	Technology="TECH_ARMORED_WARFARE" 	PrereqTech="TECH_COMBUSTION"/>
-		<Row 	Technology="TECH_COMBINED_ARMS" 	PrereqTech="TECH_ARMORED_WARFARE"/>
-	
-	</TechnologyPrereqs>
 	
 	<!-- 		PROJECTS
 		
@@ -795,7 +787,7 @@
 		<Row Type="PROJECT_TAXES" Kind="KIND_PROJECT"/>
 	</Types>
 	<Projects>
-		<Row ProjectType="PROJECT_TAXES" Name="LOC_PROJECT_TAXES_NAME" ShortName="LOC_PROJECT_TAXES_SHORT_NAME" Description="LOC_PROJECT_TAXES_DESCRIPTION" PrereqCivic="CIVIC_CODE_OF_LAWS" PrereqDistrict="DISTRICT_CITY_CENTER" Cost="25" AdvisorType="ADVISOR_GENERIC" CostProgressionModel="COST_PROGRESSION_GAME_PROGRESS" CostProgressionParam1="1500"/>
+		<Row ProjectType="PROJECT_TAXES" Name="LOC_PROJECT_TAXES_NAME" ShortName="LOC_PROJECT_TAXES_SHORT_NAME" Description="LOC_PROJECT_TAXES_DESCRIPTION" PrereqTech="TECH_PICTOGRAM" PrereqDistrict="DISTRICT_CITY_CENTER" Cost="25" AdvisorType="ADVISOR_GENERIC" CostProgressionModel="COST_PROGRESSION_GAME_PROGRESS" CostProgressionParam1="1500"/>
 	</Projects>
 	<Project_YieldConversions>
 		<Row ProjectType="PROJECT_TAXES" YieldType="YIELD_GOLD" PercentOfProductionRate="15"/>

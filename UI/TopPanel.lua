@@ -35,7 +35,9 @@ local m_GoldYieldButton:table = nil;
 local m_TourismYieldButton:table = nil;
 local m_FaithYieldButton:table = nil;
 -- GCO <<<<<
-local m_DebtYieldButton:table = nil;
+local m_DebtYieldButton:table 		= nil;
+local m_LogisticCostButton:table 	= nil;
+local mResearchYieldButton:table 	= {};
 -- GCO >>>>>
 
 -- ===========================================================================
@@ -190,7 +192,7 @@ function RefreshYields()
 		end
 		
 		m_LogisticCostButton.YieldPerTurn:SetText( Locale.ToNumber(availableLogistic, "#,###") );
-		m_LogisticCostButton.YieldIconString:SetText("[ICON_Charges_Large]"); -- [ICON_Strength_Large]
+		m_LogisticCostButton.YieldIconString:SetText("[ICON_Strength_Large]"); -- [ICON_Charges_Large]
 		m_LogisticCostButton.YieldPerTurn:SetColorByName(balanceColorName);
 
 		local toolTipStrTable = {}
@@ -217,44 +219,8 @@ function RefreshYields()
 		end
 	end
 	-- GCO >>>>>
-
-	---- SCIENCE ----
-	m_ScienceYieldButton = m_ScienceYieldButton or m_YieldButtonSingleManager:GetInstance();
-	local playerTechnology		:table	= localPlayer:GetTechs();
-	local currentScienceYield	:number = playerTechnology:GetScienceYield();
-	m_ScienceYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(currentScienceYield) );	
-
-	m_ScienceYieldButton.YieldBacking:SetToolTipString( GetScienceTooltip() );
-	m_ScienceYieldButton.YieldIconString:SetText("[ICON_ScienceLarge]");
-	m_ScienceYieldButton.YieldButtonStack:CalculateSize();
 	
-	
-	---- CULTURE----
-	m_CultureYieldButton = m_CultureYieldButton or m_YieldButtonSingleManager:GetInstance();
-	local playerCulture			:table	= localPlayer:GetCulture();
-	local currentCultureYield	:number = playerCulture:GetCultureYield();
-	m_CultureYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(currentCultureYield) );	
-	m_CultureYieldButton.YieldPerTurn:SetColorByName("ResCultureLabelCS");
-
-	m_CultureYieldButton.YieldBacking:SetToolTipString( GetCultureTooltip() );
-	m_CultureYieldButton.YieldBacking:SetColor(0x99fe2aec);
-	m_CultureYieldButton.YieldIconString:SetText("[ICON_CultureLarge]");
-	m_CultureYieldButton.YieldButtonStack:CalculateSize();
-
-	---- FAITH ----
-	m_FaithYieldButton = m_FaithYieldButton or m_YieldButtonDoubleManager:GetInstance();
-	local playerReligion		:table	= localPlayer:GetReligion();
-	local faithYield			:number = playerReligion:GetFaithYield();
-	local faithBalance			:number = playerReligion:GetFaithBalance();
-	m_FaithYieldButton.YieldBalance:SetText( Locale.ToNumber(faithBalance, "#,###.#") );	
-	m_FaithYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(faithYield) );
-	m_FaithYieldButton.YieldBacking:SetToolTipString( GetFaithTooltip() );
-	m_FaithYieldButton.YieldIconString:SetText("[ICON_FaithLarge]");
-	m_FaithYieldButton.YieldButtonStack:CalculateSize();
-	-- GCO <<<<<
-	m_FaithYieldButton.Top:SetHide(true)
-	-- GCO >>>>>
-
+	-- GCO <<<<< GOLD and CULTURE sections moved before all science sections >>>>>
 	---- GOLD ----
 	if GameCapabilities.HasCapability("CAPABILITY_GOLD") then
 		m_GoldYieldButton = m_GoldYieldButton or m_YieldButtonDoubleManager:GetInstance();
@@ -301,6 +267,68 @@ function RefreshYields()
 		-- GCO >>>>>
 		
 	end
+
+	---- CULTURE----
+	m_CultureYieldButton = m_CultureYieldButton or m_YieldButtonSingleManager:GetInstance();
+	local playerCulture			:table	= localPlayer:GetCulture();
+	local currentCultureYield	:number = playerCulture:GetCultureYield();
+	m_CultureYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(currentCultureYield) );	
+	m_CultureYieldButton.YieldPerTurn:SetColorByName("ResCultureLabelCS");
+
+	m_CultureYieldButton.YieldBacking:SetToolTipString( GetCultureTooltip() );
+	m_CultureYieldButton.YieldBacking:SetColor(0x99fe2aec);
+	m_CultureYieldButton.YieldIconString:SetText("[ICON_CultureLarge]");
+	m_CultureYieldButton.YieldButtonStack:CalculateSize();
+	
+	---- SCIENCE ----
+	m_ScienceYieldButton = m_ScienceYieldButton or m_YieldButtonSingleManager:GetInstance();
+	local playerTechnology		:table	= localPlayer:GetTechs();
+	local currentScienceYield	:number = playerTechnology:GetScienceYield();
+	m_ScienceYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(currentScienceYield) );	
+
+	m_ScienceYieldButton.YieldBacking:SetToolTipString( GetScienceTooltip() );
+	m_ScienceYieldButton.YieldIconString:SetText("[ICON_ScienceLarge]");
+	m_ScienceYieldButton.YieldButtonStack:CalculateSize();
+	
+	-- GCO <<<<<
+	-- Other Sciences fields
+	if ExposedMembers.GCO_Initialized then
+		local pResearch = GCO.Research:Create(ePlayer)
+		for _, researchType in ipairs(pResearch:GetList()) do
+			mResearchYieldButton[researchType]	= mResearchYieldButton[researchType] or m_YieldButtonSingleManager:GetInstance()
+			local yieldButton					= mResearchYieldButton[researchType]
+			local yieldValue					= pResearch:GetYield(researchType)
+			
+			if yieldValue > 0 then
+				yieldButton.YieldPerTurn:SetText( FormatValuePerTurn(yieldValue) );	
+				--yieldButton.YieldPerTurn:SetColorByName("ResCultureLabelCS");
+
+				local sTooltip = Locale.Lookup("LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP", GameInfo.TechnologyContributionTypes[researchType].Name) .. "[NEWLINE][NEWLINE]" .. pResearch:GetYieldTooltip(researchType)
+				yieldButton.YieldBacking:SetToolTipString( sTooltip );
+				--yieldButton.YieldBacking:SetColor(0x99fe2aec);
+				yieldButton.YieldIconString:SetText(GameInfo.TechnologyContributionTypes[researchType].IconString);
+				yieldButton.YieldButtonStack:CalculateSize();
+				yieldButton.Top:SetHide(false)
+			else
+				yieldButton.Top:SetHide(true)
+			end	
+		end
+	end
+	-- GCO >>>>>
+	
+	---- FAITH ----
+	m_FaithYieldButton = m_FaithYieldButton or m_YieldButtonDoubleManager:GetInstance();
+	local playerReligion		:table	= localPlayer:GetReligion();
+	local faithYield			:number = playerReligion:GetFaithYield();
+	local faithBalance			:number = playerReligion:GetFaithBalance();
+	m_FaithYieldButton.YieldBalance:SetText( Locale.ToNumber(faithBalance, "#,###.#") );	
+	m_FaithYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(faithYield) );
+	m_FaithYieldButton.YieldBacking:SetToolTipString( GetFaithTooltip() );
+	m_FaithYieldButton.YieldIconString:SetText("[ICON_FaithLarge]");
+	m_FaithYieldButton.YieldButtonStack:CalculateSize();
+	-- GCO <<<<<
+	m_FaithYieldButton.Top:SetHide(true)
+	-- GCO >>>>>
 	
 	---- TOURISM ----
 	if GameCapabilities.HasCapability("CAPABILITY_TOURISM") then
@@ -689,7 +717,11 @@ function Initialize()
 	Events.UnitKilledInCombat.Add(			OnRefreshYields );
 	Events.UnitRemovedFromMap.Add(			OnRefreshYields );
 	Events.VisualStateRestored.Add(			OnTurnBegin );
-	Events.WMDCountChanged.Add(				OnWMDUpdate );	
+	Events.WMDCountChanged.Add(				OnWMDUpdate );
+	-- GCO <<<<<
+	LuaEvents.RefreshTopPanelGCO.Add(		OnRefreshYields );
+	-- GCO >>>>>
+	
 	OnTurnBegin();
 end
 Initialize();

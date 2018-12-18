@@ -28,6 +28,9 @@ UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMAL
 /* ************************ */
 DELETE FROM Resource_Harvests;
 DELETE FROM Resources WHERE ResourceType='RESOURCE_NITER';
+UPDATE Resources SET PrereqTech ='TECH_GEOLOGY' WHERE ResourceType='RESOURCE_OIL';
+UPDATE Resources SET PrereqTech ='TECH_GEOLOGY' WHERE ResourceType='RESOURCE_COAL';
+UPDATE Resources SET PrereqTech ='TECH_RADIOACTIVITY' WHERE ResourceType='RESOURCE_URANIUM';
 
 /* ************************ */
 /* Deals                    */
@@ -42,12 +45,15 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 UPDATE Improvements SET OnePerCity = 1, SameAdjacentValid = 0 WHERE Buildable = 1 AND TraitType IS NOT NULL;		-- After updating "CanBuildOutsideTerritory"
 UPDATE Improvements SET CanBuildOutsideTerritory = 1 WHERE Buildable = 1 AND TraitType ISNULL AND OnePerCity = 0;	-- After setting "OnePerCity", before removing "TraitType"
 UPDATE Improvements SET TraitType = NULL WHERE Buildable = 1;														-- After updating "CanBuildOutsideTerritory"
-UPDATE Improvements SET PrereqTech ='TECH_CASTLES', 		DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_FORT';
---UPDATE Improvements SET PrereqTech ='TECH_MASONRY', 		DefenseModifier = 2, GrantFortification = 1, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ROMAN_FORT';
-UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 	DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ALCAZAR';
-UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 	SameAdjacentValid = 1 WHERE ImprovementType ='IMPROVEMENT_GREAT_WALL';
+UPDATE Improvements SET PrereqTech ='TECH_DEFENSIVE_TACTICS',	DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_FORT';
+--UPDATE Improvements SET PrereqTech ='TECH_MASONRY', 			DefenseModifier = 2, GrantFortification = 1, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ROMAN_FORT';
+UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 		DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ALCAZAR';
+UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 		SameAdjacentValid = 1 WHERE ImprovementType ='IMPROVEMENT_GREAT_WALL';
 
 UPDATE Improvements SET PrereqTech ='TECH_AGRICULTURE'		WHERE ImprovementType ='IMPROVEMENT_FARM';
+UPDATE Improvements SET PrereqTech ='TECH_TRAPPING'			WHERE ImprovementType ='IMPROVEMENT_CAMP';
+
+UPDATE Improvements SET PrereqTech ='TECH_REFINING'			WHERE ImprovementType ='IMPROVEMENT_OIL_WELL';
 
 UPDATE Improvement_YieldChanges SET YieldChange = 3 WHERE ImprovementType ='IMPROVEMENT_FARM' 		AND YieldType="YIELD_FOOD";
 UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_PASTURE' 	AND YieldType="YIELD_FOOD";
@@ -122,36 +128,9 @@ INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FL
 /* Technologies & Civics    */
 /* ************************ */
 
-DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_THE_WHEEL';
-UPDATE Technologies SET Cost = 25 WHERE TechnologyType ='TECH_THE_WHEEL';
 
-UPDATE Technologies SET UITreeRow = -3 WHERE TechnologyType ='TECH_ASTROLOGY';
-UPDATE Technologies SET UITreeRow = -2 WHERE TechnologyType ='TECH_SAILING';
-
-UPDATE Technologies SET Cost = 80 WHERE TechnologyType ='TECH_WRITING';
-
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_IRON_WORKING', 'TECH_MASONRY');
-
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CURRENCY', 'TECH_IRRIGATION');
-UPDATE Technologies SET UITreeRow = -1 WHERE TechnologyType ='TECH_CURRENCY';
-
-UPDATE Technologies SET UITreeRow = -3 WHERE TechnologyType ='TECH_CELESTIAL_NAVIGATION';
-UPDATE Technologies SET Cost = 250, UITreeRow = -2 WHERE TechnologyType ='TECH_SHIPBUILDING';
-
-DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_ENGINEERING';
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ENGINEERING', 'TECH_THE_WHEEL');
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_ENGINEERING', 'TECH_IRON_WORKING');
-UPDATE Technologies SET Cost = 250 WHERE TechnologyType ='TECH_ENGINEERING';
-
-DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_CONSTRUCTION';
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CONSTRUCTION', 'TECH_IRON_WORKING');
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CONSTRUCTION', 'TECH_MATHEMATICS');
-UPDATE Technologies SET Cost = 250 WHERE TechnologyType ='TECH_CONSTRUCTION';
-
-DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MACHINERY';
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MACHINERY', 'TECH_ENGINEERING');
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MACHINERY', 'TECH_CONSTRUCTION');
-UPDATE Technologies SET UITreeRow = 3 WHERE TechnologyType ='TECH_MACHINERY';
+DELETE FROM Technologies WHERE TechnologyType ='TECH_STIRRUPS';
+DELETE FROM Technologies WHERE TechnologyType ='TECH_RIFLING';
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_MILITARY_TACTICS';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_MILITARY_TACTICS', 'TECH_HORSEBACK_RIDING');
@@ -164,8 +143,8 @@ INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_APPRENTICES
 UPDATE Technologies SET Cost = 390 WHERE TechnologyType ='TECH_APPRENTICESHIP';
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_STIRRUPS';
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STIRRUPS', 'TECH_APPRENTICESHIP');
-UPDATE Technologies SET Cost = 450 WHERE TechnologyType ='TECH_STIRRUPS';
+--INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STIRRUPS', 'TECH_APPRENTICESHIP');
+--UPDATE Technologies SET Cost = 450 WHERE TechnologyType ='TECH_STIRRUPS';
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_CASTLES';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_CASTLES', 'TECH_MACHINERY');
@@ -215,7 +194,7 @@ UPDATE Technologies SET Cost = 1070 WHERE TechnologyType ='TECH_STEAM_POWER';
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_STEEL';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STEEL', 'TECH_STEAM_POWER');
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STEEL', 'TECH_RIFLING');
+--INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_STEEL', 'TECH_RIFLING');
 UPDATE Technologies SET UITreeRow = 2 WHERE TechnologyType ='TECH_STEEL';
 
 UPDATE Technologies SET Cost = 1140 WHERE TechnologyType ='TECH_ELECTRICITY';
@@ -225,7 +204,7 @@ INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_RADIO', 'TE
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_RADIO', 'TECH_REPLACEABLE_PARTS');
 UPDATE Technologies SET UITreeRow = -3 WHERE TechnologyType ='TECH_RADIO';
 
-INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_REPLACEABLE_PARTS', 'TECH_RIFLING');
+--INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_REPLACEABLE_PARTS', 'TECH_RIFLING');
 
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_COMBUSTION';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_COMBUSTION', 'TECH_STEEL');
@@ -284,27 +263,17 @@ INSERT INTO CivicPrereqs (Civic, PrereqCivic) VALUES ('CIVIC_NAVAL_TRADITION', '
 INSERT INTO CivicPrereqs (Civic, PrereqCivic) VALUES ('CIVIC_MERCENARIES', 'CIVIC_NAVAL_TRADITION');
 
 -- Reduce boost
-UPDATE Boosts SET Boost = 30; -- Default = 50
+--UPDATE Boosts SET Boost = 30; -- Default = 50 -- no more boost at all
 
--- Technology cost
-UPDATE Technologies SET Cost = Cost*1.00 WHERE EraType ='ERA_ANCIENT';
-UPDATE Technologies SET Cost = Cost*1.20 WHERE EraType ='ERA_CLASSICAL';
-UPDATE Technologies SET Cost = Cost*1.40 WHERE EraType ='ERA_MEDIEVAL';
-UPDATE Technologies SET Cost = Cost*1.70 WHERE EraType ='ERA_RENAISSANCE';
-UPDATE Technologies SET Cost = Cost*2.00 WHERE EraType ='ERA_INDUSTRIAL';
-UPDATE Technologies SET Cost = Cost*2.40 WHERE EraType ='ERA_MODERN';
-UPDATE Technologies SET Cost = Cost*2.80 WHERE EraType ='ERA_ATOMIC';
-UPDATE Technologies SET Cost = Cost*3.40 WHERE EraType ='ERA_INFORMATION';
 
--- Civics cost
-UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_ANCIENT';
-UPDATE Civics SET Cost = Cost*1.60 WHERE EraType ='ERA_CLASSICAL';
-UPDATE Civics SET Cost = Cost*1.80 WHERE EraType ='ERA_MEDIEVAL';
-UPDATE Civics SET Cost = Cost*2.00 WHERE EraType ='ERA_RENAISSANCE';
-UPDATE Civics SET Cost = Cost*2.30 WHERE EraType ='ERA_INDUSTRIAL';
-UPDATE Civics SET Cost = Cost*2.70 WHERE EraType ='ERA_MODERN';
-UPDATE Civics SET Cost = Cost*3.20 WHERE EraType ='ERA_ATOMIC';
-UPDATE Civics SET Cost = Cost*3.80 WHERE EraType ='ERA_INFORMATION';
+/* ************************ */
+/* Policies                 */
+/* ************************ */
+UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_CEREMONIAL_BURIAL' 	WHERE PolicyType ='POLICY_GOD_KING';
+UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_WARRIOR_CODE' 		WHERE PolicyType ='POLICY_DISCIPLINE';
+UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_MAP_MAKING' 			WHERE PolicyType ='POLICY_SURVEY';
+UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_LIBERALISM' 			WHERE PolicyType ='POLICY_LIBERALISM';
+UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_LIBERALISM' 			WHERE PolicyType ='POLICY_FREE_MARKET';
 
 
 /* ************************ */
@@ -374,7 +343,10 @@ UPDATE Buildings SET PrereqTech = 'TECH_GUNPOWDER', 			EmploymentSize ='0.25',	E
 UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00',	EquipmentStock ='1500' 	WHERE BuildingType ='BUILDING_BARRACKS';
 UPDATE Buildings SET PrereqTech = 'TECH_MILITARY_ENGINEERING',	EmploymentSize ='1.00',	EquipmentStock ='750' 	WHERE BuildingType ='BUILDING_STABLE';
 
+UPDATE Buildings SET PrereqTech = 'TECH_MERCANTILISM',			EmploymentSize ='3.00'	WHERE BuildingType ='BUILDING_SHIPYARD';
 UPDATE Buildings SET PrereqTech = 'TECH_STEAM_POWER',			EmploymentSize ='4.00'	WHERE BuildingType ='BUILDING_SEAPORT';
+
+UPDATE Buildings SET PrereqTech = 'TECH_BIOTECHNOLOGY',			EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_RESEARCH_LAB';
 
 UPDATE Buildings SET PrereqTech = 'TECH_COMPUTERS',				EmploymentSize ='8.00', TraitType = NULL WHERE BuildingType ='BUILDING_ELECTRONICS_FACTORY';
 
@@ -391,7 +363,6 @@ UPDATE Buildings SET EmploymentSize ='2.00' WHERE BuildingType ='BUILDING_MARKET
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_AMPHITHEATER';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_UNIVERSITY';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_WORKSHOP';
-UPDATE Buildings SET EmploymentSize ='3.00' WHERE BuildingType ='BUILDING_SHIPYARD';
 UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_BANK';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_MUSEUM_ART';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_MUSEUM_ARTIFACT';
@@ -402,7 +373,6 @@ UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_ZOO';
 UPDATE Buildings SET EmploymentSize ='6.00' WHERE BuildingType ='BUILDING_HANGAR';
 UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_POWER_PLANT';
 UPDATE Buildings SET EmploymentSize ='2.00' WHERE BuildingType ='BUILDING_BROADCAST_CENTER';
-UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_RESEARCH_LAB';
 UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_POWER_PLANT';
 UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_STADIUM';
 UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_AIRPORT';
@@ -414,7 +384,7 @@ UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT
 
 UPDATE Districts SET PrereqTech = 'TECH_MILITARY_ENGINEERING' 	WHERE DistrictType ='DISTRICT_ENCAMPMENT';
 UPDATE Districts SET PrereqTech = 'TECH_INDUSTRIALIZATION' 		WHERE DistrictType ='DISTRICT_INDUSTRIAL_ZONE';
-UPDATE Districts SET PrereqTech = 'TECH_MASS_PRODUCTION' 		WHERE DistrictType ='DISTRICT_HARBOR';
+UPDATE Districts SET PrereqTech = 'TECH_MERCANTILISM' 			WHERE DistrictType ='DISTRICT_HARBOR';
 --*/
 
 -- Update projects before removing the distric themselves because of the cascade update...
@@ -454,10 +424,10 @@ UPDATE StartEras SET Tiles = '0', Gold = Gold * 25;
 /* Remove Faith             */
 /* ************************ */
 --/* 
-DELETE FROM Buildings WHERE PurchaseYield='YIELD_FAITH';
-DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
-DELETE FROM Buildings WHERE BuildingType='BUILDING_TEMPLE';
-DELETE FROM Buildings WHERE BuildingType='BUILDING_STAVE_CHURCH';
+--DELETE FROM Buildings WHERE PurchaseYield='YIELD_FAITH';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_SHRINE';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_TEMPLE';
+--DELETE FROM Buildings WHERE BuildingType='BUILDING_STAVE_CHURCH';
 DELETE FROM Units WHERE PurchaseYield='YIELD_FAITH';
 --*/
 
@@ -523,13 +493,17 @@ UPDATE Buildings SET PurchaseYield = NULL;
 /* Game Capabilities */
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_TRADE";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CULTURE";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_CHOOSER";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_TREE";
+
+--/*
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_CHOOSER";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_TREE";
+--*/
+
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_GOVERNMENTS";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_RELIGION";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_PANTHEONS";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_RELIGIONS";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_RELIGION";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_PANTHEONS";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_RELIGIONS";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY_DEALS";
 

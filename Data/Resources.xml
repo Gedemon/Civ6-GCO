@@ -11,6 +11,7 @@
 		<Row ResourceType="RESOURCE_PERSONNEL" 					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
 		<Row ResourceType="RESOURCE_STEEL" 						ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_WOOD" 						ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
+		<Row ResourceType="RESOURCE_CLAY" 						ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_PLANTS" 					ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<Row ResourceType="RESOURCE_MEDICINE" 					ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
 		<Row ResourceType="RESOURCE_LEATHER" 					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
@@ -50,6 +51,9 @@
 		<Row FeatureType="FEATURE_FOREST_DENSE"		ResourceType="RESOURCE_WOOD" 	NumPerFeature="18"/>
 		<Row FeatureType="FEATURE_FOREST_DENSE"		ResourceType="RESOURCE_PLANTS" 	NumPerFeature="3"/>
 		<Row FeatureType="FEATURE_MARSH" 			ResourceType="RESOURCE_PLANTS" 	NumPerFeature="8"/>
+		<Row FeatureType="FEATURE_MARSH" 			ResourceType="RESOURCE_CLAY" 	NumPerFeature="4"/>
+		<Row FeatureType="FEATURE_FLOODPLAINS"		ResourceType="RESOURCE_CLAY" 	NumPerFeature="6"/>
+		<Row FeatureType="FEATURE_OASIS"			ResourceType="RESOURCE_CLAY" 	NumPerFeature="4"/>
 	</FeatureResourcesProduced>
 	
 	<TerrainResourcesProduced>

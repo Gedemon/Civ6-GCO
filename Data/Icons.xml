@@ -27,6 +27,15 @@
        <Row Name="ICON_ToT_ATLAS_BUILDINGS_C" 		IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_256.dds"/>
        <Row Name="ICON_ToT_ATLAS_BUILDINGS_C_FOW" 	IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_256_FoW.dds"/>
 	   
+
+		<Row Name="ATLAS_TECH_GCO"					IconSize="160"	IconsPerRow="8" IconsPerColumn="4" Filename="TechGCO_160.dds"/>
+		<Row Name="ATLAS_TECH_GCO"					IconSize="128"	IconsPerRow="8" IconsPerColumn="4" Filename="TechGCO_128.dds"/>
+		<Row Name="ATLAS_TECH_GCO"					IconSize="42"	IconsPerRow="8" IconsPerColumn="4" Filename="TechGCO_42.dds"/>
+		<Row Name="ATLAS_TECH_GCO"					IconSize="38"	IconsPerRow="8" IconsPerColumn="4" Filename="TechGCO_38.dds"/>
+		<Row Name="ATLAS_TECH_GCO"					IconSize="30"	IconsPerRow="8" IconsPerColumn="4" Filename="TechGCO_30.dds"/>
+		
+		<Row Name="ICON_ATLAS_CIVICS"				IconSize="30"	IconsPerRow="8" IconsPerColumn="8" Filename="Civics30.dds"/>
+	   
    </IconTextureAtlases>
    
 	<!-- ----------- -->
@@ -42,6 +51,9 @@
 	<!-- --------- -->
 	
 	<IconDefinitions> 	<!-- BUILDINGS -->
+		<Row Name="ICON_BUILDING_BRICKMAKER"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="3"/>
+		<Row Name="ICON_BUILDING_BRICKMAKER_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="3"/>
+		
 		<Row Name="ICON_BUILDING_RECRUITS"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="17"/>
 		<Row Name="ICON_BUILDING_RECRUITS_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="17"/>
 		
@@ -63,8 +75,8 @@
 		<Row Name="ICON_BUILDING_CITY_SHIPYARD"					Atlas="ICON_ATLAS_BUILDINGS" 			Index="22"/>
 		<Row Name="ICON_BUILDING_CITY_SHIPYARD_FOW"				Atlas="ICON_ATLAS_BUILDINGS_FOW" 		Index="22"/>
 
-		<Row Name="ICON_BUILDING_STONEMASON"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="49"/>
-		<Row Name="ICON_BUILDING_STONEMASON_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="49"/>
+		<Row Name="ICON_BUILDING_STONEMASON"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="49"/>
+		<Row Name="ICON_BUILDING_STONEMASON_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="49"/>
 
 		<Row Name="ICON_BUILDING_CARPENTER"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="58"/>
 		<Row Name="ICON_BUILDING_CARPENTER_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="58"/>
@@ -75,14 +87,14 @@
 		<Row Name="ICON_BUILDING_FRUIT_MARKET"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="5"/>
 		<Row Name="ICON_BUILDING_FRUIT_MARKET_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="5"/>
 
-		<Row Name="ICON_BUILDING_ARTILLATOR"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="18"/>
-		<Row Name="ICON_BUILDING_ARTILLATOR_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="18"/>
+		<Row Name="ICON_BUILDING_ARTILLATOR"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="18"/>
+		<Row Name="ICON_BUILDING_ARTILLATOR_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="18"/>
 
 		<Row Name="ICON_BUILDING_ARMORER"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="16"/>
 		<Row Name="ICON_BUILDING_ARMORER_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="16"/>
 
-		<Row Name="ICON_BUILDING_ARMORSMITH"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="42"/>
-		<Row Name="ICON_BUILDING_ARMORSMITH_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="42"/>
+		<Row Name="ICON_BUILDING_ARMORSMITH"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="42"/>
+		<Row Name="ICON_BUILDING_ARMORSMITH_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="42"/>
 
 		<Row Name="ICON_BUILDING_WEAPONSMITH"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="54"/>
 		<Row Name="ICON_BUILDING_WEAPONSMITH_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="54"/>
@@ -390,13 +402,28 @@
 	</IconDefinitions>
   
 	<IconDefinitions> 	<!-- TECH ICONS -->
-		<Row Name="ICON_TECH_HERBALISM" 			Atlas="ICON_ATLAS_TECH"			Index="5" />
-		<Row Name="ICON_TECH_HERBALISM_FOW" 		Atlas="ICON_ATLAS_TECH_FOW"		Index="5" />		
+	
+		<Row Name="ICON_TECH_PICTOGRAM"				Atlas="ICON_ATLAS_CIVICS"		Index="12" />
+		<Row Name="ICON_TECH_PICTOGRAM_FOW"			Atlas="ICON_ATLAS_CIVICS_FOW"	Index="12" />
+		
+		<Row Name="ICON_TECH_WARRIOR_CODE"			Atlas="ICON_ATLAS_CIVICS"		Index="10" />
+		<Row Name="ICON_TECH_WARRIOR_CODE_FOW"		Atlas="ICON_ATLAS_CIVICS_FOW"	Index="10" />
+			
 		<Row Name="ICON_TECH_AGRICULTURE" 			Atlas="ICON_ATLAS_TECH"			Index="5" />
 		<Row Name="ICON_TECH_AGRICULTURE_FOW" 		Atlas="ICON_ATLAS_TECH_FOW"		Index="5" />
 		
-		<Row Name="ICON_TECH_SURGERY"				Atlas="ICON_ATLAS_CIVICS"		Index="8" />
-		<Row Name="ICON_TECH_SURGERY_FOW"			Atlas="ICON_ATLAS_CIVICS_FOW"	Index="8" />
+		<Row Name="ICON_TECH_OPTICS"				Atlas="ICON_ATLAS_TECH"			Index="32" />
+		<Row Name="ICON_TECH_OPTICS_FOW"			Atlas="ICON_ATLAS_TECH_FOW"		Index="32" />
+		
+		<Row Name="ICON_TECH_RADAR"					Atlas="ICON_ATLAS_TECH"			Index="61" />
+		<Row Name="ICON_TECH_RADAR_FOW"				Atlas="ICON_ATLAS_TECH_FOW"		Index="61" />
+		
+		<Row Name="ICON_TECH_SONAR"					Atlas="ICON_ATLAS_TECH"			Index="61" />
+		<Row Name="ICON_TECH_SONAR_FOW"				Atlas="ICON_ATLAS_TECH_FOW"		Index="61" />
+		
+		<Row Name="ICON_TECH_MICROBIOLOGY"			Atlas="ICON_ATLAS_TECH"			Index="36" />
+		<Row Name="ICON_TECH_MICROBIOLOGY_FOW"		Atlas="ICON_ATLAS_TECH_FOW"		Index="36" />
+		
 		<!--
 		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_UNITS" 		Index="78"/>
 		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_UNITS_FOW" 	Index="78"/>
@@ -404,6 +431,150 @@
 		<Row Name="ICON_TECH_ARMORED_WARFARE" 		Atlas="ICON_ATLAS_TECH"			Index="49" />
 		<Row Name="ICON_TECH_ARMORED_WARFARE_FOW" 	Atlas="ICON_ATLAS_TECH_FOW"		Index="49" />
 		
+		<Row Name="ICON_TECH_CEREMONIAL_BURIAL" 	Atlas="ATLAS_TECH_GCO"			Index="0" />
+		<Row Name="ICON_TECH_HERBALISM" 			Atlas="ATLAS_TECH_GCO"			Index="1" />
+		<Row Name="ICON_TECH_PAPER" 				Atlas="ATLAS_TECH_GCO"			Index="8" />
+		<Row Name="ICON_TECH_SURGERY"				Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_MEDICINE" 				Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_VACCINE" 				Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_BIOTECHNOLOGY"			Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_ANTIBIOTICS"			Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_ANATOMY" 				Atlas="ATLAS_TECH_GCO"			Index="3" />
+		<Row Name="ICON_TECH_ALCHEMY" 				Atlas="ATLAS_TECH_GCO"			Index="4" />
+		<Row Name="ICON_TECH_ATOMIC_THEORY"			Atlas="ATLAS_TECH_GCO"			Index="5" />
+		<Row Name="ICON_TECH_RADIOACTIVITY"			Atlas="ATLAS_TECH_GCO"			Index="5" />
+		<Row Name="ICON_TECH_REFRIGERATION"			Atlas="ATLAS_TECH_GCO"			Index="6" />
+		<Row Name="ICON_TECH_GENETICS"				Atlas="ATLAS_TECH_GCO"			Index="7" />
+		<Row Name="ICON_TECH_EUGENISM"				Atlas="ATLAS_TECH_GCO"			Index="7" />
+		<Row Name="ICON_TECH_GENETIC_ENGINEERING"	Atlas="ATLAS_TECH_GCO"			Index="7" />
+		
+		<Row Name="ICON_TECH_CEREMONIAL_BURIAL_FOW" 	Atlas="ATLAS_TECH_GCO"			Index="0" />
+		<Row Name="ICON_TECH_HERBALISM_FOW" 			Atlas="ATLAS_TECH_GCO"			Index="1" />
+		<Row Name="ICON_TECH_PAPER_FOW" 				Atlas="ATLAS_TECH_GCO"			Index="8" />
+		<Row Name="ICON_TECH_SURGERY_FOW"				Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_MEDICINE_FOW" 				Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_VACCINE_FOW" 				Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_BIOTECHNOLOGY_FOW"			Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_ANTIBIOTICS_FOW"			Atlas="ATLAS_TECH_GCO"			Index="2" />
+		<Row Name="ICON_TECH_ANATOMY_FOW" 				Atlas="ATLAS_TECH_GCO"			Index="3" />
+		<Row Name="ICON_TECH_ALCHEMY_FOW" 				Atlas="ATLAS_TECH_GCO"			Index="4" />
+		<Row Name="ICON_TECH_ATOMIC_THEORY_FOW"			Atlas="ATLAS_TECH_GCO"			Index="5" />
+		<Row Name="ICON_TECH_RADIOACTIVITY_FOW"			Atlas="ATLAS_TECH_GCO"			Index="5" />
+		<Row Name="ICON_TECH_REFRIGERATION_FOW"			Atlas="ATLAS_TECH_GCO"			Index="6" />
+		<Row Name="ICON_TECH_GENETICS_FOW"				Atlas="ATLAS_TECH_GCO"			Index="7" />
+		<Row Name="ICON_TECH_EUGENISM_FOW"				Atlas="ATLAS_TECH_GCO"			Index="7" />
+		<Row Name="ICON_TECH_GENETIC_ENGINEERING_FOW"	Atlas="ATLAS_TECH_GCO"			Index="7" />
+		
+		<Row Name="ICON_TECH_NUCLEAR_POWER"			Atlas="ICON_ATLAS_CIVICS"		Index="36" />
+		<Row Name="ICON_TECH_NUCLEAR_POWER_FOW"		Atlas="ICON_ATLAS_CIVICS_FOW"	Index="36" />
+		
+		
+	</IconDefinitions>
+	<IconDefinitions>	<!-- TECH ICONS (From Civics) -->
+		<Row Name="ICON_TECH_CODE_OF_LAWS"				  Index="0" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_CRAFTSMANSHIP"	      Index="1" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_FOREIGN_TRADE"			  Index="2" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_MILITARY_TRADITION"	  Index="3" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_STATE_WORKFORCE"		  Index="4" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_EARLY_EMPIRE"				  Index="5" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_MYSTICISM"					  Index="6" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_GAMES_RECREATION"			Index="7" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_POLITICAL_PHILOSOPHY"	Index="8" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_DRAMA_POETRY"			    Index="9" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_MILITARY_TRAINING"		Index="10" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_DEFENSIVE_TACTICS"		Index="11" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_RECORDED_HISTORY"			Index="12" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_THEOLOGY"				      Index="13" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_NAVAL_TRADITION"			Index="14" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_FEUDALISM"				    Index="15" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_CIVIL_SERVICE"				Index="16" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_MERCENARIES"					Index="17" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_MEDIEVAL_FAIRES"			Index="18" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_GUILDS"					      Index="19" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_DIVINE_RIGHT"				  Index="20" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_EXPLORATION"			    Index="21" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_HUMANISM"			        Index="22" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_DIPLOMATIC_SERVICE"		Index="23" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_REFORMED_CHURCH"			Index="24" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_MERCANTILISM"		      Index="25" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_THE_ENLIGHTENMENT"		Index="26" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_COLONIALISM"					Index="27" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_CIVIL_ENGINEERING"		Index="28" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_NATURAL_HISTORY"			Index="31" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_OPERA_BALLET"		      Index="30" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_NATIONALISM"					Index="29" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_SCORCHED_EARTH"				Index="32" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_URBANIZATION"					Index="33" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_CONSERVATION"					Index="34" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_CAPITALISM"					  Index="35" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_NUCLEAR_PROGRAM"	    Index="36" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_MASS_MEDIA"					  Index="37" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_MOBILIZATION"	        Index="38" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_IDEOLOGY"					    Index="39" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_SUFFRAGE"		          Index="40" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_TOTALITARIANISM"			Index="41" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_CLASS_STRUGGLE"				Index="42" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_COLD_WAR"			        Index="43" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_PROFESSIONAL_SPORTS"	Index="44" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_CULTURAL_HERITAGE"		Index="45" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_RAPID_DEPLOYMENT"					Index="46" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_SPACE_RACE"		        Index="47" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_GLOBALIZATION"				Index="48" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_SOCIAL_MEDIA"				  Index="49" Atlas="ICON_ATLAS_CIVICS"/>
+		<Row Name="ICON_TECH_FUTURE_CIVIC"				  Index="50" Atlas="ICON_ATLAS_CIVICS"/>
+
+		<Row Name="ICON_TECH_CODE_OF_LAWS_FOW"				  Index="0" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_CRAFTSMANSHIP_FOW"	      Index="1" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_FOREIGN_TRADE_FOW"			  Index="2" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_MILITARY_TRADITION_FOW"	  Index="3" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_STATE_WORKFORCE_FOW"		  Index="4" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_EARLY_EMPIRE_FOW"				  Index="5" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_MYSTICISM_FOW"					  Index="6" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_GAMES_RECREATION_FOW"     Index="7" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_POLITICAL_PHILOSOPHY_FOW"	Index="8" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_DRAMA_POETRY_FOW"			    Index="9" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_MILITARY_TRAINING_FOW"		Index="10" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_DEFENSIVE_TACTICS_FOW"		Index="11" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_RECORDED_HISTORY_FOW"			Index="12" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_THEOLOGY_FOW"				      Index="13" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_NAVAL_TRADITION_FOW"			Index="14" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_FEUDALISM_FOW"				    Index="15" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_CIVIL_SERVICE_FOW"				Index="16" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_MERCENARIES_FOW"					Index="17" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_MEDIEVAL_FAIRES_FOW"			Index="18" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_GUILDS_FOW"					      Index="19" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_DIVINE_RIGHT_FOW"				  Index="20" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_EXPLORATION_FOW"			    Index="21" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_HUMANISM_FOW"			        Index="22" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_DIPLOMATIC_SERVICE_FOW"		Index="23" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_REFORMED_CHURCH_FOW"			Index="24" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_MERCANTILISM_FOW"		      Index="25" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_THE_ENLIGHTENMENT_FOW"		Index="26" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_COLONIALISM_FOW"					Index="27" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_CIVIL_ENGINEERING_FOW"		Index="28" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_NATURAL_HISTORY_FOW"			Index="31" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_OPERA_BALLET_FOW"		      Index="30" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_NATIONALISM_FOW"					Index="29" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_SCORCHED_EARTH_FOW"				Index="32" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_URBANIZATION_FOW"					Index="33" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_CONSERVATION_FOW"					Index="34" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_CAPITALISM_FOW"					  Index="35" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_NUCLEAR_PROGRAM_FOW"	    Index="36" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_MASS_MEDIA_FOW"					  Index="37" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_MOBILIZATION_FOW"	        Index="38" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_IDEOLOGY_FOW"					    Index="39" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_SUFFRAGE_FOW"		          Index="40" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_TOTALITARIANISM_FOW"			Index="41" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_CLASS_STRUGGLE_FOW"				Index="42" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_COLD_WAR_FOW"			        Index="43" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_PROFESSIONAL_SPORTS_FOW"	Index="44" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_CULTURAL_HERITAGE_FOW"		Index="45" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_RAPID_DEPLOYMENT_FOW"					Index="46" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_SPACE_RACE_FOW"		        Index="47" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_GLOBALIZATION_FOW"				Index="48" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_SOCIAL_MEDIA_FOW"				  Index="49" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+		<Row Name="ICON_TECH_FUTURE_CIVIC_FOW"				  Index="50" Atlas="ICON_ATLAS_CIVICS_FOW"/>
+
 	</IconDefinitions>
 	
 	
@@ -447,6 +618,7 @@
 		<Row Name="MOUSE_LEFT"					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="198"/>
 		<Row Name="MOUSE_RIGHT"					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="199"/>
 		<Row Name="UP_DOWN"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="200"/>
+		<Row Name="LOCKED"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="63"/>
 		
 		<Row Name="HEALTH" 						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="145"/>
 		<Row Name="HEALTH2" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="147"/>
@@ -467,6 +639,21 @@
 		<Row Name="EMPTY20PERCENT"				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="186"/>
 		<Row Name="EMPTY20PERCENT_RED"			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="189"/>
 		
+		<Row Name="MILITARY"					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="212"/>
+		<Row Name="SOCIAL"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="214"/>
+		<Row Name="ECONOMIC"					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="213"/>
+		<Row Name="CRAFTSMANSHIP"				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="211"/>
+		<Row Name="NAVAL"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="210"/>
+		<Row Name="EXPLORATION"					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="209"/>
+		<Row Name="EXPLORATION2"				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="215"/>
+		<Row Name="MILITARY_LARGE"				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="204"/>
+		<Row Name="SOCIAL_LARGE"				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="206"/>
+		<Row Name="ECONOMIC_LARGE"				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="205"/>
+		<Row Name="CRAFTSMANSHIP_LARGE"			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="203"/>
+		<Row Name="NAVAL_LARGE"					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="202"/>
+		<Row Name="EXPLORATION_LARGE"			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="201"/>
+		<Row Name="EXPLORATION2_LARGE"			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="207"/>
+		
 		<Row Name="NoSupply" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="58"/>
 		<Row Name="Wounded" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="20"/>
 		<Row Name="Skull"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="21"/>
@@ -482,6 +669,7 @@
 		<Row Name="RESOURCE_LEATHER" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="67"/>
 		<Row Name="RESOURCE_PLANTS" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="70"/>
 		<Row Name="RESOURCE_WOOD" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="71"/>
+		<Row Name="RESOURCE_CLAY" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="125"/>
 		<Row Name="RESOURCE_MATERIEL" 			Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="79"/>
 		<Row Name="RESOURCE_STEEL" 				Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="66"/>
 		<Row Name="RESOURCE_WOODEN_HULL_PART"	Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="122"/>

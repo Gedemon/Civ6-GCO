@@ -8,6 +8,29 @@
 -- Modified Tables
 -----------------------------------------------
 
+CREATE TABLE IF NOT EXISTS TechnologiesGCO (
+		TechnologyType TEXT NOT NULL,
+		Name TEXT,
+		Cost INTEGER NOT NULL,
+		Repeatable BOOLEAN NOT NULL CHECK (Repeatable IN (0,1)) DEFAULT 0,
+		EmbarkUnitType TEXT,
+		EmbarkAll BOOLEAN NOT NULL CHECK (EmbarkAll IN (0,1)) DEFAULT 0,
+		Description TEXT,
+		EraType TEXT NOT NULL,
+		Critical BOOLEAN NOT NULL CHECK (Critical IN (0,1)) DEFAULT 0,
+		BarbarianFree BOOLEAN NOT NULL CHECK (BarbarianFree IN (0,1)) DEFAULT 0,
+		UITreeRow INTEGER DEFAULT 10,
+		AdvisorType TEXT,
+		PRIMARY KEY(TechnologyType)
+		);
+		
+		
+CREATE TABLE IF NOT EXISTS TechnologyPrereqsGCO (
+		Technology TEXT NOT NULL,
+		PrereqTech TEXT NOT NULL,
+		PRIMARY KEY(Technology, PrereqTech)
+		);
+
 -- Create temporary Building/Resources/Units tables that will be used to fill all required tables using SQL in PostUpdate.sql
 CREATE TABLE IF NOT EXISTS BuildingsGCO (
 		BuildingType TEXT NOT NULL,
@@ -696,6 +719,94 @@ CREATE TABLE GovernmentNames (
 		PRIMARY KEY(GovernmentType)
 	);
 
+CREATE TABLE TechnologyContributionTypes (
+		ContributionType TEXT NOT NULL,
+		Name TEXT,
+		IsResearch BOOLEAN NOT NULL CHECK (IsResearch IN (0,1)) DEFAULT 0,
+		IconString TEXT,
+		ColorString TEXT,
+		PRIMARY KEY(ContributionType)
+	);
+
+CREATE TABLE TechnologyRequirementTypes (
+		RequirementType TEXT NOT NULL,
+		PRIMARY KEY(RequirementType)
+	);
+
+CREATE TABLE TechnologyResearchContribution (
+		Technology TEXT NOT NULL,
+		ContributionType TEXT NOT NULL,
+		MaxContributionPercent INTEGER NOT NULL DEFAULT 0,
+		PRIMARY KEY(Technology, ContributionType),
+		FOREIGN KEY (Technology) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (ContributionType) REFERENCES TechnologyContributionTypes(ContributionType) ON DELETE SET NULL ON UPDATE CASCADE
+	);
+	
+CREATE TABLE TechnologyEventContribution (
+		Technology TEXT NOT NULL,
+		ContributionType TEXT NOT NULL,
+		MaxContributionPercent INTEGER NOT NULL DEFAULT 0,
+		TypeTag TEXT,
+		PrereqTech TEXT,
+		PrereqEra TEXT,
+		BaseValue INTEGER NOT NULL DEFAULT 1,
+		FOREIGN KEY (ContributionType) REFERENCES TechnologyContributionTypes(ContributionType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (TypeTag) REFERENCES Tags(Tag) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE
+	);
+	
+CREATE TABLE TechnologyEventUnlock (
+		Technology TEXT NOT NULL,
+		ContributionType TEXT NOT NULL,
+		TypeTag TEXT,
+		FOREIGN KEY (ContributionType) REFERENCES TechnologyContributionTypes(ContributionType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (TypeTag) REFERENCES Tags(Tag) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (Technology) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE
+	);
+	
+CREATE TABLE TechnologyResearchEventPoints (
+		ResearchType TEXT NOT NULL,
+		ContributionType TEXT NOT NULL,
+		BaseValue INTEGER NOT NULL DEFAULT 1,
+		TypeTag TEXT,
+		FOREIGN KEY (ContributionType) REFERENCES TechnologyContributionTypes(ContributionType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (TypeTag) REFERENCES Tags(Tag) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (ResearchType) REFERENCES TechnologyContributionTypes(ContributionType) ON DELETE SET NULL ON UPDATE CASCADE
+	);
+	
+CREATE TABLE TechnologyNeedsContribution (
+		Technology TEXT NOT NULL,
+		ContributionType TEXT NOT NULL,
+		MaxContributionPercent INTEGER NOT NULL DEFAULT 0,
+		PrereqTech TEXT,
+		PrereqEra TEXT,
+		BaseValue INTEGER NOT NULL DEFAULT 1,
+		FOREIGN KEY (Technology) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (ContributionType) REFERENCES TechnologyContributionTypes(ContributionType) ON DELETE SET NULL ON UPDATE CASCADE
+	);
+
+CREATE TABLE TechnologyNeedsRequirement (
+		Technology TEXT NOT NULL,
+		RequirementType TEXT NOT NULL,
+		TypeTag TEXT,
+		FOREIGN KEY (Technology) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (TypeTag) REFERENCES Tags(Tag) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (RequirementType) REFERENCES TechnologyRequirementTypes(RequirementType) ON DELETE SET NULL ON UPDATE CASCADE
+	);
+	
+CREATE TABLE TechnologyApplications (
+		Application TEXT NOT NULL,
+		Cost INTEGER NOT NULL,
+		Technology TEXT,
+		PrereqApp TEXT,
+		PrereqTech TEXT,
+		PRIMARY KEY(Application),
+		FOREIGN KEY (PrereqApp) REFERENCES TechnologyApplications(Application) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (Technology) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE
+	);
+	
 -----------------------------------------------
 -- Edit Tables
 -----------------------------------------------

@@ -1255,6 +1255,17 @@ ToolTipHelper.GetTechnologyToolTip = function(techType, playerId)
 			table.insert(toolTipLines, "[ICON_Bullet]" .. v);
 		end
 	end
+	
+	-- GCO <<<<<
+	if ExposedMembers.GCO_Initialized then
+		local pResearch = GCO.Research:Create(Game.GetLocalPlayer())
+		local techID	= tech.Index
+		local sContrib	= pResearch:GetContributionString(techID)
+		if string.len(sContrib) > 0 then
+			return table.concat(toolTipLines, "[NEWLINE]") .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("LOC_TECH_CONTRIBUTION_TITLE") .. sContrib
+		end
+	end
+	-- GCO >>>>>
 
 	return table.concat(toolTipLines, "[NEWLINE]");
 end

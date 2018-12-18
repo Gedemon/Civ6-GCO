@@ -94,12 +94,19 @@
 			<File>UI/CivilizationIcon.lua</File>
 			<File>UI/LeaderIcon.lua</File>
 			<File>UI/TechTree.lua</File>
+			<File>UI/TechAndCivicUnlockables.lua</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
             <File>Scripts/GCO_PlayerConfig.lua</File>
 			<File>UI/Replacements/ActionPanel_GCO.lua</File>
 			<File>Art/dom_blank.dds</File>
 			<File>Art/GCO_FontIcons.dds</File>
+			<File>Art/TechGCO_30.dds</File>
+			<File>Art/TechGCO_38.dds</File>
+			<File>Art/TechGCO_42.dds</File>
+			<File>Art/TechGCO_128.dds</File>
+			<File>Art/TechGCO_160.dds</File>
+			<File>Art/Civics30.dds</File>
 		</ImportFiles>
 		
         <AddGameplayScripts>
@@ -117,6 +124,7 @@
             <File>Scripts/GCO_UnitScript.lua</File>
             <File>Scripts/GCO_PlotScript.lua</File>
             <File>Scripts/GCO_GameScript.lua</File>
+            <File>Scripts/GCO_ResearchScript.lua</File>
             <File>Scripts/GCO_Serialize.lua</File>
             <File>Scripts/GCO_RouteConnections.lua</File>
             <File>Scripts/GCO_PlotIterators.lua</File>
@@ -149,6 +157,7 @@
 				<File Priority="100">Data/Equipment.xml</File>
 				<File Priority="100">Data/Resources.xml</File>
 				<File Priority="100">Data/CityNames.xml</File>
+				<File Priority="100">Data/Technologies.xml</File>
 				<File Priority="100">Text/NameText.xml</File> <!-- Add buildings, units, ... name & descriptions here to automate table filling -->
 				<File Priority="100">Data/CivilizationTable.sql</File>
 				<File Priority="95">Data/CultureDiffusionParameters.sql</File>
@@ -246,6 +255,7 @@
 		<File>Data/Icons.xml</File>
 		<File>Data/CityNames.xml</File>
 		<File>Data/CivilizationIcons.xml</File>
+		<File>Data/Technologies.xml</File>
 		<File>Data/CultureDiffusionParameters.sql</File>
 		<File>Data/CombatRules.sql</File>
 		<File>Data/ModRules.sql</File>
@@ -278,6 +288,7 @@
 		<File>Scripts/GCO_UnitScript.lua</File>
 		<File>Scripts/GCO_PlotScript.lua</File>
 		<File>Scripts/GCO_GameScript.lua</File>
+		<File>Scripts/GCO_ResearchScript.lua</File>
 		<File>Scripts/GCO_SaveLoad.lua</File>
 		<File>Scripts/GCO_SaveLoad.xml</File>
 		<File>Scripts/GCO_ContextFunctions.lua</File>
@@ -316,9 +327,16 @@
 		<File>UI/CivilizationIcon.lua</File>
 		<File>UI/LeaderIcon.lua</File>
 		<File>UI/TechTree.lua</File>
+		<File>UI/TechAndCivicUnlockables.lua</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>Art/dom_blank.dds</File>
 		<File>Art/GCO_FontIcons.dds</File>
 		<File>GCO_ModArt.dep</File>
+		<File>Art/TechGCO_30.dds</File>
+		<File>Art/TechGCO_38.dds</File>
+		<File>Art/TechGCO_42.dds</File>
+		<File>Art/TechGCO_128.dds</File>
+		<File>Art/TechGCO_160.dds</File>
+		<File>Art/Civics30.dds</File>
 	</Files>
 </Mod>

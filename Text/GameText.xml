@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 
-  <FontStyleSheets>  <!-- Style -->
-	<Replace Language="en_US">
-		<StyleSheet>Civ6_FontStyles_GCO.xml</StyleSheet>
-		<DefaultFont>MinionPro-Medium.otf</DefaultFont>
-	</Replace>
-  </FontStyleSheets>
   
 		<!-- ++++++++++++++++++++++++++ -->
 		<!-- +        Replacing       + -->
@@ -24,10 +18,6 @@
 		<Text>May create new cities.</Text>
 	</Replace>
 	
-	<Replace Tag="LOC_TECH_STEEL_NAME"	Language="en_US">
-		<Text>Industrial Steel</Text>
-	</Replace>	
-	
 	<Replace Tag="LOC_IMPROVEMENT_ROMAN_FORT_NAME"	Language="en_US">
 		<Text>Wodden Fort</Text>
 	</Replace>
@@ -41,10 +31,14 @@
 	<Replace Tag="LOC_FEATURE_FOREST_NAME"	Language="en_US">
 		<Text>Forest</Text>
 	</Replace>
+	
+	<Replace Tag="LOC_TECH_TREE_HEADER"	Language="en_US">
+		<Text>DEVELOPMENT TREE</Text>
+	</Replace>
 
   </LocalizedText>
   
-  <LocalizedText>  <!-- Civics & Policies -->
+  <LocalizedText>  <!-- Civics, Techs & Policies -->
 	
 	<Replace Tag="LOC_POLICY_SURVEY_DESCRIPTION"	Language="en_US">
 		<Text>Double Loots from Tribal Villages.</Text>
@@ -85,20 +79,11 @@
 	<Replace Tag="LOC_CIVIC_MILITARY_TRAINING_DESCRIPTION"	Language="en_US">
 		<Text>Unlock Military Organization Level 2</Text>
 	</Replace>
-	<Replace Tag="LOC_CIVIC_FEUDALISM_DESCRIPTION"	Language="en_US">
-		<Text>Farm improvements now gain +1 [ICON_Food] Food for each adjacent Farm improvement when 3 Farm improvements are adjacent to each other.[NEWLINE]Unlock Military Organization Level 3</Text>
-	</Replace>
-	<Replace Tag="LOC_CIVIC_MERCENARIES_DESCRIPTION"	Language="en_US">
-		<Text>Unlock Military Organization Level 4</Text>
-	</Replace>
 	<Replace Tag="LOC_CIVIC_NATIONALISM_DESCRIPTION"	Language="en_US">
-		<Text>Grants the ability to construct an additional Spy. Allows forming two identical units into a Corps or Fleet. Allows one new Casus Belli that can be used to justify wars: Colonial War.[NEWLINE]Unlock Military Organization Level 5</Text>
+		<Text>Grants the ability to construct an additional Spy. Allows one new Casus Belli that can be used to justify wars: Colonial War.</Text>
 	</Replace>
 	<Replace Tag="LOC_CIVIC_MOBILIZATION_DESCRIPTION"	Language="en_US">
-		<Text>Allows formation of Defensive Pacts. Allows forming three identical units into an Army or Armada. Allows one new Casus Belli that can be used to justify wars: War of Territorial Expansion.[NEWLINE]Unlock Military Organization Level 6</Text>
-	</Replace>
-	<Replace Tag="LOC_CIVIC_COLD_WAR_DESCRIPTION"	Language="en_US">
-		<Text>Grants the ability to construct an additional Spy.[NEWLINE]Unlock Military Organization Level 7</Text>
+		<Text>Allows formation of Defensive Pacts. Allows one new Casus Belli that can be used to justify wars: War of Territorial Expansion.[NEWLINE]Unlock Military Organization Level 6</Text>
 	</Replace>
 	<Replace Tag="LOC_CIVIC_RAPID_DEPLOYMENT_DESCRIPTION"	Language="en_US">
 		<Text>Allows for the transport of land units between Aerodrome districts that contain Airports.[NEWLINE]Unlock Military Organization Level 8</Text>
@@ -112,7 +97,7 @@
 	
   <LocalizedText> <!-- Policies -->
 	
-    <Replace Tag="LOC_POLICY_SMALLER_UNITS_NAME"	Text="Smaller Military Units" 	Language="en_US" />
+    <Replace Tag="LOC_POLICY_SMALLER_UNITS_NAME"	Text="Elite Military" 	Language="en_US" />
 	<Replace Tag="LOC_POLICY_SMALLER_UNITS_DESCRIPTION"	Language="en_US">
 		<Text>Your military is organized on smaller entities requiring 20% less personnel and supplies.[NEWLINE]Units [ICON_Strength] Combat Strength is reduced but they heal faster.</Text>
 	</Replace>
@@ -149,6 +134,8 @@
 	<Replace Tag="LOC_EVALUATION_GOOD"				Text="Good" 				Language="en_US" />
 	<Replace Tag="LOC_EVALUATION_VERY_GOOD"			Text="Very good" 			Language="en_US" />
 
+	<Replace Tag="LOC_TECH_CONTRIBUTION_TITLE"		Text="Contributions :[NEWLINE]" 	Language="en_US" />
+	
   </LocalizedText>
   
   <LocalizedText> <!-- Top Panel -->
@@ -169,6 +156,8 @@
 	<Replace Tag="LOC_TOP_PANEL_PROMOTION_COST_TOOLTIP" Text="{1_Name} units require {2_Name} Support, {3_Num : number #,###} available for that class" Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_POPULATION_TOOLTIP"		Text="Total population =  {1_Num : number #,###}[NEWLINE]Active Duty = {2_Num : number #,###} personnel ({7_Num : number #,###} in logistic + {6_Num : number #,###} in units)[NEWLINE]{3_Num : number #.##} % of population in service[NEWLINE]Conscription Efficiency = {4_Num : number #.##} %[NEWLINE][NEWLINE]Conscription Efficiency goes down when the number of your Personnel in Active Duty get closer to the maximum percentage of population in service (currently {5_Num : number #.##} %).[NEWLINE][NEWLINE]It affects the number of personnel drafted each turn in your cities.[NEWLINE][NEWLINE]Some Policies allow you to raise a bigger army, and being at war give a boost to the percentage of population that can be drafted, until the end of the war.[NEWLINE][NEWLINE]The personnel in units and the personnel required to provide support to those units are considered in Active Duty." Language="en_US" />
 
+	<Replace Tag="LOC_TOP_PANEL_RESEARCH_YIELD_TOOLTIP" Text="+{1_Num : number #.#} {2_Name}" Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP" Text="{1_Name} for next [ICON_Turn] Turn" Language="en_US" />
   </LocalizedText>	
 	
   <LocalizedText> <!-- To show FontIcons on Pedia front page... -->
@@ -869,8 +858,26 @@
       <Text>[COLOR_FLOAT_GOLD]+{1_Num} [ICON_Gold][ENDCOLOR] selling loot</Text>
     </Replace>
 	
+    <Replace Tag="LOC_TECH_UNLOCKED_FLOAT" Language="en_US">
+      <Text>[COLOR_FLOAT_SCIENCE][ICON_Science]{1_Name}[ENDCOLOR] unlocked !</Text>
+    </Replace>
+    <Replace Tag="LOC_TECH_CONTRIBUTION_FLOAT" Language="en_US">
+      <Text>[COLOR_FLOAT_SCIENCE][ICON_Science]+{1_Num}[ENDCOLOR] {2_Name}</Text>
+    </Replace>
+    <Replace Tag="LOC_RESEARCH_CONTRIBUTION_FLOAT" Language="en_US">
+      <Text>{4_Name}{3_Name}+{1_Num}[ENDCOLOR] {2_Name}</Text>
+    </Replace>
+	
   </LocalizedText>
- 
+
+  <LocalizedText> <!-- Messages -->
+  
+    <Replace Tag="LOC_TECH_UNLOCKED" Language="en_US">
+      <Text>[ICON_Science]{1_Name} unlocked.{2_Name}</Text>
+    </Replace>
+	
+  </LocalizedText>
+  
   <LocalizedText> <!-- Plot ToolTip Texts -->
 	
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_TOTAL" Language="en_US">

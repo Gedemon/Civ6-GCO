@@ -28,6 +28,7 @@ ExposedMembers.CityScript_Initialized 		= nil
 ExposedMembers.UnitScript_Initialized		= nil
 ExposedMembers.PlayerScript_Initialized 	= nil
 ExposedMembers.GameScript_Initialized		= nil
+ExposedMembers.ResearchScript_Initialized 	= nil
 ExposedMembers.GCO_Initialized 				= nil 
 
 local ResourceValue = {			-- cached table with value of resources type
@@ -96,7 +97,7 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_CHARIOT"].Index]				= "[ICON_EQUIPMENT_CHARIOT]",
 		[GameInfo.Resources["EQUIPMENT_HORSES"].Index]				= "[ICON_EQUIPMENT_WAR_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]			= "[ICON_EQUIPMENT_WAR_HORSES]",
-		[GameInfo.Resources["EQUIPMENT_ARMORED_HORSES"].Index]		= "[ICON_EQUIPMENT_ARMORED_HORSES]",
+		--[GameInfo.Resources["EQUIPMENT_ARMORED_HORSES"].Index]		= "[ICON_EQUIPMENT_ARMORED_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_LANCES"].Index]				= "[ICON_EQUIPMENT_LANCES]",
 		[GameInfo.Resources["EQUIPMENT_WOODEN_BOWS"].Index]			= "[ICON_EQUIPMENT_BOWS]",
 		[GameInfo.Resources["EQUIPMENT_LONGBOWS"].Index]			= "[ICON_EQUIPMENT_BOWS]",
@@ -132,7 +133,7 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_IRON_ARMOR"].Index]			= "[ICON_EQUIPMENT_IRON_ARMOR]",
 		[GameInfo.Resources["EQUIPMENT_CHAINMAIL_ARMOR"].Index]		= "[ICON_EQUIPMENT_CHAINMAIL_ARMOR]",
 		[GameInfo.Resources["EQUIPMENT_PLATE_ARMOR"].Index]			= "[ICON_EQUIPMENT_PLATE_ARMOR]",
-		[GameInfo.Resources["EQUIPMENT_UNIFORM"].Index]				= "[ICON_EQUIPMENT_UNIFORM]",
+		--[GameInfo.Resources["EQUIPMENT_UNIFORM"].Index]				= "[ICON_EQUIPMENT_UNIFORM]",
 		
 		[GameInfo.Resources["EQUIPMENT_GALLEY"].Index]				= "[ICON_EQUIPMENT_GALLEY]",
 		[GameInfo.Resources["EQUIPMENT_QUADRIREME"].Index]			= "[ICON_EQUIPMENT_QUADRIREME]",
@@ -176,6 +177,7 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 							and ExposedMembers.UnitScript_Initialized
 							and ExposedMembers.PlayerScript_Initialized
 							and ExposedMembers.GameScript_Initialized
+							and ExposedMembers.ResearchScript_Initialized
 							)
 	if not bIsInitialized and Automation.GetTime() > g_Timer + 120 then
 		Error("GCO Initialization problem")
@@ -322,6 +324,7 @@ end
 local lastLog			= {}
 local bNoOutput 		= false
 local bErrorToScreen 	= true
+local bWarningToScreen	= false
 
 local debugFilter = {
 	["debug"] 			= true,
@@ -329,6 +332,7 @@ local debugFilter = {
 --	["PlayerScript"] 	= true,
 --	["UnitScript"] 		= true,
 --	["PlotScript"] 		= true,
+	["ResearchScript"] 	= true,
 }
 
 function ToggleOutput()
@@ -337,8 +341,7 @@ function ToggleOutput()
 end
 
 local debugPrint = {}
-local bLogToTunerConsole 	= true--false
-local bLogToDebugTable	 	= not bLogToTunerConsole
+local bLogToTunerConsole 	= true
 function SetDebugToConsole(bValue)
 	bLogToTunerConsole = bValue
 end
@@ -348,46 +351,8 @@ function Dprint(...)
 	if args.n == 0 or bNoOutput or args[1] == false then return end	-- don't print if the first argument is false (= debug off)
 	if not debugFilter[args[1]] then return end						-- filtering...
 	if bLogToTunerConsole then print(select(2,...)) end 			-- print everything else after the first argument
-	if bLogToDebugTable then table.insert(debugPrint, {...}) end	-- log into debug table, output on error only
 end
 
-local lastLine = 1
-function ShowDebugPrint(numEntriesToDisplay)
-	if not numEntriesToDisplay then numEntriesToDisplay = 99000 end
-	local numEntries	= #debugPrint
-	local startPos		= math.max(1, lastLine, numEntries - numEntriesToDisplay)
-	local endPos		= numEntries --math.min(numEntries, numEntriesToDisplay)
-	print("=========================================================================================================================================")
-	print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< DEBUG <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-	print("=========================================================================================================================================")
-	print("Showing " .. tostring(endPos-startPos) .. " lines / "..tostring(numEntries))
-	print("startPos = " .. tostring(startPos))
-	print("=========================================================================================================================================")
-	if numEntries > 0 then
-		for i = startPos, endPos do
-			print(unpack(debugPrint[i]))
-		end
-	end
-	lastLine = endPos
-	print("=========================================================================================================================================")
-	print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DEBUG >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-	print("=========================================================================================================================================")
-	--debugPrint = {}
-end
-
-function CleanDebugPrint()
-	local maxEntries 	= 100000
-	local numEntries	= #debugPrint
-	if numEntries > maxEntries then
-		local toRemove = numEntries - maxEntries
-		print("removing " .. tostring(toRemove) .. " lines from DebugPrint table at size " .. #debugPrint )
-		for i = 1, toRemove do
-			debugPrint[i] = nil
-		end
-		lastLine = 1
-	end
-end
-GameEvents.OnGameTurnStarted.Add(CleanDebugPrint)
 
 function Error(...)
 	print("ERROR : ", select(1,...))
@@ -397,7 +362,6 @@ function Error(...)
 	LuaEvents.StopAuToPlay()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 20) end
-	ShowDebugPrint()
 end
 
 function ErrorWithLog(...)
@@ -409,7 +373,6 @@ function ErrorWithLog(...)
 	LuaEvents.ShowLastLog()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
-	ShowDebugPrint()
 end
 
 function Warning(str, seconds)
@@ -421,8 +384,7 @@ function Warning(str, seconds)
 	local line = string.match(line, '%d+')
 	print("WARNING : ".. str .. " at line "..line )	
 	ExposedMembers.UI.PlaySound("Alert_Neutral")
-	--if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
-	--ShowDebugPrint()
+	if bWarningToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
 end
 
 function Dline(...)
@@ -1314,6 +1276,7 @@ function Cleaning()
 	ExposedMembers.CityScript_Initialized 		= nil
 	ExposedMembers.UnitScript_Initialized		= nil
 	ExposedMembers.PlayerScript_Initialized 	= nil
+	ExposedMembers.ResearchScript_Initialized	= nil
 	ExposedMembers.GCO_Initialized 				= nil 
 	--
 	ExposedMembers.UnitHitPointsTable 			= nil

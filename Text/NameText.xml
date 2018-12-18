@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
+	<!--
+		This File is populating both the Localized Database and the Gameplay Database
+		This allows to set Descriptions here that will be added automatically to the corresponding
+		optional entries in the Units, Technologies, Buildings, Resources and other tables
+	-->
+	
 
 	<LocalizedText> <!-- Buildings Names -->
 	
@@ -15,7 +21,8 @@
 		<Replace Tag="LOC_BUILDING_FRUIT_MARKET_NAME" 				Text="Fruit Market"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_TREADMILL_NAME"					Text="Treadmill"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_WINDMILL_NAME"					Text="Windmill"	 				Language="en_US" />
-							
+
+		<Replace Tag="LOC_BUILDING_BRICKMAKER_NAME"					Text="Brickmaker" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_CARPENTER_NAME"					Text="Carpenter" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_STONEMASON_NAME"					Text="Stonemason"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_ARTILLATOR_NAME"					Text="Artillator"	 			Language="en_US" />
@@ -255,6 +262,7 @@
 		<Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"						Text="Personnel"					Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_STEEL_NAME" 							Text="Steel" 						Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_WOOD_NAME" 							Text="Wood" 						Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_CLAY_NAME" 							Text="Clay" 						Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_WOOD_PLANKS_NAME" 					Text="Timber"						Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_PLANTS_NAME" 						Text="Plants" 						Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_LEATHER_NAME" 						Text="Leather" 						Language="en_US" /> 
@@ -326,11 +334,111 @@
 		<Replace Tag="LOC_FORMATION_DIVISION_NAME"		Text="Division" 	Language="en_US" />		
 	</LocalizedText>
 	
-	<LocalizedText> <!-- Technologies -->	
-		<Replace Tag="LOC_TECH_HERBALISM_NAME" 			Text="Herbalism"		Language="en_US" />
-		<Replace Tag="LOC_TECH_AGRICULTURE_NAME" 		Text="Agriculture"		Language="en_US" />
-		<Replace Tag="LOC_TECH_SURGERY_NAME" 			Text="Surgery"			Language="en_US" />
-		<Replace Tag="LOC_TECH_ARMORED_WARFARE_NAME" 	Text="Armored Warfare"	Language="en_US" />
+	<LocalizedText> <!-- Technologies (Events, Research, TypeTags) -->
+	
+		<Replace Tag="LOC_EVENT_DISCOVER_NEW_RESOURCE_NAME" 	Text="Discovering New Resource Types"	Language="en_US" />
+		<Replace Tag="LOC_EVENT_DISCOVER_RESOURCE_NAME" 		Text="Discovering New Resources"		Language="en_US" />
+		<Replace Tag="LOC_EVENT_DISCOVER_NATURAL_WONDER_NAME" 	Text="Discovering Natural Wonders"		Language="en_US" />
+		<Replace Tag="LOC_EVENT_LAND_MELEE_ATTACK_NAME" 		Text="Land Melee Attack"				Language="en_US" />
+		<Replace Tag="LOC_EVENT_LAND_MELEE_DEFEND_NAME" 		Text="Land Melee Defend"				Language="en_US" />
+		<Replace Tag="LOC_EVENT_LAND_RANGED_COMBAT_NAME" 		Text="Land Ranged Combat"				Language="en_US" />
+		<Replace Tag="LOC_EVENT_COASTAL_CITY_NAME" 				Text="Coastal Cities"					Language="en_US" />
+		<Replace Tag="LOC_EVENT_WORKED_RESOURCE_NAME" 			Text="Worked Resources"					Language="en_US" />
+		<Replace Tag="LOC_EVENT_WORKED_IMPROVED_RESOURCE_NAME" 	Text="Worked Improved Resources"		Language="en_US" />
+	
+		<Replace Tag="LOC_RESEARCH_MILITARY_NAME" 			Text="Military Research"		Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_SOCIAL_NAME" 			Text="Social Research"			Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_ECONOMIC_NAME" 			Text="Economic Research"		Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_CRAFTSMANSHIP_NAME" 		Text="Craftsmanship"			Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_NAVAL_NAME" 				Text="Naval Research"			Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_EXPLORATION_NAME" 		Text="Exploration"				Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_INSPIRATION_NAME" 		Text="Inspiration"				Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_ACADEMIC_NAME" 			Text="Academic Research"		Language="en_US" />
+		
+		<Replace Tag="LOC_YIELD_OVERFLOW_NAME" 				Text="Previous turn overflow"	Language="en_US" />
+		<Replace Tag="LOC_YIELD_BUILDING_NAME" 				Text="Buildinds in Cities"		Language="en_US" />
+		<Replace Tag="LOC_YIELD_CULTURE_INSPIRATION_NAME" 	Text="Culture Creation"			Language="en_US" />		
+		
+		<Replace Tag="LOC_CLASS_PASTURE_RES_NAME" 			Text="Pasture"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_BOAT_RES_NAME" 				Text="Boat"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_CAMP_RES_NAME" 				Text="Camps"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_FARM_RES_NAME" 				Text="Farm"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_SEA_FOOD_NAME" 				Text="Sea Food"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_MINED_RES_NAME"				Text="Mined"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_COPPER_RES_NAME"			Text="Copper"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_IRON_RES_NAME"				Text="Iron"						Language="en_US" />
+		
+	</LocalizedText>
+
+	<LocalizedText> <!-- Technologies -->
+		
+		<Replace Tag="LOC_TECH_POTTERY_NAME" 				Text="Potter's wheel"			Language="en_US" />
+		<Replace Tag="LOC_TECH_THE_WHEEL_NAME" 				Text="Large wheel"				Language="en_US" />
+		<Replace Tag="LOC_TECH_AGRICULTURE_NAME" 			Text="Organized Agriculture"	Language="en_US" />
+		<Replace Tag="LOC_TECH_TRAPPING_NAME" 				Text="Trapping"					Language="en_US" />
+		<Replace Tag="LOC_TECH_PICTOGRAM_NAME" 				Text="Pictogram"				Language="en_US" />
+		<Replace Tag="LOC_TECH_HERBALISM_NAME" 				Text="Herbalism"				Language="en_US" />
+		<Replace Tag="LOC_TECH_CEREMONIAL_BURIAL_NAME" 		Text="Ceremonial Burial"		Language="en_US" />
+		<Replace Tag="LOC_TECH_WARRIOR_CODE_NAME" 			Text="Warrior Code"				Language="en_US" />
+		<Replace Tag="LOC_TECH_ARCHERY_NAME" 				Text="Rope Making Tools"		Language="en_US" />
+		<Replace Tag="LOC_TECH_CALENDAR_NAME" 				Text="Calendar"					Language="en_US" />
+		<Replace Tag="LOC_TECH_MAP_MAKING_NAME" 			Text="Map Making"				Language="en_US" />
+		<Replace Tag="LOC_TECH_PHILOSOPHY_NAME"				Text="Philosophy"				Language="en_US" />
+		<Replace Tag="LOC_TECH_SURGERY_NAME" 				Text="Surgery"					Language="en_US" />
+		<Replace Tag="LOC_TECH_POLYTHEISM_NAME"				Text="Polytheism"				Language="en_US" />
+		<Replace Tag="LOC_TECH_MONOTHEISM_NAME"				Text="Monotheism"				Language="en_US" />
+		<Replace Tag="LOC_TECH_PAPER_NAME"					Text="Paper"					Language="en_US" />
+		<Replace Tag="LOC_TECH_ALCHEMY_NAME"				Text="Alchemy"					Language="en_US" />
+		<Replace Tag="LOC_TECH_OPTICS_NAME"					Text="Optics"					Language="en_US" />
+		<Replace Tag="LOC_TECH_PHYSICS_NAME"				Text="Physics"					Language="en_US" />
+		<Replace Tag="LOC_TECH_MEDICINE_NAME"				Text="Medicine"					Language="en_US" />
+		<Replace Tag="LOC_CIVIC_EXPLORATION_NAME"			Text="Compass"					Language="en_US" />
+		<Replace Tag="LOC_TECH_ANATOMY_NAME"				Text="Anatomy"					Language="en_US" />
+		<Replace Tag="LOC_TECH_MICROBIOLOGY_NAME"			Text="Microbiology"				Language="en_US" />
+		<Replace Tag="LOC_TECH_ARCHITECTURE_NAME"			Text="Architecture"				Language="en_US" />
+		<Replace Tag="LOC_TECH_MAGNETISM_NAME"				Text="Magnetism"				Language="en_US" />
+		<Replace Tag="LOC_TECH_THEORY_OF_GRAVITY_NAME"		Text="Theory of Gravity"		Language="en_US" />
+		<Replace Tag="LOC_TECH_GEOLOGY_NAME"				Text="Geology"					Language="en_US" />
+		<Replace Tag="LOC_TECH_CONSTITUTION_NAME"			Text="Constitution"				Language="en_US" />
+		<Replace Tag="LOC_TECH_LIBERALISM_NAME"				Text="Liberalism"				Language="en_US" />
+		<Replace Tag="LOC_TECH_STEEL_NAME" 					Text="Industrial Steel"			Language="en_US" />
+		<Replace Tag="LOC_TECH_VACCINE_NAME"				Text="Vaccine"					Language="en_US" />
+		<Replace Tag="LOC_TECH_FERTILIZER_NAME"				Text="Fertilizer"				Language="en_US" />
+		<Replace Tag="LOC_TECH_REFINING_NAME"				Text="Refining"					Language="en_US" />
+		<Replace Tag="LOC_TECH_EXPLOSIVES_NAME"				Text="Explosives"				Language="en_US" />
+		<Replace Tag="LOC_TECH_REFRIGERATION_NAME"			Text="Refrigeration"			Language="en_US" />
+		<Replace Tag="LOC_TECH_ASSEMBLY_LINE_NAME"			Text="Assembly Line"			Language="en_US" />
+		<Replace Tag="LOC_TECH_ELECTRONICS_NAME"			Text="Electronics"				Language="en_US" />
+		<Replace Tag="LOC_TECH_ATOMIC_THEORY_NAME"			Text="Atomic Theory"			Language="en_US" />
+		<Replace Tag="LOC_TECH_RADIOACTIVITY_NAME"			Text="Radioactivity"			Language="en_US" />
+		<Replace Tag="LOC_TECH_BIOTECHNOLOGY_NAME"			Text="Biotechnology"			Language="en_US" />
+		<Replace Tag="LOC_TECH_ARMORED_WARFARE_NAME" 		Text="Armored Warfare"			Language="en_US" />
+		<Replace Tag="LOC_CIVIC_TOTALITARIANISM_NAME" 		Text="Fascism"					Language="en_US" />
+		<Replace Tag="LOC_CIVIC_CLASS_STRUGGLE_NAME" 		Text="Communism"				Language="en_US" />
+		<Replace Tag="LOC_TECH_RADAR_NAME"					Text="Radar"					Language="en_US" />
+		<Replace Tag="LOC_TECH_SONAR_NAME"					Text="Sonar"					Language="en_US" />
+		<Replace Tag="LOC_TECH_CALCULATOR_NAME"				Text="Electronic Calculator"	Language="en_US" />
+		<Replace Tag="LOC_TECH_ANTIBIOTICS_NAME"			Text="Antibiotics"				Language="en_US" />
+		<Replace Tag="LOC_TECH_JET_ENGINE_NAME"				Text="Jet Engine"				Language="en_US" />
+		<Replace Tag="LOC_TECH_TRANSISTOR_NAME"				Text="Transistor"				Language="en_US" />
+		<Replace Tag="LOC_TECH_AMPHIBIOUS_WARFARE_NAME"		Text="Amphibious Warfare"		Language="en_US" />
+		<Replace Tag="LOC_TECH_FUNDAMENTALISM_NAME"			Text="Fundamentalism"			Language="en_US" />
+		<Replace Tag="LOC_TECH_ECOLOGY_NAME"				Text="Ecology"					Language="en_US" />
+		<Replace Tag="LOC_TECH_GENETICS_NAME"				Text="Genetics"					Language="en_US" />
+		<Replace Tag="LOC_TECH_NUCLEAR_POWER_NAME"			Text="Nuclear Power"			Language="en_US" />
+		<Replace Tag="LOC_TECH_GUERILLA_WARFARE_NAME"		Text="Guerilla Warfare"			Language="en_US" />
+		<Replace Tag="LOC_TECH_RECYCLING_NAME"				Text="Recycling"				Language="en_US" />
+		<Replace Tag="LOC_TECH_MINIATURISATION_NAME"		Text="Miniaturisation"			Language="en_US" />
+		
+		<Replace Tag="LOC_TECH_EUGENISM_NAME"				Text="Eugenism"					Language="en_US" />
+		<Replace Tag="LOC_TECH_FIBER_OPTICS_NAME"			Text="Fiber Optics"				Language="en_US" />
+		<Replace Tag="LOC_TECH_SUPERCONDUCTORS_NAME"		Text="Superconductors"			Language="en_US" />
+		<Replace Tag="LOC_TECH_GENETIC_ENGINEERING_NAME"	Text="Genetic Engineering"		Language="en_US" />
+		<Replace Tag="LOC_TECH_ARTIFICIAL_INTELLIGENCE_NAME"Text="Artificial Intelligence"	Language="en_US" />
+		
+		<!-- Unlocker techs are named with a brief description of the unlocking condition -->
+		<Replace Tag="LOC_TECH_UNLOCK_WARRIOR_CODE_NAME" 	Text="Execute Melee Attack"		Language="en_US" />
+		<Replace Tag="LOC_TECH_UNLOCK_SAILING_NAME"		 	Text="Find Sea Resources"		Language="en_US" />
 		
 		
 		<Replace Tag="LOC_TECH_SURGERY_DESCRIPTION"	Language="en_US">
@@ -339,6 +447,25 @@
 		<Replace Tag="LOC_TECH_HERBALISM_DESCRIPTION"	Language="en_US">
 			<Text>+1 [ICON_HEALTH2] in all cities.</Text>
 		</Replace>
+		
+		<Replace Tag="LOC_TECH_MILITARY_ENGINEERING_DESCRIPTION"	Language="en_US">
+			<Text>Unlock Military Organization Level 3</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_MILITARY_TACTICS_DESCRIPTION"	Language="en_US">
+			<Text>Unlock Military Organization Level 4</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_AMPHIBIOUS_WARFARE_DESCRIPTION"	Language="en_US">
+			<Text>Unlock Military Organization Level 7</Text>
+		</Replace>
+		
+		<!-- Unlockers description are presenting the unlocked tech -->
+		<Replace Tag="LOC_TECH_UNLOCK_WARRIOR_CODE_DESCRIPTION"	Language="en_US">
+			<Text>[NEWLINE]You can now improve your soldiers cohesion and discipline by allowing them to create a caste with its own rules.</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_UNLOCK_SAILING_DESCRIPTION"	Language="en_US">
+			<Text>[NEWLINE]You can now research how to navigate on the seas.</Text>
+		</Replace>
+		
 	</LocalizedText>
 	
 	<LocalizedText> <!-- Projects -->	

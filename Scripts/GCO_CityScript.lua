@@ -2671,7 +2671,7 @@ end
 
 function GetEquipmentList(self)
 	local DEBUG_CITY_SCRIPT		= DEBUG_CITY_SCRIPT
-	if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Get Equipment list for "..Locale.Lookup(self:GetName()))
 	local equipmentList	= {}
@@ -3450,12 +3450,12 @@ end
 ----------------------------------------------
 -- Custom Yields function
 ----------------------------------------------
-function GetCustomYield(self, yieldType)
-	local yield = BaseCityYields[yieldType] or 0
+function GetCustomYield(self, yieldID)
+	local yield = BaseCityYields[yieldID] or 0
 
 	for buildingID, Yields in pairs(BuildingYields) do
-		if self:GetBuildings():HasBuilding(buildingID) and Yields[yieldType] then
-			yield = yield + Yields[yieldType]
+		if self:GetBuildings():HasBuilding(buildingID) and Yields[yieldID] then
+			yield = yield + Yields[yieldID]
 		end
 	end
 	return yield
@@ -4030,23 +4030,6 @@ function RecruitUnits(self, UnitType, number)
 				stillNeeded = math.max(0, stillNeeded - maxValue)
 			end
 		end
-		
-		--[[
-		for resourceID, value in pairs(resOrTable) do
-			if value > 0 and GCO.IsResourceEquipment(resourceID) then
-				local equipmentClassID	= unit:GetEquipmentClass(resourceID)
-				local stillNeeded		= math.max(0, unit:GetMaxTotalEquipment(equipmentClassID) - (unit:GetEquipmentClassFrontLine(equipmentClassID) + unit:GetEquipmentClassReserve(equipmentClassID)))
-				local maxValue 			= math.min(self:GetStock(resourceID), value, stillNeeded) -- get minimal valuie between "stock left", "initially required" and "still needed in the middle of the loop"
-				local cost 				= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
-				Dprint( DEBUG_self_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
-				unit:ChangeStock(resourceID, maxValue)
-				self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
-				if cost > 0 then
-					player:ProceedTransaction(AccountType.Reinforce, -cost)
-				end
-			end
-		end
-		--]]
 			
 		-- heal completly...			
 		Dprint( DEBUG_self_SCRIPT, "Healing...")
@@ -5210,7 +5193,9 @@ function DoCollectResources(self)
 	local cityKey 		= self:GetKey()
 	local cityData 		= ExposedMembers.CityData[cityKey]
 	local cityWealth	= self:GetWealth()
-	local player 		= GCO.GetPlayer(self:GetOwner())
+	local playerID		= self:GetOwner()
+	local player 		= GCO.GetPlayer(playerID)
+	local pResearch 	= GCO.Research:Create(playerID)
 
 	-- private function
 	function Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
@@ -5257,7 +5242,6 @@ function DoCollectResources(self)
 								routeLength 		= #path
 							end
 							
-							
 							if bIsPlotConnected then
 								--local routeLength = GCO.GetRouteLength()
 								if routeLength <= seaRange then -- not needed with GetPathToPlot called with seaRange ?
@@ -5303,7 +5287,12 @@ function DoCollectResources(self)
 					local baseResource			= plot:GetResourceCount()
 					local collected 			= baseResource * outputFactor
 					local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
-					if bImprovedForResource then collected	= math.max(collected * BaseImprovementMultiplier, baseResource) end
+					if bImprovedForResource then
+						collected	= math.max(collected * BaseImprovementMultiplier, baseResource)
+						LuaEvents.ResearchGCO("EVENT_WORKED_IMPROVED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType)
+					else
+						LuaEvents.ResearchGCO("EVENT_WORKED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType)
+					end
 					Collect(resourceID, collected, resourceCost, plotID, (bWorked or bSeaResource), bImprovedForResource)
 				end
 			end
@@ -5316,7 +5305,12 @@ function DoCollectResources(self)
 							local collected 			= value * outputFactor
 							local resourceCost 			= GCO.GetBaseResourceCost(resourceID)
 							local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
-							if bImprovedForResource then collected	= math.max(collected * BaseImprovementMultiplier, value) end
+							if bImprovedForResource then 
+								collected	= math.max(collected * BaseImprovementMultiplier, value)
+								--LuaEvents.ResearchGCO("EVENT_WORKED_IMPROVED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType )
+							else
+								--LuaEvents.ResearchGCO("EVENT_WORKED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType)
+							end
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 						end
 					end
@@ -5332,7 +5326,12 @@ function DoCollectResources(self)
 							local collected 			= value * outputFactor
 							local resourceCost 			= GCO.GetBaseResourceCost(resourceID)
 							local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
-							if bImprovedForResource then collected	= math.max(collected * BaseImprovementMultiplier, value) end
+							if bImprovedForResource then 
+								collected	= math.max(collected * BaseImprovementMultiplier, value) 
+								--LuaEvents.ResearchGCO("EVENT_WORKED_IMPROVED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType)
+							else
+								--LuaEvents.ResearchGCO("EVENT_WORKED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType)
+							end
 							Collect(resourceID, collected, resourceCost, plotID, bWorked, bImprovedForResource)
 						end
 					end
@@ -7542,6 +7541,7 @@ end
 function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	ExposedMembers.GCO.GetCity 							= GetCity
+	ExposedMembers.GCO.GetCityKey						= GetKey
 	ExposedMembers.GCO.AttachCityFunctions 				= AttachCityFunctions
 	ExposedMembers.GCO.GetPopulationPerSize 			= GetPopulationPerSize
 	ExposedMembers.GCO.CleanCitiesData 					= CleanCitiesData

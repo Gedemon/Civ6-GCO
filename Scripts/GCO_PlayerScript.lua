@@ -31,14 +31,14 @@ end
 
 local _cached						= {}	-- cached table to reduce calculations
 local OrganizationLevelCivics 		= {		-- Civics unlocking MilitaryOrganisationLevels
-		[GameInfo.Civics["CIVIC_MILITARY_TRADITION"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
-		[GameInfo.Civics["CIVIC_MILITARY_TRAINING"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
-		[GameInfo.Civics["CIVIC_FEUDALISM"].Index]				= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
-		[GameInfo.Civics["CIVIC_MERCENARIES"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
-		[GameInfo.Civics["CIVIC_NATIONALISM"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
-		[GameInfo.Civics["CIVIC_MOBILIZATION"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
-		[GameInfo.Civics["CIVIC_COLD_WAR"].Index]				= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
-		[GameInfo.Civics["CIVIC_RAPID_DEPLOYMENT"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
+		[GameInfo.Technologies["TECH_MILITARY_TRADITION"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index,
+		[GameInfo.Technologies["TECH_MILITARY_TRAINING"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL2"].Index,
+		[GameInfo.Technologies["TECH_MILITARY_ENGINEERING"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL3"].Index,
+		[GameInfo.Technologies["TECH_MILITARY_TACTICS"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL4"].Index,
+		[GameInfo.Technologies["TECH_NATIONALISM"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL5"].Index,
+		[GameInfo.Technologies["TECH_MOBILIZATION"].Index]			= GameInfo.MilitaryOrganisationLevels["LEVEL6"].Index,
+		[GameInfo.Technologies["TECH_AMPHIBIOUS_WARFARE"].Index]	= GameInfo.MilitaryOrganisationLevels["LEVEL7"].Index,
+		[GameInfo.Technologies["TECH_RAPID_DEPLOYMENT"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL8"].Index,
 }
 local OrganizationLevelToSmaller 	= {		-- MilitaryOrganisationLevel to use when the Smaller Units Policy is active
 		[GameInfo.MilitaryOrganisationLevels["LEVEL1"].Index]		= GameInfo.MilitaryOrganisationLevels["LEVEL1B"].Index,
@@ -478,15 +478,18 @@ function GetMilitaryOrganizationLevel(self)
 end
 
 function UpdateMilitaryOrganizationLevel(self)
-	-- this function assume that a higher ID means better Civics and OrganizationLevel
-	local bestCivicID = -1
-	for civicID, organizationLevelID in pairs(OrganizationLevelCivics) do
-		if self:GetCulture():HasCivic(civicID) and civicID > bestCivicID then
-			bestCivicID = civicID
+	-- this function assume that a higher tech cost means better OrganizationLevel
+	local bestTechID = nil
+	local higherCost = 0
+	local pScience = self:GetTechs()
+	for techID, organizationLevelID in pairs(OrganizationLevelCivics) do
+		if pScience:HasTech(techID) and pScience:GetResearchCost(techID) > higherCost then
+			bestTechID = techID
+			higherCost = pScience:GetResearchCost(techID)
 		end
 	end
-	if bestCivicID > -1 then	
-		local organizationLevel	= OrganizationLevelCivics[bestCivicID]
+	if bestTechID then	
+		local organizationLevel	= OrganizationLevelCivics[bestTechID]
 		if self:HasPolicyActive(smallerUnitsPolicyID) and OrganizationLevelToSmaller[organizationLevel] then
 			organizationLevel = OrganizationLevelToSmaller[organizationLevel]
 		end
@@ -859,7 +862,10 @@ function UpdateDataOnLoad(self)
 			GCO.AttachUnitFunctions(unit)
 			--
 		end
-	end	
+	end
+	
+	self:SetKnownTech()
+	
 	GCO.ShowTimer("UpdateCachedData for "..name)
 end
 
@@ -929,6 +935,8 @@ function DoPlayerTurn( playerID )
 			saveGame.IsQuicksave = false
 			LuaEvents.SaveGameGCO(saveGame)
 		end
+		
+		LuaEvents.PlayerTurnDoneGCO(playerID)
 	end
 end
 

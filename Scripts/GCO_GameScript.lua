@@ -209,7 +209,7 @@ function UpdateGameEra()
 	Dprint( DEBUG_GAME_SCRIPT, "- averageEra = ", averageEra)
 	if averageEra ~= gameEra then
 		gameEra = averageEra
-		LuaEvents.GCO_Message("[COLOR:Blue]Global Era is [ENDCOLOR] ".. Locale.Lookup(GameInfo.Eras[gameEra].Name), 6)
+		LuaEvents.GCO_Message("[COLOR:Blue]Global Era is [ENDCOLOR] ".. Locale.Lookup(GameInfo.Eras[gameEra].Name), 6, ReportingStatusTypes.GOSSIP)
 	end
 end
 GameEvents.OnGameTurnStarted.Add(UpdateGameEra)

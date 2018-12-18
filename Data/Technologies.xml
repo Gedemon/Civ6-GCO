@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameInfo>
+	<!--
+		TechnologiesGCO : Temporary table used to set the new Technologies and update the old entries.
+		New Techs require at least those tags: TechnologyType, Cost, EraType
+		When UITreeRow is not set, the default is 10 (not displayed on screen)
+		PostUpdate.sql add the required entries (like <Name>, <Description>, ...) and rows to various tables (like <Types>, <Technologies>, ...)		
+		By default <AdvisorType> is set to "ADVISOR_GENERIC", you'll need to specify different AdvisorType
+	-->
+	<TechnologiesGCO>	<!-- Ancient Era -->
+		<!-- Ancient Era Tiers 0 (Techs that can be already known based on start position) -->
+		<Row TechnologyType="TECH_AGRICULTURE" 			Cost="20" EraType="ERA_ANCIENT"		UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_ANIMAL_HUSBANDRY" 	Cost="20" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_TRAPPING" 			Cost="20" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
+		<!-- Ancient Era Tiers I -->
+		<Row TechnologyType="TECH_CEREMONIAL_BURIAL" 	Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-3"	/>
+		<!--<Row TechnologyType="TECH_UNLOCK_SAILING"		Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-20"	/>	 Unlock when discovering Sea -->
+		<Row TechnologyType="TECH_SAILING" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-2"	EmbarkUnitType="UNIT_BUILDER"		BarbarianFree="true"/>
+		<Row TechnologyType="TECH_HERBALISM" 			Cost="25" EraType="ERA_ANCIENT"		UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY"/>
+		<Row TechnologyType="TECH_POTTERY" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_PICTOGRAM" 			Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>	<!-- ("Writing" = "Alphabet" ?)	-->
+		<Row TechnologyType="TECH_ARCHERY" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="2"	/>
+		<!--<Row TechnologyType="TECH_UNLOCK_WARRIOR_CODE"	Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="30"	/>	 Unlock on first melee attack -->
+		<Row TechnologyType="TECH_WARRIOR_CODE" 		Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 		/>
+		<!-- Ancient Era Tiers II -->
+		<Row TechnologyType="TECH_ASTROLOGY" 			Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="-3"	AdvisorType="ADVISOR_RELIGIOUS" 	/>
+		<Row TechnologyType="TECH_IRRIGATION" 			Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="-2"	/>
+		<Row TechnologyType="TECH_WRITING" 				Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY" 	/>
+		<Row TechnologyType="TECH_CODE_OF_LAWS" 		Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_CURRENCY" 			Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_MINING" 				Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="2"	/>
+		<Row TechnologyType="TECH_THE_WHEEL" 			Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="3"	AdvisorType="ADVISOR_CONQUEST" 	 	/>
+		<!-- Ancient Era Tiers III -->
+		<Row TechnologyType="TECH_MYSTICISM" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="-3"	AdvisorType="ADVISOR_RELIGIOUS" 	/>
+		<Row TechnologyType="TECH_MAP_MAKING" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="-2"	/>
+		<Row TechnologyType="TECH_CALENDAR" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_FOREIGN_TRADE" 		Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_MASONRY" 				Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_BRONZE_WORKING" 		Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST" 	 	BarbarianFree="true"/>
+		<Row TechnologyType="TECH_EARLY_EMPIRE" 		Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="3"	/>
+		<Row TechnologyType="TECH_MILITARY_TRADITION" 	Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 		/>
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Classical Era -->
+		<!-- Classical Era Tiers I -->
+		<Row TechnologyType="TECH_POLYTHEISM" 			Cost="120" EraType="ERA_CLASSICAL" 	UITreeRow="-3"	AdvisorType="ADVISOR_RELIGIOUS" 	/>
+		<Row TechnologyType="TECH_CELESTIAL_NAVIGATION" Cost="120" EraType="ERA_CLASSICAL"	UITreeRow="-2"	EmbarkUnitType="UNIT_TRADER"/>
+		<!--<Row TechnologyType="TECH_UNLOCK_GAMES"			Cost="120" EraType="ERA_CLASSICAL" 	UITreeRow="-10"	/>	 Unlock at first size 6 city -->
+		<Row TechnologyType="TECH_GAMES_RECREATION" 	Cost="120" EraType="ERA_CLASSICAL" 	UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_PHILOSOPHY" 			Cost="120" EraType="ERA_CLASSICAL" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_RECORDED_HISTORY" 	Cost="120" EraType="ERA_CLASSICAL" 	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_IRON_WORKING"			Cost="120" EraType="ERA_CLASSICAL"	UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<Row TechnologyType="TECH_HORSEBACK_RIDING"		Cost="120" EraType="ERA_CLASSICAL"	UITreeRow="3"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<!-- Classical Era Tiers II -->
+		<Row TechnologyType="TECH_MONOTHEISM" 			Cost="180" EraType="ERA_CLASSICAL" 	UITreeRow="-3"	AdvisorType="ADVISOR_RELIGIOUS" 	/>
+		<Row TechnologyType="TECH_SHIPBUILDING"			Cost="180" EraType="ERA_CLASSICAL"	UITreeRow="-2"	BarbarianFree="true" EmbarkAll="true"/>
+		<Row TechnologyType="TECH_DRAMA_POETRY"		 	Cost="180" EraType="ERA_CLASSICAL" 	UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_POLITICAL_PHILOSOPHY"	Cost="180" EraType="ERA_CLASSICAL" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_MATHEMATICS"			Cost="180" EraType="ERA_CLASSICAL"	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_CONSTRUCTION"			Cost="180" EraType="ERA_CLASSICAL"	UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<Row TechnologyType="TECH_MILITARY_TRAINING" 	Cost="180" EraType="ERA_CLASSICAL" 	UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<!-- Classical Era Tiers III -->
+		<Row TechnologyType="TECH_THEOLOGY" 			Cost="220" EraType="ERA_CLASSICAL"	UITreeRow="-3"	AdvisorType="ADVISOR_RELIGIOUS" />
+		<Row TechnologyType="TECH_PHYSICS"				Cost="220" EraType="ERA_CLASSICAL"	UITreeRow="-2"	/>
+		<Row TechnologyType="TECH_PAPER" 				Cost="220" EraType="ERA_CLASSICAL"	UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY"/>
+		<Row TechnologyType="TECH_SURGERY" 				Cost="220" EraType="ERA_CLASSICAL"	UITreeRow="0"	AdvisorType="ADVISOR_TECHNOLOGY"/>
+		<Row TechnologyType="TECH_ENGINEERING"			Cost="220" EraType="ERA_CLASSICAL"	UITreeRow="1"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<Row TechnologyType="TECH_DEFENSIVE_TACTICS"	Cost="220" EraType="ERA_CLASSICAL"	UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST"	/>
+		
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Medieval Era -->
+		<!-- Medieval Era Tiers I -->
+		<Row TechnologyType="TECH_NAVAL_TRADITION"		Cost="300" EraType="ERA_MEDIEVAL"	UITreeRow="-2"	/>
+		<Row TechnologyType="TECH_ALCHEMY"				Cost="300" EraType="ERA_MEDIEVAL"	UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY" 	/>
+		<Row TechnologyType="TECH_APPRENTICESHIP"		Cost="300" EraType="ERA_MEDIEVAL"	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_FEUDALISM"			Cost="300" EraType="ERA_MEDIEVAL"	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_MACHINERY"			Cost="300" EraType="ERA_MEDIEVAL"	UITreeRow="2"	/>
+		<Row TechnologyType="TECH_CASTLES"				Cost="300" EraType="ERA_MEDIEVAL"	UITreeRow="3"	AdvisorType="ADVISOR_CONQUEST"		/> <!-- Heavy Fortifications -->
+		<Row TechnologyType="TECH_MILITARY_ENGINEERING" Cost="300" EraType="ERA_MEDIEVAL"	UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST"		/>
+		<!-- Medieval Era Tiers II -->
+		<Row TechnologyType="TECH_OPTICS"				Cost="390" EraType="ERA_MEDIEVAL"	UITreeRow="-2"	/>
+		<Row TechnologyType="TECH_EDUCATION"			Cost="390" EraType="ERA_MEDIEVAL"	UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY"/>
+		<Row TechnologyType="TECH_CIVIL_SERVICE"		Cost="390" EraType="ERA_MEDIEVAL"	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_MEDICINE"				Cost="390" EraType="ERA_MEDIEVAL"	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_GUILDS"				Cost="390" EraType="ERA_MEDIEVAL"	UITreeRow="2"	/>
+		<!-- Move to applications
+		<Row TechnologyType="TECH_STIRRUPS"				Cost="390" EraType="ERA_MEDIEVAL"	UITreeRow="3"	AdvisorType="ADVISOR_CONQUEST"		/>
+		-->
+		<Row TechnologyType="TECH_MILITARY_TACTICS"		Cost="390" EraType="ERA_MEDIEVAL"	UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<!-- Medieval Era Tiers III -->
+		<Row TechnologyType="TECH_DIVINE_RIGHT"			Cost="450" EraType="ERA_MEDIEVAL"	UITreeRow="-3"	AdvisorType="ADVISOR_CONQUEST"		/>
+		<Row TechnologyType="TECH_EXPLORATION"			Cost="450" EraType="ERA_MEDIEVAL" 	UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_ASTRONOMY"			Cost="450" EraType="ERA_MEDIEVAL"	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_ANATOMY"				Cost="450" EraType="ERA_MEDIEVAL"	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_PRINTING" 			Cost="450" EraType="ERA_MEDIEVAL"	UITreeRow="2"	/>
+		<Row TechnologyType="TECH_METAL_CASTING"		Cost="450" EraType="ERA_MEDIEVAL"	UITreeRow="3"	AdvisorType="ADVISOR_CONQUEST"		/>
+		
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Renaissance Era = Discovery Era -->
+		<!-- RenaissanceEra Tiers I -->
+		<Row TechnologyType="TECH_CARTOGRAPHY" 			Cost="540" EraType="ERA_RENAISSANCE" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_BANKING" 				Cost="540" EraType="ERA_RENAISSANCE" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_DIPLOMATIC_SERVICE"	Cost="540" EraType="ERA_RENAISSANCE" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_GUNPOWDER" 			Cost="540" EraType="ERA_RENAISSANCE" UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST" />
+		<Row TechnologyType="TECH_NATIONALISM"	 		Cost="540" EraType="ERA_RENAISSANCE" UITreeRow="3"	/>
+		<Row TechnologyType="TECH_SIEGE_TACTICS"		Cost="540" EraType="ERA_RENAISSANCE" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<!-- RenaissanceEra Tiers II -->
+		<Row TechnologyType="TECH_SQUARE_RIGGING" 		Cost="660" EraType="ERA_RENAISSANCE" UITreeRow="-2"	AdvisorType="ADVISOR_CONQUEST" />
+		<Row TechnologyType="TECH_HUMANISM"				Cost="660" EraType="ERA_RENAISSANCE" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_MERCANTILISM"			Cost="660" EraType="ERA_RENAISSANCE" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_MAGNETISM" 			Cost="660" EraType="ERA_RENAISSANCE" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_MICROBIOLOGY"			Cost="660" EraType="ERA_RENAISSANCE" UITreeRow="2"	/>
+		<Row TechnologyType="TECH_ARCHITECTURE"			Cost="660" EraType="ERA_RENAISSANCE" UITreeRow="3"	/>
+		<!-- RenaissanceEra Tiers III -->
+		<Row TechnologyType="TECH_REFORMED_CHURCH" 		Cost="740" EraType="ERA_RENAISSANCE" UITreeRow="-3"	/>
+		<Row TechnologyType="TECH_THE_ENLIGHTENMENT" 	Cost="740" EraType="ERA_RENAISSANCE" UITreeRow="-2"	/>
+		<Row TechnologyType="TECH_CONSTITUTION" 		Cost="740" EraType="ERA_RENAISSANCE" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_LIBERALISM"	 		Cost="740" EraType="ERA_RENAISSANCE" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_MASS_PRODUCTION" 		Cost="740" EraType="ERA_RENAISSANCE" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_THEORY_OF_GRAVITY"	Cost="740" EraType="ERA_RENAISSANCE" UITreeRow="2"	AdvisorType="ADVISOR_TECHNOLOGY"/>
+		<Row TechnologyType="TECH_GEOLOGY"		 		Cost="740" EraType="ERA_RENAISSANCE" UITreeRow="3"	/>
+		<Row TechnologyType="TECH_BALLISTICS" 			Cost="740" EraType="ERA_RENAISSANCE" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 	/>
+		
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Industrial Era -->
+		<!-- Industrial Era Tiers I -->
+		<Row TechnologyType="TECH_SCIENTIFIC_THEORY" 	Cost="845" EraType="ERA_INDUSTRIAL" UITreeRow="-2"	AdvisorType="ADVISOR_TECHNOLOGY"/>
+		<Row TechnologyType="TECH_NATURAL_HISTORY" 		Cost="845" EraType="ERA_INDUSTRIAL" UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY"/>
+		<Row TechnologyType="TECH_ECONOMICS" 			Cost="845" EraType="ERA_INDUSTRIAL" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_STEEL"				Cost="845" EraType="ERA_INDUSTRIAL" UITreeRow="1"	/>
+		<!--
+		<Row TechnologyType="TECH_RIFLING" 				Cost="845" EraType="ERA_INDUSTRIAL" UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST" />
+		-->
+		<!-- Industrial Era Tiers II -->
+		<Row TechnologyType="TECH_SUFFRAGE" 			Cost="970" EraType="ERA_INDUSTRIAL" UITreeRow="-3"	/>
+		<Row TechnologyType="TECH_STEAM_POWER" 			Cost="970" EraType="ERA_INDUSTRIAL" UITreeRow="-2"	/> <!-- Steam Engine -->
+		<Row TechnologyType="TECH_SANITATION" 			Cost="970" EraType="ERA_INDUSTRIAL" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_ASSEMBLY_LINE" 		Cost="970" EraType="ERA_INDUSTRIAL" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_VACCINE" 				Cost="970" EraType="ERA_INDUSTRIAL" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_FERTILIZER" 			Cost="970" EraType="ERA_INDUSTRIAL" UITreeRow="2"	/>
+		<Row TechnologyType="TECH_CHEMISTRY" 			Cost="970" EraType="ERA_INDUSTRIAL" UITreeRow="3"	/>
+		<Row TechnologyType="TECH_MILITARY_SCIENCE" 	Cost="970" EraType="ERA_INDUSTRIAL" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 	/>
+		<!-- Industrial Era Tiers III -->
+		<Row TechnologyType="TECH_CAPITALISM" 			Cost="1020" EraType="ERA_INDUSTRIAL" UITreeRow="-2"	/>
+		<Row TechnologyType="TECH_OPERA_BALLET"			Cost="1020" EraType="ERA_INDUSTRIAL" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_INDUSTRIALIZATION" 	Cost="1020" EraType="ERA_INDUSTRIAL" UITreeRow="-0"	/>
+		<Row TechnologyType="TECH_ELECTRICITY"			Cost="1020" EraType="ERA_INDUSTRIAL" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_REFINING" 			Cost="1020" EraType="ERA_INDUSTRIAL" UITreeRow="2"	/>
+		<Row TechnologyType="TECH_EXPLOSIVES" 			Cost="1020" EraType="ERA_INDUSTRIAL" UITreeRow="3"	AdvisorType="ADVISOR_CONQUEST" 	/>
+		
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Modern Era = Machine Era -->
+		<!-- Modern Era Tiers I -->
+		<Row TechnologyType="TECH_CLASS_STRUGGLE" 		Cost="1120" EraType="ERA_MODERN" UITreeRow="-2"	/>
+		<Row TechnologyType="TECH_REPLACEABLE_PARTS"	Cost="1120" EraType="ERA_MODERN" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_REFRIGERATION"		Cost="1120" EraType="ERA_MODERN" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_COMBUSTION"			Cost="1120" EraType="ERA_MODERN" UITreeRow="1"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<Row TechnologyType="TECH_CIVIL_ENGINEERING"	Cost="1120" EraType="ERA_MODERN" UITreeRow="2"	/>
+		<Row TechnologyType="TECH_ATOMIC_THEORY"		Cost="1120" EraType="ERA_MODERN" UITreeRow="3"	AdvisorType="ADVISOR_TECHNOLOGY"	/>
+		<Row TechnologyType="TECH_MOBILIZATION"			Cost="1120" EraType="ERA_MODERN" UITreeRow="4"	/>
+		<!-- Modern Era Tiers II -->
+		<Row TechnologyType="TECH_TOTALITARIANISM" 		Cost="1200" EraType="ERA_MODERN" UITreeRow="-1"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<Row TechnologyType="TECH_ELECTRONICS" 			Cost="1200" EraType="ERA_MODERN" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_URBANIZATION" 		Cost="1200" EraType="ERA_MODERN" UITreeRow="1"	/>		
+		<Row TechnologyType="TECH_FLIGHT"				Cost="1200" EraType="ERA_MODERN" UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<!-- Modern Era Tiers III -->
+		<Row TechnologyType="TECH_CULTURAL_HERITAGE"	Cost="1290" EraType="ERA_MODERN" UITreeRow="-2"	AdvisorType="ADVISOR_CULTURE"		/>
+		<Row TechnologyType="TECH_RADIO"				Cost="1290" EraType="ERA_MODERN" UITreeRow="-1"	AdvisorType="ADVISOR_CULTURE"		/>
+		<Row TechnologyType="TECH_RADIOACTIVITY"		Cost="1290" EraType="ERA_MODERN" UITreeRow="0"	AdvisorType="ADVISOR_TECHNOLOGY"	/>
+		<Row TechnologyType="TECH_BIOTECHNOLOGY"		Cost="1290" EraType="ERA_MODERN" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_PROFESSIONAL_SPORTS"	Cost="1290" EraType="ERA_MODERN" UITreeRow="2"	/>
+		<Row TechnologyType="TECH_ARMORED_WARFARE" 		Cost="1290" EraType="ERA_MODERN" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 	/>
+		
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Arms Race Era -->
+		<!-- Modern Era Tiers I -->
+		
+		<Row TechnologyType="TECH_MASS_MEDIA" 			Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="-2"	AdvisorType="ADVISOR_CULTURE" 	/>
+		<Row TechnologyType="TECH_RADAR" 				Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_PLASTICS"				Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_SONAR" 				Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_ADVANCED_FLIGHT"		Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<Row TechnologyType="TECH_ADVANCED_BALLISTICS" 	Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 	/>		
+		<!-- Modern Era Tiers II -->
+		<Row TechnologyType="TECH_CONSERVATION"			Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="-2" />
+		<Row TechnologyType="TECH_ANTIBIOTICS"			Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_CALCULATOR"			Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_SCORCHED_EARTH"		Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_COMBINED_ARMS"		Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<!-- Modern Era Tiers III -->
+		<Row TechnologyType="TECH_FUNDAMENTALISM"		Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="-3" />
+		<Row TechnologyType="TECH_ECOLOGY"				Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="-2" />
+		<Row TechnologyType="TECH_TRANSISTOR"			Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_NUCLEAR_FISSION"		Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="0"	Critical="true"	AdvisorType="ADVISOR_CONQUEST" />
+		<Row TechnologyType="TECH_JET_ENGINE"			Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="1"	AdvisorType="ADVISOR_CONQUEST"	/>
+		<Row TechnologyType="TECH_AMPHIBIOUS_WARFARE"	Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST"	/>
+		
+		
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Atomic Era-->
+		<!-- Atomic Era Tiers I -->
+		<Row TechnologyType="TECH_COMPUTERS"			Cost="1710" EraType="ERA_ATOMIC" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_COLD_WAR"				Cost="1710" EraType="ERA_ATOMIC" UITreeRow="0" />
+		<Row TechnologyType="TECH_ROCKETRY"				Cost="1710" EraType="ERA_ATOMIC" UITreeRow="1" Critical="true"	AdvisorType="ADVISOR_TECHNOLOGY"	/>
+		<!-- Atomic Era Tiers II -->
+		<Row TechnologyType="TECH_GENETICS"				Cost="1820" EraType="ERA_ATOMIC" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_NUCLEAR_POWER"		Cost="1820" EraType="ERA_ATOMIC" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_SPACE_RACE"			Cost="1820" EraType="ERA_ATOMIC" UITreeRow="1"	/>
+		<Row TechnologyType="TECH_SYNTHETIC_MATERIALS"	Cost="1820" EraType="ERA_ATOMIC" UITreeRow="2"	/>
+		<Row TechnologyType="TECH_GUERILLA_WARFARE"		Cost="1820" EraType="ERA_ATOMIC" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 	/>
+		<!-- Atomic Era Tiers III -->
+		<Row TechnologyType="TECH_RECYCLING"			Cost="1930" EraType="ERA_ATOMIC" UITreeRow="0"	/>
+		<Row TechnologyType="TECH_MINIATURISATION"		Cost="1930" EraType="ERA_ATOMIC" UITreeRow="1"	/>
+		
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Information Era -->
+		<!-- Information Era Tiers I -->
+		<Row TechnologyType="TECH_SATELLITES"			Cost="2050" EraType="ERA_INFORMATION" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_LASERS"				Cost="2050" EraType="ERA_INFORMATION" UITreeRow="0" 	Critical="true"/>
+		<Row TechnologyType="TECH_COMPOSITES"			Cost="2050" EraType="ERA_INFORMATION" UITreeRow="1"		AdvisorType="ADVISOR_TECHNOLOGY"	/>
+		<!-- Information Era Tiers II -->
+		<Row TechnologyType="TECH_GLOBALIZATION"		Cost="2250" EraType="ERA_INFORMATION" UITreeRow="-1"	/>
+		<Row TechnologyType="TECH_TELECOMMUNICATIONS"	Cost="2250" EraType="ERA_INFORMATION" UITreeRow="0"		AdvisorType="ADVISOR_CULTURE"		/>
+		<Row TechnologyType="TECH_GUIDANCE_SYSTEMS"		Cost="2250" EraType="ERA_INFORMATION" UITreeRow="1"		AdvisorType="ADVISOR_CONQUEST"	/>
+		<Row TechnologyType="TECH_RAPID_DEPLOYMENT"		Cost="2250" EraType="ERA_INFORMATION" UITreeRow="4"		AdvisorType="ADVISOR_CONQUEST"		/>
+		<!-- Information Era Tiers III -->
+		<Row TechnologyType="TECH_SOCIAL_MEDIA"			Cost="2500" EraType="ERA_INFORMATION" UITreeRow="-2"	AdvisorType="ADVISOR_CULTURE"		/>
+		<Row TechnologyType="TECH_FIBER_OPTICS"			Cost="2500" EraType="ERA_INFORMATION" UITreeRow="-1" 	AdvisorType="ADVISOR_TECHNOLOGY"	/>
+		<Row TechnologyType="TECH_SUPERCONDUCTORS"		Cost="2500" EraType="ERA_INFORMATION" UITreeRow="0" 	AdvisorType="ADVISOR_TECHNOLOGY"	/>
+		<Row TechnologyType="TECH_EUGENISM"				Cost="2500" EraType="ERA_INFORMATION" UITreeRow="1"		/>
+		<Row TechnologyType="TECH_STEALTH_TECHNOLOGY"	Cost="2500" EraType="ERA_INFORMATION" UITreeRow="2" 	AdvisorType="ADVISOR_CONQUEST"		Critical="true"/>
+	</TechnologiesGCO>
+	<TechnologiesGCO>	<!-- Future Era -->
+		<!-- Information Era Tiers I -->
+		<Row TechnologyType="TECH_NUCLEAR_FUSION"			Cost="2750" EraType="ERA_FUTURE" UITreeRow="-1"		AdvisorType="ADVISOR_TECHNOLOGY"	Critical="true"/>
+		<Row TechnologyType="TECH_NANOTECHNOLOGY"			Cost="2750" EraType="ERA_FUTURE" UITreeRow="0"		AdvisorType="ADVISOR_TECHNOLOGY"	/>
+		<Row TechnologyType="TECH_GENETIC_ENGINEERING"		Cost="2750" EraType="ERA_FUTURE" UITreeRow="1"		/>
+		<!-- Information Era Tiers II -->
+		<Row TechnologyType="TECH_ARTIFICIAL_INTELLIGENCE"	Cost="3000" EraType="ERA_FUTURE" UITreeRow="0"		AdvisorType="ADVISOR_TECHNOLOGY"	/>
+		<!-- Information Era Tiers III -->
+		<Row TechnologyType="TECH_ROBOTICS"					Cost="3500" EraType="ERA_FUTURE" UITreeRow="0"		AdvisorType="ADVISOR_TECHNOLOGY" 	/>
+		<!-- Information Era Tiers IV -->
+		<Row TechnologyType="TECH_FUTURE_TECH"				Cost="5000" EraType="ERA_FUTURE" UITreeRow="0"		Repeatable="true"	/>
+	</TechnologiesGCO>
+
+	<TechnologyPrereqsGCO>	<!-- Ancient Era -->
+		<!-- Tiers I -->
+		<Row Technology="TECH_ARCHERY"				PrereqTech="TECH_TRAPPING"/>
+		<!-- Tiers II -->
+		<!--<Row Technology="TECH_UNLOCK_SAILING" 		PrereqTech="TECH_MILITARY_ENGINEERING"/>	 Added using Lua -->
+		<!--<Row Technology="TECH_SAILING" 				PrereqTech="TECH_UNLOCK_SAILING"/>	-->
+		<Row Technology="TECH_MYSTICISM" 			PrereqTech="TECH_CEREMONIAL_BURIAL"/>
+		<Row Technology="TECH_MYSTICISM" 			PrereqTech="TECH_ASTROLOGY"/>
+		<Row Technology="TECH_IRRIGATION" 			PrereqTech="TECH_AGRICULTURE"/>
+		<Row Technology="TECH_IRRIGATION"			PrereqTech="TECH_POTTERY"/>
+		<Row Technology="TECH_ASTROLOGY" 			PrereqTech="TECH_AGRICULTURE"/>
+		<Row Technology="TECH_CODE_OF_LAWS" 		PrereqTech="TECH_PICTOGRAM"/>
+		<Row Technology="TECH_WRITING"				PrereqTech="TECH_POTTERY"/>
+		<Row Technology="TECH_WRITING" 				PrereqTech="TECH_PICTOGRAM"/>
+		<Row Technology="TECH_CURRENCY"				PrereqTech="TECH_PICTOGRAM"/>
+		<Row Technology="TECH_THE_WHEEL"			PrereqTech="TECH_POTTERY"/>
+		<Row Technology="TECH_THE_WHEEL"			PrereqTech="TECH_ANIMAL_HUSBANDRY"/>
+		<Row Technology="TECH_THE_WHEEL"			PrereqTech="TECH_ARCHERY"/>
+		<Row Technology="TECH_MINING"				PrereqTech="TECH_POTTERY"/>
+		<!--<Row Technology="TECH_UNLOCK_WARRIOR_CODE"	PrereqTech="TECH_THEOLOGY"/>				 Added using Lua -->
+		<!--<Row Technology="TECH_WARRIOR_CODE"			PrereqTech="TECH_UNLOCK_WARRIOR_CODE"/>	-->
+		<!-- Tiers III -->
+		<Row Technology="TECH_MAP_MAKING"			PrereqTech="TECH_ASTROLOGY"/>
+		<Row Technology="TECH_MAP_MAKING"			PrereqTech="TECH_WRITING"/>
+		<Row Technology="TECH_CALENDAR"				PrereqTech="TECH_ASTROLOGY"/>
+		<Row Technology="TECH_CALENDAR"				PrereqTech="TECH_WRITING"/>
+		<Row Technology="TECH_FOREIGN_TRADE"		PrereqTech="TECH_CURRENCY"/>
+		<Row Technology="TECH_FOREIGN_TRADE"		PrereqTech="TECH_CODE_OF_LAWS"/>
+		<Row Technology="TECH_MASONRY"				PrereqTech="TECH_MINING"/>
+		<Row Technology="TECH_BRONZE_WORKING"		PrereqTech="TECH_MINING"/>
+		<Row Technology="TECH_EARLY_EMPIRE"			PrereqTech="TECH_CODE_OF_LAWS"/>
+		<Row Technology="TECH_MILITARY_TRADITION"	PrereqTech="TECH_WARRIOR_CODE"/>
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Classical Era -->
+		
+		<!-- Tiers I -->
+		<Row Technology="TECH_POLYTHEISM"			PrereqTech="TECH_MYSTICISM"/>
+		<Row Technology="TECH_POLYTHEISM"			PrereqTech="TECH_CALENDAR"/>
+		<!--<Row Technology="TECH_UNLOCK_GAMES" 		PrereqTech="TECH_MILITARY_ENGINEERING"/>	 Added using Lua -->
+		<Row Technology="TECH_GAMES_RECREATION" 	PrereqTech="TECH_MILITARY_TRADITION"/>
+		<Row Technology="TECH_PHILOSOPHY"			PrereqTech="TECH_CODE_OF_LAWS"/>
+		<Row Technology="TECH_PHILOSOPHY"			PrereqTech="TECH_MYSTICISM"/>
+		<Row Technology="TECH_PHILOSOPHY"			PrereqTech="TECH_WRITING"/>
+		<Row Technology="TECH_CELESTIAL_NAVIGATION" PrereqTech="TECH_CALENDAR"/>
+		<Row Technology="TECH_RECORDED_HISTORY"		PrereqTech="TECH_WRITING"/>
+		<Row Technology="TECH_HORSEBACK_RIDING"		PrereqTech="TECH_ANIMAL_HUSBANDRY"/>
+		<Row Technology="TECH_HORSEBACK_RIDING"		PrereqTech="TECH_MILITARY_TRADITION"/>
+		<Row Technology="TECH_IRON_WORKING"			PrereqTech="TECH_BRONZE_WORKING"/>
+		<!-- Tiers II -->
+		<Row Technology="TECH_MONOTHEISM"			PrereqTech="TECH_POLYTHEISM"/>
+		<Row Technology="TECH_MONOTHEISM"			PrereqTech="TECH_PHILOSOPHY"/>
+		<Row Technology="TECH_MATHEMATICS"			PrereqTech="TECH_CURRENCY"/>
+		<Row Technology="TECH_MATHEMATICS"			PrereqTech="TECH_CALENDAR"/>
+		<Row Technology="TECH_POLITICAL_PHILOSOPHY"	PrereqTech="TECH_PHILOSOPHY"/>
+		<Row Technology="TECH_DRAMA_POETRY"			PrereqTech="TECH_GAMES_RECREATION"/>
+		<Row Technology="TECH_DRAMA_POETRY"			PrereqTech="TECH_WRITING"/>
+		<Row Technology="TECH_CONSTRUCTION"			PrereqTech="TECH_MASONRY"/>
+		<Row Technology="TECH_CONSTRUCTION"			PrereqTech="TECH_THE_WHEEL"/>
+		<Row Technology="TECH_CONSTRUCTION"			PrereqTech="TECH_IRON_WORKING"/>
+		<Row Technology="TECH_SHIPBUILDING"			PrereqTech="TECH_SAILING"/>
+		<Row Technology="TECH_SHIPBUILDING"			PrereqTech="TECH_BRONZE_WORKING"/>
+		<Row Technology="TECH_MILITARY_TRAINING"	PrereqTech="TECH_MILITARY_TRADITION"/>
+		<Row Technology="TECH_MILITARY_TRAINING"	PrereqTech="TECH_CODE_OF_LAWS"/>
+		<Row Technology="TECH_MILITARY_TRAINING"	PrereqTech="TECH_RECORDED_HISTORY"/>
+		<!-- Tiers III -->
+		<Row Technology="TECH_THEOLOGY"				PrereqTech="TECH_MONOTHEISM"/>
+		<Row Technology="TECH_THEOLOGY"				PrereqTech="TECH_PHILOSOPHY"/>
+		<Row Technology="TECH_PHYSICS"				PrereqTech="TECH_MATHEMATICS"/>
+		<Row Technology="TECH_PAPER"				PrereqTech="TECH_DRAMA_POETRY"/>
+		<Row Technology="TECH_PAPER"				PrereqTech="TECH_RECORDED_HISTORY"/>
+		<Row Technology="TECH_ENGINEERING"			PrereqTech="TECH_CONSTRUCTION"/>
+		<Row Technology="TECH_ENGINEERING"			PrereqTech="TECH_MATHEMATICS"/>
+		<Row Technology="TECH_SURGERY" 				PrereqTech="TECH_PHILOSOPHY"/>
+		<Row Technology="TECH_SURGERY" 				PrereqTech="TECH_HERBALISM"/>
+		<Row Technology="TECH_DEFENSIVE_TACTICS" 	PrereqTech="TECH_MILITARY_TRAINING"/>
+		<Row Technology="TECH_DEFENSIVE_TACTICS" 	PrereqTech="TECH_CONSTRUCTION"/>
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Medieval Era -->
+		<!-- Tiers I -->
+		<Row Technology="TECH_NAVAL_TRADITION" 		PrereqTech="TECH_MILITARY_TRAINING"/>
+		<Row Technology="TECH_NAVAL_TRADITION" 		PrereqTech="TECH_SHIPBUILDING"/>
+		<Row Technology="TECH_ALCHEMY"	 			PrereqTech="TECH_PHYSICS"/>
+		<Row Technology="TECH_ALCHEMY"	 			PrereqTech="TECH_SURGERY"/>
+		<Row Technology="TECH_APPRENTICESHIP"		PrereqTech="TECH_PAPER"/>
+		<Row Technology="TECH_APPRENTICESHIP"		PrereqTech="TECH_CONSTRUCTION"/>
+		<Row Technology="TECH_FEUDALISM" 			PrereqTech="TECH_DEFENSIVE_TACTICS"/>
+		<Row Technology="TECH_FEUDALISM" 			PrereqTech="TECH_RECORDED_HISTORY"/>
+		<Row Technology="TECH_FEUDALISM" 			PrereqTech="TECH_POLITICAL_PHILOSOPHY"/>
+		<Row Technology="TECH_MACHINERY"			PrereqTech="TECH_ENGINEERING"/>
+		<Row Technology="TECH_CASTLES"				PrereqTech="TECH_CONSTRUCTION"/>
+		<Row Technology="TECH_CASTLES"				PrereqTech="TECH_ENGINEERING"/>
+		<Row Technology="TECH_MILITARY_ENGINEERING" PrereqTech="TECH_DEFENSIVE_TACTICS"/>
+		<Row Technology="TECH_MILITARY_ENGINEERING" PrereqTech="TECH_ENGINEERING"/>
+		<!-- Tiers II -->
+		<Row Technology="TECH_OPTICS"				PrereqTech="TECH_MACHINERY"/>
+		<Row Technology="TECH_EDUCATION"			PrereqTech="TECH_MATHEMATICS"/>
+		<Row Technology="TECH_EDUCATION"			PrereqTech="TECH_APPRENTICESHIP"/>
+		<Row Technology="TECH_CIVIL_SERVICE"		PrereqTech="TECH_FEUDALISM"/>
+		<Row Technology="TECH_GUILDS"				PrereqTech="TECH_APPRENTICESHIP"/>
+		<Row Technology="TECH_MEDICINE"				PrereqTech="TECH_ALCHEMY"/>
+		<Row Technology="TECH_MILITARY_TACTICS"		PrereqTech="TECH_MILITARY_ENGINEERING"/>
+		<Row Technology="TECH_MILITARY_TACTICS"		PrereqTech="TECH_APPRENTICESHIP"/>
+		<!-- Tiers III -->
+		<!-- Move to applications
+		<Row Technology="TECH_STIRRUPS"				PrereqTech="TECH_HORSEBACK_RIDING"/>
+		-->
+		<Row Technology="TECH_DIVINE_RIGHT"			PrereqTech="TECH_FEUDALISM"/>
+		<Row Technology="TECH_DIVINE_RIGHT"			PrereqTech="TECH_THEOLOGY"/>
+		<Row Technology="TECH_EXPLORATION"			PrereqTech="TECH_OPTICS"/>
+		<Row Technology="TECH_ASTRONOMY"			PrereqTech="TECH_PHYSICS"/>
+		<Row Technology="TECH_ASTRONOMY"			PrereqTech="TECH_OPTICS"/>
+		<Row Technology="TECH_ASTRONOMY"			PrereqTech="TECH_EDUCATION"/>
+		<Row Technology="TECH_ANATOMY"				PrereqTech="TECH_EDUCATION"/>
+		<Row Technology="TECH_ANATOMY"				PrereqTech="TECH_MEDICINE"/>
+		<Row Technology="TECH_PRINTING"				PrereqTech="TECH_MACHINERY"/>
+		<Row Technology="TECH_PRINTING"				PrereqTech="TECH_GUILDS"/>
+		<Row Technology="TECH_METAL_CASTING"		PrereqTech="TECH_ALCHEMY"/>
+		<Row Technology="TECH_METAL_CASTING"		PrereqTech="TECH_MACHINERY"/>
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Renaissance Era -->
+		<!-- Tiers I -->
+		<Row Technology="TECH_NATIONALISM"			PrereqTech="TECH_CIVIL_SERVICE"/>
+		<Row Technology="TECH_DIPLOMATIC_SERVICE"	PrereqTech="TECH_CIVIL_SERVICE"/>
+		<Row Technology="TECH_CARTOGRAPHY"			PrereqTech="TECH_EXPLORATION"/>
+		<Row Technology="TECH_BANKING"				PrereqTech="TECH_EDUCATION"/>
+		<Row Technology="TECH_BANKING"				PrereqTech="TECH_GUILDS"/>
+		<Row Technology="TECH_GUNPOWDER"			PrereqTech="TECH_METAL_CASTING"/>
+		<Row Technology="TECH_GUNPOWDER"			PrereqTech="TECH_MILITARY_TACTICS"/>
+		<Row Technology="TECH_SIEGE_TACTICS"		PrereqTech="TECH_METAL_CASTING"/>
+		<Row Technology="TECH_SIEGE_TACTICS"		PrereqTech="TECH_CASTLES"/>
+		<Row Technology="TECH_SIEGE_TACTICS"		PrereqTech="TECH_MILITARY_TACTICS"/>
+		<!-- Tiers II -->
+		<Row Technology="TECH_HUMANISM"				PrereqTech="TECH_NATIONALISM"/>
+		<Row Technology="TECH_HUMANISM"				PrereqTech="TECH_MEDICINE"/>
+		<Row Technology="TECH_ARCHITECTURE"			PrereqTech="TECH_SIEGE_TACTICS"/>
+		<Row Technology="TECH_ARCHITECTURE"			PrereqTech="TECH_GUILDS"/>
+		<Row Technology="TECH_MICROBIOLOGY"			PrereqTech="TECH_OPTICS"/>
+		<Row Technology="TECH_MICROBIOLOGY"			PrereqTech="TECH_ANATOMY"/>
+		<Row Technology="TECH_MERCANTILISM"			PrereqTech="TECH_BANKING"/>
+		<Row Technology="TECH_MAGNETISM"			PrereqTech="TECH_EXPLORATION"/>
+		<Row Technology="TECH_MAGNETISM"			PrereqTech="TECH_METAL_CASTING"/>
+		<Row Technology="TECH_SQUARE_RIGGING"		PrereqTech="TECH_CARTOGRAPHY"/>
+		<Row Technology="TECH_BALLISTICS"			PrereqTech="TECH_SIEGE_TACTICS"/>
+		<Row Technology="TECH_BALLISTICS"			PrereqTech="TECH_GUNPOWDER"/>
+		<!-- Tiers III -->
+		<Row Technology="TECH_REFORMED_CHURCH"		PrereqTech="TECH_HUMANISM"/>
+		<Row Technology="TECH_REFORMED_CHURCH"		PrereqTech="TECH_DIVINE_RIGHT"/>
+		<Row Technology="TECH_THE_ENLIGHTENMENT"	PrereqTech="TECH_HUMANISM"/>
+		<Row Technology="TECH_THE_ENLIGHTENMENT"	PrereqTech="TECH_ARCHITECTURE"/>
+		<Row Technology="TECH_THEORY_OF_GRAVITY"	PrereqTech="TECH_MAGNETISM"/>
+		<Row Technology="TECH_THEORY_OF_GRAVITY"	PrereqTech="TECH_ASTRONOMY"/>
+		<Row Technology="TECH_CONSTITUTION"			PrereqTech="TECH_HUMANISM"/>
+		<Row Technology="TECH_LIBERALISM"			PrereqTech="TECH_HUMANISM"/>
+		<Row Technology="TECH_LIBERALISM"			PrereqTech="TECH_MERCANTILISM"/>
+		<Row Technology="TECH_MASS_PRODUCTION"		PrereqTech="TECH_MERCANTILISM"/>
+		<Row Technology="TECH_GEOLOGY"				PrereqTech="TECH_CARTOGRAPHY"/>
+		<Row Technology="TECH_GEOLOGY"				PrereqTech="TECH_MAGNETISM"/>
+	
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Industrial Era -->
+		<!-- Tiers I -->
+		<Row Technology="TECH_SCIENTIFIC_THEORY"	PrereqTech="TECH_MICROBIOLOGY"/>
+		<Row Technology="TECH_SCIENTIFIC_THEORY"	PrereqTech="TECH_THEORY_OF_GRAVITY"/>
+		<Row Technology="TECH_SCIENTIFIC_THEORY"	PrereqTech="TECH_GEOLOGY"/>
+		<Row Technology="TECH_NATURAL_HISTORY"		PrereqTech="TECH_THE_ENLIGHTENMENT"/>
+		<Row Technology="TECH_NATURAL_HISTORY"		PrereqTech="TECH_GEOLOGY"/>
+		<Row Technology="TECH_ECONOMICS"			PrereqTech="TECH_LIBERALISM"/>
+		<Row Technology="TECH_STEEL"				PrereqTech="TECH_MASS_PRODUCTION"/>
+		<Row Technology="TECH_STEEL"				PrereqTech="TECH_METAL_CASTING"/>
+		<!--
+		<Row Technology="TECH_RIFLING"				PrereqTech="TECH_GUNPOWDER"/>
+		<Row Technology="TECH_RIFLING"				PrereqTech="TECH_MASS_PRODUCTION"/>
+		-->
+		<!-- Tiers II -->
+		<Row Technology="TECH_SUFFRAGE"				PrereqTech="TECH_CONSTITUTION"/>
+		<Row Technology="TECH_STEAM_POWER"			PrereqTech="TECH_STEEL"/>
+		<Row Technology="TECH_STEAM_POWER"			PrereqTech="TECH_SCIENTIFIC_THEORY"/>
+		<Row Technology="TECH_SANITATION"			PrereqTech="TECH_SCIENTIFIC_THEORY"/>
+		<Row Technology="TECH_FERTILIZER"			PrereqTech="TECH_GEOLOGY"/>
+		<Row Technology="TECH_FERTILIZER"			PrereqTech="TECH_MICROBIOLOGY"/>
+		<Row Technology="TECH_VACCINE"				PrereqTech="TECH_SCIENTIFIC_THEORY"/>
+		<Row Technology="TECH_CHEMISTRY"			PrereqTech="TECH_SCIENTIFIC_THEORY"/>
+		<Row Technology="TECH_ASSEMBLY_LINE"		PrereqTech="TECH_MASS_PRODUCTION"/>
+		<Row Technology="TECH_ASSEMBLY_LINE"		PrereqTech="TECH_ECONOMICS"/>
+		<!--
+		<Row Technology="TECH_MILITARY_SCIENCE"		PrereqTech="TECH_RIFLING"/>
+		-->
+		<Row Technology="TECH_MILITARY_SCIENCE"		PrereqTech="TECH_BALLISTICS"/>
+		<Row Technology="TECH_MILITARY_SCIENCE"		PrereqTech="TECH_STEEL"/>
+		<!-- Tiers III -->
+		<Row Technology="TECH_CAPITALISM"			PrereqTech="TECH_ECONOMICS"/>
+		<Row Technology="TECH_OPERA_BALLET"			PrereqTech="TECH_THE_ENLIGHTENMENT"/>
+		<Row Technology="TECH_INDUSTRIALIZATION"	PrereqTech="TECH_ASSEMBLY_LINE"/>
+		<Row Technology="TECH_INDUSTRIALIZATION"	PrereqTech="TECH_STEAM_POWER"/>
+		<Row Technology="TECH_ELECTRICITY"			PrereqTech="TECH_STEAM_POWER"/>
+		<Row Technology="TECH_REFINING"				PrereqTech="TECH_CHEMISTRY"/>
+		<Row Technology="TECH_EXPLOSIVES"			PrereqTech="TECH_CHEMISTRY"/>
+		<Row Technology="TECH_EXPLOSIVES"			PrereqTech="TECH_FERTILIZER"/>
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Modern Era -->
+		<!-- Tiers I -->
+		<Row Technology="TECH_CLASS_STRUGGLE" 		PrereqTech="TECH_INDUSTRIALIZATION"/>
+		<Row Technology="TECH_CLASS_STRUGGLE" 		PrereqTech="TECH_CONSTITUTION"/>
+		<Row Technology="TECH_REPLACEABLE_PARTS"	PrereqTech="TECH_INDUSTRIALIZATION"/>
+		<Row Technology="TECH_REFRIGERATION"		PrereqTech="TECH_ELECTRICITY"/>
+		<Row Technology="TECH_COMBUSTION"			PrereqTech="TECH_REFINING"/>
+		<Row Technology="TECH_COMBUSTION"			PrereqTech="TECH_ELECTRICITY"/>
+		<Row Technology="TECH_CIVIL_ENGINEERING"	PrereqTech="TECH_SUFFRAGE"/>
+		<Row Technology="TECH_CIVIL_ENGINEERING"	PrereqTech="TECH_ARCHITECTURE"/>
+		<Row Technology="TECH_CIVIL_ENGINEERING"	PrereqTech="TECH_EXPLOSIVES"/>
+		<Row Technology="TECH_ATOMIC_THEORY"		PrereqTech="TECH_ELECTRICITY"/>
+		<Row Technology="TECH_ATOMIC_THEORY"		PrereqTech="TECH_CHEMISTRY"/>
+		<Row Technology="TECH_MOBILIZATION"			PrereqTech="TECH_SUFFRAGE"/>
+		<Row Technology="TECH_MOBILIZATION"			PrereqTech="TECH_MILITARY_SCIENCE"/>
+		<!-- Tiers II -->
+		<Row Technology="TECH_TOTALITARIANISM"		PrereqTech="TECH_INDUSTRIALIZATION"/>
+		<Row Technology="TECH_TOTALITARIANISM"		PrereqTech="TECH_MOBILIZATION"/>
+		<Row Technology="TECH_ELECTRONICS"			PrereqTech="TECH_ELECTRICITY"/>
+		<Row Technology="TECH_ELECTRONICS"			PrereqTech="TECH_REPLACEABLE_PARTS"/>
+		<Row Technology="TECH_URBANIZATION"			PrereqTech="TECH_CIVIL_ENGINEERING"/>
+		<Row Technology="TECH_FLIGHT"				PrereqTech="TECH_REPLACEABLE_PARTS"/>
+		<Row Technology="TECH_FLIGHT"				PrereqTech="TECH_COMBUSTION"/>
+		<!-- Tiers III -->
+		<Row Technology="TECH_CULTURAL_HERITAGE"	PrereqTech="TECH_TOTALITARIANISM"/>
+		<Row Technology="TECH_CULTURAL_HERITAGE"	PrereqTech="TECH_OPERA_BALLET"/>
+		<Row Technology="TECH_RADIO"				PrereqTech="TECH_ELECTRONICS"/>
+		<Row Technology="TECH_RADIOACTIVITY"		PrereqTech="TECH_ELECTRONICS"/>
+		<Row Technology="TECH_RADIOACTIVITY"		PrereqTech="TECH_ATOMIC_THEORY"/>
+		<Row Technology="TECH_BIOTECHNOLOGY"		PrereqTech="TECH_REFRIGERATION"/>
+		<Row Technology="TECH_BIOTECHNOLOGY"		PrereqTech="TECH_CHEMISTRY"/>
+		<Row Technology="TECH_PROFESSIONAL_SPORTS"	PrereqTech="TECH_URBANIZATION"/>
+		<Row Technology="TECH_ARMORED_WARFARE" 		PrereqTech="TECH_COMBUSTION"/>
+		<Row Technology="TECH_ARMORED_WARFARE" 		PrereqTech="TECH_EXPLOSIVES"/>
+		
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Arms Race Era -->
+		<!-- Tiers I -->
+		<Row Technology="TECH_MASS_MEDIA"			PrereqTech="TECH_RADIO"/>
+		<Row Technology="TECH_MASS_MEDIA"			PrereqTech="TECH_CULTURAL_HERITAGE"/>
+		<Row Technology="TECH_MASS_MEDIA"			PrereqTech="TECH_PROFESSIONAL_SPORTS"/>
+		<Row Technology="TECH_RADAR"				PrereqTech="TECH_RADIO"/>
+		<Row Technology="TECH_SONAR"				PrereqTech="TECH_RADIO"/>
+		<Row Technology="TECH_PLASTICS"				PrereqTech="TECH_COMBUSTION"/>
+		<Row Technology="TECH_PLASTICS"				PrereqTech="TECH_BIOTECHNOLOGY"/>
+		<Row Technology="TECH_ADVANCED_FLIGHT"		PrereqTech="TECH_RADIO"/>
+		<Row Technology="TECH_ADVANCED_FLIGHT"		PrereqTech="TECH_FLIGHT"/>
+		<Row Technology="TECH_ADVANCED_BALLISTICS"	PrereqTech="TECH_ARMORED_WARFARE"/>
+		<Row Technology="TECH_ADVANCED_BALLISTICS"	PrereqTech="TECH_ELECTRONICS"/>
+		<!-- Tiers II -->
+		<Row Technology="TECH_CONSERVATION"			PrereqTech="TECH_CULTURAL_HERITAGE"/>
+		<Row Technology="TECH_ANTIBIOTICS"			PrereqTech="TECH_BIOTECHNOLOGY"/>
+		<Row Technology="TECH_CALCULATOR" 			PrereqTech="TECH_RADAR"/>
+		<Row Technology="TECH_CALCULATOR" 			PrereqTech="TECH_SONAR"/>
+		<Row Technology="TECH_SCORCHED_EARTH" 		PrereqTech="TECH_ARMORED_WARFARE"/>
+		<Row Technology="TECH_SCORCHED_EARTH" 		PrereqTech="TECH_MASS_MEDIA"/>
+		<Row Technology="TECH_COMBINED_ARMS" 		PrereqTech="TECH_ARMORED_WARFARE"/>
+		<Row Technology="TECH_COMBINED_ARMS" 		PrereqTech="TECH_FLIGHT"/>
+		<!-- Tiers III -->
+		<Row Technology="TECH_FUNDAMENTALISM"		PrereqTech="TECH_MASS_MEDIA"/>
+		<Row Technology="TECH_FUNDAMENTALISM"		PrereqTech="TECH_REFORMED_CHURCH"/>
+		<Row Technology="TECH_ECOLOGY"				PrereqTech="TECH_MASS_MEDIA"/>
+		<Row Technology="TECH_ECOLOGY"				PrereqTech="TECH_CONSERVATION"/>
+		<Row Technology="TECH_ECOLOGY"				PrereqTech="TECH_BIOTECHNOLOGY"/>
+		<Row Technology="TECH_TRANSISTOR" 			PrereqTech="TECH_CALCULATOR"/>
+		<Row Technology="TECH_NUCLEAR_FISSION"		PrereqTech="TECH_CALCULATOR"/>
+		<Row Technology="TECH_NUCLEAR_FISSION"		PrereqTech="TECH_RADIOACTIVITY"/>
+		<Row Technology="TECH_JET_ENGINE" 			PrereqTech="TECH_ADVANCED_FLIGHT"/>
+		<Row Technology="TECH_JET_ENGINE" 			PrereqTech="TECH_ADVANCED_BALLISTICS"/>
+		<Row Technology="TECH_AMPHIBIOUS_WARFARE"	PrereqTech="TECH_COMBINED_ARMS"/>
+	
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Atomic Era -->
+		<!-- Tiers I -->
+		<Row Technology="TECH_COMPUTERS"			PrereqTech="TECH_TRANSISTOR"/>
+		<Row Technology="TECH_ROCKETRY"				PrereqTech="TECH_JET_ENGINE"/>
+		<Row Technology="TECH_COLD_WAR"				PrereqTech="TECH_NUCLEAR_FISSION"/>
+		<!-- Tiers II -->
+		<Row Technology="TECH_SPACE_RACE"			PrereqTech="TECH_ROCKETRY"/>
+		<Row Technology="TECH_GENETICS"				PrereqTech="TECH_COMPUTERS"/>
+		<Row Technology="TECH_GENETICS"				PrereqTech="TECH_BIOTECHNOLOGY"/>
+		<Row Technology="TECH_NUCLEAR_POWER"		PrereqTech="TECH_NUCLEAR_FISSION"/>
+		<Row Technology="TECH_NUCLEAR_POWER"		PrereqTech="TECH_COMPUTERS"/>
+		<Row Technology="TECH_SYNTHETIC_MATERIALS"	PrereqTech="TECH_PLASTICS"/>
+		<Row Technology="TECH_SYNTHETIC_MATERIALS"	PrereqTech="TECH_COMPUTERS"/>
+		<Row Technology="TECH_GUERILLA_WARFARE"		PrereqTech="TECH_FUNDAMENTALISM"/>
+		<!-- Tiers III -->
+		<Row Technology="TECH_RECYCLING"			PrereqTech="TECH_ECOLOGY"/>
+		<Row Technology="TECH_RECYCLING"			PrereqTech="TECH_SYNTHETIC_MATERIALS"/>
+		<Row Technology="TECH_MINIATURISATION"		PrereqTech="TECH_COMPUTERS"/>
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Information Era -->
+	
+		<!-- Tiers I -->
+		<Row Technology="TECH_SATELLITES"			PrereqTech="TECH_MINIATURISATION"/>
+		<Row Technology="TECH_SATELLITES"			PrereqTech="TECH_SPACE_RACE"/>
+		<Row Technology="TECH_LASERS"				PrereqTech="TECH_NUCLEAR_FISSION"/>
+		<Row Technology="TECH_LASERS"				PrereqTech="TECH_MINIATURISATION"/>
+		<Row Technology="TECH_COMPOSITES"			PrereqTech="TECH_SYNTHETIC_MATERIALS"/>
+		<!-- Tiers II -->
+		<Row Technology="TECH_GLOBALIZATION"		PrereqTech="TECH_SATELLITES"/>
+		<Row Technology="TECH_TELECOMMUNICATIONS"	PrereqTech="TECH_COMPUTERS"/>
+		<Row Technology="TECH_TELECOMMUNICATIONS"	PrereqTech="TECH_SATELLITES"/>
+		<Row Technology="TECH_GUIDANCE_SYSTEMS"		PrereqTech="TECH_SATELLITES"/>
+		<Row Technology="TECH_GUIDANCE_SYSTEMS"		PrereqTech="TECH_LASERS"/>
+		<Row Technology="TECH_RAPID_DEPLOYMENT"		PrereqTech="TECH_SATELLITES"/>
+		<!-- Tiers III -->
+		<Row Technology="TECH_SOCIAL_MEDIA"			PrereqTech="TECH_GLOBALIZATION"/>
+		<Row Technology="TECH_SOCIAL_MEDIA"			PrereqTech="TECH_MASS_MEDIA"/>
+		<Row Technology="TECH_STEALTH_TECHNOLOGY"	PrereqTech="TECH_COMPOSITES"/>
+		<Row Technology="TECH_STEALTH_TECHNOLOGY"	PrereqTech="TECH_GUIDANCE_SYSTEMS"/>
+		<Row Technology="TECH_FIBER_OPTICS"			PrereqTech="TECH_TELECOMMUNICATIONS"/>
+		<Row Technology="TECH_FIBER_OPTICS"			PrereqTech="TECH_LASERS"/>
+		<Row Technology="TECH_SUPERCONDUCTORS"		PrereqTech="TECH_LASERS"/>
+		<Row Technology="TECH_SUPERCONDUCTORS"		PrereqTech="TECH_COMPOSITES"/>
+		<Row Technology="TECH_EUGENISM"				PrereqTech="TECH_GLOBALIZATION"/>
+		<Row Technology="TECH_EUGENISM"				PrereqTech="TECH_GENETICS"/>
+	</TechnologyPrereqsGCO>
+	<TechnologyPrereqsGCO>	<!-- Future Era -->
+		
+		<!-- Tiers I -->
+		<Row Technology="TECH_NUCLEAR_FUSION"		PrereqTech="TECH_SUPERCONDUCTORS"/>
+		<Row Technology="TECH_NANOTECHNOLOGY"		PrereqTech="TECH_COMPOSITES"/>
+		<Row Technology="TECH_NANOTECHNOLOGY"		PrereqTech="TECH_SUPERCONDUCTORS"/>
+		<Row Technology="TECH_GENETIC_ENGINEERING"	PrereqTech="TECH_EUGENISM"/>
+		<!-- Tiers II -->
+		<Row Technology="TECH_ARTIFICIAL_INTELLIGENCE"	PrereqTech="TECH_NANOTECHNOLOGY"/>
+		<Row Technology="TECH_ARTIFICIAL_INTELLIGENCE"	PrereqTech="TECH_FIBER_OPTICS"/>
+		<!-- Tiers III -->
+		<Row Technology="TECH_ROBOTICS"				PrereqTech="TECH_ARTIFICIAL_INTELLIGENCE"/>
+		<Row Technology="TECH_ROBOTICS"				PrereqTech="TECH_NUCLEAR_FUSION"/>
+		<Row Technology="TECH_FUTURE_TECH"			PrereqTech="TECH_ROBOTICS"/>
+		<Row Technology="TECH_FUTURE_TECH"			PrereqTech="TECH_GENETIC_ENGINEERING"/>
+	</TechnologyPrereqsGCO>
+
+	<TechnologyContributionTypes>
+	
+		<Row 	ContributionType="RESEARCH_MILITARY" 			IsResearch="true"	IconString="[ICON_MILITARY_LARGE]"		ColorString="[COLOR_FLOAT_MILITARY]"	/>
+		<Row 	ContributionType="RESEARCH_SOCIAL" 				IsResearch="true"	IconString="[ICON_SOCIAL_LARGE]"		ColorString="[COLOR_FLOAT_CULTURE]"		/>
+		<Row 	ContributionType="RESEARCH_ECONOMIC" 			IsResearch="true"	IconString="[ICON_ECONOMIC_LARGE]"		ColorString="[COLOR_FLOAT_GOLD]"		/>
+		<Row 	ContributionType="RESEARCH_CRAFTSMANSHIP" 		IsResearch="true"	IconString="[ICON_CRAFTSMANSHIP_LARGE]"	ColorString="[COLOR_FLOAT_PRODUCTION]"	/>
+		<Row 	ContributionType="RESEARCH_NAVAL" 				IsResearch="true"	IconString="[ICON_NAVAL_LARGE]"			ColorString="[COLOR_FLOAT_SCIENCE]"		/>
+		<Row 	ContributionType="RESEARCH_EXPLORATION" 		IsResearch="true"	IconString="[ICON_EXPLORATION2_LARGE]"	ColorString="[COLOR_FLOAT_FAITH]"		/>
+		<Row 	ContributionType="RESEARCH_INSPIRATION" 		IsResearch="true"	IconString="[ICON_FaithLarge]"			ColorString="[COLOR_FLOAT_CULTURE]"		/>
+		<Row 	ContributionType="RESEARCH_ACADEMIC" 								IconString="[ICON_ScienceLarge]"		ColorString="[COLOR_FLOAT_SCIENCE]"		/>	<!-- To represent "normal" science -->
+		<Row 	ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 		/>
+		<Row 	ContributionType="EVENT_DISCOVER_RESOURCE" 			/>
+		<Row 	ContributionType="EVENT_DISCOVER_NATURAL_WONDER"	/>
+		<Row 	ContributionType="EVENT_WORKED_RESOURCE" 			/>
+		<Row 	ContributionType="EVENT_WORKED_IMPROVED_RESOURCE"	/>
+		<Row 	ContributionType="EVENT_COMBAT_WITH" 				/>
+		<Row 	ContributionType="EVENT_COMBAT_VS" 					/>
+		<Row 	ContributionType="EVENT_DEFEND_WITH" 				/>
+		<Row 	ContributionType="EVENT_DEFEND_VS" 					/>
+		<Row 	ContributionType="EVENT_ATTACK_WITH" 				/>
+		<Row 	ContributionType="EVENT_ATTACK_VS" 					/>
+		<Row 	ContributionType="EVENT_LAND_MELEE_COMBAT" 			/>
+		<Row 	ContributionType="EVENT_LAND_MELEE_ATTACK" 			/>
+		<Row 	ContributionType="EVENT_LAND_MELEE_DEFENSE" 		/>
+		<Row 	ContributionType="EVENT_LAND_RANGED_COMBAT" 		/>
+		<Row 	ContributionType="EVENT_LAND_RANGED_ATTACK" 		/>
+		<Row 	ContributionType="EVENT_LAND_RANGED_DEFENSE" 		/>
+		<Row 	ContributionType="EVENT_RANGED_COMBAT" 				/>
+		<Row 	ContributionType="EVENT_LAND_COMBAT" 				/>
+		<Row 	ContributionType="EVENT_CREATE_BUILDING"			/>
+		<Row 	ContributionType="EVENT_CREATE_IMPROVEMENT"			/>
+		<Row 	ContributionType="EVENT_COASTAL_CITY"				/>
+		<Row 	ContributionType="NEED_FOOD" 						/>
+		<Row 	ContributionType="NEED_PROTECTION"					/>
+		<Row 	ContributionType="YIELD_BUILDING"					/> <!-- Special case for Buildings -->
+		<Row 	ContributionType="YIELD_OVERFLOW"					/> <!-- Previous turn overflow -->
+		<Row 	ContributionType="YIELD_CULTURE_INSPIRATION"		/> <!-- Special case for Culture/Inspiration -->
+	
+	</TechnologyContributionTypes>
+	
+	<TechnologyRequirementTypes>
+	
+		<Row 	RequirementType="REQUIREMENT_OWNED" 	/>
+		<Row 	RequirementType="REQUIREMENT_IN_RANGE" 	/>
+	
+	</TechnologyRequirementTypes>
+
+	<!--
+		FieldType	: MILITARY, SOCIAL, CRAFTSMANSHIP, NAVAL, EXPLORATION, ECONOMIC, ?
+	-->
+	<TechnologyResearchContribution>	<!-- Ancient Era -->
+	
+		<!-- Tiers 0 -->
+		<!-- Tiers I -->
+		<Row 	Technology="TECH_CEREMONIAL_BURIAL" ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_SAILING" 			ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_POTTERY"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_ARCHERY"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_ARCHERY"			ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_WARRIOR_CODE" 		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<!-- Tiers II -->
+		<Row 	Technology="TECH_ASTROLOGY" 		ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_ASTROLOGY" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_CODE_OF_LAWS" 		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_CURRENCY" 			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_CURRENCY"			ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_MINING"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_THE_WHEEL"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_THE_WHEEL"			ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
+		<!-- Tiers III -->
+		<Row 	Technology="TECH_MYSTICISM" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_MAP_MAKING" 		ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="90"/>
+		<Row 	Technology="TECH_FOREIGN_TRADE"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_FOREIGN_TRADE"		ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_MASONRY"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_BRONZE_WORKING" 	ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_MILITARY_TRADITION"ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+	
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Classical Era -->
+		<!-- Tiers I -->
+		<Row 	Technology="TECH_POLYTHEISM" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_IRON_WORKING" 		ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="25"/>
+		<!-- Tiers II -->
+		<Row 	Technology="TECH_MONOTHEISM" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_MILITARY_TRAINING"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<!-- Tiers III -->
+		<Row 	Technology="TECH_THEOLOGY" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_DEFENSIVE_TACTICS"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Medieval Era -->
+		<!-- Tiers I -->
+		<Row 	Technology="TECH_MILITARY_ENGINEERING"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<!-- Tiers II -->
+		<Row 	Technology="TECH_MILITARY_TACTICS"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<!-- Tiers III -->
+		<Row 	Technology="TECH_DIVINE_RIGHT"		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Renaissance Era -->
+		<!-- Tiers I -->
+		<Row 	Technology="TECH_SIEGE_TACTICS"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<!-- Tiers II -->
+		<!-- Tiers III -->
+		<Row 	Technology="TECH_REFORMED_CHURCH"	ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_BALLISTICS"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Industrial Era -->
+		<!-- Tiers I -->
+		<!-- Tiers II -->
+		<Row 	Technology="TECH_MILITARY_SCIENCE"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<!-- Tiers III -->
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Modern Era -->
+		<!-- Tiers I -->
+		<Row 	Technology="TECH_MOBILIZATION"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<!-- Tiers II -->
+		<!-- Tiers III -->
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Arms Race Era -->
+		<!-- Tiers I -->
+		<!-- Tiers II -->
+		<!-- Tiers III -->
+		<Row 	Technology="TECH_FUNDAMENTALISM"	ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Atomic Era -->
+		<!-- Tiers I -->
+		<!-- Tiers II -->
+		<!-- Tiers III -->
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Information Era -->
+		<!-- Tiers I -->
+		<!-- Tiers II -->
+		<!-- Tiers III -->
+	</TechnologyResearchContribution>
+	<TechnologyResearchContribution>	<!-- Future Era -->
+		<!-- Tiers I -->
+		<!-- Tiers II -->
+		<!-- Tiers III -->
+	</TechnologyResearchContribution>
+
+	
+	<!--
+		
+	-->
+	<TechnologyResearchEventPoints>
+	
+		<Row 	ResearchType="RESEARCH_MILITARY" 	ContributionType="EVENT_LAND_MELEE_ATTACK" 			BaseValue="5"	/>
+		<Row 	ResearchType="RESEARCH_MILITARY" 	ContributionType="EVENT_LAND_MELEE_DEFENSE" 		BaseValue="2"	/>
+		<Row 	ResearchType="RESEARCH_MILITARY" 	ContributionType="EVENT_LAND_RANGED_COMBAT" 		BaseValue="1"	/>
+		
+		<Row 	ResearchType="RESEARCH_EXPLORATION" ContributionType="EVENT_DISCOVER_NATURAL_WONDER" 	BaseValue="5"	/>
+		<Row 	ResearchType="RESEARCH_EXPLORATION" ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 		BaseValue="3"	/>
+		<Row 	ResearchType="RESEARCH_EXPLORATION" ContributionType="EVENT_DISCOVER_RESOURCE" 			BaseValue="1"	/>
+		
+		<Row 	ResearchType="RESEARCH_NAVAL" 		ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 		BaseValue="3"	TypeTag="CLASS_BOAT_RES" 	/>
+		<Row 	ResearchType="RESEARCH_NAVAL" 		ContributionType="EVENT_DISCOVER_RESOURCE" 			BaseValue="1"	TypeTag="CLASS_BOAT_RES" 	/>
+		<Row 	ResearchType="RESEARCH_NAVAL" 		ContributionType="EVENT_COASTAL_CITY" 				BaseValue="1"	/>
+		
+		<Row 	ResearchType="RESEARCH_INSPIRATION" ContributionType="EVENT_DISCOVER_NATURAL_WONDER" 	BaseValue="10"	/>
+		
+	
+	</TechnologyResearchEventPoints>
+	
+	<!--
+		ContributionType	: MELEE_COMBAT, MELEE_ATTACK, COMBAT_VS, COMBAT_WITH, ATTACK_VS, DEFEND_VS, ATTACK_WITH, DEFEND_WITH, DISCOVER_RESOURCE, DISCOVER_NEW_RESOURCE, OWN_RESOURCE, WORK_RESOURCE
+		TypeTag		: New TypeTags to be added to Units, Resources, Terrains, Features, Improvements, ...
+		PrereqTech	: Contribution can't start before this Tech (optional)
+		PrereqEra	: contribution can't start before this Era (optional)
+	-->
+	<TechnologyEventContribution>
+	
+		<Row 	Technology="TECH_AGRICULTURE" 		ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 	MaxContributionPercent="75"		TypeTag="CLASS_FARM_RES" 	BaseValue="5"/>
+		<Row 	Technology="TECH_AGRICULTURE" 		ContributionType="EVENT_DISCOVER_RESOURCE" 		MaxContributionPercent="75"		TypeTag="CLASS_FARM_RES" 	BaseValue="2"/>
+		<Row 	Technology="TECH_AGRICULTURE" 		ContributionType="EVENT_WORKED_RESOURCE" 		MaxContributionPercent="100"	TypeTag="CLASS_FARM_RES" 	BaseValue="3"/>
+		
+		<!--
+		<Row 	Technology="TECH_SAILING" 			ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 	MaxContributionPercent="75"	TypeTag="CLASS_BOAT_RES" 	BaseValue="5"/>
+		<Row 	Technology="TECH_SAILING" 			ContributionType="EVENT_DISCOVER_RESOURCE" 		MaxContributionPercent="75"	TypeTag="CLASS_BOAT_RES" 	BaseValue="2"/>
+		-->
+		
+		<Row 	Technology="TECH_TRAPPING" 			ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 	MaxContributionPercent="75"		TypeTag="CLASS_CAMP_RES" 	BaseValue="5"/>
+		<Row 	Technology="TECH_TRAPPING" 			ContributionType="EVENT_DISCOVER_RESOURCE" 		MaxContributionPercent="75"		TypeTag="CLASS_CAMP_RES" 	BaseValue="2"/>
+		<Row 	Technology="TECH_TRAPPING" 			ContributionType="EVENT_WORKED_RESOURCE" 		MaxContributionPercent="100"	TypeTag="CLASS_CAMP_RES" 	BaseValue="3"/>
+		
+		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 	MaxContributionPercent="75"		TypeTag="CLASS_PASTURE_RES" BaseValue="5"/>
+		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_DISCOVER_RESOURCE" 		MaxContributionPercent="75"		TypeTag="CLASS_PASTURE_RES" BaseValue="2"/>
+		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_WORKED_RESOURCE" 		MaxContributionPercent="100"	TypeTag="CLASS_PASTURE_RES" BaseValue="3"/>
+		
+		<Row 	Technology="TECH_MINING" 			ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_MINED_RES" BaseValue="3"	PrereqTech="TECH_POTTERY"	/>
+		
+		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES" BaseValue="1"	PrereqTech="TECH_MINING"	/>
+		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES" BaseValue="3"	PrereqTech="TECH_MINING"	/>
+		
+		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" BaseValue="1"	PrereqTech="TECH_BRONZE_WORKING"	/>
+		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" BaseValue="3"	PrereqTech="TECH_BRONZE_WORKING"	/>
+		
+		<Row 	Technology="TECH_COMBINED_ARMS" 	ContributionType="EVENT_COMBAT_WITH" 			MaxContributionPercent="75"	TypeTag="CLASS_ARMOR" 		BaseValue="5"	PrereqTech="TECH_FLIGHT"	/>
+		<Row 	Technology="TECH_COMBINED_ARMS" 	ContributionType="EVENT_COMBAT_WITH" 			MaxContributionPercent="75"	TypeTag="CLASS_AIRCRAFT"	BaseValue="5"	PrereqTech="TECH_FLIGHT"	/>
+		
+		<Row 	Technology="TECH_ARMORED_WARFARE" 	ContributionType="EVENT_DEFEND_VS" 				MaxContributionPercent="50"	TypeTag="CLASS_RANGED" 		BaseValue="5"	PrereqTech="TECH_STEEL"	/>
+		<Row 	Technology="TECH_ARMORED_WARFARE" 	ContributionType="EVENT_COMBAT_VS" 				MaxContributionPercent="75"	TypeTag="CLASS_ARMOR" 		BaseValue="5"	PrereqTech="TECH_STEEL"	/>
+	
+	</TechnologyEventContribution>
+	
+	<TechnologyEventUnlock>
+	<!-- No simple way to lock a tech, as the only possibility is to use another tech (and self-requirement is crashing 07/12/18)
+		<Row 	Technology="TECH_WARRIOR_CODE" 		ContributionType="EVENT_LAND_MELEE_ATTACK" 		/>
+		<Row 	Technology="TECH_SAILING" 			ContributionType="EVENT_DISCOVER_NEW_RESOURCE"	TypeTag="CLASS_BOAT_RES"/>
+	-->
+	</TechnologyEventUnlock>
+	
+	<!--
+		NeedType : FOOD, PROTECTION, HAPPINESS
+		PrereqTech	: Contribution can't start before this Tech (optional)
+		PrereqEra	: contribution can't start before this Era (optional)
+	-->
+	<TechnologyNeedsContribution>
+	
+		<Row 	Technology="TECH_AGRICULTURE" 		ContributionType="NEED_FOOD" 		MaxContributionPercent="100"	/>
+		<Row 	Technology="TECH_SAILING" 			ContributionType="NEED_FOOD" 		MaxContributionPercent="50"		/>
+		<Row 	Technology="TECH_MASONRY" 			ContributionType="NEED_PROTECTION" 	MaxContributionPercent="50"		PrereqTech="TECH_MINING"	/>
+	
+	</TechnologyNeedsContribution>
+	
+	<!--
+		TypeTag		: New TypeTags to be added to Units, Resources, Terrains, Features, Improvments, ...
+	-->
+	<TechnologyNeedsRequirement>
+	
+		<Row 	Technology="TECH_AGRICULTURE" 		RequirementType="REQUIREMENT_OWNED"		TypeTag="CLASS_FARM_RES" 	/>		
+		<Row 	Technology="TECH_SAILING" 			RequirementType="REQUIREMENT_IN_RANGE"	TypeTag="CLASS_SEA_FOOD" 	/>
+	
+	</TechnologyNeedsRequirement>
+	<!---->
+
+	<!-- 
+		
+	-->	
+	<TechnologyApplications>
+	
+		<Row 	Application="APP_AGRICULTURE"	Cost="50"	Technology="TECH_AGRICULTURE" 		/>
+		<Row 	Application="APP_SAILING"		Cost="75"	Technology="TECH_SAILING" 			/>
+		<Row 	Application="APP_IRRIGATION"	Cost="100"	Technology="TECH_IRRIGATION" 		PrereqApp="APP_AGRICULTURE"	/>
+		<Row 	Application="APP_MASONRY"		Cost="75"	Technology="TECH_MASONRY" 			PrereqTech="TECH_MINING"	/>
+	
+	</TechnologyApplications>
+	
+	<!--
+		New TypeTags related to Research
+	-->
+	<Tags>
+		<Row Tag="CLASS_PASTURE_RES"	Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_BOAT_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_CAMP_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_FARM_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_SEA_FOOD" 		Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_MINED_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_COPPER_RES" 	Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_IRON_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		
+		<Row Tag="CLASS_ARMOR" 			Vocabulary="ABILITY_CLASS"/>
+	</Tags>
+	<TypeTags>
+		<!-- Bonus-->
+		<Row Type="RESOURCE_CATTLE" 	Tag="CLASS_PASTURE_RES"/>
+		<Row Type="RESOURCE_SHEEP"		Tag="CLASS_PASTURE_RES"/>
+		<Row Type="RESOURCE_HORSES" 	Tag="CLASS_PASTURE_RES"/>
+		
+		<Row Type="RESOURCE_CRABS"		Tag="CLASS_BOAT_RES"/>
+		<Row Type="RESOURCE_FISH"		Tag="CLASS_BOAT_RES"/>
+		<Row Type="RESOURCE_WHALES" 	Tag="CLASS_BOAT_RES"/>
+		<Row Type="RESOURCE_PEARLS" 	Tag="CLASS_BOAT_RES"/>
+		
+		<Row Type="RESOURCE_DEER"		Tag="CLASS_CAMP_RES"/>
+		<Row Type="RESOURCE_FURS" 		Tag="CLASS_CAMP_RES"/>
+		<Row Type="RESOURCE_IVORY"		Tag="CLASS_CAMP_RES"/>
+		
+		<Row Type="RESOURCE_TRUFFLES"	Tag="CLASS_CAMP_RES"/>
+		
+		<Row Type="RESOURCE_RICE"		Tag="CLASS_FARM_RES"/>
+		<Row Type="RESOURCE_WHEAT"		Tag="CLASS_FARM_RES"/>
+		
+		<Row Type="RESOURCE_DIAMONDS" 	Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_JADE" 		Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_GYPSUM" 	Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_MARBLE" 	Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_MERCURY" 	Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_SALT" 		Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_SILVER" 	Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_ALUMINUM" 	Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_COAL" 		Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_IRON" 		Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_URANIUM" 	Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_COPPER" 	Tag="CLASS_MINED_RES"/>
+		<Row Type="RESOURCE_STONE" 		Tag="CLASS_MINED_RES"/>
+		
+		<Row Type="RESOURCE_COPPER" 	Tag="CLASS_COPPER_RES"/>
+		
+		<Row Type="RESOURCE_IRON" 		Tag="CLASS_IRON_RES"/>
+		
+		<!-- Luxury
+		<Row Type="RESOURCE_CITRUS" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_CITRUS" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_CITRUS" Tag="CLASS_ORAL_TRADITION"/>
+		<Row Type="RESOURCE_COCOA" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_COCOA" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
+		<Row Type="RESOURCE_COFFEE" Tag="CLASS_CULTURE"/>
+		<Row Type="RESOURCE_COFFEE" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_COFFEE" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
+		<Row Type="RESOURCE_COTTON" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_COTTON" Tag="CLASS_ORAL_TRADITION"/>
+		<Row Type="RESOURCE_DIAMONDS" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_DIAMONDS" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_DYES" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_DYES" Tag="CLASS_ORAL_TRADITION"/>
+		<Row Type="RESOURCE_FURS" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_FURS" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_GYPSUM" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_GYPSUM" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_INCENSE" Tag="CLASS_CULTURE"/>
+		<Row Type="RESOURCE_INCENSE" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_INCENSE" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
+		<Row Type="RESOURCE_IVORY" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_IVORY" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_JADE" Tag="CLASS_CULTURE"/>
+		<Row Type="RESOURCE_JADE" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_MARBLE" Tag="CLASS_CULTURE"/>
+		<Row Type="RESOURCE_MARBLE" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_MERCURY" Tag="CLASS_SCIENCE"/>
+		<Row Type="RESOURCE_MERCURY" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_PEARLS" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_PEARLS" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_PEARLS" Tag="CLASS_SEA"/>
+		<Row Type="RESOURCE_SALT" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_SALT" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_SALT" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_SILK" Tag="CLASS_CULTURE"/>
+		<Row Type="RESOURCE_SILK" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_SILK" Tag="CLASS_ORAL_TRADITION"/>
+		<Row Type="RESOURCE_SILVER" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_SILVER" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_SPICES" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_SPICES" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_SPICES" Tag="CLASS_ORAL_TRADITION"/>
+		<Row Type="RESOURCE_SUGAR" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_SUGAR" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_SUGAR" Tag="CLASS_ORAL_TRADITION"/>
+		<Row Type="RESOURCE_TEA" Tag="CLASS_SCIENCE"/>
+		<Row Type="RESOURCE_TEA" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_TEA" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
+		<Row Type="RESOURCE_TOBACCO" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_TOBACCO" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
+		<Row Type="RESOURCE_TRUFFLES" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_WINE" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_WINE" Tag="CLASS_GOLD"/>
+		<Row Type="RESOURCE_WINE" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
+		-->
+		<!-- Strategic
+		<Row Type="RESOURCE_ALUMINUM" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_ALUMINUM" Tag="CLASS_SCIENCE"/>
+		<Row Type="RESOURCE_COAL" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_HORSES" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_HORSES" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_IRON" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_IRON" Tag="CLASS_SCIENCE"/>
+		<Row Type="RESOURCE_NITER" Tag="CLASS_FOOD"/>
+		<Row Type="RESOURCE_NITER" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_OIL" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_URANIUM" Tag="CLASS_PRODUCTION"/>
+		<Row Type="RESOURCE_URANIUM" Tag="CLASS_SCIENCE"/>
+		-->
+	</TypeTags>
+	
+</GameInfo>
