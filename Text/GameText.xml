@@ -1341,7 +1341,7 @@
     <Replace Tag="LOC_FEMALE_GOVERNMENT_TRIBE_NAME" 				Text="Matriarch {1_Name}"			Language="en_US" />
     <Replace Tag="LOC_FEMALE_GOVERNMENT_CHIEFDOM_NAME" 				Text="Chieftess {1_Name}"			Language="en_US" />
     <Replace Tag="LOC_FEMALE_GOVERNMENT_AUTOCRACY_NAME" 			Text="Empress {1_Name}"				Language="en_US" />
-    <Replace Tag="LOC_FEMALE_GOVERNMENT_OLIGARCHY_NAME" 			Text="Imperatess {1_Name}"			Language="en_US" />
+    <Replace Tag="LOC_FEMALE_GOVERNMENT_OLIGARCHY_NAME" 			Text="Imperatrix {1_Name}"			Language="en_US" />
     <Replace Tag="LOC_FEMALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"	Text="Citizen {1_Name}"				Language="en_US" />
     <Replace Tag="LOC_FEMALE_GOVERNMENT_MONARCHY_NAME"				Text="Queen {1_Name}"				Language="en_US" />
     <Replace Tag="LOC_FEMALE_GOVERNMENT_THEOCRACY_NAME"				Text="Holy Empress {1_Name}"		Language="en_US" />

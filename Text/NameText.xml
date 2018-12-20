@@ -342,6 +342,7 @@
 		<Replace Tag="LOC_EVENT_LAND_MELEE_ATTACK_NAME" 		Text="Land Melee Attack"				Language="en_US" />
 		<Replace Tag="LOC_EVENT_LAND_MELEE_DEFEND_NAME" 		Text="Land Melee Defend"				Language="en_US" />
 		<Replace Tag="LOC_EVENT_LAND_RANGED_COMBAT_NAME" 		Text="Land Ranged Combat"				Language="en_US" />
+		<Replace Tag="LOC_EVENT_RANGED_COMBAT_NAME" 			Text="Ranged Combat"					Language="en_US" />
 		<Replace Tag="LOC_EVENT_COASTAL_CITY_NAME" 				Text="Coastal Cities"					Language="en_US" />
 		<Replace Tag="LOC_EVENT_WORKED_RESOURCE_NAME" 			Text="Worked Resources"					Language="en_US" />
 		<Replace Tag="LOC_EVENT_WORKED_IMPROVED_RESOURCE_NAME" 	Text="Worked Improved Resources"		Language="en_US" />
