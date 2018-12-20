@@ -165,7 +165,11 @@ end
 --	Main city panel
 -- ===========================================================================
 function ViewMain( data:table )
-	m_primaryColor, m_secondaryColor  = UI.GetPlayerColors( m_pPlayer:GetID() );
+	
+	-- GCO <<<<<
+	--m_primaryColor, m_secondaryColor  = UI.GetPlayerColors( m_pPlayer:GetID() );
+	m_primaryColor, m_secondaryColor  = GCO.GetPlayerColors( m_pPlayer:GetID() );
+	-- GCO >>>>>
 	local darkerBackColor = DarkenLightenColor(m_primaryColor,(-85),100);
 	local brighterBackColor = DarkenLightenColor(m_primaryColor,90,255);
 

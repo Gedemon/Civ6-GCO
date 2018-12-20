@@ -417,7 +417,7 @@ ALTER TABLE Buildings ADD COLUMN EmploymentSize	REAL DEFAULT 0; 					-- Employme
 -- New Tables
 -----------------------------------------------
 
--- Create a version of the LocalizedText table in GameData, the Mod text will be copied there, then the SQL
+-- Create a version of the LocalizedText table in GameData, the Mod text will be copied there, then PostUpdate.sql populate the corresponding entries, if the text exists
 CREATE TABLE IF NOT EXISTS LocalizedText (
 	Language TEXT NOT NULL,
 	Tag TEXT NOT NULL,
@@ -426,6 +426,27 @@ CREATE TABLE IF NOT EXISTS LocalizedText (
 	Plurality TEXT,
 	PRIMARY KEY (Language, Tag));
 
+CREATE TABLE IF NOT EXISTS CultureGroups
+	(	CultureType TEXT NOT NULL,
+		Name TEXT,
+		Adjective TEXT,
+		StartDate INTEGER,
+		EndDate INTEGER,
+		PeakDate INTEGER,
+		PeakStrength INTEGER,
+		Agressivity INTEGER,
+		SpawnCivilization TEXT,
+		Ethnicity TEXT,
+		PRIMARY KEY(CultureType)
+		--FOREIGN KEY (SpawnCivilization) REFERENCES Civilizations(CivilizationType)
+	);
+	
+CREATE TABLE IF NOT EXISTS CultureGroupsStartingRegions
+	(	CultureType TEXT NOT NULL,
+		StartingRegion TEXT NOT NULL,
+		PRIMARY KEY(CultureType, StartingRegion)
+	);
+	
 CREATE TABLE IF NOT EXISTS BuildingConstructionResources (
 		BuildingType TEXT NOT NULL,
 		ResourceType TEXT NOT NULL,

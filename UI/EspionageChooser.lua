@@ -426,7 +426,10 @@ end
 
 -- ===========================================================================
 function UpdateCityBanner(city:table)
-	local backColor:number, frontColor:number  = UI.GetPlayerColors( city:GetOwner() );
+	-- GCO <<<<<
+	--local backColor:number, frontColor:number  = UI.GetPlayerColors( city:GetOwner() );
+	local backColor:number, frontColor:number  = GCO.GetPlayerColors( city:GetOwner() );
+	-- GCO >>>>>
 	local darkerBackColor:number = DarkenLightenColor(backColor,(-85),238);
 	local brighterBackColor:number = DarkenLightenColor(backColor,90,255);
 
@@ -473,7 +476,10 @@ function AddDestination(city:table)
 	local destinationInstance:table = m_RouteChoiceIM:GetInstance();
 
 	-- Update city name and banner color
-	local backColor:number, frontColor:number  = UI.GetPlayerColors( city:GetOwner() );
+	-- GCO <<<<<
+	--local backColor:number, frontColor:number  = UI.GetPlayerColors( city:GetOwner() );
+	local backColor:number, frontColor:number  = GCO.GetPlayerColors( city:GetOwner() );
+	-- GCO >>>>>
 	local darkerBackColor:number = DarkenLightenColor(backColor,(-85),238);
 	local brighterBackColor:number = DarkenLightenColor(backColor,90,255);
 

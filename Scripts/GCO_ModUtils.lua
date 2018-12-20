@@ -332,7 +332,7 @@ local debugFilter = {
 --	["PlayerScript"] 	= true,
 --	["UnitScript"] 		= true,
 --	["PlotScript"] 		= true,
-	["ResearchScript"] 	= true,
+--	["ResearchScript"] 	= true,
 }
 
 function ToggleOutput()
@@ -625,15 +625,15 @@ GameEvents.OnGameTurnStarted.Add(ShowLoggedCounter)
 --=====================================================================================--
 local Timer 	= {}
 local TimerLog 	= {
-	["GetRiverPath"] 	= 0,
-	["IsPlotConnectedCoastal"] = 0,
-	["IsPlotConnectedOcean"] = 0,
-	["IsPlotConnectedRoad"] = 0,
-	["IsPlotConnectedLand"] = 0,
-	["GetPathToPlotCoastal"] = 0,
-	["GetPathToPlotOcean"] = 0,
-	["GetPathToPlotRoad"] = 0,
-	["GetPathToPlotLand"] = 0,	
+	--["GetRiverPath"] 	= 0,
+	--["IsPlotConnectedCoastal"] = 0,
+	--["IsPlotConnectedOcean"] = 0,
+	--["IsPlotConnectedRoad"] = 0,
+	--["IsPlotConnectedLand"] = 0,
+	--["GetPathToPlotCoastal"] = 0,
+	--["GetPathToPlotOcean"] = 0,
+	--["GetPathToPlotRoad"] = 0,
+	--["GetPathToPlotLand"] = 0,	
 }
 function StartTimer(name)
 	Timer[name] = { Start = Automation.GetTime() }
@@ -863,6 +863,51 @@ Dprint("Calling CityCaptureCityInitialized (", playerID, cityID, iX, iY,")")
 	end
 end
 Events.CityInitialized.Add(CityCaptureCityInitialized)
+
+
+--=====================================================================================--
+-- Colors
+--=====================================================================================--
+function GetPlayerColors(playerID)
+
+	--print("---------------------------------------")
+	--print(pPlayerConfig:GetLeaderTypeName())
+	local pPlayerConfig = GCO.GetPlayerConfig(playerID)
+	
+	local function ColorStringToNumber(colorStr)
+		--print("ColorStringToNumber ", colorStr )
+		hexString = ""
+		for numStr in string.gmatch(colorStr, '([^,]+)') do
+			local num = tonumber(numStr)
+			local hex = ""
+			if (num < 0 or num == 0) then
+				hex = "00";
+			elseif (num > 255 or num == 255) then
+				hex = "ff";
+			else
+				hex = string.format("%x",num);
+				if (string.len(hex)==1) then
+					hex = "0"..hex;
+				end
+			end
+		
+			hexString = hex .. hexString
+			--print(hexString)
+		end
+		local returnDec = (tonumber(hexString,16) + 2^31) % 2^32 - 2^31 -- see https://stackoverflow.com/questions/37411564/hex-to-int32-value
+		--print("Return : ", returnDec )
+		return returnDec
+	end
+	
+	local colorRow 		= GameInfo.PlayerColors[pPlayerConfig:GetLeaderTypeName()]
+	
+	if colorRow == nil then return ExposedMembers.UI.GetPlayerColors(playerID) end
+	
+	local frontColor	= ColorStringToNumber(GameInfo.Colors[colorRow.PrimaryColor].Color)
+	local backColor		= ColorStringToNumber(GameInfo.Colors[colorRow.SecondaryColor].Color)
+	
+	return frontColor, backColor
+end
 
 
 --=====================================================================================--
@@ -1214,6 +1259,8 @@ function Initialize()
 	-- civilizations
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
+	-- color
+	ExposedMembers.GCO.GetPlayerColors				= GetPlayerColors
 	-- common
 	ExposedMembers.GCO.GetTotalPrisoners 			= GetTotalPrisoners
 	ExposedMembers.GCO.GetTurnKey 					= GetTurnKey

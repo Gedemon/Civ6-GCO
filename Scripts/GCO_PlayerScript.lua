@@ -62,7 +62,7 @@ local OrganizationLevelToStandard 	= {		-- to get the normal MilitaryOrganisatio
 }
 local smallerUnitsPolicyID 			= GameInfo.Policies["POLICY_SMALLER_UNITS"].Index
 
-
+local PlayerFromCivilizationType	= {}	-- to get the PlayerID for a CivilizationType
 -----------------------------------------------------------------------------------------
 -- Initialize
 -----------------------------------------------------------------------------------------
@@ -111,6 +111,9 @@ function SetPlayerDefines()
 		local player = Players[playerID]
 		if player then
 			player:Define()
+			
+			local playerConfig	= self:GetConfig()
+			PlayerFromCivilizationType[playerConfig:GetCivilizationTypeName()] = playerID
 		end	
 	end
 end
@@ -331,6 +334,12 @@ function Define(self)
 	playerConfig:SetKeyValue("LeaderName", 						LeaderName)
 	playerConfig:SetKeyValue("CivilizationShortDescription", 	ShortDescription)
 	playerConfig:SetKeyValue("CivilizationDescription", 		Description)
+	
+	-- tests
+	--[[
+	playerConfig:SetKeyValue("LeaderTypeName", 					"LEADER_FRANCE")
+	playerConfig:SetKeyValue("CivilizationTypeName", 			"CIVILIZATION_FRANCE")
+	--]]
 	
 	self:UpdateUnitsFlags()
 	self:UpdateCitiesBanners()
@@ -1125,6 +1134,9 @@ function GetPlayer(playerID)
 	return player
 end
 
+function GetPlayerIDFromCivilizationType(CivilizationType)
+	return PlayerFromCivilizationType[CivilizationType]
+end
 
 
 -----------------------------------------------------------------------------------------
@@ -1203,11 +1215,12 @@ end
 ----------------------------------------------
 function Initialize()
 	-- Sharing Functions for other contexts
-	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
-	ExposedMembers.GCO.GetPlayer 					= GetPlayer
-	ExposedMembers.GCO.InitializePlayerFunctions 	= InitializePlayerFunctions
-	ExposedMembers.GCO.PlayerTurnsDebugChecks 		= {}
-	ExposedMembers.PlayerScript_Initialized 		= true
+	if not ExposedMembers.GCO then ExposedMembers.GCO 	= {} end
+	ExposedMembers.GCO.GetPlayer 						= GetPlayer
+	ExposedMembers.GCO.GetPlayerIDFromCivilizationType	= GetPlayerIDFromCivilizationType
+	ExposedMembers.GCO.InitializePlayerFunctions 		= InitializePlayerFunctions
+	ExposedMembers.GCO.PlayerTurnsDebugChecks 			= {}
+	ExposedMembers.PlayerScript_Initialized 			= true
 	
 	-- Register Events (order matters for same events)
 	Events.ResearchCompleted.Add(OnResearchCompleted)

@@ -206,6 +206,11 @@ function SetUnitName( unit, name )
 	end
 end
 
+function RequestOperation( pUnit, UnitOperationType, tParameters)
+	local contextUnit = UnitManager.GetUnit(pUnit:GetOwner(), pUnit:GetID())
+	UnitManager.RequestOperation( contextUnit, UnitOperationType, tParameters)
+end
+
 
 -- ===========================================================================
 -- Custom Tooltip
@@ -444,6 +449,7 @@ function Initialize()
 	-- units
 	ExposedMembers.GCO.GetMoveToPath				= GetMoveToPath
 	ExposedMembers.GCO.SetUnitName					= SetUnitName
+	ExposedMembers.GCO.RequestOperation				= RequestOperation
 	-- others
 	ExposedMembers.UI 								= UI
 	ExposedMembers.Calendar							= Calendar

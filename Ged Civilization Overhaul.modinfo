@@ -54,6 +54,7 @@
 	
 	<Dependencies>
 		<Mod id="432232e6-7d07-4c16-9262-cc28795d72c5" title="Ged Assets" />
+		<Mod id="36e88483-48fe-4545-b85f-bafc50dde315" title="YnAMP" />
 	</Dependencies>
 
 	<Blocks>
@@ -91,6 +92,7 @@
 			<File>UI/UnitPanel.lua</File>
 			<File>UI/CivilizationIcon.lua</File>
 			<File>UI/LeaderIcon.lua</File>
+			<File>UI/LeaderIcon.xml</File>
 			<File>UI/TechTree.lua</File>
 			<File>UI/TechAndCivicUnlockables.lua</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
@@ -158,6 +160,7 @@
 				<File Priority="100">Data/Technologies.xml</File>
 				<File Priority="100">Text/NameText.xml</File> <!-- Add buildings, units, ... name & descriptions here to automate table filling in PostUpdate.sql -->
 				<File Priority="100">Data/CivilizationTable.sql</File>
+				<File Priority="100">Data/CultureGroups.xml</File>
 				<File Priority="95">Data/CultureDiffusionParameters.sql</File>
 				<File Priority="90">Data/CombatRules.sql</File>
 				<File Priority="90">Data/Units.sql</File>
@@ -266,6 +269,7 @@
 		<File>Data/Units.xml</File>
 		<File>Data/Equipment.xml</File>
 		<File>Data/Resources.xml</File>
+		<File>Data/CultureGroups.xml</File>
 		<File>Data/CivilizationTable.sql</File>
 		<File>Data/CivilizationData.sql</File>
 		<File>Data/BaseGameFix.xml</File>	
@@ -319,6 +323,7 @@
 		<File>UI/UnitPanel.lua</File>
 		<File>UI/CivilizationIcon.lua</File>
 		<File>UI/LeaderIcon.lua</File>
+		<File>UI/LeaderIcon.xml</File>
 		<File>UI/TechTree.lua</File>
 		<File>UI/TechAndCivicUnlockables.lua</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>

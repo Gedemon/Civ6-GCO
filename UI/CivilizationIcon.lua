@@ -85,7 +85,10 @@ end
 
 function CivilizationIcon:ColorCivIcon(playerID:number, showCivIcon:boolean)
 	if showCivIcon then
-		local backColor, frontColor = UI.GetPlayerColors(playerID);
+		-- GCO <<<<<
+		--local backColor, frontColor = UI.GetPlayerColors(playerID);
+		local backColor, frontColor = (GCO.GetPlayerColors and GCO.GetPlayerColors(playerID)) or UI.GetPlayerColors(playerID) -- this can be called before full initialization
+		-- GCO >>>>>
 		self.Controls.CivIcon:SetColor(frontColor);
 		if self.Controls.CivIconBacking then
 			self.Controls.CivIconBacking:SetColor(backColor);

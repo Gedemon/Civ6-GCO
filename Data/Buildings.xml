@@ -47,7 +47,7 @@
 		<Row BuildingType="BUILDING_FOUNDRY"					Cost="200" 	MaterielPerProduction="6" PrereqTech="TECH_METAL_CASTING" 		EmploymentSize="2.50"	EquipmentStock="250" />
 		
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"			Cost="290" 	MaterielPerProduction="6" PrereqTech="TECH_BANKING"  			EmploymentSize="2.50"	/>		
-		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"			Cost="340" 	MaterielPerProduction="6" PrereqTech="TECH_ECONOMICS"  			EmploymentSize="4.00"	/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"			Cost="420" 	MaterielPerProduction="6" PrereqTech="TECH_REFRIGERATION"		EmploymentSize="4.00"	/>
 		<Row BuildingType="BUILDING_HYPERMARKET"				Cost="740" 	MaterielPerProduction="6" PrereqTech="TECH_PLASTICS"  			EmploymentSize="5.00"	/>
 	
 		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	Cost="30" 	MaterielPerProduction="2" />

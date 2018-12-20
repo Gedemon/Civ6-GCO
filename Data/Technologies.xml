@@ -733,7 +733,7 @@
 	
 		<Row 	ResearchType="RESEARCH_MILITARY" 	ContributionType="EVENT_LAND_MELEE_ATTACK" 			BaseValue="5"	/>
 		<Row 	ResearchType="RESEARCH_MILITARY" 	ContributionType="EVENT_LAND_MELEE_DEFENSE" 		BaseValue="2"	/>
-		<Row 	ResearchType="RESEARCH_MILITARY" 	ContributionType="EVENT_LAND_RANGED_COMBAT" 		BaseValue="1"	/>
+		<Row 	ResearchType="RESEARCH_MILITARY" 	ContributionType="EVENT_RANGED_COMBAT" 				BaseValue="1"	/>
 		
 		<Row 	ResearchType="RESEARCH_EXPLORATION" ContributionType="EVENT_DISCOVER_NATURAL_WONDER" 	BaseValue="5"	/>
 		<Row 	ResearchType="RESEARCH_EXPLORATION" ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 		BaseValue="3"	/>
@@ -772,6 +772,9 @@
 		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 	MaxContributionPercent="75"		TypeTag="CLASS_PASTURE_RES" BaseValue="5"/>
 		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_DISCOVER_RESOURCE" 		MaxContributionPercent="75"		TypeTag="CLASS_PASTURE_RES" BaseValue="2"/>
 		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_WORKED_RESOURCE" 		MaxContributionPercent="100"	TypeTag="CLASS_PASTURE_RES" BaseValue="3"/>
+		
+		<Row 	Technology="TECH_IRRIGATION" 		ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_FARM_RES" 	BaseValue="3" PrereqTech="TECH_POTTERY"/>
+		<Row 	Technology="TECH_IRRIGATION" 		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_PLANT_RES" 	BaseValue="2" PrereqTech="TECH_POTTERY"/>
 		
 		<Row 	Technology="TECH_MINING" 			ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_MINED_RES" BaseValue="3"	PrereqTech="TECH_POTTERY"	/>
 		
@@ -840,6 +843,7 @@
 		<Row Tag="CLASS_BOAT_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_CAMP_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_FARM_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_PLANT_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_SEA_FOOD" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_MINED_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_COPPER_RES" 	Vocabulary="RESOURCE_CLASS"/>
@@ -848,7 +852,7 @@
 		<Row Tag="CLASS_ARMOR" 			Vocabulary="ABILITY_CLASS"/>
 	</Tags>
 	<TypeTags>
-		<!-- Bonus-->
+	
 		<Row Type="RESOURCE_CATTLE" 	Tag="CLASS_PASTURE_RES"/>
 		<Row Type="RESOURCE_SHEEP"		Tag="CLASS_PASTURE_RES"/>
 		<Row Type="RESOURCE_HORSES" 	Tag="CLASS_PASTURE_RES"/>
@@ -861,11 +865,23 @@
 		<Row Type="RESOURCE_DEER"		Tag="CLASS_CAMP_RES"/>
 		<Row Type="RESOURCE_FURS" 		Tag="CLASS_CAMP_RES"/>
 		<Row Type="RESOURCE_IVORY"		Tag="CLASS_CAMP_RES"/>
-		
 		<Row Type="RESOURCE_TRUFFLES"	Tag="CLASS_CAMP_RES"/>
 		
 		<Row Type="RESOURCE_RICE"		Tag="CLASS_FARM_RES"/>
 		<Row Type="RESOURCE_WHEAT"		Tag="CLASS_FARM_RES"/>
+		
+		<Row Type="RESOURCE_CITRUS"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_COCOA"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_COFFEE"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_COTTON"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_DYES"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_INCENSE"	Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_SILK"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_SPICES"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_SUGAR"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_TEA"		Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_TOBACCO"	Tag="CLASS_PLANT_RES"/>
+		<Row Type="RESOURCE_WINE"		Tag="CLASS_PLANT_RES"/>
 		
 		<Row Type="RESOURCE_DIAMONDS" 	Tag="CLASS_MINED_RES"/>
 		<Row Type="RESOURCE_JADE" 		Tag="CLASS_MINED_RES"/>
@@ -885,76 +901,8 @@
 		
 		<Row Type="RESOURCE_IRON" 		Tag="CLASS_IRON_RES"/>
 		
-		<!-- Luxury
-		<Row Type="RESOURCE_CITRUS" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_CITRUS" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_CITRUS" Tag="CLASS_ORAL_TRADITION"/>
-		<Row Type="RESOURCE_COCOA" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_COCOA" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
-		<Row Type="RESOURCE_COFFEE" Tag="CLASS_CULTURE"/>
-		<Row Type="RESOURCE_COFFEE" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_COFFEE" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
-		<Row Type="RESOURCE_COTTON" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_COTTON" Tag="CLASS_ORAL_TRADITION"/>
-		<Row Type="RESOURCE_DIAMONDS" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_DIAMONDS" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_DYES" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_DYES" Tag="CLASS_ORAL_TRADITION"/>
-		<Row Type="RESOURCE_FURS" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_FURS" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_GYPSUM" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_GYPSUM" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_INCENSE" Tag="CLASS_CULTURE"/>
-		<Row Type="RESOURCE_INCENSE" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_INCENSE" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
-		<Row Type="RESOURCE_IVORY" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_IVORY" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_JADE" Tag="CLASS_CULTURE"/>
-		<Row Type="RESOURCE_JADE" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_MARBLE" Tag="CLASS_CULTURE"/>
-		<Row Type="RESOURCE_MARBLE" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_MERCURY" Tag="CLASS_SCIENCE"/>
-		<Row Type="RESOURCE_MERCURY" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_PEARLS" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_PEARLS" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_PEARLS" Tag="CLASS_SEA"/>
-		<Row Type="RESOURCE_SALT" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_SALT" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_SALT" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_SILK" Tag="CLASS_CULTURE"/>
-		<Row Type="RESOURCE_SILK" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_SILK" Tag="CLASS_ORAL_TRADITION"/>
-		<Row Type="RESOURCE_SILVER" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_SILVER" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_SPICES" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_SPICES" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_SPICES" Tag="CLASS_ORAL_TRADITION"/>
-		<Row Type="RESOURCE_SUGAR" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_SUGAR" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_SUGAR" Tag="CLASS_ORAL_TRADITION"/>
-		<Row Type="RESOURCE_TEA" Tag="CLASS_SCIENCE"/>
-		<Row Type="RESOURCE_TEA" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_TEA" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
-		<Row Type="RESOURCE_TOBACCO" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_TOBACCO" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
-		<Row Type="RESOURCE_TRUFFLES" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_WINE" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_WINE" Tag="CLASS_GOLD"/>
-		<Row Type="RESOURCE_WINE" Tag="CLASS_GODDESS_OF_FESTIVALS"/>
-		-->
-		<!-- Strategic
-		<Row Type="RESOURCE_ALUMINUM" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_ALUMINUM" Tag="CLASS_SCIENCE"/>
-		<Row Type="RESOURCE_COAL" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_HORSES" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_HORSES" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_IRON" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_IRON" Tag="CLASS_SCIENCE"/>
-		<Row Type="RESOURCE_NITER" Tag="CLASS_FOOD"/>
-		<Row Type="RESOURCE_NITER" Tag="CLASS_PRODUCTION"/>
+		<!-- 
 		<Row Type="RESOURCE_OIL" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_URANIUM" Tag="CLASS_PRODUCTION"/>
-		<Row Type="RESOURCE_URANIUM" Tag="CLASS_SCIENCE"/>
 		-->
 	</TypeTags>
 	

@@ -734,7 +734,10 @@ end
 -- Assign player colors to the appropriate banner elements
 function CityBanner.SetColor( self : CityBanner )
 
-	local backColor, frontColor  = UI.GetPlayerColors( self.m_Player:GetID() );
+	-- GCO <<<<<
+	--local backColor, frontColor  = UI.GetPlayerColors( self.m_Player:GetID() );
+	local backColor, frontColor = GCO.GetPlayerColors( self.m_Player:GetID() );
+	-- GCO >>>>>
 	local darkerBackColor = DarkenLightenColor(backColor,(-85),238);
 	local brighterBackColor = DarkenLightenColor(backColor,90,255);
 	if (self.m_IsSelected == false or self.m_IsSelected == nil) then

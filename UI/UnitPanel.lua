@@ -1624,7 +1624,10 @@ function EspionageView(data:table)
 		local operationType:number = data.SpyOperation;
 		if (operationType ~= -1) then
 			-- City Banner
-			local backColor:number, frontColor:number  = UI.GetPlayerColors( data.SpyTargetOwnerID );
+			-- GCO <<<<<
+			--local backColor:number, frontColor:number  = UI.GetPlayerColors( data.SpyTargetOwnerID );
+			local backColor:number, frontColor:number  = GCO.GetPlayerColors( data.SpyTargetOwnerID );
+			-- GCO >>>>>
 			Controls.EspionageCityBanner:SetColor( backColor );
 			Controls.EspionageLocationPip:SetColor( frontColor );
 			Controls.EspionageCityName:SetColor( frontColor );
@@ -2112,7 +2115,10 @@ function ReadDistrictData( pDistrict:table )
 		m_subjectData.WallDamage				= pDistrict:GetDamage(DefenseTypes.DISTRICT_OUTER);
 		m_subjectData.MaxWallDamage				= pDistrict:GetMaxDamage(DefenseTypes.DISTRICT_OUTER);
 
-		m_primaryColor, m_secondaryColor  = UI.GetPlayerColors( pDistrict:GetOwner() );
+		-- GCO <<<<<
+		--m_primaryColor, m_secondaryColor  = UI.GetPlayerColors( pDistrict:GetOwner() );
+		m_primaryColor, m_secondaryColor  = GCO.GetPlayerColors( pDistrict:GetOwner() );
+		-- GCO >>>>>
 
 		local civTypeName:string = PlayerConfigurations[pDistrict:GetOwner()]:GetCivilizationTypeName();
 		if civTypeName ~= nil then
@@ -2172,7 +2178,10 @@ function OnUnitSelectionChanged(player, unitId, locationX, locationY, locationZ,
 	if (isSelected) then
 		m_selectedPlayerId = player;
 		m_UnitId = unitId;
-		m_primaryColor, m_secondaryColor = UI.GetPlayerColors( m_selectedPlayerId );
+		-- GCO <<<<<
+		--m_primaryColor, m_secondaryColor = UI.GetPlayerColors( m_selectedPlayerId );
+		m_primaryColor, m_secondaryColor = GCO.GetPlayerColors( m_selectedPlayerId );
+		-- GCO >>>>>
 		m_combatResults = nil;
 
 		Refresh(m_selectedPlayerId, m_UnitId)
@@ -2718,7 +2727,10 @@ function ShowHideSelectedUnit()
 	if pSelectedUnit ~= nil then
 		m_selectedPlayerId				= pSelectedUnit:GetOwner();
 		m_UnitId						= pSelectedUnit:GetID();
-		m_primaryColor, m_secondaryColor= UI.GetPlayerColors( m_selectedPlayerId );
+		-- GCO <<<<<
+		--m_primaryColor, m_secondaryColor= UI.GetPlayerColors( m_selectedPlayerId );
+		m_primaryColor, m_secondaryColor= GCO.GetPlayerColors( m_selectedPlayerId );
+		-- GCO >>>>>
 		Refresh( m_selectedPlayerId, m_UnitId );
 	else
 		Hide();
@@ -3341,7 +3353,10 @@ function ReadTargetData_District(pDistrict)
 	m_targetData.ShowCombatData				= true;
 	m_targetData.HasDefenses				= true;
 
-	m_primaryColor, m_secondaryColor = UI.GetPlayerColors(districtOwner);
+	-- GCO <<<<<
+	--m_primaryColor, m_secondaryColor = UI.GetPlayerColors(districtOwner);
+	m_primaryColor, m_secondaryColor = GCO.GetPlayerColors(districtOwner);
+	-- GCO >>>>>
 
 	local civTypeName:string = PlayerConfigurations[districtOwner]:GetCivilizationTypeName();
 	if civTypeName ~= nil then
@@ -3361,7 +3376,10 @@ function ReadTargetData_Plot(pkPlot)
 	end
 
 	local owner = pkPlot:GetOwner();
-	m_primaryColor, m_secondaryColor = UI.GetPlayerColors(owner);
+	-- GCO <<<<<
+	--m_primaryColor, m_secondaryColor = UI.GetPlayerColors(owner);
+	m_primaryColor, m_secondaryColor = GCO.GetPlayerColors(owner);
+	-- GCO >>>>>
 
 	local impType = pkPlot:GetImprovementType();
 	local districtType = pkPlot:GetDistrictType();

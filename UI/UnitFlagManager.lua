@@ -474,7 +474,11 @@ end
 ------------------------------------------------------------------
 -- Set the flag color based on the player colors.
 function UnitFlag.SetColor( self )
-	local primaryColor, secondaryColor  = UI.GetPlayerColors( self.m_Player:GetID() );
+	
+	-- GCO <<<<<
+	--local primaryColor, secondaryColor  = UI.GetPlayerColors( self.m_Player:GetID() );
+	local primaryColor, secondaryColor  = GCO.GetPlayerColors( self.m_Player:GetID() );
+	-- GCO >>>>>
 	local darkerFlagColor	:number = DarkenLightenColor(primaryColor,(-85),255);
 	local brighterFlagColor :number = DarkenLightenColor(primaryColor,90,255);
 	local brighterIconColor :number = DarkenLightenColor(secondaryColor,20,255);

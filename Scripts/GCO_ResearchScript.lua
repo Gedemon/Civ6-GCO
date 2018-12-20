@@ -712,6 +712,8 @@ function Research:GetContributionString(techID)
 	local bInvertedColor	= true
 	local bNoGradient		= false
 	
+	if pTech:HasTech(techID) then totalProgress = techCost end -- When the Tech is researched, pTech:GetResearchProgress(techID) returns 0
+	
 	local function AddToString(techID, contributionType, typeTag, maxPercent)
 		local currentContribution	= self:GetCurrentContribution(techID, contributionType, typeTag)
 		local maxContribution		= techCost * maxPercent / 100
@@ -722,7 +724,9 @@ function Research:GetContributionString(techID)
 		else
 			table.insert(makeStr, GCO.GetPercentBarString(percentContribution, bInvertedColor, bNoGradient) .. " " .. Locale.Lookup(GameInfo.TechnologyContributionTypes[contributionType].Name)  .. " ".. tostring(currentContribution) .."/".. tostring(maxContribution) )
 		end
-		contribProgress = contribProgress + currentContribution
+		if currentContribution > 0 then
+			contribProgress = contribProgress + currentContribution
+		end
 	end
 	
 	

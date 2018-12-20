@@ -363,6 +363,7 @@
 		<Replace Tag="LOC_CLASS_BOAT_RES_NAME" 				Text="Boat"						Language="en_US" />
 		<Replace Tag="LOC_CLASS_CAMP_RES_NAME" 				Text="Camps"					Language="en_US" />
 		<Replace Tag="LOC_CLASS_FARM_RES_NAME" 				Text="Farm"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_PLANT_RES_NAME" 			Text="Plantations"				Language="en_US" />
 		<Replace Tag="LOC_CLASS_SEA_FOOD_NAME" 				Text="Sea Food"					Language="en_US" />
 		<Replace Tag="LOC_CLASS_MINED_RES_NAME"				Text="Mined"					Language="en_US" />
 		<Replace Tag="LOC_CLASS_COPPER_RES_NAME"			Text="Copper"					Language="en_US" />

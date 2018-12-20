@@ -3,6 +3,17 @@
 	This file update and add required entries to various tables.
 	This way we can limit XML rows to the minimum
 */
+	
+
+-----------------------------------------------
+-- Auto set names tag for new tables
+-----------------------------------------------
+
+UPDATE EquipmentClasses 			SET Name = 'LOC_' || EquipmentClasses.EquipmentClass || '_NAME';
+UPDATE MilitaryOrganisationLevels	SET Name = 'LOC_' || MilitaryOrganisationLevels.OrganisationLevelType || '_NAME';
+UPDATE MilitaryFormations			SET Name = 'LOC_' || MilitaryFormations.MilitaryFormationType || '_NAME';
+UPDATE TechnologyContributionTypes	SET Name = 'LOC_' || TechnologyContributionTypes.ContributionType || '_NAME';
+
 
 -----------------------------------------------
 -- Buildings
@@ -47,7 +58,22 @@ INSERT INTO ModifierArguments (ModifierId, Name, Value)
 INSERT INTO BuildingModifiers (BuildingType, ModifierId)
 	SELECT BuildingUpgrades.BuildingType, 'PRODUCTION_BONUS_FROM_' || BuildingUpgrades.BuildingType
 	FROM BuildingUpgrades;
-			
+
+
+-----------------------------------------------
+-- Culture Groups
+-----------------------------------------------
+
+/* Add Name & Adjective Tags */
+UPDATE CultureGroups	SET Name 		= 'LOC_' || CultureGroups.CultureType || '_NAME';
+UPDATE CultureGroups	SET Adjective 	= 'LOC_' || CultureGroups.CultureType || '_ADJECTIVE';
+
+/* Add all Civilizations to the Culture Groups table */
+INSERT INTO CultureGroups (CultureType, Name, Adjective, Ethnicity)
+	SELECT C.CivilizationType, C.Name, C.Adjective, C.Ethnicity
+	FROM Civilizations AS C;
+	
+
 -----------------------------------------------
 -- Resources
 -----------------------------------------------
@@ -81,16 +107,6 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT Populations.PopulationType, 'KIND_RESOURCE'
 	FROM Populations;	
-	
-
------------------------------------------------
--- Auto set names tag for new tables
------------------------------------------------
-
-UPDATE EquipmentClasses 			SET Name = 'LOC_' || EquipmentClasses.EquipmentClass || '_NAME';
-UPDATE MilitaryOrganisationLevels	SET Name = 'LOC_' || MilitaryOrganisationLevels.OrganisationLevelType || '_NAME';
-UPDATE MilitaryFormations			SET Name = 'LOC_' || MilitaryFormations.MilitaryFormationType || '_NAME';
-UPDATE TechnologyContributionTypes	SET Name = 'LOC_' || TechnologyContributionTypes.ContributionType || '_NAME';
 
 
 -----------------------------------------------

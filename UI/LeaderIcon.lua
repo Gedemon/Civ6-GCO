@@ -6,6 +6,7 @@
 -- GCO <<<<<
 print("Loading LeaderIcon.lua.")
 include( "GCO_PlayerConfig" )
+include( "SupportFunctions" )
 -- GCO >>>>>
 
 include("LuaClass");
@@ -121,6 +122,22 @@ function LeaderIcon:UpdateIcon(iconName: string, playerID: number, isUniqueLeade
 			self.Controls.Relationship:SetToolTipString(Locale.Lookup(GameInfo.DiplomaticStates[ourRelationship].Name));
 		end
 	end
+	
+	-- GCO <<<<<
+	---[[
+	if ExposedMembers.GCO_Initialized then
+		local backColor, frontColor  = GCO.GetPlayerColors( playerID );
+		
+		--self.Controls.PortraitBack:SetColor(backColor);
+		self.Controls.CivBacking_Base:SetColor(backColor);
+		self.Controls.CivBacking_Lighter:SetColor(DarkenLightenColor(backColor, 80, 255));
+		self.Controls.CivBacking_Darker:SetColor(DarkenLightenColor(backColor, -55, 230));
+		self.Controls.Portrait:SetColor(frontColor);
+		self.Controls.Portrait:SetIcon("ICON_"..pPlayerConfig:GetCivilizationTypeName());
+		self.Controls.YouIndicator:SetHide(false)
+		--]]
+	end
+	-- GCO >>>>>
 end
 
 --Resets instances we retrieve

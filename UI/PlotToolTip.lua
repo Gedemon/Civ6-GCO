@@ -578,8 +578,8 @@ function View(data:table, bIsUpdate:boolean)
 	table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population)) .. GCO.GetVariationStringNoColorHigh(popVariation))
 	if totalCulture > 0 then
 		local sortedCulture = {}
-		for playerID, value in pairs (plot:GetCulturePercentTable()) do
-			table.insert(sortedCulture, {playerID = tonumber(playerID), value = value})
+		for cultureKey, value in pairs (plot:GetCulturePercentTable()) do
+			table.insert(sortedCulture, {cultureID = tonumber(cultureKey), value = value})
 		end	
 		table.sort(sortedCulture, function(a,b) return a.value>b.value end)
 		local numLines = 5
@@ -588,10 +588,10 @@ function View(data:table, bIsUpdate:boolean)
 		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ).. GCO.GetVariationStringNoColorHigh(totalCulture - plot:GetTotalPreviousCulture()))
 		for i, t in ipairs(sortedCulture) do
 			if (iter <= numLines) or (#sortedCulture == numLines + 1) then
-				local playerConfig 		= PlayerConfigurations[t.playerID]
-				local percentVariation 	= (plot:GetCulturePer10000(t.playerID) - plot:GetPreviousCulturePer10000(t.playerID)) / 100
-				local civAdjective 		= Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective)
-				if t.value > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, civAdjective) .. GCO.GetVariationStringNoColorPercent(percentVariation)) end
+				--local playerConfig 		= PlayerConfigurations[t.playerID]
+				local percentVariation 	= (plot:GetCulturePer10000(t.cultureID) - plot:GetPreviousCulturePer10000(t.cultureID)) / 100
+				local cultureAdjective 	= GameInfo.CultureGroups[t.cultureID].Adjective	--playerConfig and Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective) or "Independant"
+				if t.value > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, cultureAdjective) .. GCO.GetVariationStringNoColorPercent(percentVariation)) end
 			else
 				other = other + t.value
 			end

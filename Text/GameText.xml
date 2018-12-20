@@ -1436,5 +1436,14 @@
     <Replace Tag="LOC_CIVILIZATION_EGYPT_UNKNOWN_GOVERNMENT_MONARCHY_NAME"				Text="Pharaoh of {1_Name}"		Language="en_US" />
 	
   </LocalizedText> 
+  
+  <LocalizedText> <!-- Culture Groups -->
+  
+    <Replace Tag="LOC_CULTURE_INDEPENDENT_NAME" 				Text="Independent"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_INDEPENDENT_ADJECTIVE" 			Text="Independent"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SEPARATIST_NAME" 					Text="Separatist"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SEPARATIST_ADJECTIVE" 			Text="Separatist"			Language="en_US" />
+	
+  </LocalizedText> 
 
 </GameData>

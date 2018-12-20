@@ -4,6 +4,7 @@
 --
 --
 --	Override PlayerConfig methods to set/get dynamic naming for Civilizations
+--	Use : [ include( "GCO_PlayerConfig" ) ] in the related UI files, this file is not loaded in UI or Script context
 --
 --=====================================================================================--
 
@@ -24,7 +25,7 @@ end
 -- Initialize
 -----------------------------------------------------------------------------------------
 
-local GCO 				= {}
+GCO 					= {} -- not local to be passed to UI files including this file.
 local PlayerConfigData	= {}
 local pairs 			= pairs
 local Dprint, Dline, Dlog

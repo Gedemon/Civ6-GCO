@@ -1072,7 +1072,10 @@ function PopulateList(data, listMode, listIM)
 	end -- End if NOT LISTMODE.PRODUCTION 
 	
 	-- Populate Units ------------------------
-	local primaryColor, secondaryColor  = UI.GetPlayerColors( Players[Game.GetLocalPlayer()]:GetID() );
+	-- GCO <<<<<
+	--local primaryColor, secondaryColor  = UI.GetPlayerColors( Players[Game.GetLocalPlayer()]:GetID() );
+	local primaryColor, secondaryColor  = GCO.GetPlayerColors( Players[Game.GetLocalPlayer()]:GetID() );
+	-- GCO >>>>>
 	local darkerFlagColor	:number = DarkenLightenColor(primaryColor,(-85),255);
 	local brighterFlagColor :number = DarkenLightenColor(primaryColor,90,255);
 	local brighterIconColor :number = DarkenLightenColor(secondaryColor,20,255);

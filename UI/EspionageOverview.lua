@@ -326,7 +326,10 @@ function AddCity(city:table)
 	local cityInstance:table = m_CityIM:GetInstance();
 
 	-- Update city banner
-	local backColor:number, frontColor:number  = UI.GetPlayerColors( city:GetOwner() );
+	-- GCO <<<<<
+	--local backColor:number, frontColor:number  = UI.GetPlayerColors( city:GetOwner() );
+	local backColor:number, frontColor:number  = GCO.GetPlayerColors( city:GetOwner() );
+	-- GCO >>>>>
 	local darkerBackColor:number = DarkenLightenColor(backColor,(-85),238);
 	local brighterBackColor:number = DarkenLightenColor(backColor,90,255);
 
@@ -433,7 +436,10 @@ function AddDistrictIcon(stackControl:table, city:table, districtType:string)
 	districtInstance.DistrictIcon:SetToolTipString( toolTipString );
 
 	if shouldShowActiveSpy then
-		local backColor:number, frontColor:number  = UI.GetPlayerColors( Game.GetLocalPlayer() );
+		-- GCO <<<<<
+		--local backColor:number, frontColor:number  = UI.GetPlayerColors( Game.GetLocalPlayer() );
+		local backColor:number, frontColor:number  = GCO.GetPlayerColors( Game.GetLocalPlayer() );
+		-- GCO >>>>>
 		districtInstance.SpyIconBack:SetColor( backColor );
 		districtInstance.SpyIconFront:SetColor( frontColor );
 		districtInstance.SpyIconBack:SetHide(false);
@@ -565,7 +571,10 @@ function AddOperative(spy:table)
 	local spyPlot = Map.GetPlot(spy:GetX(), spy:GetY());
 	local ownerCity = Cities.GetPlotPurchaseCity(spyPlot);
 	if ownerCity then
-		local backColor:number, frontColor:number  = UI.GetPlayerColors( ownerCity:GetOwner() );
+		-- GCO <<<<<
+		--local backColor:number, frontColor:number  = UI.GetPlayerColors( ownerCity:GetOwner() );
+		local backColor:number, frontColor:number  = GCO.GetPlayerColors( ownerCity:GetOwner() );
+		-- GCO >>>>>
 		operativeInstance.CityBanner:SetColor( backColor );
 		operativeInstance.LocationPip:SetColor( frontColor );
 		operativeInstance.CityName:SetColor( frontColor );
@@ -702,7 +711,10 @@ function AddCapturedOperative(spy:table, playerCapturedBy:number)
 	-- Update information about the player who captured the spy
 	local capturingPlayerConfig:table = PlayerConfigurations[playerCapturedBy];
 	if capturingPlayerConfig then
-		local backColor:number, frontColor:number  = UI.GetPlayerColors( playerCapturedBy );
+		-- GCO <<<<<
+		--local backColor:number, frontColor:number  = UI.GetPlayerColors( playerCapturedBy );
+		local backColor:number, frontColor:number  = GCO.GetPlayerColors( playerCapturedBy );
+		-- GCO >>>>>
 		local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas("ICON_" .. capturingPlayerConfig:GetCivilizationTypeName(),22);
 		operativeInstance.CapturingCivIconBack:SetColor(backColor);
 		operativeInstance.CapturingCivIconFront:SetColor(frontColor);
@@ -776,7 +788,10 @@ function AddCapturedEnemyOperative(spyInfo:table)
 	enemyOperativeInstance.SpyName:SetText(spyName);
 
 	-- Update owning civ spy icon
-	local backColor:number, frontColor:number  = UI.GetPlayerColors( spyInfo.OwningPlayer );
+	-- GCO <<<<<
+	--local backColor:number, frontColor:number  = UI.GetPlayerColors( spyInfo.OwningPlayer );
+	local backColor:number, frontColor:number  = GCO.GetPlayerColors( spyInfo.OwningPlayer );
+	-- GCO >>>>>
 	enemyOperativeInstance.SpyIconBack:SetColor(backColor);
 	enemyOperativeInstance.SpyIconFront:SetColor(frontColor);
 

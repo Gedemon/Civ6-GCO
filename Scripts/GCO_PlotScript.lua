@@ -28,7 +28,8 @@ local DirectionString = {
 	[DirectionTypes.DIRECTION_NORTHWEST] 	= "NORTHWEST"
 	}
 	
-local SEPARATIST_PLAYER 			= "64" -- use string for table keys for correct serialisation/deserialisation
+local SEPARATIST_CULTURE 			= tostring(GameInfo.CultureGroups["CULTURE_SEPARATIST"].Index)	-- must use string for table keys for correct serialisation/deserialisation
+local INDEPENDENT_CULTURE 			= tostring(GameInfo.CultureGroups["CULTURE_INDEPENDENT"].Index)
 local NO_IMPROVEMENT 				= -1
 local NO_FEATURE	 				= -1
 local NO_OWNER 						= -1
@@ -43,6 +44,9 @@ local iCrossingRiverMax 			= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_R
 local iCrossingRiverPenalty			= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_RIVER_PENALTY"].Value)
 local iCrossingRiverThreshold		= tonumber(GameInfo.GlobalParameters["CULTURE_CROSS_RIVER_THRESHOLD"].Value)
 local iBaseThreshold 				= tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value)
+
+local cultureDecayRate				= tonumber(GameInfo.GlobalParameters["CULTURE_DECAY_RATE"].Value)
+local minValueOwner 				= tonumber(GameInfo.GlobalParameters["CULTURE_MINIMAL_ON_OWNED_PLOT"].Value)
 
 local FEATURE_ICE 					= GameInfo.Features["FEATURE_ICE"].Index
 local TERRAIN_COAST 				= GameInfo.Terrains["TERRAIN_COAST"].Index
@@ -419,53 +423,55 @@ function GetCultureTable( self )
 		return ExposedMembers.CultureMap[self:GetKey()]
 	end
 end
-function GetCulture( self, playerID )
+function GetCulture( self, cultureID )
 	local plotCulture = self:GetCultureTable()
 	if plotCulture then 
-		return plotCulture[tostring(playerID)] or 0
+		return plotCulture[tostring(cultureID)] or 0
 	end
 	return 0
 end
-function SetCulture( self, playerID, value )
+function SetCulture( self, cultureID, value )
+if not GameInfo.CultureGroups[tonumber(cultureID)] then GCO.Error("Called SetCulture for a Culture Group that does not exist #"..tostring(cultureID).." at ".. tostring(self:GetX())..","..tostring(self:GetY())) end
 	local key = self:GetKey()
-	--print("SetCulture",self:GetX(), self:GetY(), playerID, GCO.ToDecimals(value))
+	--print("SetCulture",self:GetX(), self:GetY(), cultureID, GCO.ToDecimals(value))
 	if ExposedMembers.CultureMap[key] then 
-		ExposedMembers.CultureMap[key][tostring(playerID)] = value
+		ExposedMembers.CultureMap[key][tostring(cultureID)] = value
 	else
 		ExposedMembers.CultureMap[key] = {}
-		ExposedMembers.CultureMap[key][tostring(playerID)] = value
+		ExposedMembers.CultureMap[key][tostring(cultureID)] = value
 	end
 end
-function ChangeCulture( self, playerID, value )
+function ChangeCulture( self, cultureID, value )
+if not GameInfo.CultureGroups[tonumber(cultureID)] then GCO.Error("Called ChangeCulture for a Group that does not exist #"..tostring(cultureID).." at ".. tostring(self:GetX())..","..tostring(self:GetY())) end
 	local key = self:GetKey()
 	local value = GCO.Round(value)
-	--print("ChangeCulture",self:GetX(), self:GetY(), playerID, GCO.ToDecimals(value), GCO.ToDecimals(self:GetPreviousCulture(playerID )))
+	--print("ChangeCulture",self:GetX(), self:GetY(), cultureID, GCO.ToDecimals(value), GCO.ToDecimals(self:GetPreviousCulture(cultureID )))
 	if ExposedMembers.CultureMap[key] then 
-		if ExposedMembers.CultureMap[key][tostring(playerID)] then
-			ExposedMembers.CultureMap[key][tostring(playerID)] = ExposedMembers.CultureMap[key][tostring(playerID)] + value
+		if ExposedMembers.CultureMap[key][tostring(cultureID)] then
+			ExposedMembers.CultureMap[key][tostring(cultureID)] = ExposedMembers.CultureMap[key][tostring(cultureID)] + value
 		else
-			ExposedMembers.CultureMap[key][tostring(playerID)] = value
+			ExposedMembers.CultureMap[key][tostring(cultureID)] = value
 		end
 	else
 		ExposedMembers.CultureMap[key] = {}
-		ExposedMembers.CultureMap[key][tostring(playerID)] = value
+		ExposedMembers.CultureMap[key][tostring(cultureID)] = value
 	end
 end
 
-function GetPreviousCulture( self, playerID )
+function GetPreviousCulture( self, cultureID )
 	local plotCulture = ExposedMembers.PreviousCultureMap[self:GetKey()]
 	if plotCulture then 
-		return plotCulture[tostring(playerID)] or 0
+		return plotCulture[tostring(cultureID)] or 0
 	end
 	return 0
 end
-function SetPreviousCulture( self, playerID, value )
+function SetPreviousCulture( self, cultureID, value )
 	local key = self:GetKey()
 	if ExposedMembers.PreviousCultureMap[key] then 
-		ExposedMembers.PreviousCultureMap[key][tostring(playerID)] = value
+		ExposedMembers.PreviousCultureMap[key][tostring(cultureID)] = value
 	else
 		ExposedMembers.PreviousCultureMap[key] = {}
-		ExposedMembers.PreviousCultureMap[key][tostring(playerID)] = value
+		ExposedMembers.PreviousCultureMap[key][tostring(cultureID)] = value
 	end
 end
 
@@ -473,7 +479,7 @@ function GetTotalCulture( self )
 	local totalCulture = 0
 	local plotCulture = self:GetCultureTable()
 	if  plotCulture then
-		for playerID, value in pairs (plotCulture) do
+		for cultureID, value in pairs (plotCulture) do
 			totalCulture = totalCulture + value			
 		end
 	end
@@ -486,17 +492,17 @@ function GetCulturePercentTable( self )
 	local totalCulture = self:GetTotalCulture()
 	local plotCulture = self:GetCultureTable()
 	if  plotCulture and totalCulture > 0 then
-		for playerID, value in pairs (plotCulture) do
-			plotCulturePercent[playerID] = (value / totalCulture * 100)
+		for cultureID, value in pairs (plotCulture) do
+			plotCulturePercent[cultureID] = (value / totalCulture * 100)
 		end
 	end
 	return plotCulturePercent, totalCulture
 end
 
-function GetCulturePercent( self, playerID )
+function GetCulturePercent( self, cultureID )
 	local totalCulture = self:GetTotalCulture()
 	if totalCulture > 0 then
-		return GCO.Round(self:GetCulture(playerID) * 100 / totalCulture)
+		return GCO.Round(self:GetCulture(cultureID) * 100 / totalCulture)
 	end
 	return 0
 end
@@ -506,10 +512,10 @@ function GetHighestCulturePlayer( self )
 	local topValue = 0
 	local plotCulture = self:GetCultureTable()
 	if  plotCulture then
-		for playerID, value in pairs (plotCulture) do
+		for cultureID, value in pairs (plotCulture) do
 			if value > topValue then
 				topValue = value
-				topPlayer = playerID
+				topPlayer = cultureID
 			end
 		end
 	end
@@ -520,24 +526,24 @@ function GetTotalPreviousCulture( self )
 	local totalCulture = 0
 	local plotCulture = ExposedMembers.PreviousCultureMap[self:GetKey()]
 	if  plotCulture then
-		for playerID, value in pairs (plotCulture) do
+		for cultureID, value in pairs (plotCulture) do
 			totalCulture = totalCulture + value			
 		end
 	end
 	return totalCulture
 end
 
-function GetCulturePer10000( self, playerID )
+function GetCulturePer10000( self, cultureID )
 	local totalCulture = GetTotalCulture( self )
 	if totalCulture > 0 then
-		return GCO.Round(GetCulture( self, playerID ) * 10000 / totalCulture)
+		return GCO.Round(GetCulture( self, cultureID ) * 10000 / totalCulture)
 	end
 	return 0
 end
-function GetPreviousCulturePer10000( self, playerID )
+function GetPreviousCulturePer10000( self, cultureID )
 	local totalCulture = GetTotalPreviousCulture( self )
 	if totalCulture > 0 then
-		return GCO.Round(GetPreviousCulture( self, playerID ) * 10000 / totalCulture)
+		return GCO.Round(GetPreviousCulture( self, cultureID ) * 10000 / totalCulture)
 	end
 	return 0
 end
@@ -587,12 +593,15 @@ function GetPotentialOwner( self )
 	local topValue = 0
 	local plotCulture = self:GetCultureTable()
 	if plotCulture then
-		for playerID, value in pairs (plotCulture) do
-			local player = Players[tonumber(playerID)]
-			if player and player:IsAlive() and value > topValue then
-				if not (tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_ONLY_ADJACENT"].Value) > 0 and not self:IsAdjacentPlayer(playerID)) then
-					topValue = value
-					bestPlayer = playerID
+		for cultureID, value in pairs (plotCulture) do
+			local playerID	= GetPlayerIDFromCultureID(cultureID)
+				if playerID then
+				local player 	= Players[tonumber(playerID)]
+				if player and player:IsAlive() and value > topValue then
+					if not (tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_ONLY_ADJACENT"].Value) > 0 and not self:IsAdjacentPlayer(playerID)) then
+						topValue = value
+						bestPlayer = playerID
+					end
 				end
 			end
 		end
@@ -662,58 +671,76 @@ function UpdateCulture( self )
 		return
 	end
 	
+	local totalCulture		= self:GetTotalCulture()
+	local minCulture		= self:GetPopulation() -- (self:GetSize() + 1) * 50
+	local maxCulture		= self:GetPopulation() * 2 -- (self:GetSize() + 1) * 50
+	local minDecayRatio		= 0
+	
+	if maxCulture < totalCulture then
+		local toRemove	= totalCulture - maxCulture
+		minDecayRatio	= toRemove / totalCulture
+	end
+	
 	-- Decay
 	local plotCulture = self:GetCultureTable()
 	if plotCulture then
 		--table.insert(debugTable, "----- Decay -----")
-		for playerID, value in pairs (plotCulture) do
+		for cultureID, value in pairs (plotCulture) do
 			
 			-- Apply decay
 			if value > 0 then
-				local minValueOwner = tonumber(GameInfo.GlobalParameters["CULTURE_MINIMAL_ON_OWNED_PLOT"].Value)
-				local decay = math.max(1, GCO.Round(value * tonumber(GameInfo.GlobalParameters["CULTURE_DECAY_RATE"].Value) / 100))
+				local minDecay		= GCO.Round(minDecayRatio * value)
+				local decay 		= math.max(1, GCO.Round(value * cultureDecayRate) / 100, minDecay)
+				
 				if (value - decay) <= 0 then
-					if self:GetOwner() == playerID then
-						self:SetCulture(playerID, minValueOwner)
-						--table.insert(debugTable, "Player #"..tostring(playerID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(playerID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")
+					if self:GetOwner() == GetPlayerIDFromCultureID(cultureID) then
+						self:SetCulture(cultureID, minValueOwner)
+						--table.insert(debugTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")
 					else -- don't remove yet, to show variation with previous turn
-						self:SetCulture(playerID, 0)
-						--table.insert(debugTable, "Player #"..tostring(playerID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(playerID) ..", ".. tostring(0)..")")
+						self:SetCulture(cultureID, 0)
+						--table.insert(debugTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", ".. tostring(0)..")")
 					end
 				else
-					if self:GetOwner() == playerID and (value - decay) < minValueOwner then
-						self:SetCulture(playerID, minValueOwner)
-						--table.insert(debugTable, "Player #"..tostring(playerID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= minValueOwner [".. tostring(minValueOwner).."  -> SetCulture("..tostring(playerID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")						
+					if self:GetOwner() == GetPlayerIDFromCultureID(cultureID) and (value - decay) < minValueOwner then
+						self:SetCulture(cultureID, minValueOwner)
+						--table.insert(debugTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= minValueOwner [".. tostring(minValueOwner).."  -> SetCulture("..tostring(cultureID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")						
 					else
-						self:ChangeCulture(playerID, -decay)
-						--table.insert(debugTable, "Player #"..tostring(playerID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) = ".. tostring(value - decay).."  -> ChangeCulture("..tostring(playerID) ..", ".. tostring(- decay)..")")	
+						self:ChangeCulture(cultureID, -decay)
+						--table.insert(debugTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) = ".. tostring(value - decay).."  -> ChangeCulture("..tostring(cultureID) ..", ".. tostring(- decay)..")")	
 					end					
 				end
 			else -- remove dead culture
-				ExposedMembers.CultureMap[self:GetKey()][tostring(playerID)] = nil
-				--table.insert(debugTable, "Player #"..tostring(playerID) .." value ["..tostring(value).."] <= 0 before decay, removing entry...")	
+				ExposedMembers.CultureMap[self:GetKey()][tostring(cultureID)] = nil
+				--table.insert(debugTable, "Player #"..tostring(cultureID) .." value ["..tostring(value).."] <= 0 before decay, removing entry...")	
 			end
-		end		
+		end
+		
+		-- Minimal culture value based on population
+		if minCulture > totalCulture then
+			self:ChangeCulture(INDEPENDENT_CULTURE, minCulture - totalCulture )
+		end
+		
 		--table.insert(debugTable, "----- ----- -----")
 	end
 	
 	-- diffuse culture on adjacent plots
 	--table.insert(debugTable, "Check for diffuse, self:GetTotalCulture() = "..tostring(self:GetTotalCulture()) ..",  CULTURE_DIFFUSION_THRESHOLD = "..tostring(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value))
-	if self:GetTotalCulture() > tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value) then
+	if totalCulture > tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value) then
 		self:DiffuseCulture()
 	end
 	
 	-- update culture in cities
 	--table.insert(debugTable, "Check for city")
 	if self:IsCity() then
-		local city = Cities.GetCityInPlot(self:GetX(), self:GetY())
+		local city 			= self:GetCity() --Cities.GetCityInPlot(self:GetX(), self:GetY())
+		local cityCultureID = GetCultureIDFromPlayerID(city:GetOwner())
 		--local cityCulture = city:GetCulture()
 		bshowDebug = true
 		--table.insert(debugTable, "----- ".. tostring(city:GetName()) .." -----")
 		
 		-- Culture creation in cities
 		local baseCulture = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_BASE_PRODUCTION"].Value)
-		local maxCulture = (city:GetPopulation() + GCO.GetCityCultureYield(self)) * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value)
+		local maxCulture = city:GetRealPopulation() --(city:GetPopulation() + GCO.GetCityCultureYield(self)) * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value)
 		--table.insert(debugTable, "baseCulture = " .. tostring(baseCulture) ..", maxCulture ["..tostring(maxCulture).."] = (city:GetPopulation() ["..tostring(city:GetPopulation()) .." + GCO.GetCityCultureYield(self)[".. tostring(GCO.GetCityCultureYield(self)).."]) * CULTURE_CITY_CAPED_FACTOR["..tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value).."]")
 		if self:GetTotalCulture() < maxCulture then -- don't add culture if above max, the excedent will decay each turn
 			if plotCulture then
@@ -721,46 +748,46 @@ function UpdateCulture( self )
 				local cultureAdded = 0
 				local value = self:GetCulture( city:GetOwner() )
 				if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
-					cultureAdded = GCO.Round((city:GetPopulation() + GCO.GetCityCultureYield(self)) * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
+					cultureAdded = GCO.Round((city:GetSize() + GCO.GetCityCultureYield(self)) * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
 				else
-					cultureAdded = GCO.Round((city:GetPopulation() + GCO.GetCityCultureYield(self)) * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
+					cultureAdded = GCO.Round((city:GetSize() + GCO.GetCityCultureYield(self)) * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
 				end	
 				cultureAdded = cultureAdded + baseCulture
-				--table.insert(debugTable, "- Player#".. tostring(playerID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
-				self:ChangeCulture(city:GetOwner(), cultureAdded)	
+				--table.insert(debugTable, "- Player#".. tostring(cultureID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
+				self:ChangeCulture(cityCultureID, cultureAdded)	
 				
 				-- Then update all other Culture
-				for playerID, value in pairs (plotCulture) do
+				for cultureID, value in pairs (plotCulture) do
 					if value > 0 then
 						local cultureAdded = 0
-						if playerID ~= city:GetOwner() then
+						if GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() then
 							if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
-								cultureAdded = GCO.Round(city:GetPopulation() * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
+								cultureAdded = GCO.Round(city:GetSize() * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
 							else
-								cultureAdded = GCO.Round(city:GetPopulation() * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
+								cultureAdded = GCO.Round(city:GetSize() * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
 							end
-							self:ChangeCulture(playerID, cultureAdded)
+							self:ChangeCulture(cultureID, cultureAdded)
 						end					
 					end				
 				end
 			elseif self:GetOwner() == city:GetOwner() then -- initialize culture in city
-				self:ChangeCulture(city:GetOwner(), baseCulture)
+				self:ChangeCulture(cityCultureID, baseCulture)
 			end
 		end
 		
 		-- Culture Conversion in cities
 		local cultureConversionRatePer10000 = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CONVERSION_RATE"].Value)
 		
-		-- Todo : add convertion from buildings, policies...
+		-- Todo : add conversion from buildings, policies...
 		
 		if (cultureConversionRatePer10000 > 0) then 
 			if plotCulture then
-				for playerID, value in pairs (plotCulture) do
-					if playerID ~= playerID and playerID ~= SEPARATIST_PLAYER then
+				for cultureID, value in pairs (plotCulture) do
+					if GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() and cultureID ~= SEPARATIST_CULTURE then
 						local converted = GCO.Round(value * cultureConversionRatePer10000 / 10000)
 						if converted > 0 then
-							self:ChangeCulture(playerID, -converted)
-							self:ChangeCulture(city:GetOwner(), converted)
+							self:ChangeCulture(cultureID, -converted)
+							self:ChangeCulture(cityCultureID, converted)
 						end						
 					end
 				end
@@ -782,6 +809,7 @@ function UpdateCulture( self )
 	end	
 	ShowDebug()
 end
+
 function UpdateOwnership( self )
 	--table.insert(debugTable, "----- UpdateOwnership -----")
 	--table.insert(debugTable, "plot (" .. self:GetX()..","..self:GetY()..")")
@@ -805,10 +833,10 @@ function UpdateOwnership( self )
 	-- Get potential owner
 	local bestPlayerID = self:GetPotentialOwner()
 		--table.insert(debugTable, "PotentialOwner = " .. bestPlayerID)
-	if (bestPlayerID == NO_OWNER) then
+	if (bestPlayerID == NO_OWNER or bestPlayerID == nil) then
 		return
 	end
-	local bestValue = self:GetCulture(bestPlayerID)
+	local bestValue = self:GetCulture(GetCultureIDFromPlayerID(bestPlayerID))
 	
 	
 	--table.insert(debugTable, "ActualOwner[".. self:GetOwner() .."] ~= PotentialOwner AND  bestValue[".. bestValue .."] > GetCultureMinimumForAcquisition( PotentialOwner )[".. GetCultureMinimumForAcquisition( PotentialOwner ) .."] ?" )
@@ -942,18 +970,18 @@ function DiffuseCulture( self )
 				iPlotMax = math.min(iPlotMax, iCultureValue * tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value) / 100)
 				-- Apply Culture diffusion to all culture groups
 				local plotCulture = self:GetCultureTable() -- this should never be nil at this point
-				for playerID, value in pairs (plotCulture) do
+				for cultureID, value in pairs (plotCulture) do
 				
-					local iPlayerPlotMax = iPlotMax * self:GetCulturePercent(playerID) / 100
-					local iPlayerDiffusedCulture = (self:GetCulture(playerID) * (iDiffusionRatePer1000 + (iDiffusionRatePer1000 * iBonus / 100))) / (1000 + (1000 * iPenalty / 100))
-					local iPreviousCulture = pAdjacentPlot:GetCulture(playerID);
+					local iPlayerPlotMax = iPlotMax * self:GetCulturePercent(cultureID) / 100
+					local iPlayerDiffusedCulture = (self:GetCulture(cultureID) * (iDiffusionRatePer1000 + (iDiffusionRatePer1000 * iBonus / 100))) / (1000 + (1000 * iPenalty / 100))
+					local iPreviousCulture = pAdjacentPlot:GetCulture(cultureID);
 					local iNextculture = math.min(iPlayerPlotMax, iPreviousCulture + iPlayerDiffusedCulture);
-					--table.insert(debugTable, " - Diffuse for player#"..playerID..", iPlotMax = "..iPlotMax..", iPlayerPlotMax = ".. GCO.ToDecimals(iPlayerPlotMax) ..", iPreviousCulture = ".. GCO.ToDecimals(iPreviousCulture) ..", iNextculture = " ..GCO.ToDecimals(iNextculture)) 
-					--table.insert(debugTable, "		iPlayerDiffusedCulture["..GCO.ToDecimals(iPlayerDiffusedCulture).."] = (self:GetCulture(playerID)["..GCO.ToDecimals(self:GetCulture(playerID)).."] * (iDiffusionRatePer1000["..GCO.ToDecimals(iDiffusionRatePer1000).."] + (iDiffusionRatePer1000["..GCO.ToDecimals(iDiffusionRatePer1000).."] * iBonus["..GCO.ToDecimals(iBonus).."] / 100))) / (1000 + (1000 * iPenalty["..GCO.ToDecimals(iPenalty).."] / 100))")
+					--table.insert(debugTable, " - Diffuse for player#"..cultureID..", iPlotMax = "..iPlotMax..", iPlayerPlotMax = ".. GCO.ToDecimals(iPlayerPlotMax) ..", iPreviousCulture = ".. GCO.ToDecimals(iPreviousCulture) ..", iNextculture = " ..GCO.ToDecimals(iNextculture)) 
+					--table.insert(debugTable, "		iPlayerDiffusedCulture["..GCO.ToDecimals(iPlayerDiffusedCulture).."] = (self:GetCulture(cultureID)["..GCO.ToDecimals(self:GetCulture(cultureID)).."] * (iDiffusionRatePer1000["..GCO.ToDecimals(iDiffusionRatePer1000).."] + (iDiffusionRatePer1000["..GCO.ToDecimals(iDiffusionRatePer1000).."] * iBonus["..GCO.ToDecimals(iBonus).."] / 100))) / (1000 + (1000 * iPenalty["..GCO.ToDecimals(iPenalty).."] / 100))")
 					
 					iPlayerDiffusedCulture = iNextculture - iPreviousCulture
 					if (iPlayerDiffusedCulture > 0) then -- can be < 0 when a plot try to diffuse to another with a culture value already > at the calculated iPlayerPlotMax...
-						pAdjacentPlot:ChangeCulture(playerID, iPlayerDiffusedCulture)
+						pAdjacentPlot:ChangeCulture(cultureID, iPlayerDiffusedCulture)
 						--table.insert(debugTable, " - Diffusing : " .. iPlayerDiffusedCulture)
 					else
 						--table.insert(debugTable, " - Not diffusing negative value... (" .. iPlayerDiffusedCulture ..")")
@@ -991,6 +1019,19 @@ end
 -----------------------------------------------------------------------------------------
 -- Other Functions
 -----------------------------------------------------------------------------------------
+function GetPlayerIDFromCultureID(cultureID)
+if not GameInfo.CultureGroups[tonumber(cultureID)] then Dline(cultureID) end
+	local CivilizationType	= GameInfo.CultureGroups[tonumber(cultureID)].CultureType
+	return GCO.GetPlayerIDFromCivilizationType(CivilizationType)
+end
+
+function GetCultureIDFromPlayerID(playerID)
+	local playerConfig		= GCO.GetPlayerConfig(playerID)
+	local CivilizationType	= playerConfig:GetCivilizationTypeName()
+	return GameInfo.CultureGroups[CivilizationType].Index
+end
+
+
 function GetOppositeDirection(dir)
 	local numTypes = DirectionTypes.NUM_DIRECTION_TYPES;
 	return ((dir + 3) % numTypes);
@@ -1025,17 +1066,17 @@ function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID
 		Dprint( DEBUG_PLOT_SCRIPT, " - Plot at :", plot:GetX(), plot:GetY())
 		local totalCultureLoss = 0
 		local plotCulture = plot:GetCultureTable()
-		for playerID, value in pairs (plotCulture) do
-			local cultureLoss = GCO.Round(plot:GetCulture(playerID) * tonumber(GameInfo.GlobalParameters["CULTURE_LOST_CITY_CONQUEST"].Value) / 100)
-			Dprint( DEBUG_PLOT_SCRIPT, "   - player#"..tostring(playerID).." lost culture = ", cultureLoss)
+		for cultureID, value in pairs (plotCulture) do
+			local cultureLoss = GCO.Round(plot:GetCulture(cultureID) * tonumber(GameInfo.GlobalParameters["CULTURE_LOST_CITY_CONQUEST"].Value) / 100)
+			Dprint( DEBUG_PLOT_SCRIPT, "   - player#"..tostring(cultureID).." lost culture = ", cultureLoss)
 			if cultureLoss > 0 then
 				totalCultureLoss = totalCultureLoss + cultureLoss
-				plot:ChangeCulture(playerID, -cultureLoss)
+				plot:ChangeCulture(cultureID, -cultureLoss)
 			end
 		end
 		local cultureGained = GCO.Round(totalCultureLoss * tonumber(GameInfo.GlobalParameters["CULTURE_GAIN_CITY_CONQUEST"].Value) / 100)
 		Dprint( DEBUG_PLOT_SCRIPT, "   - player#"..tostring(newOwnerID).." gain culture = ", cultureGained)
-		plot:ChangeCulture(newOwnerID, cultureGained)
+		plot:ChangeCulture(GetCultureIDFromPlayerID(newOwnerID), cultureGained)
 		local distance = Map.GetPlotDistance(iX, iY, plot:GetX(), plot:GetY())
 		local bRemoveOwnership = (tonumber(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value == 1 and distance > tonumber(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value)))
 		Dprint( DEBUG_PLOT_SCRIPT, "   - check for changing owner: CULTURE_REMOVE_PLOT_CITY_CONQUEST ="..tostring(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value)..", distance["..tostring(distance).."] >  CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST["..tostring(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value).."]")
@@ -1494,9 +1535,8 @@ function GetNeighbors(node, pPlayer, sRoute, fBlockaded, startPlot, destPlot, ma
 	
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction);		
-
 		
-		GCO.Incremente("GetPathToPlot"..sRoute)
+		--GCO.Incremente("GetPathToPlot"..sRoute)
 		
 		if (adjacentPlot ~= nil) then
 			--Dprint( DEBUG_PLOT_SCRIPT, "- test plot at ", adjacentPlot:GetX(), adjacentPlot:GetY() ,DirectionString[direction])
@@ -1941,6 +1981,7 @@ function SetInitialMapPopulation()
 			Dprint( DEBUG_PLOT_SCRIPT, " - Set " .. Indentation20("population = ".. tostring(population)) .. " at ", plot:GetX(), plot:GetY(), " maxSize = ", maxSize)
 			
 			plot:ChangeLowerClass(population)
+			plot:SetCulture(INDEPENDENT_CULTURE, population )
 		end
 	end
 end
@@ -2264,7 +2305,7 @@ function ChangeStock(self, resourceID, value, useType, reference)
 	--]]
 	
 	if not plotData.Stock[turnKey] then 
-		GCO.Warning("plotData not initialized for turn"..tostring(turnKey))
+		GCO.Warning("plotData not initialized at turn"..tostring(turnKey), self:GetX(), self:GetY())
 		GCO.DlineFull()
 		plotData.Stock[turnKey] = {}
 	end
