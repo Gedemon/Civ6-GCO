@@ -16,8 +16,6 @@ include( "GCO_SmallUtils" )
 -- Defines
 -----------------------------------------------------------------------------------------
 local _cached						= {}	-- cached table to reduce calculations
-local debugTable 					= {}	-- table used to output debug data from some functions
-local bshowDebug 					= false	-- to toggle the output of the debug table 
 
 local DirectionString = {
 	[DirectionTypes.DIRECTION_NORTHEAST] 	= "NORTHEAST",
@@ -47,6 +45,9 @@ local iBaseThreshold 				= tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION
 
 local cultureDecayRate				= tonumber(GameInfo.GlobalParameters["CULTURE_DECAY_RATE"].Value)
 local minValueOwner 				= tonumber(GameInfo.GlobalParameters["CULTURE_MINIMAL_ON_OWNED_PLOT"].Value)
+local bOnlyAdjacentCultureFlipping	= tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_ONLY_ADJACENT"].Value) == 1
+local bAllowCultureAcquisition		= tonumber(GameInfo.GlobalParameters["CULTURE_ALLOW_TILE_ACQUISITION"].Value) == 1
+local bAllowCultureFlipping			= tonumber(GameInfo.GlobalParameters["CULTURE_ALLOW_TILE_FLIPPING"].Value) == 1
 
 local FEATURE_ICE 					= GameInfo.Features["FEATURE_ICE"].Index
 local TERRAIN_COAST 				= GameInfo.Terrains["TERRAIN_COAST"].Index
@@ -118,6 +119,8 @@ local DeathRateFactor = {
 -----------------------------------------------------------------------------------------
 
 DEBUG_PLOT_SCRIPT			= "PlotScript"
+local debugTable 			= {}	-- table used to output debug data from some functions
+
 
 -----------------------------------------------------------------------------------------
 -- Initialize
@@ -229,6 +232,17 @@ function CompareData(data1, data2)
 	end
 end
 
+function ShowDebug()
+	for key, textTable in pairs(debugTable) do
+		print(GCO.Separator)
+		print(key)
+		for _, text in ipairs(textTable) do
+			print(text)
+		end
+	end
+end
+
+
 -----------------------------------------------------------------------------------------
 -- Plots Functions
 -----------------------------------------------------------------------------------------
@@ -324,21 +338,18 @@ function UpdatePlotDiffusionValues(self)
 	end
 end
 
-local bSetPlotDiffusionValuesToHasRun = true
 function SetPlotDiffusionValuesTo(self, iDirection)
 
-	if not bSetPlotDiffusionValuesToHasRun then
-		GCO.Warning("previous call to SetPlotDiffusionValuesTo has failed !")
-		bshowDebug = true
-		ShowDebug()		
-		bshowDebug = false
+	if debugTable["SetPlotDiffusionValuesTo"] ~= nil then
+		GCO.Error("previous call to SetPlotDiffusionValuesTo has failed for ".. self:GetX()..","..self:GetY())
+		ShowDebug()
 	end
 	
-	bSetPlotDiffusionValuesToHasRun = false
+	-- initialize and set local debug table
+	debugTable["SetPlotDiffusionValuesTo"] 	= {} 
+	local textTable 						= debugTable["SetPlotDiffusionValuesTo"]
 	
-	debugTable 		= {} -- empty debug table
-	
-	table.insert(debugTable, "Set PlotDiffusionValues for ".. self:GetX()..","..self:GetY().." to ".. DirectionString[iDirection])
+	table.insert(textTable, "Set PlotDiffusionValues at turn ".. GCO.GetTurnKey() .." for ".. self:GetX()..","..self:GetY().." to ".. DirectionString[iDirection])
 	
 	local plotKey 	= self:GetKey()
 	if not _cached[plotKey] then _cached[plotKey] = {} end
@@ -346,7 +357,7 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 	
 	local pAdjacentPlot = Map.GetAdjacentPlot(self:GetX(), self:GetY(), iDirection)
 	if (pAdjacentPlot and not pAdjacentPlot:IsWater()) then
-		table.insert(debugTable, "To (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
+		table.insert(textTable, "To (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
 		local iBonus 			= 0
 		local iPenalty 			= 0
 		local iPlotMaxRatio		= 1		
@@ -358,19 +369,19 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 		local terrainPenalty	= GameInfo.Terrains[terrainType].CulturePenalty
 		local terrainMaxPercent	= GameInfo.Terrains[terrainType].CultureMaxPercent
 		local featureType		= self:GetFeatureType()
-		table.insert(debugTable, " - iPlotMaxRatio = "..iPlotMaxRatio..", bIsRoute = ".. tostring(bIsRoute) ..", bIsFollowingRiver =" .. tostring(bIsFollowingRiver) ..", bIsCrossingRiver = " .. tostring(bIsCrossingRiver) ..", terrainType = " .. Locale.Lookup(GameInfo.Terrains[terrainType].Name) ..", terrainThreshold = ".. terrainThreshold ..", terrainPenalty = ".. terrainPenalty ..", terrainMaxPercent = ".. terrainMaxPercent ..", featureType = ".. featureType)
+		table.insert(textTable, " - iPlotMaxRatio = "..iPlotMaxRatio..", bIsRoute = ".. tostring(bIsRoute) ..", bIsFollowingRiver =" .. tostring(bIsFollowingRiver) ..", bIsCrossingRiver = " .. tostring(bIsCrossingRiver) ..", terrainType = " .. Locale.Lookup(GameInfo.Terrains[terrainType].Name) ..", terrainThreshold = ".. terrainThreshold ..", terrainPenalty = ".. terrainPenalty ..", terrainMaxPercent = ".. terrainMaxPercent ..", featureType = ".. featureType)
 		-- Bonus: following road
 		if (bIsRoute) then
 			iBonus 			= iBonus + iRoadBonus
 			iPlotMaxRatio 	= iPlotMaxRatio * iRoadMax / 100
-			table.insert(debugTable, " - bIsRoute = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
+			table.insert(textTable, " - bIsRoute = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
 		end
 		
 		-- Bonus: following a river
 		if (bIsFollowingRiver) then
 			iBonus 			= iBonus + iFollowingRiverBonus
 			iPlotMaxRatio 	= iPlotMaxRatio * iFollowingRiverMax / 100
-			table.insert(debugTable, " - bIsFollowingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
+			table.insert(textTable, " - bIsFollowingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus)
 		end
 		
 		-- Penalty: feature
@@ -381,7 +392,7 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 			if featurePenalty > 0 then
 				iPenalty 		= iPenalty + featurePenalty
 				iPlotMaxRatio 	= iPlotMaxRatio * featureMaxPercent / 100
-				table.insert(debugTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus .. " iPenalty = "..iPenalty)
+				table.insert(textTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus .. " iPenalty = "..iPenalty)
 			end
 		end
 		
@@ -389,19 +400,21 @@ function SetPlotDiffusionValuesTo(self, iDirection)
 		if terrainPenalty > 0 then
 			iPenalty 		= iPenalty + terrainPenalty
 			iPlotMaxRatio 	= iPlotMaxRatio * terrainMaxPercent / 100
-			table.insert(debugTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus.. " iPenalty = "..iPenalty)
+			table.insert(textTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus.. " iPenalty = "..iPenalty)
 		end
 		
 		-- Penalty: crossing river
 		if bIsCrossingRiver then
 			iPenalty 		= iPenalty + iCrossingRiverPenalty
 			iPlotMaxRatio 	= iPlotMaxRatio * iCrossingRiverMax / 100
-			table.insert(debugTable, " - bIsCrossingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus .. " iPenalty = "..iPenalty)
+			table.insert(textTable, " - bIsCrossingRiver = true, iPlotMaxRatio = ".. iPlotMaxRatio .. ", iBonus : " .. iBonus .. " iPenalty = "..iPenalty)
 		end
+		table.insert(textTable, "Setting cached values " .. tostring(_cached[plotKey].PlotDiffusionValues) .. "MaxRatio = ".. iPlotMaxRatio .. ", Bonus : " .. iBonus .. " Penalty = "..iPenalty)
 	
 		_cached[plotKey].PlotDiffusionValues[iDirection] = { Bonus = iBonus, Penalty = iPenalty, MaxRatio = iPlotMaxRatio }
 	end
-	bSetPlotDiffusionValuesToHasRun = true
+	table.insert(textTable, "Deleting debug entry... ")
+	debugTable["SetPlotDiffusionValuesTo"] = nil
 end
 
 local conquestCountdown = {}
@@ -595,10 +608,10 @@ function GetPotentialOwner( self )
 	if plotCulture then
 		for cultureID, value in pairs (plotCulture) do
 			local playerID	= GetPlayerIDFromCultureID(cultureID)
-				if playerID then
+			if playerID then
 				local player 	= Players[tonumber(playerID)]
 				if player and player:IsAlive() and value > topValue then
-					if not (tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_ONLY_ADJACENT"].Value) > 0 and not self:IsAdjacentPlayer(playerID)) then
+					if not (bOnlyAdjacentCultureFlipping and not self:IsAdjacentPlayer(playerID)) then
 						topValue = value
 						bestPlayer = playerID
 					end
@@ -649,9 +662,17 @@ function GetTerritorialWaterOwner( self )
 end
 
 function UpdateCulture( self )
-	debugTable = {}
-	bshowDebug = false
-	--table.insert(debugTable, "-------------------------------- UPDATE CULTURE FOR PLOT (".. tostring(self:GetX()) .. "," .. tostring(self:GetY()) ..") --------------------------------" )
+
+	if debugTable["UpdateCulture"] ~= nil then
+		GCO.Error("previous call to UpdateCulture has failed for ".. self:GetX()..","..self:GetY())
+		ShowDebug()
+	end
+	
+	-- initialize and set local debug table
+	debugTable["UpdateCulture"] 	= {} 
+	local textTable 				= debugTable["UpdateCulture"]
+	
+	table.insert(textTable, "Update Culture at turn ".. GCO.GetTurnKey() .." for (".. tostring(self:GetX()) .. "," .. tostring(self:GetY()) ..") " )
 
 	-- Limited culture on water
 	if self:IsWater() then
@@ -663,11 +684,18 @@ function UpdateCulture( self )
 			local potentialOwnerID = self:GetTerritorialWaterOwner()
 			if potentialOwnerID then			
 				local city, distance = GCO.FindNearestPlayerCity(potentialOwnerID, self:GetX(), self:GetY())
-				if not city then return end
-				if distance > GetCultureFlippingMaxDistance(potentialOwnerID) then return end
+				if not city then				
+					debugTable["UpdateCulture"] = nil
+					return
+				end
+				if distance > GetCultureFlippingMaxDistance(potentialOwnerID) then
+					debugTable["UpdateCulture"] = nil
+					return 
+				end
 				WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), potentialOwnerID, city:GetID() )
 			end
 		end
+		debugTable["UpdateCulture"] = nil
 		return
 	end
 	
@@ -684,7 +712,7 @@ function UpdateCulture( self )
 	-- Decay
 	local plotCulture = self:GetCultureTable()
 	if plotCulture then
-		--table.insert(debugTable, "----- Decay -----")
+		table.insert(textTable, "----- Decay -----")
 		for cultureID, value in pairs (plotCulture) do
 			
 			-- Apply decay
@@ -695,23 +723,23 @@ function UpdateCulture( self )
 				if (value - decay) <= 0 then
 					if self:GetOwner() == GetPlayerIDFromCultureID(cultureID) then
 						self:SetCulture(cultureID, minValueOwner)
-						--table.insert(debugTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")
+						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")
 					else -- don't remove yet, to show variation with previous turn
 						self:SetCulture(cultureID, 0)
-						--table.insert(debugTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", ".. tostring(0)..")")
+						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", ".. tostring(0)..")")
 					end
 				else
 					if self:GetOwner() == GetPlayerIDFromCultureID(cultureID) and (value - decay) < minValueOwner then
 						self:SetCulture(cultureID, minValueOwner)
-						--table.insert(debugTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= minValueOwner [".. tostring(minValueOwner).."  -> SetCulture("..tostring(cultureID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")						
+						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= minValueOwner [".. tostring(minValueOwner).."  -> SetCulture("..tostring(cultureID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")						
 					else
 						self:ChangeCulture(cultureID, -decay)
-						--table.insert(debugTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) = ".. tostring(value - decay).."  -> ChangeCulture("..tostring(cultureID) ..", ".. tostring(- decay)..")")	
+						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) = ".. tostring(value - decay).."  -> ChangeCulture("..tostring(cultureID) ..", ".. tostring(- decay)..")")	
 					end					
 				end
 			else -- remove dead culture
 				ExposedMembers.CultureMap[self:GetKey()][tostring(cultureID)] = nil
-				--table.insert(debugTable, "Player #"..tostring(cultureID) .." value ["..tostring(value).."] <= 0 before decay, removing entry...")	
+				table.insert(textTable, "Player #"..tostring(cultureID) .." value ["..tostring(value).."] <= 0 before decay, removing entry...")	
 			end
 		end
 		
@@ -720,28 +748,27 @@ function UpdateCulture( self )
 			self:ChangeCulture(INDEPENDENT_CULTURE, minCulture - totalCulture )
 		end
 		
-		--table.insert(debugTable, "----- ----- -----")
+		table.insert(textTable, "----- ----- -----")
 	end
 	
 	-- diffuse culture on adjacent plots
-	--table.insert(debugTable, "Check for diffuse, self:GetTotalCulture() = "..tostring(self:GetTotalCulture()) ..",  CULTURE_DIFFUSION_THRESHOLD = "..tostring(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value))
+	table.insert(textTable, "Check for diffuse, self:GetTotalCulture() = "..tostring(self:GetTotalCulture()) ..",  CULTURE_DIFFUSION_THRESHOLD = "..tostring(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value))
 	if totalCulture > tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value) then
 		self:DiffuseCulture()
 	end
 	
 	-- update culture in cities
-	--table.insert(debugTable, "Check for city")
+	table.insert(textTable, "Check for city")
 	if self:IsCity() then
 		local city 			= self:GetCity() --Cities.GetCityInPlot(self:GetX(), self:GetY())
 		local cityCultureID = GetCultureIDFromPlayerID(city:GetOwner())
 		--local cityCulture = city:GetCulture()
-		bshowDebug = true
-		--table.insert(debugTable, "----- ".. tostring(city:GetName()) .." -----")
+		table.insert(textTable, "----- ".. tostring(city:GetName()) .." -----")
 		
 		-- Culture creation in cities
 		local baseCulture = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_BASE_PRODUCTION"].Value)
 		local maxCulture = city:GetRealPopulation() --(city:GetPopulation() + GCO.GetCityCultureYield(self)) * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value)
-		--table.insert(debugTable, "baseCulture = " .. tostring(baseCulture) ..", maxCulture ["..tostring(maxCulture).."] = (city:GetPopulation() ["..tostring(city:GetPopulation()) .." + GCO.GetCityCultureYield(self)[".. tostring(GCO.GetCityCultureYield(self)).."]) * CULTURE_CITY_CAPED_FACTOR["..tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value).."]")
+		table.insert(textTable, "baseCulture = " .. tostring(baseCulture) ..", maxCulture ["..tostring(maxCulture).."] = (city:GetPopulation() ["..tostring(city:GetPopulation()) .." + GCO.GetCityCultureYield(self)[".. tostring(GCO.GetCityCultureYield(self)).."]) * CULTURE_CITY_CAPED_FACTOR["..tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value).."]")
 		if self:GetTotalCulture() < maxCulture then -- don't add culture if above max, the excedent will decay each turn
 			if plotCulture then
 				-- First add culture for city owner				
@@ -753,7 +780,7 @@ function UpdateCulture( self )
 					cultureAdded = GCO.Round((city:GetSize() + GCO.GetCityCultureYield(self)) * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
 				end	
 				cultureAdded = cultureAdded + baseCulture
-				--table.insert(debugTable, "- Player#".. tostring(cultureID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
+				table.insert(textTable, "- Player#".. tostring(cultureID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
 				self:ChangeCulture(cityCultureID, cultureAdded)	
 				
 				-- Then update all other Culture
@@ -793,13 +820,13 @@ function UpdateCulture( self )
 				end
 			end				
 		end
-		--table.insert(debugTable, "----- ----- -----")
+		table.insert(textTable, "----- ----- -----")
 	end
 	
 	-- Todo : improvements/units can affect culture
 	
 	-- Update Ownership
-	if tonumber(GameInfo.GlobalParameters["CULTURE_ALLOW_TILE_ACQUISITION"].Value) > 0 or tonumber(GameInfo.GlobalParameters["CULTURE_ALLOW_TILE_FLIPPING"].Value) > 0 then
+	if bAllowCultureAcquisition or bAllowCultureFlipping then
 		self:UpdateOwnership()
 	end
 	
@@ -807,91 +834,134 @@ function UpdateCulture( self )
 	if tonumber(GameInfo.GlobalParameters["CULTURE_CONQUEST_ENABLED"].Value) > 0 then
 		self:DoConquestCountDown()
 	end	
-	ShowDebug()
+	debugTable["UpdateCulture"] = nil
 end
 
 function UpdateOwnership( self )
-	--table.insert(debugTable, "----- UpdateOwnership -----")
-	--table.insert(debugTable, "plot (" .. self:GetX()..","..self:GetY()..")")
+
+	if debugTable["UpdateOwnership"] ~= nil then
+		GCO.Error("previous call to UpdateOwnership has failed for ".. self:GetX()..","..self:GetY())
+		ShowDebug()
+	end
+	
+	-- initialize and set local debug table
+	debugTable["UpdateOwnership"] 	= {} 
+	local textTable 				= debugTable["UpdateOwnership"]
+	
+	table.insert(textTable, "Update Ownership at turn ".. GCO.GetTurnKey() .." for (" .. self:GetX()..","..self:GetY()..")")
 	if self:GetTotalCulture() > 0 then
-		bshowDebug = true
-		--table.insert(debugTable, "Total culture = " .. self:GetTotalCulture())
+		table.insert(textTable, "Total culture = " .. self:GetTotalCulture())
 	end
 	
 	-- cities do not flip without Revolutions...
-	if self:IsCity() then return end
-	--table.insert(debugTable, "Not City")
+	if self:IsCity() then
+		debugTable["UpdateOwnership"] = nil
+		return
+	end
+	table.insert(textTable, "Not City")
 	
 	-- if plot is locked, don't try to change ownership...
-	if (self:GetConquestCountDown() > 0) then return end
-	--table.insert(debugTable, "Not Conquered")
+	if (self:GetConquestCountDown() > 0) then
+		debugTable["UpdateOwnership"] = nil
+		return
+	end
+	table.insert(textTable, "Not Conquered")
 	
 	-- 	check if fortifications on this plot are preventing tile flipping...
-	if (self:IsLockedByFortification()) then return	end
-	--table.insert(debugTable, "Not Locked by Fortification")
+	if (self:IsLockedByFortification()) then
+		debugTable["UpdateOwnership"] = nil
+		return
+	end
+	table.insert(textTable, "Not Locked by Fortification")
 	
 	-- Get potential owner
 	local bestPlayerID = self:GetPotentialOwner()
-		--table.insert(debugTable, "PotentialOwner = " .. bestPlayerID)
+	table.insert(textTable, "PotentialOwner = " .. bestPlayerID)
 	if (bestPlayerID == NO_OWNER or bestPlayerID == nil) then
+		debugTable["UpdateOwnership"] = nil
 		return
 	end
 	local bestValue = self:GetCulture(GetCultureIDFromPlayerID(bestPlayerID))
 	
 	
-	--table.insert(debugTable, "ActualOwner[".. self:GetOwner() .."] ~= PotentialOwner AND  bestValue[".. bestValue .."] > GetCultureMinimumForAcquisition( PotentialOwner )[".. GetCultureMinimumForAcquisition( PotentialOwner ) .."] ?" )
+	table.insert(textTable, "ActualOwner[".. self:GetOwner() .."] ~= PotentialOwner AND  bestValue[".. bestValue .."] > GetCultureMinimumForAcquisition( PotentialOwner )[".. GetCultureMinimumForAcquisition( PotentialOwner ) .."] ?" )
 	if (bestPlayerID ~= self:GetOwner()) and (bestValue > GetCultureMinimumForAcquisition( bestPlayerID )) then
 	
 		-- Do we allow tile flipping when at war ?		
-		if (self:IsLockedByWarForPlayer(bestPlayerID)) then return end
-		--table.insert(debugTable, "Not Locked by war")
+		if (self:IsLockedByWarForPlayer(bestPlayerID)) then
+			debugTable["UpdateOwnership"] = nil
+			return
+		end
+		table.insert(textTable, "Not Locked by war")
 		
 		-- check if an adjacent fortification can prevent tile flipping...
-		if (self:IsLockedByCitadelForPlayer(bestPlayerID)) then return end
-		--table.insert(debugTable, "Not Locked by Adjacent Fortification")
+		if (self:IsLockedByCitadelForPlayer(bestPlayerID)) then
+			debugTable["UpdateOwnership"] = nil
+			return
+		end
+		table.insert(textTable, "Not Locked by Adjacent Fortification")
 		
 		-- case 1: the tile was not owned and tile acquisition is allowed
-		local bAcquireNewPlot = (self:GetOwner() == NO_OWNER and tonumber(GameInfo.GlobalParameters["CULTURE_ALLOW_TILE_ACQUISITION"].Value) > 0)		
-		--table.insert(debugTable, "bAcquireNewPlot = (self:GetOwner()[".. self:GetOwner() .."] == NO_OWNER[".. NO_OWNER .."] AND CULTURE_ALLOW_TILE_ACQUISITION[".. GameInfo.GlobalParameters["CULTURE_ALLOW_TILE_ACQUISITION"].Value .."] > 0) =" .. tostring(bAcquireNewPlot))
+		local bAcquireNewPlot = (self:GetOwner() == NO_OWNER and bAllowCultureAcquisition)		
+		table.insert(textTable, "bAcquireNewPlot = (self:GetOwner()[".. self:GetOwner() .."] == NO_OWNER[".. NO_OWNER .."] AND bAllowCultureAcquisition[".. tostring(bAllowCultureAcquisition) .."]) =" .. tostring(bAcquireNewPlot))
 		
 		-- case 2: tile flipping is allowed and the ratio between the old and the new owner is high enough
-		local bConvertPlot = (tonumber(GameInfo.GlobalParameters["CULTURE_ALLOW_TILE_FLIPPING"].Value) > 0 and (bestValue * tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_RATIO"].Value)/100) > self:GetCulture(self:GetOwner()))
-		--table.insert(debugTable, "bConvertPlot = CULTURE_ALLOW_TILE_FLIPPING[".. GameInfo.GlobalParameters["CULTURE_ALLOW_TILE_FLIPPING"].Value .."] > 0 AND (bestValue[".. bestValue .."] * CULTURE_FLIPPING_RATIO[".. GameInfo.GlobalParameters["CULTURE_FLIPPING_RATIO"].Value .."]/100) > self:GetCulture(self:GetOwner())[".. self:GetCulture(self:GetOwner()) .."]) = " .. tostring(bConvertPlot))
+		local bConvertPlot = (bAllowCultureFlipping and (bestValue * tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_RATIO"].Value)/100) > self:GetCulture(self:GetOwner()))
+		table.insert(textTable, "bConvertPlot = bAllowCultureFlipping[".. tostring(bAllowCultureFlipping) .."] AND (bestValue[".. bestValue .."] * CULTURE_FLIPPING_RATIO[".. GameInfo.GlobalParameters["CULTURE_FLIPPING_RATIO"].Value .."]/100) > self:GetCulture(self:GetOwner())[".. self:GetCulture(self:GetOwner()) .."]) = " .. tostring(bConvertPlot))
 
 		if bAcquireNewPlot or bConvertPlot then
 			local city, distance = GCO.FindNearestPlayerCity(tonumber(bestPlayerID), self:GetX(), self:GetY())
-			--table.insert(debugTable, "City: "..tostring(city)..", distance = " .. tostring(distance))
-			if not city then return end
+			table.insert(textTable, "City: "..tostring(city)..", distance = " .. tostring(distance))
+			if not city then
+				debugTable["UpdateOwnership"] = nil
+				return
+			end
 			
 			-- Is the plot too far away ?			
-			--table.insert(debugTable, "distance[".. tostring(distance) .."] <= GetCultureFlippingMaxDistance(bestPlayerID)[".. GetCultureFlippingMaxDistance(bestPlayerID) .."] ?")
-			if distance > GetCultureFlippingMaxDistance(bestPlayerID) then return end
+			table.insert(textTable, "distance[".. tostring(distance) .."] <= GetCultureFlippingMaxDistance(bestPlayerID)[".. GetCultureFlippingMaxDistance(bestPlayerID) .."] ?")
+			if distance > GetCultureFlippingMaxDistance(bestPlayerID) then
+				debugTable["UpdateOwnership"] = nil
+				return
+			end
 			
 			-- Is there a path from the city to the plot ?
 			local cityPlot	= GetPlot(city:GetX(), city:GetY())
 			local path 		= self:GetPathToPlot(cityPlot, Players[bestPlayerID], "Land", GCO.TradePathBlocked, GetCultureFlippingMaxDistance(bestPlayerID))
-			if not path then return end
+			if not path then
+				debugTable["UpdateOwnership"] = nil
+				return
+			end
 			
 			-- All test passed succesfully, notify the players and change owner...
 			-- to do : notify the players...
 			--self:SetOwner(bestPlayerID, city:GetID(), true)
-			--table.insert(debugTable, "Changing owner !")
+			table.insert(textTable, "Changing owner !")
 			WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), bestPlayerID, city:GetID() )
 		end	
-	end	
+	end
+	if self:IsAdjacentPlayer(0) then ShowDebug() end
+	debugTable["UpdateOwnership"] = nil
 end
 
 function DiffuseCulture( self )
+
+	if debugTable["DiffuseCulture"] ~= nil then
+		GCO.Error("previous call to DiffuseCulture has failed for ".. self:GetX()..","..self:GetY())
+		ShowDebug()
+	end
 	
-	--table.insert(debugTable, "----- Diffuse -----")
-	bshowDebug = true
+	-- initialize and set local debug table
+	debugTable["DiffuseCulture"] 	= {} 
+	local textTable 				= debugTable["DiffuseCulture"]
+	
+	table.insert(textTable, "Diffuse Culture at turn ".. GCO.GetTurnKey() .." for ".. self:GetX()..","..self:GetY())
 	local iX = self:GetX()
 	local iY = self:GetY()
 	local iCultureValue 	= self:GetTotalCulture()
 	local iPlotBaseMax 		= iCultureValue * tonumber(GameInfo.GlobalParameters["CULTURE_NORMAL_MAX_PERCENT"].Value) / 100
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		local pAdjacentPlot = Map.GetAdjacentPlot(iX, iY, direction)
-		--table.insert(debugTable, "Direction = " .. direction ..", to (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
+		table.insert(textTable, "Direction = " .. direction ..", to (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
 		if (pAdjacentPlot and not pAdjacentPlot:IsWater()) then
 			local iBonus 			= 0
 			local iPenalty 			= 0
@@ -905,19 +975,19 @@ function DiffuseCulture( self )
 			local terrainMaxPercent	= GameInfo.Terrains[terrainType].CultureMaxPercent
 			local featureType		= self:GetFeatureType()
 			local bSkip				= false
-			--table.insert(debugTable, " - iPlotMax = "..iPlotMax..", bIsRoute = ".. tostring(bIsRoute) ..", bIsFollowingRiver =" .. tostring(bIsFollowingRiver) ..", bIsCrossingRiver = " .. tostring(bIsCrossingRiver) ..", terrainType = " .. terrainType ..", terrainThreshold = ".. terrainThreshold ..", terrainPenalty = ".. terrainPenalty ..", terrainMaxPercent = ".. terrainMaxPercent ..", featureType = ".. featureType)
+			table.insert(textTable, " - iPlotMax = "..iPlotMax..", bIsRoute = ".. tostring(bIsRoute) ..", bIsFollowingRiver =" .. tostring(bIsFollowingRiver) ..", bIsCrossingRiver = " .. tostring(bIsCrossingRiver) ..", terrainType = " .. terrainType ..", terrainThreshold = ".. terrainThreshold ..", terrainPenalty = ".. terrainPenalty ..", terrainMaxPercent = ".. terrainMaxPercent ..", featureType = ".. featureType)
 			-- Bonus: following road
 			if (bIsRoute) then
 				iBonus 		= iBonus + iRoadBonus
 				iPlotMax 	= iPlotMax * iRoadMax / 100
-				--table.insert(debugTable, " - bIsRoute = true, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
+				table.insert(textTable, " - bIsRoute = true, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
 			end
 			
 			-- Bonus: following a river
 			if (bIsFollowingRiver) then
 				iBonus 		= iBonus + iFollowingRiverBonus
 				iPlotMax 	= iPlotMax * iFollowingRiverMax / 100
-				--table.insert(debugTable, " - bIsFollowingRiver = true, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
+				table.insert(textTable, " - bIsFollowingRiver = true, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
 			end
 			
 			-- Penalty: feature
@@ -929,10 +999,10 @@ function DiffuseCulture( self )
 					if iCultureValue > featureThreshold * iBaseThreshold / 100 then
 						iPenalty 	= iPenalty + featurePenalty
 						iPlotMax 	= iPlotMax * featureMaxPercent / 100
-						--table.insert(debugTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
+						table.insert(textTable, " - featurePenalty[".. featurePenalty .."] > 0, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
 					else
 						bSkip = true -- no diffusion on that plot
-						--table.insert(debugTable, " - Skipping plot (iCultureValue[".. iCultureValue .."] < featureThreshold[".. featureThreshold .."] * iBaseThreshold[".. iBaseThreshold .."] / 100)")
+						table.insert(textTable, " - Skipping plot (iCultureValue[".. iCultureValue .."] < featureThreshold[".. featureThreshold .."] * iBaseThreshold[".. iBaseThreshold .."] / 100)")
 					end
 				end
 			end
@@ -943,10 +1013,10 @@ function DiffuseCulture( self )
 					if iCultureValue > terrainThreshold * iBaseThreshold / 100 then
 						iPenalty 	= iPenalty + terrainPenalty
 						iPlotMax 	= iPlotMax * terrainMaxPercent / 100
-						--table.insert(debugTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
+						table.insert(textTable, " - terrainPenalty[".. terrainPenalty .."] > 0, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
 					else
 						bSkip = true -- no diffusion on that plot
-						--table.insert(debugTable, " - Skipping plot (iCultureValue[".. iCultureValue .."] < terrainThreshold[".. terrainThreshold .."] * iBaseThreshold[".. iBaseThreshold .."] / 100)")
+						table.insert(textTable, " - Skipping plot (iCultureValue[".. iCultureValue .."] < terrainThreshold[".. terrainThreshold .."] * iBaseThreshold[".. iBaseThreshold .."] / 100)")
 					end
 				end
 			end
@@ -957,16 +1027,16 @@ function DiffuseCulture( self )
 					if iCultureValue > iCrossingRiverThreshold * iBaseThreshold / 100 then
 						iPenalty 	= iPenalty + iCrossingRiverPenalty
 						iPlotMax 	= iPlotMax * iCrossingRiverMax / 100
-						--table.insert(debugTable, " - bIsCrossingRiver = true, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
+						table.insert(textTable, " - bIsCrossingRiver = true, iPlotMax = ".. iPlotMax .. ", iBonus : " .. iBonus)
 					else
 						bSkip = true -- no diffusion on that plot
-						--table.insert(debugTable, " - Skipping plot (iCultureValue[".. iCultureValue .."] < iCrossingRiverThreshold[".. iCrossingRiverThreshold .."] * iBaseThreshold[".. iBaseThreshold .."] / 100)")
+						table.insert(textTable, " - Skipping plot (iCultureValue[".. iCultureValue .."] < iCrossingRiverThreshold[".. iCrossingRiverThreshold .."] * iBaseThreshold[".. iBaseThreshold .."] / 100)")
 					end
 				end
 			end
 			
 			if not bSkip then				
-				--table.insert(debugTable, " - iPlotMax = math.min(iPlotMax[" .. iPlotMax.."], iCultureValue[" .. iCultureValue.."] * CULTURE_ABSOLUTE_MAX_PERCENT[" .. tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value).."] / 100) = " ..math.min(iPlotMax, iCultureValue * tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value) / 100))
+				table.insert(textTable, " - iPlotMax = math.min(iPlotMax[" .. iPlotMax.."], iCultureValue[" .. iCultureValue.."] * CULTURE_ABSOLUTE_MAX_PERCENT[" .. tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value).."] / 100) = " ..math.min(iPlotMax, iCultureValue * tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value) / 100))
 				iPlotMax = math.min(iPlotMax, iCultureValue * tonumber(GameInfo.GlobalParameters["CULTURE_ABSOLUTE_MAX_PERCENT"].Value) / 100)
 				-- Apply Culture diffusion to all culture groups
 				local plotCulture = self:GetCultureTable() -- this should never be nil at this point
@@ -976,23 +1046,24 @@ function DiffuseCulture( self )
 					local iPlayerDiffusedCulture = (self:GetCulture(cultureID) * (iDiffusionRatePer1000 + (iDiffusionRatePer1000 * iBonus / 100))) / (1000 + (1000 * iPenalty / 100))
 					local iPreviousCulture = pAdjacentPlot:GetCulture(cultureID);
 					local iNextculture = math.min(iPlayerPlotMax, iPreviousCulture + iPlayerDiffusedCulture);
-					--table.insert(debugTable, " - Diffuse for player#"..cultureID..", iPlotMax = "..iPlotMax..", iPlayerPlotMax = ".. GCO.ToDecimals(iPlayerPlotMax) ..", iPreviousCulture = ".. GCO.ToDecimals(iPreviousCulture) ..", iNextculture = " ..GCO.ToDecimals(iNextculture)) 
-					--table.insert(debugTable, "		iPlayerDiffusedCulture["..GCO.ToDecimals(iPlayerDiffusedCulture).."] = (self:GetCulture(cultureID)["..GCO.ToDecimals(self:GetCulture(cultureID)).."] * (iDiffusionRatePer1000["..GCO.ToDecimals(iDiffusionRatePer1000).."] + (iDiffusionRatePer1000["..GCO.ToDecimals(iDiffusionRatePer1000).."] * iBonus["..GCO.ToDecimals(iBonus).."] / 100))) / (1000 + (1000 * iPenalty["..GCO.ToDecimals(iPenalty).."] / 100))")
+					table.insert(textTable, " - Diffuse for player#"..cultureID..", iPlotMax = "..iPlotMax..", iPlayerPlotMax = ".. GCO.ToDecimals(iPlayerPlotMax) ..", iPreviousCulture = ".. GCO.ToDecimals(iPreviousCulture) ..", iNextculture = " ..GCO.ToDecimals(iNextculture)) 
+					table.insert(textTable, "		iPlayerDiffusedCulture["..GCO.ToDecimals(iPlayerDiffusedCulture).."] = (self:GetCulture(cultureID)["..GCO.ToDecimals(self:GetCulture(cultureID)).."] * (iDiffusionRatePer1000["..GCO.ToDecimals(iDiffusionRatePer1000).."] + (iDiffusionRatePer1000["..GCO.ToDecimals(iDiffusionRatePer1000).."] * iBonus["..GCO.ToDecimals(iBonus).."] / 100))) / (1000 + (1000 * iPenalty["..GCO.ToDecimals(iPenalty).."] / 100))")
 					
 					iPlayerDiffusedCulture = iNextculture - iPreviousCulture
 					if (iPlayerDiffusedCulture > 0) then -- can be < 0 when a plot try to diffuse to another with a culture value already > at the calculated iPlayerPlotMax...
 						pAdjacentPlot:ChangeCulture(cultureID, iPlayerDiffusedCulture)
-						--table.insert(debugTable, " - Diffusing : " .. iPlayerDiffusedCulture)
+						table.insert(textTable, " - Diffusing : " .. iPlayerDiffusedCulture)
 					else
-						--table.insert(debugTable, " - Not diffusing negative value... (" .. iPlayerDiffusedCulture ..")")
+						table.insert(textTable, " - Not diffusing negative value... (" .. iPlayerDiffusedCulture ..")")
 					end
 				end				
 			end
 		else
-			--table.insert(debugTable, " - Skipping plot (water)")
+			table.insert(textTable, " - Skipping plot (water)")
 		end
 	end
-	--table.insert(debugTable, "----- ----- -----")
+	table.insert(textTable, "----- ----- -----")
+	debugTable["DiffuseCulture"] = nil
 end
 
 function DiffuseCultureFromMigrationTo(self, plot, migrants)
@@ -1047,17 +1118,8 @@ function GetCultureFlippingMaxDistance( playerID )
 	return tonumber(GameInfo.GlobalParameters["CULTURE_FLIPPING_MAX_DISTANCE"].Value)
 end
 
-function ShowDebug()
-	if bshowDebug then
-		for _, text in ipairs(debugTable) do
-			print(text)
-		end
-	end
-end
-
-
 function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY )
-	Dprint( DEBUG_PLOT_SCRIPT, "-----------------------------------------------------------------------------------------")
+	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "Update Culture On City Capture")
 	local city 		= GCO.GetCity(newOwnerID, newCityID)
 	local cityPlots = GCO.GetCityPlots(city)

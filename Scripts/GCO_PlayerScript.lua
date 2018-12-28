@@ -108,11 +108,10 @@ end
 
 function SetPlayerDefines()
 	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
-		local player = Players[playerID]
+		local player = GCO.GetPlayer(playerID)
 		if player then
 			player:Define()
-			
-			local playerConfig	= self:GetConfig()
+			local playerConfig	= player:GetConfig()
 			PlayerFromCivilizationType[playerConfig:GetCivilizationTypeName()] = playerID
 		end	
 	end

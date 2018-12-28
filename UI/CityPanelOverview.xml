@@ -174,7 +174,7 @@
                 <Stack																																	StackGrowth="Bottom" StackPadding="0">
                   <Stack			ID="HousingStack"																					StackGrowth="Bottom" StackPadding="4" />
                   <Container															Size="parent,0" AutoSize="Vertical">
-                    <Label																Anchor="L,B" Offset="4,0" Style="CityPanelTextSmall" String="LOC_HUD_CITY_TOTAL_HOUSING" />
+                    <Label																Anchor="L,B" Offset="4,0" Style="CityPanelTextSmall" String="CITY_TOTAL_HOUSING" />
                     <Label		ID="HousingTotalNum2"				Anchor="R,B" Offset="5,-2" Style="CityPanelNumLarge" String="0" FontStyle="Glow"/>
                   </Container>
                 </Stack>
