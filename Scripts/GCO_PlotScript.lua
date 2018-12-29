@@ -961,8 +961,8 @@ function DiffuseCulture( self )
 	local iPlotBaseMax 		= iCultureValue * tonumber(GameInfo.GlobalParameters["CULTURE_NORMAL_MAX_PERCENT"].Value) / 100
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		local pAdjacentPlot = Map.GetAdjacentPlot(iX, iY, direction)
-		table.insert(textTable, "Direction = " .. direction ..", to (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
 		if (pAdjacentPlot and not pAdjacentPlot:IsWater()) then
+			table.insert(textTable, "Direction = " .. DirectionString[direction] ..", to (" .. pAdjacentPlot:GetX()..","..pAdjacentPlot:GetY()..")")
 			local iBonus 			= 0
 			local iPenalty 			= 0
 			local iPlotMax 			= iPlotBaseMax		

@@ -275,6 +275,12 @@ UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_MAP_MAKING' 			WHERE 
 UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_LIBERALISM' 			WHERE PolicyType ='POLICY_LIBERALISM';
 UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_LIBERALISM' 			WHERE PolicyType ='POLICY_FREE_MARKET';
 
+/* ************************ */
+/* Government               */
+/* ************************ */
+DELETE FROM Government_SlotCounts WHERE GovernmentType ='GOVERNMENT_CHIEFDOM';
+INSERT INTO Government_SlotCounts (GovernmentType, GovernmentSlotType, NumSlots) VALUES ('GOVERNMENT_CHIEFDOM', 'SLOT_WILDCARD', '2');
+
 
 /* ************************ */
 /* Conscripts               */

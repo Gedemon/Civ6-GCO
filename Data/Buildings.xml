@@ -828,17 +828,30 @@
 	<!---->
 		<Row BuildingType="BUILDING_HERBALIST" YieldType="YIELD_HEALTH" YieldChange="1"/>
 		
-		<Row BuildingType="BUILDING_SMALL_BARRACKS"	YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
-		<Row BuildingType="BUILDING_SMALL_STABLE"	YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
-		<Row BuildingType="BUILDING_BARRACKS"		YieldType="YIELD_RESEARCH_MILITARY" YieldChange="2"/>
-		<Row BuildingType="BUILDING_STABLE"			YieldType="YIELD_RESEARCH_MILITARY" YieldChange="2"/>
+		<Row BuildingType="BUILDING_SMALL_BARRACKS"		YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_SMALL_STABLE"		YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_ARMORER"			YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_ARTILLATOR"			YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_WEAPONSMITH"		YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_ARMORSMITH"			YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_BLADESMITH"			YieldType="YIELD_RESEARCH_MILITARY" YieldChange="1"/>
+		<Row BuildingType="BUILDING_BARRACKS"			YieldType="YIELD_RESEARCH_MILITARY" YieldChange="3"/>
+		<Row BuildingType="BUILDING_STABLE"				YieldType="YIELD_RESEARCH_MILITARY" YieldChange="3"/>
+		<Row BuildingType="BUILDING_MILITARY_ACADEMY"	YieldType="YIELD_RESEARCH_MILITARY" YieldChange="6"/>
 		
-		<Row BuildingType="BUILDING_CITY_SHIPYARD"	YieldType="YIELD_RESEARCH_NAVAL" YieldChange="2"/>
+		<Row BuildingType="BUILDING_CITY_SHIPYARD"		YieldType="YIELD_RESEARCH_NAVAL" YieldChange="2"/>
+		<Row BuildingType="BUILDING_SHIPYARD"			YieldType="YIELD_RESEARCH_NAVAL" YieldChange="4"/>
 				
-		<Row BuildingType="BUILDING_BLACKSMITH"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="2"/>
+		<Row BuildingType="BUILDING_ARMORER"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
+		<Row BuildingType="BUILDING_ARTILLATOR"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
+		<Row BuildingType="BUILDING_WEAPONSMITH"		YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
+		<Row BuildingType="BUILDING_ARMORSMITH"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
+		<Row BuildingType="BUILDING_BLADESMITH"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
 		<Row BuildingType="BUILDING_CARPENTER"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
 		<Row BuildingType="BUILDING_STONEMASON"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
 		<Row BuildingType="BUILDING_BRICKMAKER"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="1"/>
+		<Row BuildingType="BUILDING_BLACKSMITH"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="2"/>
+		<Row BuildingType="BUILDING_WORKSHOP"			YieldType="YIELD_RESEARCH_CRAFTSMANSHIP" YieldChange="5"/>
 		
 		<Row BuildingType="BUILDING_FISH_MARKET"		YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="1"/>
 		<Row BuildingType="BUILDING_BUTCHERY"			YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="1"/>
