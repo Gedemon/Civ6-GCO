@@ -369,6 +369,7 @@
 		<Replace Tag="LOC_CLASS_MINED_RES_NAME"				Text="Mined"					Language="en_US" />
 		<Replace Tag="LOC_CLASS_COPPER_RES_NAME"			Text="Copper"					Language="en_US" />
 		<Replace Tag="LOC_CLASS_IRON_RES_NAME"				Text="Iron"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_HORSE_RES_NAME"				Text="Horses"					Language="en_US" />
 		
 	</LocalizedText>
 

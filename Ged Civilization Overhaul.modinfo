@@ -156,7 +156,6 @@
 				<File Priority="100">Data/Units.xml</File>
 				<File Priority="100">Data/Equipment.xml</File>
 				<File Priority="100">Data/Resources.xml</File>
-				<File Priority="100">Data/CityNames.xml</File>
 				<File Priority="100">Data/Technologies.xml</File>
 				<File Priority="100">Text/NameText.xml</File> <!-- Add buildings, units, ... name & descriptions here to automate table filling in PostUpdate.sql -->
 				<File Priority="100">Data/CivilizationTable.sql</File>
@@ -166,6 +165,7 @@
 				<File Priority="90">Data/Units.sql</File>
 				<File Priority="90">Data/ModRules.sql</File>
 				<File Priority="10">Data/CivilizationData.sql</File>
+				<File Priority="8">Data/CityNames.xml</File> <!-- Because we delete Civilization entries in CivilizationData and the CASCADE delete all city names -->
 				<File Priority="5">custom.sql</File>
 				<File Priority="5">custom.xml</File>
 				<File Priority="2">Data/PostUpdate.sql</File>

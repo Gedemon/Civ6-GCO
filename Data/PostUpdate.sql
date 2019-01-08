@@ -61,6 +61,13 @@ INSERT INTO BuildingModifiers (BuildingType, ModifierId)
 
 
 -----------------------------------------------
+-- City Names
+-----------------------------------------------
+
+/* Clean table */
+DELETE FROM CityNames WHERE CivilizationType NOT IN (SELECT Civilizations.CivilizationType from Civilizations);
+
+-----------------------------------------------
 -- Culture Groups
 -----------------------------------------------
 
@@ -214,6 +221,9 @@ UPDATE DiplomaticActions SET TargetPrereqCivic = NULL, TargetPrereqTech = (SELEC
 INSERT INTO TechnologyModifiers (TechnologyType, ModifierId)
 	SELECT 'TECH_' || substr(C.CivicType,7), C.ModifierId
 	FROM CivicModifiers AS C WHERE EXISTS (SELECT TechnologyType FROM Technologies WHERE Technologies.TechnologyType = 'TECH_' || substr(C.CivicType,7));
+
+/* Remove Techs that are not in the TechnologiesGCO table */
+DELETE FROM Technologies WHERE TechnologyType NOT IN (SELECT TechnologyType from TechnologiesGCO);
 
 /* Technology cost */
 UPDATE Technologies SET Cost = Cost*2.00 WHERE EraType ='ERA_ANCIENT';

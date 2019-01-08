@@ -128,7 +128,7 @@ INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FL
 /* Technologies & Civics    */
 /* ************************ */
 
-
+/*
 DELETE FROM Technologies WHERE TechnologyType ='TECH_STIRRUPS';
 DELETE FROM Technologies WHERE TechnologyType ='TECH_RIFLING';
 
@@ -247,6 +247,7 @@ INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_SATELLITES'
 DELETE FROM TechnologyPrereqs WHERE Technology ='TECH_GUIDANCE_SYSTEMS';
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_GUIDANCE_SYSTEMS', 'TECH_ROCKETRY');
 INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_GUIDANCE_SYSTEMS', 'TECH_COMPUTERS');
+--*/
 
 --INSERT INTO TechnologyPrereqs (Technology, PrereqTech) VALUES ('TECH_FUTURE_TECH', 'TECH_TELECOMMUNICATIONS');
 

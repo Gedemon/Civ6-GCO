@@ -172,7 +172,7 @@
 		
 	</TechnologiesGCO>
 	<TechnologiesGCO>	<!-- Arms Race Era -->
-		<!-- Modern Era Tiers I -->
+		<!-- Arms Race Era Tiers I -->
 		
 		<Row TechnologyType="TECH_MASS_MEDIA" 			Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="-2"	AdvisorType="ADVISOR_CULTURE" 	/>
 		<Row TechnologyType="TECH_RADAR" 				Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="-1"	/>
@@ -180,13 +180,13 @@
 		<Row TechnologyType="TECH_SONAR" 				Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="1"	/>
 		<Row TechnologyType="TECH_ADVANCED_FLIGHT"		Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST"	/>
 		<Row TechnologyType="TECH_ADVANCED_BALLISTICS" 	Cost="1390" EraType="ERA_ARMS_RACE" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 	/>		
-		<!-- Modern Era Tiers II -->
+		<!-- Arms Race Era Tiers II -->
 		<Row TechnologyType="TECH_CONSERVATION"			Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="-2" />
 		<Row TechnologyType="TECH_ANTIBIOTICS"			Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="-1"	/>
 		<Row TechnologyType="TECH_CALCULATOR"			Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="0"	/>
 		<Row TechnologyType="TECH_SCORCHED_EARTH"		Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="1"	/>
 		<Row TechnologyType="TECH_COMBINED_ARMS"		Cost="1490" EraType="ERA_ARMS_RACE" UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST"	/>
-		<!-- Modern Era Tiers III -->
+		<!-- Arms Race Era Tiers III -->
 		<Row TechnologyType="TECH_FUNDAMENTALISM"		Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="-3" />
 		<Row TechnologyType="TECH_ECOLOGY"				Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="-2" />
 		<Row TechnologyType="TECH_TRANSISTOR"			Cost="1600" EraType="ERA_ARMS_RACE" UITreeRow="-1"	/>
@@ -274,6 +274,7 @@
 		<Row Technology="TECH_BRONZE_WORKING"		PrereqTech="TECH_MINING"/>
 		<Row Technology="TECH_EARLY_EMPIRE"			PrereqTech="TECH_CODE_OF_LAWS"/>
 		<Row Technology="TECH_MILITARY_TRADITION"	PrereqTech="TECH_WARRIOR_CODE"/>
+		<Row Technology="TECH_MILITARY_TRADITION"	PrereqTech="TECH_THE_WHEEL"/>
 	</TechnologyPrereqsGCO>
 	<TechnologyPrereqsGCO>	<!-- Classical Era -->
 		
@@ -287,7 +288,6 @@
 		<Row Technology="TECH_PHILOSOPHY"			PrereqTech="TECH_WRITING"/>
 		<Row Technology="TECH_CELESTIAL_NAVIGATION" PrereqTech="TECH_CALENDAR"/>
 		<Row Technology="TECH_RECORDED_HISTORY"		PrereqTech="TECH_WRITING"/>
-		<Row Technology="TECH_HORSEBACK_RIDING"		PrereqTech="TECH_ANIMAL_HUSBANDRY"/>
 		<Row Technology="TECH_HORSEBACK_RIDING"		PrereqTech="TECH_MILITARY_TRADITION"/>
 		<Row Technology="TECH_IRON_WORKING"			PrereqTech="TECH_BRONZE_WORKING"/>
 		<!-- Tiers II -->
@@ -655,6 +655,7 @@
 		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_BRONZE_WORKING" 	ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_EARLY_EMPIRE"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_MILITARY_TRADITION"ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 	
 	</TechnologyResearchContribution>
@@ -663,45 +664,138 @@
 		<Row 	Technology="TECH_POLYTHEISM" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_CELESTIAL_NAVIGATION"	ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_CELESTIAL_NAVIGATION"	ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_GAMES_RECREATION" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_GAMES_RECREATION" 		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_PHILOSOPHY" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_PHILOSOPHY" 			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_RECORDED_HISTORY"		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_RECORDED_HISTORY"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_RECORDED_HISTORY"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_IRON_WORKING"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_IRON_WORKING"			ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_IRON_WORKING" 			ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_HORSEBACK_RIDING"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
 		<!-- Tiers II -->
 		<Row 	Technology="TECH_MONOTHEISM" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
-		<Row 	Technology="TECH_SHIPBUILDING"		ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_SHIPBUILDING"			ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="60"/>
+		<Row 	Technology="TECH_SHIPBUILDING"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="60"/>
+		<Row 	Technology="TECH_DRAMA_POETRY" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_DRAMA_POETRY" 			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_POLITICAL_PHILOSOPHY" 	ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_POLITICAL_PHILOSOPHY" 	ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_CONSTRUCTION"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="65"/>
 		<Row 	Technology="TECH_MILITARY_TRAINING"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers III -->
 		<Row 	Technology="TECH_THEOLOGY" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_PAPER"					ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="35"/>
+		<Row 	Technology="TECH_PAPER"					ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="65"/>
+		<Row 	Technology="TECH_ENGINEERING"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="65"/>
 		<Row 	Technology="TECH_DEFENSIVE_TACTICS"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		
 	</TechnologyResearchContribution>
 	<TechnologyResearchContribution>	<!-- Medieval Era -->
 		<!-- Tiers I -->
+		<Row 	Technology="TECH_NAVAL_TRADITION"		ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_ALCHEMY"				ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_APPRENTICESHIP"		ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="65"/>
+		<Row 	Technology="TECH_APPRENTICESHIP"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="45"/>
+		<Row 	Technology="TECH_APPRENTICESHIP"		ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="45"/>
+		<Row 	Technology="TECH_FEUDALISM"				ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_MACHINERY"				ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_CASTLES"				ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="65"/>
+		<Row 	Technology="TECH_CASTLES"				ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="65"/>
 		<Row 	Technology="TECH_MILITARY_ENGINEERING"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers II -->
+		<Row 	Technology="TECH_OPTICS"				ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_OPTICS"				ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_OPTICS"				ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_EDUCATION"				ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="45"/>
+		<Row 	Technology="TECH_EDUCATION"				ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="45"/>
+		<Row 	Technology="TECH_CIVIL_SERVICE"			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_GUILDS"				ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="45"/>
+		<Row 	Technology="TECH_GUILDS"				ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="45"/>
+		<Row 	Technology="TECH_GUILDS"				ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="65"/>
 		<Row 	Technology="TECH_MILITARY_TACTICS"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers III -->
 		<Row 	Technology="TECH_DIVINE_RIGHT"		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_EXPLORATION"			ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_EXPLORATION"			ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_ASTRONOMY"				ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_ASTRONOMY"				ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_PRINTING"				ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="45"/>
+		<Row 	Technology="TECH_PRINTING"				ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="45"/>
+		<Row 	Technology="TECH_METAL_CASTING"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_METAL_CASTING"			ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="45"/>
 	</TechnologyResearchContribution>
 	<TechnologyResearchContribution>	<!-- Renaissance Era -->
 		<!-- Tiers I -->
+		<Row 	Technology="TECH_CARTOGRAPHY"			ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_CARTOGRAPHY"			ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_BANKING"				ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_DIPLOMATIC_SERVICE"	ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_GUNPOWDER"				ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_GUNPOWDER"				ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_NATIONALISM"			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_NATIONALISM"			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="75"/>
 		<Row 	Technology="TECH_SIEGE_TACTICS"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers II -->
+		<Row 	Technology="TECH_SQUARE_RIGGING"		ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_HUMANISM"				ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_HUMANISM"				ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_MERCANTILISM"			ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_ARCHITECTURE"			ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="85"/>
 		<!-- Tiers III -->
 		<Row 	Technology="TECH_REFORMED_CHURCH"	ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_THE_ENLIGHTENMENT"		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_THE_ENLIGHTENMENT"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_CONSTITUTION"			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_CONSTITUTION"			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_LIBERALISM"			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_LIBERALISM"			ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_MASS_PRODUCTION"		ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="75"/>
+		<Row 	Technology="TECH_MASS_PRODUCTION"		ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="85"/>
+		<Row 	Technology="TECH_GEOLOGY"				ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_BALLISTICS"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 	</TechnologyResearchContribution>
 	<TechnologyResearchContribution>	<!-- Industrial Era -->
 		<!-- Tiers I -->
+		<Row 	Technology="TECH_NATURAL_HISTORY"		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_NATURAL_HISTORY"		ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_ECONOMICS"				ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_STEEL"					ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_STEEL"					ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="25"/>
+		<Row 	Technology="TECH_STEEL"					ContributionType="RESEARCH_MILITARY"		MaxContributionPercent="25"/>
 		<!-- Tiers II -->
+		<Row 	Technology="TECH_SUFFRAGE"				ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_STEAM_POWER"			ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_STEAM_POWER"			ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="70"/>
+		<Row 	Technology="TECH_ASSEMBLY_LINE"			ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="70"/>
+		<Row 	Technology="TECH_ASSEMBLY_LINE"			ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_MILITARY_SCIENCE"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers III -->
+		<Row 	Technology="TECH_CAPITALISM"			ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_OPERA_BALLET"			ContributionType="RESEARCH_INSPIRATION"		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_INDUSTRIALIZATION"		ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="70"/>
+		<Row 	Technology="TECH_INDUSTRIALIZATION"		ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="50"/>
 	</TechnologyResearchContribution>
 	<TechnologyResearchContribution>	<!-- Modern Era -->
 		<!-- Tiers I -->
+		<Row 	Technology="TECH_CLASS_STRUGGLE"		ContributionType="RESEARCH_INSPIRATION"		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_CLASS_STRUGGLE"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_REPLACEABLE_PARTS"		ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_REPLACEABLE_PARTS"		ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_CIVIL_ENGINEERING"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_MOBILIZATION"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers II -->
+		<Row 	Technology="TECH_TOTALITARIANISM"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_URBANIZATION"			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
 		<!-- Tiers III -->
+		<Row 	Technology="TECH_CULTURAL_HERITAGE"		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_CULTURAL_HERITAGE"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_PROFESSIONAL_SPORTS"	ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_PROFESSIONAL_SPORTS"	ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_PROFESSIONAL_SPORTS"	ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_ARMORED_WARFARE"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 	</TechnologyResearchContribution>
 	<TechnologyResearchContribution>	<!-- Arms Race Era -->
 		<!-- Tiers I -->
@@ -784,6 +878,8 @@
 		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" BaseValue="1"	PrereqTech="TECH_BRONZE_WORKING"	/>
 		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" BaseValue="3"	PrereqTech="TECH_BRONZE_WORKING"	/>
 		
+		<Row 	Technology="TECH_HORSEBACK_RIDING" 	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_HORSE_RES" BaseValue="2" 	PrereqTech="TECH_MILITARY_TRADITION"	/>
+		
 		<Row 	Technology="TECH_COMBINED_ARMS" 	ContributionType="EVENT_COMBAT_WITH" 			MaxContributionPercent="75"	TypeTag="CLASS_ARMOR" 		BaseValue="5"	PrereqTech="TECH_FLIGHT"	/>
 		<Row 	Technology="TECH_COMBINED_ARMS" 	ContributionType="EVENT_COMBAT_WITH" 			MaxContributionPercent="75"	TypeTag="CLASS_AIRCRAFT"	BaseValue="5"	PrereqTech="TECH_FLIGHT"	/>
 		
@@ -848,6 +944,7 @@
 		<Row Tag="CLASS_MINED_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_COPPER_RES" 	Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_IRON_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_HORSE_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		
 		<Row Tag="CLASS_ARMOR" 			Vocabulary="ABILITY_CLASS"/>
 	</Tags>
@@ -856,6 +953,8 @@
 		<Row Type="RESOURCE_CATTLE" 	Tag="CLASS_PASTURE_RES"/>
 		<Row Type="RESOURCE_SHEEP"		Tag="CLASS_PASTURE_RES"/>
 		<Row Type="RESOURCE_HORSES" 	Tag="CLASS_PASTURE_RES"/>
+		
+		<Row Type="RESOURCE_HORSES" 	Tag="CLASS_HORSE_RES"/>
 		
 		<Row Type="RESOURCE_CRABS"		Tag="CLASS_BOAT_RES"/>
 		<Row Type="RESOURCE_FISH"		Tag="CLASS_BOAT_RES"/>

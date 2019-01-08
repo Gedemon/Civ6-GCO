@@ -16,7 +16,7 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 	FROM CivilizationConfiguration;
 INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT	'LEADER_' || Name, 'KIND_LEADER'
-	FROM CivilizationConfiguration;	
+	FROM CivilizationConfiguration;
 	
 -- <Civilizations>
 DELETE FROM Civilizations WHERE StartingCivilizationLevelType == 'CIVILIZATION_LEVEL_CITY_STATE' OR StartingCivilizationLevelType == 'CIVILIZATION_LEVEL_FULL_CIV';
