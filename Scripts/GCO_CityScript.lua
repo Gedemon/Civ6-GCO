@@ -236,6 +236,19 @@ local resourceTradeLevel = {
 	[TradeLevelType.Allied] = {}	-- internal trade route are at this level
 }
 
+local centralSquareIDs	= {
+	["ERA_ANCIENT"] 		= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_ANCIENT"].Index ,
+	["ERA_CLASSICAL"] 		= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_CLASSICAL"].Index ,
+	["ERA_MEDIEVAL"] 		= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_MEDIEVAL"].Index ,
+	["ERA_RENAISSANCE"] 	= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_RENAISSANCE"].Index ,
+	["ERA_INDUSTRIAL"] 		= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_INDUSTRIAL"].Index ,
+	["ERA_MODERN"] 			= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_MODERN"].Index ,
+	["ERA_ARMS_RACE"] 		= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_ARMS_RACE"].Index ,
+	["ERA_ATOMIC"] 			= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_ATOMIC"].Index ,
+	["ERA_INFORMATION"] 	= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_INFORMATION"].Index ,
+	["ERA_FUTURE"] 			= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_FUTURE"].Index ,
+}
+
 local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)
 
@@ -407,8 +420,9 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -----------------------------------------------------------------------------------------
 -- Initialize
 -----------------------------------------------------------------------------------------
-local GCO 	= {}
-local pairs = pairs
+local GCO 		= {}
+local pairs 	= pairs
+local oldpairs 	= pairs
 local Dprint, Dline, Dlog
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts
@@ -546,8 +560,12 @@ function RegisterNewCity(playerID, city)
 	local baseFoodCost 		= GCO.GetBaseResourceCost(foodResourceID)
 	local turnKey 			= GCO.GetTurnKey()
 	local plot				= GCO.GetPlot(city:GetX(), city:GetY())
+	local ownerCultureID	= GCO.GetCultureIDFromPlayerID(playerID)
 	
-	-- add/remove plot's population
+	-- add City owner culture on plot
+	plot:ChangeCulture(ownerCultureID, totalPopulation)
+	
+	-- add/remove plot's population (plot:GetPopulation() returns its city population, not the plot data)
 	upperClass		= upperClass	+ plot:GetUpperClass()
 	middleClass		= middleClass	+ plot:GetMiddleClass()
 	lowerClass		= lowerClass	+ plot:GetLowerClass()
@@ -584,6 +602,8 @@ function RegisterNewCity(playerID, city)
 	end
 	city:ChangeStock(foodResourceID, city:GetMaxStock(foodResourceID))--GCO.Round(city:GetMaxStock(foodResourceID)/2))
 	
+	--plot:MatchCultureToPopulation()
+	
 	LuaEvents.NewCityCreated()
 end
 
@@ -605,9 +625,16 @@ function InitializeCity(playerID, cityID) -- added to Events.CityAddedToMap in i
 		RegisterNewCity(playerID, city)
 
 		local pCityBuildQueue = city:GetBuildQueue();
-		-- to do : different building by era
-		local centralSquareID = GameInfo.Buildings["BUILDING_CENTRAL_SQUARE"].Index
-		if not city:GetBuildings():HasBuilding(centralSquareID) then -- may already exist when initializing a captured city
+		
+		-- Set Central Square building if not exists
+		local bHasCentralSquare = false
+		for eraType, centralSquareID in pairs(centralSquareIDs) do
+			if city:GetBuildings():HasBuilding(centralSquareID) then
+				bHasCentralSquare = true
+			end
+		end
+		if not bHasCentralSquare then
+			local centralSquareID = centralSquareIDs[city:GetEraType()] or GCO.Error("No central Square Building for Era : ", city:GetEraType())
 			pCityBuildQueue:CreateIncompleteBuilding(centralSquareID, 100)
 		end
 
@@ -5392,12 +5419,10 @@ function DoIndustries(self)
 					table.insert(MultiResRequired[resourceCreatedID][buildingID], {ResourceRequired = resourceRequiredID, MaxConverted = maxConverted, Ratio = ratio, CostFactor = row.CostFactor })
 
 				elseif row.MultiResCreated then
-					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 					if not MultiResCreated[resourceRequiredID] then	MultiResCreated[resourceRequiredID] = {} end
 					if not MultiResCreated[resourceRequiredID][buildingID] then	MultiResCreated[resourceRequiredID][buildingID] = {} end
 					table.insert(MultiResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio, CostFactor = row.CostFactor })
 				else
-					local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
 					if not ResCreated[resourceRequiredID] then	ResCreated[resourceRequiredID] = {} end
 					if not ResCreated[resourceRequiredID][buildingID] then	ResCreated[resourceRequiredID][buildingID] = {} end
 					table.insert(ResCreated[resourceRequiredID][buildingID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio, CostFactor = row.CostFactor })
@@ -6489,6 +6514,7 @@ function DoMigration(self)
 	local totalPopulation 		= self:GetRealPopulation()
 	local minPopulationLeft		= GetPopulationPerSize(math.max(1, self:GetSize()-1))
 	local availableMigrants		= totalPopulation - minPopulationLeft
+	local plotsToUpdate			= {} -- list of plots that will need updating for Culture to Population matching
 	
 	if availableMigrants  > 0 then
 		local maxMigrants		= math.floor(availableMigrants * maxMigrantPercent / 100)
@@ -6682,23 +6708,26 @@ function DoMigration(self)
 				
 					-- Migrate to best destinations
 					table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
-					local numPlotDest = #possibleDestination
+					local numPlotDest 			= #possibleDestination
+					local originePlot			= GCO.GetPlot(self:GetX(), self:GetY())
+					plotsToUpdate[originePlot]	= true
 					for i, destination in ipairs(possibleDestination) do
 						if migrants > 0 and destination.Weight > 0 then
 							-- MigrationEfficiency already affect destination.Weight, but when there is not many possible destination 
 							-- we want to limit the number of migrants over long routes, so it's included here too 
 							local popMoving 	= math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
 							if popMoving > 0 then
-								local originePlot	= GCO.GetPlot(self:GetX(), self:GetY())
 								if destination.PlotID then
-									local plot 	= GCO.GetPlotByIndex(destination.PlotID)
+									local plot 			= GCO.GetPlotByIndex(destination.PlotID)
+									plotsToUpdate[plot]	= true
 									Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
 									originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
 									self:ChangePopulationClass(populationID, -popMoving)
 									plot:ChangePopulationClass(populationID, popMoving)
 								else
-									local city 	= destination.City
-									local plot	= GCO.GetPlot(city:GetX(), city:GetY())
+									local city 			= destination.City
+									local plot			= GCO.GetPlot(city:GetX(), city:GetY())
+									plotsToUpdate[plot]	= true
 									Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to city ("..Locale.Lookup(city:GetName())..") with Weight = "..tostring(destination.Weight))
 									originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)
 									self:ChangePopulationClass(populationID, -popMoving)
@@ -6710,6 +6739,10 @@ function DoMigration(self)
 				end
 			end
 		end
+	end
+	
+	for plot, _ in oldpairs(plotsToUpdate) do -- orderedpairs crash here
+		plot:MatchCultureToPopulation()
 	end
 	
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /END")
@@ -7094,6 +7127,9 @@ function DoTurnFourthPass(self)
 	GCO.StartTimer("SetUnlockers for ".. name)
 	self:SetUnlockers()
 	GCO.ShowTimer("SetUnlockers for ".. name)
+	
+	local plot	= GCO.GetPlot(self:GetX(), self:GetY())
+	plot:MatchCultureToPopulation()
 
 	Dprint( DEBUG_CITY_SCRIPT, "Fourth Pass done for ".. name)
 	

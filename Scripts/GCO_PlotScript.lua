@@ -143,6 +143,7 @@ function SaveTables()
 	GCO.StartTimer("Saving And Checking Map")
 	GCO.SaveTableToSlot(ExposedMembers.CultureMap, "CultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.PreviousCultureMap, "PreviousCultureMap")
+	GCO.SaveTableToSlot(ExposedMembers.MigrationMap, "MigrationMap")
 	GCO.SaveTableToSlot(ExposedMembers.PlotData, "PlotData")
 end
 LuaEvents.SaveTables.Add(SaveTables)
@@ -177,6 +178,7 @@ LuaEvents.SaveTables.Add(CheckSave)
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.CultureMap 			= GCO.LoadTableFromSlot("CultureMap") 			or {}
 	ExposedMembers.PreviousCultureMap 	= GCO.LoadTableFromSlot("PreviousCultureMap") 	or {}
+	ExposedMembers.MigrationMap 		= GCO.LoadTableFromSlot("MigrationMap") 		or {}
 	ExposedMembers.PlotData 			= GCO.LoadTableFromSlot("PlotData") 			or CreatePlotData()
 	InitializePlotFunctions()
 	SetCultureDiffusionRatePer1000()
@@ -255,6 +257,16 @@ function GetData(self)
 	local plotData 	= ExposedMembers.PlotData[plotKey]
 	if not plotData then GCO.Warning("plotData is nil for ".. Locale.Lookup(self:GetName())); GCO.DlineFull(); end
 	return plotData
+end
+
+function GetMigrationMap(self)
+	local plotKey	 	= self:GetKey()
+	local MigrationMap 	= ExposedMembers.MigrationMap[plotKey]
+	if not MigrationMap then
+		ExposedMembers.MigrationMap[plotKey] 	= {}
+		MigrationMap 							= ExposedMembers.MigrationMap[plotKey]
+	end
+	return MigrationMap
 end
 
 function GetCache(self)
@@ -661,7 +673,78 @@ function GetTerritorialWaterOwner( self )
 	return territorialWaterOwner
 end
 
+function MatchCultureToPopulation( self )
+
+	if debugTable["MatchCultureToPopulation"] ~= nil then
+		GCO.Error("previous call to MatchCultureToPopulation has failed for ".. self:GetX()..","..self:GetY())
+		ShowDebug()
+	end
+	
+	-- initialize and set local debug table
+	debugTable["MatchCultureToPopulation"] 	= {} 
+	local textTable 						= debugTable["MatchCultureToPopulation"]
+	
+	table.insert(textTable, "Match Culture Groups To Population at turn ".. GCO.GetTurnKey() .." for (".. tostring(self:GetX()) .. "," .. tostring(self:GetY()) ..") " )
+
+	-- Adapt Culture to Population
+	local totalCulture		= self:GetTotalCulture()
+	local totalPopulation	= self:GetPopulation()
+	local removeRatio		= 0
+	local addRatio			= 0
+
+	if totalPopulation < totalCulture then
+		local toRemove	= totalCulture - totalPopulation
+		removeRatio		= toRemove / totalCulture
+	elseif totalCulture < totalPopulation then
+		local toAdd		= totalPopulation - totalCulture
+		addRatio		= toAdd / totalPopulation	
+	end
+	
+	local plotCulture = self:GetCultureTable()
+	if plotCulture then
+		table.insert(textTable, "----- Culture and Population matching -----")
+		for cultureID, value in pairs (plotCulture) do
+			
+			-- Match Culture to Population
+			if value > 0 then
+				local change = 0
+				if removeRatio > 0 then
+					change	= - math.ceil(removeRatio * value) --
+				
+				elseif addRatio > 0 then
+					change	= math.floor(addRatio * value) --
+				end
+				if change ~= 0 then
+					if (value + change) <= 0 then
+						self:SetCulture(cultureID, 0)
+						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] + change [".. tostring(change) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", ".. tostring(0)..")")
+					else
+						self:ChangeCulture(cultureID, change)
+						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - change [".. tostring(change) .."]) = ".. tostring(value - change).."  -> ChangeCulture("..tostring(cultureID) ..", ".. tostring(- change)..")")	
+					end
+				end
+			else -- remove dead culture
+				ExposedMembers.CultureMap[self:GetKey()][tostring(cultureID)] = nil
+				table.insert(textTable, "Player #"..tostring(cultureID) .." value ["..tostring(value).."] <= 0 before change, removing entry...")	
+			end
+		end
+		
+		-- Handle rounding values
+		local totalCulture	= self:GetTotalCulture()
+		if totalPopulation > totalCulture then
+			self:ChangeCulture(INDEPENDENT_CULTURE, totalPopulation - totalCulture )
+		end
+		
+		table.insert(textTable, "----- ----- -----")
+	end
+	if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
+	debugTable["MatchCultureToPopulation"] = nil
+end
+
 function UpdateCulture( self )
+
+	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
+	if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
 
 	if debugTable["UpdateCulture"] ~= nil then
 		GCO.Error("previous call to UpdateCulture has failed for ".. self:GetX()..","..self:GetY())
@@ -699,9 +782,11 @@ function UpdateCulture( self )
 		return
 	end
 	
+	local plotCulture 		= self:GetCultureTable()
 	local totalCulture		= self:GetTotalCulture()
 	local minCulture		= self:GetPopulation() -- (self:GetSize() + 1) * 50
-	local maxCulture		= self:GetPopulation() * 2 -- (self:GetSize() + 1) * 50
+	local maxCulture		= self:GetPopulation() * 2 -- (self:GetSize() + 1) * 50	
+	--[[
 	local minDecayRatio		= 0
 	
 	if maxCulture < totalCulture then
@@ -710,8 +795,7 @@ function UpdateCulture( self )
 	end
 	
 	-- Decay
-	local plotCulture = self:GetCultureTable()
-	if plotCulture then
+	if false then --plotCulture then
 		table.insert(textTable, "----- Decay -----")
 		for cultureID, value in pairs (plotCulture) do
 			
@@ -750,12 +834,15 @@ function UpdateCulture( self )
 		
 		table.insert(textTable, "----- ----- -----")
 	end
+	--]]
 	
 	-- diffuse culture on adjacent plots
+	--[[
 	table.insert(textTable, "Check for diffuse, self:GetTotalCulture() = "..tostring(self:GetTotalCulture()) ..",  CULTURE_DIFFUSION_THRESHOLD = "..tostring(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value))
 	if totalCulture > tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value) then
-		self:DiffuseCulture()
+		--self:DiffuseCulture()
 	end
+	--]]
 	
 	-- update culture in cities
 	table.insert(textTable, "Check for city")
@@ -763,9 +850,12 @@ function UpdateCulture( self )
 		local city 			= self:GetCity() --Cities.GetCityInPlot(self:GetX(), self:GetY())
 		local cityCultureID = GetCultureIDFromPlayerID(city:GetOwner())
 		--local cityCulture = city:GetCulture()
-		table.insert(textTable, "----- ".. tostring(city:GetName()) .." -----")
+		table.insert(textTable, "----- ".. tostring(city:GetName()) .." -----")	
+		
+		Dprint( DEBUG_PLOT_SCRIPT, "Update culture in ".. city:GetName() .. ", Total Culture = " .. tostring(totalCulture))
 		
 		-- Culture creation in cities
+		--[[
 		local baseCulture = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_BASE_PRODUCTION"].Value)
 		local maxCulture = city:GetRealPopulation() --(city:GetPopulation() + GCO.GetCityCultureYield(self)) * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value)
 		table.insert(textTable, "baseCulture = " .. tostring(baseCulture) ..", maxCulture ["..tostring(maxCulture).."] = (city:GetPopulation() ["..tostring(city:GetPopulation()) .." + GCO.GetCityCultureYield(self)[".. tostring(GCO.GetCityCultureYield(self)).."]) * CULTURE_CITY_CAPED_FACTOR["..tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value).."]")
@@ -801,6 +891,7 @@ function UpdateCulture( self )
 				self:ChangeCulture(cityCultureID, baseCulture)
 			end
 		end
+		--]]
 		
 		-- Culture Conversion in cities
 		local cultureConversionRatePer10000 = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CONVERSION_RATE"].Value)
@@ -812,6 +903,7 @@ function UpdateCulture( self )
 				for cultureID, value in pairs (plotCulture) do
 					if GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() and cultureID ~= SEPARATIST_CULTURE then
 						local converted = GCO.Round(value * cultureConversionRatePer10000 / 10000)
+						Dprint( DEBUG_PLOT_SCRIPT, "  - "..Indentation20("cultureID#"..tostring(cultureID)).. Indentation20(" converted = ".. tostring(converted)).. ", from Culture Value = " .. tostring(value))
 						if converted > 0 then
 							self:ChangeCulture(cultureID, -converted)
 							self:ChangeCulture(cityCultureID, converted)
@@ -939,7 +1031,7 @@ function UpdateOwnership( self )
 			WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), bestPlayerID, city:GetID() )
 		end	
 	end
-	if self:IsAdjacentPlayer(0) then ShowDebug() end
+	--if self:IsAdjacentPlayer(0) then ShowDebug() end
 	debugTable["UpdateOwnership"] = nil
 end
 
@@ -1069,18 +1161,20 @@ end
 function DiffuseCultureFromMigrationTo(self, plot, migrants)
 
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
-	--if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
+	if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
 	
 	local cultureTable	 	= self:GetCultureTable() or {}
 	local leaveRatio		= math.min(1, migrants / math.max(1, self:GetPopulation()))
 	local destinationRatio 	= math.min(1, migrants / math.max(1, plot:GetPopulation()))
 	--local changeRatio		= migrantRatio * populationRatio
+	Dprint( DEBUG_PLOT_SCRIPT, "Diffuse Culture Migration from plot (".. self:GetX()..","..self:GetY() ..") to plot (".. plot:GetX()..","..plot:GetY() .."), Migrants =  "..tostring(migrants))
+
 	
 	for cultureKey, value in pairs(cultureTable) do
 		-- once we have default culture groups on all the map, only use one value ? (cultureRemove)
-		local cultureRemove	= math.ceil(value * leaveRatio)
-		local cultureAdd	= math.ceil(cultureRemove * destinationRatio)
-		Dprint( DEBUG_PLOT_SCRIPT, "Changing Culture on plot (".. self:GetX()..","..self:GetY() ..") for cultureID#"..tostring(cultureKey), Indentation20(" remove = ".. tostring(cultureRemove)).. Indentation20(" leaveRatio = ".. tostring(GCO.ToDecimals(leaveRatio))).. Indentation20(" add = ".. tostring(cultureAdd)).. Indentation20(" destinationRatio = " .. tostring (GCO.ToDecimals(destinationRatio))) .. " origine Culture Value = " .. tostring(value))
+		local cultureRemove	= math.floor(value * leaveRatio)
+		local cultureAdd	= cultureRemove --math.ceil(cultureRemove * destinationRatio)
+		Dprint( DEBUG_PLOT_SCRIPT, "  - "..Indentation20("cultureID#"..tostring(cultureKey)).. Indentation20(" remove = ".. tostring(cultureRemove)).. Indentation20(" leaveRatio = ".. tostring(GCO.ToDecimals(leaveRatio))).. Indentation20(" add = ".. tostring(cultureAdd)).. " origine Culture Value = " .. tostring(value))
 		plot:ChangeCulture(cultureKey, cultureRemove) -- cultureAdd
 		self:ChangeCulture(cultureKey, -cultureRemove)
 	end
@@ -2305,11 +2399,19 @@ end
 
 function GetMigration(self)
 	local plotKey = self:GetKey()	
+	
+	local bInitialize	= false
 	if not _cached[plotKey] then
-		self:SetMigrationValues()
-	elseif not _cached[plotKey].Migration then
-		self:SetMigrationValues()
+		_cached[plotKey] = {}
+		bInitialize = true
 	end
+	if not _cached[plotKey].Migration then
+		_cached[plotKey].Migration = { Push = {}, Pull = {}, Migrants = {}}
+		bInitialize = true
+	end
+	
+	if bInitialize then self:SetMigrationValues() end
+	
 	return _cached[plotKey].Migration
 end
 
@@ -2512,15 +2614,7 @@ function SetMigrationValues(self)
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	
-	local plotKey = self:GetKey()
-	if not _cached[plotKey] then
-		_cached[plotKey] = {}
-	end
-	if not _cached[plotKey].Migration then
-		_cached[plotKey].Migration = { Push = {}, Pull = {}, Migrants = {}}
-	end
-	
-	local plotMigration = _cached[plotKey].Migration
+	local plotMigration = self:GetMigration()
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "- Set Migration values to plot ".. self:GetX() ..",".. self:GetY())
@@ -2604,7 +2698,8 @@ function DoMigration(self)
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "- Population Migration from plot ".. self:GetX() ..",".. self:GetY())
 	local plotKey 				= self:GetKey()
-	local plotMigration 		= _cached[plotKey].Migration
+	local plotMigration 		= self:GetMigration()
+	local migrationMap	 		= self:GetMigrationMap()
 	local population			= self:GetPopulation()
 	local possibleDestination 	= {}
 	local city					= self:GetCity()
@@ -2744,11 +2839,16 @@ function DoMigration(self)
 						local classMoving = math.floor(totalPopMoving * classesRatio[classID])
 						if classMoving > 0 then
 							if destination.PlotID then
+							
 								local plot = GCO.GetPlotByIndex(destination.PlotID)
+								local destKey			= plot:GetKey()
+								local destMigrationMap	= plot:GetMigrationMap()
 								Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Resources[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
 								self:DiffuseCultureFromMigrationTo(plot, classMoving) -- before changing population values to get the correct numbers on each plot
 								self:ChangePopulationClass(classID, -classMoving)
 								plot:ChangePopulationClass(classID, classMoving)
+								migrationMap[destKey] 		= (migrationMap[destKey] or 0) - classMoving
+								destMigrationMap[plotKey] 	= (destMigrationMap[plotKey] or 0) + classMoving
 							else
 								local city = destination.City
 								local plot = GetPlot(city:GetX(), city:GetY())
@@ -2769,19 +2869,35 @@ function DoMigration(self)
 	end
 end
 
+function CheckNewTurnFinished()
+	if debugTable["OnNewTurn"] ~= nil then
+		GCO.Error("Plots turn unfinished !")
+		ShowDebug()
+	end
+end
+
 function OnNewTurn()
 
 	if Game.GetCurrentGameTurn() == GameConfiguration.GetStartTurn() then -- don't update on first turn (NewTurn is called on the first turn of a later era start)
 		GCO.Warning("Aborting OnNewTurn() for plots, this is the first turn !")
 		return
 	end
+	
+	-- initialize and set local debug table
+	debugTable["OnNewTurn"] 		= {} 	
+	debugTable["OnNewTurnPlotNum"] 	= {}
+	local textTable 				= debugTable["OnNewTurn"]
+	local posTable 					= debugTable["OnNewTurnPlotNum"]
 
 	GCO.StartTimer("Plots DoTurn")
 	local iPlotCount = Map.GetPlotCount()
+	
 	-- First Pass
 	GCO.StartTimer("Plots DoTurn First Pass")
+	table.insert(textTable, "First Pass")
 	for i = 0, iPlotCount - 1 do
-		local plot = Map.GetPlotByIndex(i)
+		local plot 	= Map.GetPlotByIndex(i)
+		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		-- set previous culture first
 		local plotCulture = plot:GetCultureTable()
 		if  plotCulture then
@@ -2791,35 +2907,58 @@ function OnNewTurn()
 		end
 	end
 	GCO.ShowTimer("Plots DoTurn First Pass")
+	
 	-- Second Pass
 	GCO.StartTimer("Plots DoTurn Second Pass")
+	table.insert(textTable, "Second Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
+		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:UpdateDataOnNewTurn()	
 		plot:UpdateCulture()
 		plot:SetMaxEmployment()
 	end
 	GCO.ShowTimer("Plots DoTurn Second Pass")
+	
 	-- Third Pass
 	GCO.StartTimer("Plots DoTurn Third Pass")
+	table.insert(textTable, "Third Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
+		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:SetMigrationValues()
 	end	
 	GCO.ShowTimer("Plots DoTurn Third Pass")
+	
 	-- Fourth Pass
 	GCO.StartTimer("Plots DoTurn Fourth Pass")
+	table.insert(textTable, "Fourth Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
+		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:DoMigration()
 	end
 	GCO.ShowTimer("Plots DoTurn Fourth Pass")
+	
+	-- Fifth Pass
+	GCO.StartTimer("Plots DoTurn Fifth Pass")
+	table.insert(textTable, "Fifth Pass")
+	for i = 0, iPlotCount - 1 do
+		local plot = Map.GetPlotByIndex(i)
+		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		plot:MatchCultureToPopulation()
+	end	
+	GCO.ShowTimer("Plots DoTurn Fifth Pass")
+	
 	--print("-----------------------------------------------------------------------------------------")
 	GCO.ShowTimer("Plots DoTurn")
 	--print("-----------------------------------------------------------------------------------------")
+	
+	debugTable["OnNewTurn"] = nil
+	debugTable["OnNewTurnPlotNum"] = nil
 end
 Events.TurnBegin.Add(OnNewTurn)
-
+Events.TurnBegin.Add(CheckNewTurnFinished)
 
 -----------------------------------------------------------------------------------------
 -- UI Functions
@@ -2947,6 +3086,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	
 	p.GetKey						= GetKey
 	p.GetData						= GetData
+	p.GetMigrationMap				= GetMigrationMap
 	p.GetCache						= GetCache
 	p.GetCached						= GetCached
 	p.SetCached						= SetCached
@@ -2979,6 +3119,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	p.GetPotentialOwner				= GetPotentialOwner
 	p.IsTerritorialWaterOf			= IsTerritorialWaterOf
 	p.GetTerritorialWaterOwner		= GetTerritorialWaterOwner
+	p.MatchCultureToPopulation		= MatchCultureToPopulation
 	p.UpdateCulture					= UpdateCulture
 	p.UpdateOwnership				= UpdateOwnership
 	p.DiffuseCulture				= DiffuseCulture
@@ -3058,6 +3199,8 @@ function Initialize()
 	--
 	ExposedMembers.GCO.GetPlotFromKey 			= GetPlotFromKey
 	ExposedMembers.GCO.GetRiverPath				= GetRiverPath
+	--
+	ExposedMembers.GCO.GetCultureIDFromPlayerID	= GetCultureIDFromPlayerID
 	--
 	ExposedMembers.GCO.CleanPlotsData			= CleanPlotsData
 	--

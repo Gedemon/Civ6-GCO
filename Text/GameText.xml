@@ -120,6 +120,14 @@
   </LocalizedText>
   
   <LocalizedText> <!-- Common / various -->
+  
+	<Replace Tag="LOC_VAR_NUMBER_0"					Text="{1_Num : number +#;-#}" 		Language="en_US" />
+	<Replace Tag="LOC_VAR_NUMBER_1"					Text="{1_Num : number +#.#;-#.#}" 	Language="en_US" />
+	<Replace Tag="LOC_VAR_NUMBER_2"					Text="{1_Num : number +#.##;-#.##}" Language="en_US" />	
+	
+	<Replace Tag="LOC_PERCENT_0"					Text="{1_Num : number #}%" 		Language="en_US" />
+	<Replace Tag="LOC_PERCENT_1"					Text="{1_Num : number #.#}%" 		Language="en_US" />
+	<Replace Tag="LOC_PERCENT_2"					Text="{1_Num : number #.##}%"		Language="en_US" />	
 	
     <Replace Tag="LOC_TOOLTIP_SEPARATOR"			Text="[NEWLINE][COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" />
     <Replace Tag="LOC_TOOLTIP_SEPARATOR_NO_LB"		Text="[COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR]" 	Language="en_US" />
@@ -135,6 +143,11 @@
 	<Replace Tag="LOC_EVALUATION_VERY_GOOD"			Text="Very good" 			Language="en_US" />
 
 	<Replace Tag="LOC_TECH_CONTRIBUTION_TITLE"		Text="Contributions :[NEWLINE]" 	Language="en_US" />
+	
+	<Replace Tag="LOC_TECH_RES_KNOWLEDGE"			Text="Knowledge:" 	Language="en_US" />
+	<Replace Tag="LOC_TECH_RES_TABLETS"				Text="Tablets:" 	Language="en_US" />
+	<Replace Tag="LOC_TECH_RES_SCROLLS"				Text="Scrolls:" 	Language="en_US" />
+	<Replace Tag="LOC_TECH_RES_BOOKS"				Text="Books:"	 	Language="en_US" />
 	
   </LocalizedText>
   
@@ -883,9 +896,11 @@
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_TOTAL" Language="en_US">
       <Text>[ICON_GreatWriter] {1_Num} Culture</Text>
     </Replace>	
-    <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE" Language="en_US">
+    <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE_PERCENT" Language="en_US">
       <Text>{1_Num: number #.##} % {2_Name}</Text>
-    </Replace>	
+    </Replace>    <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE" Language="en_US">
+      <Text>{1_Num: number #} {2_Name} ({3_Num: number #.##} %)</Text>
+    </Replace>
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER" Language="en_US">
       <Text>{1_Num} % others</Text>
     </Replace>
@@ -916,6 +931,12 @@
       <Text>x{1_Num} with {2_Name}</Text>
     </Replace>
 	
+	<Replace Tag="LOC_PLOT_TOOLTIP_POPULATION_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]----------- Population ----------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_GROUPS" Language="en_US">
+      <Text>Ethnicity</Text>
+    </Replace>
 	
   </LocalizedText>
  

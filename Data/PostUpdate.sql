@@ -20,8 +20,8 @@ UPDATE TechnologyContributionTypes	SET Name = 'LOC_' || TechnologyContributionTy
 -----------------------------------------------
 
 /* Create new Buildings entries from the temporary BuildingsGCO table */
-INSERT OR REPLACE INTO Buildings (BuildingType, Name, PrereqTech, PrereqDistrict, Cost, NoPedia, MaterielPerProduction, AdvisorType, EquipmentStock, Coast, EmploymentSize, ObsoleteEra)
-	SELECT BuildingsGCO.BuildingType, 'LOC_' || BuildingsGCO.BuildingType || '_NAME', BuildingsGCO.PrereqTech, BuildingsGCO.PrereqDistrict, BuildingsGCO.Cost, BuildingsGCO.NoPedia, BuildingsGCO.MaterielPerProduction, BuildingsGCO.AdvisorType, BuildingsGCO.EquipmentStock, BuildingsGCO.Coast, BuildingsGCO.EmploymentSize, BuildingsGCO.ObsoleteEra
+INSERT OR REPLACE INTO Buildings (BuildingType, Name, PrereqTech, PrereqDistrict, Cost, NoPedia, MaterielPerProduction, AdvisorType, EquipmentStock, Coast, EmploymentSize, ObsoleteEra, MustPurchase)
+	SELECT BuildingsGCO.BuildingType, 'LOC_' || BuildingsGCO.BuildingType || '_NAME', BuildingsGCO.PrereqTech, BuildingsGCO.PrereqDistrict, BuildingsGCO.Cost, BuildingsGCO.NoPedia, BuildingsGCO.MaterielPerProduction, BuildingsGCO.AdvisorType, BuildingsGCO.EquipmentStock, BuildingsGCO.Coast, BuildingsGCO.EmploymentSize, BuildingsGCO.ObsoleteEra, BuildingsGCO.MustPurchase
 	FROM BuildingsGCO;
 	
 /* Create new Buildings Types entries from the temporary BuildingsGCO table */
@@ -237,7 +237,33 @@ UPDATE Technologies SET Cost = Cost*4.30 WHERE EraType ='ERA_ATOMIC';
 UPDATE Technologies SET Cost = Cost*4.80 WHERE EraType ='ERA_INFORMATION';
 UPDATE Technologies SET Cost = Cost*5.50 WHERE EraType ='ERA_FUTURE';
 
-
+/* Create Resources from Technologies */
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice)
+	SELECT 'RESOURCE_KNOWLEDGE_' || Technologies.TechnologyType , '{LOC_TECH_RES_KNOWLEDGE} {' || Technologies.Name || '}', 'CLASS_KNOWLEDGE', 0, 1
+	FROM Technologies;
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice)
+	SELECT 'RESOURCE_TABLETS_' || Technologies.TechnologyType , '{LOC_TECH_RES_TABLETS} {' || Technologies.Name || '}', 'CLASS_TABLETS', 0, 1
+	FROM Technologies;
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice)
+	SELECT 'RESOURCE_SCROLLS_' || Technologies.TechnologyType , '{LOC_TECH_RES_SCROLLS} {' || Technologies.Name || '}', 'CLASS_SCROLLS', 0, 1
+	FROM Technologies;
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice)
+	SELECT 'RESOURCE_BOOKS_' || Technologies.TechnologyType , '{LOC_TECH_RES_BOOKS} {' || Technologies.Name || '}', 'CLASS_BOOKS', 0, 1
+	FROM Technologies;
+	
+INSERT OR REPLACE INTO Types (Type, Kind)
+	SELECT 'RESOURCE_KNOWLEDGE_' || Technologies.TechnologyType, 'KIND_RESOURCE'
+	FROM Technologies;
+INSERT OR REPLACE INTO Types (Type, Kind)
+	SELECT 'RESOURCE_TABLETS_' || Technologies.TechnologyType, 'KIND_RESOURCE'
+	FROM Technologies;
+INSERT OR REPLACE INTO Types (Type, Kind)
+	SELECT 'RESOURCE_SCROLLS_' || Technologies.TechnologyType, 'KIND_RESOURCE'
+	FROM Technologies;
+INSERT OR REPLACE INTO Types (Type, Kind)
+	SELECT 'RESOURCE_BOOKS_' || Technologies.TechnologyType, 'KIND_RESOURCE'
+	FROM Technologies;
+	
 --UPDATE Eras SET EraTechBackgroundTexture = 'TechTree_BG_ARMRACE' WHERE EraType ='ERA_MODERN';
 
 /*

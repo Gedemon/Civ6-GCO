@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS BuildingsGCO (
 		NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0,		-- Do not show in Civilopedia
 		NoCityScreen 	BOOLEAN NOT NULL CHECK (NoCityScreen IN (0,1)) DEFAULT 0, 	-- Do not show in City Screens
 		Unlockers 		BOOLEAN NOT NULL CHECK (Unlockers IN (0,1)) DEFAULT 0, 		-- Unlockers for buildings and units
+		--
 		EquipmentStock	integer DEFAULT 0, 											-- Equipment that can be stocked by the building
 		-- Materiel ratio for Buildings construction
 		MaterielPerProduction 	INTEGER DEFAULT '4', 								-- Materiel per unit of production needed for buildings construction

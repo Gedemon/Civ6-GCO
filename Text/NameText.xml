@@ -37,7 +37,16 @@
 		<Replace Tag="LOC_BUILDING_ARMORSMITH_NAME"					Text="Armorsmith"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FARRIER_NAME"					Text="Farrier"	 				Language="en_US" />
 							
-		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_NAME" 			Text="Central Square"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_ANCIENT_NAME" 	Text="Ancient Central Square"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_CLASSICAL_NAME" 	Text="Classical Central Square"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_MEDIEVAL_NAME" 	Text="Medieval Central Square"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_RENAISSANCE_NAME" Text="Renaissance Central Square"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_INDUSTRIAL_NAME" 	Text="Industrial Central Square"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_MODERN_NAME" 		Text="Modern Central Square"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_ARMS_RACE_NAME" 	Text="Modern Central Square"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_ATOMIC_NAME" 		Text="Modern Central Square"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_INFORMATION_NAME" Text="Modern Central Square"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_FUTURE_NAME" 		Text="Modern Central Square"		Language="en_US" />
 		
 		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_1_NAME" 	Text="Ancient Wealthy Housing"	Language="en_US" />
 		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_1_NAME" 	Text="Ancient Housing"			Language="en_US" />

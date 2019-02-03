@@ -13,6 +13,11 @@
 
 -- GCO <<<<<
 -----------------------------------------------------------------------------------------
+-- Includes
+-----------------------------------------------------------------------------------------
+include( "GCO_SmallUtils" )
+
+-----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
 local FeatureResources				= {} -- cached table to list resources produced by a feature
@@ -227,9 +232,15 @@ end
 -- ===========================================================================
 function View(data:table, bIsUpdate:boolean)
 	-- Build a string that contains all plot details.
-	local details = {};
+	local details 	= {};
 	local debugInfo = {};
-
+	
+	--  GCO <<<<<
+	local culture		= {}
+	local popDetails	= {}
+	local nameDetails	= {}
+	-- GCO >>>>>
+	
 	if(data.Owner ~= nil) then
 
 		local szOwnerString;
@@ -267,22 +278,22 @@ function View(data:table, bIsUpdate:boolean)
 				szFeatureString = szFeatureString .. " " .. szAdditionalString;
 			end
 		end
-		table.insert(details, szFeatureString);
+		table.insert(nameDetails, szFeatureString); -- GCO: details <-> nameDetails
 	end
 	if(data.NationalPark ~= "") then
-		table.insert(details, data.NationalPark);
+		table.insert(nameDetails, data.NationalPark); -- GCO: details <-> nameDetails
 	end
 
 	if(data.ResourceType ~= nil) then
 		--if it's a resource that requires a tech to improve, let the player know that in the tooltip
+		-- GCO <<<<<
+		--local resourceString = Locale.Lookup(resource.Name) .. " ("..tostring(data.ResourceCount)..")"
+		--[[
+		-- GCO >>>>>
 		local resourceType = data.ResourceType;
 		local resource = GameInfo.Resources[resourceType];
 
-		-- GCO <<<<<
-		--[[
-		--local resourceString = Locale.Lookup(resource.Name);
-		local resourceString = Locale.Lookup(resource.Name) .. " ("..tostring(data.ResourceCount)..")"
-		-- GCO >>>>>
+		local resourceString = Locale.Lookup(resource.Name);
 		local resourceTechType;
 
 		local terrainType = data.TerrainType;
@@ -341,7 +352,7 @@ function View(data:table, bIsUpdate:boolean)
 	end
 	
 	if (data.IsRiver == true) then
-		table.insert(details, Locale.Lookup("LOC_TOOLTIP_RIVER"));
+		table.insert(nameDetails, Locale.Lookup("LOC_TOOLTIP_RIVER")); -- GCO: details <-> nameDetails
 	end
 
 	-- Movement cost
@@ -555,64 +566,116 @@ function View(data:table, bIsUpdate:boolean)
 		table.insert(debugInfo, "------------------")
 		-- GCO >>>>>
 		table.insert(debugInfo, "Plot #:" .. tostring(data.Index) .. " @("..tostring(data.X) .. ", " .. tostring(data.Y) .. "), vis:" .. tostring(iVisCount));
-			
 	end
 
 	-- GCO <<<<<	
 	local plot = GCO.GetPlotByIndex(data.Index) -- to get a PlotScript context plot
 	
+	if m_isShowDebug then
+		local pArea = plot:GetArea()
+		if pArea then 
+			table.insert(debugInfo, "Area #:" .. tostring(pArea:GetID()) .. ", plots= ".. tostring(pArea:GetPlotCount()) .. ", " .. tostring(pArea:IsCanyons()))-- .. ", " .. tostring(pArea:IsMountains()) .. ", " .. tostring(pArea:IsWater()));
+		end
+	end
+	
 	-- Population & Culture
-	table.insert(details, "------------------")
+	--table.insert(details, "------------------")
 	local totalCulture 	= plot:GetTotalCulture()
 	local population	= plot:GetPopulation()
-	local popVariation	= population - plot:GetPreviousPopulation()
-	local size			= plot:GetSize()
+	local popVariation	= population - plot:GetPreviousPopulation() -- won't return the correct value if the plot is a city, that's why we use a condition check below
 	
-	if data.IsCity then
-		GCO.AttachCityFunctions(data.OwnerCity)
-		population 		= data.OwnerCity:GetRealPopulation()
-		popVariation	= data.OwnerCity:GetUrbanPopulationVariation()
-	else
-		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", GCO.Round(size) ))		
-	end
-	table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population)) .. GCO.GetVariationStringNoColorHigh(popVariation))
-	if totalCulture > 0 then
-		local sortedCulture = {}
-		for cultureKey, value in pairs (plot:GetCulturePercentTable()) do
-			table.insert(sortedCulture, {cultureID = tonumber(cultureKey), value = value})
-		end	
-		table.sort(sortedCulture, function(a,b) return a.value>b.value end)
-		local numLines = 5
-		local other = 0
-		local iter = 1
-		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ).. GCO.GetVariationStringNoColorHigh(totalCulture - plot:GetTotalPreviousCulture()))
-		for i, t in ipairs(sortedCulture) do
-			if (iter <= numLines) or (#sortedCulture == numLines + 1) then
-				--local playerConfig 		= PlayerConfigurations[t.playerID]
-				local percentVariation 	= (plot:GetCulturePer10000(t.cultureID) - plot:GetPreviousCulturePer10000(t.cultureID)) / 100
-				local cultureAdjective 	= GameInfo.CultureGroups[t.cultureID].Adjective	--playerConfig and Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective) or "Independant"
-				if t.value > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, cultureAdjective) .. GCO.GetVariationStringNoColorPercent(percentVariation)) end
-			else
-				other = other + t.value
-			end
-			iter = iter + 1
+	if population > 0 or popVariation ~= 0 or data.IsCity then
+		local size		= plot:GetSize()
+		local sizeStr	= ""
+		if data.IsCity then
+			GCO.AttachCityFunctions(data.OwnerCity)
+			population 		= data.OwnerCity:GetRealPopulation()
+			popVariation	= data.OwnerCity:GetUrbanPopulationVariation()
+			sizeStr	= Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", data.OwnerCity:GetSize() )	..  ", "
+		else
+			sizeStr	= Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", GCO.Round(size) )	..  ", "
 		end
-		if other > 0 then table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER", other)) end
-	end
-	
-	-- Employment
-	if not data.IsCity then
-		table.insert(details, "------------------")
-		local EmploymentTable, maxEmployment = plot:GetAvailableEmployment()
-		for key, value in pairs(EmploymentTable) do
-			table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_EMPLOYMENT_LINE", value, key))
-		end
-		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_MAX_EMPLOYMENT_LINE", maxEmployment))
-		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_EMPLOYED_LINE", plot:GetEmployed()))
-		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_ACTIVITY_PERCENT_LINE", plot:GetActivityFactor()*100))
-		table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_OUTPUT_PER_YIELD_LINE", plot:GetOutputPerYield()))
-	end
+		table.insert(popDetails, sizeStr .. Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population)) .. GCO.GetVariationStringNoColorHigh(popVariation))
 		
+		local cultureHeader = ""
+		if totalCulture > 0 then
+			local sortedCulture = {}
+			for cultureKey, value in pairs (plot:GetCultureTable()) do -- GetCulturePercentTable
+				table.insert(sortedCulture, {cultureID = tonumber(cultureKey), value = value})
+			end	
+			table.sort(sortedCulture, function(a,b) return a.value>b.value end)
+			local totalPrevCulture	= plot:GetTotalPreviousCulture()
+			local numLines 			= 5
+			local other 			= 0
+			local iter 				= 1
+			local bAlignRight 		= true
+			local maxCultureLen		= string.len(totalCulture)
+			local maxVarLen			= string.len(totalPrevCulture)
+			
+			-- 
+			--table.insert(popDetails, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ).. GCO.GetVariationStringNoColorHigh(totalCulture - totalPrevCulture))
+			
+			cultureHeader = Indentation("", 13) .. Indentation("", maxCultureLen, bAlignRight) .. "[ICON_Position]" .. Indentation("", 5 + maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%"
+			--table.insert(culture, Indentation("", 15) .. Indentation("", math.max(1,maxCultureLen-2), bAlignRight) .. "[ICON_Position]" .. Indentation("", 4, bAlignRight) .. Indentation("", maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%" )
+			--table.insert(culture, "[ICON_Culture]" .. Indentation(Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_GROUPS"), 13) .. Indentation("", math.max(1,maxCultureLen-2), bAlignRight) .. "[ICON_Position]" .. Indentation("", 4, bAlignRight) .. Indentation("", maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%" )
+			for i, t in ipairs(sortedCulture) do
+				if (iter <= numLines) or (#sortedCulture == numLines + 1) then
+					--local playerConfig 		= PlayerConfigurations[t.playerID]
+					local percentVariation 	= (plot:GetCulturePer10000(t.cultureID) - plot:GetPreviousCulturePer10000(t.cultureID)) / 100
+					local variation 	= (plot:GetCulture(t.cultureID) - plot:GetPreviousCulture(t.cultureID))
+					local cultureAdjective 	= GameInfo.CultureGroups[t.cultureID].Adjective	--playerConfig and Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective) or "Independant"
+					if t.value > 0 then
+						--table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, cultureAdjective, t.value / totalCulture * 100) .. GCO.GetVariationString(variation))	-- GetVariationStringNoColorPercent
+						local percentStr 	= Locale.Lookup("LOC_PERCENT_1", t.value / totalCulture * 100)
+						local percentVarStr	= Locale.Lookup("LOC_VAR_NUMBER_2",percentVariation)
+						table.insert(culture, Indentation(Locale.Lookup(cultureAdjective), 15) .. "|" .. Indentation(t.value, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation(variation, maxVarLen, bAlignRight) .. "|" .. Indentation(percentVarStr, 6, bAlignRight) )	--
+					end
+				else
+					other = other + t.value
+				end
+				iter = iter + 1
+			end
+			if other > 0 then
+				--table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER", other))
+				local percentStr 	= Locale.Lookup("LOC_PERCENT_1", other / totalCulture * 100)
+				table.insert(culture, Indentation(Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER"), 15) .. "|" .. Indentation(other, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation("-", maxVarLen, bAlignRight) .. "|" .. Indentation("-", 6, bAlignRight) )	--
+			end
+		end
+		
+		-- Employment
+		if not data.IsCity then
+			table.insert(details, "------------------")
+			local EmploymentTable, maxEmployment = plot:GetAvailableEmployment()
+			for key, value in pairs(EmploymentTable) do
+				table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_EMPLOYMENT_LINE", value, key))
+			end
+			table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_MAX_EMPLOYMENT_LINE", maxEmployment))
+			table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_EMPLOYED_LINE", plot:GetEmployed()))
+			table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_ACTIVITY_PERCENT_LINE", plot:GetActivityFactor()*100))
+			table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_OUTPUT_PER_YIELD_LINE", plot:GetOutputPerYield()))
+		end
+		
+		-- 
+		Controls.Title1:SetText(Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_TITLE"))
+		Controls.Text1:SetText(table.concat(popDetails, "[NEWLINE]"))
+		Controls.Header1:SetText(cultureHeader)
+		Controls.List1:SetText(table.concat(culture, "[NEWLINE]"))
+		
+		Controls.Title1:SetHide(false)
+		Controls.Text1:SetHide(false)
+		Controls.Header1:SetHide(false)
+		Controls.List1:SetHide(false)
+	
+	else
+		Controls.Title1:SetHide(true)
+		Controls.Text1:SetHide(true)
+		Controls.Header1:SetHide(true)
+		Controls.List1:SetHide(true)
+	
+	end
+
+
+
 	-- Resources
 	if not data.IsCity then
 		table.insert(details, "------------------")
@@ -645,6 +708,8 @@ function View(data:table, bIsUpdate:boolean)
 			table.insert(details, str)
 		end
 	end
+	
+
 	-- GCO >>>>>
 	
 	-- Set the control values
@@ -658,6 +723,12 @@ function View(data:table, bIsUpdate:boolean)
 	if m_isShowDebug then
 		Controls.DebugTxt:SetText(table.concat(debugInfo, "[NEWLINE]"));
 	end
+	
+	-- GCO <<<<<	
+	if not (data.IsLake) and #nameDetails > 0 then
+		Controls.PlotName:SetText(Locale.Lookup(data.TerrainTypeName) .. ", " ..table.concat(nameDetails, ", "));
+	end
+	-- GCO >>>>>
 			
 	-- Some conditions, jump past "pause" and show immediately
 	if m_isShiftDown or UserConfiguration.GetValue("PlotToolTipFollowsMouse") == 0 then
@@ -684,6 +755,10 @@ function View(data:table, bIsUpdate:boolean)
 	
 	Controls.InfoStack:CalculateSize();
 	local stackHeight = Controls.InfoStack:GetSizeY();
+	
+	-- GCO <<<<<	
+	max_width = math.max(max_width, Controls.List1:GetSizeX())
+	-- GCO >>>>>
 
 	Controls.PlotInfo:SetSizeVal(max_width + SIZE_WIDTH_MARGIN, stackHeight + SIZE_HEIGHT_PADDING);	
 	

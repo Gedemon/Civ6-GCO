@@ -76,6 +76,7 @@
 			<File>UI/CityBannerManager.lua</File>
 			<File>UI/CityBannerManager.xml</File>
 			<File>UI/PlotToolTip.lua</File>
+			<File>UI/PlotToolTip.xml</File>
 			<File>UI/TopPanel.lua</File>
 			<File>UI/ToolTips.xml</File>
 			<File>UI/ToolTipHelper.lua</File>
@@ -308,6 +309,7 @@
 		<File>UI/CityBannerManager.lua</File>
 		<File>UI/CityBannerManager.xml</File>
 		<File>UI/PlotToolTip.lua</File>
+		<File>UI/PlotToolTip.xml</File>
 		<File>UI/TopPanel.lua</File>
 		<File>UI/ToolTipHelper.lua</File>
 		<File>UI/ToolTipHelper_PlayerYields.lua</File>
