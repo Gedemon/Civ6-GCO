@@ -6718,18 +6718,18 @@ function DoMigration(self)
 							local popMoving 	= math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
 							if popMoving > 0 then
 								if destination.PlotID then
-									local plot 			= GCO.GetPlotByIndex(destination.PlotID)
-									plotsToUpdate[plot]	= true
+									local plot 				= GCO.GetPlotByIndex(destination.PlotID)
+									plotsToUpdate[plot]		= true
 									Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
-									originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
+									originePlot:MigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
 									self:ChangePopulationClass(populationID, -popMoving)
 									plot:ChangePopulationClass(populationID, popMoving)
 								else
-									local city 			= destination.City
-									local plot			= GCO.GetPlot(city:GetX(), city:GetY())
-									plotsToUpdate[plot]	= true
+									local city 				= destination.City
+									local plot				= GCO.GetPlot(city:GetX(), city:GetY())
+									plotsToUpdate[plot]		= true
 									Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to city ("..Locale.Lookup(city:GetName())..") with Weight = "..tostring(destination.Weight))
-									originePlot:DiffuseCultureFromMigrationTo(plot, popMoving)
+									originePlot:MigrationTo(plot, popMoving)
 									self:ChangePopulationClass(populationID, -popMoving)
 									city:ChangePopulationClass(populationID, popMoving)
 								end

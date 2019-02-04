@@ -585,8 +585,9 @@ function View(data:table, bIsUpdate:boolean)
 	local popVariation	= population - plot:GetPreviousPopulation() -- won't return the correct value if the plot is a city, that's why we use a condition check below
 	
 	if population > 0 or popVariation ~= 0 or data.IsCity then
-		local size		= plot:GetSize()
-		local sizeStr	= ""
+		local size			= plot:GetSize()
+		local bAlignRight 	= true -- to use with the indentation function
+		local sizeStr		= ""
 		if data.IsCity then
 			GCO.AttachCityFunctions(data.OwnerCity)
 			population 		= data.OwnerCity:GetRealPopulation()
@@ -608,9 +609,8 @@ function View(data:table, bIsUpdate:boolean)
 			local numLines 			= 5
 			local other 			= 0
 			local iter 				= 1
-			local bAlignRight 		= true
 			local maxCultureLen		= string.len(totalCulture)
-			local maxVarLen			= string.len(totalPrevCulture)
+			local maxVarLen			= string.len(totalCulture - totalPrevCulture) + 1
 			
 			-- 
 			--table.insert(popDetails, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ).. GCO.GetVariationStringNoColorHigh(totalCulture - totalPrevCulture))
@@ -622,7 +622,7 @@ function View(data:table, bIsUpdate:boolean)
 				if (iter <= numLines) or (#sortedCulture == numLines + 1) then
 					--local playerConfig 		= PlayerConfigurations[t.playerID]
 					local percentVariation 	= (plot:GetCulturePer10000(t.cultureID) - plot:GetPreviousCulturePer10000(t.cultureID)) / 100
-					local variation 	= (plot:GetCulture(t.cultureID) - plot:GetPreviousCulture(t.cultureID))
+					local variation 		= (plot:GetCulture(t.cultureID) - plot:GetPreviousCulture(t.cultureID))
 					local cultureAdjective 	= GameInfo.CultureGroups[t.cultureID].Adjective	--playerConfig and Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective) or "Independant"
 					if t.value > 0 then
 						--table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, cultureAdjective, t.value / totalCulture * 100) .. GCO.GetVariationString(variation))	-- GetVariationStringNoColorPercent
@@ -655,6 +655,80 @@ function View(data:table, bIsUpdate:boolean)
 			table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_OUTPUT_PER_YIELD_LINE", plot:GetOutputPerYield()))
 		end
 		
+		-- Migration
+		--local migrationMap		= plot:GetMigrationMap()
+		local migrationTable	= {}
+		local sortedData		= {}
+		local isDone			= {}
+		local totalMigrant		= 0
+		local numLength			= 3
+		local totalNumLength	= 5
+		local iconArrow 		= {
+				[DirectionTypes.DIRECTION_NORTHEAST] 	= "[ICON_NE_ARROW]",
+				[DirectionTypes.DIRECTION_EAST] 		= "[ICON_E_ARROW]",
+				[DirectionTypes.DIRECTION_SOUTHEAST] 	= "[ICON_SE_ARROW]",
+				[DirectionTypes.DIRECTION_SOUTHWEST] 	= "[ICON_SW_ARROW]",
+				[DirectionTypes.DIRECTION_WEST] 		= "[ICON_W_ARROW]",
+				[DirectionTypes.DIRECTION_NORTHWEST] 	= "[ICON_NW_ARROW]",
+			}
+			
+		function InsertData(otherPlot, icon)
+			if (otherPlot ~= nil) then
+				local plotKey		= tostring(otherPlot:GetIndex())
+				isDone[plotKey]		= true
+				local migrationData	= plot:GetMigrationDataWith(otherPlot)
+				local migrants		= migrationData.Migrants
+				local total			= migrationData.Total
+				numLength			= math.max(numLength, string.len(migrants)+1)
+				totalNumLength		= math.max(totalNumLength, string.len(total)+1)
+				if migrants ~= 0 or total ~= 0 then
+					local name = ""
+					if otherPlot:IsCity()  then
+						local city = Cities.GetCityInPlot(otherPlot:GetX(), otherPlot:GetY())
+						name = Locale.Lookup(city:GetName())
+					else
+						name = otherPlot:GetX()..","..otherPlot:GetY()
+					end
+					totalMigrant = totalMigrant + migrants
+					table.insert(sortedData, { icon = icon, migrants = migrants, total = total, name = name })
+				end
+			end
+		end
+			
+		-- adjacent plots
+		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+			adjacentPlot = Map.GetAdjacentPlot(data.X, data.Y, direction)
+			InsertData(adjacentPlot, iconArrow[direction])
+		end
+		
+		-- city
+		if data.OwnerCity then
+			local plotCity = GCO.GetPlot(data.OwnerCity:GetX(), data.OwnerCity:GetY())
+			if not isDone[plotCity:GetKey()] then
+				InsertData(plotCity, "[ICON_District]")
+			end
+		end
+		
+		-- other plots (other cities, city non-adjacent plots) 
+		for plotKey, data in pairs(plot:GetMigrationMap()) do
+			if not isDone[plotKey] then
+				InsertData(GCO.GetPlotFromKey(plotKey), "[ICON_Range]")
+			end
+		end
+		
+		for _, data in ipairs(sortedData) do
+			table.insert(migrationTable, data.icon .. " | " .. Indentation(data.name, 10) .. "|" .. Indentation(Locale.Lookup("{1: number +#;-#}", data.migrants), numLength, bAlignRight).. "|" .. Indentation(Locale.Lookup("{1: number +#;-#}", data.total), totalNumLength, bAlignRight))
+		end
+		
+		Controls.Title2:SetText(Locale.Lookup("LOC_PLOT_TOOLTIP_MIGRATION_TITLE"))
+		Controls.List2:SetText(table.concat(migrationTable, "[NEWLINE]"))
+		
+		Controls.Title2:SetHide(false)
+		Controls.List2:SetHide(false)
+		
+		--[[
+		--]]
+		
 		-- 
 		Controls.Title1:SetText(Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_TITLE"))
 		Controls.Text1:SetText(table.concat(popDetails, "[NEWLINE]"))
@@ -671,6 +745,9 @@ function View(data:table, bIsUpdate:boolean)
 		Controls.Text1:SetHide(true)
 		Controls.Header1:SetHide(true)
 		Controls.List1:SetHide(true)
+		
+		Controls.Title2:SetHide(true)
+		Controls.List2:SetHide(true)
 	
 	end
 
@@ -757,7 +834,7 @@ function View(data:table, bIsUpdate:boolean)
 	local stackHeight = Controls.InfoStack:GetSizeY();
 	
 	-- GCO <<<<<	
-	max_width = math.max(max_width, Controls.List1:GetSizeX())
+	max_width = math.max(max_width, Controls.List1:GetSizeX(), Controls.List2:GetSizeX())
 	-- GCO >>>>>
 
 	Controls.PlotInfo:SetSizeVal(max_width + SIZE_WIDTH_MARGIN, stackHeight + SIZE_HEIGHT_PADDING);	

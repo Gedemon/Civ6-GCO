@@ -934,6 +934,9 @@
 	<Replace Tag="LOC_PLOT_TOOLTIP_POPULATION_TITLE" Language="en_US">
       <Text>[COLOR_Grey]----------- Population ----------[ENDCOLOR]</Text>
     </Replace>
+	<Replace Tag="LOC_PLOT_TOOLTIP_MIGRATION_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]----------- Migration ----------[ENDCOLOR]</Text>
+    </Replace>
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_GROUPS" Language="en_US">
       <Text>Ethnicity</Text>
     </Replace>
