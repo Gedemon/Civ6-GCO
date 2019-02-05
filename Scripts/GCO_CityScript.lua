@@ -6576,9 +6576,12 @@ function DoMigration(self)
 									local plotPush		= plotMigration.Push[motivation] or 0
 									-- special case here : use housing plotPull for food motivation (which is the same in a city and its plots) as sending people
 									-- in plots which could maintain more population if they were not attached to a city may help produce more food for the region
+									-- note : deprecated, plotMigration.Pull["Food"] is now directly pondered with plotMigration.Pull["Housing"]
+									--[[
 									if motivation == "Food" then
 										plotPull		= plotMigration.Pull["Housing"] or 0
-									end								
+									end	
+									--]]									
 									Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " plotPush = ", GCO.ToDecimals(plotPush), " plotPull = ", GCO.ToDecimals(plotPull))
 									if plotPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
 										if plotPull > 1 then

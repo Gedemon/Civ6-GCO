@@ -2007,8 +2007,9 @@ function GetAvailableEmployment(self)
 				end
 			end
 		elseif not self:IsWater() then  -- I don't like hardcoding, todo: find something else...
-			Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetEmploymentValue(self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index))
-			--Employment["Crop Farmers"] 	= (Employment["Crop Farmers"] or 0) + self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
+			local resourceEmploymentValue	= self:GetEmploymentValue(self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index))
+			Employment["Crop Farmers"] 		= (Employment["Crop Farmers"] or 0) + resourceEmploymentValue
+			availableEmployment 			= availableEmployment + resourceEmploymentValue
 		end
 
 		local featureID = self:GetFeatureType()
@@ -2722,8 +2723,9 @@ function SetMigrationValues(self)
 			local consumptionRatio	= 1
 			local foodNeeded		= city:GetFoodConsumption(consumptionRatio)
 			local foodstock			= city:GetFoodStock()
-			plotMigration.Pull.Food	= foodstock / foodNeeded
-			plotMigration.Push.Food	= foodNeeded / foodstock
+			-- pondered by plots own sustainability
+			plotMigration.Pull.Food	= ((foodstock / foodNeeded) + plotMigration.Pull.Housing) / 2 
+			plotMigration.Push.Food	= ((foodNeeded / foodstock) + plotMigration.Push.Housing) / 2
 			if plotMigration.Push.Food > 1 then 
 				plotMigration.Motivation 	= "Food"
 				local starving				= population - (population / plotMigration.Push.Food)

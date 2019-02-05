@@ -2,28 +2,28 @@
 <Context>
   
   <AlphaAnim	ID="TooltipMain" Anchor="L,B" Offset="0,200" Speed="4" Pause="12345" Cycle="Once"  Hidden="1">
-    <Grid			ID="PlotInfo"	 Style="TTGrid" Anchor="L,B" Size="420,140" />
+    <Grid			ID="PlotInfo"	 Style="TTGrid" Anchor="L,B" Size="450,140" />
 	  <Stack		ID="InfoStack" StackGrowth="Bottom" Anchor="L,B" Offset="7,12" StackPadding="5">
-			<Label	ID="PlotName"		WrapWidth="400"	Style="TTText" />
-			<Label	ID="PlotDetails"	WrapWidth="400"	Style="TTText" />
+			<Label	ID="PlotName"		WrapWidth="440"	Style="TTText" />
+			<Label	ID="PlotDetails"	WrapWidth="440"	Style="TTText" />
 			
-			<Label	ID="Title1"			WrapWidth="410"	Style="TTText" Anchor="C,C"/>
-			<Label	ID="Text1"			WrapWidth="410"	Style="TTText" />
-			<Label	ID="Header1"		WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
-			<Label	ID="List1"			WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
-			<Label	ID="Title2"			WrapWidth="410"	Style="TTText" Anchor="C,C"/>
-			<Label	ID="Text2"			WrapWidth="410"	Style="TTText" />
-			<Label	ID="Header2"		WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
-			<Label	ID="List2"			WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
-			<Label	ID="Title3"			WrapWidth="410"	Style="TTText" Anchor="C,C"/>
-			<Label	ID="Text3"			WrapWidth="410"	Style="TTText" />
-			<Label	ID="Header3"		WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
-			<Label	ID="List3"			WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
-			<Label	ID="Title4"			WrapWidth="410"	Style="TTText" Anchor="C,C"/>
-			<Label	ID="Text4"			WrapWidth="410"	Style="TTText" />
-			<Label	ID="Header4"		WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
-			<Label	ID="List4"			WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
-			<Label	ID="ListSmall"		WrapWidth="410"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="10"/>
+			<Label	ID="Title1"			WrapWidth="440"	Style="TTText" Anchor="C,C"/>
+			<Label	ID="Text1"			WrapWidth="440"	Style="TTText" />
+			<Label	ID="Header1"		WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
+			<Label	ID="List1"			WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
+			<Label	ID="Title2"			WrapWidth="440"	Style="TTText" Anchor="C,C"/>
+			<Label	ID="Text2"			WrapWidth="440"	Style="TTText" />
+			<Label	ID="Header2"		WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
+			<Label	ID="List2"			WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
+			<Label	ID="Title3"			WrapWidth="440"	Style="TTText" Anchor="C,C"/>
+			<Label	ID="Text3"			WrapWidth="440"	Style="TTText" />
+			<Label	ID="Header3"		WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
+			<Label	ID="List3"			WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
+			<Label	ID="Title4"			WrapWidth="440"	Style="TTText" Anchor="C,C"/>
+			<Label	ID="Text4"			WrapWidth="440"	Style="TTText" />
+			<Label	ID="Header4"		WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
+			<Label	ID="List4"			WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
+			<Label	ID="ListSmall"		WrapWidth="440"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="10"/>
 			
 			<Label	ID="DebugTxt"			WrapWidth="200"	Style="TTText" />
 	  </Stack>

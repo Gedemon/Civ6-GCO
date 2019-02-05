@@ -592,9 +592,9 @@ function View(data:table, bIsUpdate:boolean)
 			GCO.AttachCityFunctions(data.OwnerCity)
 			population 		= data.OwnerCity:GetRealPopulation()
 			popVariation	= data.OwnerCity:GetUrbanPopulationVariation()
-			sizeStr	= Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", data.OwnerCity:GetSize() )	..  ", "
+			sizeStr	= Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", data.OwnerCity:GetSize() ) ..  ", "
 		else
-			sizeStr	= Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", GCO.Round(size) )	..  ", "
+			sizeStr	= Locale.Lookup("LOC_PLOT_TOOLTIP_SIZE_LINE", GCO.Round(size) )	..  "/" .. plot:GetMaxSize() ..", "
 		end
 		table.insert(popDetails, sizeStr .. Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population)) .. GCO.GetVariationStringNoColorHigh(popVariation))
 		
@@ -657,10 +657,13 @@ function View(data:table, bIsUpdate:boolean)
 		
 		-- Migration
 		--local migrationMap		= plot:GetMigrationMap()
+		local LowerClassID 		= GameInfo.Resources["POPULATION_LOWER"].Index
 		local migrationTable	= {}
+		local migrationText		= {}
 		local sortedData		= {}
 		local isDone			= {}
 		local totalMigrant		= 0
+		local smallLength		= 3
 		local numLength			= 3
 		local totalNumLength	= 5
 		local iconArrow 		= {
@@ -672,6 +675,53 @@ function View(data:table, bIsUpdate:boolean)
 				[DirectionTypes.DIRECTION_NORTHWEST] 	= "[ICON_NW_ARROW]",
 			}
 			
+		local iconMotivation 		= {
+				["Food"] 			= "[ICON_Food]",
+				["Housing"] 		= "[ICON_DISTRICT_NEIGHBORHOOD]",
+				["Employment"] 		= "[ICON_TOOLS2]",
+			}
+		
+		--cityMigration 	= city:GetMigration()
+		--local cityPush	= cityMigration.Push[motivation][LowerClassID] or 0
+
+		--plotMigration.Motivation
+		
+		local Push 		= {}
+		local Pull		= {}
+		local Migrants	= {}
+		if not data.IsCity then
+			local plotMigration = plot:GetMigration()
+			Migrants			= plotMigration.Migrants
+			for motivation, pushValue in pairs(plotMigration.Push) do
+				Push[motivation]	= pushValue
+				Pull[motivation]	= plotMigration.Pull[motivation]
+			end
+		else
+			cityMigration 	= data.OwnerCity:GetMigration()
+			for motivation, popData in pairs(cityMigration.Migrants) do
+				Migrants[motivation] = popData[LowerClassID]
+			end
+			for motivation, popData in pairs(cityMigration.Push) do
+				Push[motivation]	= popData[LowerClassID] or 0
+				Pull[motivation]	= cityMigration.Pull[motivation][LowerClassID] or 0
+			end
+		end
+		
+		table.insert(migrationText, Locale.Lookup("LOC_PLOT_TOOLTIP_MIGRANTS_MOTIVATION"))
+		local bMotivation = false 
+		for motivation, value in pairs(Migrants) do
+			--migrants = math.max(value, migrants) -- motivations can overlap, so just use the biggest value from all motivations
+			bMotivation = true
+			table.insert(migrationText, iconMotivation[motivation] .." ".. Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_VALUE", value))
+		end
+		if not bMotivation then
+			table.insert(migrationText, Locale.Lookup("LOC_NONE"))
+		end
+		--
+		table.insert(migrationTable, "[ICON_PressureUP] " .. Indentation(Locale.Lookup("LOC_PULL"), 10) .. "|" .. Indentation(NumToString(Pull.Food,smallLength),smallLength, bAlignRight) .. "|" .. Indentation(NumToString(Pull.Employment,smallLength),smallLength, bAlignRight).. "|" ..Indentation(NumToString(Pull.Housing,smallLength),smallLength, bAlignRight).. "|")
+		table.insert(migrationTable, "[ICON_PressureDown] " .. Indentation(Locale.Lookup("LOC_PUSH"), 10) .. "|" .. Indentation(NumToString(Push.Food,smallLength),smallLength, bAlignRight) .. "|" .. Indentation(NumToString(Push.Employment,smallLength),smallLength, bAlignRight).. "|" ..Indentation(NumToString(Push.Housing,smallLength),smallLength, bAlignRight).. "|")
+
+		
 		function InsertData(otherPlot, icon)
 			if (otherPlot ~= nil) then
 				local plotKey		= tostring(otherPlot:GetIndex())
@@ -682,15 +732,29 @@ function View(data:table, bIsUpdate:boolean)
 				numLength			= math.max(numLength, string.len(migrants)+1)
 				totalNumLength		= math.max(totalNumLength, string.len(total)+1)
 				if migrants ~= 0 or total ~= 0 then
-					local name = ""
-					if otherPlot:IsCity()  then
-						local city = Cities.GetCityInPlot(otherPlot:GetX(), otherPlot:GetY())
-						name = Locale.Lookup(city:GetName())
+					local name, food, employment, housing, key
+					if migrants > 0 then
+						key = "Push"
 					else
-						name = otherPlot:GetX()..","..otherPlot:GetY()
+						key = "Pull"					
+					end
+					if otherPlot:IsCity()  then
+						local city 			= Cities.GetCityInPlot(otherPlot:GetX(), otherPlot:GetY())
+						GCO.AttachCityFunctions(city)
+						local Migration 	= city:GetMigration()
+						food				= Migration[key]["Food"][LowerClassID] or 0
+						employment			= Migration[key]["Employment"][LowerClassID] or 0
+						housing				= Migration[key]["Housing"][LowerClassID] or 0
+						name 				= Locale.Lookup(city:GetName())
+					else
+						local Migration 	= otherPlot:GetMigration()
+						food				= Migration[key]["Food"]
+						employment			= Migration[key]["Employment"]
+						housing				= Migration[key]["Housing"]
+						name 				= otherPlot:GetX()..","..otherPlot:GetY()
 					end
 					totalMigrant = totalMigrant + migrants
-					table.insert(sortedData, { icon = icon, migrants = migrants, total = total, name = name })
+					table.insert(sortedData, { icon = icon, migrants = migrants, total = total, name = name, food = food, employment = employment, housing = housing })
 				end
 			end
 		end
@@ -716,18 +780,22 @@ function View(data:table, bIsUpdate:boolean)
 			end
 		end
 		
+		-- migrationHeader is dependent of numLength and totalNumLength set by the above loops and calls to InsertData
+		local migrationHeader = "[ICON_INDENT] " .. Indentation("", 10) .. " [ICON_Food]  [ICON_TOOLS2] [ICON_DISTRICT_NEIGHBORHOOD]" .. Indentation("", math.max(1, numLength-2), bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", math.max(1,totalNumLength-4)) .. "[ICON_DOUBLE_ARROW][ICON_Turn]"
+		
 		for _, data in ipairs(sortedData) do
-			table.insert(migrationTable, data.icon .. " | " .. Indentation(data.name, 10) .. "|" .. Indentation(Locale.Lookup("{1: number +#;-#}", data.migrants), numLength, bAlignRight).. "|" .. Indentation(Locale.Lookup("{1: number +#;-#}", data.total), totalNumLength, bAlignRight))
+			table.insert(migrationTable, data.icon .. " " .. Indentation(data.name, 10) .. "|" .. Indentation(NumToString(data.food,smallLength),smallLength, bAlignRight) .. "|" .. Indentation(NumToString(data.employment,smallLength),smallLength, bAlignRight).. "|" ..Indentation(NumToString(data.housing,smallLength),smallLength, bAlignRight).. "|" .. Indentation(Locale.Lookup("{1: number +#;-#}", data.migrants), numLength, bAlignRight).. "|" .. Indentation(Locale.Lookup("{1: number +#;-#}", data.total), totalNumLength, bAlignRight))
 		end
 		
 		Controls.Title2:SetText(Locale.Lookup("LOC_PLOT_TOOLTIP_MIGRATION_TITLE"))
+		Controls.Text2:SetText(table.concat(migrationText, "  "))
+		Controls.Header2:SetText(migrationHeader)
 		Controls.List2:SetText(table.concat(migrationTable, "[NEWLINE]"))
 		
 		Controls.Title2:SetHide(false)
+		Controls.Text2:SetHide(false)
+		Controls.Header2:SetHide(false)
 		Controls.List2:SetHide(false)
-		
-		--[[
-		--]]
 		
 		-- 
 		Controls.Title1:SetText(Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_TITLE"))
@@ -747,6 +815,8 @@ function View(data:table, bIsUpdate:boolean)
 		Controls.List1:SetHide(true)
 		
 		Controls.Title2:SetHide(true)
+		Controls.Text2:SetHide(true)
+		Controls.Header2:SetHide(true)
 		Controls.List2:SetHide(true)
 	
 	end

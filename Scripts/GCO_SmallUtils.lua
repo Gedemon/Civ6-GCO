@@ -10,7 +10,8 @@ local indentationSpaces	= "                              "
 
 function Indentation(str, maxLength, bAlignRight, bShowSpace)
 	local bIsNumber	= type(str) == "number"
-	local maxLength = math.max(2, maxLength or string.len(indentStr))
+	local minLength	= 2
+	local maxLength = math.max(maxLength or string.len(indentStr))
 	--local str 		= (bIsNumber and str > math.pow(10,maxLength-2)-1 and tostring(math.floor(str))) or tostring(str)
 	--local str 		= (bIsNumber and str > 9 and tostring(math.floor(str))) or tostring(str)
 	local str 		= tostring(str)
@@ -28,9 +29,9 @@ function Indentation(str, maxLength, bAlignRight, bShowSpace)
 		else
 			return str.. string.sub(indentStr, 1, maxLength - length)
 		end
-	elseif length > maxLength then
+	elseif length > maxLength and length > minLength then
 		if bIsNumber then
-			return tostring(math.pow(10,maxLength)-1)
+			return tostring(math.pow(10,maxLength)-1)  -- return 999 for value >= 1000 when maxLength = 3
 		else
 			return string.sub(str, 1, maxLength-1).."."
 		end
@@ -72,5 +73,27 @@ function Indentation8(str)
 		return str .. " "
 	else
 		return string.sub(str, 1, 9)
+	end
+end
+
+function NumToString(num, limit)
+	if not num or type(num) ~= "number" then return tostring(0) end
+	if limit and string.len(math.floor(num)) > limit then
+		return tostring(math.pow(10,limit)-1)  -- return 999 for value >= 1000 when limit = 3
+	end
+	if limit and limit < 4 then -- minimal space
+		if num < 10 then
+			return Locale.Lookup("{1: number #.#}",num)
+		else
+			return Locale.Lookup("{1: number #}",num)
+		end
+	else
+		if num < 10 then
+			return Locale.Lookup("{1: number #.##}",num)
+		elseif num < 100 then
+			return Locale.Lookup("{1: number #.#}",num)
+		else
+			return Locale.Lookup("{1: number #,###}",num)
+		end
 	end
 end

@@ -142,6 +142,14 @@
 	<Replace Tag="LOC_EVALUATION_GOOD"				Text="Good" 				Language="en_US" />
 	<Replace Tag="LOC_EVALUATION_VERY_GOOD"			Text="Very good" 			Language="en_US" />
 
+	<Replace Tag="LOC_NONE"							Text="None" 				Language="en_US" />
+	<Replace Tag="LOC_PULL"							Text="Pull" 				Language="en_US" />
+	<Replace Tag="LOC_PUSH"							Text="Push" 				Language="en_US" />
+	
+	<Replace Tag="LOC_FOOD_MOTIVATION"				Text="Food" 				Language="en_US" />
+	<Replace Tag="LOC_EMPLOYMENT_MOTIVATION"		Text="Employment"			Language="en_US" />
+	<Replace Tag="LOC_HOUSING_MOTIVATION"			Text="Housing" 				Language="en_US" />
+	
 	<Replace Tag="LOC_TECH_CONTRIBUTION_TITLE"		Text="Contributions :[NEWLINE]" 	Language="en_US" />
 	
 	<Replace Tag="LOC_TECH_RES_KNOWLEDGE"			Text="Knowledge:" 	Language="en_US" />
@@ -939,6 +947,12 @@
     </Replace>
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_GROUPS" Language="en_US">
       <Text>Ethnicity</Text>
+    </Replace>
+    <Replace Tag="LOC_PLOT_TOOLTIP_POPULATION_VALUE" Language="en_US">
+      <Text>{1_Num : number #,###} Pop.</Text>
+    </Replace>
+    <Replace Tag="LOC_PLOT_TOOLTIP_MIGRANTS_MOTIVATION" Language="en_US">
+      <Text>Motivation : </Text>
     </Replace>
 	
   </LocalizedText>
