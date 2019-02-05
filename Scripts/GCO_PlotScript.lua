@@ -132,7 +132,7 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	Dprint 	= GCO.Dprint
 	Dline	= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog	= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
-	--pairs 	= GCO.OrderedPairs
+	pairs 	= GCO.OrderedPairs
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end

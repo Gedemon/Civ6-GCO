@@ -191,7 +191,12 @@ function RealizePositionAt( x:number, y:number )
 				if offsety + Controls.TooltipMain:GetSizeY() > (m_screenHeight - MIN_Y_POSITION) then
 					offsety = offsety - Controls.TooltipMain:GetSizeY();
 				end
-
+				
+				-- GCO <<<<<
+				-- don't draw the tooltip under the screen bottom
+				local offsety = math.max(0, offsety)
+				-- GCO >>>>>
+				
 				Controls.TooltipMain:SetOffsetVal( offsetx, offsety ); -- Subtract from screen height, as default anchor is "bottom"
 			end
 		end
@@ -726,7 +731,7 @@ function View(data:table, bIsUpdate:boolean)
 			if (otherPlot ~= nil) then
 				local plotKey		= tostring(otherPlot:GetIndex())
 				isDone[plotKey]		= true
-				local migrationData	= plot:GetMigrationDataWith(otherPlot)
+				local migrationData	= plot:GetMigrationDataWith(otherPlot) --(plot:IsCity() and plot:GetOwner() > Game.GetLocalPlayer()) and plot:GetMigrationDataAtTurn(otherPlot, GCO.GetPreviousTurnKey()) or plot:GetMigrationDataWith(otherPlot) -- Cities of players with higher IDs have not initialized their data --plot:GetMigrationDataWith(otherPlot)
 				local migrants		= migrationData.Migrants
 				local total			= migrationData.Total
 				numLength			= math.max(numLength, string.len(migrants)+1)
