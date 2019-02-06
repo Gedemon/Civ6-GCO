@@ -20,8 +20,8 @@ UPDATE TechnologyContributionTypes	SET Name = 'LOC_' || TechnologyContributionTy
 -----------------------------------------------
 
 /* Create new Buildings entries from the temporary BuildingsGCO table */
-INSERT OR REPLACE INTO Buildings (BuildingType, Name, PrereqTech, PrereqDistrict, Cost, NoPedia, MaterielPerProduction, AdvisorType, EquipmentStock, Coast, EmploymentSize, ObsoleteEra, MustPurchase)
-	SELECT BuildingsGCO.BuildingType, 'LOC_' || BuildingsGCO.BuildingType || '_NAME', BuildingsGCO.PrereqTech, BuildingsGCO.PrereqDistrict, BuildingsGCO.Cost, BuildingsGCO.NoPedia, BuildingsGCO.MaterielPerProduction, BuildingsGCO.AdvisorType, BuildingsGCO.EquipmentStock, BuildingsGCO.Coast, BuildingsGCO.EmploymentSize, BuildingsGCO.ObsoleteEra, BuildingsGCO.MustPurchase
+INSERT OR REPLACE INTO Buildings (BuildingType, Name, PrereqTech, PrereqDistrict, Cost, NoPedia, MaterielPerProduction, AdvisorType, EquipmentStock, Coast, EmploymentSize, ObsoleteEra, MustPurchase, MaxPlayerInstances)
+	SELECT BuildingsGCO.BuildingType, 'LOC_' || BuildingsGCO.BuildingType || '_NAME', BuildingsGCO.PrereqTech, BuildingsGCO.PrereqDistrict, BuildingsGCO.Cost, BuildingsGCO.NoPedia, BuildingsGCO.MaterielPerProduction, BuildingsGCO.AdvisorType, BuildingsGCO.EquipmentStock, BuildingsGCO.Coast, BuildingsGCO.EmploymentSize, BuildingsGCO.ObsoleteEra, BuildingsGCO.MustPurchase, BuildingsGCO.MaxPlayerInstances
 	FROM BuildingsGCO;
 	
 /* Create new Buildings Types entries from the temporary BuildingsGCO table */

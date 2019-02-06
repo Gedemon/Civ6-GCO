@@ -27,6 +27,13 @@
        <Row Name="ICON_ToT_ATLAS_BUILDINGS_C" 		IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_256.dds"/>
        <Row Name="ICON_ToT_ATLAS_BUILDINGS_C_FOW" 	IconSize="256" 	IconsPerRow="8" IconsPerColumn="8" Filename="ToT_BuildingAtlas_C_256_FoW.dds"/>
 	   
+       <Row Name="ICON_GCO_ATLAS_BUILDINGS" 		IconSize="32" 	IconsPerRow="8" IconsPerColumn="4" Filename="BuildingsGCO_32.dds"/>
+       <Row Name="ICON_GCO_ATLAS_BUILDINGS" 		IconSize="38" 	IconsPerRow="8" IconsPerColumn="4" Filename="BuildingsGCO_38.dds"/>
+       <Row Name="ICON_GCO_ATLAS_BUILDINGS" 		IconSize="50" 	IconsPerRow="8" IconsPerColumn="4" Filename="BuildingsGCO_50.dds"/>
+       <Row Name="ICON_GCO_ATLAS_BUILDINGS" 		IconSize="80" 	IconsPerRow="8" IconsPerColumn="4" Filename="BuildingsGCO_80.dds"/>
+       <Row Name="ICON_GCO_ATLAS_BUILDINGS" 		IconSize="128" 	IconsPerRow="8" IconsPerColumn="4" Filename="BuildingsGCO_128.dds"/>
+       <Row Name="ICON_GCO_ATLAS_BUILDINGS" 		IconSize="256" 	IconsPerRow="8" IconsPerColumn="4" Filename="BuildingsGCO_256.dds"/>
+	   
 
 		<Row Name="ATLAS_TECH_GCO"					IconSize="160"	IconsPerRow="8" IconsPerColumn="4" Filename="TechGCO_160.dds"/>
 		<Row Name="ATLAS_TECH_GCO"					IconSize="128"	IconsPerRow="8" IconsPerColumn="4" Filename="TechGCO_128.dds"/>
@@ -53,6 +60,11 @@
 	<IconDefinitions> 	<!-- BUILDINGS -->
 		<Row Name="ICON_BUILDING_BRICKMAKER"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="3"/>
 		<Row Name="ICON_BUILDING_BRICKMAKER_FOW"				Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="3"/>
+		
+		<Row Name="ICON_BUILDING_ANCESTOR_HALL"					Atlas="ICON_GCO_ATLAS_BUILDINGS" 		Index="2"/>
+		<Row Name="ICON_BUILDING_FORUM"							Atlas="ICON_GCO_ATLAS_BUILDINGS" 		Index="3"/>
+		<Row Name="ICON_BUILDING_SENATE"						Atlas="ICON_GCO_ATLAS_BUILDINGS" 		Index="4"/>
+		<Row Name="ICON_BUILDING_PARLIAMENT"					Atlas="ICON_GCO_ATLAS_BUILDINGS" 		Index="9"/>
 		
 		<Row Name="ICON_BUILDING_RECRUITS"						Atlas="ICON_ToT_ATLAS_BUILDINGS_A" 		Index="17"/>
 		<Row Name="ICON_BUILDING_RECRUITS_FOW"					Atlas="ICON_ToT_ATLAS_BUILDINGS_A_FOW" 	Index="17"/>

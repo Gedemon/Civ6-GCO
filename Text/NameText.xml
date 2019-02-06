@@ -22,6 +22,11 @@
 		<Replace Tag="LOC_BUILDING_TREADMILL_NAME"					Text="Treadmill"	 			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_WINDMILL_NAME"					Text="Windmill"	 				Language="en_US" />
 
+		<Replace Tag="LOC_BUILDING_ANCESTOR_HALL_NAME"				Text="Ancestor's Hall"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_FORUM_NAME"						Text="Forum"					Language="en_US" />
+		<Replace Tag="LOC_BUILDING_SENATE_NAME"						Text="Senate"					Language="en_US" />
+		<Replace Tag="LOC_BUILDING_PARLIAMENT_NAME"					Text="Parliament"				Language="en_US" />
+		
 		<Replace Tag="LOC_BUILDING_BRICKMAKER_NAME"					Text="Brickmaker" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_CARPENTER_NAME"					Text="Carpenter" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_STONEMASON_NAME"					Text="Stonemason"	 			Language="en_US" />

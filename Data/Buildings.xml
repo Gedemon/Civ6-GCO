@@ -35,6 +35,11 @@
 		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		
+		<Row BuildingType="BUILDING_ANCESTOR_HALL"				Cost="60" 	MaterielPerProduction="2"	EmploymentSize="0.15"	PrereqTech="TECH_CEREMONIAL_BURIAL" />
+		<Row BuildingType="BUILDING_FORUM"						Cost="90" 	MaterielPerProduction="2"	EmploymentSize="0.15"	PrereqTech="TECH_CODE_OF_LAWS" />
+		<Row BuildingType="BUILDING_SENATE"						Cost="150" 	MaterielPerProduction="2"	EmploymentSize="0.25"	MaxPlayerInstances="1"	PrereqTech="TECH_POLITICAL_PHILOSOPHY" />
+		<Row BuildingType="BUILDING_PARLIAMENT"					Cost="350" 	MaterielPerProduction="2"	EmploymentSize="0.25"	MaxPlayerInstances="1"	PrereqTech="TECH_CONSTITUTION" />
+		
 		<Row BuildingType="BUILDING_WEAPONSMITH"				Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_CONSTRUCTION" 		EmploymentSize="0.25"	EquipmentStock="100" 	ObsoleteEra="ERA_INDUSTRIAL"/>
 		<Row BuildingType="BUILDING_ARMORSMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_MACHINERY" 			EmploymentSize="0.25"	EquipmentStock="100" />
 		<!--
@@ -428,7 +433,7 @@
 		
 		<Row BuildingType="BUILDING_HERBALIST" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="0.5"/>
 		
-		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD_PLANKS" MaxConverted="20" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="0.5" />
+		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD_PLANKS" MaxConverted="20" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2.5" />
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_HORSES" 		Ratio="0.65" 	MultiResCreated="1"/>
 		<!--
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="1" 	MultiResRequired="1"/>
@@ -1000,6 +1005,11 @@
 		<Row BuildingType="BUILDING_FRUIT_MARKET"		YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="1"/>
 		<Row BuildingType="BUILDING_MARKET"				YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="3"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	YieldType="YIELD_RESEARCH_ECONOMIC" YieldChange="5"/>
+		
+		<Row BuildingType="BUILDING_ANCESTOR_HALL"		YieldType="YIELD_RESEARCH_SOCIAL"	YieldChange="1"/>
+		<Row BuildingType="BUILDING_FORUM"				YieldType="YIELD_RESEARCH_SOCIAL"	YieldChange="2"/>
+		<Row BuildingType="BUILDING_SENATE"				YieldType="YIELD_RESEARCH_SOCIAL"	YieldChange="5"/>
+		<Row BuildingType="BUILDING_PARLIAMENT"			YieldType="YIELD_RESEARCH_SOCIAL"	YieldChange="7"/>
 		
 		<Row BuildingType="BUILDING_SHRINE"				YieldType="YIELD_RESEARCH_INSPIRATION" YieldChange="1"/>
 		<Row BuildingType="BUILDING_TEMPLE"				YieldType="YIELD_RESEARCH_INSPIRATION" YieldChange="3"/>

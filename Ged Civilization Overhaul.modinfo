@@ -108,6 +108,12 @@
 			<File>Art/TechGCO_128.dds</File>
 			<File>Art/TechGCO_160.dds</File>
 			<File>Art/Civics30.dds</File>
+			<File>Art/BuildingsGCO_32.dds</File>
+			<File>Art/BuildingsGCO_38.dds</File>
+			<File>Art/BuildingsGCO_50.dds</File>
+			<File>Art/BuildingsGCO_80.dds</File>
+			<File>Art/BuildingsGCO_128.dds</File>
+			<File>Art/BuildingsGCO_256.dds</File>
 		</ImportFiles>
 		
         <AddGameplayScripts>
@@ -338,5 +344,11 @@
 		<File>Art/TechGCO_128.dds</File>
 		<File>Art/TechGCO_160.dds</File>
 		<File>Art/Civics30.dds</File>
+		<File>Art/BuildingsGCO_32.dds</File>
+		<File>Art/BuildingsGCO_38.dds</File>
+		<File>Art/BuildingsGCO_50.dds</File>
+		<File>Art/BuildingsGCO_80.dds</File>
+		<File>Art/BuildingsGCO_128.dds</File>
+		<File>Art/BuildingsGCO_256.dds</File>
 	</Files>
 </Mod>

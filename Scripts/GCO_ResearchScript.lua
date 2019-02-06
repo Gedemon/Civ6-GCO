@@ -20,6 +20,13 @@ local _cached					= {}	-- cached table to reduce calculations
 local NO_ITEM					= -1
 local NO_TAG					= "N"	-- key for saved tables
 
+local TechClassDecay 			= {		-- decay rate % for stored science resources
+	["CLASS_KNOWLEDGE"]	= 10,
+	["CLASS_TABLETS"]	= 7,
+	["CLASS_SCROLLS"]	= 5,
+	["CLASS_BOOKS"]		= 2,
+}
+
 local Unlocker					= {}	-- Helper to get the unlocker ID for a Tech
 for row in GameInfo.TechnologyPrereqs() do
 	if string.sub(row.PrereqTech, 1, 11) == "TECH_UNLOCK" then
