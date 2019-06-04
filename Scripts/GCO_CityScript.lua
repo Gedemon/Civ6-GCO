@@ -30,8 +30,8 @@ end
 function RestorePreviousDebugLevel()
 	DEBUG_CITY_SCRIPT = previousDebugLevel
 end
-LuaEvents.SetCitiesDebugLevel.Add(SetDebugLevel)
-LuaEvents.RestoreCitiesDebugLevel.Add(RestorePreviousDebugLevel)
+--LuaEvents.SetCitiesDebugLevel.Add(SetDebugLevel)
+--LuaEvents.RestoreCitiesDebugLevel.Add(RestorePreviousDebugLevel)
 
 -----------------------------------------------------------------------------------------
 -- ENUMS
@@ -426,6 +426,7 @@ local oldpairs 	= pairs
 local Dprint, Dline, Dlog
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts
+	LuaEvents	= GCO.LuaEvents
 	Calendar 	= ExposedMembers.Calendar	-- required for city growth (when based on real calendar)
 	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
@@ -437,8 +438,8 @@ end
 function InitializeCheck()
 	if not ExposedMembers.CityData then GCO.Error("ExposedMembers.CityData is nil after Initialization") end
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
-LuaEvents.InitializeGCO.Add( InitializeCheck )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeCheck )
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.CityData 		= GCO.LoadTableFromSlot("CityData") or {}
@@ -471,6 +472,11 @@ function PostInitialize() -- everything that may require other context to be loa
 			resourceTradeLevel[TradeLevelType.Allied][resourceID] 	= true	
 		end
 	end
+	
+	LuaEvents.SetCitiesDebugLevel.Add(SetDebugLevel)
+	LuaEvents.RestoreCitiesDebugLevel.Add(RestorePreviousDebugLevel)
+	LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
+	LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 end
 
 function Initialize() -- called immediatly after loading this file
@@ -492,7 +498,7 @@ function SaveTables()
 	GCO.SaveTableToSlot(CitiesForTransfer, "CitiesForTransfer")
 	GCO.SaveTableToSlot(CitiesForTrade, "CitiesForTrade")
 end
-LuaEvents.SaveTables.Add(SaveTables)
+GameEvents.SaveTables.Add(SaveTables)
 
 function CheckSave()
 	Dprint( DEBUG_CITY_SCRIPT, "Checking Saved Table...")
@@ -505,7 +511,7 @@ function CheckSave()
 	GCO.ShowTimer("Saving And Checking CityData")
 	GCO.CityDataSavingCheck = true
 end
-LuaEvents.SaveTables.Add(CheckSave)
+GameEvents.SaveTables.Add(CheckSave)
 
 function ControlSave()
 	if not GCO.CityDataSavingCheck then
@@ -513,7 +519,7 @@ function ControlSave()
 		ShowCityData()
 	end
 end
-LuaEvents.SaveTables.Add(ControlSave)
+GameEvents.SaveTables.Add(ControlSave)
 
 function CompareData(data1, data2, tab)
 	if not tab then tab = "" end
@@ -756,7 +762,7 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 		GCO.Error("no data for original City on capture, cityID #", originalCityID, "playerID #", originalOwnerID)
 	end
 end
-LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
+--LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
 
 -- for debugging
 function ShowCityData()
@@ -7161,7 +7167,7 @@ function DoCitiesTurn( playerID )
 	Dlog("DoCitiesTurn /END")
 	GCO.PlayerTurnsDebugChecks[playerID].CitiesTurn	= true
 end
-LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
+--LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 
 
 -----------------------------------------------------------------------------------------

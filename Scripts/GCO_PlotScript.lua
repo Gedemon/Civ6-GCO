@@ -128,15 +128,16 @@ local debugTable 			= {}	-- table used to output debug data from some functions
 local GCO = {}
 local pairs = pairs
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	GCO 	= ExposedMembers.GCO
-	Dprint 	= GCO.Dprint
-	Dline	= GCO.Dline					-- output current code line number to firetuner/log
-	Dlog	= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
-	pairs 	= GCO.OrderedPairs
+	GCO 		= ExposedMembers.GCO
+	LuaEvents	= ExposedMembers.GCO.LuaEvents
+	Dprint 		= GCO.Dprint
+	Dline		= GCO.Dline					-- output current code line number to firetuner/log
+	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	pairs 		= GCO.OrderedPairs
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
 	Dprint( DEBUG_PLOT_SCRIPT, "--------------------------- Saving Map ---------------------------")	
@@ -146,7 +147,7 @@ function SaveTables()
 	GCO.SaveTableToSlot(ExposedMembers.MigrationMap, "MigrationMap")
 	GCO.SaveTableToSlot(ExposedMembers.PlotData, "PlotData")
 end
-LuaEvents.SaveTables.Add(SaveTables)
+GameEvents.SaveTables.Add(SaveTables)
 
 function CheckSave()
 	Dprint( DEBUG_PLOT_SCRIPT, "Checking Saved Table...")
@@ -173,7 +174,7 @@ function CheckSave()
 	end
 	GCO.ShowTimer("Saving And Checking Map")
 end
-LuaEvents.SaveTables.Add(CheckSave)
+GameEvents.SaveTables.Add(CheckSave)
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.CultureMap 			= GCO.LoadTableFromSlot("CultureMap") 			or {}	-- CultureMap[plotKey] = { [CultureID1] = value1,  [CultureID2] = value2, ...} 
@@ -184,6 +185,8 @@ function PostInitialize() -- everything that may require other context to be loa
 	SetCultureDiffusionRatePer1000()
 	SetInitialMapPopulation()
 	CacheMapFeatures()
+	
+	LuaEvents.CapturedCityInitialized.Add( UpdateCultureOnCityCapture )
 end
 
 function CacheMapFeatures()
@@ -798,7 +801,8 @@ function UpdateCulture( self )
 	if self:IsWater() then
 		local ownerID = self:GetOwner()
 		if (ownerID ~= NO_OWNER) and (self:GetDistrictType() == -1) and (not self:IsTerritorialWaterOf(ownerID)) then
-			WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), false )
+			--WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), false )
+			self:SetOwner(-1)
 		end
 		if (ownerID == NO_OWNER) and self:IsAdjacentOwned() and self:IsAdjacentToLand() then
 			local potentialOwnerID = self:GetTerritorialWaterOwner()
@@ -812,7 +816,10 @@ function UpdateCulture( self )
 					debugTable["UpdateCulture"] = nil
 					return 
 				end
-				WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), potentialOwnerID, city:GetID() )
+				--WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), potentialOwnerID, city:GetID() )
+				self:SetOwner(-1)
+				self:SetOwner(potentialOwnerID, city:GetID(), true)
+				
 			end
 		end
 		debugTable["UpdateCulture"] = nil
@@ -1063,9 +1070,10 @@ function UpdateOwnership( self )
 			
 			-- All test passed succesfully, notify the players and change owner...
 			-- to do : notify the players...
-			--self:SetOwner(bestPlayerID, city:GetID(), true)
 			table.insert(textTable, "Changing owner !")
-			WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), bestPlayerID, city:GetID() )
+			self:SetOwner(-1)
+			self:SetOwner(bestPlayerID, city:GetID(), true)
+			--WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), bestPlayerID, city:GetID() )
 		end	
 	end
 	--if self:IsAdjacentPlayer(0) then ShowDebug() end
@@ -1252,11 +1260,12 @@ function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID
 		local bRemoveOwnership = (tonumber(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value == 1 and distance > tonumber(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value)))
 		Dprint( DEBUG_PLOT_SCRIPT, "   - check for changing owner: CULTURE_REMOVE_PLOT_CITY_CONQUEST ="..tostring(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value)..", distance["..tostring(distance).."] >  CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST["..tostring(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value).."]")
 		if bRemoveOwnership then
-			WorldBuilder.CityManager():SetPlotOwner( plot:GetX(), plot:GetY(), false )
+			--WorldBuilder.CityManager():SetPlotOwner( plot:GetX(), plot:GetY(), false )
+			self:SetOwner(-1)
 		end
 	end
 end
-LuaEvents.CapturedCityInitialized.Add( UpdateCultureOnCityCapture )
+--LuaEvents.CapturedCityInitialized.Add( UpdateCultureOnCityCapture )
 
 -----------------------------------------------------------------------------------------
 -- Initialize Culture Functions
@@ -1296,7 +1305,8 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 		local y		= plot:GetY()
 		if (plot:IsWater() or ( (plot:GetArea():GetID() ~= cityPlot:GetArea():GetID()) and not plot:IsMountain() )) and (plot:GetOwner() ~= NO_OWNER) then
 			--adjacentPlot:SetOwner(NO_OWNER)
-			WorldBuilder.CityManager():SetPlotOwner( x, y, false )
+			--WorldBuilder.CityManager():SetPlotOwner( x, y, false )
+			plot:SetOwner(-1, -1, true)
 			counter = counter + 1
 		end
 	end
@@ -1327,7 +1337,9 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 		table.sort(plotList, function(a, b) return a.yield > b.yield; end)
 		for _, data in ipairs(plotList) do
 			Dprint( DEBUG_PLOT_SCRIPT, "   replacing at : ", data.plot:GetX(), data.plot:GetY())
-			WorldBuilder.CityManager():SetPlotOwner( data.plot:GetX(), data.plot:GetY(), playerID, cityID )
+			--WorldBuilder.CityManager():SetPlotOwner( data.plot:GetX(), data.plot:GetY(), playerID, cityID )
+			data.plot:SetOwner(-1)
+			data.plot:SetOwner(playerID, cityID, true)
 			counter = counter - 1
 			if counter == 0 then
 				return
@@ -1355,12 +1367,15 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 				local ownerCityDistance = Map.GetPlotDistance(pEdgePlot:GetX(), pEdgePlot:GetY(), OwnerCity:GetX(), OwnerCity:GetY())
 				if (cityDistance < ownerCityDistance) and (pEdgePlot:GetWorkerCount() == 0 or cityDistance == 1) then
 					Dprint( DEBUG_PLOT_SCRIPT, "   change city ownership at : ", pEdgePlot:GetX(), pEdgePlot:GetY(), " city distance = ", cityDistance, " previous city = ", Locale.Lookup(OwnerCity:GetName()), " previous city distance = ", ownerCityDistance)
-					WorldBuilder.CityManager():SetPlotOwner( pEdgePlot, false ) -- must remove previous city ownership first, else the UI context doesn't update
-					WorldBuilder.CityManager():SetPlotOwner( pEdgePlot, city, true )
+					--WorldBuilder.CityManager():SetPlotOwner( pEdgePlot, false ) -- must remove previous city ownership first, else the UI context doesn't update
+					--WorldBuilder.CityManager():SetPlotOwner( pEdgePlot, city, true )
 					--LuaEvents.UpdatePlotTooltip(  pEdgePlot:GetIndex() )
 					--print(Cities.GetPlotPurchaseCity(pEdgePlot):GetName())
 					--Events.CityWorkerChanged(playerID, city:GetID())
 					--pEdgePlot:SetOwner(city)
+					
+					pEdgePlot:SetOwner(-1)
+					pEdgePlot:SetOwner(OwnerCity:GetOwner(), OwnerCity:GetID(), true)
 				end
 			end
 		end

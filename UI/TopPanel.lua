@@ -14,17 +14,20 @@ include( "ToolTipHelper_PlayerYields" );
 -- GCO >>>>>
 
 -- ===========================================================================
--- Yield handles
+--	CONSTANTS
 -- ===========================================================================
-m_YieldButtonSingleManager = InstanceManager:new( "YieldButton_SingleLabel", "Top", Controls.YieldStack );
-m_YieldButtonDoubleManager = InstanceManager:new( "YieldButton_DoubleLabel", "Top", Controls.YieldStack );
+META_PADDING	= 100;	-- The amount of padding to give the meta area to make enough room for the (+) when there is resource overflow
+FONT_MULTIPLIER	= 11;	-- The amount to multiply times the string length to approximate the width in pixels of the label control
+
 
 -- ===========================================================================
-local m_kResourceIM	:table = InstanceManager:new( "ResourceInstance", "ResourceText", Controls.ResourceStack );
-local META_PADDING		= 100;	-- The amount of padding to give the meta area to make enough room for the (+) when there is resource overflow
-local FONT_MULTIPLIER	= 11;	-- The amount to multiply times the string length to approximate the width in pixels of the label control
+-- VARIABLES
+-- ===========================================================================
+m_YieldButtonSingleManager	= InstanceManager:new( "YieldButton_SingleLabel", "Top", Controls.YieldStack );
+m_YieldButtonDoubleManager	= InstanceManager:new( "YieldButton_DoubleLabel", "Top", Controls.YieldStack );
+m_kResourceIM				= InstanceManager:new( "ResourceInstance", "ResourceText", Controls.ResourceStack );
 local m_OpenPediaId;
-local m_viewReportsX :number = 0;	-- With of view report button
+
 
 -- ===========================================================================
 -- Yield handles
@@ -43,14 +46,8 @@ local mResearchYieldButton:table 	= {};
 -- ===========================================================================
 --	Game Engine Event
 -- ===========================================================================
-function OnCityInitialized(owner, ID)
-	if owner == Game.GetLocalPlayer() then
-		local player = Players[owner];
-		local pPlayerCities	:table = player:GetCities();
-		if table.count(pPlayerCities) == 1 then			
-			-- Remove?
-			--Controls.YieldStack:SetHide(false);		-- Once the first city is founded, then display the corner.
-		end
+function OnCityInitialized( playerID:number, cityID:number )
+	if playerID == Game.GetLocalPlayer() then
 		RefreshYields();
 	end	
 end
@@ -67,7 +64,7 @@ end
 
 -- ===========================================================================
 function OnMenu()
-    UIManager:QueuePopup( LookUpControl( "/InGame/TopOptionsMenu" ), PopupPriority.Utmost );
+	LuaEvents.InGame_OpenInGameOptionsMenu();
 end
 
 -- ===========================================================================
@@ -101,7 +98,6 @@ end
 
 -- ===========================================================================
 function Resize()
-	Controls.ViewReports:SetSizeToText(20,11);
 	Controls.Backing:ReprocessAnchoring();
 	Controls.Backing2:ReprocessAnchoring();
 	Controls.RightContents:ReprocessAnchoring();	
@@ -111,7 +107,6 @@ end
 --	Refresh Data and View
 -- ===========================================================================
 function RefreshYields()
-
 	local ePlayer		:number = Game.GetLocalPlayer();
 	local localPlayer	:table= nil;
 	if ePlayer ~= -1 then
@@ -268,6 +263,17 @@ function RefreshYields()
 		
 	end
 
+	---- SCIENCE ----
+	m_ScienceYieldButton = m_ScienceYieldButton or m_YieldButtonSingleManager:GetInstance();
+	local playerTechnology		:table	= localPlayer:GetTechs();
+	local currentScienceYield	:number = playerTechnology:GetScienceYield();
+	m_ScienceYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(currentScienceYield) );	
+
+	m_ScienceYieldButton.YieldBacking:SetToolTipString( GetScienceTooltip() );
+	m_ScienceYieldButton.YieldIconString:SetText("[ICON_ScienceLarge]");
+	m_ScienceYieldButton.YieldButtonStack:CalculateSize();
+
+	
 	---- CULTURE----
 	m_CultureYieldButton = m_CultureYieldButton or m_YieldButtonSingleManager:GetInstance();
 	local playerCulture			:table	= localPlayer:GetCulture();
@@ -279,17 +285,7 @@ function RefreshYields()
 	m_CultureYieldButton.YieldBacking:SetColor(0x99fe2aec);
 	m_CultureYieldButton.YieldIconString:SetText("[ICON_CultureLarge]");
 	m_CultureYieldButton.YieldButtonStack:CalculateSize();
-	
-	---- SCIENCE ----
-	m_ScienceYieldButton = m_ScienceYieldButton or m_YieldButtonSingleManager:GetInstance();
-	local playerTechnology		:table	= localPlayer:GetTechs();
-	local currentScienceYield	:number = playerTechnology:GetScienceYield();
-	m_ScienceYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(currentScienceYield) );	
 
-	m_ScienceYieldButton.YieldBacking:SetToolTipString( GetScienceTooltip() );
-	m_ScienceYieldButton.YieldIconString:SetText("[ICON_ScienceLarge]");
-	m_ScienceYieldButton.YieldButtonStack:CalculateSize();
-	
 	-- GCO <<<<<
 	-- Other Sciences fields
 	if ExposedMembers.GCO_Initialized then
@@ -356,7 +352,8 @@ function RefreshYields()
 	Controls.StaticInfoStack:CalculateSize();
 	Controls.InfoStack:CalculateSize();
 
-	RefreshResources();
+	Controls.YieldStack:RegisterSizeChanged( RefreshResources );
+	Controls.StaticInfoStack:RegisterSizeChanged( RefreshResources );
 end
 
 -- ===========================================================================
@@ -480,9 +477,11 @@ function RefreshResources()
 		m_kResourceIM:ResetInstances(); 
 		local pPlayerResources	=  Players[localPlayerID]:GetResources();
 		local yieldStackX		= Controls.YieldStack:GetSizeX();
+		local infoStackX		= Controls.StaticInfoStack:GetSizeX();
 		local metaStackX		= Controls.RightContents:GetSizeX();
 		local screenX, _:number = UIManager:GetScreenSizeVal();
-		local maxSize = screenX - yieldStackX - metaStackX - m_viewReportsX - META_PADDING;
+		local maxSize = screenX - yieldStackX - infoStackX - metaStackX - META_PADDING;
+		if (maxSize < 0) then maxSize = 0; end
 		local currSize = 0;
 		local isOverflow = false;
 		local overflowString = "";
@@ -551,7 +550,6 @@ function OnRefreshTimeTick()
 	Controls.TimeCallback:SetToBeginning();
 	Controls.TimeCallback:Play();
 end
-Controls.TimeCallback:RegisterEndCallback(OnRefreshTimeTick);
 
 -- ===========================================================================
 function RefreshTurnsRemaining()
@@ -671,19 +669,16 @@ end
 
 
 -- ===========================================================================
-function Initialize()	
+function LateInitialize()	
 
-	m_viewReportsX = Controls.ViewReports:GetSizeX();
 	Resize();
 
 	-- UI Callbacks
-	ContextPtr:SetRefreshHandler( OnRefresh );
 	Controls.CivpediaButton:RegisterCallback( Mouse.eLClick, function() LuaEvents.ToggleCivilopedia(); end);
 	Controls.CivpediaButton:RegisterCallback( Mouse.eMouseEnter, function() UI.PlaySound("Main_Menu_Mouse_Over"); end);
 	Controls.MenuButton:RegisterCallback( Mouse.eLClick, OnMenu );
 	Controls.MenuButton:RegisterCallback( Mouse.eMouseEnter, function() UI.PlaySound("Main_Menu_Mouse_Over"); end);
-	Controls.ViewReports:RegisterCallback( Mouse.eLClick, OnToggleReportsScreen );
-    Controls.ViewReports:RegisterCallback( Mouse.eMouseEnter,	function() UI.PlaySound("Main_Menu_Mouse_Over"); end);
+	Controls.TimeCallback:RegisterEndCallback( OnRefreshTimeTick );
 
 	-- Game Events
 	Events.AnarchyBegins.Add(				OnRefreshYields );
@@ -718,10 +713,28 @@ function Initialize()
 	Events.UnitRemovedFromMap.Add(			OnRefreshYields );
 	Events.VisualStateRestored.Add(			OnTurnBegin );
 	Events.WMDCountChanged.Add(				OnWMDUpdate );
+	Events.CityProductionChanged.Add(		OnRefreshResources);
+
+	-- If no expansions function are in scope, ready to refresh and show values.
+	if not XP1_LateInitialize then
+		RefreshYields();
+	end
 	-- GCO <<<<<
 	LuaEvents.RefreshTopPanelGCO.Add(		OnRefreshYields );
 	-- GCO >>>>>
+end
 	
-	OnTurnBegin();
+
+-- ===========================================================================
+function OnInit( isReload:boolean )
+	LateInitialize();
+end
+
+
+-- ===========================================================================
+function Initialize()	
+	-- UI Callbacks	
+	ContextPtr:SetInitHandler( OnInit );	
+	ContextPtr:SetRefreshHandler( OnRefresh );
 end
 Initialize();

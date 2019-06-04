@@ -338,6 +338,7 @@ UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistric
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_THEATER';
+UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_HOLY_SITE';
 
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER', 	EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_WORKSHOP';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER', 	EmploymentSize ='0.15', Coast = '1' WHERE BuildingType ='BUILDING_LIGHTHOUSE';

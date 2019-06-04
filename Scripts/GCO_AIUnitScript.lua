@@ -17,7 +17,7 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	
 	Events.GameCoreEventPublishComplete.Add( MoveAllUnits )
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 local moved = {}
 function MoveAllUnits()

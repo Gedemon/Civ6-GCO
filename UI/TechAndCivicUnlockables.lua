@@ -87,94 +87,85 @@ function GetTraitMapForPlayer(playerId)
 	end
 end
 
+function CanEverUnlock(playerTraitMap, item)
+	return item.TraitType ~= "TRAIT_BARBARIAN" and ((item.TraitType == nil) or (playerTraitMap == nil) or playerTraitMap[item.TraitType]);	
+end
+
 -- ===========================================================================
 --  Returns an array of all possible items unlocked by an optional player id.
 -- ===========================================================================
 function GetUnlockableItems(playerId)
 	
-	local has_trait = GetTraitMapForPlayer(playerId);
-
-	function CanEverUnlock(item)
-		return item.TraitType ~= "TRAIT_BARBARIAN" and ((item.TraitType == nil) or (has_trait == nil) or has_trait[item.TraitType]);	
-	end
+	local has_trait = GetTraitMapForPlayer(playerId);	-- Get the player trait map (expensive to calculate)
 
 	local unlockables = {};
 	
 	for row in GameInfo.Governments() do
-		if(CanEverUnlock(row)) then
+		if(CanEverUnlock(has_trait, row)) then
 			table.insert(unlockables, {row, row.GovernmentType, row.Name, row.GovernmentType});
 		end
 	end
 
 	for row in GameInfo.Policies() do
-		if(CanEverUnlock(row)) then
+		if(CanEverUnlock(has_trait, row)) then
 			table.insert(unlockables, {row, row.PolicyType, row.Name, row.PolicyType});
 		end
 	end
 
 	for row in GameInfo.Buildings() do
-		if(CanEverUnlock(row)) and not (row.NoPedia) then
+		if(CanEverUnlock(has_trait, row)) then
 			table.insert(unlockables, {row, row.BuildingType, row.Name, row.BuildingType});
 		end
 	end
 		
 	for row in GameInfo.Districts() do
-		if(CanEverUnlock(row)) then
+		if(CanEverUnlock(has_trait, row)) then
 			table.insert(unlockables, {row, row.DistrictType, row.Name, row.DistrictType});
 		end
 	end		
 	for row in GameInfo.Units() do
-		if(CanEverUnlock(row)) then
+		if(CanEverUnlock(has_trait, row)) then
 			table.insert(unlockables, {row, row.UnitType, row.Name, row.UnitType});
 		end
 	end
 
 	for row in GameInfo.Improvements() do
-		if(CanEverUnlock(row)) then
+		if(CanEverUnlock(has_trait, row)) then
 			table.insert(unlockables, {row, row.ImprovementType, row.Name, row.ImprovementType});
 		end
 	end
 
 	for row in GameInfo.Projects() do
-		if(CanEverUnlock(row)) then
+		if(CanEverUnlock(has_trait, row)) then
 			table.insert(unlockables, {row, row.ProjectType, row.Name, row.ProjectType});
 		end
 	end
 
 	for row in GameInfo.Resources() do
-		if(CanEverUnlock(row)) then
+		if(CanEverUnlock(has_trait, row)) then
 			table.insert(unlockables, {row, row.ResourceType, row.Name, row.ResourceType});
 		end
 	end
 
 	for row in GameInfo.DiplomaticActions() do
-		if(CanEverUnlock(row)  and row.Name ~= nil) then
+		if(CanEverUnlock(has_trait, row)  and row.Name ~= nil) then
 			table.insert(unlockables, {row, row.DiplomaticActionType, row.Name, row.CivilopediaKey});
 		end
 	end
 
 	return unlockables;
 end
-
 -- ===========================================================================
 --	Returns an array of items unlocked by a given tech and optional player id.
 --  The item format is an array of {ID, Name, CivilopediaKey}
 -- ===========================================================================
-function GetUnlockablesForTech( techType, playerId )
+function GetFilteredUnlockableItems( playerId )
 
 	-- Treat -1 NO_PLAYER as nil.
 	if(type(playerId) == "number" and playerId < 0) then
 		playerId = nil;
 	end
 
-	-- Ensure a string civic type rather than hash or index.
-	local techInfo = GameInfo.Technologies[techType];
-	techType = techInfo.TechnologyType;
-
-	function CanUnlockWithThisTech(item) 
-		return (item.PrereqTech == techType) or (item.InitiatorPrereqTech == techType);
-	end
-		
 	-- Populate a complete list of unlockables.
 	-- This must be a complete list because some replacement items exist with different prereqs than
 	-- that which they replace.
@@ -184,6 +175,28 @@ function GetUnlockablesForTech( techType, playerId )
 	-- (Only do this if we have a player specified, otherwise this would filter ALL replaced items).
 	if(playerId ~= nil) then
 		unlockables = RemoveReplacedUnlockables(unlockables, playerId)
+	end
+
+	return unlockables;
+end
+
+-- ===========================================================================
+--	Returns an array of items unlocked by a given tech and optional player id.
+--  The item format is an array of {ID, Name, CivilopediaKey}
+-- ===========================================================================
+function GetUnlockablesForTech( techType, playerId, unlockables )
+
+	-- Ensure a string civic type rather than hash or index.
+	local techInfo = GameInfo.Technologies[techType];
+	techType = techInfo.TechnologyType;
+
+	function CanUnlockWithThisTech(item) 
+		return (item.PrereqTech == techType) or (item.InitiatorPrereqTech == techType);
+	end
+		
+	if unlockables == nil then
+		-- Support optionally passing in the unlockables table, which is expensive to calculate
+		unlockables = GetFilteredUnlockableItems(playerId);
 	end
 
 	local results = {};
@@ -246,3 +259,6 @@ function GetUnlockablesForCivic(civicType, playerId)
 
 	return results;
 end
+
+-- Include overrides and modifications from other files
+include("TechAndCivicUnlockables_", true);

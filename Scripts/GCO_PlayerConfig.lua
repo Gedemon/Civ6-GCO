@@ -26,6 +26,8 @@ end
 -----------------------------------------------------------------------------------------
 
 GCO 					= {} -- not local to be passed to UI files including this file.
+local GameEvents		= ExposedMembers.GameEvents
+--local LuaEvents			= ExposedMembers.LuaEvents
 local PlayerConfigData	= {}
 local pairs 			= pairs
 local Dprint, Dline, Dlog
@@ -38,7 +40,7 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 --[[
 -- Loading/saving done in GCO_PlayerScript to prevent multiple call as this file is included in multiple files
@@ -46,7 +48,7 @@ function SaveTables()
 	Dprint( DEBUG_PLAYER_CONFIG, "--------------------------- Saving PlayerConfigData ---------------------------")
 	GCO.SaveTableToSlot(ExposedMembers.GCO.PlayerConfigData, "PlayerConfigData")
 end
-LuaEvents.SaveTables.Add(SaveTables)
+GameEvents.SaveTables.Add(SaveTables)
 --]]
 
 function PostInitialize() -- everything that may require other context to be loaded first

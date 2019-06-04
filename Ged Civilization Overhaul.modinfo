@@ -5,6 +5,7 @@
 		<Teaser>LOC_GCO_TEASER</Teaser>
 		<Description>LOC_GCO_DESCRIPTION</Description>
 		<Authors>Gedemon</Authors>
+		<CompatibleVersions>2.0</CompatibleVersions>
 	</Properties>
 
 	<LocalizedText>
@@ -201,6 +202,13 @@
 			</Properties>
 		</ReplaceUIScript>
 		
+		<ReplaceUIScript>
+			<Properties>
+				<LuaContext>StatusMessagePanel</LuaContext>
+				<LuaReplace>UI/Replacements/StatusMessagePanel_GCO.lua</LuaReplace>
+			</Properties>
+		</ReplaceUIScript>
+		
 		<!-- Control Arts from the Assets -->
         <UpdateArt id="GCO_ModArt">
 			<Properties>
@@ -240,14 +248,6 @@
            	</Properties>
 			<File>Data/CivilizationIcons.xml</File>
 		</UpdateIcons>
-		<ImportFiles id="GCO_SETTING_IMPORT">
-           	<Properties>
-				<!-- High load order to make sure GCO AdvancedSetup is loaded after the version of other mods, including YnAMP --> 
-				<LoadOrder>1000005</LoadOrder>
-           	</Properties>
-			<File>UI/AdvancedSetup.lua</File>
-			<File>UI/AdvancedSetup.xml</File>
-		</ImportFiles>
 	</FrontEndActions>
 
 	<Files>
@@ -308,8 +308,6 @@
 		<File>Scripts/GCO_PlayerConfig.lua</File>
 		<File>InGame/GCO_ModInGame.lua</File>
 		<File>InGame/GCO_ModInGame.xml</File>
-		<File>UI/AdvancedSetup.lua</File>
-		<File>UI/AdvancedSetup.xml</File>
 		<File>UI/UnitFlagManager.lua</File>
 		<File>UI/UnitFlagManager.xml</File>
 		<File>UI/CityBannerManager.lua</File>
@@ -335,6 +333,7 @@
 		<File>UI/TechTree.lua</File>
 		<File>UI/TechAndCivicUnlockables.lua</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
+		<File>UI/Replacements/StatusMessagePanel_GCO.lua</File>
 		<File>Art/dom_blank.dds</File>
 		<File>Art/GCO_FontIcons.dds</File>
 		<File>GCO_ModArt.dep</File>

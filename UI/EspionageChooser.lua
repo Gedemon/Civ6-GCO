@@ -10,6 +10,7 @@ include("InstanceManager");
 include("AnimSidePanelSupport");
 include("SupportFunctions");
 include("EspionageSupport");
+include("Colors");
 
 -- ===========================================================================
 --	CONSTANTS
@@ -24,6 +25,11 @@ local EspionageChooserModes:table = {
 
 local MISSION_CHOOSER_MISSIONSCROLLPANEL_RELATIVE_SIZE_Y = -132;
 local DESTINATION_CHOOSER_MISSIONSCROLLPANEL_RELATIVE_SIZE_Y = -267;
+
+local DISTRICT_IM:string = "DistrictIM";
+local DISTRICT_SCROLL_POS:string = "DistrictScrollPos";
+
+local MAX_DISTRICTS_TO_SHOW:number = 7;
 
 -- ===========================================================================
 --	MEMBERS
@@ -75,21 +81,16 @@ function RefreshTop()
 		
 		-- If we've selected a city then show the district icons for that city
 		if m_city then
-			-- Update district info
-			RefreshDistrictIcon(m_city, "DISTRICT_CITY_CENTER", Controls.CityCenterIcon);
-			--RefreshDistrictIcon(m_city, "DISTRICT_COMMERCIAL_HUB", Controls.CommericalIcon);
-			--RefreshDistrictIcon(m_city, "DISTRICT_THEATER", Controls.TheaterIcon);
-			--RefreshDistrictIcon(m_city, "DISTRICT_CAMPUS", Controls.ScienceIcon);
-			RefreshDistrictIcon(m_city, "DISTRICT_INDUSTRIAL_ZONE", Controls.IndustrialIcon);
-			RefreshDistrictIcon(m_city, "DISTRICT_NEIGHBORHOOD", Controls.NeighborhoodIcon);
-			RefreshDistrictIcon(m_city, "DISTRICT_SPACEPORT", Controls.SpaceIcon);
+			
+			AddDistrictIcons(Controls, m_city);
 			Controls.DistrictInfo:SetHide(false);
-
 			Controls.SelectACityMessage:SetHide(true);
 
 			UpdateCityBanner(m_city);
 		else
 			Controls.BannerBase:SetHide(true);
+			Controls.DistrictsScrollLeftButton:SetHide(true);
+			Controls.DistrictsScrollRightButton:SetHide(true);
 			Controls.DistrictInfo:SetHide(true);
 			Controls.SelectACityMessage:SetHide(false);
 		end
@@ -218,7 +219,6 @@ function RefreshMissionList()
 	end
 
 	Controls.MissionScrollPanel:CalculateInternalSize();
-	Controls.MissionPanel:ReprocessAnchoring();
 end
 
 -- ===========================================================================
@@ -239,13 +239,9 @@ function AddCounterspyOperation(operation:table, districtPlotID:number)
 
 			-- Update mission icon
 			local iconString:string = "ICON_" .. districtInfo.DistrictType;
-			local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas(iconString,32);
-			if textureSheet then
-				missionInstance.MissionIcon:Resize(32,32);
-				missionInstance.MissionIcon:SetTexture(textureOffsetX, textureOffsetY, textureSheet);
-			else
-				UI.DataError("Failed to find icon for district(" .. districtInfo.DistrictType .. ")");
-			end
+			missionInstance.TargetDistrictIcon:SetIcon(iconString);
+			missionInstance.TargetDistrictIcon:SetHide(false);
+			missionInstance.MissionIcon:SetHide(true);
 
 			-- If this is the mission choose set callback to open up mission briefing
 			if m_currentChooserMode == EspionageChooserModes.MISSION_CHOOSER then
@@ -266,7 +262,7 @@ function AddCounterspyOperation(operation:table, districtPlotID:number)
 	end
 
 	-- Default the selector brace to hidden
-	missionInstance.SelectorBrace:SetColor(0x00FFFFFF);
+	missionInstance.SelectorBrace:SetColor(UI.GetColorValueFromHexLiteral(0x00FFFFFF));
 end
 
 -- ===========================================================================
@@ -278,68 +274,17 @@ function AddOffensiveOperation(operation:table, result:table, targetCityPlot:tab
 	missionInstance.MissionName:SetText(Locale.Lookup(operation.Description));
 
 	-- Update mission icon
-	local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas(operation.Icon,40);
-	missionInstance.MissionIcon:Resize(40,40);
-	missionInstance.MissionIcon:SetTexture(textureOffsetX, textureOffsetY, textureSheet);
+	missionInstance.MissionIcon:SetIcon(operation.Icon);
+	missionInstance.MissionIcon:SetHide(false)
+	missionInstance.TargetDistrictIcon:SetHide(true);
 
-	-- Update turns to completed
-	local eOperation:number = GameInfo.UnitOperations[operation.Hash].Index;
-	local turnsToComplete:number = UnitManager.GetTimeToComplete(eOperation, m_spy);
-	missionInstance.TurnsToCompleteLabel:SetText(turnsToComplete);
-
-	-- Update mission success chance
-	local resultProbability:table = UnitManager.GetResultProbability(eOperation, m_spy, targetCityPlot);
-	if resultProbability["ESPIONAGE_SUCCESS_UNDETECTED"] then
-		local probability:number = resultProbability["ESPIONAGE_SUCCESS_UNDETECTED"];
-
-		-- Add ESPIONAGE_SUCCESS_MUST_ESCAPE
-		if resultProbability["ESPIONAGE_SUCCESS_MUST_ESCAPE"] then
-			probability = probability + resultProbability["ESPIONAGE_SUCCESS_MUST_ESCAPE"];
-		end
-
-		probability = math.floor((probability * 100)+0.5);
-		missionInstance.ProbabilityLabel:SetText(probability .. "%");
-
-		-- Set Color
-		if probability > 85 then
-			missionInstance.ProbabilityLabel:SetColorByName("OperationChance_Green");
-		elseif probability > 65 then
-			missionInstance.ProbabilityLabel:SetColorByName("OperationChance_YellowGreen");
-		elseif probability > 45 then
-			missionInstance.ProbabilityLabel:SetColorByName("OperationChance_Yellow");
-		elseif probability > 25 then
-			missionInstance.ProbabilityLabel:SetColorByName("OperationChance_Orange");
-		else
-			missionInstance.ProbabilityLabel:SetColorByName("OperationChance_Red");
-		end
-	end
-
-	-- result is the data bundle retruned by CanStartOperation container useful information about the operation query
-	-- If the results contain a plot ID then show that as the target district
-	if result and result[UnitOperationResults.PLOTS] then
-		for i,districtPlotID in ipairs(result[UnitOperationResults.PLOTS]) do
-			local districts:table = m_city:GetDistricts();
-			for i,district in districts:Members() do
-				local districtPlot:table = Map.GetPlot(district:GetX(), district:GetY());
-				if districtPlot:GetIndex() == districtPlotID then
-					local districtInfo:table = GameInfo.Districts[district:GetType()];
-					missionInstance.MissionDistrictName:SetText(Locale.Lookup(districtInfo.Name));
-					local iconString:string = "[Icon_" .. districtInfo.DistrictType .. "]";
-					missionInstance.MissionDistrictIcon:SetText(iconString);
-				end
-			end
-		end
-	else -- Default to show city center
-		missionInstance.MissionDistrictName:SetText(Locale.Lookup("LOC_DISTRICT_CITY_CENTER_NAME"));
-		missionInstance.MissionDistrictIcon:SetText("[Icon_DISTRICT_CITYCENTER]");
-	end
+	RefreshMissionStats(missionInstance, operation, result, m_spy, m_city, targetCityPlot);
 
 	missionInstance.MissionStatsStack:SetHide(false);
 	missionInstance.MissionStatsStack:CalculateSize();
-	missionInstance.MissionStatsStack:ReprocessAnchoring();
 
 	-- Default the selector brace to hidden
-	missionInstance.SelectorBrace:SetColor(0x00FFFFFF);
+	missionInstance.SelectorBrace:SetColor(UI.GetColorValueFromHexLiteral(0x00FFFFFF));
 
 	return missionInstance;
 end
@@ -416,12 +361,12 @@ function OnMissionSelected(operation:table, instance:table)
 	for i=1, m_MissionStackIM.m_iCount, 1 do
 		local otherInstances:table = m_MissionStackIM:GetAllocatedInstance(i);
 		if otherInstances then
-			otherInstances.SelectorBrace:SetColor(0x00000000);
+			otherInstances.SelectorBrace:SetColor(UI.GetColorValue("COLOR_CLEAR"));
 		end
 	end
 
 	-- Show selected border over instance
-	instance.SelectorBrace:SetColor(0xFFFFFFFF);
+	instance.SelectorBrace:SetColor(UI.GetColorValue("COLOR_WHITE"));
 end
 
 -- ===========================================================================
@@ -430,12 +375,8 @@ function UpdateCityBanner(city:table)
 	--local backColor:number, frontColor:number  = UI.GetPlayerColors( city:GetOwner() );
 	local backColor:number, frontColor:number  = GCO.GetPlayerColors( city:GetOwner() );
 	-- GCO >>>>>
-	local darkerBackColor:number = DarkenLightenColor(backColor,(-85),238);
-	local brighterBackColor:number = DarkenLightenColor(backColor,90,255);
 
 	Controls.BannerBase:SetColor( backColor );
-	Controls.BannerDarker:SetColor( darkerBackColor );
-	Controls.BannerLighter:SetColor( brighterBackColor );
 	Controls.CityName:SetColor( frontColor );
 	TruncateStringWithTooltip(Controls.CityName, 195, Locale.ToUpper(city:GetName()));
 	Controls.BannerBase:SetHide(false);
@@ -448,7 +389,6 @@ function UpdateCityBanner(city:table)
 		Controls.TravelTime:SetColor( frontColor );
 		Controls.TravelTime:SetText(tostring(totalTravelTime));
 		Controls.TravelTimeIcon:SetColor( frontColor )
-		Controls.TravelTimeStack:ReprocessAnchoring();
 		Controls.TravelTimeStack:SetHide(false);
 
 		-- Update travel time tool tip string
@@ -480,12 +420,8 @@ function AddDestination(city:table)
 	--local backColor:number, frontColor:number  = UI.GetPlayerColors( city:GetOwner() );
 	local backColor:number, frontColor:number  = GCO.GetPlayerColors( city:GetOwner() );
 	-- GCO >>>>>
-	local darkerBackColor:number = DarkenLightenColor(backColor,(-85),238);
-	local brighterBackColor:number = DarkenLightenColor(backColor,90,255);
 
 	destinationInstance.BannerBase:SetColor( backColor );
-	destinationInstance.BannerDarker:SetColor( darkerBackColor );
-	destinationInstance.BannerLighter:SetColor( brighterBackColor );
 	destinationInstance.CityName:SetColor( frontColor );
 
 	-- Update capital indicator but never show it for city-states
@@ -502,22 +438,112 @@ function AddDestination(city:table)
 	destinationInstance.TravelTime:SetColor( frontColor );
 	destinationInstance.TravelTime:SetText(tostring(totalTravelTime));
 	destinationInstance.TravelTimeIcon:SetColor( frontColor )
-	destinationInstance.TravelTimeStack:ReprocessAnchoring();
 
 	-- Update travel time tool tip string
 	destinationInstance.BannerBase:SetToolTipString(Locale.Lookup("LOC_ESPIONAGECHOOSER_TRAVEL_TIME_TOOLTIP", travelTime, establishTime));
 
-	-- Update district icons
-	RefreshDistrictIcon(city, "DISTRICT_CITY_CENTER", destinationInstance.CityCenterIcon);
-	--RefreshDistrictIcon(city, "DISTRICT_COMMERCIAL_HUB", destinationInstance.CommericalIcon);
-	--RefreshDistrictIcon(city, "DISTRICT_THEATER", destinationInstance.TheaterIcon);
-	--RefreshDistrictIcon(city, "DISTRICT_CAMPUS", destinationInstance.ScienceIcon);
-	RefreshDistrictIcon(city, "DISTRICT_INDUSTRIAL_ZONE", destinationInstance.IndustrialIcon);
-	RefreshDistrictIcon(city, "DISTRICT_NEIGHBORHOOD", destinationInstance.NeighborhoodIcon);
-	RefreshDistrictIcon(city, "DISTRICT_SPACEPORT", destinationInstance.SpaceIcon);
+	AddDistrictIcons(destinationInstance, city);
 
 	-- Set button callback
 	destinationInstance.DestinationButton:RegisterCallback( Mouse.eLClick, function() OnSelectDestination(city);  end);
+end
+
+-- ===========================================================================
+function AddDistrictIcons( kParentControl:table, pCity:table )
+	if kParentControl[DISTRICT_IM] == nil then
+		kParentControl[DISTRICT_IM] = InstanceManager:new("CityDistrictInstance", "DistrictIcon", kParentControl.DistrictIconStack);
+	end
+
+	kParentControl[DISTRICT_IM]:ResetInstances();
+
+	local iNumDistricts:number = 0;
+	local pCityDistricts:table = pCity:GetDistricts();
+	for _, pDistrict in pCityDistricts:Members() do
+		local kDistrictInst:table = AddDistrictIcon(kParentControl[DISTRICT_IM], pCity, pDistrict);
+		if kDistrictInst ~= nil then
+			iNumDistricts = iNumDistricts + 1;
+
+			if iNumDistricts > MAX_DISTRICTS_TO_SHOW then
+				kDistrictInst.DistrictIcon:SetHide(true);
+			else
+				kDistrictInst.DistrictIcon:SetHide(false);
+			end
+		end
+	end
+
+	if iNumDistricts > MAX_DISTRICTS_TO_SHOW then
+		kParentControl.DistrictsScrollLeftButton:SetHide(false);
+		kParentControl.DistrictsScrollLeftButton:SetDisabled(true);
+		kParentControl.DistrictsScrollRightButton:SetHide(false);
+		kParentControl.DistrictsScrollRightButton:SetDisabled(false);
+		kParentControl[DISTRICT_SCROLL_POS] = 1;
+	else
+		kParentControl.DistrictsScrollLeftButton:SetHide(true);
+		kParentControl.DistrictsScrollRightButton:SetHide(true);
+	end
+
+	kParentControl.DistrictsScrollLeftButton:RegisterCallback( Mouse.eLClick, function() OnDistrictLeftScroll(kParentControl); end );
+	kParentControl.DistrictsScrollRightButton:RegisterCallback( Mouse.eLClick, function() OnDistrictRightScroll(kParentControl); end );
+end
+
+-- ===========================================================================
+function UpdateVisibleDistrictIcons( kParentControl:table, iScrollPos:number )
+	local kDistrictIM:table = kParentControl[DISTRICT_IM];
+	for i=1, kDistrictIM.m_iCount, 1 do
+		local kDistrictInst:table = kDistrictIM:GetAllocatedInstance(i);
+		if kDistrictInst ~= nil then
+			if i < iScrollPos or (i > iScrollPos + MAX_DISTRICTS_TO_SHOW - 1) then
+				kDistrictInst.DistrictIcon:SetHide(true);
+			else
+				kDistrictInst.DistrictIcon:SetHide(false);
+			end
+		end
+	end
+
+	kParentControl[DISTRICT_SCROLL_POS] = iScrollPos;
+
+	if iScrollPos == 1 then
+		kParentControl.DistrictsScrollLeftButton:SetDisabled(true);
+		kParentControl.DistrictsScrollRightButton:SetDisabled(false);
+	elseif iScrollPos >= (kDistrictIM.m_iCount - MAX_DISTRICTS_TO_SHOW + 1) then
+		kParentControl.DistrictsScrollLeftButton:SetDisabled(false);
+		kParentControl.DistrictsScrollRightButton:SetDisabled(true);
+	else
+		kParentControl.DistrictsScrollLeftButton:SetDisabled(false);
+		kParentControl.DistrictsScrollRightButton:SetDisabled(false);
+	end
+end
+
+-- ===========================================================================
+function OnDistrictLeftScroll( kParentControl:table )
+	local iNewScrollPos:number = kParentControl[DISTRICT_SCROLL_POS] - 1;
+	UpdateVisibleDistrictIcons( kParentControl, iNewScrollPos );
+end
+
+-- ===========================================================================
+function OnDistrictRightScroll( kParentControl:table )
+	local iNewScrollPos:number = kParentControl[DISTRICT_SCROLL_POS] + 1;
+	UpdateVisibleDistrictIcons( kParentControl, iNewScrollPos );
+end
+
+-- ===========================================================================
+function AddDistrictIcon(kInstanceIM:table, pCity:table, pDistrict:table)
+	if not pDistrict:IsComplete() then
+		return nil;
+	end
+
+	local kDistrictDef:table = GameInfo.Districts[pDistrict:GetType()];
+	if kDistrictDef == nil or kDistrictDef.DistrictType == "DISTRICT_WONDER" then
+		return nil;
+	end
+
+	local kInstance:table = kInstanceIM:GetInstance();
+
+	kInstance.DistrictIcon:SetIcon("ICON_" .. kDistrictDef.DistrictType);
+	local sToolTip:string = Locale.Lookup(kDistrictDef.Name);
+	kInstance.DistrictIcon:SetToolTipString( sToolTip );
+
+	return kInstance;
 end
 
 -- ===========================================================================
@@ -745,7 +771,7 @@ function OnMissionBriefingClosed()
 		for i=1,m_MissionStackIM.m_iCount,1 do
 			local instance:table = m_MissionStackIM:GetAllocatedInstance(i);
 			if instance then
-				instance.SelectorBrace:SetColor(0x00FFFFFF);
+				instance.SelectorBrace:SetColor(UI.GetColorValue("COLOR_CLEAR"));
 			end
 		end
 	end

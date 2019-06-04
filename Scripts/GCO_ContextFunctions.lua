@@ -32,12 +32,16 @@ local ProductionTypes = {
 -- ===========================================================================
 -- Initialize
 -- ===========================================================================
-local GCO = ExposedMembers.GCO -- Initialize with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded
+-- Initialize first with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded
+local GCO 			= ExposedMembers.GCO 
+local GameEvents	= ExposedMembers.GameEvents
+--local LuaEvents		= ExposedMembers.LuaEvents
 function InitializeUtilityFunctions()
-	GCO = ExposedMembers.GCO -- Reinitialize with what may have been added with other UI contexts
+	GCO 	= ExposedMembers.GCO 	-- Reinitialize with what may have been added with other UI contexts
+	Dline	= GCO.Dline				-- output current code line number to firetuner/log
 	print ("Exposed Functions from other contexts initialized...")
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 
 -- ===========================================================================
@@ -211,6 +215,12 @@ function RequestOperation( pUnit, UnitOperationType, tParameters)
 	UnitManager.RequestOperation( contextUnit, UnitOperationType, tParameters)
 end
 
+-- =========================================================================== 
+--	Send Status message
+-- =========================================================================== 
+function StatusMessage( str:string, fDisplayTime:number, type:number, bForceDisplay )
+	LuaEvents.StatusMessage(str, fDisplayTime, type)
+end
 
 -- ===========================================================================
 -- Custom Tooltip
@@ -245,7 +255,7 @@ local m_kRowsIM			:table		= InstanceManager:new( "RowInstance",		"Top", Controls
 
 --	Turn on the tooltips
 function TooltipOn(parameters)
-
+Dline("Calling custom tooltip")
 	m_isOff = false;
 	LuaEvents.Tutorial_PlotToolTipsOff()
 
@@ -253,6 +263,7 @@ function TooltipOn(parameters)
 	if not m_isActive then		
 	--	return;
 	end
+Dline()
 	
 	--parameters.Header4 = "[ICON_INDENT]           [ICON_TradingPost]       [ICON_TradeRoute]       [ICON_Unit]     [ICON_UP_DOWN]  [ICON_Gold]"
 	
@@ -265,6 +276,7 @@ function TooltipOn(parameters)
 			table.insert(labelList, key)
 		end
 	end
+Dline()
 	
 	for _, key in ipairs(labelList) do
 		local text	= parameters[key]
@@ -274,12 +286,14 @@ function TooltipOn(parameters)
 			Controls[key]:SetText("")
 		end
 	end
+Dline()
 	
 	local maxWidth = 0
 	for _, key in ipairs(labelList) do
 		local width	= Controls[key]:GetSizeX()
 		maxWidth	= math.max(maxWidth, width)
 	end
+Dline()
 	
 	-- Special case for condensed table
 	if parameters.ListSmall then 
@@ -289,7 +303,7 @@ function TooltipOn(parameters)
 	else
 		Controls.ListSmall:SetText("")
 	end
-
+Dline()
 	Controls.InfoStack:CalculateSize()
 	local stackHeight = Controls.InfoStack:GetSizeY();
 	Controls.TooltipInfo:SetSizeVal(maxWidth + SIZE_WIDTH_MARGIN, stackHeight + SIZE_HEIGHT_PADDING)
@@ -300,12 +314,14 @@ function TooltipOn(parameters)
 	if m_isUsingMouse then
 		RealizeNewPlotTooltipMouse();
 	end
+Dline()
 
 	--Controls.TooltipGCO:ReprocessAnchoring()
 	
 	Controls.TooltipGCO:SetHide(false);
 	Controls.TooltipGCO:SetToBeginning();
 	Controls.TooltipGCO:Play();
+Dline()
 end
 LuaEvents.ShowCustomToolTip.Add( TooltipOn )
 
@@ -326,12 +342,15 @@ function RealizePositionAt( x:number, y:number )
 	end
 	m_screenWidth, m_screenHeight 	= UIManager:GetScreenSizeVal()
 	m_offsetX, m_offsetY 			= OFFSET_SHOW_AT_MOUSE_X, OFFSET_SHOW_AT_MOUSE_Y
-
+Dline(x, y, m_offsetX, m_offsetY, UserConfiguration.GetValue("PlotToolTipFollowsMouse"))
 	if UserConfiguration.GetValue("PlotToolTipFollowsMouse") == 1 then
+Dline()
 		-- If tool tip manager is showing a *real* tooltip, don't show this plot tooltip to avoid potential overlap.
 		if TTManager:IsTooltipShowing() then
+Dline()
 			--ClearView();
 		else
+Dline()
 			local offsetx:number = x + m_offsetX;
 			local offsety:number = m_screenHeight - y - m_offsetY;
 
@@ -349,6 +368,7 @@ function RealizePositionAt( x:number, y:number )
 			end
 
 			Controls.TooltipGCO:SetOffsetVal( offsetx, offsety ); -- Subtract from screen height, as default anchor is "bottom"
+Dline()
 		end
 	end
 	--]]
@@ -365,7 +385,7 @@ function RealizeNewPlotTooltipTouch( pInputStruct:table )
 end
 
 function OnInputHandler( pInputStruct:table )
-
+print("OnInputHandler")
 	if not m_isActive then
 		return false;
 	end
@@ -421,6 +441,9 @@ function Initialize()
 	-- Set shared table
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end	
 	
+	-- LuaEvents
+	ExposedMembers.GCO.LuaEvents					= LuaEvents
+	
 	-- calendar
 	ExposedMembers.GCO.GetTurnYear					= GetTurnYear
 	-- cities
@@ -455,6 +478,7 @@ function Initialize()
 	ExposedMembers.Calendar							= Calendar
 	ExposedMembers.CombatTypes 						= CombatTypes
 	ExposedMembers.GCO.Options						= Options
+	ExposedMembers.GCO.StatusMessage				= StatusMessage
 	
 	ExposedMembers.ContextFunctions_Initialized 	= true
 end

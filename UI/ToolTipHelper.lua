@@ -16,12 +16,14 @@ include("TechAndCivicUnlockables")
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 --print("Loading ToolTipHelper.lua...")
-GCO = ExposedMembers.GCO or {} -- initialize with functions that are already set in script context (functions in this file are called immediatly to build the UI)
+GCO 				= ExposedMembers.GCO -- initialize with functions that are already set in script context (functions in this file are called immediatly to build the UI)
+--local GameEvents	= ExposedMembers.GameEvents
+--local LuaEvents		= ExposedMembers.LuaEvents
 function InitializeUtilityFunctions()
 	GCO = ExposedMembers.GCO		-- contains functions from other contexts
 	--print ("Exposed Functions from other contexts initialized...")
 end
---LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+--GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 -- GCO >>>>>
 
 ToolTipHelper = {};

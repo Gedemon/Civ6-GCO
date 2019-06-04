@@ -30,8 +30,8 @@ end
 function RestorePreviousDebugLevel()
 	DEBUG_UNIT_SCRIPT = previousDebugLevel
 end
-LuaEvents.SetUnitsDebugLevel.Add(SetDebugLevel)
-LuaEvents.RestoreUnitsDebugLevel.Add(RestorePreviousDebugLevel)
+--LuaEvents.SetUnitsDebugLevel.Add(SetDebugLevel)
+--LuaEvents.RestoreUnitsDebugLevel.Add(RestorePreviousDebugLevel)
 
 -----------------------------------------------------------------------------------------
 -- Defines
@@ -265,6 +265,7 @@ local CombatTypes = {}
 local pairs = pairs
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO			-- contains functions from other contexts
+	LuaEvents	= GCO.LuaEvents
 	CombatTypes = ExposedMembers.CombatTypes 	-- need those in combat results
 	Dprint 		= GCO.Dprint					-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline						-- output current code line number to firetuner/log
@@ -276,11 +277,15 @@ end
 function InitializeCheck()
 	if not ExposedMembers.UnitData then GCO.Error("ExposedMembers.UnitData is nil after Initialization") end
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
-LuaEvents.InitializeGCO.Add( InitializeCheck )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeCheck )
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	LoadUnitTable()
+
+	LuaEvents.SetUnitsDebugLevel.Add(SetDebugLevel)
+	LuaEvents.RestoreUnitsDebugLevel.Add(RestorePreviousDebugLevel)
+	LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
 end
 
 function Initialize() -- Everything that can be initialized immediatly after loading this file(cached tables)
@@ -476,7 +481,7 @@ function SaveTables()
 	GCO.UnitDataSavingCheck = nil
 	SaveUnitTable()
 end
-LuaEvents.SaveTables.Add(SaveTables)
+GameEvents.SaveTables.Add(SaveTables)
 
 function CheckSave()
 	Dprint( DEBUG_UNIT_SCRIPT, "Checking Saved Table...")
@@ -499,7 +504,7 @@ function CheckSave()
 	GCO.ShowTimer("Saving And Checking UnitData")
 	GCO.UnitDataSavingCheck = true
 end
-LuaEvents.SaveTables.Add(CheckSave)
+GameEvents.SaveTables.Add(CheckSave)
 
 function ControlSave()
 	if not GCO.UnitDataSavingCheck then
@@ -507,7 +512,7 @@ function ControlSave()
 		ShowUnitData()
 	end
 end
-LuaEvents.SaveTables.Add(ControlSave)
+GameEvents.SaveTables.Add(ControlSave)
 
 -- for debugging load/save
 function ShowUnitData()
@@ -831,14 +836,14 @@ function StopDelayedEquipmentInitialization()
 	initializeEquipmentCo = false
 	-- automated saving could occur before the end of the delayed equipment initialization, we'll have to save the updated units table...
 	if bNeedToSaveGame then
-		LuaEvents.SaveTables()
+		GameEvents.SaveTables.Call()
 		local saveGame = {};
 		saveGame.Name = "GCO-"..os.date("%d-%b-%Y-%Hh%M")
 		saveGame.Location = SaveLocations.LOCAL_STORAGE
 		saveGame.Type= SaveTypes.SINGLE_PLAYER
 		saveGame.IsAutosave = false
 		saveGame.IsQuicksave = false
-		LuaEvents.SaveGameGCO(saveGame)
+		GameEvents.SaveGameGCO.Call(saveGame)
 		GCO.Warning("The game was (auto?) saved in the last few seconds[NEWLINE]before some new units were equipped[NEWLINE][NEWLINE]A new (fixed) save was created: "..saveGame.Name.."[NEWLINE]You can also make a quick or manual save now")
 		bNeedToSaveGame = false
 	end
@@ -5736,7 +5741,7 @@ function DoUnitsTurn( playerID )
 	end	
 	GCO.PlayerTurnsDebugChecks[playerID].UnitsTurn	= true
 end
-LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
+--LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
 
 
 -----------------------------------------------------------------------------------------

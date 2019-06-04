@@ -72,6 +72,7 @@ local pairs = pairs
 local Dprint, Dline, Dlog
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO 			= ExposedMembers.GCO
+	LuaEvents		= GCO.LuaEvents
 	Dprint 			= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline			= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog			= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
@@ -79,7 +80,7 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
 	Dprint( DEBUG_PLAYER_SCRIPT, "--------------------------- Saving PlayerData ---------------------------")
@@ -87,7 +88,7 @@ function SaveTables()
 	Dprint( DEBUG_PLAYER_SCRIPT, "------------------------ Saving PlayerConfigData ------------------------")
 	GCO.SaveTableToSlot(ExposedMembers.GCO.PlayerConfigData, "PlayerConfigData")
 end
-LuaEvents.SaveTables.Add(SaveTables)
+GameEvents.SaveTables.Add(SaveTables)
 
 function PostInitialize() -- everything that may require other context to be loaded first
 	ExposedMembers.PlayerData 			= GCO.LoadTableFromSlot("PlayerData") or {}
@@ -95,6 +96,9 @@ function PostInitialize() -- everything that may require other context to be loa
 	InitializePlayerFunctions()
 	InitializePlayerData() -- after InitializePlayerFunctions
 	SetPlayerDefines()
+	
+	LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
+	LuaEvents.StartPlayerTurn.Add(CheckPlayerTurn)
 end
 
 function InitializePlayerData()
@@ -1000,12 +1004,12 @@ function DoPlayerTurn( playerID )
 		LuaEvents.ShowTimerLog(playerID)
 		
 		if playerID == Game.GetLocalPlayer() then		
-			--LuaEvents.SaveTables()
+			--GameEvents.SaveTables()
 		end
 		
 		if playerID == 0 then --and Automation.IsActive() then
 			-- Making our own auto save...
-			LuaEvents.SaveTables()
+			GameEvents.SaveTables.Call()
 			startTurnAutoSaveNum = startTurnAutoSaveNum + 1
 			if startTurnAutoSaveNum > 5 then startTurnAutoSaveNum = 1 end
 			local saveGame = {};
@@ -1014,7 +1018,7 @@ function DoPlayerTurn( playerID )
 			saveGame.Type= SaveTypes.SINGLE_PLAYER
 			saveGame.IsAutosave = true
 			saveGame.IsQuicksave = false
-			LuaEvents.SaveGameGCO(saveGame)
+			GameEvents.SaveGameGCO.Call(saveGame)
 		end
 		
 		LuaEvents.PlayerTurnDoneGCO(playerID)
@@ -1227,8 +1231,8 @@ function Initialize()
 	Events.GovernmentPolicyChanged.Add( OnPolicyChanged )
 	Events.DiplomacyDeclareWar.Add(OnDiplomacyDeclareWar)
 	Events.TreasuryChanged.Add(OnTreasuryChanged)
-	LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
-	LuaEvents.StartPlayerTurn.Add(CheckPlayerTurn)
+	--LuaEvents.StartPlayerTurn.Add(DoPlayerTurn)
+	--LuaEvents.StartPlayerTurn.Add(CheckPlayerTurn)
 	Events.LocalPlayerTurnBegin.Add( DoTurnForLocal )
 	Events.RemotePlayerTurnBegin.Add( DoTurnForRemote )
 	Events.RemotePlayerTurnEnd.Add( DoTurnForNextPlayerFromRemote )

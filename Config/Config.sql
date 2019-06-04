@@ -1,2 +1,2 @@
 
-DELETE from Rulesets WHERE RulesetType ='RULESET_EXPANSION_1';
+DELETE from Rulesets WHERE RulesetType <>'RULESET_STANDARD';

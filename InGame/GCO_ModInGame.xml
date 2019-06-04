@@ -2,32 +2,4 @@
 <Context Name="GCO_ModInGame">
 	<Include File="PopupDialog"/>
 	<MakeInstance Name="PopupDialog" />
-	
-	  <Container Size="full,full">
-		 <Stack ID="StackOfMessages" Anchor="C,T" StackGrowth="Bottom" Offset="0,120"/>
-	  </Container>
-  
-		<Instance			Name="StatusMessageInstance">
-		<Container			ID="Root"			Anchor="C,T" Size="650,40" AutoSize="V">
-		  <AlphaAnim		ID="Anim"			Anchor="C,T" AlphaBegin="0" AlphaEnd="1" Speed="3"  	Size="650,parent" Cycle="OneBounce" EndPause="10" AutoSize="V">
-			<Grid								Anchor="C,T" Style="EnhancedToolTip" MinSize="54,54" 	Size="parent+10,parent-10" Color="255,255,255,255" AutoSize="V" InnerPadding="10,30">
-			  <Label		ID="StatusLabel"	Anchor="C,C" Style="BodyText18" Offset="0,-2" WrapWidth="parent-20" />
-			</Grid>
-		  </AlphaAnim>
-		</Container>
-		</Instance>
-
-		<Instance			Name="GossipMessageInstance">
-		  <Container		ID="Root"			Anchor="C,T"					Size="650,auto" >
-			<AlphaAnim		ID="Anim"			Anchor="C,T"					Size="650,auto" AlphaBegin="0" AlphaEnd="1" Speed="3"  Cycle="OneBounce" EndPause="10" >
-			  <Image							Anchor="C,T" Offset="0,0"		Size="650,auto"	AutoSizePadding="0,-38" Texture="Parchment_Pattern" StretchMode="Tile" >
-				<GridButton	ID="Button"			Anchor="L,T" Offset="-25,-25"	Size="parent+50,auto" InnerPadding="10,0" Texture="Controls_GoldBox"	SliceTextureSize="132,132"	SliceCorner="66,66" MinSize="132,132" >
-				  <Grid							Anchor="C,C" Offset="0,-2"		Size="parent-50,auto" Texture="Controls_GossipContainer"	SliceTextureSize="70,70"		SliceCorner="35,35" MinSize="70,70" Color="74,67,60,150" >
-					<Label	ID="StatusLabel"	Anchor="C,C" Style="BodyTextParchment18" WrapWidth="parent-20"/>
-				  </Grid>
-				</GridButton>
-			  </Image>
-			</AlphaAnim>
-		  </Container>
-		</Instance>
 </Context>

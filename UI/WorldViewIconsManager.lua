@@ -88,7 +88,7 @@ function SetResourceIcon( pInstance:table, pPlot, type, state)
 		if (state == RevealedState.REVEALED) then
 			iconName = iconName .. "_FOW";
 		end
-		local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas(iconName, 64);
+		local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas(iconName, 256);
 		if (textureSheet ~= nil) then						
 			pInstance[KEY_PREVIOUS_ICON_INFO] = DeepCopy( pInstance[KEY_CURRENT_ICON_INFO] );
 			if pInstance[KEY_PREVIOUS_ICON_INFO] ~= nil then
@@ -128,7 +128,19 @@ function SetResourceIcon( pInstance:table, pPlot, type, state)
 			local tValidImprovements:table = {}
 			for row in GameInfo.Improvement_ValidResources() do
 				if (row.ResourceType == resourceType) then
+					if( GameInfo.Terrains[terrainType].TerrainType   == "TERRAIN_COAST") then
+						if ("DOMAIN_SEA" == GameInfo.Improvements[ row.ImprovementType].Domain) then
 					table.insert(tValidImprovements, row.ImprovementType);
+						elseif ("DOMAIN_LAND" == GameInfo.Improvements[ row.ImprovementType].Domain) then
+							valid_domain = false;
+						end
+					else
+						if ("DOMAIN_SEA" == GameInfo.Improvements[ row.ImprovementType].Domain) then
+							valid_domain = false;
+						elseif ("DOMAIN_LAND" == GameInfo.Improvements[ row.ImprovementType].Domain) then
+							table.insert(tValidImprovements, row.ImprovementType);
+						end
+					end
 				end
 			end
 
@@ -140,7 +152,7 @@ function SetResourceIcon( pInstance:table, pPlot, type, state)
 						local improvementType = improvement;
 
 						local has_feature = false;
-						local valid_feature = false;
+						valid_feature = false;
 						for inner_row in GameInfo.Improvement_ValidFeatures() do
 							if(inner_row.ImprovementType == improvementType) then
 								has_feature = true;
@@ -152,7 +164,7 @@ function SetResourceIcon( pInstance:table, pPlot, type, state)
 						valid_feature = not has_feature or valid_feature;
 
 						local has_terrain = false;
-						local valid_terrain = false;
+						valid_terrain = false;
 						for inner_row in GameInfo.Improvement_ValidTerrains() do
 							if(inner_row.ImprovementType == improvementType) then
 								has_terrain = true;
@@ -163,7 +175,7 @@ function SetResourceIcon( pInstance:table, pPlot, type, state)
 						end
 						valid_terrain = not has_terrain or valid_terrain;
 
-						if(valid_feature and valid_terrain) then
+						if(valid_feature == true and valid_terrain == true) then
 							resourceTechType = GameInfo.Improvements[improvementType].PrereqTech;
 							resourceCivicType = GameInfo.Improvements[improvementType].PrereqCivic;
 							break;
@@ -232,7 +244,7 @@ function GetInstanceAt(plotIndex)
 		pInstance = g_InstanceManager:GetInstance();
 		g_MapIcons[plotIndex] = pInstance;
 		local worldX, worldY = UI.GridToWorld( plotIndex );
-		pInstance.Anchor:SetWorldPositionVal( worldX, worldY-10.0, 0.0 );
+		pInstance.Anchor:SetWorldPositionVal( worldX, worldY-16.0, 0.0 );
 		-- Do not unload the texture on the ResourceIcon itself, it may remove the only instance to be animated in.
 		pInstance.ResourceIcon:SetHide( true );
 		-- Do not show/start the AlphaAnim, it should not run if there is only the recommendation icon in the hex
@@ -252,10 +264,14 @@ end
 
 -------------------------------------------------------------------------------
 function ReleaseInstanceAt(plotIndex)
+
 	local pInstance = g_MapIcons[plotIndex];
 	if (pInstance ~= nil) then
-		pInstance.ResourceIcon:UnloadTexture();
-		pInstance.RecommendationIconTexture:UnloadTexture();
+
+		-- Clear up the textures and hide the icon in case this resource gets reused.
+		UnloadResourceIconAt(plotIndex);
+		UnloadRecommendationIconAt(plotIndex);
+
 		g_InstanceManager:ReleaseInstance( pInstance );
 		g_MapIcons[plotIndex] = nil;
 	end
@@ -284,7 +300,7 @@ function GetNonEmptyAt(plotIndex, state)
 			-- Starting plot?
 			if pPlot:IsStartingPlot() and WorldBuilder.IsActive() then
 				pInstance = GetInstanceAt(plotIndex);
-				pInstance.RecommendationIconTexture:SetTexture( IconManager:FindIconAtlas("ICON_UNITOPERATION_FOUND_CITY", 38) );
+				pInstance.RecommendationIconTexture:TrySetIcon("ICON_UNITOPERATION_FOUND_CITY", 256);
 				pInstance.RecommendationIconText:SetHide( false );
 
 				local iPlayer = GetStartingPlotPlayer( pPlot );
@@ -463,6 +479,23 @@ function OnPlotVisibilityChanged(x, y, visibilityType)
 end
 
 -- ===========================================================================
+function OnCityAddedToMap(playerID, cityID, x, y)
+	local plotIndex:number = GetPlotIndex(x, y);
+
+    ClearSettlementRecommendations();
+
+    if plotIndex ~= -1 then
+		-- This is a bit tricky, but the reason we have to use ReleaseInstanceAt
+		-- instead of UnloadResourceIconAt is this callback is called after the
+		-- visibility changed callbacks for this tile. The animation to fade from
+		-- the FOW icon to the new icon has begun, and once it ends, will become the
+		-- current icon. ReleaseInstanceAt clears the icon entirely, so the animation
+		-- won't make the icon reappear a second after the city has been founded
+		ReleaseInstanceAt(plotIndex);
+	end
+end
+
+-- ===========================================================================
 function OnPlotMarkersChanged(x, y)
 
 	-- The marker for a plot has changed.
@@ -518,18 +551,16 @@ end
 
 ----------------------------------------------------------------
 function OnLocalPlayerChanged( eLocalPlayer:number , ePrevLocalPlayer:number )
-	for key, pIconSet in pairs(g_MapIcons) do
-		if (pIconSet ~= nil) then
-			g_InstanceManager:ReleaseInstance( pIconSet );
-			g_MapIcons[key] = nil;
-		end
+	ClearImprovementRecommendations();
+
+	for plotIndex, pIconSet in pairs(g_MapIcons) do
+		ReleaseInstanceAt(plotIndex);
 	end
 	m_kUntouchedPlots = {};
 end
 
-
 ----------------------------------------------------------------
-function OnUserOptionChanged(eOptionSet, hOptionKey, iNewOptionValue)
+function RestoreResourceIconState()
 
 	local bChangedValue = UserConfiguration.ShowMapResources();
 	if (bChangedValue ~= m_isShowResources) then
@@ -542,6 +573,19 @@ function OnUserOptionChanged(eOptionSet, hOptionKey, iNewOptionValue)
 		end
 	end
 end
+
+----------------------------------------------------------------
+function OnUserOptionChanged(eOptionSet, hOptionKey, iNewOptionValue)
+
+	RestoreResourceIconState();
+end
+
+----------------------------------------------------------------
+function OnUserOptionsActivated()
+
+	RestoreResourceIconState();
+end
+
 ----------------------------------------------------------------
 -- Handle the UI shutting down.
 function OnShutdown()
@@ -591,8 +635,7 @@ function AddImprovementRecommendationsForCity( pCity:table, pSelectedUnit:table 
 			local pImprovementInfo:table = GameInfo.Improvements[value.ImprovementHash];
 
 			-- Update icon
-			local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas(pImprovementInfo.Icon, 38);
-			pRecommendedPlotInstance.ImprovementRecommendationIcon:SetTexture(textureOffsetX, textureOffsetY, textureSheet);
+			pRecommendedPlotInstance.ImprovementRecommendationIcon:TrySetIcon(pImprovementInfo.Icon, 256);
 
 			-- Update tooltip
 			pRecommendedPlotInstance.ImprovementRecommendationIcon:SetToolTipString(Locale.Lookup("LOC_TOOLTIP_IMPROVEMENT_RECOMMENDATION", pImprovementInfo.Name));
@@ -627,8 +670,7 @@ function AddSettlementRecommendations()
 				local pRecommendedPlotInstance = GetInstanceAt(value.SettlingLocation);
 
 				-- Update icon
-				local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas("ICON_UNITOPERATION_FOUND_CITY", 38);
-				pRecommendedPlotInstance.ImprovementRecommendationIcon:SetTexture(textureOffsetX, textureOffsetY, textureSheet);
+				pRecommendedPlotInstance.ImprovementRecommendationIcon:TrySetIcon("ICON_UNITOPERATION_FOUND_CITY", 256);
 
 				-- Update tooltip
 				pRecommendedPlotInstance.ImprovementRecommendationIcon:SetToolTipString(Locale.Lookup("LOC_TOOLTIP_SETTLEMENT_RECOMMENDATION"));				
@@ -672,6 +714,7 @@ function Initialize()
 	Events.BeginWonderReveal.Add( OnBeginWonderReveal );
 	Events.EndWonderReveal.Add( OnEndWonderReveal );
 	Events.LocalPlayerChanged.Add(OnLocalPlayerChanged);
+	Events.CityAddedToMap.Add(OnCityAddedToMap);
 	Events.ResourceVisibilityChanged.Add(OnResourceVisibilityChanged);
 	Events.ResourceAddedToMap.Add(OnResourceChanged);
 	Events.ResourceRemovedFromMap.Add(OnResourceRemovedFromMap);
@@ -679,6 +722,7 @@ function Initialize()
 	Events.PlotMarkerChanged.Add(OnPlotMarkersChanged);
 	Events.UnitSelectionChanged.Add( OnUnitSelectionChanged );
 	Events.UserOptionChanged.Add(OnUserOptionChanged);
+	Events.UserOptionsActivated.Add( OnUserOptionsActivated );
 	Events.ResearchCompleted.Add(OnResearchCompleted);
 	Events.CivicCompleted.Add(OnCivicCompleted);
 

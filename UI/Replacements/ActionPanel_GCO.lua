@@ -5,6 +5,7 @@
 include("ActionPanel")
 
 print("Loading ActionPanel_GCO.lua.")
+local GameEvents	= ExposedMembers.GameEvents
 
 -- ===========================================================================
 --	Attempt to end the turn or execute the most current blocking notification
@@ -90,7 +91,7 @@ end
 local autoSaveNum = 0
 function LocalPlayerEndTurnSave()
 	-- Making our own auto save...
-	LuaEvents.SaveTables() -- done on "EndTurn" action ID in GCO_SaveLoad.lua
+	GameEvents.SaveTables.Call() -- done on "EndTurn" action ID in GCO_SaveLoad.lua
 	autoSaveNum = autoSaveNum + 1
 	if autoSaveNum > 5 then autoSaveNum = 1 end
 	local saveGame = {};
@@ -99,5 +100,5 @@ function LocalPlayerEndTurnSave()
 	saveGame.Type= SaveTypes.SINGLE_PLAYER
 	saveGame.IsAutosave = true
 	saveGame.IsQuicksave = false
-	LuaEvents.SaveGameGCO(saveGame)
+	GameEvents.SaveGameGCO.Call(saveGame)
 end

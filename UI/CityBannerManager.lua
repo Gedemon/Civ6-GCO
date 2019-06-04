@@ -18,12 +18,14 @@ include( "GCO_PlayerConfig" )
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
-GCO = {}
+GCO 				= {}
+local GameEvents	= ExposedMembers.GameEvents
+----local LuaEvents		= ExposedMembers.LuaEvents
 function InitializeUtilityFunctions()
 	GCO = ExposedMembers.GCO		-- contains functions from other contexts
 	print ("Exposed Functions from other contexts initialized...")
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 local bShownSupplyLine 			= false
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
@@ -746,8 +748,8 @@ function CityBanner.SetColor( self : CityBanner )
 
 	if (self.m_Type == BANNERTYPE_CITY_CENTER) then
 		self.m_Instance.CityBannerFill:SetColor( backColor );
-		self.m_Instance.CityBannerFill2:SetColor( darkerBackColor );
-		self.m_Instance.CityBannerFill3:SetColor( brighterBackColor );
+		--self.m_Instance.CityBannerFill2:SetColor( darkerBackColor );
+		--self.m_Instance.CityBannerFill3:SetColor( brighterBackColor );
 		self.m_Instance.CityBannerFillOver:SetColor( frontColor );
 		self.m_Instance.CityBannerFillOut:SetColor( brighterBackColor );
 		self.m_Instance.CityName:SetColor( frontColor, 0 );

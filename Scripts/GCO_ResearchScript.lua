@@ -168,15 +168,16 @@ local GCO 		= {}
 local lpairs	= pairs
 local pairs 	= pairs
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	GCO 	= ExposedMembers.GCO
-	Dprint 	= GCO.Dprint
-	Dline	= GCO.Dline					-- output current code line number to firetuner/log
-	Dlog	= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
-	pairs 	= GCO.OrderedPairs
+	GCO 		= ExposedMembers.GCO
+	LuaEvents	= ExposedMembers.GCO.LuaEvents
+	Dprint 		= GCO.Dprint
+	Dline		= GCO.Dline					-- output current code line number to firetuner/log
+	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	pairs 		= GCO.OrderedPairs
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function SaveTables()
 	Dprint( DEBUG_RESEARCH_SCRIPT, "--------------------------- Saving ResearchData ---------------------------")	
@@ -184,7 +185,7 @@ function SaveTables()
 	GCO.SaveTableToSlot(ExposedMembers.GCO.ResearchData, "ResearchData")
 	GCO.SaveTableToSlot(ExposedMembers.GCO.CityResearchData, 	"CityResearchData")
 end
-LuaEvents.SaveTables.Add(SaveTables)
+GameEvents.SaveTables.Add(SaveTables)
 
 function CheckSave()
 	Dprint( DEBUG_RESEARCH_SCRIPT, "Checking Saved Table...")
@@ -206,11 +207,14 @@ function CheckSave()
 	
 	GCO.ShowTimer("Saving And Checking ResearchData")
 end
-LuaEvents.SaveTables.Add(CheckSave)
+GameEvents.SaveTables.Add(CheckSave)
 
 function PostInitialize() -- everything that may require other context to be loaded first
-	ExposedMembers.GCO.ResearchData = GCO.LoadTableFromSlot("ResearchData") or {}
+	ExposedMembers.GCO.ResearchData 	= GCO.LoadTableFromSlot("ResearchData") or {}
 	ExposedMembers.GCO.CityResearchData = GCO.LoadTableFromSlot("CityResearchData") or {}
+	
+	LuaEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
+	LuaEvents.ResearchGCO.Add( OnLuaResearchEvent )
 end
 
 -- for debugging
@@ -561,7 +565,7 @@ function Research:UnlockTech(TechID, x, y)				-- Give the Tech that unlock TechI
 			
 				-- Message Text
 				local sText = Locale.Lookup("LOC_TECH_UNLOCKED", GameInfo.Technologies[TechID].Name, GameInfo.Technologies[unlockerID].Description)
-				LuaEvents.GCO_Message(sText, 8, ReportingStatusTypes.GOSSIP)
+				GCO.StatusMessage(sText, 8, ReportingStatusTypes.GOSSIP)
 			end
 			return true
 		end
@@ -986,7 +990,7 @@ end
 function OnLuaResearchEvent(eventType, playerID, x, y, itemType)
 	DoResearchOnEvent(eventType, playerID, x, y, itemType)
 end
-LuaEvents.ResearchGCO.Add( OnLuaResearchEvent )
+--LuaEvents.ResearchGCO.Add( OnLuaResearchEvent )
 
 function OnResearchCompleted( playerID:number, techID:number, bIsCanceled:boolean)
 	-- Is that tech unlocking a Government ?
@@ -1009,7 +1013,7 @@ function OnPlayerTurnDone(playerID)
 	local pResearch = Research:Create(playerID)
 	pResearch:DoTurn()
 end
-LuaEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
+--LuaEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
 	
 --=====================================================================================--
 -- Shared Functions

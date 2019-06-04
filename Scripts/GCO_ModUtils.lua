@@ -29,7 +29,11 @@ ExposedMembers.UnitScript_Initialized		= nil
 ExposedMembers.PlayerScript_Initialized 	= nil
 ExposedMembers.GameScript_Initialized		= nil
 ExposedMembers.ResearchScript_Initialized 	= nil
-ExposedMembers.GCO_Initialized 				= nil 
+ExposedMembers.GCO_Initialized 				= nil
+
+-- to access GameEvents from UI context
+ExposedMembers.GameEvents					= GameEvents
+--ExposedMembers.LuaEvents					= LuaEvents
 
 local ResourceValue = {			-- cached table with value of resources type
 		["RESOURCECLASS_LUXURY"] 	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_LUXURY"].Value),
@@ -207,16 +211,24 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 		print ("All GCO script files loaded...")
 		print ("Game loading time for all scripts = "..tostring(Automation.GetTime() - LoadTimer))
 		GCO 		= ExposedMembers.GCO						-- contains functions from other contexts
+		LuaEvents	= GCO.LuaEvents
 		OptionGet	= ExposedMembers.GCO.Options.GetUserOption	-- or Options.GetAppOption
 		OptionSet	= ExposedMembers.GCO.Options.SetUserOption	-- or Options.SetAppOption
 		OptionSave	= ExposedMembers.GCO.Options.SaveOptions
 		print ("Exposed Functions from other contexts initialized...")
 		Events.GameCoreEventPublishComplete.Remove( InitializeUtilityFunctions )
 		-- tell all other scripts that they can initialize now
-		LuaEvents.InitializeGCO() 
+		GameEvents.InitializeGCO.Call()
+		PostInitialize()
 	end
 end
 Events.GameCoreEventPublishComplete.Add( InitializeUtilityFunctions )
+
+function PostInitialize() -- everything that may require other context to be loaded first
+	LuaEvents.ShowLastLog.Add( ShowLastLog )
+	LuaEvents.StartPlayerTurn.Add(MarkFlagUpdateSafe)
+	LuaEvents.RestartGame.Add(Cleaning)
+end
 
 function OnLoadGameViewStateDone()
 	print ("Game loading time (not counting map creation) = "..tostring(Automation.GetTime() - LoadTimer))
@@ -361,7 +373,7 @@ function Error(...)
 	print(str)
 	LuaEvents.StopAuToPlay()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
-	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 20) end
+	if bErrorToScreen then GCO.StatusMessage("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 20) end
 end
 
 function ErrorWithLog(...)
@@ -372,7 +384,7 @@ function ErrorWithLog(...)
 	LuaEvents.StopAuToPlay()
 	LuaEvents.ShowLastLog()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
-	if bErrorToScreen then LuaEvents.GCO_Message("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
+	if bErrorToScreen then GCO.StatusMessage("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
 end
 
 function Warning(str, seconds)
@@ -384,7 +396,7 @@ function Warning(str, seconds)
 	local line = string.match(line, '%d+')
 	print("WARNING : ".. str .. " at line "..line )	
 	ExposedMembers.UI.PlaySound("Alert_Neutral")
-	if bWarningToScreen then LuaEvents.GCO_Message("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
+	if bWarningToScreen then GCO.StatusMessage("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
 end
 
 function Dline(...)
@@ -435,7 +447,7 @@ function ShowLastLog(n)
 	end
 	lastLog = {}
 end
-LuaEvents.ShowLastLog.Add( ShowLastLog )
+--LuaEvents.ShowLastLog.Add( ShowLastLog )
 
 function Monitor(f, arguments, name) -- doesn't work as intended, fail on pcall when used like this GCO.Monitor(self.SetCityRationing, {self}, "SetCityRationing for ".. name)
 	StartTimer(name)
@@ -534,7 +546,7 @@ GameEvents.OnGameTurnStarted.Add(MarkFlagUpdateUnsafe)
 function MarkFlagUpdateSafe()
 	bSafeToCallFlagUpdate = true
 end
-LuaEvents.StartPlayerTurn.Add(MarkFlagUpdateSafe)
+--LuaEvents.StartPlayerTurn.Add(MarkFlagUpdateSafe)
 
 
 --=====================================================================================--
@@ -901,8 +913,11 @@ function GetPlayerColors(playerID)
 	
 	local colorRow 		= GameInfo.PlayerColors[pPlayerConfig:GetLeaderTypeName()]
 	
-	if colorRow == nil then return ExposedMembers.UI.GetPlayerColors(playerID) end
-	
+	if colorRow == nil or colorRow.PrimaryColor == nil or colorRow.SecondaryColor == nil or GameInfo.Colors[colorRow.PrimaryColor] == nil or GameInfo.Colors[colorRow.SecondaryColor] == nil then
+		GCO.Warning("colorRow has nil entry for ".. tostring(pPlayerConfig:GetLeaderTypeName()), colorRow, colorRow and colorRow.PrimaryColor, colorRow and colorRow.SecondaryColor )
+		return ExposedMembers.UI.GetPlayerColors(playerID)
+	end
+--Dline(ColorStringToNumber, GameInfo.Colors, colorRow.PrimaryColor, GameInfo.Colors and colorRow.PrimaryColor and GameInfo.Colors[colorRow.PrimaryColor], GameInfo.Colors and colorRow.PrimaryColor and GameInfo.Colors[colorRow.PrimaryColor] and GameInfo.Colors[colorRow.PrimaryColor].Color)	
 	local frontColor	= ColorStringToNumber(GameInfo.Colors[colorRow.PrimaryColor].Color)
 	local backColor		= ColorStringToNumber(GameInfo.Colors[colorRow.SecondaryColor].Color)
 	
@@ -1339,9 +1354,12 @@ function Cleaning()
 	ExposedMembers.UI 							= nil
 	ExposedMembers.Calendar 					= nil
 	ExposedMembers.CombatTypes 					= nil
+	--
+	ExposedMembers.GameEvents					= nil
+	--ExposedMembers.LuaEvents					= nil
 end
 Events.LeaveGameComplete.Add(Cleaning)
-LuaEvents.RestartGame.Add(Cleaning)
+--LuaEvents.RestartGame.Add(Cleaning)
 
 
 --=====================================================================================--

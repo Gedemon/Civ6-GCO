@@ -1,7 +1,4 @@
---[[
--- Created by Samuel Batista on Friday Apr 19 2017
--- Copyright (c) Firaxis Games
---]]
+-- Copyright 2017-2019, Firaxis Games
 
 -- GCO <<<<<
 print("Loading CivilizationIcon.lua.")
@@ -9,6 +6,7 @@ include( "GCO_PlayerConfig" )
 -- GCO >>>>>
 
 include("LuaClass");
+include("Colors");
 include("SupportFunctions");
 
 ------------------------------------------------------------------
@@ -22,7 +20,6 @@ CivilizationIcon = LuaClass:Extend()
 CivilizationIcon.m_CivTooltip = {};
 TTManager:GetTypeControlTable("CivTooltip", CivilizationIcon.m_CivTooltip);
 
-CivilizationIcon.UNKNOWN_COLOR = RGBAValuesToABGRHex(1, 1, 1, 1);
 CivilizationIcon.ICON_UNKNOWN_CIV = "ICON_CIVILIZATION_UNKNOWN";
 CivilizationIcon.DATA_FIELD_CLASS = "CIVILIZATION_ICON_CLASS";
 
@@ -62,13 +59,21 @@ function CivilizationIcon:new(instance:table)
 end
 ------------------------------------------------------------------
 function CivilizationIcon:UpdateIconFromPlayerID(playerID:number)
-	local playerConfig:table = PlayerConfigurations[playerID];
-	local localPlayerID:number = Game.GetLocalPlayer();
-	local localPlayer:table = Players[localPlayerID];
-	local hasMetLocalPlayer:boolean = localPlayer and localPlayer:GetDiplomacy():HasMet(playerID);
-	local showCivIcon:boolean = (playerID == localPlayerID) or hasMetLocalPlayer;
 
-	local civIcon = showCivIcon and "ICON_" .. playerConfig:GetCivilizationTypeName() or self.ICON_UNKNOWN_CIV;
+	local localPlayerID:number = Game.GetLocalPlayer();
+	local showCivIcon:boolean = playerID == localPlayerID;
+	local civIcon:string = self.ICON_UNKNOWN_CIV;
+
+	if playerID ~= -1 then
+		if localPlayerID ~= -1 then
+			showCivIcon = showCivIcon or Players[localPlayerID]:GetDiplomacy():HasMet(playerID);
+		end
+		if showCivIcon then
+	local playerConfig:table = PlayerConfigurations[playerID];
+			civIcon = "ICON_" .. playerConfig:GetCivilizationTypeName();
+		end
+	end
+
 	local textureOffsetX:number, textureOffsetY:number, textureSheet:string = IconManager:FindIconAtlas(civIcon, self.Controls.CivIcon:GetSizeX());
 	if(textureSheet == nil or textureSheet == "") then
 		UI.DataError("Could not find icon in CivilizationIcon.UpdateIcon: icon=\""..civIcon.."\", iconSize="..tostring(self.Controls.CivIcon:GetSizeX()));
@@ -76,11 +81,11 @@ function CivilizationIcon:UpdateIconFromPlayerID(playerID:number)
 		self.Controls.CivIcon:SetTexture(textureOffsetX, textureOffsetY, textureSheet);
 	end
 
+	self:ColorCivIcon(playerID, showCivIcon);
+
 	if self.Controls.LocalPlayer then
 		self.Controls.LocalPlayer:SetHide(playerID ~= localPlayerID);
 	end
-
-	self:ColorCivIcon(playerID, showCivIcon);
 end
 
 function CivilizationIcon:ColorCivIcon(playerID:number, showCivIcon:boolean)
@@ -94,17 +99,18 @@ function CivilizationIcon:ColorCivIcon(playerID:number, showCivIcon:boolean)
 			self.Controls.CivIconBacking:SetColor(backColor);
 		else
 			self.Controls.CivBacking_Base:SetColor(backColor);
-			self.Controls.CivBacking_Lighter:SetColor(DarkenLightenColor(backColor, 80, 255));
-			self.Controls.CivBacking_Darker:SetColor(DarkenLightenColor(backColor, -55, 230));
+			self.Controls.CivBacking_Lighter:SetColor(UI.DarkenLightenColor(backColor, 80, 255));
+			self.Controls.CivBacking_Darker:SetColor(UI.DarkenLightenColor(backColor, -55, 230));
 		end
 	else
-		self.Controls.CivIcon:SetColor(self.UNKNOWN_COLOR);
+		local COLOR_UNKNOWN = UI.GetColorValue("COLOR_UNKNOWN");
+		self.Controls.CivIcon:SetColor(COLOR_UNKNOWN);
 		if self.Controls.CivIconBacking then
-			self.Controls.CivIconBacking:SetColor(self.UNKNOWN_COLOR);
+			self.Controls.CivIconBacking:SetColor(COLOR_UNKNOWN);
 		else
-			self.Controls.CivBacking_Base:SetColor(self.UNKNOWN_COLOR);
-			self.Controls.CivBacking_Lighter:SetColor(self.UNKNOWN_COLOR);
-			self.Controls.CivBacking_Darker:SetColor(self.UNKNOWN_COLOR);
+			self.Controls.CivBacking_Base:SetColor(COLOR_UNKNOWN);
+			self.Controls.CivBacking_Lighter:SetColor(COLOR_UNKNOWN);
+			self.Controls.CivBacking_Darker:SetColor(COLOR_UNKNOWN);
 		end
 	end
 end

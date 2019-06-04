@@ -215,7 +215,6 @@ CREATE TABLE IF NOT EXISTS UnitsGCO (
 		FOREIGN KEY (PromotionClass) REFERENCES UnitPromotionClasses(PromotionClassType),
 		FOREIGN KEY (PseudoYieldType) REFERENCES PseudoYields(PseudoYieldType),
 		FOREIGN KEY (PrereqCivic) REFERENCES Civics(CivicType),
-		FOREIGN KEY (UnitType) REFERENCES Types(Type),
 		FOREIGN KEY (PurchaseYield) REFERENCES Yields(YieldType),
 		FOREIGN KEY (ObsoleteCivic) REFERENCES Civics(CivicType),
 		FOREIGN KEY (MandatoryObsoleteCivic) REFERENCES Civics(CivicType),

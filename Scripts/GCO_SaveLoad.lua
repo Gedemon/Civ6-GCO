@@ -28,8 +28,10 @@ DEBUG_SAVELOAD_SCRIPT	= "SaveLoadScript"
 ----------------------------------------------
 -- Initialize Functions
 ----------------------------------------------
-
-local GCO = ExposedMembers.GCO -- Initialize immediatly with what is already loaded from script contexts, we may need them before the next call to GameCoreEventPublishComplete after this file is loaded (in this file's case it's the timers functions)
+-- Initialize immediatly with what is already loaded from script contexts, we may need them before InitializeUtilityFunctions can be called
+local GCO 			= ExposedMembers.GCO 
+local GameEvents	= ExposedMembers.GameEvents
+----local LuaEvents		= ExposedMembers.LuaEvents
 function InitializeUtilityFunctions() -- Get functions from other contexts
 	--GCO 		= ExposedMembers.GCO		-- Reinitialize with what may have been added with other UI contexts
 	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
@@ -37,23 +39,23 @@ function InitializeUtilityFunctions() -- Get functions from other contexts
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
 	print ("Exposed Functions from other contexts initialized...")
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 ----------------------------------------------
 -- Events for saving
 ----------------------------------------------
 -- This Lua event is called when listing files on the save/load menu
 function SaveMyTables()
-	GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "Calling LuaEvents.SaveTables() on FileListQueryComplete...")
-	LuaEvents.SaveTables()
+	GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "Calling GameEvents.SaveTables() on FileListQueryComplete...")
+	GameEvents.SaveTables.Call()
 end
 LuaEvents.FileListQueryComplete.Add( SaveMyTables )
 
 -- This event to handle quick saving
 function OnInputAction( actionID )
 	if actionID == Input.GetActionId("QuickSave") then
-		GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "Calling LuaEvents.SaveTables() on QuickSave action...")
-		LuaEvents.SaveTables()
+		GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "Calling GameEvents.SaveTables() on QuickSave action...")
+		GameEvents.SaveTables.Call()
 	end
 end
 Events.InputActionTriggered.Add( OnInputAction )
@@ -124,7 +126,7 @@ function SaveGameGCO(saveGame)
 	GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "GCO Saving Game... " .. tostring(saveGame.Name))
 	Network.SaveGame(saveGame)
 end
-LuaEvents.SaveGameGCO.Add(SaveGameGCO)
+GameEvents.SaveGameGCO.Add(SaveGameGCO)
 
 ----------------------------------------------
 -- Initialize functions for other contexts

@@ -50,11 +50,11 @@ function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
 	pairs 		= GCO.OrderedPairs
-	LuaEvents.InitializeGCO.Remove( InitializeUtilityFunctions )
+	GameEvents.InitializeGCO.Remove( InitializeUtilityFunctions )
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()
 end
-LuaEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function PostInitialize() -- everything that may require other context to be loaded first	
 	UpdateGameEra()
@@ -209,7 +209,7 @@ function UpdateGameEra()
 	Dprint( DEBUG_GAME_SCRIPT, "- averageEra = ", averageEra)
 	if averageEra ~= gameEra then
 		gameEra = averageEra
-		LuaEvents.GCO_Message("[COLOR:Blue]Global Era is [ENDCOLOR] ".. Locale.Lookup(GameInfo.Eras[gameEra].Name), 6, ReportingStatusTypes.GOSSIP)
+		GCO.StatusMessage("[COLOR:Blue]Global Era is [ENDCOLOR] ".. Locale.Lookup(GameInfo.Eras[gameEra].Name), 6, ReportingStatusTypes.GOSSIP)
 	end
 end
 GameEvents.OnGameTurnStarted.Add(UpdateGameEra)
