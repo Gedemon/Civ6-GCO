@@ -953,8 +953,8 @@ function View(data)
 	end
 
 	if(data.CivIconName ~= nil) then
-		local darkerBackColor = DarkenLightenColor(m_primaryColor,(-85),238);
-		local brighterBackColor = DarkenLightenColor(m_primaryColor,90,255);
+		local darkerBackColor = UI.DarkenLightenColor(m_primaryColor,(-85),238);
+		local brighterBackColor = UI.DarkenLightenColor(m_primaryColor,90,255);
 		Controls.CircleBacking:SetColor(m_primaryColor);
 		Controls.CircleLighter:SetColor(brighterBackColor);
 		Controls.CircleDarker:SetColor(darkerBackColor);
@@ -1109,8 +1109,8 @@ function ViewTarget(data)
 	Controls.TargetUnitIconArea:SetHide(not isIconSet);
 	
 	if(data.CivIconName ~= nil) then
-		local darkerBackColor = DarkenLightenColor(m_primaryColor,(-85),238); 
-		local brighterBackColor = DarkenLightenColor(m_primaryColor,90,255);
+		local darkerBackColor = UI.DarkenLightenColor(m_primaryColor,(-85),238); 
+		local brighterBackColor = UI.DarkenLightenColor(m_primaryColor,90,255);
 		Controls.TargetCircleBacking:SetColor(m_primaryColor);
 		Controls.TargetCircleLighter:SetColor(brighterBackColor);
 		Controls.TargetCircleDarker:SetColor(darkerBackColor);

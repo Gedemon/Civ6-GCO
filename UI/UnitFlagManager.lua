@@ -88,6 +88,9 @@ g_UnitsReligious = UILens.CreateLensLayerHash("Units_Religious");
 g_UnitsCivilian = UILens.CreateLensLayerHash("Units_Civilian");
 g_UnitsArcheology = UILens.CreateLensLayerHash("Units_Archaeology");
 
+-- GCO <<<<<
+g_TradeRoute = UILens.CreateLensLayerHash("TradeRoutes")
+-- GCO >>>>>
 
 -- ===========================================================================
 --	VARIABLES
@@ -1060,8 +1063,8 @@ function UnitFlag.UpdateName( self )
 			if not unitData then print("WTF ??? unitData[unitkey] is nil in ShowSupplyLine for key = "..tostring(unitKey)) return end
 			if not unitData.SupplyLineCityKey then return end
 			--if bShownSupplyLine then return end
-			UILens.SetActive("TradeRoute")
-			UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )
+			UILens.SetActive(g_TradeRoute)
+			UILens.ClearLayerHexes( g_TradeRoute )
 			local pathPlots = pUnit:GetSupplyPathPlots()
 			if pathPlots then
 				local kVariations:table = {}
@@ -1072,8 +1075,8 @@ function UnitFlag.UpdateName( self )
 				local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
 				if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
 					table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )					
-					local color = RGBAValuesToABGRHex(0.25, 0.25, 0.25, 0.5) --RGBAValuesToABGRHex(1, 1, 1, 1)
-					UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, color )
+					local color = UI.GetColorValue(0.25, 0.25, 0.25, 0.5) --RGBAValuesToABGRHex(1, 1, 1, 1) --RGBAValuesToABGRHex
+					UILens.SetLayerHexesPath( g_TradeRoute, localPlayer, pathPlots, kVariations, color )
 					bShownSupplyLine = true
 				end
 			end
@@ -2227,7 +2230,7 @@ LuaEvents.UnitsCompositionUpdated.Add(OnUnitsCompositionUpdated)
 function OnMouseOut()
 	bShownSupplyLine = false
 	if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
-	if UILens.IsLensActive("TradeRoute") then
+	if UILens.IsLensActive(g_TradeRoute) then
 		-- Make sure to switch back to default lens
 		UILens.SetActive("Default");
 	end

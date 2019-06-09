@@ -247,7 +247,6 @@ function ShowDebug()
 	end
 end
 
-
 -----------------------------------------------------------------------------------------
 -- Plots Functions
 -----------------------------------------------------------------------------------------
@@ -362,6 +361,36 @@ function GetEraType(self)
 		return GameInfo.Eras[player:GetEra()].EraType
 	else
 		return GameInfo.Eras[GCO.GetGameEra()].EraType
+	end
+end
+
+function SetOwner(self, ownerID, cityID)
+	local ownerID	= ownerID or -1
+	local iX, iY	= self:GetX(), self:GetY()
+	
+	if not cityID and ownerID ~= -1 then
+		local city	= GCO.FindNearestPlayerCity( ownerID, iX, iY )
+		cityID		= city and city:GetID()
+	end
+	
+	if WorldBuilder.CityManager then
+		if ownerID ~= -1 then
+			if cityID then
+				WorldBuilder.CityManager():SetPlotOwner( iX, iY, false )
+				WorldBuilder.CityManager():SetPlotOwner( iX, iY, ownerID, cityID)
+			end
+		else
+			WorldBuilder.CityManager():SetPlotOwner( iX, iY, false )
+		end
+	else
+		if ownerID ~= -1 then
+			if cityID then
+				self:OldSetOwner(-1)
+				self:OldSetOwner(ownerID, cityID, true)
+			end
+		else
+			self:OldSetOwner(-1)
+		end
 	end
 end
 
@@ -3167,112 +3196,119 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	if not plot then plot = Map.GetPlot(1,1) end
 	local p = getmetatable(plot).__index
 	
-	p.IsPlotImprovementPillaged		= IsPlotImprovementPillaged -- not working ?
-	p.GetPlotAppeal					= GetPlotAppeal
+	if p.IsInitializedForGCO == nil then
+		p.OldSetOwner					= p.SetOwner
+		p.SetOwner						= SetOwner
 	
-	p.GetKey						= GetKey
-	p.GetData						= GetData
-	p.GetMigrationMap				= GetMigrationMap
-	p.GetMigrationMapAtTurn			= GetMigrationMapAtTurn
-	p.GetMigrationDataWith			= GetMigrationDataWith
-	p.GetMigrationDataAtTurn		= GetMigrationDataAtTurn
-	p.GetCache						= GetCache
-	p.GetCached						= GetCached
-	p.SetCached						= SetCached
-	p.GetValue						= GetValue
-	p.SetValue						= SetValue
-	p.GetCity						= GetCity
-	p.GetEraType					= GetEraType
-	p.GetPlotDiffusionValuesTo		= GetPlotDiffusionValuesTo
-	p.SetPlotDiffusionValuesTo		= SetPlotDiffusionValuesTo
-	p.UpdatePlotDiffusionValues		= UpdatePlotDiffusionValues
-	p.GetTotalCulture 				= GetTotalCulture
-	p.GetCulturePercent				= GetCulturePercent
-	p.GetCulturePercentTable		= GetCulturePercentTable
-	p.DoConquestCountDown 			= DoConquestCountDown
-	p.GetConquestCountDown 			= GetConquestCountDown
-	p.SetConquestCountDown 			= SetConquestCountDown
-	p.GetCultureTable				= GetCultureTable
-	p.GetCulture 					= GetCulture
-	p.SetCulture 					= SetCulture
-	p.ChangeCulture 				= ChangeCulture
-	p.GetPreviousCulture 			= GetPreviousCulture
-	p.SetPreviousCulture 			= SetPreviousCulture
-	p.GetHighestCulturePlayer 		= GetHighestCulturePlayer
-	p.GetTotalPreviousCulture		= GetTotalPreviousCulture	
-	p.GetCulturePer10000			= GetCulturePer10000
-	p.GetPreviousCulturePer10000	= GetPreviousCulturePer10000
-	p.IsLockedByWarForPlayer		= IsLockedByWarForPlayer
-	p.IsLockedByFortification		= IsLockedByFortification
-	p.IsLockedByCitadelForPlayer 	= IsLockedByCitadelForPlayer
-	p.GetPotentialOwner				= GetPotentialOwner
-	p.IsTerritorialWaterOf			= IsTerritorialWaterOf
-	p.GetTerritorialWaterOwner		= GetTerritorialWaterOwner
-	p.MatchCultureToPopulation		= MatchCultureToPopulation
-	p.UpdateCulture					= UpdateCulture
-	p.UpdateOwnership				= UpdateOwnership
-	p.DiffuseCulture				= DiffuseCulture
-	p.MigrationTo					= MigrationTo
-	--
-	p.GetAvailableEmployment		= GetAvailableEmployment
-	p.GetEmploymentValue			= GetEmploymentValue
-	p.GetEmploymentSize				= GetEmploymentSize
-	p.GetOutputPerYield				= GetOutputPerYield
-	p.GetRuralEmploymentPow			= GetRuralEmploymentPow
-	p.GetRuralEmploymentFactor		= GetRuralEmploymentFactor
-	p.GetMaxEmployment				= GetMaxEmployment
-	p.SetMaxEmployment				= SetMaxEmployment
-	p.GetEmployed					= GetEmployed
-	p.GetActivityFactor				= GetActivityFactor
-	--
-	p.GetSize						= GetSize
-	p.GetPopulation					= GetPopulation
-	p.GetMaxSize					= GetMaxSize
-	p.GetPreviousPopulation			= GetPreviousPopulation
-	p.ChangeUpperClass				= ChangeUpperClass
-	p.ChangeMiddleClass				= ChangeMiddleClass
-	p.ChangeLowerClass				= ChangeLowerClass
-	p.ChangeSlaveClass				= ChangeSlaveClass
-	p.GetUpperClass					= GetUpperClass
-	p.GetMiddleClass				= GetMiddleClass
-	p.GetLowerClass					= GetLowerClass
-	p.GetSlaveClass					= GetSlaveClass
-	p.GetPreviousUpperClass			= GetPreviousUpperClass
-	p.GetPreviousMiddleClass		= GetPreviousMiddleClass
-	p.GetPreviousLowerClass			= GetPreviousLowerClass
-	p.GetPreviousSlaveClass			= GetPreviousSlaveClass
-	p.GetPopulationClass			= GetPopulationClass
-	p.GetPreviousPopulationClass	= GetPreviousPopulationClass
-	p.ChangePopulationClass			= ChangePopulationClass
-	p.GetPopulationDeathRate		= GetPopulationDeathRate
-	p.GetBasePopulationDeathRate	= GetBasePopulationDeathRate
-	p.GetPopulationBirthRate		= GetPopulationBirthRate
-	p.GetBasePopulationBirthRate	= GetBasePopulationBirthRate
-	p.GetBirthRate					= GetBirthRate
-	p.GetDeathRate					= GetDeathRate
-	p.GetMigration					= GetMigration
-	--
-	p.GetMaxStock					= GetMaxStock
-	p.GetStock 						= GetStock
-	p.GetResources					= GetResources
-	p.GetPreviousStock				= GetPreviousStock
-	p.ChangeStock 					= ChangeStock
-	p.GetBaseVisibleResources		= GetBaseVisibleResources
-	--
-	p.IsEOfRiver					= IsEOfRiver
-	p.IsSEOfRiver					= IsSEOfRiver
-	p.IsSWOfRiver					= IsSWOfRiver
-	p.IsEdgeRiver					= IsEdgeRiver
-	p.GetNextClockRiverPlot			= GetNextClockRiverPlot
-	p.GetNextCounterClockRiverPlot	= GetNextCounterClockRiverPlot
-	p.GetRiverPath					= GetRiverPath
-	p.GetRiverPathFromEdge			= GetRiverPathFromEdge
-	--
-	p.GetPathToPlot					= GetPathToPlot
-	--
-	p.UpdateDataOnNewTurn			= UpdateDataOnNewTurn
-	p.SetMigrationValues			= SetMigrationValues
-	p.DoMigration					= DoMigration
+		p.IsPlotImprovementPillaged		= IsPlotImprovementPillaged -- not working ?
+		p.GetPlotAppeal					= GetPlotAppeal
+		
+		p.GetKey						= GetKey
+		p.GetData						= GetData
+		p.GetMigrationMap				= GetMigrationMap
+		p.GetMigrationMapAtTurn			= GetMigrationMapAtTurn
+		p.GetMigrationDataWith			= GetMigrationDataWith
+		p.GetMigrationDataAtTurn		= GetMigrationDataAtTurn
+		p.GetCache						= GetCache
+		p.GetCached						= GetCached
+		p.SetCached						= SetCached
+		p.GetValue						= GetValue
+		p.SetValue						= SetValue
+		p.GetCity						= GetCity
+		p.GetEraType					= GetEraType
+		p.GetPlotDiffusionValuesTo		= GetPlotDiffusionValuesTo
+		p.SetPlotDiffusionValuesTo		= SetPlotDiffusionValuesTo
+		p.UpdatePlotDiffusionValues		= UpdatePlotDiffusionValues
+		p.GetTotalCulture 				= GetTotalCulture
+		p.GetCulturePercent				= GetCulturePercent
+		p.GetCulturePercentTable		= GetCulturePercentTable
+		p.DoConquestCountDown 			= DoConquestCountDown
+		p.GetConquestCountDown 			= GetConquestCountDown
+		p.SetConquestCountDown 			= SetConquestCountDown
+		p.GetCultureTable				= GetCultureTable
+		p.GetCulture 					= GetCulture
+		p.SetCulture 					= SetCulture
+		p.ChangeCulture 				= ChangeCulture
+		p.GetPreviousCulture 			= GetPreviousCulture
+		p.SetPreviousCulture 			= SetPreviousCulture
+		p.GetHighestCulturePlayer 		= GetHighestCulturePlayer
+		p.GetTotalPreviousCulture		= GetTotalPreviousCulture	
+		p.GetCulturePer10000			= GetCulturePer10000
+		p.GetPreviousCulturePer10000	= GetPreviousCulturePer10000
+		p.IsLockedByWarForPlayer		= IsLockedByWarForPlayer
+		p.IsLockedByFortification		= IsLockedByFortification
+		p.IsLockedByCitadelForPlayer 	= IsLockedByCitadelForPlayer
+		p.GetPotentialOwner				= GetPotentialOwner
+		p.IsTerritorialWaterOf			= IsTerritorialWaterOf
+		p.GetTerritorialWaterOwner		= GetTerritorialWaterOwner
+		p.MatchCultureToPopulation		= MatchCultureToPopulation
+		p.UpdateCulture					= UpdateCulture
+		p.UpdateOwnership				= UpdateOwnership
+		p.DiffuseCulture				= DiffuseCulture
+		p.MigrationTo					= MigrationTo
+		--
+		p.GetAvailableEmployment		= GetAvailableEmployment
+		p.GetEmploymentValue			= GetEmploymentValue
+		p.GetEmploymentSize				= GetEmploymentSize
+		p.GetOutputPerYield				= GetOutputPerYield
+		p.GetRuralEmploymentPow			= GetRuralEmploymentPow
+		p.GetRuralEmploymentFactor		= GetRuralEmploymentFactor
+		p.GetMaxEmployment				= GetMaxEmployment
+		p.SetMaxEmployment				= SetMaxEmployment
+		p.GetEmployed					= GetEmployed
+		p.GetActivityFactor				= GetActivityFactor
+		--
+		p.GetSize						= GetSize
+		p.GetPopulation					= GetPopulation
+		p.GetMaxSize					= GetMaxSize
+		p.GetPreviousPopulation			= GetPreviousPopulation
+		p.ChangeUpperClass				= ChangeUpperClass
+		p.ChangeMiddleClass				= ChangeMiddleClass
+		p.ChangeLowerClass				= ChangeLowerClass
+		p.ChangeSlaveClass				= ChangeSlaveClass
+		p.GetUpperClass					= GetUpperClass
+		p.GetMiddleClass				= GetMiddleClass
+		p.GetLowerClass					= GetLowerClass
+		p.GetSlaveClass					= GetSlaveClass
+		p.GetPreviousUpperClass			= GetPreviousUpperClass
+		p.GetPreviousMiddleClass		= GetPreviousMiddleClass
+		p.GetPreviousLowerClass			= GetPreviousLowerClass
+		p.GetPreviousSlaveClass			= GetPreviousSlaveClass
+		p.GetPopulationClass			= GetPopulationClass
+		p.GetPreviousPopulationClass	= GetPreviousPopulationClass
+		p.ChangePopulationClass			= ChangePopulationClass
+		p.GetPopulationDeathRate		= GetPopulationDeathRate
+		p.GetBasePopulationDeathRate	= GetBasePopulationDeathRate
+		p.GetPopulationBirthRate		= GetPopulationBirthRate
+		p.GetBasePopulationBirthRate	= GetBasePopulationBirthRate
+		p.GetBirthRate					= GetBirthRate
+		p.GetDeathRate					= GetDeathRate
+		p.GetMigration					= GetMigration
+		--
+		p.GetMaxStock					= GetMaxStock
+		p.GetStock 						= GetStock
+		p.GetResources					= GetResources
+		p.GetPreviousStock				= GetPreviousStock
+		p.ChangeStock 					= ChangeStock
+		p.GetBaseVisibleResources		= GetBaseVisibleResources
+		--
+		p.IsEOfRiver					= IsEOfRiver
+		p.IsSEOfRiver					= IsSEOfRiver
+		p.IsSWOfRiver					= IsSWOfRiver
+		p.IsEdgeRiver					= IsEdgeRiver
+		p.GetNextClockRiverPlot			= GetNextClockRiverPlot
+		p.GetNextCounterClockRiverPlot	= GetNextCounterClockRiverPlot
+		p.GetRiverPath					= GetRiverPath
+		p.GetRiverPathFromEdge			= GetRiverPathFromEdge
+		--
+		p.GetPathToPlot					= GetPathToPlot
+		--
+		p.UpdateDataOnNewTurn			= UpdateDataOnNewTurn
+		p.SetMigrationValues			= SetMigrationValues
+		p.DoMigration					= DoMigration
+		--
+		p.IsInitializedForGCO			= true
+	end
 
 end
 

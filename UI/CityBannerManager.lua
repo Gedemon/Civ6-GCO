@@ -31,6 +31,7 @@ local bShownSupplyLine 			= false
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
 local sCurrentResourceTooltip	= nil
 local currentBannerCity			= nil
+local m_TradeRoute 				= UILens.CreateLensLayerHash("TradeRoutes")
 
 local resourceToolTipTab	= 1 --"LOC_CITYBANNER_TOOLTIP_STOCK_TAB"
 local resourceToolTipMode	= 2 --"LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD"
@@ -740,10 +741,10 @@ function CityBanner.SetColor( self : CityBanner )
 	--local backColor, frontColor  = UI.GetPlayerColors( self.m_Player:GetID() );
 	local backColor, frontColor = GCO.GetPlayerColors( self.m_Player:GetID() );
 	-- GCO >>>>>
-	local darkerBackColor = DarkenLightenColor(backColor,(-85),238);
-	local brighterBackColor = DarkenLightenColor(backColor,90,255);
+	local darkerBackColor = UI.DarkenLightenColor(backColor,(-85),238);
+	local brighterBackColor = UI.DarkenLightenColor(backColor,90,255);
 	if (self.m_IsSelected == false or self.m_IsSelected == nil) then
-		backColor = DarkenLightenColor(backColor, 0, 80);
+		backColor = UI.DarkenLightenColor(backColor, 0, 80);
 	end
 
 	if (self.m_Type == BANNERTYPE_CITY_CENTER) then
@@ -1814,16 +1815,16 @@ function CityBanner.UpdateName( self : CityBanner )
 						if localPlayer == -1 then localPlayer = 0 end
 						local localPlayerVis:table = PlayersVisibility[localPlayer]
 									
-						local transferColor 	= RGBAValuesToABGRHex(0.3, 0.3, 0.3, 0.75) --RGBAValuesToABGRHex(1, 1, 1, 1)
-						local foreignTradeColor = RGBAValuesToABGRHex(1, 1, 1, 0.75)
-						local limitedTradeColor = RGBAValuesToABGRHex(1, 0.15, 0, 0.75)
-						local neutralTradeColor = RGBAValuesToABGRHex(1, 1, 1, 0.75)
-						local friendTradeColor 	= RGBAValuesToABGRHex(0.3, 1, 0.3, 0.75)
-						local alliedTradeColor 	= RGBAValuesToABGRHex(0, 0.25, 1, 0.75)
+						local transferColor 	= UI.GetColorValue(0.3, 0.3, 0.3, 0.75) --RGBAValuesToABGRHex(1, 1, 1, 1)
+						local foreignTradeColor = UI.GetColorValue(1, 1, 1, 0.75)
+						local limitedTradeColor = UI.GetColorValue(1, 0.15, 0, 0.75)
+						local neutralTradeColor = UI.GetColorValue(1, 1, 1, 0.75)
+						local friendTradeColor 	= UI.GetColorValue(0.3, 1, 0.3, 0.75)
+						local alliedTradeColor 	= UI.GetColorValue(0, 0.25, 1, 0.75)
 						
 						if not (linkedCities or exportCities) then return end
-						UILens.SetActive("TradeRoute")
-						UILens.ClearLayerHexes( LensLayers.TRADE_ROUTE )
+						UILens.SetActive(m_TradeRoute)
+						UILens.ClearLayerHexes( m_TradeRoute )
 						
 						local IsAllowedRouteType = { -- route types used in RouteConnection.lua
 							["Land"] = true, ["Road"] = true, ["Railroad"] = true, ["Coastal"] = true, ["Ocean"] = true, ["Submarine"] = true, ["River"] = true
@@ -1858,7 +1859,7 @@ function CityBanner.UpdateName( self : CityBanner )
 										local destPlot = Map.GetPlotByIndex(pathPlots[lastElement])
 										if Automation.IsActive() or (localPlayerVis and localPlayerVis:IsRevealed(destPlot:GetX(), destPlot:GetY())) then
 											table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-											UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, transferColor )
+											UILens.SetLayerHexesPath( m_TradeRoute, localPlayer, pathPlots, kVariations, transferColor )
 											bShownSupplyLine = true
 										end
 									end
@@ -1900,7 +1901,7 @@ function CityBanner.UpdateName( self : CityBanner )
 											if data.TradeRouteLevel == TradeLevelType.Friend 	then tradeColor = friendTradeColor end
 											if data.TradeRouteLevel == TradeLevelType.Allied 	then tradeColor = alliedTradeColor end						
 											table.insert(kVariations, {"TradeRoute_Destination", pathPlots[lastElement]} )
-											UILens.SetLayerHexesPath( LensLayers.TRADE_ROUTE, localPlayer, pathPlots, kVariations, tradeColor )
+											UILens.SetLayerHexesPath( m_TradeRoute, localPlayer, pathPlots, kVariations, tradeColor )
 											bShownSupplyLine = true
 										end
 									end
@@ -1913,7 +1914,7 @@ function CityBanner.UpdateName( self : CityBanner )
 					function OnMouseOut()
 						bShownSupplyLine = false
 						if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
-						if UILens.IsLensActive("TradeRoute") then
+						if UILens.IsLensActive(m_TradeRoute) then
 							-- Make sure to switch back to default lens
 							UILens.SetActive("Default");
 						end

@@ -255,7 +255,6 @@ local m_kRowsIM			:table		= InstanceManager:new( "RowInstance",		"Top", Controls
 
 --	Turn on the tooltips
 function TooltipOn(parameters)
-Dline("Calling custom tooltip")
 	m_isOff = false;
 	LuaEvents.Tutorial_PlotToolTipsOff()
 
@@ -263,7 +262,6 @@ Dline("Calling custom tooltip")
 	if not m_isActive then		
 	--	return;
 	end
-Dline()
 	
 	--parameters.Header4 = "[ICON_INDENT]           [ICON_TradingPost]       [ICON_TradeRoute]       [ICON_Unit]     [ICON_UP_DOWN]  [ICON_Gold]"
 	
@@ -276,7 +274,6 @@ Dline()
 			table.insert(labelList, key)
 		end
 	end
-Dline()
 	
 	for _, key in ipairs(labelList) do
 		local text	= parameters[key]
@@ -286,14 +283,12 @@ Dline()
 			Controls[key]:SetText("")
 		end
 	end
-Dline()
 	
 	local maxWidth = 0
 	for _, key in ipairs(labelList) do
 		local width	= Controls[key]:GetSizeX()
 		maxWidth	= math.max(maxWidth, width)
 	end
-Dline()
 	
 	-- Special case for condensed table
 	if parameters.ListSmall then 
@@ -303,7 +298,6 @@ Dline()
 	else
 		Controls.ListSmall:SetText("")
 	end
-Dline()
 	Controls.InfoStack:CalculateSize()
 	local stackHeight = Controls.InfoStack:GetSizeY();
 	Controls.TooltipInfo:SetSizeVal(maxWidth + SIZE_WIDTH_MARGIN, stackHeight + SIZE_HEIGHT_PADDING)
@@ -314,14 +308,12 @@ Dline()
 	if m_isUsingMouse then
 		RealizeNewPlotTooltipMouse();
 	end
-Dline()
 
 	--Controls.TooltipGCO:ReprocessAnchoring()
-	
+	Controls.TooltipGCO:ChangeParent(ContextPtr:LookUpControl("/InGame/CityBannerManager")) -- Why is this now needed since the GS patch ?
 	Controls.TooltipGCO:SetHide(false);
 	Controls.TooltipGCO:SetToBeginning();
 	Controls.TooltipGCO:Play();
-Dline()
 end
 LuaEvents.ShowCustomToolTip.Add( TooltipOn )
 
@@ -342,15 +334,12 @@ function RealizePositionAt( x:number, y:number )
 	end
 	m_screenWidth, m_screenHeight 	= UIManager:GetScreenSizeVal()
 	m_offsetX, m_offsetY 			= OFFSET_SHOW_AT_MOUSE_X, OFFSET_SHOW_AT_MOUSE_Y
-Dline(x, y, m_offsetX, m_offsetY, UserConfiguration.GetValue("PlotToolTipFollowsMouse"))
+	
 	if UserConfiguration.GetValue("PlotToolTipFollowsMouse") == 1 then
-Dline()
 		-- If tool tip manager is showing a *real* tooltip, don't show this plot tooltip to avoid potential overlap.
 		if TTManager:IsTooltipShowing() then
-Dline()
 			--ClearView();
 		else
-Dline()
 			local offsetx:number = x + m_offsetX;
 			local offsety:number = m_screenHeight - y - m_offsetY;
 
@@ -368,7 +357,6 @@ Dline()
 			end
 
 			Controls.TooltipGCO:SetOffsetVal( offsetx, offsety ); -- Subtract from screen height, as default anchor is "bottom"
-Dline()
 		end
 	end
 	--]]
