@@ -1149,66 +1149,70 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 	if not player then player = Players[0] end
 	local p = getmetatable(player).__index
 	
-	p.GetKey									= GetKey
-	p.GetData									= GetData
-	p.GetConfig									= GetConfig
-	p.GetCache									= GetCache
-	p.GetCached									= GetCached
-	p.SetCached									= SetCached
-	p.GetValue									= GetValue
-	p.SetValue									= SetValue
-	p.InitializeData							= InitializeData
-	p.Define									= Define
-	--
-	p.ProceedTransaction						= ProceedTransaction
-	p.RecordTransaction							= RecordTransaction
-	p.GetTransactionType						= GetTransactionType
-	p.GetTransactionBalance						= GetTransactionBalance
-	p.UpdateDebt								= UpdateDebt
-	--
-	p.IsResourceVisible							= IsResourceVisible
-	p.HasPolicyActive							= HasPolicyActive
-	p.GetActivePolicies							= GetActivePolicies
-	p.GetCurrentGovernment						= GetCurrentGovernment
-	--
-	p.IsObsoleteEquipment						= IsObsoleteEquipment
-	p.CanTrain									= CanTrain
-	--
-	p.SetMilitaryOrganizationLevel				= SetMilitaryOrganizationLevel
-	p.GetMilitaryOrganizationLevel				= GetMilitaryOrganizationLevel
-	p.UpdateMilitaryOrganizationLevel			= UpdateMilitaryOrganizationLevel
-	p.GetConscriptOrganizationLevel				= GetConscriptOrganizationLevel
-	--
-	p.IsKnownTech								= IsKnownTech
-	p.SetKnownTech								= SetKnownTech
-	--
-	p.UpdateUnitsFlags							= UpdateUnitsFlags
-	p.UpdateCitiesBanners						= UpdateCitiesBanners
-	--
-	p.SetCurrentTurn							= SetCurrentTurn
-	p.HasStartedTurn							= HasStartedTurn
-	p.UpdateDataOnNewTurn						= UpdateDataOnNewTurn
-	p.UpdateDataOnLoad							= UpdateDataOnLoad
-	--
-	--p.UpdatePopulationNeeds						= UpdatePopulationNeeds
-	p.GetPopulationNeeds						= GetPopulationNeeds
-	p.GetResourcesNeededForPopulations			= GetResourcesNeededForPopulations
-	p.GetResourcesConsumptionRatioForPopulation = GetResourcesConsumptionRatioForPopulation
-	--
-	p.IsAtWar									= IsAtWar
-	p.CanDeclareWarOn							= CanDeclareWarOn
-	--
-	p.GetTotalPopulation						= GetTotalPopulation
-	p.GetPersonnelInCities						= GetPersonnelInCities
-	p.GetPersonnelInUnits						= GetPersonnelInUnits
-	p.GetLogisticPersonnelInActiveDuty			= GetLogisticPersonnelInActiveDuty
-	p.GetLogisticCost							= GetLogisticCost
-	p.GetLogisticSupport						= GetLogisticSupport
-	p.GetMaxDraftedPercentage					= GetMaxDraftedPercentage
-	p.GetDraftedPercentage						= GetDraftedPercentage
-	p.GetDraftEfficiencyPercent					= GetDraftEfficiencyPercent
-	p.GetArmyPersonnelPopulationRatio			= GetArmyPersonnelPopulationRatio
+	if p.IsInitializedForGCO == nil then
 	
+		p.GetKey									= GetKey
+		p.GetData									= GetData
+		p.GetConfig									= GetConfig
+		p.GetCache									= GetCache
+		p.GetCached									= GetCached
+		p.SetCached									= SetCached
+		p.GetValue									= GetValue
+		p.SetValue									= SetValue
+		p.InitializeData							= InitializeData
+		p.Define									= Define
+		--
+		p.ProceedTransaction						= ProceedTransaction
+		p.RecordTransaction							= RecordTransaction
+		p.GetTransactionType						= GetTransactionType
+		p.GetTransactionBalance						= GetTransactionBalance
+		p.UpdateDebt								= UpdateDebt
+		--
+		p.IsResourceVisible							= IsResourceVisible
+		p.HasPolicyActive							= HasPolicyActive
+		p.GetActivePolicies							= GetActivePolicies
+		p.GetCurrentGovernment						= GetCurrentGovernment
+		--
+		p.IsObsoleteEquipment						= IsObsoleteEquipment
+		p.CanTrain									= CanTrain
+		--
+		p.SetMilitaryOrganizationLevel				= SetMilitaryOrganizationLevel
+		p.GetMilitaryOrganizationLevel				= GetMilitaryOrganizationLevel
+		p.UpdateMilitaryOrganizationLevel			= UpdateMilitaryOrganizationLevel
+		p.GetConscriptOrganizationLevel				= GetConscriptOrganizationLevel
+		--
+		p.IsKnownTech								= IsKnownTech
+		p.SetKnownTech								= SetKnownTech
+		--
+		p.UpdateUnitsFlags							= UpdateUnitsFlags
+		p.UpdateCitiesBanners						= UpdateCitiesBanners
+		--
+		p.SetCurrentTurn							= SetCurrentTurn
+		p.HasStartedTurn							= HasStartedTurn
+		p.UpdateDataOnNewTurn						= UpdateDataOnNewTurn
+		p.UpdateDataOnLoad							= UpdateDataOnLoad
+		--
+		--p.UpdatePopulationNeeds						= UpdatePopulationNeeds
+		p.GetPopulationNeeds						= GetPopulationNeeds
+		p.GetResourcesNeededForPopulations			= GetResourcesNeededForPopulations
+		p.GetResourcesConsumptionRatioForPopulation = GetResourcesConsumptionRatioForPopulation
+		--
+		p.IsAtWar									= IsAtWar
+		p.CanDeclareWarOn							= CanDeclareWarOn
+		--
+		p.GetTotalPopulation						= GetTotalPopulation
+		p.GetPersonnelInCities						= GetPersonnelInCities
+		p.GetPersonnelInUnits						= GetPersonnelInUnits
+		p.GetLogisticPersonnelInActiveDuty			= GetLogisticPersonnelInActiveDuty
+		p.GetLogisticCost							= GetLogisticCost
+		p.GetLogisticSupport						= GetLogisticSupport
+		p.GetMaxDraftedPercentage					= GetMaxDraftedPercentage
+		p.GetDraftedPercentage						= GetDraftedPercentage
+		p.GetDraftEfficiencyPercent					= GetDraftEfficiencyPercent
+		p.GetArmyPersonnelPopulationRatio			= GetArmyPersonnelPopulationRatio
+		--
+		p.IsInitializedForGCO			= true
+	end
 end
 
 

@@ -251,6 +251,7 @@
 	</FrontEndActions>
 
 	<Files>
+		
 		<File>custom.sql</File>
 		<File>custom.xml</File>
 		<File>customText.xml</File>

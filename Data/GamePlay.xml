@@ -67,8 +67,8 @@
 	
 	<Types> 
 		<!---->
-		<Row Type="ERA_ARMS_RACE"	Kind="KIND_ERA"/>
-		<Row Type="ERA_FUTURE"		Kind="KIND_ERA"/>
+		<Replace Type="ERA_ARMS_RACE"	Kind="KIND_ERA"/>
+		<Replace Type="ERA_FUTURE"		Kind="KIND_ERA"/>
 		<!---->
 	</Types>
 	
@@ -81,8 +81,8 @@
 			<Where EraType="ERA_ATOMIC" />
 			<Set ChronologyIndex="8" />
 		</Update>
-		<Row EraType="ERA_ARMS_RACE" 	Name="LOC_ERA_ARMS_RACE_NAME" 	Description="LOC_ERA_ARMS_RACE_DESCRIPTION" ChronologyIndex="7"		WarmongerPoints="24" GreatPersonBaseCost="860"	EraTechBackgroundTexture="TechTree_BG_ARMRACE" 		EraCivicBackgroundTexture="TechTree_BG_ARMRACE" 	WarmongerLevelDescription="LOC_WARMONGER_LEVEL_EGREGIOUS" EmbarkedUnitStrength="53"/>
-		<Row EraType="ERA_FUTURE" 		Name="LOC_ERA_FUTURE_NAME" 		Description="LOC_ERA_FUTURE_DESCRIPTION" 	ChronologyIndex="10"	WarmongerPoints="24" GreatPersonBaseCost="1400"	EraTechBackgroundTexture="TechTree_BGInformation" 	EraCivicBackgroundTexture="TechTree_BGInformation" 	WarmongerLevelDescription="LOC_WARMONGER_LEVEL_EGREGIOUS" EmbarkedUnitStrength="58"/>
+		<Replace EraType="ERA_ARMS_RACE" 	Name="LOC_ERA_ARMS_RACE_NAME" 	Description="LOC_ERA_ARMS_RACE_DESCRIPTION" ChronologyIndex="7"		WarmongerPoints="24" GreatPersonBaseCost="860"	EraTechBackgroundTexture="TechTree_BG_ARMRACE" 		EraCivicBackgroundTexture="TechTree_BG_ARMRACE" 	WarmongerLevelDescription="LOC_WARMONGER_LEVEL_EGREGIOUS" EmbarkedUnitStrength="53"/>
+		<Replace EraType="ERA_FUTURE" 		Name="LOC_ERA_FUTURE_NAME" 		Description="LOC_ERA_FUTURE_DESCRIPTION" 	ChronologyIndex="10"	WarmongerPoints="24" GreatPersonBaseCost="1400"	EraTechBackgroundTexture="TechTree_BGInformation" 	EraCivicBackgroundTexture="TechTree_BGInformation" 	WarmongerLevelDescription="LOC_WARMONGER_LEVEL_EGREGIOUS" EmbarkedUnitStrength="58"/>
 	</Eras>
 	
 	<!-- 		FEATURES
@@ -501,10 +501,10 @@
 	
 	
 	<Types> <!-- New Promotion Classes -->
-		<Row Type="PROMOTION_CLASS_SKIRMISHER" 	Kind="KIND_PROMOTION_CLASS"/>
-		<Row Type="PROMOTION_CLASS_CONSCRIPT" 	Kind="KIND_PROMOTION_CLASS"/>
-		<Row Type="PROMOTION_CLASS_CAVALRY" 	Kind="KIND_PROMOTION_CLASS"/>
-		<Row Type="PROMOTION_CLASS_GCO" 		Kind="KIND_PROMOTION_CLASS"/> <!-- Lua handled promotions -->
+		<Replace Type="PROMOTION_CLASS_SKIRMISHER" 	Kind="KIND_PROMOTION_CLASS"/>
+		<Replace Type="PROMOTION_CLASS_CONSCRIPT" 	Kind="KIND_PROMOTION_CLASS"/>
+		<Replace Type="PROMOTION_CLASS_CAVALRY" 	Kind="KIND_PROMOTION_CLASS"/>
+		<Replace Type="PROMOTION_CLASS_GCO" 		Kind="KIND_PROMOTION_CLASS"/> <!-- Lua handled promotions -->
 	</Types>
 	
 	<Types> <!-- New Promotions -->
@@ -528,10 +528,10 @@
 	</Types>
 	
 	<UnitPromotionClasses>
-		<Row PromotionClassType="PROMOTION_CLASS_SKIRMISHER" 	Name="LOC_PROMOTION_CLASS_SKIRMISHER_NAME" />
-		<Row PromotionClassType="PROMOTION_CLASS_CONSCRIPT" 	Name="LOC_PROMOTION_CLASS_CONSCRIPT_NAME" />
-		<Row PromotionClassType="PROMOTION_CLASS_CAVALRY" 		Name="LOC_PROMOTION_CLASS_CAVALRY_NAME" />
-		<Row PromotionClassType="PROMOTION_CLASS_GCO" 			Name="LOC_PROMOTION_CLASS_GCO_NAME" />
+		<Replace PromotionClassType="PROMOTION_CLASS_SKIRMISHER" 	Name="LOC_PROMOTION_CLASS_SKIRMISHER_NAME" />
+		<Replace PromotionClassType="PROMOTION_CLASS_CONSCRIPT" 	Name="LOC_PROMOTION_CLASS_CONSCRIPT_NAME" />
+		<Replace PromotionClassType="PROMOTION_CLASS_CAVALRY" 		Name="LOC_PROMOTION_CLASS_CAVALRY_NAME" />
+		<Replace PromotionClassType="PROMOTION_CLASS_GCO" 			Name="LOC_PROMOTION_CLASS_GCO_NAME" />
 	</UnitPromotionClasses>	
 	
 	<UnitPromotions>

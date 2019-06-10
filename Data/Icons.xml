@@ -42,6 +42,19 @@
 		<Row Name="ATLAS_TECH_GCO"					IconSize="30"	IconsPerRow="8" IconsPerColumn="4" Filename="TechGCO_30.dds"/>
 		
 		<Row Name="ICON_ATLAS_CIVICS"				IconSize="30"	IconsPerRow="8" IconsPerColumn="8" Filename="Civics30.dds"/>
+		
+		<!-- Warfare Expanded -->
+        <Row Name="ICON_ATLAS_MISSING_UNITS" 			IconSize="32"	IconsPerRow="10" IconsPerColumn="5"		Filename="MissingUnitsFlags_32"/>
+        <Row Name="ICON_ATLAS_MISSING_UNITS" 			IconSize="38"	IconsPerRow="10" IconsPerColumn="5"		Filename="MissingUnitsFlags_38"/>
+        <Row Name="ICON_ATLAS_MISSING_UNITS" 			IconSize="50"	IconsPerRow="10" IconsPerColumn="5"		Filename="MissingUnitsFlags_50"/>
+        <Row Name="ICON_ATLAS_MISSING_UNITS" 			IconSize="80"	IconsPerRow="10" IconsPerColumn="5"		Filename="MissingUnitsFlags_80"/>
+        <Row Name="ICON_ATLAS_MISSING_UNITS" 			IconSize="256"	IconsPerRow="10" IconsPerColumn="5"		Filename="MissingUnitsFlags_256"/>
+		<Row Name="ICON_ATLAS_MISSING_UNITS_PORTRAITS"	IconSize="256"	IconsPerRow="10" IconsPerColumn="10"	Filename="MissingUnitsPortraits_256"/>
+		<Row Name="ICON_ATLAS_MISSING_UNITS_PORTRAITS"	IconSize="200"	IconsPerRow="10" IconsPerColumn="10"	Filename="MissingUnitsPortraits_200"/>
+		<Row Name="ICON_ATLAS_MISSING_UNITS_PORTRAITS"	IconSize="95"	IconsPerRow="10" IconsPerColumn="10" 	Filename="MissingUnitsPortraits_95"/>
+		<Row Name="ICON_ATLAS_MISSING_UNITS_PORTRAITS"	IconSize="70"	IconsPerRow="10" IconsPerColumn="10" 	Filename="MissingUnitsPortraits_70"/>
+		<Row Name="ICON_ATLAS_MISSING_UNITS_PORTRAITS"	IconSize="50"	IconsPerRow="10" IconsPerColumn="10" 	Filename="MissingUnitsPortraits_50"/>
+		<Row Name="ICON_ATLAS_MISSING_UNITS_PORTRAITS"	IconSize="38"	IconsPerRow="10" IconsPerColumn="10" 	Filename="MissingUnitsPortraits_38"/>
 	   
    </IconTextureAtlases>
    

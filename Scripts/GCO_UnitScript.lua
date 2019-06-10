@@ -6255,136 +6255,138 @@ end
 function AttachUnitFunctions(unit)
 	if unit then -- unit could have been killed during initialization by other scripts (removing CS, TSL enforcement, ...)
 		local u = getmetatable(unit).__index
-		
-		u.IsInitialized							= IsInitialized
-		u.GetKey								= GetKey
-		u.UpdateFrontLineData					= UpdateFrontLineData
-		u.GetData								= GetData
-		u.GetCache								= GetCache
-		u.GetCached								= GetCached
-		u.SetCached								= SetCached
-		u.GetValue								= GetValue
-		u.SetValue								= SetValue
-		u.IsCombat								= IsCombat
-		u.CanGetFullReinforcement				= CanGetFullReinforcement
-		u.GetLogisticCost						= GetLogisticCost
-		u.IsDisbanding							= IsDisbanding
-		u.Disband								= Disband
-		--
-		u.RecordTransaction						= RecordTransaction
-		u.GetTransactionValue					= GetTransactionValue
-		--		
-		u.GetPromotionClassID					= GetPromotionClassID
-		u.GetMilitaryOrganization				= GetMilitaryOrganization
-		u.GetOrganizationLevel					= GetOrganizationLevel
-		u.SetOrganizationLevel					= SetOrganizationLevel
-		u.SetOrganizationPromotions				= SetOrganizationPromotions
-		--
-		u.ChangeStock							= ChangeStock
-		u.GetBaseFoodStock						= GetBaseFoodStock
-		u.GetFoodConsumption 					= GetFoodConsumption
-		u.GetFoodConsumptionRatio				= GetFoodConsumptionRatio
-		u.GetFuelConsumption 					= GetFuelConsumption
-		u.GetMaxFrontLinePersonnel				= GetMaxFrontLinePersonnel
-		u.GetMaxFrontLineMateriel				= GetMaxFrontLineMateriel
-		u.GetMaxFoodStock						= GetMaxFoodStock
-		u.GetMaxMedicineStock					= GetMaxMedicineStock
-		u.GetNumResourceNeeded					= GetNumResourceNeeded
-		u.GetRequirements						= GetRequirements
-		u.GetStock								= GetStock
-		u.GetAllSurplus							= GetAllSurplus
-		--
-		u.GetComponent							= GetComponent
-		u.SetComponent							= SetComponent
-		u.ChangeComponent						= ChangeComponent
-		u.GetComponentVariation					= GetComponentVariation
-		--
-		u.GetMaxPersonnelReserve				= GetMaxPersonnelReserve
-		u.GetFrontLinePersonnel					= GetFrontLinePersonnel
-		u.GetMaxPersonnel						= GetMaxPersonnel
-		u.GetTotalPersonnel						= GetTotalPersonnel
-		--
-		u.GetMoraleFromFood						= GetMoraleFromFood
-		u.GetMoraleFromLastCombat				= GetMoraleFromLastCombat
-		u.GetMoraleFromWounded					= GetMoraleFromWounded
-		u.GetMoraleFromHP						= GetMoraleFromHP
-		u.GetMoraleFromHome						= GetMoraleFromHome
-		--
-		u.GetSupplyPathPlots 					= GetSupplyPathPlots
-		u.SetSupplyLine							= SetSupplyLine
-		u.GetSupplyLineEfficiency				= GetSupplyLineEfficiency
-		u.GetSupplyLineLengthFactor				= GetSupplyLineLengthFactor
-		--
-		u.Heal									= Heal
-		u.GetHP 								= GetHP
-		u.SetHP 								= SetHP
-		u.GetHitPointTable						= GetHitPointTable
-		u.GetPersonnelAtHP						= GetPersonnelAtHP
-		u.GetEquipmentAtHP						= GetEquipmentAtHP
-		u.GetMaxPersonnelPercentFromReserve 	= GetMaxPersonnelPercentFromReserve
-		u.GetMaxMaterielPercentFromReserve		= GetMaxMaterielPercentFromReserve
-		u.GetMaxHealingPerTurn					= GetMaxHealingPerTurn
-		--
-		u.GetPropertyPercent					= GetPropertyPercent
-		--
-		u.InitializeEquipment					= InitializeEquipment
-		u.IsSpecificEquipment					= IsSpecificEquipment
-		u.IsEquipment							= IsEquipment
-		u.GetEquipmentClass						= GetEquipmentClass
-		u.GetSpecificEquipmentClasses			= GetSpecificEquipmentClasses
-		u.GetEquipmentClasses					= GetEquipmentClasses
-		u.GetSpecificRequiredEquipmentClasses	= GetSpecificRequiredEquipmentClasses
-		u.GetRequiredEquipmentClasses			= GetRequiredEquipmentClasses
-		u.IsRequiringEquipmentClass				= IsRequiringEquipmentClass
-		u.GetMaxEquipmentFrontLine				= GetMaxEquipmentFrontLine
-		u.GetMaxCurrentEquipmentFrontLine		= GetMaxCurrentEquipmentFrontLine
-		u.GetMaxEquipmentReserve				= GetMaxEquipmentReserve
-		u.GetMaxTotalEquipment					= GetMaxTotalEquipment
-		u.GetEquipmentClassFrontLine			= GetEquipmentClassFrontLine
-		u.GetEquipmentClassReserve				= GetEquipmentClassReserve
-		u.GetEquipmentClassReserveNeed			= GetEquipmentClassReserveNeed
-		u.GetEquipmentClassFrontLineNeed 		= GetEquipmentClassFrontLineNeed
-		u.GetReserveEquipment					= GetReserveEquipment
-		u.GetFrontLineEquipment					= GetFrontLineEquipment
-		u.GetEquipmentReserveNeed				= GetEquipmentReserveNeed
-		u.GetEquipmentFrontLineNeed				= GetEquipmentFrontLineNeed
-		u.GetTotalEquipmentNeed					= GetTotalEquipmentNeed
-		u.GetFullEquipmentList					= GetFullEquipmentList
-		u.ChangeReserveEquipment				= ChangeReserveEquipment
-		u.ChangeFrontLineEquipment				= ChangeFrontLineEquipment
-		u.IsWaitingForEquipment					= IsWaitingForEquipment
-		u.GetTypesFromEquipmentList				= GetTypesFromEquipmentList
-		u.DoInternalEquipmentTransfer			= DoInternalEquipmentTransfer
-		--
-		u.UpdateDataOnNewTurn					= UpdateDataOnNewTurn
-		u.DoFood 								= DoFood
-		u.DoCollect								= DoCollect
-		u.DoMorale 								= DoMorale
-		u.DoFuel 								= DoFuel
-		u.DoTurn 								= DoTurn
-		u.DoExchange							= DoExchange
-		u.CheckForActiveTurnsLeft				= CheckForActiveTurnsLeft
-		u.UpdateHealth							= UpdateHealth
-		u.SetHealthValues						= SetHealthValues
-		--
-		
-		-- flag strings
-		u.GetFoodStockString					= GetFoodStockString
-		u.GetFoodConsumptionString				= GetFoodConsumptionString
-		u.GetMoraleString						= GetMoraleString
-		u.GetFuelStockString 					= GetFuelStockString
-		u.GetFuelConsumptionString 				= GetFuelConsumptionString
-		u.GetFrontLineEquipmentString			= GetFrontLineEquipmentString
-		u.GetReserveEquipmentString				= GetReserveEquipmentString
-		u.GetResourcesStockString				= GetResourcesStockString
-		u.GetMilitaryFormationSizeString		= GetMilitaryFormationSizeString
-		u.GetMilitaryFormationTypeName			= GetMilitaryFormationTypeName
-		u.GetUnitCompositionToolTip				= GetUnitCompositionToolTip
-		u.GetHealthString						= GetHealthString
-		--
-		u.SetName								= SetName
-		
-		u.HasAttachedFunctions					= true
+	
+		if u.IsInitializedForGCO == nil then	
+			u.IsInitialized							= IsInitialized
+			u.GetKey								= GetKey
+			u.UpdateFrontLineData					= UpdateFrontLineData
+			u.GetData								= GetData
+			u.GetCache								= GetCache
+			u.GetCached								= GetCached
+			u.SetCached								= SetCached
+			u.GetValue								= GetValue
+			u.SetValue								= SetValue
+			u.IsCombat								= IsCombat
+			u.CanGetFullReinforcement				= CanGetFullReinforcement
+			u.GetLogisticCost						= GetLogisticCost
+			u.IsDisbanding							= IsDisbanding
+			u.Disband								= Disband
+			--
+			u.RecordTransaction						= RecordTransaction
+			u.GetTransactionValue					= GetTransactionValue
+			--		
+			u.GetPromotionClassID					= GetPromotionClassID
+			u.GetMilitaryOrganization				= GetMilitaryOrganization
+			u.GetOrganizationLevel					= GetOrganizationLevel
+			u.SetOrganizationLevel					= SetOrganizationLevel
+			u.SetOrganizationPromotions				= SetOrganizationPromotions
+			--
+			u.ChangeStock							= ChangeStock
+			u.GetBaseFoodStock						= GetBaseFoodStock
+			u.GetFoodConsumption 					= GetFoodConsumption
+			u.GetFoodConsumptionRatio				= GetFoodConsumptionRatio
+			u.GetFuelConsumption 					= GetFuelConsumption
+			u.GetMaxFrontLinePersonnel				= GetMaxFrontLinePersonnel
+			u.GetMaxFrontLineMateriel				= GetMaxFrontLineMateriel
+			u.GetMaxFoodStock						= GetMaxFoodStock
+			u.GetMaxMedicineStock					= GetMaxMedicineStock
+			u.GetNumResourceNeeded					= GetNumResourceNeeded
+			u.GetRequirements						= GetRequirements
+			u.GetStock								= GetStock
+			u.GetAllSurplus							= GetAllSurplus
+			--
+			u.GetComponent							= GetComponent
+			u.SetComponent							= SetComponent
+			u.ChangeComponent						= ChangeComponent
+			u.GetComponentVariation					= GetComponentVariation
+			--
+			u.GetMaxPersonnelReserve				= GetMaxPersonnelReserve
+			u.GetFrontLinePersonnel					= GetFrontLinePersonnel
+			u.GetMaxPersonnel						= GetMaxPersonnel
+			u.GetTotalPersonnel						= GetTotalPersonnel
+			--
+			u.GetMoraleFromFood						= GetMoraleFromFood
+			u.GetMoraleFromLastCombat				= GetMoraleFromLastCombat
+			u.GetMoraleFromWounded					= GetMoraleFromWounded
+			u.GetMoraleFromHP						= GetMoraleFromHP
+			u.GetMoraleFromHome						= GetMoraleFromHome
+			--
+			u.GetSupplyPathPlots 					= GetSupplyPathPlots
+			u.SetSupplyLine							= SetSupplyLine
+			u.GetSupplyLineEfficiency				= GetSupplyLineEfficiency
+			u.GetSupplyLineLengthFactor				= GetSupplyLineLengthFactor
+			--
+			u.Heal									= Heal
+			u.GetHP 								= GetHP
+			u.SetHP 								= SetHP
+			u.GetHitPointTable						= GetHitPointTable
+			u.GetPersonnelAtHP						= GetPersonnelAtHP
+			u.GetEquipmentAtHP						= GetEquipmentAtHP
+			u.GetMaxPersonnelPercentFromReserve 	= GetMaxPersonnelPercentFromReserve
+			u.GetMaxMaterielPercentFromReserve		= GetMaxMaterielPercentFromReserve
+			u.GetMaxHealingPerTurn					= GetMaxHealingPerTurn
+			--
+			u.GetPropertyPercent					= GetPropertyPercent
+			--
+			u.InitializeEquipment					= InitializeEquipment
+			u.IsSpecificEquipment					= IsSpecificEquipment
+			u.IsEquipment							= IsEquipment
+			u.GetEquipmentClass						= GetEquipmentClass
+			u.GetSpecificEquipmentClasses			= GetSpecificEquipmentClasses
+			u.GetEquipmentClasses					= GetEquipmentClasses
+			u.GetSpecificRequiredEquipmentClasses	= GetSpecificRequiredEquipmentClasses
+			u.GetRequiredEquipmentClasses			= GetRequiredEquipmentClasses
+			u.IsRequiringEquipmentClass				= IsRequiringEquipmentClass
+			u.GetMaxEquipmentFrontLine				= GetMaxEquipmentFrontLine
+			u.GetMaxCurrentEquipmentFrontLine		= GetMaxCurrentEquipmentFrontLine
+			u.GetMaxEquipmentReserve				= GetMaxEquipmentReserve
+			u.GetMaxTotalEquipment					= GetMaxTotalEquipment
+			u.GetEquipmentClassFrontLine			= GetEquipmentClassFrontLine
+			u.GetEquipmentClassReserve				= GetEquipmentClassReserve
+			u.GetEquipmentClassReserveNeed			= GetEquipmentClassReserveNeed
+			u.GetEquipmentClassFrontLineNeed 		= GetEquipmentClassFrontLineNeed
+			u.GetReserveEquipment					= GetReserveEquipment
+			u.GetFrontLineEquipment					= GetFrontLineEquipment
+			u.GetEquipmentReserveNeed				= GetEquipmentReserveNeed
+			u.GetEquipmentFrontLineNeed				= GetEquipmentFrontLineNeed
+			u.GetTotalEquipmentNeed					= GetTotalEquipmentNeed
+			u.GetFullEquipmentList					= GetFullEquipmentList
+			u.ChangeReserveEquipment				= ChangeReserveEquipment
+			u.ChangeFrontLineEquipment				= ChangeFrontLineEquipment
+			u.IsWaitingForEquipment					= IsWaitingForEquipment
+			u.GetTypesFromEquipmentList				= GetTypesFromEquipmentList
+			u.DoInternalEquipmentTransfer			= DoInternalEquipmentTransfer
+			--
+			u.UpdateDataOnNewTurn					= UpdateDataOnNewTurn
+			u.DoFood 								= DoFood
+			u.DoCollect								= DoCollect
+			u.DoMorale 								= DoMorale
+			u.DoFuel 								= DoFuel
+			u.DoTurn 								= DoTurn
+			u.DoExchange							= DoExchange
+			u.CheckForActiveTurnsLeft				= CheckForActiveTurnsLeft
+			u.UpdateHealth							= UpdateHealth
+			u.SetHealthValues						= SetHealthValues
+			--
+			
+			-- flag strings
+			u.GetFoodStockString					= GetFoodStockString
+			u.GetFoodConsumptionString				= GetFoodConsumptionString
+			u.GetMoraleString						= GetMoraleString
+			u.GetFuelStockString 					= GetFuelStockString
+			u.GetFuelConsumptionString 				= GetFuelConsumptionString
+			u.GetFrontLineEquipmentString			= GetFrontLineEquipmentString
+			u.GetReserveEquipmentString				= GetReserveEquipmentString
+			u.GetResourcesStockString				= GetResourcesStockString
+			u.GetMilitaryFormationSizeString		= GetMilitaryFormationSizeString
+			u.GetMilitaryFormationTypeName			= GetMilitaryFormationTypeName
+			u.GetUnitCompositionToolTip				= GetUnitCompositionToolTip
+			u.GetHealthString						= GetHealthString
+			--
+			u.SetName								= SetName
+			--
+			u.IsInitializedForGCO					= true
+		end
 		
 		-- fix when attaching to an unit from UI context: the game is using "GetType" in gameplay script context and "GetUnitType" in UI context...
 		if not u.GetType then u.GetType = u.GetUnitType end

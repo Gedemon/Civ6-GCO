@@ -36,9 +36,9 @@ local bShownSupplyLine = false
 local YOFFSET_2DVIEW			:number = 26;
 local ZOFFSET_3DVIEW			:number = 36;
 local ALPHA_DIM					:number = 0.65;
-local COLOR_RED					:number = 0xFF0101F5;
-local COLOR_YELLOW				:number = 0xFF2DFFF8;
-local COLOR_GREEN				:number = 0xFF4CE710;
+local COLOR_RED					:number = UI.GetColorValueFromHexLiteral(0xFF0101F5);
+local COLOR_YELLOW				:number = UI.GetColorValueFromHexLiteral(0xFF2DFFF8);
+local COLOR_GREEN				:number = UI.GetColorValueFromHexLiteral(0xFF4CE710);
 local FLAGSTATE_NORMAL			:number= 0;
 local FLAGSTATE_FORTIFIED		:number= 1;
 local FLAGSTATE_EMBARKED		:number= 2;
@@ -348,7 +348,7 @@ end
 ------------------------------------------------------------------
 -- Set the user interativity for the flag.
 function UnitFlag.SetInteractivity( self )
-	local unitID		:number = self.m_UnitID;
+	local unitID:number = self.m_UnitID;
 	local flagPlayerID:number = self.m_Player:GetID();
 
     self.m_Instance.NormalButton:SetVoid1( flagPlayerID );
@@ -387,7 +387,7 @@ function UnitFlag.SetInteractivity( self )
 	
 	self.m_Instance.FlagRoot:RegisterMouseExitCallback( function()
 			LuaEvents.UnitFlagManager_PointerExited( flagPlayerID, unitID ); 
-		end);
+	end );
 end
 
 ------------------------------------------------------------------
@@ -493,11 +493,13 @@ end
 
 -- ===========================================================================
 function OnUnitSelected( playerID:number, unitID:number )
-	local playerUnits:table = Players[playerID]:GetUnits();
-	if playerUnits then
-		local selectedUnit:table = playerUnits:FindID(unitID);
-		if selectedUnit then
-			UI.SelectUnit( selectedUnit );
+	if playerID == Game.GetLocalPlayer() then	-- The local player can only select their own units.
+		local playerUnits:table = Players[playerID]:GetUnits();
+		if playerUnits then
+			local selectedUnit:table = playerUnits:FindID(unitID);
+			if selectedUnit then
+				UI.SelectUnit( selectedUnit );
+			end
 		end
 	end
 end
@@ -1083,6 +1085,7 @@ function UnitFlag.UpdateName( self )
 		end		
 		--self.m_Instance.UnitIcon:RegisterMouseOverCallback( ShowSupplyLine )
 		self.m_Instance.UnitIcon:RegisterMouseEnterCallback( ShowSupplyLine )
+		self.m_Instance.HealthIcon:SetToolTipString(pUnit:GetHealthString())
 		--ShowSupplyLine()
 		-- GCO >>>>>
 		
@@ -1644,7 +1647,7 @@ function OnPlayerTurnActivated( ePlayer:number, bFirstTimeThisTurn:boolean )
 		return;
 	end
 	
-	if m_UnitFlagInstances[ ePlayer ]==nil then
+	if m_UnitFlagInstances[ ePlayer ] == nil then
 		return;
 	end
 
@@ -1672,19 +1675,19 @@ function OnPlayerTurnActivated( ePlayer:number, bFirstTimeThisTurn:boolean )
 					local flag:table = GetUnitFlag(iPlayerID, pUnit:GetID());
 
 					if flag ~= nil then
-				local targetPlayer	:number		= pUnit:GetBarbarianTargetPlayer();
+						local targetPlayer:number = pUnit:GetBarbarianTargetPlayer();
 
-				if targetPlayer ~= -1 and targetPlayer == idLocalPlayer then				
+						if targetPlayer ~= -1 and targetPlayer == idLocalPlayer then				
 							m_AttentionMarkerIM:GetInstance(flag.m_Instance.FlagRoot);
 							flag.bHasAttentionMarker = true;
-				else
+						else
 							flag.bHasAttentionMarker = false;
-					end					
+						end					
+					end
 				end
 			end
 		end
 	end
-end
 end
 
 ------------------------------------------------------------------
@@ -1759,17 +1762,17 @@ function OnUnitAbilityGained( playerID : number, unitID : number, eAbilityType :
 					if (flag.m_eVisibility == RevealedState.VISIBLE) then
 						local abilityInfo = GameInfo.UnitAbilities[eAbilityType];
 						if (abilityInfo ~= nil and abilityInfo.ShowFloatTextWhenEarned) then
-						local sAbilityName = GameInfo.UnitAbilities[eAbilityType].Name;
-						if (sAbilityName ~= nil) then
-							local floatText = Locale.Lookup(sAbilityName);
-							UI.AddWorldViewText(EventSubTypes.DAMAGE, floatText, pUnit:GetX(), pUnit:GetY(), 0);
+							local sAbilityName = GameInfo.UnitAbilities[eAbilityType].Name;
+							if (sAbilityName ~= nil) then
+								local floatText = Locale.Lookup(sAbilityName);
+								UI.AddWorldViewText(EventSubTypes.DAMAGE, floatText, pUnit:GetX(), pUnit:GetY(), 0);
+							end
 						end
 					end
 				end
 			end
 		end
 	end
-end
 end
 
 ------------------------------------------------------------------
@@ -1997,20 +2000,20 @@ function OnMilitaryFormationChanged( playerID : number, unitID : number )
 		if (pUnit ~= nil) then
 			local flagInstance = GetUnitFlag( playerID, unitID );
 			if flagInstance ~= nil then
-			local militaryFormation = pUnit:GetMilitaryFormation();
-			if (militaryFormation == MilitaryFormationTypes.CORPS_FORMATION) then
-				flagInstance.m_Instance.CorpsMarker:SetHide(false);
-				flagInstance.m_Instance.ArmyMarker:SetHide(true);
-			elseif (militaryFormation == MilitaryFormationTypes.ARMY_FORMATION) then
-				flagInstance.m_Instance.CorpsMarker:SetHide(false);
-				flagInstance.m_Instance.ArmyMarker:SetHide(false);
-			else
-				flagInstance.m_Instance.CorpsMarker:SetHide(true);
-				flagInstance.m_Instance.ArmyMarker:SetHide(true);
+				local militaryFormation = pUnit:GetMilitaryFormation();
+				if (militaryFormation == MilitaryFormationTypes.CORPS_FORMATION) then
+					flagInstance.m_Instance.CorpsMarker:SetHide(false);
+					flagInstance.m_Instance.ArmyMarker:SetHide(true);
+				elseif (militaryFormation == MilitaryFormationTypes.ARMY_FORMATION) then
+					flagInstance.m_Instance.CorpsMarker:SetHide(false);
+					flagInstance.m_Instance.ArmyMarker:SetHide(false);
+				else
+					flagInstance.m_Instance.CorpsMarker:SetHide(true);
+					flagInstance.m_Instance.ArmyMarker:SetHide(true);
+				end
 			end
 		end
 	end
-end
 end
 
 ------------------------------------------------- 
