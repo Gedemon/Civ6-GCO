@@ -365,22 +365,23 @@ function GetEraType(self)
 end
 
 function SetOwner(self, ownerID, cityID)
-	local ownerID	= ownerID or -1
-	local iX, iY	= self:GetX(), self:GetY()
+	local ownerID		= ownerID or -1
+	local iX, iY		= self:GetX(), self:GetY()
+	local CityManager	= WorldBuilder.CityManager or ExposedMembers.CityManager
 	
 	if not cityID and ownerID ~= -1 then
 		local city	= GCO.FindNearestPlayerCity( ownerID, iX, iY )
 		cityID		= city and city:GetID()
 	end
 	
-	if WorldBuilder.CityManager then
+	if CityManager then
 		if ownerID ~= -1 then
 			if cityID then
-				WorldBuilder.CityManager():SetPlotOwner( iX, iY, false )
-				WorldBuilder.CityManager():SetPlotOwner( iX, iY, ownerID, cityID)
+				CityManager():SetPlotOwner( iX, iY, false )
+				CityManager():SetPlotOwner( iX, iY, ownerID, cityID)
 			end
 		else
-			WorldBuilder.CityManager():SetPlotOwner( iX, iY, false )
+			CityManager():SetPlotOwner( iX, iY, false )
 		end
 	else
 		if ownerID ~= -1 then
