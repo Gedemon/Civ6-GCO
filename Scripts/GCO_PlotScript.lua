@@ -3013,7 +3013,7 @@ function OnNewTurn()
 	table.insert(textTable, "Second Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
-		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:UpdateDataOnNewTurn()	
 		plot:UpdateCulture()
 		plot:SetMaxEmployment()
@@ -3025,7 +3025,7 @@ function OnNewTurn()
 	table.insert(textTable, "Third Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
-		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:SetMigrationValues()
 	end	
 	GCO.ShowTimer("Plots DoTurn Third Pass")
@@ -3035,7 +3035,7 @@ function OnNewTurn()
 	table.insert(textTable, "Fourth Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
-		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:DoMigration()
 	end
 	GCO.ShowTimer("Plots DoTurn Fourth Pass")
@@ -3045,7 +3045,7 @@ function OnNewTurn()
 	table.insert(textTable, "Fifth Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
-		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:MatchCultureToPopulation()
 	end	
 	GCO.ShowTimer("Plots DoTurn Fifth Pass")

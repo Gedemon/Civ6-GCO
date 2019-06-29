@@ -31,7 +31,7 @@
 		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_WARRIOR_CODE"		EmploymentSize="0.50"	EquipmentStock="300"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="2.00"	Coast = "1"  			ObsoleteEra="ERA_INDUSTRIAL"/>
 		
-		<Row BuildingType="BUILDING_BRICKMAKER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"	PrereqTech="TECH_MASONRY" />
+		<Row BuildingType="BUILDING_BRICKMAKER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75" /><!--	PrereqTech="TECH_MASONRY" -->
 		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		
@@ -390,7 +390,7 @@
 		
 	</BuildingResourcesConverted>
 	<BuildingResourcesConverted>	
-		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_CLAY" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
+		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_CLAY" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="0.25" />
 		
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="5"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_CARPENTER"		ResourceType="RESOURCE_WOOD" 		MaxConverted="15" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="2"	MultiResCreated="1" />

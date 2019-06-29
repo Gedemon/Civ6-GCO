@@ -158,6 +158,21 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["EQUIPMENT_BOMBER"].Index]				= "[ICON_EQUIPMENT_FIGHTER]",
 		[GameInfo.Resources["EQUIPMENT_JET_BOMBER"].Index]			= "[ICON_EQUIPMENT_FIGHTER]",
 	}
+	
+-- Fill Technology resource icons
+for row in GameInfo.Resources() do
+	if row.ResourceClassType == "RESOURCECLASS_KNOWLEDGE" then
+		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
+	elseif row.ResourceClassType == "RESOURCECLASS_TABLETS" then
+		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
+	elseif row.ResourceClassType == "RESOURCECLASS_SCROLLS" then
+		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
+	elseif row.ResourceClassType == "RESOURCECLASS_BOOKS" then
+		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
+	elseif row.ResourceClassType == "RESOURCECLASS_DIGITAL" then
+		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
+	end
+end
 
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
@@ -344,7 +359,7 @@ local debugFilter = {
 --	["PlayerScript"] 	= true,
 --	["UnitScript"] 		= true,
 --	["PlotScript"] 		= true,
---	["ResearchScript"] 	= true,
+	["ResearchScript"] 	= true,
 }
 
 function ToggleOutput()
@@ -1150,7 +1165,7 @@ function GetPercentBarString(value, bInvertedColors, bNoGradient, color)
 	local bHalfIcon		= value - (numFullIcons*20) >= 5
 	local buildStr 		= {}
 	local ColorTable	= (not bInvertedColors and {"_RED", "_ORANGE", "_YELLOW", "_OLIVE", "_GREEN"}) or {"_GREEN", "_OLIVE", "_YELLOW", "_ORANGE", "_RED"}
-	local ColorToString	= {["black"] = "_BLACK", ["green"] = "_GREEN", ["red"] = "_RED" }
+	local ColorToString	= {["black"] = "_BLACK", ["green"] = "_GREEN", ["red"] = "_RED", ["orange"] = "_ORANGE", ["yellow"] = "_YELLOW", ["olive"] = "_OLIVE" }
 	local colorStr		= (color ~= nil and ColorToString[color]) or "_BLACK"
 	
 	if bNoGradient and color == nil then
@@ -1158,7 +1173,7 @@ function GetPercentBarString(value, bInvertedColors, bNoGradient, color)
 	end
 	
 	for iconNum = 1, 5 do
-		local IconSuffix = (color == nil and ColorTable[iconNum]) or colorStr
+		local IconSuffix = (color == nil and (not bNoGradient) and ColorTable[iconNum]) or colorStr
 		if iconNum <= numFullIcons then		
 			table.insert(buildStr, "[ICON_20PERCENT".. IconSuffix .."]")
 		elseif iconNum == numFullIcons + 1 and bHalfIcon then

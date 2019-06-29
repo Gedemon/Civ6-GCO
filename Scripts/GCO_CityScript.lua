@@ -287,6 +287,7 @@ local FoodStockPerSize 				= tonumber(GameInfo.GlobalParameters["CITY_FOOD_STOCK
 local LuxuryStockRatio 				= tonumber(GameInfo.GlobalParameters["CITY_LUXURY_STOCK_RATIO"].Value)
 local PerSizeStockRatio 			= tonumber(GameInfo.GlobalParameters["CITY_PER_SIZE_STOCK_RATIO"].Value)
 local PersonnelPerSize	 			= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
+local KnowledgePerSize	 			= tonumber(GameInfo.GlobalParameters["CITY_KNOWLEDGE_PER_SIZE"].Value)
 local EquipmentBaseStock 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUIPMENT"].Value)
 local ConstructionMinStockRatio		= tonumber(GameInfo.GlobalParameters["CITY_CONSTRUCTION_MINIMUM_STOCK_RATIO"].Value)
 
@@ -1355,6 +1356,17 @@ function GetMigration(self)
 		self:SetMigrationValues()
 	end
 	return _cached[cityKey].Migration
+end
+
+function GetLiteracy(self)
+	return self:GetCached("Literacy") or self:SetLiteracy()
+end
+
+function SetLiteracy(self) -- must be updated before Research:DoTurn()
+	local population	= self:GetRealPopulation()
+	local literacy		= GCO.ToDecimals(math.min(100, (100 * self:GetUpperClass() / population) + (50 * self:GetMiddleClass() / population)))
+	self:SetCached("Literacy", literacy)
+	return literacy
 end
 
 -----------------------------------------------------------------------------------------
@@ -2664,8 +2676,15 @@ function GetNumRequiredInQueue(self, resourceID)
 end
 
 function GetMaxStock(self, resourceID)
+
 	local maxStock 	= 0
 	local sizeRatio	= self:GetSizeStockRatio()
+
+	-- special case for Knowledge
+	if GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_KNOWLEDGE" then
+		return GCO.Round(sizeRatio * KnowledgePerSize * self:GetLiteracy() / 100)
+	end
+	
 	if not GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
 		maxStock = sizeRatio * ResourceStockPerSize
 		if resourceID == personnelResourceID 	then maxStock = GCO.Round(sizeRatio * PersonnelPerSize) end
@@ -5331,9 +5350,9 @@ function DoCollectResources(self)
 					local bImprovedForResource	= GCO.IsImprovingResource(improvementID, resourceID)
 					if bImprovedForResource then
 						collected	= math.max(collected * BaseImprovementMultiplier, baseResource)
-						LuaEvents.ResearchGCO("EVENT_WORKED_IMPROVED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType)
+						LuaEvents.ResearchGCO("EVENT_WORKED_IMPROVED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType, self)
 					else
-						LuaEvents.ResearchGCO("EVENT_WORKED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType)
+						LuaEvents.ResearchGCO("EVENT_WORKED_RESOURCE", playerID, plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType, self)
 					end
 					Collect(resourceID, collected, resourceCost, plotID, (bWorked or bSeaResource), bImprovedForResource)
 				end
@@ -5802,9 +5821,9 @@ function DoConstruction(self)
 	Dlog("DoConstruction ".. Locale.Lookup(self:GetName()).." /END")
 end
 
-function DoExcedents(self)
+function DoStockUpdate(self)
 
-	Dlog("DoExcedents ".. Locale.Lookup(self:GetName()).." /START")
+	Dlog("DoStockUpdate ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, "Handling excedent...")
 
 	local cityKey 			= self:GetKey()
@@ -5834,12 +5853,17 @@ function DoExcedents(self)
 
 	end
 
-	-- surplus resources are wasted
+	-- Check resources stock, remove surplus
 	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
 		local resourceID = tonumber(resourceKey)
 		local excedent = 0
 		local stock = self:GetStock(resourceID)
 		
+		-- Studying resource
+		if stock > 0 then
+			local plot	= self:GetPlot()
+			LuaEvents.ResearchGCO("EVENT_RESOURCE_IN_STOCK", self:GetOwner(), plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType, self)
+		end
 		
 		-- Obsolete equipment is removed at a faster rate
 		if player:IsObsoleteEquipment(resourceID) then
@@ -5860,7 +5884,7 @@ function DoExcedents(self)
 		end
 	end
 
-	Dlog("DoExcedents ".. Locale.Lookup(self:GetName()).." /END")
+	Dlog("DoStockUpdate ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoGrowth(self)
@@ -7121,6 +7145,7 @@ function DoTurnFourthPass(self)
 	self:SetMaxEmploymentUrban()
 	--self:SetProductionFactorFromBuildings()
 	self:SetEmploymentFactorFromBuildings()
+	self:SetLiteracy()
 	GCO.ShowTimer("CitySize/SocialClasses for ".. name)
 	
 	GCO.StartTimer("Set Health for ".. name)
@@ -7129,9 +7154,9 @@ function DoTurnFourthPass(self)
 	GCO.ShowTimer("Set Health  for ".. name)
 
 	-- last...
-	GCO.StartTimer("DoExcedents for ".. name)
-	self:DoExcedents()
-	GCO.ShowTimer("DoExcedents for ".. name)
+	GCO.StartTimer("DoStockUpdate for ".. name)
+	self:DoStockUpdate()
+	GCO.ShowTimer("DoStockUpdate for ".. name)
 	
 	GCO.StartTimer("SetUnlockers for ".. name)
 	self:SetUnlockers()
@@ -7479,7 +7504,7 @@ function AttachCityFunctions(city)
 		if not c.DoGrowth							then c.DoGrowth								= DoGrowth                          	end
 		if not c.GetBirthRate						then c.GetBirthRate							= GetBirthRate                      	end
 		if not c.GetDeathRate						then c.GetDeathRate							= GetDeathRate                      	end
-		if not c.DoExcedents						then c.DoExcedents							= DoExcedents                       	end
+		if not c.DoStockUpdate						then c.DoStockUpdate						= DoStockUpdate                       	end
 		if not c.DoFood								then c.DoFood								= DoFood                            	end
 		if not c.DoIndustries						then c.DoIndustries							= DoIndustries                      	end
 		if not c.DoConstruction						then c.DoConstruction						= DoConstruction                    	end
@@ -7529,6 +7554,8 @@ function AttachCityFunctions(city)
 		if not c.SetPopulationBirthRate				then c.SetPopulationBirthRate				= SetPopulationBirthRate            	end
 		if not c.GetBasePopulationBirthRate			then c.GetBasePopulationBirthRate			= GetBasePopulationBirthRate        	end
 		if not c.GetMigration						then c.GetMigration							= GetMigration                      	end
+		if not c.GetLiteracy						then c.GetLiteracy							= GetLiteracy                      	end
+		if not c.SetLiteracy						then c.SetLiteracy							= SetLiteracy                      	end
 		--
 		if not c.DoRecruitPersonnel					then c.DoRecruitPersonnel					= DoRecruitPersonnel					end
 		-- text

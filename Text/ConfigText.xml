@@ -12,6 +12,12 @@
     <Replace Tag="LOC_GCO_SETUP_CREATE_GAME" Language="en_US">
       <Text>Create game</Text>
     </Replace>
+	<Replace Tag="LOC_GAME_LOCAL_TECH_STORAGE" Language="en_US">
+      <Text>Allow localized knowledge generation on events</Text>
+    </Replace>
+	<Replace Tag="LOC_GAME_LOCAL_TECH_STORAGE_DESCRIPTION" Language="en_US">
+      <Text>Knowledge resources generated on various events are created in cities and units when possible, instead of being added to a global yield pool.</Text>
+    </Replace>
   </LocalizedText>
 
 </GameData>

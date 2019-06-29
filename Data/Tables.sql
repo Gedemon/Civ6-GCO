@@ -399,6 +399,8 @@ ALTER TABLE Resources ADD COLUMN NoExport 					BOOLEAN NOT NULL CHECK (NoExport 
 ALTER TABLE Resources ADD COLUMN NoTransfer 				BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; 	-- Not allowed on internal trade routes
 ALTER TABLE Resources ADD COLUMN SpecialStock 				BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0; 	-- Stocked in specific buildings only
 ALTER TABLE Resources ADD COLUMN NotLoot 					BOOLEAN NOT NULL CHECK (NotLoot IN (0,1)) DEFAULT 0; 		-- Can't be captured when attacking cities
+ALTER TABLE Resources ADD COLUMN ResearchType				TEXT; 														-- is a knowledge resource for a specific research
+ALTER TABLE Resources ADD COLUMN TechnologyType				TEXT; 														-- is a knowledge resource for a specific technology
 
 -- Hidden Buildings
 ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; 		-- Do not show in Civilopedia
@@ -759,7 +761,7 @@ CREATE TABLE TechnologyRequirementTypes (
 CREATE TABLE TechnologyResearchContribution (
 		Technology TEXT NOT NULL,
 		ContributionType TEXT NOT NULL,
-		MaxContributionPercent INTEGER NOT NULL DEFAULT 0,
+		MaxContributionPercent INTEGER NOT NULL DEFAULT 100,
 		PRIMARY KEY(Technology, ContributionType),
 		FOREIGN KEY (Technology) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
 		FOREIGN KEY (ContributionType) REFERENCES TechnologyContributionTypes(ContributionType) ON DELETE SET NULL ON UPDATE CASCADE
@@ -768,7 +770,7 @@ CREATE TABLE TechnologyResearchContribution (
 CREATE TABLE TechnologyEventContribution (
 		Technology TEXT NOT NULL,
 		ContributionType TEXT NOT NULL,
-		MaxContributionPercent INTEGER NOT NULL DEFAULT 0,
+		MaxContributionPercent INTEGER NOT NULL DEFAULT 100,
 		TypeTag TEXT,
 		PrereqTech TEXT,
 		PrereqEra TEXT,
@@ -800,7 +802,7 @@ CREATE TABLE TechnologyResearchEventPoints (
 CREATE TABLE TechnologyNeedsContribution (
 		Technology TEXT NOT NULL,
 		ContributionType TEXT NOT NULL,
-		MaxContributionPercent INTEGER NOT NULL DEFAULT 0,
+		MaxContributionPercent INTEGER NOT NULL DEFAULT 100,
 		PrereqTech TEXT,
 		PrereqEra TEXT,
 		BaseValue INTEGER NOT NULL DEFAULT 1,
@@ -829,6 +831,15 @@ CREATE TABLE TechnologyApplications (
 		FOREIGN KEY (Technology) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
 		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE
 	);
+
+CREATE TABLE TechnologyKnowledgeResourceClass (
+		ResourceClass 	TEXT NOT NULL,
+		Name		 	TEXT NOT NULL,
+		DecayPer1000 	INTEGER NOT NULL,
+		ResearchPer100 	INTEGER NOT NULL,
+		PRIMARY KEY(ResourceClass)
+	);
+
 	
 -----------------------------------------------
 -- Edit Tables

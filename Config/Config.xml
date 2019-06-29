@@ -4,5 +4,9 @@
 		<!--	Add specific resources around TSL (see CivilizationRequestedResource table and PostConfig.sql)
 		-->
 		<Row ParameterId="RequestedResources" 	Name="LOC_MAP_RESOURCES_REQUESTED_NAME" Description="LOC_MAP_RESOURCES_REQUESTED_DESCRIPTION" Domain="RequestedResources" DefaultValue="PLACEMENT_REQUEST" ConfigurationGroup="Map" ConfigurationId="RequestedResources" GroupId="MapOptions" Visible="0" SortIndex="295"/>
+		
+		<!--	Option to use "mixed with local" or "fully global" reserch points
+		-->
+		<Replace ParameterId="UseLocalTechStorage" Name="LOC_GAME_LOCAL_TECH_STORAGE" Description="LOC_GAME_LOCAL_TECH_STORAGE_DESCRIPTION" Domain="bool" DefaultValue="1" ConfigurationGroup="Game" ConfigurationId="UseLocalTechStorage" GroupId="AdvancedOptions" SortIndex="5000"/>
 	</Parameters>
 </GameInfo>

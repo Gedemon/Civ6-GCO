@@ -298,6 +298,12 @@
 		<Replace Tag="LOC_RESOURCE_PROPELLER_ENGINE_NAME" 				Text="Propeller Engine"				Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_JET_ENGINE_NAME" 					Text="Jet Engine"					Language="en_US" /> 		
 		
+	
+		<Replace Tag="LOC_TECH_RES_KNOWLEDGE"			Text="Citizen Knowledge" 	Language="en_US" />
+		<Replace Tag="LOC_TECH_RES_TABLETS"				Text="Tablets"	 			Language="en_US" />
+		<Replace Tag="LOC_TECH_RES_SCROLLS"				Text="Scrolls" 				Language="en_US" />
+		<Replace Tag="LOC_TECH_RES_BOOKS"				Text="Books"	 			Language="en_US" />
+		<Replace Tag="LOC_TECH_RES_DIGITAL"				Text="Digital"	 			Language="en_US" />
 	</LocalizedText>
 
 	<LocalizedText> <!-- Units -->
@@ -360,19 +366,21 @@
 		<Replace Tag="LOC_EVENT_COASTAL_CITY_NAME" 				Text="Coastal Cities"					Language="en_US" />
 		<Replace Tag="LOC_EVENT_WORKED_RESOURCE_NAME" 			Text="Worked Resources"					Language="en_US" />
 		<Replace Tag="LOC_EVENT_WORKED_IMPROVED_RESOURCE_NAME" 	Text="Worked Improved Resources"		Language="en_US" />
+		<Replace Tag="LOC_EVENT_RESOURCE_IN_STOCK_NAME" 		Text="Studying Resources"				Language="en_US" />
 	
-		<Replace Tag="LOC_RESEARCH_MILITARY_NAME" 			Text="Military Research"		Language="en_US" />
-		<Replace Tag="LOC_RESEARCH_SOCIAL_NAME" 			Text="Social Research"			Language="en_US" />
-		<Replace Tag="LOC_RESEARCH_ECONOMIC_NAME" 			Text="Economic Research"		Language="en_US" />
-		<Replace Tag="LOC_RESEARCH_CRAFTSMANSHIP_NAME" 		Text="Craftsmanship"			Language="en_US" />
-		<Replace Tag="LOC_RESEARCH_NAVAL_NAME" 				Text="Naval Research"			Language="en_US" />
-		<Replace Tag="LOC_RESEARCH_EXPLORATION_NAME" 		Text="Exploration"				Language="en_US" />
-		<Replace Tag="LOC_RESEARCH_INSPIRATION_NAME" 		Text="Inspiration"				Language="en_US" />
-		<Replace Tag="LOC_RESEARCH_ACADEMIC_NAME" 			Text="Academic Research"		Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_MILITARY_NAME" 			Text="Military"			Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_SOCIAL_NAME" 			Text="Social"			Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_ECONOMIC_NAME" 			Text="Economic"			Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_CRAFTSMANSHIP_NAME" 		Text="Craftsmanship"	Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_NAVAL_NAME" 				Text="Naval"			Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_EXPLORATION_NAME" 		Text="Exploration"		Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_INSPIRATION_NAME" 		Text="Inspiration"		Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_ACADEMIC_NAME" 			Text="Academic"			Language="en_US" />
 		
 		<Replace Tag="LOC_YIELD_OVERFLOW_NAME" 				Text="Previous turn overflow"	Language="en_US" />
 		<Replace Tag="LOC_YIELD_BUILDING_NAME" 				Text="Buildinds in Cities"		Language="en_US" />
-		<Replace Tag="LOC_YIELD_CULTURE_INSPIRATION_NAME" 	Text="Culture Creation"			Language="en_US" />		
+		<Replace Tag="LOC_YIELD_CULTURE_INSPIRATION_NAME" 	Text="Culture Creation"			Language="en_US" />
+		<Replace Tag="LOC_YIELD_KNOWLEDGE_NAME" 			Text="Citizen Knowledge"		Language="en_US" />
 		
 		<Replace Tag="LOC_CLASS_PASTURE_RES_NAME" 			Text="Pasture"					Language="en_US" />
 		<Replace Tag="LOC_CLASS_BOAT_RES_NAME" 				Text="Boat"						Language="en_US" />
@@ -384,6 +392,11 @@
 		<Replace Tag="LOC_CLASS_COPPER_RES_NAME"			Text="Copper"					Language="en_US" />
 		<Replace Tag="LOC_CLASS_IRON_RES_NAME"				Text="Iron"						Language="en_US" />
 		<Replace Tag="LOC_CLASS_HORSE_RES_NAME"				Text="Horses"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_ARCHERY_EQUIPMENT_NAME"		Text="Bows"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_CATAPULT_EQUIPMENT_NAME"	Text="Catapults"				Language="en_US" />
+		<Replace Tag="LOC_CLASS_BRONZE_EQUIPMENT_NAME"		Text="Bronze Equipment"			Language="en_US" />
+		<Replace Tag="LOC_CLASS_IRON_EQUIPMENT_NAME"		Text="Iron Equipment"			Language="en_US" />
+		<Replace Tag="LOC_CLASS_CHARIOT_EQUIPMENT_NAME"		Text="Chariots"					Language="en_US" />
 		
 	</LocalizedText>
 

@@ -289,17 +289,23 @@ function RefreshYields()
 	-- GCO <<<<<
 	-- Other Sciences fields
 	if ExposedMembers.GCO_Initialized then
-		local pResearch = GCO.Research:Create(ePlayer)
+		local pResearch 		= GCO.Research:Create(ePlayer)
+		local nextResearch		= pResearch:GetNextTurnResearch()
 		for _, researchType in ipairs(pResearch:GetList()) do
-			mResearchYieldButton[researchType]	= mResearchYieldButton[researchType] or m_YieldButtonSingleManager:GetInstance()
+			mResearchYieldButton[researchType]	= mResearchYieldButton[researchType] or m_YieldButtonDoubleManager:GetInstance()
 			local yieldButton					= mResearchYieldButton[researchType]
-			local yieldValue					= pResearch:GetYield(researchType)
+			local yieldValue					= pResearch:GetYield(researchType, true) -- second parameter to include the local yield when it's directly converted in knowledge locally
+			local balanceValue					= nextResearch[researchType].Balance
+			local researchValue					= nextResearch[researchType].ResearchPoints
+			local decayValue					= nextResearch[researchType].DecayValue
+			local researchName					= GameInfo.TechnologyContributionTypes[researchType].Name
 			
-			if yieldValue > 0 then
-				yieldButton.YieldPerTurn:SetText( FormatValuePerTurn(yieldValue) );	
+			if yieldValue > 0 or researchValue > 0 or balanceValue > 0 then
+				yieldButton.YieldBalance:SetText( balanceValue );
+				yieldButton.YieldPerTurn:SetText( FormatValuePerTurn(yieldValue) .. "/" .. FormatValuePerTurn(researchValue) .."/" .. FormatValuePerTurn(decayValue) );	
 				--yieldButton.YieldPerTurn:SetColorByName("ResCultureLabelCS");
 
-				local sTooltip = Locale.Lookup("LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP", GameInfo.TechnologyContributionTypes[researchType].Name) .. "[NEWLINE][NEWLINE]" .. pResearch:GetYieldTooltip(researchType)
+				local sTooltip = Locale.Lookup("LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP", balanceValue, researchName) .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_YIELD_TITLE_TOOLTIP", yieldValue) .. "[NEWLINE]" .. pResearch:GetYieldTooltip(researchType) .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_POINTS_TITLE_TOOLTIP", researchValue) .. "[NEWLINE]" .. nextResearch[researchType].String .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_BASE_DECAY_TOOLTIP", decayValue)
 				yieldButton.YieldBacking:SetToolTipString( sTooltip );
 				--yieldButton.YieldBacking:SetColor(0x99fe2aec);
 				yieldButton.YieldIconString:SetText(GameInfo.TechnologyContributionTypes[researchType].IconString);

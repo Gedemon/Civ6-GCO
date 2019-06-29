@@ -40,14 +40,15 @@ UPDATE GlobalParameters SET Value = 25		WHERE Name = 'DIPLOMACY_RESEARCH_AGREEME
 /* Defines */
 
 -- city
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_MAX_PER_TURN', 		10);	-- default = 20
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_BASE_MATERIEL',		5);
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN',	5);		-- default = 10
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL',	10);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_MAX_PER_TURN', 		25);	-- default = 20
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_BASE_MATERIEL',		1);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_MAX_PER_TURN',	15);	-- default = 10
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL',	2);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PER_SIZE_STOCK_RATIO', 				0.5);	-- ratio of stock per city size 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					40);	-- base stock for resource 			= CITY_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 			= CITY_FOOD_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_KNOWLEDGE_PER_SIZE', 				80);	-- base stock for knowledge			= CITY_KNOWLEDGE_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LUXURY_STOCK_RATIO', 				0.25);	-- base stock for luxuries 			= CITY_STOCK_PER_SIZE * CITY_LUXURY_STOCK_RATIO * CitySize * CITY_PER_SIZE_STOCK_RATIO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					300);	-- base stock for equipment 		(not related to city size)
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_MATERIEL_PRODUCTION_PER_SIZE',		12);	-- unit of materiel produced 		= CITY_MATERIEL_PRODUCTION_PER_SIZE * CitySize

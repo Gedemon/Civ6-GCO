@@ -1264,7 +1264,7 @@ ToolTipHelper.GetTechnologyToolTip = function(techType, playerId)
 		local techID	= tech.Index
 		local sContrib	= pResearch:GetContributionString(techID)
 		if string.len(sContrib) > 0 then
-			return table.concat(toolTipLines, "[NEWLINE]") .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("LOC_TECH_CONTRIBUTION_TITLE") .. sContrib
+			return table.concat(toolTipLines, "[NEWLINE]") .. sContrib
 		end
 	end
 	-- GCO >>>>>

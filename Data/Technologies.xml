@@ -591,6 +591,7 @@
 		<Row 	ContributionType="EVENT_DISCOVER_NATURAL_WONDER"	/>
 		<Row 	ContributionType="EVENT_WORKED_RESOURCE" 			/>
 		<Row 	ContributionType="EVENT_WORKED_IMPROVED_RESOURCE"	/>
+		<Row 	ContributionType="EVENT_RESOURCE_IN_STOCK" 			/>
 		<Row 	ContributionType="EVENT_COMBAT_WITH" 				/>
 		<Row 	ContributionType="EVENT_COMBAT_VS" 					/>
 		<Row 	ContributionType="EVENT_DEFEND_WITH" 				/>
@@ -611,6 +612,7 @@
 		<Row 	ContributionType="NEED_FOOD" 						/>
 		<Row 	ContributionType="NEED_PROTECTION"					/>
 		<Row 	ContributionType="YIELD_BUILDING"					/> <!-- Special case for Buildings -->
+		<Row 	ContributionType="YIELD_KNOWLEDGE"					/> <!-- Special case for Knowledge resources -->
 		<Row 	ContributionType="YIELD_OVERFLOW"					/> <!-- Previous turn overflow -->
 		<Row 	ContributionType="YIELD_CULTURE_INSPIRATION"		/> <!-- Special case for Culture/Inspiration -->
 	
@@ -863,20 +865,27 @@
 		<Row 	Technology="TECH_TRAPPING" 			ContributionType="EVENT_DISCOVER_RESOURCE" 		MaxContributionPercent="75"		TypeTag="CLASS_CAMP_RES" 	BaseValue="2"/>
 		<Row 	Technology="TECH_TRAPPING" 			ContributionType="EVENT_WORKED_RESOURCE" 		MaxContributionPercent="100"	TypeTag="CLASS_CAMP_RES" 	BaseValue="3"/>
 		
+		<Row 	Technology="TECH_ARCHERY" 			ContributionType="EVENT_RESOURCE_IN_STOCK" 		MaxContributionPercent="100"	TypeTag="CLASS_ARCHERY_EQUIPMENT"	BaseValue="1"/>
+		<Row 	Technology="TECH_ARCHERY" 			ContributionType="EVENT_RESOURCE_IN_STOCK" 		MaxContributionPercent="100"	TypeTag="CLASS_CATAPULT_EQUIPMENT"	BaseValue="3"/>
+		
 		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 	MaxContributionPercent="75"		TypeTag="CLASS_PASTURE_RES" BaseValue="5"/>
 		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_DISCOVER_RESOURCE" 		MaxContributionPercent="75"		TypeTag="CLASS_PASTURE_RES" BaseValue="2"/>
 		<Row 	Technology="TECH_ANIMAL_HUSBANDRY" 	ContributionType="EVENT_WORKED_RESOURCE" 		MaxContributionPercent="100"	TypeTag="CLASS_PASTURE_RES" BaseValue="3"/>
 		
-		<Row 	Technology="TECH_IRRIGATION" 		ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_FARM_RES" 	BaseValue="3" PrereqTech="TECH_POTTERY"/>
-		<Row 	Technology="TECH_IRRIGATION" 		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_PLANT_RES" 	BaseValue="2" PrereqTech="TECH_POTTERY"/>
+		<Row 	Technology="TECH_IRRIGATION" 		ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_FARM_RES" 	BaseValue="3"	PrereqTech="TECH_POTTERY"/>
+		<Row 	Technology="TECH_IRRIGATION" 		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_PLANT_RES" 	BaseValue="2"	PrereqTech="TECH_POTTERY"/>
 		
-		<Row 	Technology="TECH_MINING" 			ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_MINED_RES" BaseValue="3"	PrereqTech="TECH_POTTERY"	/>
+		<Row 	Technology="TECH_MINING" 			ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_MINED_RES"	BaseValue="3"	PrereqTech="TECH_POTTERY"	/>
 		
-		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES" BaseValue="1"	PrereqTech="TECH_MINING"	/>
-		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES" BaseValue="3"	PrereqTech="TECH_MINING"	/>
+		<Row 	Technology="TECH_THE_WHEEL" 		ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_CHARIOT_EQUIPMENT"	BaseValue="2"/>
 		
-		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" BaseValue="1"	PrereqTech="TECH_BRONZE_WORKING"	/>
-		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" BaseValue="3"	PrereqTech="TECH_BRONZE_WORKING"	/>
+		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES"			BaseValue="1"	PrereqTech="TECH_MINING"	/>
+		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES"			BaseValue="3"	PrereqTech="TECH_MINING"	/>
+		<Row 	Technology="TECH_BRONZE_WORKING" 	ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_BRONZE_EQUIPMENT"	BaseValue="2"	PrereqTech="TECH_POTTERY"	/>
+		
+		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" 		BaseValue="1"	PrereqTech="TECH_BRONZE_WORKING"	/>
+		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" 		BaseValue="3"	PrereqTech="TECH_BRONZE_WORKING"	/>
+		<Row 	Technology="TECH_IRON_WORKING" 		ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_EQUIPMENT"	BaseValue="3"	PrereqTech="TECH_BRONZE_WORKING"	/>
 		
 		<Row 	Technology="TECH_HORSEBACK_RIDING" 	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_HORSE_RES" BaseValue="2" 	PrereqTech="TECH_MILITARY_TRADITION"	/>
 		
@@ -931,6 +940,19 @@
 	
 	</TechnologyApplications>
 	
+	<!-- 
+		Technology and Research resources for each ResourceClass are created in PostUpdate.sql
+	-->	
+	<TechnologyKnowledgeResourceClass>
+	
+		<Row 	ResourceClass="RESOURCECLASS_KNOWLEDGE"	Name="LOC_TECH_RES_KNOWLEDGE"	DecayPer1000="100"	ResearchPer100="50" 		/>
+		<Row 	ResourceClass="RESOURCECLASS_TABLETS"	Name="LOC_TECH_RES_TABLETS"		DecayPer1000="20"	ResearchPer100="65" 		/>
+		<Row 	ResourceClass="RESOURCECLASS_SCROLLS"	Name="LOC_TECH_RES_SCROLLS"		DecayPer1000="15"	ResearchPer100="85" 		/>
+		<Row 	ResourceClass="RESOURCECLASS_BOOKS"		Name="LOC_TECH_RES_BOOKS"		DecayPer1000="10"	ResearchPer100="100" 		/>
+		<Row 	ResourceClass="RESOURCECLASS_DIGITAL"	Name="LOC_TECH_RES_DIGITAL"		DecayPer1000="5"	ResearchPer100="100" 		/>
+	
+	</TechnologyKnowledgeResourceClass>
+	
 	<!--
 		New TypeTags related to Research
 	-->
@@ -945,6 +967,12 @@
 		<Row Tag="CLASS_COPPER_RES" 	Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_IRON_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_HORSE_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		
+		<Row Tag="CLASS_ARCHERY_EQUIPMENT" 	Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_CATAPULT_EQUIPMENT" Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_BRONZE_EQUIPMENT"	Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_IRON_EQUIPMENT" 	Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_CHARIOT_EQUIPMENT" 	Vocabulary="RESOURCE_CLASS"/>
 		
 		<Row Tag="CLASS_ARMOR" 			Vocabulary="ABILITY_CLASS"/>
 	</Tags>
@@ -999,6 +1027,25 @@
 		<Row Type="RESOURCE_COPPER" 	Tag="CLASS_COPPER_RES"/>
 		
 		<Row Type="RESOURCE_IRON" 		Tag="CLASS_IRON_RES"/>
+		
+		<Row Type="EQUIPMENT_WOODEN_BOWS" 	Tag="CLASS_ARCHERY_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_LONGBOWS" 		Tag="CLASS_ARCHERY_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_CROSSBOWS" 	Tag="CLASS_ARCHERY_EQUIPMENT"/>
+		
+		<Row Type="EQUIPMENT_CATAPULTS" 	Tag="CLASS_CATAPULT_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_TREBUCHETS" 	Tag="CLASS_CATAPULT_EQUIPMENT"/>
+		
+		<Row Type="EQUIPMENT_BRONZE_SPEARS" Tag="CLASS_BRONZE_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_BRONZE_SWORDS" Tag="CLASS_BRONZE_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_BRONZE_ARMOR" 	Tag="CLASS_BRONZE_EQUIPMENT"/>
+		
+		<Row Type="EQUIPMENT_IRON_SPEARS" 		Tag="CLASS_IRON_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_IRON_SWORDS" 		Tag="CLASS_IRON_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_IRON_PIKES" 		Tag="CLASS_IRON_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_CHAINMAIL_ARMOR" 	Tag="CLASS_IRON_EQUIPMENT"/>
+		<Row Type="EQUIPMENT_IRON_ARMOR" 		Tag="CLASS_IRON_EQUIPMENT"/>
+		
+		<Row Type="EQUIPMENT_CHARIOT" 		Tag="CLASS_CHARIOT_EQUIPMENT"/>
 		
 		<!-- 
 		<Row Type="RESOURCE_OIL" Tag="CLASS_PRODUCTION"/>

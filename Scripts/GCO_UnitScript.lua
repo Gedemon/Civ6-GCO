@@ -4185,52 +4185,46 @@ function OnCombat( combatResult )
 	-- Melee Combat
 	if combatType == CombatTypes.MELEE then
 		if defender.IsLandUnit then
-			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_DEFENSE", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
-			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
+			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_DEFENSE", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, nil, defender.unit)
+			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, nil, defender.unit)
 		end
 		if attacker.IsLandUnit then
-			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_ATTACK", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
-			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_ATTACK", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, nil, attacker.unit)
+			LuaEvents.ResearchGCO("EVENT_LAND_MELEE_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, nil, attacker.unit)
 		end
 	end
 	
 	-- Ranged Combat
 	if combatType == CombatTypes.RANGED or combatType == CombatTypes.BOMBARD then
-		LuaEvents.ResearchGCO("EVENT_RANGED_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
-		LuaEvents.ResearchGCO("EVENT_RANGED_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+		LuaEvents.ResearchGCO("EVENT_RANGED_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, nil, defender.unit)
+		LuaEvents.ResearchGCO("EVENT_RANGED_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, nil, attacker.unit)
 		if defender.IsLandUnit and attacker.IsLandUnit then
-			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_DEFENSE", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
-			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
-			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_ATTACK", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
-			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
+			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_DEFENSE", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, nil, defender.unit)
+			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, nil, defender.unit)
+			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_ATTACK", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, nil, attacker.unit)
+			LuaEvents.ResearchGCO("EVENT_LAND_RANGED_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, nil, attacker.unit)
 		end
 	end
 	
 	-- Land Combat
 	if defender.IsLandUnit and attacker.IsLandUnit then
-		LuaEvents.ResearchGCO("EVENT_LAND_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y)
-		LuaEvents.ResearchGCO("EVENT_LAND_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y)
-		if attacker.unit then
-			LuaEvents.LandCombatVS(defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
-		end
-		if defender.unit then
-			LuaEvents.LandCombatVS(attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
-		end
+		LuaEvents.ResearchGCO("EVENT_LAND_COMBAT", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, nil, defender.unit)
+		LuaEvents.ResearchGCO("EVENT_LAND_COMBAT", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, nil, attacker.unit)
 	end
 	
 	-- Combat VS / With
 	if attacker.IsUnit and defender.IsUnit then
 		if attacker.unit then
-			LuaEvents.ResearchGCO("EVENT_COMBAT_VS", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
-			LuaEvents.ResearchGCO("EVENT_DEFEND_VS", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
-			LuaEvents.ResearchGCO("EVENT_ATTACK_WITH", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
-			LuaEvents.ResearchGCO("EVENT_COMBAT_WITH", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType)
+			LuaEvents.ResearchGCO("EVENT_COMBAT_VS", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType, defender.unit)
+			LuaEvents.ResearchGCO("EVENT_DEFEND_VS", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType, defender.unit)
+			LuaEvents.ResearchGCO("EVENT_ATTACK_WITH", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType, attacker.unit)
+			LuaEvents.ResearchGCO("EVENT_COMBAT_WITH", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[attacker.unit:GetType()].UnitType, attacker.unit)
 		end
 		if defender.unit then
-			LuaEvents.ResearchGCO("EVENT_COMBAT_VS", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
-			LuaEvents.ResearchGCO("EVENT_ATTACK_VS", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
-			LuaEvents.ResearchGCO("EVENT_DEFEND_WITH", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
-			LuaEvents.ResearchGCO("EVENT_COMBAT_WITH", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType)
+			LuaEvents.ResearchGCO("EVENT_COMBAT_VS", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType, attacker.unit)
+			LuaEvents.ResearchGCO("EVENT_ATTACK_VS", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType, attacker.unit)
+			LuaEvents.ResearchGCO("EVENT_DEFEND_WITH", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType, defender.unit)
+			LuaEvents.ResearchGCO("EVENT_COMBAT_WITH", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType, defender.unit)
 		end	
 	end
 
