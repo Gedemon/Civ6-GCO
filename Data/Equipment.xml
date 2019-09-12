@@ -112,6 +112,8 @@
 	<EquipmentClasses> <!-- Specific to Unit types -->
 		<Row EquipmentClass="EQUIPMENTCLASS_MATERIEL"			/>
 		
+		<Row EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"		/>
+		
 		<Row EquipmentClass="EQUIPMENTCLASS_SLINGS"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BOWS"				/>
 		<Row EquipmentClass="EQUIPMENTCLASS_LONGBOWS"			/>
@@ -197,9 +199,12 @@
 		<Row EquipmentClass="EQUIPMENTCLASS_AIR_BOMBERS"		/>
 	</EquipmentClasses>
 	
-	<EquipmentTypeClasses> <!-- Specific to Unit types -->
-		<Row ResourceType="RESOURCE_MATERIEL"			EquipmentClass="EQUIPMENTCLASS_MATERIEL"	/>
-		
+	<EquipmentTypeClasses> <!-- Shared by Unit Types and Promotion Class -->
+		<Row ResourceType="RESOURCE_MATERIEL"			EquipmentClass="EQUIPMENTCLASS_MATERIEL"		/>
+		<Row ResourceType="RESOURCE_HORSES"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	/>
+	</EquipmentTypeClasses>
+	
+	<EquipmentTypeClasses> <!-- Specific to Unit types -->		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_STONE_AXES"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
@@ -456,21 +461,27 @@
 		
 		<Row UnitType="UNIT_SLINGER_SCOUT"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="6" />
 		<Row UnitType="UNIT_SLINGER_SCOUT"			EquipmentClass="EQUIPMENTCLASS_SLINGS" 			/>
+		<Row UnitType="UNIT_SLINGER_SCOUT"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_PELTAST"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="6" />
 		<Row UnitType="UNIT_PELTAST"				EquipmentClass="EQUIPMENTCLASS_SPEARS" 			/>
+		<Row UnitType="UNIT_PELTAST"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_ARCHER_SCOUT"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="7" />
 		<Row UnitType="UNIT_ARCHER_SCOUT"			EquipmentClass="EQUIPMENTCLASS_BOWS" />
+		<Row UnitType="UNIT_ARCHER_SCOUT"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_HUNTSMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_HUNTSMAN"				EquipmentClass="EQUIPMENTCLASS_LONGBOWS" />
+		<Row UnitType="UNIT_HUNTSMAN"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_FORESTER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_FORESTER"				EquipmentClass="EQUIPMENTCLASS_MUSKETS" />
+		<Row UnitType="UNIT_FORESTER"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_RIFLES" />
+		<Row UnitType="UNIT_RANGER"					EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_SNIPER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_SNIPER"					EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES" />
@@ -483,18 +494,22 @@
 
 		<Row UnitType="UNIT_SLINGER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="6" />
 		<Row UnitType="UNIT_SLINGER"				EquipmentClass="EQUIPMENTCLASS_SLINGS" 			/>
+		<Row UnitType="UNIT_SLINGER"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_ARCHER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="7" />
 		<Row UnitType="UNIT_ARCHER"					EquipmentClass="EQUIPMENTCLASS_BOWS" />
+		<Row UnitType="UNIT_ARCHER"					EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_LONGBOWMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_LONGBOWMAN"				EquipmentClass="EQUIPMENTCLASS_LONGBOWS" />
+		<Row UnitType="UNIT_LONGBOWMAN"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by units of the Defensive PromotionClass -->
 		
 		<Row UnitType="UNIT_CROSSBOWMAN"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_CROSSBOWMAN"			EquipmentClass="EQUIPMENTCLASS_CROSSBOWS" />
+		<Row UnitType="UNIT_CROSSBOWMAN"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by units of the Melee PromotionClass -->
@@ -503,27 +518,32 @@
 		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
 		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_WARRIOR"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_LIGHT_PHALANX"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_LIGHT_PHALANX"			EquipmentClass="EQUIPMENTCLASS_PRIMITIVE_SPEARS" />
 		<Row UnitType="UNIT_LIGHT_PHALANX"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_LIGHT_PHALANX"			EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_LIGHT_PHALANX"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_PHALANX"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_PHALANX"				EquipmentClass="EQUIPMENTCLASS_METAL_SPEARS" />
 		<Row UnitType="UNIT_PHALANX"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_PHALANX"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_PHALANX"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_HEAVY_PHALANX"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_HEAVY_PHALANX"			EquipmentClass="EQUIPMENTCLASS_METAL_SPEARS" />
 		<Row UnitType="UNIT_HEAVY_PHALANX"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" />
 		<Row UnitType="UNIT_HEAVY_PHALANX"			EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_HEAVY_PHALANX"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_LIGHT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_LIGHT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SWORDS" />
 		<Row UnitType="UNIT_LIGHT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
 		<Row UnitType="UNIT_LIGHT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_LIGHT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_LIGHT_SWORDSMAN"		EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SWORDS" />
@@ -534,22 +554,26 @@
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	IsRequired="0" />
 		<!---->
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_PIKES_AND_SWORDS" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR" />
 		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_MACEMAN"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_LANDSKNECHT"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_LANDSKNECHT"			EquipmentClass="EQUIPMENTCLASS_PIKES" />
 		<Row UnitType="UNIT_LANDSKNECHT"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_LANDSKNECHT"			EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_LANDSKNECHT"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_PIKES" />
 		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" />
 		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<!--
 			The code can't handle that kind of unit directly...
@@ -568,18 +592,22 @@
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_MUSKETS" />
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_MUSKETMAN"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_JAGER"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_JAGER"					EquipmentClass="EQUIPMENTCLASS_RIFLES" />
 		<Row UnitType="UNIT_JAGER"					EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_JAGER"					EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_MARINE"					EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_MARINE"					EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES" />
 		<Row UnitType="UNIT_MARINE"					EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_MARINE"					EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_MODERN_MARINE2"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_MODERN_MARINE2"			EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES" />
 		<Row UnitType="UNIT_MODERN_MARINE2"			EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_MODERN_MARINE2"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by units of the Conscripts PromotionClass -->
@@ -588,43 +616,52 @@
 		<Row UnitType="UNIT_CONSCRIPT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS" />
 		<Row UnitType="UNIT_CONSCRIPT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_CONSCRIPT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_CONSCRIPT_WARRIOR"		EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_LIGHT_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_LIGHT_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_PRIMITIVE_SPEARS" />
 		<Row UnitType="UNIT_LIGHT_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_LIGHT_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_LIGHT_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_METAL_SPEARS" />
 		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_SPEARMAN"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_HEAVY_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_HEAVY_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_METAL_SPEARS" />
 		<Row UnitType="UNIT_HEAVY_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" />
 		<Row UnitType="UNIT_HEAVY_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_HEAVY_SPEARMAN"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_PIKES" />
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="0" />
 		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_PIKEMAN"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_HEAVY_PIKEMAN"			EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_HEAVY_PIKEMAN"			EquipmentClass="EQUIPMENTCLASS_PIKES" />
 		<Row UnitType="UNIT_HEAVY_PIKEMAN"			EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR"		IsRequired="1" />
 		<Row UnitType="UNIT_HEAVY_PIKEMAN"			EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_HEAVY_PIKEMAN"			EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_RIFLEMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_RIFLEMAN"				EquipmentClass="EQUIPMENTCLASS_RIFLES" />
 		<Row UnitType="UNIT_RIFLEMAN"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_RIFLEMAN"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_AUTOMATIC_RIFLES" />
 		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_INFANTRY"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		
 		<Row UnitType="UNIT_MODERN_INFANTRY"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_MODERN_INFANTRY"		EquipmentClass="EQUIPMENTCLASS_ASSAULT_RIFLES" />
 		<Row UnitType="UNIT_MODERN_INFANTRY"		EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
+		<Row UnitType="UNIT_MODERN_INFANTRY"		EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 	
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by units of the Cavalry PromotionClass -->

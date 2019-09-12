@@ -837,4 +837,13 @@
 	</DiplomaticStateActions>
 	-->
 	
+	<SupplyRoutes>
+		<Row SupplyRouteType="Sea"		BaseRouteLengthEfficiency="70"	BaseMaxRouteTonnage="350"	/>
+		<Row SupplyRouteType="River"	BaseRouteLengthEfficiency="55"	BaseMaxRouteTonnage="150"	BaseMaintainedRoute="1" BaseIncomingRoute="2"/>
+		<Row SupplyRouteType="Trader"	BaseRouteLengthEfficiency="100"	BaseMaxRouteTonnage="50"	/> <!-- should be different for "sea" only traders -->
+		<Row SupplyRouteType="Road"		BaseRouteLengthEfficiency="30"	BaseMaxRouteTonnage="15"	BaseMaintainedRoute="1" BaseIncomingRoute="1"/>
+		<Row SupplyRouteType="Rail"		BaseRouteLengthEfficiency="95"	BaseMaxRouteTonnage="1000"	BaseMaintainedRoute="1" BaseIncomingRoute="1"/>
+		<Row SupplyRouteType="Air"		BaseRouteLengthEfficiency="95"	BaseMaxRouteTonnage="20"	BaseMaintainedRoute="1" BaseIncomingRoute="1"/>
+	</SupplyRoutes> 
+	
 </GameInfo>

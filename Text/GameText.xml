@@ -155,6 +155,17 @@
 	<Replace Tag="LOC_TECH_CONTRIBUTION_UNUSED_TITLE"		Text="Possible Contributions not triggered yet:[NEWLINE]" 	Language="en_US" />
 	<Replace Tag="LOC_TECH_CONTRIBUTION_PREREQ_TECH"		Text="({1_Name} required)" 									Language="en_US" />
 	
+	<Replace Tag="LOC_GAME_MENU_GCO_RESTART" Language="en_US">
+	  <Text>RESTART</Text>
+	</Replace>
+	<Replace Tag="LOC_GAME_MENU_GCO_RESTART_TOOLTIP" Language="en_US">
+	  <Text>Press to restart the game using the same settings</Text>
+	</Replace>
+	
+	<Replace Tag="LOC_GAME_MENU_GCO_RESTART_TIMER" Language="en_US">
+	  <Text>Restart in {1Num}sec (Press to cancel)</Text>
+	</Replace>	
+	
   </LocalizedText>
   
   <LocalizedText> <!-- Top Panel -->
@@ -176,7 +187,7 @@
 	<Replace Tag="LOC_TOP_PANEL_POPULATION_TOOLTIP"		Text="Total population =  {1_Num : number #,###}[NEWLINE]Active Duty = {2_Num : number #,###} personnel ({7_Num : number #,###} in logistic + {6_Num : number #,###} in units)[NEWLINE]{3_Num : number #.##} % of population in service[NEWLINE]Conscription Efficiency = {4_Num : number #.##} %[NEWLINE][NEWLINE]Conscription Efficiency goes down when the number of your Personnel in Active Duty get closer to the maximum percentage of population in service (currently {5_Num : number #.##} %).[NEWLINE][NEWLINE]It affects the number of personnel drafted each turn in your cities.[NEWLINE][NEWLINE]Some Policies allow you to raise a bigger army, and being at war give a boost to the percentage of population that can be drafted, until the end of the war.[NEWLINE][NEWLINE]The personnel in units and the personnel required to provide support to those units are considered in Active Duty." Language="en_US" />
 
 	
-	<Replace Tag="LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP" Text="Total {2_Name} knowledge sources = {1_Num : number #.##} in all cities" Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP" Text="[ICON_Science][COLOR:ResScienceLabelCS]{2_Name}[ENDCOLOR] knowledge = {1_Num : number #.##} sources in cities" Language="en_US" />
 	
 	<Replace Tag="LOC_TOP_PANEL_RESEARCH_YIELD_TOOLTIP" Text="[ICON_INDENT]{1_Num : number +#.#;-#.#} {2_Name}" Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_RESEARCH_YIELD_TITLE_TOOLTIP" Text="{1_Num : number +#.#;-#.#} knowledge points for next [ICON_Turn] Turn" Language="en_US" />
@@ -184,6 +195,7 @@
 	<Replace Tag="LOC_TOP_PANEL_RESEARCH_POINTS_TITLE_TOOLTIP" Text="{1_Num : number +#.#;-#.#} research points for next [ICON_Turn] Turn" Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_TITLE" Text="[ICON_INDENT]{2_Num : number +#.#;-#.#} from {1_Name} with {3_Num : number #.##}% Literacy" Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_DETAIL" Text="[ICON_INDENT][ICON_INDENT]{1_Num : number +#.#;-#.#} from {2_Num : number #.##} {3_Name}" Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_TECHNOLOGY_POINTS_TITLE_TOOLTIP" Text="{1_Num : number +#.#;-#.#} {3_Name} for next [ICON_Turn] Turn from {2_Num : number +#.#;-#.#} knowledge" Language="en_US" />
 	
 	<Replace Tag="LOC_TOP_PANEL_RESEARCH_BASE_DECAY_TOOLTIP" Text="{1_Num : number +#.#;-#.#} knowledge sources decay for next [ICON_Turn] Turn" Language="en_US" />
 	

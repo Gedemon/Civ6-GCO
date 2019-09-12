@@ -270,8 +270,13 @@
 	</LocalizedText>
     
 	<LocalizedText> <!-- Resources -->	
-		<Replace Tag="LOC_RESOURCE_WINE_NAME" 							Text="Grapes" 						Language="en_US" /> 		
-		<Replace Tag="LOC_RESOURCE_FOOD_NAME" 							Text="Food" 						Language="en_US" /> 
+		<Replace Tag="LOC_RESOURCE_WINE_NAME" 							Text="Grapes" 						Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_FOOD_NAME" 							Text="Food" 						Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_MEAT_NAME" 							Text="Meat" 						Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_FRUITS_NAME" 						Text="Fruits" 						Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_SMOKED_MEAT_NAME" 					Text="Smoked Meat" 					Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_SALTED_MEAT_NAME" 					Text="Salted Meat" 					Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_GRAIN_NAME" 							Text="Grain" 						Language="en_US" />
 		<Replace Tag="LOC_RESOURCE_MATERIEL_NAME" 						Text="Materiel" 					Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_PERSONNEL_NAME"						Text="Personnel"					Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_STEEL_NAME" 							Text="Steel" 						Language="en_US" /> 

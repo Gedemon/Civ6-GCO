@@ -102,6 +102,7 @@ CREATE TABLE IF NOT EXISTS BuildingsGCO (
 --DROP TABLE Buildings;
 --ALTER TABLE temp_Buildings RENAME TO Buildings;
 
+/*
 CREATE TABLE IF NOT EXISTS ResourcesGCO (
 		ResourceType TEXT NOT NULL,
 		Name TEXT NOT NULL DEFAULT 'RESOURCE_NAME', -- so we don't have to set the LOC_NAME manually and update the field automatically in PostUpdate.sql
@@ -125,6 +126,38 @@ CREATE TABLE IF NOT EXISTS ResourcesGCO (
 		NoTransfer 	BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0,		-- Not allowed on internal trade routes		
 		SpecialStock BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0, 	-- Stocked in specific buildings only
 		NotLoot BOOLEAN NOT NULL CHECK (NotLoot IN (0,1)) DEFAULT 0, 			-- Can't be captured when attacking cities
+		DecayRate INTEGER,														-- Also used to get minimal route efficiency (bUseroute = RouteEfficiency >= DecayRate*DecayToEfficiencyFactor)
+		UnitsPerTonnage INTEGER DEFAULT 1,										-- Number of units of this resource per SupplyRoute tonnage
+		PRIMARY KEY(ResourceType),
+		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (PrereqCivic) REFERENCES Civics(CivicType) ON DELETE SET NULL ON UPDATE CASCADE,
+		FOREIGN KEY (ResourceType) REFERENCES Types(Type) ON DELETE CASCADE ON UPDATE CASCADE);
+		*/
+CREATE TABLE IF NOT EXISTS ResourcesGCO (
+		ResourceType TEXT NOT NULL,
+		Name TEXT NOT NULL DEFAULT 'RESOURCE_NAME', -- so we don't have to set the LOC_NAME manually and update the field automatically in PostUpdate.sql
+		ResourceClassType TEXT ,
+		Happiness INTEGER,
+		NoRiver BOOLEAN,
+		RequiresRiver BOOLEAN,
+		Frequency INTEGER,
+		Clumped BOOLEAN,
+		PrereqTech TEXT,
+		PrereqCivic TEXT,
+		PeakEra TEXT,
+		RevealedEra INTEGER,
+		LakeEligible BOOLEAN,
+		AdjacentToLand BOOLEAN,
+		SeaFrequency INTEGER,
+		-- Resources trading
+		FixedPrice BOOLEAN, 				-- Not price variation after production
+		MaxPriceVariationPercent INTEGER, 	-- Max price variation each turn
+		NoExport 	BOOLEAN, 				-- Not allowed on international trade routes
+		NoTransfer 	BOOLEAN,				-- Not allowed on internal trade routes		
+		SpecialStock BOOLEAN, 				-- Stocked in specific buildings only
+		NotLoot BOOLEAN, 					-- Can't be captured when attacking cities
+		DecayRate REAL,					-- Also used to get minimal route efficiency (bUseroute = RouteEfficiency >= DecayRate*DecayToEfficiencyFactor)
+		UnitsPerTonnage INTEGER,			-- Number of units of this resource per SupplyRoute tonnage
 		PRIMARY KEY(ResourceType),
 		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
 		FOREIGN KEY (PrereqCivic) REFERENCES Civics(CivicType) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -397,22 +430,27 @@ ALTER TABLE Resources ADD COLUMN FixedPrice 				BOOLEAN NOT NULL CHECK (FixedPri
 ALTER TABLE Resources ADD COLUMN MaxPriceVariationPercent 	INTEGER NOT NULL DEFAULT 100; 								-- Max price variation each turn
 ALTER TABLE Resources ADD COLUMN NoExport 					BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0; 		-- Not allowed on international trade routes
 ALTER TABLE Resources ADD COLUMN NoTransfer 				BOOLEAN NOT NULL CHECK (NoTransfer IN (0,1)) DEFAULT 0; 	-- Not allowed on internal trade routes
+ALTER TABLE Resources ADD COLUMN UnitsPerTonnage 			INTEGER DEFAULT '1';    									-- Number of units of this resource per SupplyRoute tonnage
 ALTER TABLE Resources ADD COLUMN SpecialStock 				BOOLEAN NOT NULL CHECK (SpecialStock IN (0,1)) DEFAULT 0; 	-- Stocked in specific buildings only
 ALTER TABLE Resources ADD COLUMN NotLoot 					BOOLEAN NOT NULL CHECK (NotLoot IN (0,1)) DEFAULT 0; 		-- Can't be captured when attacking cities
+ALTER TABLE Resources ADD COLUMN DecayRate 					REAL; 														-- Also used to get minimal route efficiency (bUseroute = RouteEfficiency >= DecayRate*DecayToEfficiencyFactor)
 ALTER TABLE Resources ADD COLUMN ResearchType				TEXT; 														-- is a knowledge resource for a specific research
 ALTER TABLE Resources ADD COLUMN TechnologyType				TEXT; 														-- is a knowledge resource for a specific technology
 
 -- Hidden Buildings
 ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; 		-- Do not show in Civilopedia
 ALTER TABLE Buildings ADD COLUMN NoCityScreen 	BOOLEAN NOT NULL CHECK (NoCityScreen IN (0,1)) DEFAULT 0; 	-- Do not show in City Screens
+--
 ALTER TABLE Buildings ADD COLUMN Unlockers 		BOOLEAN NOT NULL CHECK (Unlockers IN (0,1)) DEFAULT 0; 		-- Unlockers for buildings and units
-ALTER TABLE Buildings ADD COLUMN EquipmentStock	integer DEFAULT 0; 											-- Equipment that can be stocked by the building
-
+ALTER TABLE Buildings ADD COLUMN EquipmentStock	INTEGER DEFAULT 0; 											-- Equipment that can be stocked by the building
+ALTER TABLE Buildings ADD COLUMN FishingRange 	INTEGER DEFAULT 0;											-- Range to work sea resources
 -- Materiel ratio for Buildings construction
-ALTER TABLE Buildings ADD COLUMN MaterielPerProduction 	INTEGER DEFAULT '4'; 		-- Materiel per unit of production needed for buildings construction
-
+ALTER TABLE Buildings ADD COLUMN MaterielPerProduction 	INTEGER DEFAULT 4; 		-- Materiel per unit of production needed for buildings construction
 -- Employment
 ALTER TABLE Buildings ADD COLUMN EmploymentSize	REAL DEFAULT 0; 					-- Employment slots provided by the building
+
+-- Technologies
+ALTER TABLE Technologies ADD COLUMN FishingRange INTEGER DEFAULT 0;					-- Range to work sea resources
 
 
 -----------------------------------------------
@@ -840,6 +878,25 @@ CREATE TABLE TechnologyKnowledgeResourceClass (
 		PRIMARY KEY(ResourceClass)
 	);
 
+-- SupplyRoutes
+CREATE TABLE IF NOT EXISTS SupplyRoutes
+     (  SupplyRouteType TEXT NOT NULL,				-- River, Sea, Road, Rail, Trader, Airport
+        BaseMaintainedRoute INT NOT NULL DEFAULT 0,
+        BaseIncomingRoute INT NOT NULL DEFAULT 0,
+        BaseRouteLengthEfficiency INT NOT NULL,		-- RouteEfficiency = ( 100 - math.pow(  ( routeLength * ((100-BaseRouteLengthEfficiency)/100) ),2 )  )
+        BaseMaxRouteTonnage  INT NOT NULL			-- Maximum tonnage for a route should be the lower value between both end
+     );
+
+CREATE TABLE IF NOT EXISTS SupplyRouteChanges
+     (   BuildingType TEXT NOT NULL,
+         TechnologyType TEXT NOT NULL,
+         EraType TEXT NOT NULL,
+         ApplicationType TEXT NOT NULL,
+         SupplyRouteType TEXT NOT NULL,
+         MaintainedRoute INT,			-- Number of trade routes maintained by this building in its city
+         IncomingRoute INT,				-- Number of incoming routes to this building
+         RouteLengthEfficiencyChange INT,
+         MaxRouteTonnageChange  INT);
 	
 -----------------------------------------------
 -- Edit Tables

@@ -54,11 +54,6 @@ local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
 local NO_FEATURE 				= -1
 
-local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
-local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
-local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
-local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
-
 local FeatureRemoveFactor		= tonumber(GameInfo.GlobalParameters["RESOURCE_FROM_FEATURE_REMOVE_FACTOR"].Value)
 local FeatureRemoveEraRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_FROM_FEATURE_REMOVE_ERA_RATIO"].Value)
 
@@ -70,6 +65,8 @@ local BasePillageMultiplier		= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE
 
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
+local woodResourceID			= GameInfo.Resources["RESOURCE_WOOD"].Index
+local plantResourceID			= GameInfo.Resources["RESOURCE_PLANTS"].Index
 local horsesResourceID 			= GameInfo.Resources["RESOURCE_HORSES"].Index
 local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local medicineResourceID		= GameInfo.Resources["RESOURCE_MEDICINE"].Index
@@ -5299,12 +5296,14 @@ end
 
 function DoExchange(self)
 	Dlog("DoExchange for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
+	
+--if self:GetOwner() == 0 then DEBUG_UNIT_SCRIPT = "debug" end
 
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Looking to exchange equipment for " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
 
 	local surplus
-	local maxDamage	= 66 -- Don't transfer to units at more than 33% damage (assuming 100HP max here, to do : something better)
+	local maxDamage	= 100--66 -- Don't transfer to units at more than 33% damage (assuming 100HP max here, to do : something better, maybe player defined ?)
 	local unitPlot 	= Map.GetPlot(self:GetX(), self:GetY())
 	if unitPlot then
 	

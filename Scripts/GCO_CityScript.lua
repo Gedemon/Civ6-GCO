@@ -284,6 +284,8 @@ local PersonnelFoodConsumption 		= tonumber(GameInfo.GlobalParameters["FOOD_CONS
 local MaterielProductionPerSize 	= tonumber(GameInfo.GlobalParameters["CITY_MATERIEL_PRODUCTION_PER_SIZE"].Value)
 local ResourceStockPerSize 			= tonumber(GameInfo.GlobalParameters["CITY_STOCK_PER_SIZE"].Value)
 local FoodStockPerSize 				= tonumber(GameInfo.GlobalParameters["CITY_FOOD_STOCK_PER_SIZE"].Value)
+local FoodStockPerConsumption		= tonumber(GameInfo.GlobalParameters["CITY_FOOD_CONSUMPTION_TO_STOCK_FACTOR"].Value)
+local FoodPreparationFactor			= tonumber(GameInfo.GlobalParameters["CITY_FOOD_PREPARATION_OBJECTIVE_FACTOR"].Value)
 local LuxuryStockRatio 				= tonumber(GameInfo.GlobalParameters["CITY_LUXURY_STOCK_RATIO"].Value)
 local PerSizeStockRatio 			= tonumber(GameInfo.GlobalParameters["CITY_PER_SIZE_STOCK_RATIO"].Value)
 local PersonnelPerSize	 			= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
@@ -607,7 +609,7 @@ function RegisterNewCity(playerID, city)
 		city:UpdateSize()
 		--ExposedMembers.CityData[cityKey].Stock[turnKey][foodResourceKey] = 
 	end
-	city:ChangeStock(foodResourceID, city:GetMaxStock(foodResourceID))--GCO.Round(city:GetMaxStock(foodResourceID)/2))
+	city:ChangeStock(foodResourceID, city:GetMaxStock(foodResourceID), ResourceUseType.Product, cityKey)--GCO.Round(city:GetMaxStock(foodResourceID)/2))
 	
 	--plot:MatchCultureToPopulation()
 	
@@ -2685,10 +2687,16 @@ function GetMaxStock(self, resourceID)
 		return GCO.Round(sizeRatio * KnowledgePerSize * self:GetLiteracy() / 100)
 	end
 	
+	-- special case for Food
+	if resourceID == foodResourceID then
+		local normalRatio = 1
+		return self:GetFoodConsumption(normalRatio) * FoodStockPerConsumption
+	end
+	
 	if not GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
 		maxStock = sizeRatio * ResourceStockPerSize
 		if resourceID == personnelResourceID 	then maxStock = GCO.Round(sizeRatio * PersonnelPerSize) end
-		if resourceID == foodResourceID 		then maxStock = GCO.Round(sizeRatio * FoodStockPerSize) + baseFoodStock end
+		--if resourceID == foodResourceID 		then maxStock = GCO.Round(sizeRatio * FoodStockPerSize) + baseFoodStock end
 		if GCO.IsResourceEquipment(resourceID) 	then maxStock = self:GetMaxEquipmentStock(resourceID) end	-- Equipment stock does not depend of city size, just buildings
 		if GCO.IsResourceLuxury(resourceID) 	then maxStock = GCO.Round(maxStock * LuxuryStockRatio) end
 	end
@@ -3484,8 +3492,13 @@ function GetFoodNeededByPopulationFactor(self)	-- reduce food consumption relati
 	return math.max(1, self:GetRealSize() / tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SIZE_EFFECT_REDUCTION"].Value))
 end
 
-function GetFoodStock(self)
-	return self:GetStock(foodResourceID)
+function GetFoodStock(self) -- return all edible food stock
+	local foodStock	= 0
+	for _, resourceID in ipairs(GCO.GetEdibleFoodList()) do
+		foodStock = foodStock + self:GetStock(resourceID)
+	end
+	return foodStock
+	--return self:GetStock(foodResourceID)
 end
 
 function GetCityBaseFoodStock(data)
@@ -4487,6 +4500,10 @@ else
 			local product 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
 			local collect 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
 			local localProd			= product + collect
+			local sDisabled			= "X"
+			local sNoTransfer		= resRow.NoTransfer and sDisabled
+			local sNoExport			= resRow.NoExport and sDisabled
+			local sNoTrade			= resRow.NoTransfer and resRow.NoExport and sDisabled
 
 			local import 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
 			local transferIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
@@ -4520,7 +4537,7 @@ else
 				if tradeIn > 0 then
 					str = str .. " |+" .. Indentation(tradeIn, 3, true).."/-"..Indentation(tradeOut, 3, true)
 				else
-					str = str .. " | " .. Indentation("0", 3, true).."/-"..Indentation(tradeOut, 3, true)
+					str = str .. " | " .. Indentation(sNoTrade or "0", 3, true).."/-"..Indentation(sNoTrade or tradeOut, 3, true)
 				end
 				
 				str = str .. " |" .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
@@ -4628,7 +4645,7 @@ else
 					elseif trade < 0 then
 						str = str .. " |-" .. Indentation(-trade, 4, true)
 					else
-						str = str .. " | " .. Indentation(trade, 4, true)					
+						str = str .. " | " .. Indentation(sNoTrade or trade, 4, true)					
 					end
 					if supply > 0 then
 						str = str .. " |+" .. Indentation(supply, 4, true)
@@ -4642,8 +4659,8 @@ else
 					str = str .. " " .. (costVariation < 0 and "[COLOR_Civ6Green]-"..Indentation(-costVariation, 4, true) or "[COLOR_Civ6Red]+"..Indentation(costVariation, 4, true)) .."[ENDCOLOR]"
 				else
 					str = str .. " " .. Indentation(Locale.Lookup(resRow.Name), 6)
-					str = str .. "|+" .. Indentation(import, 3, true).. "/-" .. Indentation(export, 3, true)
-					str = str .. "|+" .. Indentation(transferIn, 3, true).. "/-" .. Indentation(transferOut, 3, true)
+					str = str .. "|+" .. Indentation(sNoExport or import, 3, true).. "/-" .. Indentation(sNoExport or export, 3, true)
+					str = str .. "|+" .. Indentation(sNoTransfer or transferIn, 3, true).. "/-" .. Indentation(sNoTransfer or transferOut, 3, true)
 					str = str .. "|+" .. Indentation(pillage, 3, true).. "/-" .. Indentation(supply, 3, true)
 					
 					--str = str .. "|" .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
@@ -4831,7 +4848,7 @@ function SetCityRationing(self)
 	local cityKey 				= self:GetKey()
 	local cityData 				= ExposedMembers.CityData[cityKey]
 	local ratio 				= cityData.FoodRatio
-	local foodStock 			= self:GetStock(foodResourceID)
+	local foodStock 			= self:GetFoodStock()
 	local previousTurn			= tonumber(GCO.GetPreviousTurnKey())
 	local previousTurnSupply 	= self:GetSupplyAtTurn(foodResourceID, previousTurn)
 	local foodSent 				= GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.Export, previousTurn)) +  GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.TransferOut, previousTurn))
@@ -4839,8 +4856,11 @@ function SetCityRationing(self)
 	local foodVariation 		= previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
 	local consumptionRatio		= math.min(normalRatio, previousTurnSupply / self:GetFoodConsumption(normalRatio)) -- GetFoodConsumption returns a value >= 1
 
+--Dline(" Food stock = ", foodStock," Variation = ",foodVariation, " Previous turn supply = ", previousTurnSupply, " Wanted = ", self:GetFoodConsumption(normalRatio), " Actual Consumption = ", self:GetFoodConsumption(), " Export+Transfer = ", foodSent, " Actual ratio = ", ratio, " Turn(s) locked left = ", (RationingTurnsLocked - (Game.GetCurrentGameTurn() - cityData.FoodRatioTurn)), " Consumption ratio = ",  consumptionRatio)
+
 	Dprint( DEBUG_CITY_SCRIPT, " Food stock = ", foodStock," Variation = ",foodVariation, " Previous turn supply = ", previousTurnSupply, " Wanted = ", self:GetFoodConsumption(normalRatio), " Actual Consumption = ", self:GetFoodConsumption(), " Export+Transfer = ", foodSent, " Actual ratio = ", ratio, " Turn(s) locked left = ", (RationingTurnsLocked - (Game.GetCurrentGameTurn() - cityData.FoodRatioTurn)), " Consumption ratio = ",  consumptionRatio)
 
+	--[[
 	if foodVariation < 0 and foodSent == 0 and foodStock < self:GetMaxStock(foodResourceID) * 0.75 then
 		local turnBeforeFamine		= -(foodStock / foodVariation)
 		Dprint( DEBUG_CITY_SCRIPT, " Turns Before Starvation = ", turnBeforeFamine)
@@ -4868,6 +4888,11 @@ function SetCityRationing(self)
 			ratio = consumptionRatio
 		end
 	end
+	--]]
+	
+	-- simple
+	ratio = math.max(Starvation, math.min(1, consumptionRatio))
+	
 	Dprint( DEBUG_CITY_SCRIPT, " Final Ratio = ", ratio)
 	ExposedMembers.CityData[cityKey].FoodRatio = GCO.ToDecimals(ratio)
 	Dlog("SetCityRationing /END")
@@ -5821,6 +5846,28 @@ function DoConstruction(self)
 	Dlog("DoConstruction ".. Locale.Lookup(self:GetName()).." /END")
 end
 
+function DoStockDecay(self)
+
+	Dlog("DoStockDecay ".. Locale.Lookup(self:GetName()).." /START")
+	Dprint( DEBUG_CITY_SCRIPT, "Resource decay...")
+
+	-- 
+	for resourceKey, value in pairs(self:GetResources()) do
+		local resourceID	= tonumber(resourceKey)
+		local stock			= self:GetStock(resourceID)
+		local row			= GameInfo.Resources[resourceID]
+		
+		--
+		if stock > 0 and row.DecayRate then
+			local decay = GCO.ToDecimals(math.max(0, stock - self:GetDemand(resourceID)) * row.DecayRate / 100)
+			self:ChangeStock(resourceID, -decay, ResourceUseType.Waste)
+		end
+	end
+
+	Dlog("DoStockDecay ".. Locale.Lookup(self:GetName()).." /END")
+end
+
+
 function DoStockUpdate(self)
 
 	Dlog("DoStockUpdate ".. Locale.Lookup(self:GetName()).." /START")
@@ -5855,15 +5902,25 @@ function DoStockUpdate(self)
 
 	-- Check resources stock, remove surplus
 	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
-		local resourceID = tonumber(resourceKey)
-		local excedent = 0
-		local stock = self:GetStock(resourceID)
+		local resourceID	= tonumber(resourceKey)
+		local excedent		= 0
+		local stock			= self:GetStock(resourceID)
+		local row			= GameInfo.Resources[resourceID]
 		
 		-- Studying resource
 		if stock > 0 then
 			local plot	= self:GetPlot()
-			LuaEvents.ResearchGCO("EVENT_RESOURCE_IN_STOCK", self:GetOwner(), plot:GetX(), plot:GetY(), GameInfo.Resources[resourceID].ResourceType, self)
+			LuaEvents.ResearchGCO("EVENT_RESOURCE_IN_STOCK", self:GetOwner(), plot:GetX(), plot:GetY(), row.ResourceType, self)
 		end
+		
+		-- Some resource decay
+		--[[
+		if row.DecayRate then
+			local decay = GCO.ToDecimals(math.max(0, stock - self:GetDemand(resourceID)) * row.DecayRate / 100)
+			stock 		= stock - decay
+			self:ChangeStock(resourceID, -decay, ResourceUseType.Waste)
+		end
+		--]]
 		
 		-- Obsolete equipment is removed at a faster rate
 		if player:IsObsoleteEquipment(resourceID) then
@@ -5952,11 +6009,37 @@ function DoFood(self)
 
 	Dlog("DoFood ".. Locale.Lookup(self:GetName()).." /START")
 	-- get city food yield. Todo : switch to collect on plots with employment activity on plots
-	local food = GCO.Round(self:GetCityYield(YieldTypes.FOOD )) --* self:GetOutputPerYield())
-	local resourceCost = GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
-	self:ChangeStock(foodResourceID, food, ResourceUseType.Collect, self:GetKey(), resourceCost)
+	local foodYield		= GCO.ToDecimals(self:GetCityYield(YieldTypes.FOOD )) --* self:GetOutputPerYield())
+	local resourceCost	= GCO.GetBaseResourceCost(foodResourceID) * self:GetWealth() * ImprovementCostRatio -- assume that city food yield is low cost (like collected with improvement)
+	self:ChangeStock(foodResourceID, foodYield, ResourceUseType.Collect, self:GetKey(), resourceCost)
 
-	-- food eaten is calculated in DoNeeds()
+	-- Food eaten is calculated in DoNeeds()
+	
+	-- prepared Food
+	local normalRatio	= 1
+	local consumption	= self:GetFoodConsumption(normalRatio)
+	local foodNeeded	= (consumption * FoodPreparationFactor) - foodYield
+	if foodNeeded > 0 then
+		local sortedFood	= {}
+		for _, resourceID in ipairs(GCO.GetEdibleFoodList()) do
+			if resourceID ~= foodResourceID then
+				table.insert(sortedFood, {ResourceID = resourceID, DecayRate = GameInfo.Resources[resourceID].DecayRate or 0 })
+			end
+		end
+		table.sort(sortedFood, function(a, b) return a.DecayRate > b.DecayRate; end)
+		
+		for _, row in ipairs(sortedFood) do
+			local resourceID 	= row.ResourceID
+			local used			= math.min(foodNeeded, self:GetStock(resourceID))
+			if used > 0 then
+				self:ChangeStock(foodResourceID, used, ResourceUseType.Product, self:GetKey(), self:GetResourceCost(resourceID))
+				self:ChangeStock(resourceID, -used, ResourceUseType.Consume, self:GetKey())
+				foodNeeded = foodNeeded - used
+			end
+		end
+	end
+	
+	Dlog("DoFood ".. Locale.Lookup(self:GetName()).." /END")
 end
 
 function DoNeeds(self)
@@ -7005,9 +7088,10 @@ function DoTurnFirstPass(self)
 	end
 	
 	-- set food rationing
-	GCO.StartTimer("SetCityRationing for ".. name)
 	self:SetCityRationing()
-	GCO.ShowTimer("SetCityRationing for ".. name)
+	
+	-- resource decay (after setting rationing, before collecting resources)
+	self:DoStockDecay()
 
 	-- get linked units and supply demand
 	GCO.StartTimer("UpdateLinkedUnits for ".. name)
@@ -7019,15 +7103,15 @@ function DoTurnFirstPass(self)
 	self:DoCollectResources()
 	GCO.ShowTimer("DoCollectResources for ".. name)
 	
-	GCO.StartTimer("DoRecruitPersonnel for ".. name)
+	--
 	self:DoRecruitPersonnel()
-	GCO.ShowTimer("DoRecruitPersonnel for ".. name)
 
-	-- feed population
+	-- prepare food for consumption
 	GCO.StartTimer("DoFood for ".. name)
 	self:DoFood()
 	GCO.ShowTimer("DoFood for ".. name)
 	
+	--
 	GCO.StartTimer("DoNeeds for ".. name)
 	self:SetNeedsValues()
 	self:DoNeeds()
@@ -7505,6 +7589,7 @@ function AttachCityFunctions(city)
 		if not c.GetBirthRate						then c.GetBirthRate							= GetBirthRate                      	end
 		if not c.GetDeathRate						then c.GetDeathRate							= GetDeathRate                      	end
 		if not c.DoStockUpdate						then c.DoStockUpdate						= DoStockUpdate                       	end
+		if not c.DoStockDecay						then c.DoStockDecay							= DoStockDecay                       	end
 		if not c.DoFood								then c.DoFood								= DoFood                            	end
 		if not c.DoIndustries						then c.DoIndustries							= DoIndustries                      	end
 		if not c.DoConstruction						then c.DoConstruction						= DoConstruction                    	end

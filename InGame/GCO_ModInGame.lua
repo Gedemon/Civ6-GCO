@@ -21,6 +21,40 @@ function HideGrowthHexAnchor()
 end
 
 
+----------------------------------------------------------------------------------------
+-- Manage "Restart" button
+----------------------------------------------------------------------------------------
+local RestartCtrl
+local bRestartInitialized	= false
+local restartTimer			= 0
+local waitBeforeRestart		= 5.9
+function RestartTimer()
+	if bRestartInitialized then
+		if Automation.GetTime() - restartTimer > waitBeforeRestart then
+			Events.GameCoreEventPublishComplete.Remove( RestartTimer )
+			LuaEvents.RestartGame()
+			Network.RestartGame()
+		else
+			RestartCtrl:SetText( Locale.Lookup("LOC_GAME_MENU_YNAMP_RESTART_TIMER", math.floor(math.max(0, waitBeforeRestart - (Automation.GetTime() - restartTimer)))) )
+		end
+	end
+end
+
+function OnRestartGame()
+	if bRestartInitialized then
+		bRestartInitialized = false
+		bNeedToSave			= true
+		RestartCtrl:SetText( Locale.Lookup("LOC_GAME_MENU_GCO_RESTART") )
+		Events.GameCoreEventPublishComplete.Remove( RestartTimer )
+	else
+		bRestartInitialized = true
+		RestartCtrl:SetText( Locale.Lookup("LOC_GAME_MENU_GCO_RESTART_TIMER", waitBeforeRestart) )
+		restartTimer = Automation.GetTime()
+		Events.GameCoreEventPublishComplete.Add( RestartTimer )
+	end
+end
+
+--[[
 -----------------------------------------------------------------------------------------
 -- Override the restart button
 -----------------------------------------------------------------------------------------
@@ -37,7 +71,7 @@ function OnRestartGame()
 	-- Below code broken, so direct restart as a nasty workaround...
 	OnReallyRestart()
 	
-	--[[
+	-- [ [
 	ContextPtr:LookUpControl("/InGame/TopOptionsMenu/"):SetHide(true)
 	if (not m_kPopupDialog:IsOpen()) then
 		m_kPopupDialog:AddText(	  Locale.Lookup("LOC_GAME_MENU_RESTART_WARNING"));
@@ -45,7 +79,7 @@ function OnRestartGame()
 		m_kPopupDialog:AddButton( Locale.Lookup("LOC_COMMON_DIALOG_YES_BUTTON_CAPTION"), OnReallyRestart, nil, nil, "PopupButtonInstanceRed" );
 		m_kPopupDialog:Open();
 	end
-	--]]
+	-- ] ]
 end
 
 function OnNo()
@@ -55,7 +89,7 @@ end
 function Initialize()
 	m_kPopupDialog = PopupDialog:new( "ModInGame" );
 end
-
+--]]
 
 -----------------------------------------------------------------------------------------
 -- Move Research/Civic popup
@@ -89,7 +123,8 @@ function OnEnterGame()
 	-- Move research popup to top/right	
 	ContextPtr:LookUpControl("/InGame/TechCivicCompletedPopup"):RegisterWhenShown(MoveTechPopUp)	
 	
+	RestartCtrl = ContextPtr:LookUpControl("/InGame/TopOptionsMenu/RestartButton")
 end
 Events.LoadScreenClose.Add(OnEnterGame)
 
-Initialize()
+--Initialize()

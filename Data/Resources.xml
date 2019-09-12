@@ -7,7 +7,12 @@
 	<ResourcesGCO>
 		<!-- Materiel can be used as Equipment for units reinforcement, so is defined in the equipment table -->
 		<!--<Row ResourceType="RESOURCE_MATERIEL" 	ResourceClassType="RESOURCECLASS_MATERIEL" Frequency="0"/>-->
-		<Row ResourceType="RESOURCE_FOOD" 						ResourceClassType="RESOURCECLASS_BONUS" 	Frequency="0"/>
+		<Row ResourceType="RESOURCE_FOOD" 						ResourceClassType="RESOURCECLASS_FOOD" 	Frequency="0"	DecayRate="50" />	<!-- Base terrain yield -->
+		<Row ResourceType="RESOURCE_MEAT" 						ResourceClassType="RESOURCECLASS_FOOD" 	Frequency="0"	DecayRate="45" />	<!-- from Whales, Fish, Crabs, Cattle, Deer, Sheep -->
+		<Row ResourceType="RESOURCE_FRUITS"						ResourceClassType="RESOURCECLASS_FOOD" 	Frequency="0"	DecayRate="30" />	<!-- from Bananas, Citrus, Graps (ex-Wine) -->
+		<Row ResourceType="RESOURCE_SMOKED_MEAT"				ResourceClassType="RESOURCECLASS_FOOD" 	Frequency="0"	DecayRate="7" />	<!-- from Meat + wood -->
+		<Row ResourceType="RESOURCE_SALTED_MEAT"				ResourceClassType="RESOURCECLASS_FOOD" 	Frequency="0"	DecayRate="5" />	<!-- from Meat + salt -->
+		<Row ResourceType="RESOURCE_GRAIN" 						ResourceClassType="RESOURCECLASS_FOOD" 	Frequency="0"	DecayRate="2" />	<!-- from Wheat, Rice -->
 		<Row ResourceType="RESOURCE_PERSONNEL" 					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1"/>
 		<Row ResourceType="RESOURCE_STEEL" 						ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
 		<Row ResourceType="RESOURCE_WOOD" 						ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"/>
@@ -31,6 +36,20 @@
 		<Row ResourceType="RESOURCE_JET_ENGINE"					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_AVIONIC" 					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_ADVANCED_AVIONIC" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
+		
+		<Row ResourceType="RESOURCE_RICE" 		DecayRate="2" />
+		<Row ResourceType="RESOURCE_WHEAT" 		DecayRate="2" />
+		<Row ResourceType="RESOURCE_CATTLE" 	NoExport="1" NoTransfer="1"	SpecialStock="1" />
+		<Row ResourceType="RESOURCE_DEER" 		NoExport="1" NoTransfer="1"	SpecialStock="1" />
+		<Row ResourceType="RESOURCE_SHEEP" 		NoExport="1" NoTransfer="1"	SpecialStock="1" />
+		<Row ResourceType="RESOURCE_CITRUS" 	DecayRate="30"	SpecialStock="1" />
+		<Row ResourceType="RESOURCE_COCOA" 		/>
+		<Row ResourceType="RESOURCE_SUGAR" 		/>
+		<Row ResourceType="RESOURCE_WINE" 		DecayRate="30"	NoExport="1" NoTransfer="1"	SpecialStock="1" />
+		<Row ResourceType="RESOURCE_BANANAS" 	DecayRate="25" 	SpecialStock="1" />
+		<Row ResourceType="RESOURCE_WHALES" 	DecayRate="45"	NoExport="1" NoTransfer="1"	SpecialStock="1" />
+		<Row ResourceType="RESOURCE_FISH" 		DecayRate="45"	NoExport="1" NoTransfer="1"	SpecialStock="1" />
+		<Row ResourceType="RESOURCE_CRABS" 		DecayRate="45"	NoExport="1" NoTransfer="1"	SpecialStock="1" />
 		
 	</ResourcesGCO>
 

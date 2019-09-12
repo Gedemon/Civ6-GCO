@@ -830,11 +830,11 @@ function UpdateCulture( self )
 	-- Limited culture on water
 	if self:IsWater() then
 		local ownerID = self:GetOwner()
-		if (ownerID ~= NO_OWNER) and (self:GetDistrictType() == -1) and (not self:IsTerritorialWaterOf(ownerID)) then
+		if (ownerID ~= NO_OWNER) then --(ownerID ~= NO_OWNER) and (self:GetDistrictType() == -1) and (not self:IsTerritorialWaterOf(ownerID)) then
 			--WorldBuilder.CityManager():SetPlotOwner( self:GetX(), self:GetY(), false )
 			self:SetOwner(-1)
 		end
-		if (ownerID == NO_OWNER) and self:IsAdjacentOwned() and self:IsAdjacentToLand() then
+		if false then --(ownerID == NO_OWNER) and self:IsAdjacentOwned() and self:IsAdjacentToLand() then
 			local potentialOwnerID = self:GetTerritorialWaterOwner()
 			if potentialOwnerID then			
 				local city, distance = GCO.FindNearestPlayerCity(potentialOwnerID, self:GetX(), self:GetY())

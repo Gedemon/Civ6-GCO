@@ -84,36 +84,53 @@ INSERT INTO CultureGroups (CultureType, Name, Adjective, Ethnicity)
 -----------------------------------------------
 -- Resources
 -----------------------------------------------
-	
-/* Create new Resources entries from the Equipment table */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
-	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech, Equipment.FixedPrice, Equipment.MaxPriceVariationPercent, Equipment.NoExport, Equipment.NoTransfer, Equipment.SpecialStock, Equipment.NotLoot
-	FROM Equipment;
-	
-/* Create new Resources entries from the temporary ResourcesGCO table */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
-	SELECT ResourcesGCO.ResourceType, 'LOC_' || ResourcesGCO.ResourceType || '_NAME', ResourcesGCO.ResourceClassType, ResourcesGCO.Frequency, ResourcesGCO.PrereqTech, ResourcesGCO.FixedPrice, ResourcesGCO.MaxPriceVariationPercent, ResourcesGCO.NoExport, ResourcesGCO.NoTransfer, ResourcesGCO.SpecialStock, ResourcesGCO.NotLoot
-	FROM ResourcesGCO;
-	
-/* Create new Resources entries from the Population table */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
-	SELECT Populations.PopulationType, 'LOC_' || Populations.PopulationType || '_NAME', "RESOURCECLASS_POPULATION", 0, NULL, 1, 0, 1, 1, 1, 1
-	FROM Populations;
-	
-/* Create new Resources Types entries from the temporary ResourcesGCO table */
-INSERT OR REPLACE INTO Types (Type, Kind)
-	SELECT ResourcesGCO.ResourceType, 'KIND_RESOURCE'
-	FROM ResourcesGCO;
-	
+
 /* Create new Resources Types entries from the Equipment table */
 INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT Equipment.ResourceType, 'KIND_RESOURCE'
 	FROM Equipment;	
 	
+/* Create new Resources Types entries from the temporary ResourcesGCO table */
+INSERT OR REPLACE INTO Types (Type, Kind)
+	SELECT ResourcesGCO.ResourceType, 'KIND_RESOURCE'
+	FROM ResourcesGCO WHERE NOT EXISTS (SELECT * FROM Resources WHERE Resources.ResourceType = ResourcesGCO.ResourceType); -- "INSERT OR REPLACE" is actually "DELETE AND INSERT" which cause issues on cascade (deleting ResourceType entries from the Resource table) when we just want to update 
+
 /* Create new Resources Types entries from the Populations table */
 INSERT OR REPLACE INTO Types (Type, Kind)
 	SELECT Populations.PopulationType, 'KIND_RESOURCE'
 	FROM Populations;	
+	
+/* Update existing Resources with column from the temporary ResourcesGCO table (before adding new resources) */
+-- The SQLite IFNULL function accepts two arguments and returns the first non-NULL argument. If both arguments are NULL, the IFNULL function returns NULL
+UPDATE Resources SET ResourceClassType 			= ifnull((SELECT ResourcesGCO.ResourceClassType 		FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.ResourceClassType 			IS NOT NULL) , Resources.ResourceClassType 			);
+UPDATE Resources SET Frequency		 			= ifnull((SELECT ResourcesGCO.Frequency 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.Frequency 					IS NOT NULL) , Resources.Frequency 					);
+UPDATE Resources SET PrereqTech 				= ifnull((SELECT ResourcesGCO.PrereqTech 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.PrereqTech 					IS NOT NULL) , Resources.PrereqTech					);
+UPDATE Resources SET FixedPrice 				= ifnull((SELECT ResourcesGCO.FixedPrice 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.FixedPrice 					IS NOT NULL) , Resources.FixedPrice 				);
+UPDATE Resources SET MaxPriceVariationPercent 	= ifnull((SELECT ResourcesGCO.MaxPriceVariationPercent 	FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.MaxPriceVariationPercent	IS NOT NULL) , Resources.MaxPriceVariationPercent 	);
+UPDATE Resources SET NoExport					= ifnull((SELECT ResourcesGCO.NoExport					FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.NoExport					IS NOT NULL) , Resources.NoExport					);
+UPDATE Resources SET NoTransfer 				= ifnull((SELECT ResourcesGCO.NoTransfer 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.NoTransfer 					IS NOT NULL) , Resources.NoTransfer 				);
+UPDATE Resources SET SpecialStock 				= ifnull((SELECT ResourcesGCO.SpecialStock 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.SpecialStock 				IS NOT NULL) , Resources.SpecialStock 				);
+UPDATE Resources SET NotLoot 					= ifnull((SELECT ResourcesGCO.NotLoot 					FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.NotLoot						IS NOT NULL) , Resources.NotLoot					);
+UPDATE Resources SET DecayRate					= ifnull((SELECT ResourcesGCO.DecayRate 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.DecayRate					IS NOT NULL) , Resources.DecayRate					);
+UPDATE Resources SET UnitsPerTonnage			= ifnull((SELECT ResourcesGCO.UnitsPerTonnage 			FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.UnitsPerTonnage				IS NOT NULL) , Resources.UnitsPerTonnage			);
+
+/* Create new Resources entries from the temporary ResourcesGCO table (after updating existing resources) */
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot, DecayRate, UnitsPerTonnage)
+	SELECT ResourcesGCO.ResourceType, 'LOC_' || ResourcesGCO.ResourceType || '_NAME', ResourcesGCO.ResourceClassType, ResourcesGCO.Frequency, ResourcesGCO.PrereqTech, ResourcesGCO.FixedPrice, ResourcesGCO.MaxPriceVariationPercent, ResourcesGCO.NoExport, ResourcesGCO.NoTransfer, ResourcesGCO.SpecialStock, ResourcesGCO.NotLoot, ResourcesGCO.DecayRate, ResourcesGCO.UnitsPerTonnage
+	FROM ResourcesGCO WHERE NOT EXISTS (SELECT * FROM Resources WHERE Resources.ResourceType = ResourcesGCO.ResourceType);
+
+/* Create new Resources entries from the Equipment table */
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
+	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech, Equipment.FixedPrice, Equipment.MaxPriceVariationPercent, Equipment.NoExport, Equipment.NoTransfer, Equipment.SpecialStock, Equipment.NotLoot
+	FROM Equipment;
+	
+/* update UnitsPerTonnage entries from the Size entries in Equipment table */
+UPDATE Resources SET UnitsPerTonnage = 100 / (SELECT Equipment.Size	FROM Equipment WHERE Equipment.ResourceType = Resources.ResourceType AND Equipment.Size < 100);
+
+/* Create new Resources entries from the Population table */
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
+	SELECT Populations.PopulationType, 'LOC_' || Populations.PopulationType || '_NAME', "RESOURCECLASS_POPULATION", 0, NULL, 1, 0, 1, 1, 1, 1
+	FROM Populations;
 
 
 -----------------------------------------------
@@ -136,6 +153,7 @@ INSERT OR REPLACE INTO TechnologyPrereqs (Technology, PrereqTech)
 
 --/*
 -- This way we can set entries in TechnologiesGCO with just the columns to update and leave the rest empty...
+-- The SQLite IFNULL function accepts two arguments and returns the first non-NULL argument. If both arguments are NULL, the IFNULL function returns NULL
 UPDATE Technologies SET Cost 			= ifnull((SELECT TechnologiesGCO.Cost 			FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.Cost 			IS NOT NULL) , Technologies.Cost 			);
 UPDATE Technologies SET Repeatable 		= ifnull((SELECT TechnologiesGCO.Repeatable 	FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.Repeatable 		IS NOT NULL) , Technologies.Repeatable 		);
 UPDATE Technologies SET EmbarkUnitType 	= ifnull((SELECT TechnologiesGCO.EmbarkUnitType FROM TechnologiesGCO WHERE TechnologiesGCO.TechnologyType = Technologies.TechnologyType AND TechnologiesGCO.EmbarkUnitType 	IS NOT NULL) , Technologies.EmbarkUnitType	);

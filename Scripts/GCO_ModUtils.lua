@@ -46,12 +46,20 @@ local equipmentCostRatio = tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME
 
 local IsEquipment		= {}		-- cached table to check if ResourceID is an Equipment
 local IsFood			= {}
+local IsEdibleFood		= {}
+local EdibleFoodList	= {}
 local IsEquipmentMaker 	= {}
 local IsLuxury		 	= {}
 for resourceRow in GameInfo.Resources() do
 
 	if resourceRow.ResourceClassType == "RESOURCECLASS_LUXURY" then
 		IsLuxury[resourceRow.Index] = true
+	end
+	
+	if resourceRow.ResourceClassType == "RESOURCECLASS_FOOD" then
+		IsEdibleFood[resourceRow.Index] = true
+		IsFood[resourceRow.Index] 		= true
+		table.insert(EdibleFoodList, resourceRow.Index)
 	end
 	
 	local resourceType	= resourceRow.ResourceType
@@ -61,7 +69,7 @@ for resourceRow in GameInfo.Resources() do
 	
 	for productionRow in GameInfo.BuildingResourcesConverted() do
 		if resourceType == productionRow.ResourceType then
-			if productionRow.ResourceCreated == "RESOURCE_FOOD" then
+			if productionRow.ResourceCreated and GameInfo.Resources[productionRow.ResourceCreated].ResourceClassType == "RESOURCECLASS_FOOD" then
 				IsFood[resourceRow.Index] = true
 			end
 			if GameInfo.Equipment[productionRow.ResourceCreated] then
@@ -77,6 +85,11 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		--[GameInfo.Resources["RESOURCE_STEEL"].Index] 						= "[ICON_New]",
 		[GameInfo.Resources["RESOURCE_MEDICINE"].Index] 					= "[ICON_Damaged]",
 		[GameInfo.Resources["RESOURCE_FOOD"].Index] 						= "[ICON_Food]",
+		[GameInfo.Resources["RESOURCE_MEAT"].Index] 						= "[ICON_Food]",
+		[GameInfo.Resources["RESOURCE_FRUITS"].Index] 						= "[ICON_Food]",
+		[GameInfo.Resources["RESOURCE_SMOKED_MEAT"].Index] 					= "[ICON_Food]",
+		[GameInfo.Resources["RESOURCE_SALTED_MEAT"].Index] 					= "[ICON_Food]",
+		[GameInfo.Resources["RESOURCE_GRAIN"].Index] 						= "[ICON_Food]",
 		[GameInfo.Resources["RESOURCE_PERSONNEL"].Index]					= "[ICON_Position]",
 		[GameInfo.Resources["RESOURCE_WOOD_PLANKS"].Index]					= "[ICON_RESOURCE_WOOD_PLANKS]",
 		
@@ -304,7 +317,12 @@ function TableSummation(data) -- return the Summation of all values in a table f
 	if not data then return 0 end
 	local total = 0
 	for _, number in pairs(data) do
-		total = total + number
+		if type(number) == "number" then
+			total = total + number
+		else
+			Error("Expecting number in TableSummation, got ".. tostring(type(number)))
+			if type(number) == "table" then for k, v in pairs(number) do print(k,v) end	end
+		end
 	end	
 	return total
 end
@@ -359,7 +377,7 @@ local debugFilter = {
 --	["PlayerScript"] 	= true,
 --	["UnitScript"] 		= true,
 --	["PlotScript"] 		= true,
-	["ResearchScript"] 	= true,
+--	["ResearchScript"] 	= true,
 }
 
 function ToggleOutput()
@@ -1002,6 +1020,14 @@ function IsResourceFood(resourceID)
 	return (IsFood[resourceID] == true)
 end
 
+function IsResourceEdibleFood(resourceID)
+	return (IsEdibleFood[resourceID] == true)
+end
+
+function GetEdibleFoodList()
+	return EdibleFoodList
+end
+
 function IsResourceLuxury(resourceID)
 	return (IsLuxury[resourceID] == true)
 end
@@ -1312,8 +1338,11 @@ function Initialize()
 	ExposedMembers.GCO.GetBaseResourceCost 			= GetBaseResourceCost
 	ExposedMembers.GCO.IsResourceEquipment			= IsResourceEquipment
 	ExposedMembers.GCO.IsResourceFood 				= IsResourceFood
+	
 	ExposedMembers.GCO.IsResourceLuxury 			= IsResourceLuxury
 	ExposedMembers.GCO.IsResourceEquipmentMaker		= IsResourceEquipmentMaker
+	ExposedMembers.GCO.IsResourceEdibleFood 		= IsResourceEdibleFood
+	ExposedMembers.GCO.GetEdibleFoodList 			= GetEdibleFoodList
 	ExposedMembers.GCO.GetResourceIcon				= GetResourceIcon
 	ExposedMembers.GCO.GetResourceImprovementID		= GetResourceImprovementID
 	ExposedMembers.GCO.IsImprovingResource			= IsImprovingResource

@@ -976,6 +976,7 @@ function DoPlayerTurn( playerID )
 	
 	local player = Players[playerID]
 	if player and not player:HasStartedTurn() then
+		LuaEvents.PlayerTurnStartGCO(playerID)
 		local playerConfig						= PlayerConfigurations[playerID]
 		GCO.PlayerTurnsDebugChecks[playerID]	= {}
 		local playerName						= Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))

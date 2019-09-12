@@ -47,7 +47,9 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_OUTER_D
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_PER_SIZE_STOCK_RATIO', 				0.5);	-- ratio of stock per city size 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_PER_SIZE', 					40);	-- base stock for resource 			= CITY_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
-INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 			= CITY_FOOD_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_STOCK_PER_SIZE', 				50);	-- base stock for food	 			= CITY_FOOD_STOCK_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO <- Obsolete, now use CITY_FOOD_CONSUMPTION_TO_STOCK_FACTOR
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_CONSUMPTION_TO_STOCK_FACTOR', 	4);		-- stock for food	 				= FoodConsumption * CITY_FOOD_CONSUMPTION_TO_STOCK_FACTOR
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_FOOD_PREPARATION_OBJECTIVE_FACTOR',	2);		-- food preparation objective		= Foodconsumption * CITY_FOOD_PREPARATION_OBJECTIVE_FACTOR
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_KNOWLEDGE_PER_SIZE', 				80);	-- base stock for knowledge			= CITY_KNOWLEDGE_PER_SIZE * CitySize * CITY_PER_SIZE_STOCK_RATIO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_LUXURY_STOCK_RATIO', 				0.25);	-- base stock for luxuries 			= CITY_STOCK_PER_SIZE * CITY_LUXURY_STOCK_RATIO * CitySize * CITY_PER_SIZE_STOCK_RATIO
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_STOCK_EQUIPMENT', 					300);	-- base stock for equipment 		(not related to city size)

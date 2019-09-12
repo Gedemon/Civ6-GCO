@@ -214,6 +214,7 @@ function PostInitialize() -- everything that may require other context to be loa
 	ExposedMembers.GCO.CityResearchData = GCO.LoadTableFromSlot("CityResearchData") or {}
 	
 	LuaEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
+	LuaEvents.PlayerTurnStartGCO.Add( OnPlayerTurnStart )
 	LuaEvents.ResearchGCO.Add( OnLuaResearchEvent )
 	LuaEvents.CityResearchGCO.Add( OnLuaCityResearchEvent )
 end
@@ -405,6 +406,11 @@ function Research:HasTech(TechID)
 	return pTech:HasTech(TechID)
 end
 
+function Research:MaxTechResearch(techID)
+	local pTech = self:GetTechs()
+	return pTech:GetResearchCost(techID) - pTech:GetResearchProgress(techID)
+end
+
 function Research:IsKnowledgeResource(resourceID)
 	return GameInfo.Resources[resourceID] and (GameInfo.Resources[resourceID].TechnologyType or GameInfo.Resources[resourceID].ResearchType)
 end
@@ -472,8 +478,24 @@ function Research:GetApplicationResourceID(appID)
 end
 
 
+function Research:DoPreTurn()
+
+	local data 	= self:GetData()
+	
+	Dprint( DEBUG_RESEARCH_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_RESEARCH_SCRIPT, "Research:DoPreTurn")
+	
+	-------------------------------
+	-- Reset previous turn Tech contribution Yield
+	-------------------------------
+	data.ContrbYield = {}
+	
+end
+
 function Research:DoTurn()
 
+	local DEBUG_RESEARCH_SCRIPT	= "debug"
+	
 	local data 			= self:GetData()
 	data.RsrchF			= data.RsrchF or {} -- ResearchField	: [rsrchKey][cntrKey] = value
 	local pTech			= self:GetTechs()
@@ -520,7 +542,7 @@ function Research:DoTurn()
 				Dprint( DEBUG_RESEARCH_SCRIPT, "  - "..Indentation20(Locale.Lookup(city:GetName())).." = ".. Indentation20(tostring(researchPoints).." / "..tostring(researchBase)) .. " research points for Literacy percent of ".. tostring(literacy))
 				-- apply decay
 				local decayRate = self:GetDecayRate(resourceID)
-				city:ChangeStock(resourceID, - math.ceil(researchBase * decayRate / 100))
+				city:ChangeStock(resourceID, - GCO.ToDecimals(researchBase * decayRate / 100))
 			end
 			researchPoints = GCO.ToDecimals(researchPoints)
 			
@@ -572,9 +594,8 @@ function Research:DoTurn()
 			data.RsrchF[rsrchKey] = {}
 			data.RsrchL[rsrchKey] = {}
 		else
-			-- keep yield if there is no city to "store" the knowledge (starting tribes before settling)
-			-- should there be a decay rate here ? can this overflow be abused ?
-			self:ChangeYield(researchType, nil, nil, "YIELD_OVERFLOW", yield)
+			-- keep part of the yield if there is no city to "store" the knowledge (starting tribes before settling)
+			self:ChangeYield(researchType, nil, nil, "YIELD_OVERFLOW", math.min(100,GCO.ToDecimals(yield*0.75))) -- to do remove magic number
 		end
 	end
 	
@@ -610,7 +631,7 @@ function Research:DoTurn()
 				local unused = self:AddContribution(techID, nil, nil, "YIELD_KNOWLEDGE", nil, arg)
 				-- apply decay
 				local decayRate = self:GetDecayRate(resourceID)
-				city:ChangeStock(resourceID, - math.ceil(value * decayRate / 100))
+				city:ChangeStock(resourceID, - GCO.ToDecimals(value * decayRate / 100))
 			end
 		end
 		
@@ -646,6 +667,7 @@ function Research:DoTurn()
 			end
 		end
 	end
+	
 	Dprint( DEBUG_RESEARCH_SCRIPT, "Research:DoTurn /END")
 	Dprint( DEBUG_RESEARCH_SCRIPT, GCO.Separator)
 end
@@ -787,6 +809,11 @@ function Research:AddContribution(techID, x, y, contributionType, itemTag, row, 
 						-- should we allow direct contribution conversion in local knowledge when there is no limit for that contribution type ?
 						-- that would mean we'd have to avoid MaxContributionPercent < 100 for contributions type linked to tech resources that should be stored in receiver...
 						self:StoreTechResource(self:GetTechnologyResourceID(techID), contribution, receiver)
+
+						-- Update or create the knowledge yield value for that event/research/need type
+						data.ContrbYield 	= data.ContrbYield or {} -- ResearchContribution	: [techKey][contrKey]
+						if not data.ContrbYield[techKey] then data.ContrbYield[techKey] = {} end
+						data.ContrbYield[techKey][contrKey] = GCO.ToDecimals((data.ContrbYield[techKey][contrKey] or 0) + contribution)
 					else
 						pTech:SetResearchProgress(techID, techProgress + contribution)
 						tableKey = "Contrb"
@@ -988,22 +1015,38 @@ function Research:ChangeYield(researchType, x, y, contributionType, value, recei
 	LuaEvents.RefreshTopPanelGCO()
 end
 
-function Research:GetYield(researchType, bIncludeLocal)
+function Research:GetYield(yieldType, bIncludeLocal)
 
 	local data 			= self:GetData()
-	data.RsrchF			= data.RsrchF or {} -- ResearchField	: [rsrchKey][cntrKey] = value
-	local rsrchKey		= tostring(GameInfo.TechnologyContributionTypes[researchType].Index)
+	local tableKey		= "RsrchF"
+	local rsrchKey		= ""
+	local makeStr 		= {}
+	local researchRow	= GameInfo.TechnologyContributionTypes[yieldType]
+	local techRow		= GameInfo.Technologies[yieldType]
 	local localYield	= 0
 	
-	-- we may want to get the local yields for UI (which are directly converted to local knowledge and not added to the ResearchField table for later processing)
-	if bIncludeLocal then
+	-- Get table name for Tech yield or Research yield
+	if techRow then
+		rsrchKey	= tostring(techRow.Index)
+		tableKey	= "ContrbYield"
+	elseif researchRow then
+		rsrchKey	= tostring(researchRow.Index)
+	else
+		GCO.Error("Research:GetYield Can't determine yieldType for " .. tostring(yieldType))
+		return 0
+	end
+	
+	data[tableKey]		= data[tableKey] or {} -- ResearchField	: [rsrchKey][cntrKey] = value
+	
+	-- For research we may want to get the local yields for UI (which are directly converted to local knowledge and not added to the ResearchField table for later processing)
+	if bIncludeLocal and researchRow then
 		if bUseLocalTech then
 			data.RsrchL	= data.RsrchL or {} -- ResearchField	: [rsrchKey][cntrKey] = value
 			localYield 	= GCO.TableSummation(data.RsrchL[rsrchKey])
 		end
 	end
 	
-	return GCO.TableSummation(data.RsrchF[rsrchKey]) + localYield
+	return GCO.TableSummation(data[tableKey][rsrchKey]) + localYield
 end
 
 function Research:GetNextTurnResearch()
@@ -1059,6 +1102,68 @@ function Research:GetNextTurnResearch()
 	return NextTurnResearch
 end
 
+function Research:GetNextTurnTechnology()
+	local player				= self:GetPlayer()
+	local playerCities 			= player:GetCities()
+	local NextTurnTechnology	= { Techs = {}, Cities = {}, TotalKnowledge = 0}
+	
+	for row in GameInfo.Technologies() do
+		local techID	= row.Index
+		local techType	= row.TechnologyType
+		if not self:HasTech(techID) then 
+			NextTurnTechnology.Techs[techType] 	= { Balance = 0, ResearchPoints = 0, DecayValue = 0, MaxResearchPoint = self:MaxTechResearch(techID), CityTable = {} }
+		end
+	end
+	
+	for i, city in playerCities:Members() do
+	
+		GCO.AttachCityFunctions(city)
+		local literacy	= city:GetLiteracy()
+		local resources	= city:GetResources()
+		local cityKey	= city:GetKey()
+
+		for resourceKey, value in pairs(resources) do
+		
+			if value > 0 then
+				local resourceID 	= tonumber(resourceKey)
+				local techType		= self:GetResourceTechnologyType(resourceID)
+				if techType then
+					local researchData	= NextTurnTechnology.Techs[techType]
+					
+					if researchData then
+						local researchPoints				= self:CalculateResearchPoints(value, literacy, resourceID)
+						researchData.DecayValue				= researchData.DecayValue - math.ceil(value * self:GetDecayRate(resourceID) / 100)
+						researchData.ResearchPoints			= researchData.ResearchPoints + researchPoints
+						researchData.Balance				= researchData.Balance + value
+						NextTurnTechnology.TotalKnowledge	= NextTurnTechnology.TotalKnowledge + value
+						researchData.CityTable[cityKey]		= researchData.CityTable[cityKey] or {}
+						local cityData						= researchData.CityTable[cityKey]
+						cityData.DetailString				= cityData.DetailString or {}
+						cityData.ResearchPoints				= (cityData.ResearchPoints or 0) + researchPoints
+						cityData.Literacy					= literacy
+						
+						table.insert(cityData.DetailString,  Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_DETAIL", researchPoints, value, self:GetResourceClassName(resourceID)))
+					end
+				end
+			end
+		end
+	end
+	
+	for techType, researchData in pairs(NextTurnTechnology.Techs) do
+		if researchData.Balance > 0 or self:GetYield(techType) > 0 then
+			local makeStr		= {}
+			for cityKey, cityData in pairs(researchData.CityTable) do
+				local city = GCO.GetCityFromKey( cityKey )
+				table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_TITLE", city:GetName(), cityData.ResearchPoints, cityData.Literacy) .. "[NEWLINE]" .. table.concat(cityData.DetailString, "[NEWLINE]"))
+			end
+			researchData.String = table.concat(makeStr, "[NEWLINE]")
+			researchData.CityTable = nil
+		end
+	end
+	
+	return NextTurnTechnology
+end
+
 function Research:CalculateResearchPoints(value, literacy, resourceID)
 	return value * (literacy / 100) * (self:GetResearchRate(resourceID) / 100)
 end
@@ -1078,20 +1183,34 @@ function Research:GetResourceClassName(resourceID)
 	return GameInfo.TechnologyKnowledgeResourceClass[resourceClass] and GameInfo.TechnologyKnowledgeResourceClass[resourceClass].Name or "UNKNW"
 end
 
-function Research:GetYieldTooltip(researchType)
+function Research:GetYieldTooltip(yieldType)
 	local data 			= self:GetData()
-	data.RsrchF			= data.RsrchF or {} -- ResearchField	: [rsrchKey][cntrKey] = value
-	local rsrchKey		= tostring(GameInfo.TechnologyContributionTypes[researchType].Index)
+	local tableKey		= "RsrchF"
+	local rsrchKey		= ""
 	local makeStr 		= {}
+	local researchRow	= GameInfo.TechnologyContributionTypes[yieldType]
+	local techRow		= GameInfo.Technologies[yieldType]
 	
-	if data.RsrchF[rsrchKey] then
-		for cntrKey, value in pairs(data.RsrchF[rsrchKey]) do
+	if techRow then
+		rsrchKey	= tostring(techRow.Index)
+		tableKey	= "ContrbYield"
+	elseif researchRow then
+		rsrchKey	= tostring(researchRow.Index)
+	else
+		GCO.Error("Research:GetYieldTooltip Can't determine yieldType for " .. tostring(yieldType))
+		return ""
+	end
+	
+	data[tableKey]		= data[tableKey] or {} -- ResearchField	: [rsrchKey][cntrKey] = value
+	
+	if data[tableKey][rsrchKey] then
+		for cntrKey, value in pairs(data[tableKey][rsrchKey]) do
 			local contributionID	= tonumber(cntrKey)
 			table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_RESEARCH_YIELD_TOOLTIP", value, GameInfo.TechnologyContributionTypes[contributionID].Name))
 		end
 	end
 	
-	if bUseLocalTech then
+	if bUseLocalTech and researchRow then
 		data.RsrchL		= data.RsrchL or {} -- ResearchField	: [rsrchKey][cntrKey] = value
 		if data.RsrchL[rsrchKey] then
 			for cntrKey, value in pairs(data.RsrchL[rsrchKey]) do
@@ -1327,6 +1446,14 @@ function OnPlayerTurnDone(playerID)
 	pResearch:DoTurn()
 end
 --LuaEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
+
+
+function OnPlayerTurnStart(playerID)
+	-- do research pre-turn (before calling research events from cities turn)
+	local pResearch = Research:Create(playerID)
+	pResearch:DoPreTurn()
+end
+
 	
 --=====================================================================================--
 -- Shared Functions
