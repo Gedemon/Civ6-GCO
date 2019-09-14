@@ -314,8 +314,9 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 	end
 	for row in GameInfo.BuildingStock() do
 		if(row.BuildingType == buildingType) then
-			local resourceID 	= GameInfo.Resources[row.ResourceType].Index
-			local resName 		= GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)
+			local resourceID 	= row.ResourceType and GameInfo.Resources[row.ResourceType].Index
+			local classType 	= row.ResourceClassType
+			local resName 		= (resourceID and GCO.GetResourceIcon(resourceID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name)) or Locale.Lookup("LOC_"..classType)
 			local stock			= row.Stock
 			if not row.FixedValue then
 				stock = stock * sizeRatio

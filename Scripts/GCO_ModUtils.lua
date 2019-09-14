@@ -40,7 +40,11 @@ local ResourceValue = {			-- cached table with value of resources type
 		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
 		["RESOURCECLASS_BONUS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BONUS"].Value),
 		["RESOURCECLASS_MATERIEL"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_MATERIEL"].Value),
-		["RESOURCECLASS_EQUIPMENT"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_EQUIPMENT"].Value)
+		["RESOURCECLASS_EQUIPMENT"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_EQUIPMENT"].Value),
+		["RESOURCECLASS_TABLETS"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_TABLETS"].Value),
+		["RESOURCECLASS_SCROLLS"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_SCROLLS"].Value),
+		["RESOURCECLASS_BOOKS"]		= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_BOOKS"].Value),
+		["RESOURCECLASS_DIGITAL"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_DIGITAL"].Value)
 }
 local equipmentCostRatio = tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EQUIPMENT_RATIO"].Value)
 
@@ -109,7 +113,11 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["RESOURCE_PROPELLER_ENGINE"].Index]				= "[ICON_EQUIPMENT_FIGHTER]",
 		[GameInfo.Resources["RESOURCE_JET_ENGINE"].Index]					= "[ICON_EQUIPMENT_FIGHTER]",
 		[GameInfo.Resources["RESOURCE_AVIONIC"].Index]						= "[ICON_RESOURCE_AVIONIC]",
-		[GameInfo.Resources["RESOURCE_ADVANCED_AVIONIC"].Index]				= "[ICON_RESOURCE_AVIONIC]",		
+		[GameInfo.Resources["RESOURCE_ADVANCED_AVIONIC"].Index]				= "[ICON_RESOURCE_AVIONIC]",
+		
+		[GameInfo.Resources["RESOURCE_SCROLLS"].Index]				= "[ICON_RESOURCE_SCROLLS]",
+		[GameInfo.Resources["RESOURCE_BOOKS"].Index]				= "[ICON_RESOURCE_BOOKS]",
+		[GameInfo.Resources["RESOURCE_TABLETS"].Index]				= "[ICON_RESOURCE_TABLETS]",
 		
 		[GameInfo.Resources["EQUIPMENT_CHARIOT"].Index]				= "[ICON_EQUIPMENT_CHARIOT]",
 		[GameInfo.Resources["EQUIPMENT_HORSES"].Index]				= "[ICON_EQUIPMENT_WAR_HORSES]",
@@ -177,11 +185,11 @@ for row in GameInfo.Resources() do
 	if row.ResourceClassType == "RESOURCECLASS_KNOWLEDGE" then
 		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
 	elseif row.ResourceClassType == "RESOURCECLASS_TABLETS" then
-		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
+		ResourceTempIcons[row.Index]	= "[ICON_RESOURCE_TABLETS]"
 	elseif row.ResourceClassType == "RESOURCECLASS_SCROLLS" then
-		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
+		ResourceTempIcons[row.Index]	= "[ICON_RESOURCE_SCROLLS]"
 	elseif row.ResourceClassType == "RESOURCECLASS_BOOKS" then
-		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
+		ResourceTempIcons[row.Index]	= "[ICON_RESOURCE_BOOKS]"
 	elseif row.ResourceClassType == "RESOURCECLASS_DIGITAL" then
 		ResourceTempIcons[row.Index]	= "[ICON_SCIENCE]"
 	end

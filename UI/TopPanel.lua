@@ -7,10 +7,11 @@ include( "ToolTipHelper_PlayerYields" );
 
 -- GCO <<<<<
 -----------------------------------------------------------------------------------------
--- Initialize Functions
+-- Initialize Functions / Variables
 -----------------------------------------------------------------------------------------
 -- should be already initialized in ToolTipHelper_PlayerYields
 --GCO = ExposedMembers.GCO -- ExposedMembers.GCO can't be nil at this point
+local bCondensedScience = true
 -- GCO >>>>>
 
 -- ===========================================================================
@@ -102,6 +103,16 @@ function Resize()
 	Controls.Backing2:ReprocessAnchoring();
 	Controls.RightContents:ReprocessAnchoring();	
 end
+
+-- GCO <<<<<
+-- ===========================================================================
+-- GCO action
+-- ===========================================================================
+function OnScienceClicked()
+	bCondensedScience = not bCondensedScience
+	RefreshYields()
+end
+-- GCO >>>>>
 
 -- ===========================================================================
 --	Refresh Data and View
@@ -297,13 +308,14 @@ function RefreshYields()
 		m_ScienceYieldButton = m_ScienceYieldButton or m_YieldButtonDoubleManager:GetInstance()
 		local playerTechnology	= localPlayer:GetTechs()
 		local pResearch 		= GCO.Research:Create(ePlayer)
-		local nextResearch		= pResearch:GetNextTurnTechnology()
+		local nextTurnTechs		= pResearch:GetNextTurnTechnology()
 		local makeStr			= {}
 		local techYield			= 0
 		local knowledgeYield	= 0
 		local totalDecay		= 0
+		local totalKnowledge	= nextTurnTechs.TotalKnowledge
 		
-		for researchType, row in pairs(nextResearch.Techs) do 
+		for researchType, row in pairs(nextTurnTechs.Techs) do 
 			local balanceValue	= row.Balance
 			local yieldValue	= pResearch:GetYield(researchType)
 			local researchValue	= math.min(row.ResearchPoints, row.MaxResearchPoint)
@@ -313,17 +325,47 @@ function RefreshYields()
 			knowledgeYield		= knowledgeYield + yieldValue
 			totalDecay			= totalDecay + decayValue
 			if yieldValue > 0 or researchValue > 0 or balanceValue > 0 then
-				table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP", balanceValue, researchName) .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_YIELD_TITLE_TOOLTIP", yieldValue) .. "[NEWLINE]" .. tostring(pResearch:GetYieldTooltip(researchType)).. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_POINTS_TITLE_TOOLTIP", researchValue) .. "[NEWLINE]" .. tostring(row.String) .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_BASE_DECAY_TOOLTIP", decayValue)) --
+				if not bCondensedScience then
+					table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP", balanceValue, researchName) .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_YIELD_TITLE_TOOLTIP", yieldValue) .. "[NEWLINE]" .. tostring(pResearch:GetYieldTooltip(researchType)).. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_POINTS_TITLE_TOOLTIP", researchValue) .. "[NEWLINE]" .. tostring(row.String) .. "[NEWLINE]" .. Locale.Lookup("LOC_TOP_PANEL_RESEARCH_BASE_DECAY_TOOLTIP", decayValue))
+				else
+					table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP", balanceValue, researchName) .. "(" .. FormatValuePerTurn(yieldValue+decayValue) .. "/[COLOR:SuzerainDark]" .. FormatValuePerTurn(researchValue) .."[ENDCOLOR])")
+				end
 			end
 		end
 		
+		local scienceTooltip = GetScienceTooltip() 
+		if bCondensedScience then
+			scienceTooltip = scienceTooltip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("Condensed mode, [ICON_MOUSE_LEFT] click to expand")
+			local nextResearch		= pResearch:GetNextTurnResearch()
+			local makeResearchStr	= {}
+			local separator			= nil
+			for _, researchType in ipairs(pResearch:GetList()) do
+				separator			= separator or Locale.Lookup("LOC_TOOLTIP_SEPARATOR")
+				local yieldValue	= pResearch:GetYield(researchType, true) -- second parameter to include the local yield when it's directly converted in knowledge locally
+				local balanceValue	= nextResearch[researchType].Balance
+				local researchValue	= nextResearch[researchType].ResearchPoints
+				local decayValue	= nextResearch[researchType].DecayValue	-- this is already a negative value
+				local researchName	= GameInfo.TechnologyContributionTypes[researchType].Name
+				techYield			= techYield + researchValue
+				knowledgeYield		= knowledgeYield + yieldValue
+				totalKnowledge		= totalKnowledge + balanceValue
+				table.insert(makeResearchStr, Locale.Lookup("LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP", balanceValue, researchName) .. "(" .. FormatValuePerTurn(yieldValue+decayValue) .. "/[COLOR:SuzerainDark]" .. FormatValuePerTurn(researchValue) .."[ENDCOLOR])")
+			end
+			scienceTooltip = scienceTooltip .. (separator or "") .. table.concat(makeResearchStr, Locale.Lookup("LOC_TOOLTIP_SEPARATOR"))
+		else
+			scienceTooltip = scienceTooltip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("Expanded mode, [ICON_MOUSE_LEFT] click to condense")
+		end
+		scienceTooltip = scienceTooltip .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR").. table.concat(makeStr, Locale.Lookup("LOC_TOOLTIP_SEPARATOR"))
+		
 		local currentScienceYield	:number = playerTechnology:GetScienceYield();
-		m_ScienceYieldButton.YieldBalance:SetText( nextResearch.TotalKnowledge );
+		m_ScienceYieldButton.YieldBalance:SetText( totalKnowledge );
 		m_ScienceYieldButton.YieldPerTurn:SetText( FormatValuePerTurn(knowledgeYield+totalDecay) .. "/[COLOR:ResScienceLabelCS]" .. FormatValuePerTurn(currentScienceYield + techYield)  .."[ENDCOLOR]");	
 		
-		m_ScienceYieldButton.YieldBacking:SetToolTipString( GetScienceTooltip() .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR").. table.concat(makeStr, Locale.Lookup("LOC_TOOLTIP_SEPARATOR")));
+		m_ScienceYieldButton.YieldBacking:SetToolTipString( scienceTooltip );
 		m_ScienceYieldButton.YieldIconString:SetText("[ICON_ScienceLarge]");
 		m_ScienceYieldButton.YieldButtonStack:CalculateSize();
+		
+		m_ScienceYieldButton.YieldBacking:RegisterCallback( Mouse.eLClick, OnScienceClicked );
 	end
 	-- GCO >>>>>
 
@@ -341,7 +383,7 @@ function RefreshYields()
 			local decayValue					= nextResearch[researchType].DecayValue	-- this is already a negative value
 			local researchName					= GameInfo.TechnologyContributionTypes[researchType].Name
 			
-			if yieldValue > 0 or researchValue > 0 or balanceValue > 0 then
+			if not bCondensedScience and (yieldValue > 0 or researchValue > 0 or balanceValue > 0) then
 				yieldButton.YieldBalance:SetText( balanceValue );
 				yieldButton.YieldPerTurn:SetText( FormatValuePerTurn(yieldValue+decayValue) .. "/[COLOR:ResScienceLabelCS]" .. FormatValuePerTurn(researchValue) .."[ENDCOLOR]");	
 				--yieldButton.YieldPerTurn:SetColorByName("ResCultureLabelCS");

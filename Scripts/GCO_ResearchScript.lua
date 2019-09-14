@@ -21,6 +21,7 @@ local NO_ITEM					= -1
 local NO_TAG					= "N"	-- key for saved tables
 
 local bUseLocalTech 			= GameConfiguration.GetValue("UseLocalTechStorage")
+local baseTechCost				= tonumber(GameInfo.GlobalParameters["BASE_TECH_COST"].Value)
 
 local Unlocker					= {}	-- Helper to get the unlocker ID for a Tech
 for row in GameInfo.TechnologyPrereqs() do
@@ -146,13 +147,18 @@ end
 		
 local TechUnlockGovernement	= {}	-- helper to convert Governement prereqCivic to prereqTech (to do: directly add prereqTech column in Governments table
 for row in GameInfo.Governments() do
-	if row.PrereqCivic then
-		local techType 	= "TECH_"..string.sub(row.PrereqCivic, 1, 6)
-		local techID	= GameInfo.Technologies[techID] and GameInfo.Technologies[techID].Index
-		if techID then
-			TechUnlockGovernement[techID] 	= row.index
-		end
-	end
+    if row.PrereqCivic then
+        local techType = "TECH_"..string.sub(row.PrereqCivic, 7, -1)
+        local techID
+        if GameInfo.Technologies[techType] then
+            techID = GameInfo.Technologies[techType].Index
+            if TechUnlockGovernement[techID] then
+                table.insert(TechUnlockGovernement[techID], row.Index)
+            else
+                TechUnlockGovernement[techID] = { row.Index }
+            end
+        end
+    end
 end
 
 --=====================================================================================--
@@ -412,7 +418,18 @@ function Research:MaxTechResearch(techID)
 end
 
 function Research:IsKnowledgeResource(resourceID)
-	return GameInfo.Resources[resourceID] and (GameInfo.Resources[resourceID].TechnologyType or GameInfo.Resources[resourceID].ResearchType)
+	--return GameInfo.Resources[resourceID] and (GameInfo.Resources[resourceID].TechnologyType or GameInfo.Resources[resourceID].ResearchType)
+	return GameInfo.Resources[resourceID] and (GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_KNOWLEDGE")
+end
+
+function Research:IsBlankKnowledgeResource(resourceID)
+	return GameInfo.Resources[resourceID] and not (GameInfo.Resources[resourceID].TechnologyType or GameInfo.Resources[resourceID].ResearchType)
+		and (
+			GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_TABLETS"
+			or GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_SCROLLS"
+			or GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_BOOKS"
+			or GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_DIGITAL"
+			)
 end
 
 function Research:GetResourceResearchType(resourceID)
@@ -459,9 +476,18 @@ function Research:StoreTechResource(resourceID, value, receiver) -- try to store
 	return false
 end
 
+--[[
 function Research:GetTechnologyResourceID(techID)
 	if not GameInfo.Technologies[techID] then return end
 	local resourceType 	= "RESOURCE_KNOWLEDGE_" .. GameInfo.Technologies[techID].TechnologyType
+	return GameInfo.Resources[resourceType] and GameInfo.Resources[resourceType].Index
+end
+--]]
+
+function Research:GetTechnologyResourceID(techID, classType)
+	if not GameInfo.Technologies[techID] then return end
+	local prefix 		= self:GetResourcePrefix(classType or "RESOURCECLASS_KNOWLEDGE")
+	local resourceType 	= prefix .. GameInfo.Technologies[techID].TechnologyType
 	return GameInfo.Resources[resourceType] and GameInfo.Resources[resourceType].Index
 end
 
@@ -511,6 +537,17 @@ function Research:DoTurn()
 	local libraryCity = self:SetNationalLibraryCity()
 	
 	-------------------------------
+	-- Get known techs
+	-------------------------------
+	local knownTechs = {}
+	for row in GameInfo.Technologies() do
+		if pTech:HasTech(row.Index) then
+			--Dprint( DEBUG_RESEARCH_SCRIPT, "- Researched tech : ", Locale.Lookup(GameInfo.Technologies[row.Index].Name))
+			table.insert(knownTechs, row.Index)
+		end
+	end
+	
+	-------------------------------
 	-- Apply and Reset Research Yield
 	-------------------------------
 	for _, researchType in ipairs(self:GetList()) do
@@ -539,7 +576,7 @@ function Research:DoTurn()
 				local researchBase 	= city:GetStock(resourceID)
 				local literacy		= city:GetLiteracy()
 				researchPoints = researchPoints + self:CalculateResearchPoints(researchBase, literacy, resourceID) --  GCO.Round(literacy * researchBase / 100)
-				Dprint( DEBUG_RESEARCH_SCRIPT, "  - "..Indentation20(Locale.Lookup(city:GetName())).." = ".. Indentation20(tostring(researchPoints).." / "..tostring(researchBase)) .. " research points for Literacy percent of ".. tostring(literacy))
+				Dprint( DEBUG_RESEARCH_SCRIPT, "  - "..Indentation20(Locale.Lookup(city:GetName())).." = ".. Indentation20(tostring(researchPoints).." / "..tostring(researchBase)) .. " research points with Literacy percent of ".. tostring(literacy))
 				-- apply decay
 				local decayRate = self:GetDecayRate(resourceID)
 				city:ChangeStock(resourceID, - GCO.ToDecimals(researchBase * decayRate / 100))
@@ -549,18 +586,19 @@ function Research:DoTurn()
 			-- 3/ apply research points
 			if researchPoints > 0 then
 				for _, techID in ipairs(ResearchTechList[researchType] or {}) do
-					Dprint( DEBUG_RESEARCH_SCRIPT, "  - Check Tech for that Research Type: ", Locale.Lookup(GameInfo.Technologies[techID].Name))
+					--Dprint( DEBUG_RESEARCH_SCRIPT, "  - Check Tech for that Research Type: ", Locale.Lookup(GameInfo.Technologies[techID].Name))
 					if pTech:CanResearch(techID) then
+						Dprint( DEBUG_RESEARCH_SCRIPT, "  - Possible Tech for that Research Type: ", Locale.Lookup(GameInfo.Technologies[techID].Name))
 						if techID == currentTechID then
 							Dprint( DEBUG_RESEARCH_SCRIPT, "  - Tech is the current Research project...")
 							priorityID = techID
 						else
-							Dprint( DEBUG_RESEARCH_SCRIPT, "  - Can research...")
+							--Dprint( DEBUG_RESEARCH_SCRIPT, "  - Can research...")
 							techList[techID] 	= true
 							numTech				= numTech + 1
 						end
 					else
-						Dprint( DEBUG_RESEARCH_SCRIPT, "  - Skipped, Can't research...")
+						--Dprint( DEBUG_RESEARCH_SCRIPT, "  - Skipped, Can't research...")
 					end
 				end
 				
@@ -618,20 +656,85 @@ function Research:DoTurn()
 		
 		Dprint( DEBUG_RESEARCH_SCRIPT, " - Do Research turn for ".. Locale.Lookup(city:GetName()) .. " with literacy = "..tostring(literacy))
 
-		-- Get research points from technology knowledge resources
-		local resources	= city:GetResources()
+		-- Get technology resources and apply research points from knowledge
+		Dprint( DEBUG_RESEARCH_SCRIPT, " - Get technology resources and apply research points from knowledge...")
+		local resources			= city:GetResources()
+		local techResources		= {}
+		local blankResources	= {}
 		for resourceKey, value in pairs(resources) do
-			local resourceID 	= tonumber(resourceKey)
-			local techType		= self:GetResourceTechnologyType(resourceID)
-			if techType then
-				local techID		= GameInfo.Technologies[techType].Index
-				local rsrchPoints	= self:CalculateResearchPoints(value, literacy, resourceID) --value * literacy / 100  -- todo : ponder value by ResourceClass type
-				local arg 			= { MaxContributionPercent = 100, BaseValue = rsrchPoints }
-				Dprint( DEBUG_RESEARCH_SCRIPT, "  - Producing " .. Indentation8(rsrchPoints) .. " research points from " .. Indentation8(value) .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)))
-				local unused = self:AddContribution(techID, nil, nil, "YIELD_KNOWLEDGE", nil, arg)
-				-- apply decay
-				local decayRate = self:GetDecayRate(resourceID)
-				city:ChangeStock(resourceID, - GCO.ToDecimals(value * decayRate / 100))
+			if value > 0 then
+				local resourceID 	= tonumber(resourceKey)
+				local techType	= self:GetResourceTechnologyType(resourceID)
+				if techType then
+					local techID	= GameInfo.Technologies[techType].Index
+					if pTech:CanResearch(techID) then --and not pTech:HasTech(techID) then
+						if self:IsKnowledgeResource(resourceID) then -- this is a scholar
+							local rsrchPoints	= self:CalculateResearchPoints(value, literacy, resourceID) --value * literacy / 100  -- todo : ponder value by ResourceClass type
+							local arg 			= { MaxContributionPercent = 100, BaseValue = rsrchPoints }
+							Dprint( DEBUG_RESEARCH_SCRIPT, "  - Producing " .. Indentation8(rsrchPoints) .. " research points from " .. Indentation8(value) .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)))
+							local unused = self:AddContribution(techID, nil, nil, "YIELD_KNOWLEDGE", nil, arg)
+							-- apply decay
+							local decayRate = self:GetDecayRate(resourceID)
+							city:ChangeStock(resourceID, - GCO.ToDecimals(value * decayRate / 100))
+						else -- this is a book, scroll, tablet, digital media that contain knowledge of a tech we can research
+							table.insert(techResources, {ResourceID = resourceID, TechID = techID, Value = value})
+						end
+					end
+				elseif self:IsBlankKnowledgeResource(resourceID) and value > 0 then -- this is a blank book, scroll, tablet, digital media that can be used to store knowledge
+					table.insert(blankResources, {ResourceID = resourceID, Value = value, ResearchRate = self:GetResearchRate(resourceID)})
+				end
+			end
+		end
+		
+		local bCanResearch = city:CanDoResearch()
+		Dprint( DEBUG_RESEARCH_SCRIPT, " - Check if city can do research...", bCanResearch)
+		if city:CanDoResearch() then
+			-- Add knowledge from tech resources
+			Dprint( DEBUG_RESEARCH_SCRIPT, " - Add knowledge from tech resources...")
+			for _, row in ipairs(techResources) do
+				local rate 			= self:GetResearchRate(row.ResourceID)
+				local createdResID	= self:GetTechnologyResourceID(row.TechID)
+				local maxAddition	= city:GetMaxStock(createdResID) - city:GetStock(createdResID)
+				if maxAddition > 0 then
+					local newknowledge	= GCO.ToDecimals(math.min(maxAddition, row.Value * city:GetSize() * (rate / 100) * (literacy / 100)))
+					local contrType		= self:GetContributionType(row.ResourceID)
+					local contrKey 		= tostring(GameInfo.TechnologyContributionTypes[contrType].Index)
+					self:ChangeTechKnowledgeYield(row.TechID, contrKey, newknowledge)
+					city:ChangeStock(createdResID, newknowledge)
+					Dprint( DEBUG_RESEARCH_SCRIPT, "  - Forming " .. Indentation8(newknowledge) .. " scholars from " .. Indentation8(row.Value) .. Indentation20(Locale.Lookup(GameInfo.Resources[row.ResourceID].Name)))
+				end
+			end
+			
+			-- Create tech resources from known tech
+			Dprint( DEBUG_RESEARCH_SCRIPT, " - Create tech resources from known tech...")
+			for i, row in ipairs(blankResources) do
+				local classType = GameInfo.Resources[row.ResourceID].ResourceClassType
+				local required	= 0
+				local available	= row.Value
+				local techList	= {}
+				Dprint( DEBUG_RESEARCH_SCRIPT, "  - Available : " .. Indentation8(available) .. " blank ".. Indentation20(Locale.Lookup(GameInfo.Resources[row.ResourceID].Name)))
+				for j, techID in ipairs(knownTechs) do
+					local createdResID	= self:GetTechnologyResourceID(techID, classType)
+					local maxAddition	= city:GetMaxStock(createdResID) - city:GetStock(createdResID)
+					Dprint( DEBUG_RESEARCH_SCRIPT, "  - Can stock : " .. Indentation8(maxAddition) .. Indentation20(Locale.Lookup(GameInfo.Resources[createdResID].Name)))
+					if maxAddition > 0 then
+						required = required + maxAddition
+						techList[techID] = {CreatedResID = createdResID, MaxAddition = maxAddition}
+					end
+				end
+				
+				local left = available
+				for techID, techRow in pairs(techList) do
+					local ratio = techRow.MaxAddition / required
+					local used	= GCO.ToDecimals(math.min(left, available * ratio, required))
+					if used > 0 then
+						local cost = city:GetResourceCost(row.ResourceID)
+						city:ChangeStock(techRow.CreatedResID, used, nil, nil, cost + baseTechCost)
+						city:ChangeStock(row.ResourceID, -used)
+						left = left - used
+						Dprint( DEBUG_RESEARCH_SCRIPT, "  - Created : " .. Indentation8(used) .. Indentation20(Locale.Lookup(GameInfo.Resources[techRow.CreatedResID].Name)).. " still available " .. Indentation8(left) .. Indentation20(Locale.Lookup(GameInfo.Resources[row.ResourceID].Name)))
+					end				
+				end
 			end
 		end
 		
@@ -811,9 +914,12 @@ function Research:AddContribution(techID, x, y, contributionType, itemTag, row, 
 						self:StoreTechResource(self:GetTechnologyResourceID(techID), contribution, receiver)
 
 						-- Update or create the knowledge yield value for that event/research/need type
+						self:ChangeTechKnowledgeYield(techID, contrKey, contribution)
+						--[[
 						data.ContrbYield 	= data.ContrbYield or {} -- ResearchContribution	: [techKey][contrKey]
 						if not data.ContrbYield[techKey] then data.ContrbYield[techKey] = {} end
 						data.ContrbYield[techKey][contrKey] = GCO.ToDecimals((data.ContrbYield[techKey][contrKey] or 0) + contribution)
+						--]]
 					else
 						pTech:SetResearchProgress(techID, techProgress + contribution)
 						tableKey = "Contrb"
@@ -1049,6 +1155,14 @@ function Research:GetYield(yieldType, bIncludeLocal)
 	return GCO.TableSummation(data[tableKey][rsrchKey]) + localYield
 end
 
+function Research:ChangeTechKnowledgeYield(techID, contrKey, value)
+	local data 			= self:GetData()
+	local techKey		= tostring(techID)
+	data.ContrbYield 	= data.ContrbYield or {} -- ResearchContribution	: [techKey][contrKey]
+	if not data.ContrbYield[techKey] then data.ContrbYield[techKey] = {} end
+	data.ContrbYield[techKey][contrKey] = GCO.ToDecimals((data.ContrbYield[techKey][contrKey] or 0) + value)
+end
+
 function Research:GetNextTurnResearch()
 	local player			= self:GetPlayer()
 	local playerCities 		= player:GetCities()
@@ -1082,7 +1196,8 @@ function Research:GetNextTurnResearch()
 					cityData.DetailString			= cityData.DetailString or {}
 					cityData.ResearchPoints			= (cityData.ResearchPoints or 0) + researchPoints
 					cityData.Literacy				= literacy
-					table.insert(cityData.DetailString,  Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_DETAIL", researchPoints, value, self:GetResourceClassName(resourceID)))
+					cityData.Scholars				= value
+					--table.insert(cityData.DetailString,  Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_DETAIL", researchPoints, value, self:GetResourceClassName(resourceID)))
 				end
 			end
 		end
@@ -1093,7 +1208,8 @@ function Research:GetNextTurnResearch()
 		local makeStr		= {}
 		for cityKey, cityData in pairs(researchData.CityTable) do
 			local city = GCO.GetCityFromKey( cityKey )
-			table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_TITLE", city:GetName(), cityData.ResearchPoints, cityData.Literacy) .. "[NEWLINE]" .. table.concat(cityData.DetailString, "[NEWLINE]"))
+			table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_TITLE", city:GetName(), cityData.ResearchPoints, cityData.Literacy, cityData.Scholars))-- .. "[NEWLINE]" .. table.concat(cityData.DetailString, "[NEWLINE]"))
+			--table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_TITLE", city:GetName(), cityData.ResearchPoints, cityData.Literacy) .. "[NEWLINE]" .. table.concat(cityData.DetailString, "[NEWLINE]"))
 		end
 		researchData.String = table.concat(makeStr, "[NEWLINE]")
 		researchData.CityTable = nil
@@ -1126,23 +1242,26 @@ function Research:GetNextTurnTechnology()
 		
 			if value > 0 then
 				local resourceID 	= tonumber(resourceKey)
-				local techType		= self:GetResourceTechnologyType(resourceID)
-				if techType then
-					local researchData	= NextTurnTechnology.Techs[techType]
-					
-					if researchData then
-						local researchPoints				= self:CalculateResearchPoints(value, literacy, resourceID)
-						researchData.DecayValue				= researchData.DecayValue - math.ceil(value * self:GetDecayRate(resourceID) / 100)
-						researchData.ResearchPoints			= researchData.ResearchPoints + researchPoints
-						researchData.Balance				= researchData.Balance + value
-						NextTurnTechnology.TotalKnowledge	= NextTurnTechnology.TotalKnowledge + value
-						researchData.CityTable[cityKey]		= researchData.CityTable[cityKey] or {}
-						local cityData						= researchData.CityTable[cityKey]
-						cityData.DetailString				= cityData.DetailString or {}
-						cityData.ResearchPoints				= (cityData.ResearchPoints or 0) + researchPoints
-						cityData.Literacy					= literacy
+				if self:IsKnowledgeResource(resourceID) then -- this is a scholar
+					local techType		= self:GetResourceTechnologyType(resourceID)
+					if techType then
+						local researchData	= NextTurnTechnology.Techs[techType]
 						
-						table.insert(cityData.DetailString,  Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_DETAIL", researchPoints, value, self:GetResourceClassName(resourceID)))
+						if researchData then
+							local researchPoints				= self:CalculateResearchPoints(value, literacy, resourceID)
+							researchData.DecayValue				= researchData.DecayValue - math.ceil(value * self:GetDecayRate(resourceID) / 100)
+							researchData.ResearchPoints			= researchData.ResearchPoints + researchPoints
+							researchData.Balance				= researchData.Balance + value
+							NextTurnTechnology.TotalKnowledge	= NextTurnTechnology.TotalKnowledge + value
+							researchData.CityTable[cityKey]		= researchData.CityTable[cityKey] or {}
+							local cityData						= researchData.CityTable[cityKey]
+							cityData.DetailString				= cityData.DetailString or {}
+							cityData.ResearchPoints				= (cityData.ResearchPoints or 0) + researchPoints
+							cityData.Literacy					= literacy
+							cityData.Scholars					= value
+							
+							--table.insert(cityData.DetailString,  Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_DETAIL", researchPoints, value, self:GetResourceClassName(resourceID)))
+						end
 					end
 				end
 			end
@@ -1154,7 +1273,8 @@ function Research:GetNextTurnTechnology()
 			local makeStr		= {}
 			for cityKey, cityData in pairs(researchData.CityTable) do
 				local city = GCO.GetCityFromKey( cityKey )
-				table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_TITLE", city:GetName(), cityData.ResearchPoints, cityData.Literacy) .. "[NEWLINE]" .. table.concat(cityData.DetailString, "[NEWLINE]"))
+				table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_TITLE", city:GetName(), cityData.ResearchPoints, cityData.Literacy, cityData.Scholars))-- .. "[NEWLINE]" .. table.concat(cityData.DetailString, "[NEWLINE]"))
+				--table.insert(makeStr, Locale.Lookup("LOC_TOP_PANEL_NEXT_TURN_CITY_RESEARCH_TITLE", city:GetName(), cityData.ResearchPoints, cityData.Literacy) .. "[NEWLINE]" .. table.concat(cityData.DetailString, "[NEWLINE]"))
 			end
 			researchData.String = table.concat(makeStr, "[NEWLINE]")
 			researchData.CityTable = nil
@@ -1178,9 +1298,18 @@ function Research:GetResearchRate(resourceID)
 	return (GameInfo.TechnologyKnowledgeResourceClass[resourceClass] and GameInfo.TechnologyKnowledgeResourceClass[resourceClass].ResearchPer100) or 0
 end
 
+function Research:GetContributionType(resourceID)
+	local resourceClass = GameInfo.Resources[resourceID].ResourceClassType
+	return (GameInfo.TechnologyKnowledgeResourceClass[resourceClass] and GameInfo.TechnologyKnowledgeResourceClass[resourceClass].ContributionType)
+end
+
 function Research:GetResourceClassName(resourceID)
 	local resourceClass = GameInfo.Resources[resourceID].ResourceClassType
-	return GameInfo.TechnologyKnowledgeResourceClass[resourceClass] and GameInfo.TechnologyKnowledgeResourceClass[resourceClass].Name or "UNKNW"
+	return GameInfo.TechnologyKnowledgeResourceClass[resourceClass] and GameInfo.TechnologyKnowledgeResourceClass[resourceClass].Name
+end
+
+function Research:GetResourcePrefix(resourceClassType)
+	return GameInfo.TechnologyKnowledgeResourceClass[resourceClassType] and GameInfo.TechnologyKnowledgeResourceClass[resourceClassType].ResourcePrefix
 end
 
 function Research:GetYieldTooltip(yieldType)
@@ -1425,12 +1554,13 @@ end
 --LuaEvents.CityResearchGCO.Add( OnLuaCityResearchEvent )
 
 function OnResearchCompleted( playerID:number, techID:number, bIsCanceled:boolean)
-	-- Is that tech unlocking a Government ?
-	local govID	= TechUnlockGovernement[techID]
-	if govID then
-		local pResearch = Research:Create(playerID)
-		pResearch:UnlockGovernement(govID)
-	end
+    -- Is that tech unlocking a Government ?
+    if TechUnlockGovernement[techID] then
+        local pResearch = Research:Create(playerID)
+        for _, govID in pairs(TechUnlockGovernement[techID]) do
+            pResearch:UnlockGovernement(govID)
+        end
+    end
 end
 Events.ResearchCompleted.Add(OnResearchCompleted)
 

@@ -128,6 +128,10 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_BONUS', 		0.50);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_EQUIPMENT', 	0.75);
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_MATERIEL', 	0.50);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_TABLETS', 	0.25);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_SCROLLS', 	0.50);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_BOOKS', 		0.75);
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_RESOURCE_DIGITAL', 	0.05);
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_TRADE_INCOME_EQUIPMENT_RATIO', 		0.1);
 
@@ -265,6 +269,11 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_COST_MIN
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_FROM_FEATURE_REMOVE_FACTOR',	75);	-- Resource collected from feature = baseValue * FeatureRemoveFactor * (Era + 1) * FeatureRemoveEraRatio
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_FROM_FEATURE_REMOVE_ERA_RATIO',	0.35);	-- Higher value means more resources collected
+
+
+-- Research
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('BASE_TECH_COST',	1);								-- Cost to create one unit of tech resource
+
 
 -- UI
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UI_MAX_PRISONERS_LINE_IN_TOOLTIP',		2);		-- Number of lines showing prisonners nationality in unit's flag 

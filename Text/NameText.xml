@@ -15,7 +15,7 @@
 		<Replace Tag="LOC_BUILDING_HERBALIST_NAME" 					Text="Herbalist" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 				Text="City Stable"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" 			Text="City Barracks"			Language="en_US" />
-		<Replace Tag="LOC_BUILDING_CITY_SHIPYARD_NAME" 				Text="City Shipyard"			Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CITY_SHIPYARD_NAME" 				Text="Harbor"					Language="en_US" />
 		<Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 				Text="Blacksmith"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FISH_MARKET_NAME" 				Text="Fish Market"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FRUIT_MARKET_NAME" 				Text="Fruit Market"				Language="en_US" />
@@ -26,6 +26,8 @@
 		<Replace Tag="LOC_BUILDING_FORUM_NAME"						Text="Forum"					Language="en_US" />
 		<Replace Tag="LOC_BUILDING_SENATE_NAME"						Text="Senate"					Language="en_US" />
 		<Replace Tag="LOC_BUILDING_PARLIAMENT_NAME"					Text="Parliament"				Language="en_US" />
+		
+		<Replace Tag="LOC_BUILDING_SCRIBE_HOUSE_NAME"				Text="Scribe House"				Language="en_US" />
 		
 		<Replace Tag="LOC_BUILDING_BRICKMAKER_NAME"					Text="Brickmaker" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_CARPENTER_NAME"					Text="Carpenter" 				Language="en_US" />
@@ -301,14 +303,18 @@
 		<Replace Tag="LOC_RESOURCE_ALUMINUM_FUSELAGE_NAME" 				Text="Aluminum Fuselage"			Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_LARGE_ALUMINUM_FUSELAGE_NAME" 		Text="Large Aluminum Fuselage"		Language="en_US" /> 
 		<Replace Tag="LOC_RESOURCE_PROPELLER_ENGINE_NAME" 				Text="Propeller Engine"				Language="en_US" /> 
-		<Replace Tag="LOC_RESOURCE_JET_ENGINE_NAME" 					Text="Jet Engine"					Language="en_US" /> 		
+		<Replace Tag="LOC_RESOURCE_JET_ENGINE_NAME" 					Text="Jet Engine"					Language="en_US" /> 
 		
+		<Replace Tag="LOC_RESOURCE_TABLETS_NAME"			Text="Tablets"	 			Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_SCROLLS_NAME"			Text="Scrolls" 				Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_BOOKS_NAME"				Text="Books"	 			Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_DIGITAL_NAME"			Text="Digital"	 			Language="en_US" />
 	
-		<Replace Tag="LOC_TECH_RES_KNOWLEDGE"			Text="Citizen Knowledge" 	Language="en_US" />
-		<Replace Tag="LOC_TECH_RES_TABLETS"				Text="Tablets"	 			Language="en_US" />
-		<Replace Tag="LOC_TECH_RES_SCROLLS"				Text="Scrolls" 				Language="en_US" />
-		<Replace Tag="LOC_TECH_RES_BOOKS"				Text="Books"	 			Language="en_US" />
-		<Replace Tag="LOC_TECH_RES_DIGITAL"				Text="Digital"	 			Language="en_US" />
+		<Replace Tag="LOC_RESOURCECLASS_KNOWLEDGE"			Text="Scholars" 			Language="en_US" />
+		<Replace Tag="LOC_RESOURCECLASS_TABLETS"			Text="Tablets"	 			Language="en_US" />
+		<Replace Tag="LOC_RESOURCECLASS_SCROLLS"			Text="Scrolls" 				Language="en_US" />
+		<Replace Tag="LOC_RESOURCECLASS_BOOKS"				Text="Books"	 			Language="en_US" />
+		<Replace Tag="LOC_RESOURCECLASS_DIGITAL"			Text="Digital"	 			Language="en_US" />
 	</LocalizedText>
 
 	<LocalizedText> <!-- Units -->
@@ -385,7 +391,12 @@
 		<Replace Tag="LOC_YIELD_OVERFLOW_NAME" 				Text="Previous turn overflow"	Language="en_US" />
 		<Replace Tag="LOC_YIELD_BUILDING_NAME" 				Text="Buildinds in Cities"		Language="en_US" />
 		<Replace Tag="LOC_YIELD_CULTURE_INSPIRATION_NAME" 	Text="Culture Creation"			Language="en_US" />
-		<Replace Tag="LOC_YIELD_KNOWLEDGE_NAME" 			Text="Citizen Knowledge"		Language="en_US" />
+		<Replace Tag="LOC_YIELD_KNOWLEDGE_NAME" 			Text="Scholars"					Language="en_US" />
+		
+		<Replace Tag="LOC_YIELD_TABLETS_NAME"				Text="Tablets"	 			Language="en_US" />
+		<Replace Tag="LOC_YIELD_SCROLLS_NAME"				Text="Scrolls" 				Language="en_US" />
+		<Replace Tag="LOC_YIELD_BOOKS_NAME"					Text="Books"	 			Language="en_US" />
+		<Replace Tag="LOC_YIELD_DIGITAL_NAME"				Text="Digital"	 			Language="en_US" />
 		
 		<Replace Tag="LOC_CLASS_PASTURE_RES_NAME" 			Text="Pasture"					Language="en_US" />
 		<Replace Tag="LOC_CLASS_BOAT_RES_NAME" 				Text="Boat"						Language="en_US" />

@@ -31,6 +31,8 @@
 		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_WARRIOR_CODE"		EmploymentSize="0.50"	EquipmentStock="300"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="2.00"	Coast = "1"  			ObsoleteEra="ERA_INDUSTRIAL"/>
 		
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 				Cost="40" 	MaterielPerProduction="2" PrereqTech="TECH_PICTOGRAM" 			EmploymentSize="0.15"	ObsoleteEra="ERA_MEDIEVAL"/>
+		
 		<Row BuildingType="BUILDING_BRICKMAKER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75" /><!--	PrereqTech="TECH_MASONRY" -->
 		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
 		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
@@ -451,7 +453,11 @@
 		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_SHEEP" 		MaxConverted="30" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1.00"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_BUTCHERY" 		ResourceType="RESOURCE_SHEEP" 		MaxConverted="30" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="0.75"	MultiResCreated="1"/>
 		
-		<Row BuildingType="BUILDING_HERBALIST" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="0.5"/>
+		<Row BuildingType="BUILDING_HERBALIST" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="1.0"/>
+		
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="0.25"/>
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_LEATHER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="1.0"/>
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_CLAY" 		MaxConverted="10" 	ResourceCreated="RESOURCE_TABLETS"	Ratio="0.5"/>
 		
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_WOOD_PLANKS" MaxConverted="20" 	ResourceCreated="EQUIPMENT_CHARIOT" 	Ratio="2.5" />
 		<Row BuildingType="BUILDING_SMALL_STABLE" 	ResourceType="RESOURCE_HORSES" 		MaxConverted="40" 	ResourceCreated="EQUIPMENT_HORSES" 		Ratio="0.65" 	MultiResCreated="1"/>
@@ -691,7 +697,7 @@
 		
 	</BuildingResourcesConverted>
 
-	<BuildingStock>
+	<BuildingStock> <!-- One line per ResourceType or ResourceClassType, can't define both on the same line for a building type -->
 		<Row BuildingType="BUILDING_PALACE" 		ResourceType="RESOURCE_MATERIEL" 	Stock="100"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_PALACE" 		ResourceType="RESOURCE_PERSONNEL" 	Stock="500"	FixedValue="1"/>
 		
@@ -703,7 +709,14 @@
 		<Row BuildingType="BUILDING_STONEMASON"		ResourceType="RESOURCE_STONE" 		Stock="25"/>
 		
 		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_MATERIEL" 	Stock="25"/>
-		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_CLAY" 		Stock="50"/>		
+		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_CLAY" 		Stock="50"/>
+		
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE"	ResourceClassType="RESOURCECLASS_TABLETS" 		Stock="5" 	FixedValue="1"/>
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE"	ResourceClassType="RESOURCECLASS_SCROLLS" 		Stock="10" 	FixedValue="1"/>
+		
+		<Row BuildingType="BUILDING_LIBRARY"		ResourceClassType="RESOURCECLASS_TABLETS" 		Stock="15" 	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LIBRARY"		ResourceClassType="RESOURCECLASS_SCROLLS" 		Stock="25" 	FixedValue="1"/>
+		<Row BuildingType="BUILDING_LIBRARY"		ResourceClassType="RESOURCECLASS_BOOKS" 		Stock="50" 	FixedValue="1"/>
 		
 		<!--
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_FOOD" 		Stock="50"/>
@@ -1042,7 +1055,9 @@
 		<Replace BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		YieldType="YIELD_PRODUCTION" YieldChange="12"/>
 		<Replace BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" YieldType="YIELD_PRODUCTION" YieldChange="12"/>
 		<Replace BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		YieldType="YIELD_PRODUCTION" YieldChange="12"/>
-	
+		
+		<Replace BuildingType="BUILDING_SCRIBE_HOUSE" 		YieldType="YIELD_SCIENCE" YieldChange="1"/>
+		
 		<Replace BuildingType="BUILDING_GRANARY" 			YieldType="YIELD_FOOD" YieldChange="3"/>
 		<!--
 		<Replace BuildingType="BUILDING_GRANARY_GCO"		YieldType="YIELD_FOOD" YieldChange="3"/>

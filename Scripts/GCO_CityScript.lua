@@ -104,21 +104,25 @@ for row in GameInfo.BuildingResourcesConverted() do
 	end
 end
 
-local BuildingStock			= {}		-- cached table with stock value of a building for a specific resource
-local ResourceStockage		= {}		-- cached table with all the buildings that can stock a specific resource
-local FixedBuildingStock	= {}		-- cached table with all the buildings that stock a specific resource at a fixed value (not related to city size)
+local BuildingStock			= {}		-- cached table with stock value of a building for a specific resource (or resource class)
+local ResourceStockage		= {}		-- cached table with all the buildings that can stock a specific resource (or resource class)
+local FixedBuildingStock	= {}		-- cached table with all the buildings that stock a specific resource (or resource class) at a fixed value (not related to city size)
 for row in GameInfo.BuildingStock() do
-	local buildingID = GameInfo.Buildings[row.BuildingType].Index
-	local resourceID = GameInfo.Resources[row.ResourceType].Index
+	-- we can mix resourceID or classType as key in those table because one is ID the other is TypeName and they can't overlap.
+	local buildingID	= GameInfo.Buildings[row.BuildingType].Index
+	local resourceID	= row.ResourceType and GameInfo.Resources[row.ResourceType].Index
+	local classType		= row.ResourceClassType
+	if classType == nil and row.ResourceType == nil then print("ERROR: BuildingStock contains a row with both ResourceClassType and ResourceType not defined:", row.BuildingType) end
+	if classType and row.ResourceTyp then print("ERROR: BuildingStock contains a row with both ResourceClassType and ResourceType defined:", row.BuildingType, row.ResourceType, row.ResourceClassType ) end
 	--
 	if not BuildingStock[buildingID] then BuildingStock[buildingID] = {} end
-	BuildingStock[buildingID][resourceID] = row.Stock
+	BuildingStock[buildingID][(resourceID or classType)] = row.Stock
 	--
 	if not FixedBuildingStock[buildingID] then FixedBuildingStock[buildingID] = {} end
-	FixedBuildingStock[buildingID][resourceID] = row.FixedValue
+	FixedBuildingStock[buildingID][(resourceID or classType)] = row.FixedValue
 	--
-	if not ResourceStockage[resourceID] then ResourceStockage[resourceID] = {} end
-	table.insert (ResourceStockage[resourceID], buildingID)
+	if not ResourceStockage[(resourceID or classType)] then ResourceStockage[(resourceID or classType)] = {} end
+	table.insert (ResourceStockage[(resourceID or classType)], buildingID)
 end
 
 local EquipmentStockage		= {}		-- cached table with all the buildings that can stock equipment
@@ -1360,6 +1364,10 @@ function GetMigration(self)
 	return _cached[cityKey].Migration
 end
 
+
+-----------------------------------------------------------------------------------------
+-- Science Functions
+-----------------------------------------------------------------------------------------
 function GetLiteracy(self)
 	return self:GetCached("Literacy") or self:SetLiteracy()
 end
@@ -1369,6 +1377,18 @@ function SetLiteracy(self) -- must be updated before Research:DoTurn()
 	local literacy		= GCO.ToDecimals(math.min(100, (100 * self:GetUpperClass() / population) + (50 * self:GetMiddleClass() / population)))
 	self:SetCached("Literacy", literacy)
 	return literacy
+end
+
+function CanDoResearch(self)
+	local cityBuildings	= self:GetBuildings()
+	if 	cityBuildings:HasBuilding(GameInfo.Buildings["BUILDING_SCRIBE_HOUSE"].Index)
+		or cityBuildings:HasBuilding(GameInfo.Buildings["BUILDING_LIBRARY"].Index)
+		or cityBuildings:HasBuilding(GameInfo.Buildings["BUILDING_UNIVERSITY"].Index)
+	then
+		return true
+	else
+		return false
+	end
 end
 
 -----------------------------------------------------------------------------------------
@@ -2681,9 +2701,10 @@ function GetMaxStock(self, resourceID)
 
 	local maxStock 	= 0
 	local sizeRatio	= self:GetSizeStockRatio()
+	local classType	= GameInfo.Resources[resourceID].ResourceClassType
 
-	-- special case for Knowledge
-	if GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_KNOWLEDGE" then
+	-- special case for Knowledge (scholars)
+	if classType == "RESOURCECLASS_KNOWLEDGE" then
 		return GCO.Round(sizeRatio * KnowledgePerSize * self:GetLiteracy() / 100)
 	end
 	
@@ -2707,6 +2728,18 @@ function GetMaxStock(self, resourceID)
 					maxStock = maxStock + BuildingStock[buildingID][resourceID]
 				else
 					maxStock = maxStock + GCO.Round(BuildingStock[buildingID][resourceID] * sizeRatio )
+				end
+			end
+		end
+	end
+	
+	if ResourceStockage[classType] then
+		for _, buildingID in ipairs(ResourceStockage[classType]) do
+			if self:GetBuildings():HasBuilding(buildingID) then
+				if FixedBuildingStock[buildingID][classType] then
+					maxStock = maxStock + BuildingStock[buildingID][classType]
+				else
+					maxStock = maxStock + GCO.Round(BuildingStock[buildingID][classType] * sizeRatio )
 				end
 			end
 		end
@@ -2952,6 +2985,21 @@ function GetSupplyAtTurn(self, resourceID, turn, iteration)
 		end
 	end
 	return 0
+end
+
+function GetAverageSupplyAtTurn(self, resourceID, numTurn)
+
+	local supply 	= 0
+	local numTurn	= numTurn or 5
+	supply = supply + self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Collect, numTurn)
+	supply = supply + self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Product, numTurn)
+	supply = supply + self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Import, numTurn)
+	supply = supply + self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.TransferIn, numTurn)
+	supply = supply + self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Pillage, numTurn)
+	supply = supply + self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Recruit, numTurn)
+	--supply = supply + ( useData[ResourceUseType.OtherIn] 	or 0)
+
+	return supply
 end
 
 function GetDemandAtTurn(self, resourceID, turn)
@@ -4413,7 +4461,7 @@ count = count + 1
 if type(value) == "table" then for k, v in pairs(value) do print(k,v) end
 else 
 --]]
-		if (value + self:GetSupplyAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetSupplyAtTurn(resourceID, turnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
+		if (value + self:GetAverageSupplyAtTurn(resourceID) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
 
 			local stockVariation 	= self:GetStockVariation(resourceID)
 			local resourceCost 		= self:GetResourceCost(resourceID)
@@ -4489,7 +4537,7 @@ count = count + 1
 if type(value) == "table" then for k, v in pairs(value) do print(k,v) end
 else 
 --]]
-		if (value + self:GetSupplyAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetSupplyAtTurn(resourceID, turnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
+		if (value + self:GetAverageSupplyAtTurn(resourceID) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
 
 			local stockVariation 	= self:GetStockVariation(resourceID)
 			local resourceCost 		= self:GetResourceCost(resourceID)
@@ -4505,8 +4553,8 @@ else
 			local sNoExport			= resRow.NoExport and sDisabled
 			local sNoTrade			= resRow.NoTransfer and resRow.NoExport and sDisabled
 
-			local import 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
-			local transferIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
+			local import 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey))--GCO.Round(self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Import, 3))-- -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
+			local transferIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))--GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
 	 		local pillage 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey))
 	 		local otherIn 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey))
 			
@@ -4514,7 +4562,7 @@ else
 	 		local export 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Export, turnKey))
 	 		local transferOut 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferOut, turnKey))
 	 		local supply 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Supply, turnKey))
-	 		local stolen 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)) -- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
+	 		local stolen 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)) --GCO.Round(self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Stolen, 3))-- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
 	 		local otherOut 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherOut, turnKey))
 	
 			local bSimpleMode		= (resourceModes[resourceToolTipMode] == "LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD")
@@ -7581,6 +7629,7 @@ function AttachCityFunctions(city)
 		if not c.GetDemand							then c.GetDemand							= GetDemand                         	end
 		if not c.GetSupply							then c.GetSupply							= GetSupply								end
 		if not c.GetSupplyAtTurn					then c.GetSupplyAtTurn						= GetSupplyAtTurn                   	end
+		if not c.GetAverageSupplyAtTurn				then c.GetAverageSupplyAtTurn				= GetAverageSupplyAtTurn               	end
 		if not c.GetDemandAtTurn					then c.GetDemandAtTurn						= GetDemandAtTurn                   	end
 		if not c.GetUseTypeAtTurn					then c.GetUseTypeAtTurn						= GetUseTypeAtTurn                  	end
 		if not c.GetAverageUseTypeOnTurns			then c.GetAverageUseTypeOnTurns				= GetAverageUseTypeOnTurns          	end
@@ -7639,8 +7688,10 @@ function AttachCityFunctions(city)
 		if not c.SetPopulationBirthRate				then c.SetPopulationBirthRate				= SetPopulationBirthRate            	end
 		if not c.GetBasePopulationBirthRate			then c.GetBasePopulationBirthRate			= GetBasePopulationBirthRate        	end
 		if not c.GetMigration						then c.GetMigration							= GetMigration                      	end
-		if not c.GetLiteracy						then c.GetLiteracy							= GetLiteracy                      	end
-		if not c.SetLiteracy						then c.SetLiteracy							= SetLiteracy                      	end
+		
+		if not c.GetLiteracy						then c.GetLiteracy							= GetLiteracy                     	 	end
+		if not c.SetLiteracy						then c.SetLiteracy							= SetLiteracy                     	 	end
+		if not c.CanDoResearch						then c.CanDoResearch						= CanDoResearch                     	 	end
 		--
 		if not c.DoRecruitPersonnel					then c.DoRecruitPersonnel					= DoRecruitPersonnel					end
 		-- text

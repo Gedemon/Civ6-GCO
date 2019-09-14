@@ -514,10 +514,10 @@ CREATE TABLE IF NOT EXISTS BuildingResourcesConverted (
 	
 CREATE TABLE IF NOT EXISTS BuildingStock (
 		BuildingType TEXT NOT NULL,
-		ResourceType TEXT NOT NULL,
+		ResourceType TEXT,
+		ResourceClassType TEXT,
 		Stock INTEGER NOT NULL DEFAULT 0,
 		FixedValue BOOLEAN NOT NULL CHECK (FixedValue IN (0,1)) DEFAULT 0,	-- if true, city size doesn't affect that building stock
-		PRIMARY KEY(BuildingType, ResourceType),
 		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
@@ -873,6 +873,8 @@ CREATE TABLE TechnologyApplications (
 CREATE TABLE TechnologyKnowledgeResourceClass (
 		ResourceClass 	TEXT NOT NULL,
 		Name		 	TEXT NOT NULL,
+		ContributionType TEXT NOT NULL,
+		ResourcePrefix	TEXT NOT NULL,
 		DecayPer1000 	INTEGER NOT NULL,
 		ResearchPer100 	INTEGER NOT NULL,
 		PRIMARY KEY(ResourceClass)

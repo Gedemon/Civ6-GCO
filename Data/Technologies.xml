@@ -27,14 +27,14 @@
 		<Row TechnologyType="TECH_IRRIGATION" 			Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="-2"	/>
 		<Row TechnologyType="TECH_WRITING" 				Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY" 	/>
 		<Row TechnologyType="TECH_CODE_OF_LAWS" 		Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
-		<Row TechnologyType="TECH_CURRENCY" 			Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_FOREIGN_TRADE" 		Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
 		<Row TechnologyType="TECH_MINING" 				Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="2"	/>
 		<Row TechnologyType="TECH_THE_WHEEL" 			Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="3"	AdvisorType="ADVISOR_CONQUEST" 	 	/>
 		<!-- Ancient Era Tiers III -->
 		<Row TechnologyType="TECH_MYSTICISM" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="-3"	AdvisorType="ADVISOR_RELIGIOUS" 	/>
 		<Row TechnologyType="TECH_MAP_MAKING" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="-2"	/>
 		<Row TechnologyType="TECH_CALENDAR" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="-1"	/>
-		<Row TechnologyType="TECH_FOREIGN_TRADE" 		Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_CURRENCY" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
 		<Row TechnologyType="TECH_MASONRY" 				Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
 		<Row TechnologyType="TECH_BRONZE_WORKING" 		Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST" 	 	BarbarianFree="true"/>
 		<Row TechnologyType="TECH_EARLY_EMPIRE" 		Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="3"	/>
@@ -256,7 +256,7 @@
 		<Row Technology="TECH_CODE_OF_LAWS" 		PrereqTech="TECH_PICTOGRAM"/>
 		<Row Technology="TECH_WRITING"				PrereqTech="TECH_POTTERY"/>
 		<Row Technology="TECH_WRITING" 				PrereqTech="TECH_PICTOGRAM"/>
-		<Row Technology="TECH_CURRENCY"				PrereqTech="TECH_PICTOGRAM"/>
+		<Row Technology="TECH_FOREIGN_TRADE"		PrereqTech="TECH_PICTOGRAM"/>
 		<Row Technology="TECH_THE_WHEEL"			PrereqTech="TECH_POTTERY"/>
 		<Row Technology="TECH_THE_WHEEL"			PrereqTech="TECH_ANIMAL_HUSBANDRY"/>
 		<Row Technology="TECH_THE_WHEEL"			PrereqTech="TECH_ARCHERY"/>
@@ -268,8 +268,8 @@
 		<Row Technology="TECH_MAP_MAKING"			PrereqTech="TECH_WRITING"/>
 		<Row Technology="TECH_CALENDAR"				PrereqTech="TECH_ASTROLOGY"/>
 		<Row Technology="TECH_CALENDAR"				PrereqTech="TECH_WRITING"/>
-		<Row Technology="TECH_FOREIGN_TRADE"		PrereqTech="TECH_CURRENCY"/>
-		<Row Technology="TECH_FOREIGN_TRADE"		PrereqTech="TECH_CODE_OF_LAWS"/>
+		<Row Technology="TECH_CURRENCY"				PrereqTech="TECH_MINING"/>
+		<Row Technology="TECH_CURRENCY"				PrereqTech="TECH_CODE_OF_LAWS"/>
 		<Row Technology="TECH_MASONRY"				PrereqTech="TECH_MINING"/>
 		<Row Technology="TECH_BRONZE_WORKING"		PrereqTech="TECH_MINING"/>
 		<Row Technology="TECH_EARLY_EMPIRE"			PrereqTech="TECH_CODE_OF_LAWS"/>
@@ -585,7 +585,7 @@
 		<Row 	ContributionType="RESEARCH_NAVAL" 				IsResearch="true"	IconString="[ICON_NAVAL_LARGE]"			ColorString="[COLOR_FLOAT_SCIENCE]"		/>
 		<Row 	ContributionType="RESEARCH_EXPLORATION" 		IsResearch="true"	IconString="[ICON_EXPLORATION2_LARGE]"	ColorString="[COLOR_FLOAT_FAITH]"		/>
 		<Row 	ContributionType="RESEARCH_INSPIRATION" 		IsResearch="true"	IconString="[ICON_FaithLarge]"			ColorString="[COLOR_FLOAT_CULTURE]"		/>
-		<Row 	ContributionType="RESEARCH_ACADEMIC" 								IconString="[ICON_ScienceLarge]"		ColorString="[COLOR_FLOAT_SCIENCE]"		/>	<!-- To represent "normal" science -->
+		<Row 	ContributionType="RESEARCH_ACADEMIC" 								IconString="[ICON_ScienceLarge]"		ColorString="[COLOR_FLOAT_SCIENCE]"		/>	<!-- Special case to represent "normal" science -->
 		<Row 	ContributionType="EVENT_DISCOVER_NEW_RESOURCE" 		/>
 		<Row 	ContributionType="EVENT_DISCOVER_RESOURCE" 			/>
 		<Row 	ContributionType="EVENT_DISCOVER_NATURAL_WONDER"	/>
@@ -615,6 +615,10 @@
 		<Row 	ContributionType="YIELD_KNOWLEDGE"					/> <!-- Special case for Knowledge resources -->
 		<Row 	ContributionType="YIELD_OVERFLOW"					/> <!-- Previous turn overflow -->
 		<Row 	ContributionType="YIELD_CULTURE_INSPIRATION"		/> <!-- Special case for Culture/Inspiration -->
+		<Row 	ContributionType="YIELD_TABLETS"					/> <!-- Special case for Tablets -->
+		<Row 	ContributionType="YIELD_SCROLLS"					/> <!-- Special case for Scrolls -->
+		<Row 	ContributionType="YIELD_BOOKS"						/> <!-- Special case for Books -->
+		<Row 	ContributionType="YIELD_DIGITAL"					/> <!-- Special case for Digital media -->
 	
 	</TechnologyContributionTypes>
 	
@@ -879,13 +883,15 @@
 		
 		<Row 	Technology="TECH_THE_WHEEL" 		ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_CHARIOT_EQUIPMENT"	BaseValue="2"/>
 		
-		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES"			BaseValue="1"	PrereqTech="TECH_MINING"	/>
+		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES"			BaseValue="2"	PrereqTech="TECH_MINING"	/>
 		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES"			BaseValue="3"	PrereqTech="TECH_MINING"	/>
 		<Row 	Technology="TECH_BRONZE_WORKING" 	ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_BRONZE_EQUIPMENT"	BaseValue="2"	PrereqTech="TECH_POTTERY"	/>
+		<Row 	Technology="TECH_BRONZE_WORKING" 	ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES"			BaseValue="1"	PrereqTech="TECH_POTTERY"	/>
 		
-		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" 		BaseValue="1"	PrereqTech="TECH_BRONZE_WORKING"	/>
+		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" 		BaseValue="2"	PrereqTech="TECH_BRONZE_WORKING"	/>
 		<Row 	Technology="TECH_IRON_WORKING"		ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES" 		BaseValue="3"	PrereqTech="TECH_BRONZE_WORKING"	/>
 		<Row 	Technology="TECH_IRON_WORKING" 		ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_EQUIPMENT"	BaseValue="3"	PrereqTech="TECH_BRONZE_WORKING"	/>
+		<Row 	Technology="TECH_IRON_WORKING" 		ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_IRON_RES"		BaseValue="1"	PrereqTech="TECH_BRONZE_WORKING"	/>
 		
 		<Row 	Technology="TECH_HORSEBACK_RIDING" 	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_HORSE_RES" BaseValue="2" 	PrereqTech="TECH_MILITARY_TRADITION"	/>
 		
@@ -945,11 +951,11 @@
 	-->	
 	<TechnologyKnowledgeResourceClass>
 	
-		<Row 	ResourceClass="RESOURCECLASS_KNOWLEDGE"	Name="LOC_TECH_RES_KNOWLEDGE"	DecayPer1000="100"	ResearchPer100="50" 		/>
-		<Row 	ResourceClass="RESOURCECLASS_TABLETS"	Name="LOC_TECH_RES_TABLETS"		DecayPer1000="20"	ResearchPer100="65" 		/>
-		<Row 	ResourceClass="RESOURCECLASS_SCROLLS"	Name="LOC_TECH_RES_SCROLLS"		DecayPer1000="15"	ResearchPer100="85" 		/>
-		<Row 	ResourceClass="RESOURCECLASS_BOOKS"		Name="LOC_TECH_RES_BOOKS"		DecayPer1000="10"	ResearchPer100="100" 		/>
-		<Row 	ResourceClass="RESOURCECLASS_DIGITAL"	Name="LOC_TECH_RES_DIGITAL"		DecayPer1000="5"	ResearchPer100="100" 		/>
+		<Row 	ResourceClass="RESOURCECLASS_KNOWLEDGE"	Name="LOC_RESOURCECLASS_KNOWLEDGE"	DecayPer1000="100"	ResearchPer100="50" 	ContributionType="YIELD_KNOWLEDGE"	ResourcePrefix="RESOURCE_KNOWLEDGE_"	/>
+		<Row 	ResourceClass="RESOURCECLASS_TABLETS"	Name="LOC_RESOURCECLASS_TABLETS"	DecayPer1000="20"	ResearchPer100="65" 	ContributionType="YIELD_TABLETS"	ResourcePrefix="RESOURCE_TABLETS_"	/>
+		<Row 	ResourceClass="RESOURCECLASS_SCROLLS"	Name="LOC_RESOURCECLASS_SCROLLS"	DecayPer1000="15"	ResearchPer100="85" 	ContributionType="YIELD_SCROLLS"	ResourcePrefix="RESOURCE_SCROLLS_"	/>
+		<Row 	ResourceClass="RESOURCECLASS_BOOKS"		Name="LOC_RESOURCECLASS_BOOKS"		DecayPer1000="10"	ResearchPer100="100" 	ContributionType="YIELD_BOOKS"		ResourcePrefix="RESOURCE_BOOKS_"		/>
+		<Row 	ResourceClass="RESOURCECLASS_DIGITAL"	Name="LOC_RESOURCECLASS_DIGITAL"	DecayPer1000="5"	ResearchPer100="100" 	ContributionType="YIELD_DIGITAL"	ResourcePrefix="RESOURCE_DIGITAL_"	/>
 	
 	</TechnologyKnowledgeResourceClass>
 	

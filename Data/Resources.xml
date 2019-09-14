@@ -37,6 +37,12 @@
 		<Row ResourceType="RESOURCE_AVIONIC" 					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_ADVANCED_AVIONIC" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
 		
+		<Row ResourceType="RESOURCE_TABLETS" 					ResourceClassType="RESOURCECLASS_TABLETS" 	Frequency="0"	SpecialStock="1"/>
+		<Row ResourceType="RESOURCE_SCROLLS" 					ResourceClassType="RESOURCECLASS_SCROLLS" 	Frequency="0"	SpecialStock="1"/>
+		<Row ResourceType="RESOURCE_BOOKS" 						ResourceClassType="RESOURCECLASS_BOOKS" 	Frequency="0"	SpecialStock="1"/>
+		<Row ResourceType="RESOURCE_DIGITAL" 					ResourceClassType="RESOURCECLASS_DIGITAL" 	Frequency="0"	SpecialStock="1"/>
+
+		
 		<Row ResourceType="RESOURCE_RICE" 		DecayRate="2" />
 		<Row ResourceType="RESOURCE_WHEAT" 		DecayRate="2" />
 		<Row ResourceType="RESOURCE_CATTLE" 	NoExport="1" NoTransfer="1"	SpecialStock="1" />

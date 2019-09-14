@@ -256,20 +256,20 @@ UPDATE Technologies SET Cost = Cost*4.80 WHERE EraType ='ERA_INFORMATION';
 UPDATE Technologies SET Cost = Cost*5.50 WHERE EraType ='ERA_FUTURE';
 
 /* Create Resources from Technologies */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, TechnologyType)
-	SELECT 'RESOURCE_KNOWLEDGE_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_TECH_RES_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
+	SELECT 'RESOURCE_KNOWLEDGE_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, 1, Technologies.TechnologyType
 	FROM Technologies;
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, TechnologyType)
-	SELECT 'RESOURCE_TABLETS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_TECH_RES_TABLETS}', 'RESOURCECLASS_TABLETS', 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
+	SELECT 'RESOURCE_TABLETS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_TABLETS}', 'RESOURCECLASS_TABLETS', 0, 0, 1, Technologies.TechnologyType
 	FROM Technologies;
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, TechnologyType)
-	SELECT 'RESOURCE_SCROLLS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_TECH_RES_SCROLLS}', 'RESOURCECLASS_SCROLLS', 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
+	SELECT 'RESOURCE_SCROLLS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_SCROLLS}', 'RESOURCECLASS_SCROLLS', 0, 0, 1, Technologies.TechnologyType
 	FROM Technologies;
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, TechnologyType)
-	SELECT 'RESOURCE_BOOKS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_TECH_RES_BOOKS}', 'RESOURCECLASS_BOOKS', 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
+	SELECT 'RESOURCE_BOOKS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_BOOKS}', 'RESOURCECLASS_BOOKS', 0, 0, 1, Technologies.TechnologyType
 	FROM Technologies;
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, TechnologyType)
-	SELECT 'RESOURCE_DIGITAL_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_TECH_RES_DIGITAL}', 'RESOURCECLASS_DIGITAL', 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
+	SELECT 'RESOURCE_DIGITAL_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_DIGITAL}', 'RESOURCECLASS_DIGITAL', 0, 0, 1, Technologies.TechnologyType
 	FROM Technologies;
 	
 INSERT OR REPLACE INTO Types (Type, Kind)
@@ -291,7 +291,7 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 
 /* Create Resources from Research Types */
 INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, ResearchType)
-	SELECT 'RESOURCE_KNOWLEDGE_' || T.ContributionType , '{' || T.Name || '} {LOC_TECH_RES_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, T.ContributionType
+	SELECT 'RESOURCE_KNOWLEDGE_' || T.ContributionType , '{' || T.Name || '} {LOC_RESOURCECLASS_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, T.ContributionType
 	FROM TechnologyContributionTypes AS T WHERE IsResearch ='1';
 	
 INSERT OR REPLACE INTO Types (Type, Kind)
