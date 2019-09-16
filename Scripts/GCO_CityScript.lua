@@ -4514,6 +4514,97 @@ end
 	return strFull
 end
 
+
+function GetScienceStockStringTable(self, scienceToolTipTab, scienceToolTipMode)
+	local turnKey 			= GCO.GetTurnKey()
+	local previousTurnKey	= GCO.GetPreviousTurnKey()
+	local strFull			= ""
+	local pResearch 		= GCO.Research:Create(self:GetOwner())
+	local pTechs			= pResearch:GetTechs()
+	local scienceList		= {}
+	local stringTable		= {}
+	local bAllTab			= (scienceTabs[scienceToolTipTab] == "LOC_CITYBANNER_TOOLTIP_SCIENCE_ALL_TAB")
+	local bKnownTab			= (scienceTabs[scienceToolTipTab] == "LOC_CITYBANNER_TOOLTIP_SCIENCE_KNOWN_TAB")
+	local bUnlockedTab		= (scienceTabs[scienceToolTipTab] == "LOC_CITYBANNER_TOOLTIP_SCIENCE_UNLOCKED_TAB")
+	local bLockedTab		= (scienceTabs[scienceToolTipTab] == "LOC_CITYBANNER_TOOLTIP_SCIENCE_LOCKED_TAB")
+	
+	for resourceKey, value in pairs(self:GetResources()) do
+		local resourceID 		= tonumber(resourceKey)
+		
+		if GCO.IsKnowledgeResource(resourceID) then
+
+			local techType			= pResearch:GetResourceTechnologyType(resourceID)
+			local techRow			= techType and GameInfo.Technologies[techType]
+			local techID			= techRow and techRow.Index
+			local bHasTech			= techID and pTechs:HasTech(techID)
+			local bCanResearch		= techID and pTechs:CanResearch(techID)
+			local bIsResearchField	= pResearch:GetResourceResearchType(resourceID) ~= nil
+			local bCanShow 			= (bAllTab or pResearch:IsBlankKnowledgeResource(resourceID)) or (bKnownTab and bHasTech and not bIsResearchField) or (bUnlockedTab and (bIsResearchField or bCanResearch)) or (bLockedTab and not (bCanResearch or bHasTech or bIsResearchField))
+		
+			if bCanShow and (value + self:GetAverageSupplyAtTurn(resourceID) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
+
+				local stockVariation 	= self:GetStockVariation(resourceID)
+				local resourceCost 		= self:GetResourceCost(resourceID)
+				local costVariation 	= self:GetResourceCostVariation(resourceID)
+				local resRow 			= GameInfo.Resources[resourceID]
+				local str 				= ""
+				local bIsEquipmentMaker = GCO.IsResourceEquipmentMaker(resourceID)
+				local product 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
+				local collect 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
+				local localProd			= product + collect
+				local sDisabled			= "X"
+				local sNoTransfer		= resRow.NoTransfer and sDisabled
+				local sNoExport			= resRow.NoExport and sDisabled
+				local sNoTrade			= resRow.NoTransfer and resRow.NoExport and sDisabled
+
+				local import 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey))--GCO.Round(self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Import, 3))-- -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
+				local transferIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))--GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
+				local pillage 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey))
+				local otherIn 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey))
+				
+				local consume 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, turnKey))
+				local export 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Export, turnKey))
+				local transferOut 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferOut, turnKey))
+				local supply 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Supply, turnKey))
+				local stolen 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)) --GCO.Round(self:GetAverageUseTypeOnTurns(resourceID, ResourceUseType.Stolen, 3))-- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
+				local otherOut 			= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherOut, turnKey))
+				
+				local name				= techRow and Locale.Lookup(techRow.Name) or " " .. Locale.Lookup(resRow.Name)
+				
+				-- mode 1 test
+				---[[
+					local tradeIn	= import + transferIn + pillage + otherIn
+					local tradeOut	= export + transferOut + supply + stolen + otherOut
+					
+					str = GCO.GetResourceIcon(resourceID)
+					str = str .. " " .. Indentation(name, 20)
+
+					if tradeIn > 0 then
+						str = str .. " |+" .. Indentation(tradeIn, 3, true).."/-"..Indentation(tradeOut, 3, true)
+					else
+						str = str .. " | " .. Indentation(sNoTrade or "0", 3, true).."/-"..Indentation(sNoTrade or tradeOut, 3, true)
+					end
+					
+					str = str .. " |" .. Indentation(value, 4, true) .."/"..Indentation(self:GetMaxStock(resourceID), 4, true)
+					str = str .. " |" .. (stockVariation < 0 and "[COLOR_Civ6Red]-"..Indentation(-stockVariation, 3, true) or "[COLOR_Civ6Green]+"..Indentation(stockVariation, 3, true)) .."[ENDCOLOR]"
+					str = str .. " |[COLOR_Gold]" .. Indentation(resourceCost, 4, true).."[ENDCOLOR]"
+					str = str .. " " .. (costVariation < 0 and "[COLOR_Civ6Green]-"..Indentation(-costVariation, 4, true) or "[COLOR_Civ6Red]+"..Indentation(costVariation, 4, true)) .."[ENDCOLOR]"
+					str = str .. "[NEWLINE]"
+				--]]
+				
+				table.insert(scienceList, { String = str, Order = name }) -- Order = resourceID + 1000*(techID or 0) })
+			end
+		end
+	end
+	
+	table.sort(scienceList, function(a, b) return a.Order < b.Order; end)
+	for i, data in ipairs(scienceList) do
+		table.insert(stringTable, data.String)
+	end
+	
+	return stringTable
+end
+
 function GetResourcesStockStringTable(self, resourceToolTipTab, resourceToolTipMode)
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
@@ -4524,7 +4615,8 @@ function GetResourcesStockStringTable(self, resourceToolTipTab, resourceToolTipM
 	local foodList			= {}
 	local strategicList		= {}
 	local otherList			= {}
-	local stringTable		= {["Equipment"] = {}, ["Food"] = {}, ["Strategic"] = {}, ["Other"] = {}, }
+	local scienceList		= {}
+	local stringTable		= {["Equipment"] = {}, ["Food"] = {}, ["Strategic"] = {}, ["Other"] = {}, ["Science"] = {}, }
 	if not data.Stock[turnKey] then return end
 local count = 0
 	for resourceKey, value in pairs(data.Stock[turnKey]) do
@@ -4721,7 +4813,9 @@ else
 				GCO.Warning("resourceToolTipTab not registered :", resourceToolTipTab)
 			end
 			
-			if GCO.IsResourceEquipment(resourceID) then
+			if GCO.IsKnowledgeResource(resourceID) then
+				-- separate function
+			elseif GCO.IsResourceEquipment(resourceID) then
 				table.insert(equipmentList, { String = str, Order = EquipmentInfo[resourceID].Desirability })
 			elseif resRow.ResourceClassType == "RESOURCECLASS_STRATEGIC" or bIsEquipmentMaker then			
 			
@@ -4730,7 +4824,7 @@ else
 				table.insert(strategicList, { String = str, Order = equipmentMaker })
 			elseif GCO.IsResourceFood(resourceID) or resourceKey == foodResourceKey then
 				table.insert(foodList, { String = str, Order = value })
-			elseif resourceKey ~= foodResourceKey then -- food is displayed separately
+			elseif resourceKey ~= foodResourceKey then -- everything else
 				table.insert(otherList, { String = str, Order = value })
 			end			
 		end
@@ -7697,6 +7791,7 @@ function AttachCityFunctions(city)
 		-- text
 		if not c.GetHealthString					then c.GetHealthString						= GetHealthString						end
 		if not c.GetResourcesStockString			then c.GetResourcesStockString				= GetResourcesStockString           	end
+		if not c.GetScienceStockStringTable			then c.GetScienceStockStringTable			= GetScienceStockStringTable      		end
 		if not c.GetResourcesStockStringTable		then c.GetResourcesStockStringTable			= GetResourcesStockStringTable      	end
 		if not c.GetFoodStockString 				then c.GetFoodStockString 					= GetFoodStockString                	end
 		if not c.GetFoodConsumptionString			then c.GetFoodConsumptionString				= GetFoodConsumptionString          	end

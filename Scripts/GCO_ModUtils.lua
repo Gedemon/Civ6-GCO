@@ -1066,6 +1066,16 @@ function IsImprovingResource(improvementID, resourceID)
 	return (IsImprovementForResource[improvementID] and IsImprovementForResource[improvementID][resourceID])
 end
 
+function IsKnowledgeResource(resourceID)
+	return GameInfo.Resources[resourceID]
+		and (
+			GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_KNOWLEDGE"
+			or GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_TABLETS"
+			or GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_SCROLLS"
+			or GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_BOOKS"
+			or GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_DIGITAL"
+			)
+end
 
 --=====================================================================================--
 -- Units
@@ -1354,6 +1364,7 @@ function Initialize()
 	ExposedMembers.GCO.GetResourceIcon				= GetResourceIcon
 	ExposedMembers.GCO.GetResourceImprovementID		= GetResourceImprovementID
 	ExposedMembers.GCO.IsImprovingResource			= IsImprovingResource
+	ExposedMembers.GCO.IsKnowledgeResource			= IsKnowledgeResource
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 				= GetVariationString

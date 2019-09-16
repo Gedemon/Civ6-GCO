@@ -38,6 +38,8 @@ local m_TradeRoute 				= UILens.CreateLensLayerHash("TradeRoutes")
 local resourceToolTipTab	= 1 --"LOC_CITYBANNER_TOOLTIP_STOCK_TAB"
 local resourceToolTipMode	= 2 --"LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD"
 
+local scienceToolTipTab		= 3 -- Researching
+
 local TooltipParameters		= {
 		["LOC_CITYBANNER_TOOLTIP_STOCK_TAB"] = {
 			["LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD"] 		= { Title3="LOC_TOOLTIP_SEPARATOR_NO_LB", Text3 = "LOC_CITYBANNER_SIMPLE_STOCK_LEGEND", 		Title4="LOC_TOOLTIP_SEPARATOR_NO_LB", Header4 = "LOC_CITYBANNER_SIMPLE_STOCK_HEADER",},
@@ -1106,36 +1108,46 @@ function CityBanner.UpdateStats( self : CityBanner)
 				function ChangeTab()
 					--print("ChangeTab", sCurrentResourceTooltip)
 					if sCurrentResourceTooltip then
-						resourceToolTipTab = (resourceToolTipTab + 1 > #resourceTabs and 1) or (resourceToolTipTab + 1)
-						--print(resourceTabs[resourceToolTipTab])
-						HideToolTip()
-						self:UpdateStats()
-						if sCurrentResourceTooltip == "Strategic" then
-							ShowStrategicToolTip()
-						elseif sCurrentResourceTooltip == "Other" then
-							ShowOtherToolTip()
-						elseif sCurrentResourceTooltip == "Food" then
-							ShowFoodToolTip()
-						elseif sCurrentResourceTooltip == "Equipment" then
-							ShowEquipmentToolTip()
+						if sCurrentResourceTooltip == "Science" then
+							scienceToolTipTab = (scienceToolTipTab + 1 > #scienceTabs and 1) or (scienceToolTipTab + 1)
+							--print(resourceTabs[resourceToolTipTab])
+							HideToolTip()
+							self:UpdateStats() -- required to register the scienceToolTipTab change
+							ShowScienceToolTip()
+						else
+							resourceToolTipTab = (resourceToolTipTab + 1 > #resourceTabs and 1) or (resourceToolTipTab + 1)
+							--print(resourceTabs[resourceToolTipTab])
+							HideToolTip()
+							self:UpdateStats()
+							if sCurrentResourceTooltip == "Strategic" then
+								ShowStrategicToolTip()
+							elseif sCurrentResourceTooltip == "Other" then
+								ShowOtherToolTip()
+							elseif sCurrentResourceTooltip == "Food" then
+								ShowFoodToolTip()
+							elseif sCurrentResourceTooltip == "Equipment" then
+								ShowEquipmentToolTip()
+							end
 						end
 					end
 				end
 				function ChangeMode()
 					--print("ChangeMode", sCurrentResourceTooltip)
 					if sCurrentResourceTooltip then
-						resourceToolTipMode = (resourceToolTipMode + 1 > #resourceModes and 1) or (resourceToolTipMode + 1)
-						--print(resourceModes[resourceToolTipMode])
-						HideToolTip()
-						self:UpdateStats()
-						if sCurrentResourceTooltip == "Strategic" then
-							ShowStrategicToolTip()
-						elseif sCurrentResourceTooltip == "Other" then
-							ShowOtherToolTip()
-						elseif sCurrentResourceTooltip == "Food" then
-							ShowFoodToolTip()
-						elseif sCurrentResourceTooltip == "Equipment" then
-							ShowEquipmentToolTip()
+						if sCurrentResourceTooltip ~= "Science" then
+							resourceToolTipMode = (resourceToolTipMode + 1 > #resourceModes and 1) or (resourceToolTipMode + 1)
+							--print(resourceModes[resourceToolTipMode])
+							HideToolTip()
+							self:UpdateStats()
+							if sCurrentResourceTooltip == "Strategic" then
+								ShowStrategicToolTip()
+							elseif sCurrentResourceTooltip == "Other" then
+								ShowOtherToolTip()
+							elseif sCurrentResourceTooltip == "Food" then
+								ShowFoodToolTip()
+							elseif sCurrentResourceTooltip == "Equipment" then
+								ShowEquipmentToolTip()
+							end
 						end
 					end
 				end
@@ -1293,8 +1305,8 @@ function CityBanner.UpdateStats( self : CityBanner)
 				self.m_Instance.LuxuriesStockIcon:RegisterMouseExitCallback(CleanToolTip)
 				
 				-- Equipment
-				local equipmentToolTip = Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE").. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
-				equipmentToolTip = equipmentToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE") .. table.concat(resourceStockStringTable["Equipment"])
+				--local equipmentToolTip = Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE").. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+				--equipmentToolTip = equipmentToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE") .. table.concat(resourceStockStringTable["Equipment"])
 				
 				
 				local equipmentParameters	= {}
@@ -1321,7 +1333,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 					end					
 					
 					-- Special presentation for food Tooltip, using 1 more slot
-					equipmentParameters.Title1	= Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE") --LOC_CITYBANNER_FOOD_TITLE
+					equipmentParameters.Title1	= Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE")
 					equipmentParameters.Text1	= textStr
 					equipmentParameters.Title2	= Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
 					equipmentParameters.Text2	= Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
@@ -1348,6 +1360,81 @@ function CityBanner.UpdateStats( self : CityBanner)
 				self.m_Instance.EquipmentStockIcon:RegisterMouseExitCallback(CleanToolTip)
 				
 				--self.m_Instance.EquipmentStockIcon:SetToolTipString(equipmentToolTip)
+				
+				-- Science
+				--local scienceToolTip = Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE").. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+				--scienceToolTip = scienceToolTip .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE") .. table.concat(resourceStockStringTable["Equipment"])
+				
+				local scienceParameters	= {}
+				function RefreshScienceParameters()
+
+					--[[
+					local textStr 				= "[ICON_MOUSE_LEFT]"
+					local resourceTabLoc		= resourceTabs[resourceToolTipTab]
+					local resourceModeLoc		= resourceModes[resourceToolTipMode]
+					local bCondensedMode		= (resourceModes[resourceToolTipMode] == "LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD")
+					for i, loc in ipairs(resourceTabs) do
+						if i == resourceToolTipTab then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .. "[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end					
+					textStr = textStr .. "[NEWLINE][ICON_MOUSE_RIGHT]"					
+					for i, loc in ipairs(resourceModes) do
+						if i == resourceToolTipMode then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .."[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end
+					--]]
+					local textStr 				= "[ICON_MOUSE_LEFT]"
+					--local resourceTabLoc		= scienceTabs[scienceToolTipTab]
+					for i, loc in ipairs(scienceTabs) do
+						if i == scienceToolTipTab then
+							textStr = textStr .. "[ "..Locale.Lookup(loc).." ]"
+						else
+							textStr = textStr .. "[COLOR_Grey][ "..Locale.Lookup(loc).." ][ENDCOLOR]"
+						end
+					end		
+					
+					-- 
+					scienceParameters.Title1	= Locale.Lookup("LOC_CITYBANNER_SCIENCE_STOCK_TITLE") --LOC_CITYBANNER_FOOD_TITLE
+					scienceParameters.Text1		= textStr
+					scienceParameters.Title3	= Locale.Lookup("LOC_TOOLTIP_SEPARATOR_NO_LB")
+					scienceParameters.Text3 	= Locale.Lookup("LOC_CITYBANNER_CONDENSED_SCIENCE_LEGEND")
+					scienceParameters.Title4	= Locale.Lookup("LOC_TOOLTIP_SEPARATOR_NO_LB")
+					scienceParameters.Header4 	= Locale.Lookup("LOC_CITYBANNER_CONDENSED_SCIENCE_HEADER")
+					scienceParameters.ListSmall	= table.concat(city:GetScienceStockStringTable(scienceToolTipTab, scienceToolTipMode))
+
+					--[[
+					scienceParameters.Text1		= nil--textStr
+					scienceParameters.Title2	= Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
+					scienceParameters.Text2	= Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+					
+					for key, loc in pairs(TooltipParameters[resourceTabLoc][resourceModeLoc]) do
+						scienceParameters[key] = Locale.Lookup(loc)
+					end
+					if bCondensedMode then
+						scienceParameters.ListSmall	= table.concat(resourceStockStringTable["Science"])
+						scienceParameters.List4		= nil
+					else
+						scienceParameters.List4		= table.concat(resourceStockStringTable["Science"])
+						scienceParameters.ListSmall	= nil
+					end
+					--]]
+				end
+				RefreshScienceParameters()
+				
+				function ShowScienceToolTip()
+					self:UpdateStats()
+					LuaEvents.ShowCustomToolTip(scienceParameters)
+					sCurrentResourceTooltip = "Science"
+				end				
+				self.m_Instance.ScienceIcon:RegisterMouseEnterCallback(ShowScienceToolTip)
+				self.m_Instance.ScienceIcon:RegisterMouseExitCallback(CleanToolTip)
+				
 				
 				-- Housing / Employment
 				local housingToolTip = Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE").."[NEWLINE]"..city:GetHousingToolTip()

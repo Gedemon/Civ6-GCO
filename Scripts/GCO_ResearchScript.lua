@@ -417,9 +417,13 @@ function Research:MaxTechResearch(techID)
 	return pTech:GetResearchCost(techID) - pTech:GetResearchProgress(techID)
 end
 
-function Research:IsKnowledgeResource(resourceID)
+function Research:IsScholarResource(resourceID)
 	--return GameInfo.Resources[resourceID] and (GameInfo.Resources[resourceID].TechnologyType or GameInfo.Resources[resourceID].ResearchType)
 	return GameInfo.Resources[resourceID] and (GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_KNOWLEDGE")
+end
+
+function Research:IsKnowledgeResource(resourceID)
+	return GCO.IsKnowledgeResource(resourceID)
 end
 
 function Research:IsBlankKnowledgeResource(resourceID)
@@ -476,15 +480,7 @@ function Research:StoreTechResource(resourceID, value, receiver) -- try to store
 	return false
 end
 
---[[
-function Research:GetTechnologyResourceID(techID)
-	if not GameInfo.Technologies[techID] then return end
-	local resourceType 	= "RESOURCE_KNOWLEDGE_" .. GameInfo.Technologies[techID].TechnologyType
-	return GameInfo.Resources[resourceType] and GameInfo.Resources[resourceType].Index
-end
---]]
-
-function Research:GetTechnologyResourceID(techID, classType)
+function Research:GetTechnologyResourceID(techID, classType) -- assume "RESOURCECLASS_KNOWLEDGE" if classType is nil
 	if not GameInfo.Technologies[techID] then return end
 	local prefix 		= self:GetResourcePrefix(classType or "RESOURCECLASS_KNOWLEDGE")
 	local resourceType 	= prefix .. GameInfo.Technologies[techID].TechnologyType
@@ -668,7 +664,7 @@ function Research:DoTurn()
 				if techType then
 					local techID	= GameInfo.Technologies[techType].Index
 					if pTech:CanResearch(techID) then --and not pTech:HasTech(techID) then
-						if self:IsKnowledgeResource(resourceID) then -- this is a scholar
+						if self:IsScholarResource(resourceID) then
 							local rsrchPoints	= self:CalculateResearchPoints(value, literacy, resourceID) --value * literacy / 100  -- todo : ponder value by ResourceClass type
 							local arg 			= { MaxContributionPercent = 100, BaseValue = rsrchPoints }
 							Dprint( DEBUG_RESEARCH_SCRIPT, "  - Producing " .. Indentation8(rsrchPoints) .. " research points from " .. Indentation8(value) .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)))
@@ -1242,7 +1238,7 @@ function Research:GetNextTurnTechnology()
 		
 			if value > 0 then
 				local resourceID 	= tonumber(resourceKey)
-				if self:IsKnowledgeResource(resourceID) then -- this is a scholar
+				if self:IsScholarResource(resourceID) then
 					local techType		= self:GetResourceTechnologyType(resourceID)
 					if techType then
 						local researchData	= NextTurnTechnology.Techs[techType]

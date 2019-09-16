@@ -251,6 +251,9 @@
     <Replace Tag="LOC_CITYBANNER_OTHER_STOCK_TITLE" Language="en_US">
       <Text>[COLOR_Grey]--------------------- Other Stock ---------------------[ENDCOLOR]</Text>
     </Replace>
+    <Replace Tag="LOC_CITYBANNER_SCIENCE_STOCK_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------------- Knowledge Sources -------------------[ENDCOLOR]</Text>
+    </Replace>
     <Replace Tag="LOC_CITYBANNER_CONSUMPTION_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------- Consumption -------------------[ENDCOLOR]</Text>
     </Replace>
@@ -329,6 +332,20 @@
       <Text>Import&amp;Export</Text>
     </Replace>
 	
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_SCIENCE_ALL_TAB" Language="en_US">
+      <Text>All</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_SCIENCE_KNOWN_TAB" Language="en_US">
+      <Text>Known</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_SCIENCE_UNLOCKED_TAB" Language="en_US">
+      <Text>Researching</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_TOOLTIP_SCIENCE_LOCKED_TAB" Language="en_US">
+      <Text>Locked</Text>
+    </Replace>
+
+	
 	<Replace Tag="LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD" Language="en_US">
       <Text>Simple</Text>
     </Replace>
@@ -386,6 +403,13 @@
     </Replace>
 	<Replace Tag="LOC_CITYBANNER_CONDENSED_HEADER" Language="en_US">
       <Text>[ICON_INDENT]         [ICON_Terrain]/[ICON_Charges]    [ICON_TradeRoute]      [Icon_STOCK2]   [ICON_UP_DOWN]   [ICON_Gold]</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_CONDENSED_SCIENCE_LEGEND" Language="en_US">
+      <Text>[ICON_TradeRoute] : Trade/Transfer and Created (+) or Used/Decayed (-)[NEWLINE][ICON_STOCK2] : Current Stock / Storage Space[NEWLINE][ICON_UP_DOWN] : [COLOR_Civ6Green]positive (+)[ENDCOLOR] or [COLOR_Civ6Red]negative (-)[ENDCOLOR] Stock Variation[NEWLINE][ICON_GOLD] : [COLOR_Gold]Price per unit[ENDCOLOR] and [COLOR_Civ6Red]+[ENDCOLOR]/[COLOR_Civ6Green]-[ENDCOLOR] Price Variation</Text>
+    </Replace>
+	<Replace Tag="LOC_CITYBANNER_CONDENSED_SCIENCE_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]                   [ICON_TradeRoute]      [Icon_STOCK2]   [ICON_UP_DOWN]   [ICON_Gold]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_FOOD_PERCENTAGE" Language="en_US">
