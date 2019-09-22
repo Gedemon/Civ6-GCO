@@ -151,7 +151,7 @@
 	<Replace Tag="LOC_HOUSING_MOTIVATION"			Text="Housing" 				Language="en_US" />
 	
 	<Replace Tag="LOC_TECH_CONTRIBUTION_TITLE"				Text="Contributions to Technology Research:[NEWLINE]" 		Language="en_US" />
-	<Replace Tag="LOC_TECH_CONTRIBUTION_TO_KNOWLEDGE_TITLE"	Text="Contributions to Citizen Knowledge:[NEWLINE]" 		Language="en_US" />
+	<Replace Tag="LOC_TECH_CONTRIBUTION_TO_KNOWLEDGE_TITLE"	Text="Contributions to Scholars Formation:[NEWLINE]" 		Language="en_US" />
 	<Replace Tag="LOC_TECH_CONTRIBUTION_UNUSED_TITLE"		Text="Possible Contributions not triggered yet:[NEWLINE]" 	Language="en_US" />
 	<Replace Tag="LOC_TECH_CONTRIBUTION_PREREQ_TECH"		Text="({1_Name} required)" 									Language="en_US" />
 	
@@ -164,7 +164,11 @@
 	
 	<Replace Tag="LOC_GAME_MENU_GCO_RESTART_TIMER" Language="en_US">
 	  <Text>Restart in {1Num}sec (Press to cancel)</Text>
-	</Replace>	
+	</Replace>
+	
+	<Replace Tag="LOC_FARM_RIVER_FOOD_ADJACENCY_BONUS" Language="en_US">
+		<Text>+{1_num} [ICON_Food] Food from the adjacent River.</Text>
+	</Replace>
 	
   </LocalizedText>
   
@@ -185,7 +189,8 @@
 	<Replace Tag="LOC_TOP_PANEL_LOGISTIC_COST_TOOLTIP"	Text="Available Base Logistic =  {1_Num} Personnel in cities[NEWLINE]Active Duty logistic = {2_Num} Personnel required for units support[NEWLINE][NEWLINE]If the available logistic fall under the Logistic Cost of a Promotion Class, you won't be able to build new units of that class.[NEWLINE][NEWLINE]The logistic cost of an unit is determined by its current stock of equipment in Frontline and Reserve.[NEWLINE][NEWLINE]Different equipment types can have very different logistic cost.[NEWLINE][NEWLINE]Some buildings (like Barracks) allows you to raise the maximum number of personnel in reserve in your cities.[NEWLINE][NEWLINE]Some specialized classes require specific support, the available personnel is then lower than the Base Logistic." Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_PROMOTION_COST_TOOLTIP" Text="{1_Name} units require {2_Name} Support, {3_Num : number #,###} available for that class" Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_POPULATION_TOOLTIP"		Text="Total population =  {1_Num : number #,###}[NEWLINE]Active Duty = {2_Num : number #,###} personnel ({7_Num : number #,###} in logistic + {6_Num : number #,###} in units)[NEWLINE]{3_Num : number #.##} % of population in service[NEWLINE]Conscription Efficiency = {4_Num : number #.##} %[NEWLINE][NEWLINE]Conscription Efficiency goes down when the number of your Personnel in Active Duty get closer to the maximum percentage of population in service (currently {5_Num : number #.##} %).[NEWLINE][NEWLINE]It affects the number of personnel drafted each turn in your cities.[NEWLINE][NEWLINE]Some Policies allow you to raise a bigger army, and being at war give a boost to the percentage of population that can be drafted, until the end of the war.[NEWLINE][NEWLINE]The personnel in units and the personnel required to provide support to those units are considered in Active Duty." Language="en_US" />
-
+	
+	<Replace Tag="LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP"	Text="Empire Administrative cost = {1_Num : number #,###}[NEWLINE][NEWLINE][ICON_BULLET]Population cost = {2_Num : number #,###} from {3_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Cities cost = {4_Num : number #,###} from number of cities[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #.#} from managing {6_Num : number #,###}km²[NEWLINE][NEWLINE]Administrative cost multiplied by {7_Num : number #.#} from technological advancement." Language="en_US" />
 	
 	<Replace Tag="LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP" Text="[ICON_Science][COLOR:SuzerainDark]{2_Name}[ENDCOLOR] : {1_Num : number #.##} scholars in cities" Language="en_US" />
 	

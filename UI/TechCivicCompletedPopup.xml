@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Hidden="0">
+
+	<!-- GCo <<<<<
+  <Container Style="FullScreenVignetteConsumer" />
+	GCO >>>>>-->
+	
+  <Grid ID="PopupDrowShadowGrid" Anchor="C,C" Offset="0,0"  Size="auto,auto" AutoSizePadding="50,50"	Style="DropShadow" >
+    <Image ID="PopupBackgroundImage" Anchor="C,C"  Size="auto,auto" AutoSizePadding="-10,-10" Texture="Parchment_Pattern"	StretchMode="Tile" ConsumeMouse="1">
+      <Grid ID="PopupFrameGrid" Anchor="C,C"  Size="auto,auto" Offset="0,0" Texture="CompletedPopup_Frame" SliceCorner="112,120" SliceSize="2,1">
+        <!-- Corner Icons -->
+        <Button	ID="CloseButton"		Texture="Controls_CloseLarge" Size="44,44" Anchor="R,T"	Offset="11,11"	/>
+        <Image ID="TopLeftIcon"     Texture="CompletedPopup_TechTheme1" Anchor="L,T" Offset="15,18"/>
+        <Image ID="LeftBottomIcon"  Texture="CompletedPopup_TechTheme2" Anchor="L,B" Offset="15,18"/>
+        <Image ID="RightBottomIcon" Texture="CompletedPopup_TechTheme3" Anchor="R,B" Offset="15,18"/>
+          
+        <!-- Research Name Banner -->
+        <Container Size="353, 80" Anchor="C,T" Offset="0,0">
+          <Label ID="HeaderLabel" String="LOC_RESEARCH_COMPLETE_CIVIC_COMPLETE" Anchor="C,C" Align="C,C" Color="92,86,85,255" Offset="0,10" Style="FontFlair20" SmallCaps="26" SmallCapsType="EveryWord" WrapWidth="240" />
+        </Container>
+
+        <!-- Research Symbol -->
+        <Container Size="353, 180" Anchor="C,T" Offset="0,120">
+          <Image ID="ResearchIconFrame" Texture="CompletedPopup_TechFrame" Anchor="C,C" Offset="0,0">
+            <Image ID="ResearchIcon" Size="160,160" Anchor="C,C" Icon="ICON_TECH_SAILING" IconSize="160,160"/>
+          </Image>
+          <Image Texture="CompletedPopup_Pattern" Anchor="L,C" Offset="15,-5"/>
+          <Image Texture="CompletedPopup_Pattern" Anchor="R,C" Offset="15,-5" FlipX="1"/>s
+        </Container>
+
+        <!-- Research Name Banner -->
+        <Container Size="353, 80" Anchor="C,T" Offset="0,340">
+          <Grid Size="393,80" Anchor="C,T" Offset="0,0" Texture="Controls_BannerHeaderBlue3" SliceCorner="101,0" SliceSize="65,64" TextureSliceSize="267,64">
+            <Label ID="ResearchName" Anchor="C,T" Offset="0,22" String="CELESTIAL NAVIGATION" Color="60,55,52,255" Style="FontFlair22" SmallCaps="28" SmallCapsType="EveryWord" FontStyle="Shadow" TruncateWidth="350" TruncatedTooltip="1"/>
+          </Grid>
+        </Container>
+
+        <Stack ID="BottomControlStack" Anchor="C,T" Offset="0,400" StackGrowth="Bottom" StackPadding="5,5">
+          <Label ID="CivicMsgLabel" Anchor="C,T" Offset="0,0" Align="center" Color="90,85,82,255" Style="FontNormal14" WrapWidth="300" />
+
+          <!-- Unlocks Stack -->
+          <Label ID="UnlockCountLabel" Anchor="C,T" Offset="0,0" Align="center" Color="90,85,82,255" Style="FontNormal16" />
+          <Stack ID="UnlockStack" Anchor="C,T" Offset="0,0" StackGrowth="Right" StackPadding="5" WrapGrowth="Bottom" WrapWidth="300"/>
+
+          <!-- Quote Button -->
+          <GridButton ID="QuoteButton" Anchor="C,T" Size="295,100" Color="255,255,255,170">
+            <GridData Texture="Civilopedia_QuoteButton" SliceCorner="50,41" SliceSize="2,2" SliceTextureSize="102,84"/>
+						<Image ID="QuoteAudio" Texture="Controls_Play" Size="57,57" Anchor="C,C" />
+						<Label ID="QuoteLabel" Anchor="C,C" Offset="0,0" Color="201,193,188,255" FontStyle="Shadow" EffectColor="0,0,0,255" Style="FontNormal15" WrapWidth="235"/>
+          </GridButton>
+
+          <!-- Bottom Padding Container - Ensures space below stack for autosizing -->
+          <Container Size="100,60" Achnor="C,T"/>
+        </Stack>
+
+        <!-- Confirm Button -->
+        <GridButton ID="ChangeGovernmentButton" Size="210,41" Anchor="C,B" Offset="0,25" String="LOC_RESEARCH_COMPLETE_CIVIC_BUTTON" Style="MainButton"/>
+      </Grid>
+    </Image>
+  </Grid>
+
+  <!-- Instances -->
+  <Instance Name="UnlockInstance">
+    <Container ID="Top" Size="45,45">
+      <Image Texture="CompletedPopup_IconSlot">
+        <Button ID="UnlockIcon" Style="UnlockFrames" NoStateChange="1" Anchor="C,C">
+          <Image ID="Icon" Size="38,38" Texture="Controls_Blank" Anchor="C,C"/>
+        </Button>
+      </Image>
+    </Container>
+  </Instance>
+  
+</Context>

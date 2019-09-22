@@ -106,6 +106,10 @@
 			<Text>More storage for eqipment and housing for personnel, allowing better availability for the emergency Recruitment Centre.</Text>
 		</Replace>
 		
+		<Replace Tag="LOC_BUILDING_CITY_SHIPYARD_DESCRIPTION" Language="en_US">
+			<Text>Allows fishing boats to be send on Sea Resources in the City exploitation range.</Text>
+		</Replace>
+		
 		<Replace Tag="LOC_BUILDING_ARTILLATOR_DESCRIPTION" Language="en_US">
 			<Text>A building for the makers of bows, arrows, and other archery goods.</Text>
 		</Replace>
@@ -309,6 +313,10 @@
 		<Replace Tag="LOC_RESOURCE_SCROLLS_NAME"			Text="Blank Scrolls" 		Language="en_US" />
 		<Replace Tag="LOC_RESOURCE_BOOKS_NAME"				Text="Blank Books"	 		Language="en_US" />
 		<Replace Tag="LOC_RESOURCE_DIGITAL_NAME"			Text="Blank Digital Media"	Language="en_US" />
+		
+		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_TABLETS_NAME"		Text="Administrative Tablets"	 	Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_SCROLLS_NAME"		Text="Administrative Scrolls" 		Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_BOOKS_NAME"		Text="Administrative Books"	 		Language="en_US" />
 	
 		<Replace Tag="LOC_RESOURCECLASS_KNOWLEDGE"			Text="Scholars" 			Language="en_US" />
 		<Replace Tag="LOC_RESOURCECLASS_TABLETS"			Text="Tablets"	 			Language="en_US" />
@@ -377,6 +385,7 @@
 		<Replace Tag="LOC_EVENT_COASTAL_CITY_NAME" 				Text="Coastal Cities"					Language="en_US" />
 		<Replace Tag="LOC_EVENT_WORKED_RESOURCE_NAME" 			Text="Worked Resources"					Language="en_US" />
 		<Replace Tag="LOC_EVENT_WORKED_IMPROVED_RESOURCE_NAME" 	Text="Worked Improved Resources"		Language="en_US" />
+		<Replace Tag="LOC_EVENT_WORKED_IMPROVEMENT_NAME" 		Text="Worked Improvements"				Language="en_US" />
 		<Replace Tag="LOC_EVENT_RESOURCE_IN_STOCK_NAME" 		Text="Studying Resources"				Language="en_US" />
 	
 		<Replace Tag="LOC_RESEARCH_MILITARY_NAME" 			Text="Military"			Language="en_US" />
@@ -398,21 +407,24 @@
 		<Replace Tag="LOC_YIELD_BOOKS_NAME"					Text="Books"	 				Language="en_US" />
 		<Replace Tag="LOC_YIELD_DIGITAL_NAME"				Text="Digital Media"			Language="en_US" />
 		
-		<Replace Tag="LOC_CLASS_PASTURE_RES_NAME" 			Text="Pasture"					Language="en_US" />
-		<Replace Tag="LOC_CLASS_BOAT_RES_NAME" 				Text="Boat"						Language="en_US" />
-		<Replace Tag="LOC_CLASS_CAMP_RES_NAME" 				Text="Camps"					Language="en_US" />
-		<Replace Tag="LOC_CLASS_FARM_RES_NAME" 				Text="Farm"						Language="en_US" />
-		<Replace Tag="LOC_CLASS_PLANT_RES_NAME" 			Text="Plantations"				Language="en_US" />
-		<Replace Tag="LOC_CLASS_SEA_FOOD_NAME" 				Text="Sea Food"					Language="en_US" />
-		<Replace Tag="LOC_CLASS_MINED_RES_NAME"				Text="Mined"					Language="en_US" />
-		<Replace Tag="LOC_CLASS_COPPER_RES_NAME"			Text="Copper"					Language="en_US" />
-		<Replace Tag="LOC_CLASS_IRON_RES_NAME"				Text="Iron"						Language="en_US" />
-		<Replace Tag="LOC_CLASS_HORSE_RES_NAME"				Text="Horses"					Language="en_US" />
-		<Replace Tag="LOC_CLASS_ARCHERY_EQUIPMENT_NAME"		Text="Bows"						Language="en_US" />
-		<Replace Tag="LOC_CLASS_CATAPULT_EQUIPMENT_NAME"	Text="Catapults"				Language="en_US" />
-		<Replace Tag="LOC_CLASS_BRONZE_EQUIPMENT_NAME"		Text="Bronze Equipment"			Language="en_US" />
-		<Replace Tag="LOC_CLASS_IRON_EQUIPMENT_NAME"		Text="Iron Equipment"			Language="en_US" />
-		<Replace Tag="LOC_CLASS_CHARIOT_EQUIPMENT_NAME"		Text="Chariots"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_PASTURE_RES_NAME" 				Text="Pasture"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_BOAT_RES_NAME" 					Text="Boat"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_CAMP_RES_NAME" 					Text="Camps"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_FARM_RES_NAME" 					Text="Farm"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_PLANT_RES_NAME" 				Text="Plantations"				Language="en_US" />
+		<Replace Tag="LOC_CLASS_SEA_FOOD_NAME" 					Text="Sea Food"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_MINED_RES_NAME"					Text="Mined"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_COPPER_RES_NAME"				Text="Copper"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_MASONRY_RES_NAME"				Text="Stone/Marble/Gypsum"		Language="en_US" />
+		<Replace Tag="LOC_CLASS_IRON_RES_NAME"					Text="Iron"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_STONE_RES_NAME"					Text="Stone"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_HORSE_RES_NAME"					Text="Horses"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_ARCHERY_EQUIPMENT_NAME"			Text="Bows"						Language="en_US" />
+		<Replace Tag="LOC_CLASS_CATAPULT_EQUIPMENT_NAME"		Text="Catapults"				Language="en_US" />
+		<Replace Tag="LOC_CLASS_BRONZE_EQUIPMENT_NAME"			Text="Bronze Equipment"			Language="en_US" />
+		<Replace Tag="LOC_CLASS_IRON_EQUIPMENT_NAME"			Text="Iron Equipment"			Language="en_US" />
+		<Replace Tag="LOC_CLASS_CHARIOT_EQUIPMENT_NAME"			Text="Chariots"					Language="en_US" />
+		<Replace Tag="LOC_CLASS_CULTIVATION_IMPROVEMENT_NAME"	Text="Cultivations"				Language="en_US" />
 		
 	</LocalizedText>
 
@@ -486,12 +498,32 @@
 		<Replace Tag="LOC_TECH_UNLOCK_WARRIOR_CODE_NAME" 	Text="Execute Melee Attack"		Language="en_US" />
 		<Replace Tag="LOC_TECH_UNLOCK_SAILING_NAME"		 	Text="Find Sea Resources"		Language="en_US" />
 		
+		<!-- <Replace Tag="LOC_TECH_POTTERY_DESCRIPTION" 		Text=""			Language="en_US" /> -->
 		
 		<Replace Tag="LOC_TECH_SURGERY_DESCRIPTION"	Language="en_US">
 			<Text>+1 [ICON_HEALTH2] in all cities.</Text>
 		</Replace>
 		<Replace Tag="LOC_TECH_HERBALISM_DESCRIPTION"	Language="en_US">
 			<Text>+1 [ICON_HEALTH2] in all cities.</Text>
+		</Replace>
+		
+		<Replace Tag="LOC_TECH_IRRIGATION_DESCRIPTION"	Language="en_US">
+			<Text>Allows clearing of Marsh.[NEWLINE]+2 [ICON_Food] Food on all Farms adjacent to rivers.</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_CALENDAR_DESCRIPTION"	Language="en_US">
+			<Text>+2 [ICON_Food] Food on all Farms.</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_FERTILIZER_DESCRIPTION"	Language="en_US">
+			<Text>+4 [ICON_Food] Food on all Farms.</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_INDUSTRIALIZATION_DESCRIPTION"	Language="en_US">
+			<Text>+1 [ICON_Production] Production to the Mine improvement.[NEWLINE]+8 [ICON_Food] Food on all Farms.</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_FEUDALISM_DESCRIPTION"	Language="en_US">
+			<Text>Farm improvements now gain +2 [ICON_Food] Food from every 2 adjacent Farms.</Text>
+		</Replace>
+		<Replace Tag="LOC_TECH_REPLACEABLE_PARTS_DESCRIPTION"	Language="en_US">
+			<Text>Introduce Mechanized Agriculture. +4 [ICON_Food] Food from each adjacent Farm.</Text>
 		</Replace>
 		
 		<Replace Tag="LOC_TECH_MILITARY_ENGINEERING_DESCRIPTION"	Language="en_US">
@@ -519,6 +551,17 @@
 		<Replace Tag="LOC_PROJECT_TAXES_SHORT_NAME" 	Text="Local Taxes"	Language="en_US" />
 		<Replace Tag="LOC_PROJECT_TAXES_DESCRIPTION"	Language="en_US">
 			<Text>Project which provides [ICON_Gold] Gold every turn.</Text>
+		</Replace>
+	</LocalizedText>
+	
+	<LocalizedText> <!-- Improvements -->	
+
+		<Replace Tag="LOC_IMPROVEMENT_FARM_DESCRIPTION"	Language="en_US" >
+			<Text>Unlocks the Builder ability to construct Farms.[NEWLINE]Can only be built on Grassland or Plains.[NEWLINE]Constructing farms adjacent to other Farms provides bonuses to Housing.</Text>
+		</Replace>
+		
+		<Replace Tag="LOC_IMPROVEMENT_FISHING_BOATS_DESCRIPTION" Language="en_US">
+			<Text>Fishing Boats are automatically exploiting Sea Resources in the City range (require a Harbor).</Text>
 		</Replace>
 	</LocalizedText>
 	

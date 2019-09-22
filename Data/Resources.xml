@@ -39,8 +39,12 @@
 		
 		<Row ResourceType="RESOURCE_TABLETS" 					ResourceClassType="RESOURCECLASS_TABLETS" 	Frequency="0"	SpecialStock="1"/>
 		<Row ResourceType="RESOURCE_SCROLLS" 					ResourceClassType="RESOURCECLASS_SCROLLS" 	Frequency="0"	SpecialStock="1"/>
-		<Row ResourceType="RESOURCE_BOOKS" 						ResourceClassType="RESOURCECLASS_BOOKS" 	Frequency="0"	SpecialStock="1"/>
-		<Row ResourceType="RESOURCE_DIGITAL" 					ResourceClassType="RESOURCECLASS_DIGITAL" 	Frequency="0"	SpecialStock="1"/>
+		<Row ResourceType="RESOURCE_BOOKS" 						ResourceClassType="RESOURCECLASS_BOOKS" 	Frequency="0"	SpecialStock="1"	PrereqTech="TECH_PAPER"/>
+		<Row ResourceType="RESOURCE_DIGITAL" 					ResourceClassType="RESOURCECLASS_DIGITAL" 	Frequency="0"	SpecialStock="1"	PrereqTech="TECH_COMPUTERS"/>
+		
+		<Row ResourceType="RESOURCE_ADMINISTRATIVE_TABLETS" 	ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1"/>
+		<Row ResourceType="RESOURCE_ADMINISTRATIVE_SCROLLS" 	ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1"/>
+		<Row ResourceType="RESOURCE_ADMINISTRATIVE_BOOKS"		ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1"	PrereqTech="TECH_PAPER"/>
 
 		
 		<Row ResourceType="RESOURCE_RICE" 		DecayRate="2" />

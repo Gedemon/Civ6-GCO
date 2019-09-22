@@ -516,7 +516,7 @@ end
 
 function Research:DoTurn()
 
-	local DEBUG_RESEARCH_SCRIPT	= "debug"
+	--local DEBUG_RESEARCH_SCRIPT	= "debug"
 	
 	local data 			= self:GetData()
 	data.RsrchF			= data.RsrchF or {} -- ResearchField	: [rsrchKey][cntrKey] = value

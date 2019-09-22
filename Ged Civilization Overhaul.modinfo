@@ -97,6 +97,7 @@
 			<File>UI/LeaderIcon.xml</File>
 			<File>UI/TechTree.lua</File>
 			<File>UI/TechAndCivicUnlockables.lua</File>
+			<File>UI/TechCivicCompletedPopup.xml</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
             <File>Scripts/GCO_PlayerConfig.lua</File>
@@ -333,6 +334,7 @@
 		<File>UI/LeaderIcon.xml</File>
 		<File>UI/TechTree.lua</File>
 		<File>UI/TechAndCivicUnlockables.lua</File>
+		<File>UI/TechCivicCompletedPopup.xml</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>UI/Replacements/StatusMessagePanel_GCO.lua</File>
 		<File>Art/dom_blank.dds</File>

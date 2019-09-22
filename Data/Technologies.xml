@@ -6,18 +6,19 @@
 		When UITreeRow is not set, the default is 10 (not displayed on screen)
 		PostUpdate.sql add the required entries (like <Name>, <Description>, ...) and rows to various tables (like <Types>, <Technologies>, ...)		
 		By default <AdvisorType> is set to "ADVISOR_GENERIC", you'll need to specify different AdvisorType
+		use Description="NONE" to remove existing descriptions
 	-->
 	<TechnologiesGCO>	<!-- Ancient Era -->
 		<!-- Ancient Era Tiers 0 (Techs that can be already known based on start position) -->
 		<Row TechnologyType="TECH_AGRICULTURE" 			Cost="20" EraType="ERA_ANCIENT"		UITreeRow="-1"	/>
-		<Row TechnologyType="TECH_ANIMAL_HUSBANDRY" 	Cost="20" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_ANIMAL_HUSBANDRY" 	Cost="20" EraType="ERA_ANCIENT" 	UITreeRow="0"	Description="NONE"/>
 		<Row TechnologyType="TECH_TRAPPING" 			Cost="20" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
 		<!-- Ancient Era Tiers I -->
 		<Row TechnologyType="TECH_CEREMONIAL_BURIAL" 	Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-3"	/>
 		<!--<Row TechnologyType="TECH_UNLOCK_SAILING"		Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-20"	/>	 Unlock when discovering Sea -->
 		<Row TechnologyType="TECH_SAILING" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-2"	EmbarkUnitType="UNIT_BUILDER"		BarbarianFree="true"/>
 		<Row TechnologyType="TECH_HERBALISM" 			Cost="25" EraType="ERA_ANCIENT"		UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY"/>
-		<Row TechnologyType="TECH_POTTERY" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
+		<Row TechnologyType="TECH_POTTERY" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="0"	Description="NONE"/>
 		<Row TechnologyType="TECH_PICTOGRAM" 			Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>	<!-- ("Writing" = "Alphabet" ?)	-->
 		<Row TechnologyType="TECH_ARCHERY" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="2"	/>
 		<!--<Row TechnologyType="TECH_UNLOCK_WARRIOR_CODE"	Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="30"	/>	 Unlock on first melee attack -->
@@ -35,7 +36,7 @@
 		<Row TechnologyType="TECH_MAP_MAKING" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="-2"	/>
 		<Row TechnologyType="TECH_CALENDAR" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="-1"	/>
 		<Row TechnologyType="TECH_CURRENCY" 			Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="0"	/>
-		<Row TechnologyType="TECH_MASONRY" 				Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
+		<Row TechnologyType="TECH_MASONRY" 				Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="1"	Description="NONE" />
 		<Row TechnologyType="TECH_BRONZE_WORKING" 		Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="2"	AdvisorType="ADVISOR_CONQUEST" 	 	BarbarianFree="true"/>
 		<Row TechnologyType="TECH_EARLY_EMPIRE" 		Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="3"	/>
 		<Row TechnologyType="TECH_MILITARY_TRADITION" 	Cost="80" EraType="ERA_ANCIENT" 	UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 		/>
@@ -591,6 +592,7 @@
 		<Row 	ContributionType="EVENT_DISCOVER_NATURAL_WONDER"	/>
 		<Row 	ContributionType="EVENT_WORKED_RESOURCE" 			/>
 		<Row 	ContributionType="EVENT_WORKED_IMPROVED_RESOURCE"	/>
+		<Row 	ContributionType="EVENT_WORKED_IMPROVEMENT"			/>
 		<Row 	ContributionType="EVENT_RESOURCE_IN_STOCK" 			/>
 		<Row 	ContributionType="EVENT_COMBAT_WITH" 				/>
 		<Row 	ContributionType="EVENT_COMBAT_VS" 					/>
@@ -638,6 +640,7 @@
 		<!-- Tiers I -->
 		<Row 	Technology="TECH_CEREMONIAL_BURIAL" ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_SAILING" 			ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_SAILING" 			ContributionType="RESEARCH_EXPLORATION" 	MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_POTTERY"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_ARCHERY"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_ARCHERY"			ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
@@ -880,8 +883,15 @@
 		<Row 	Technology="TECH_IRRIGATION" 		ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_PLANT_RES" 	BaseValue="2"	PrereqTech="TECH_POTTERY"/>
 		
 		<Row 	Technology="TECH_MINING" 			ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_MINED_RES"	BaseValue="3"	PrereqTech="TECH_POTTERY"	/>
+		<Row 	Technology="TECH_MINING" 			ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_STONE_RES"	BaseValue="1"	PrereqTech="TECH_POTTERY"	/>
 		
 		<Row 	Technology="TECH_THE_WHEEL" 		ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_CHARIOT_EQUIPMENT"	BaseValue="2"/>
+		
+		<Row 	Technology="TECH_CALENDAR" 			ContributionType="EVENT_WORKED_IMPROVEMENT" 		MaxContributionPercent="50"		TypeTag="CLASS_CULTIVATION_IMPROVEMENT" 	BaseValue="2"	PrereqTech="TECH_ASTROLOGY"/>
+		
+		<Row 	Technology="TECH_MASONRY"			ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_MASONRY_RES"			BaseValue="2"	PrereqTech="TECH_MINING"	/>
+		<Row 	Technology="TECH_MASONRY"			ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_MASONRY_RES"			BaseValue="3"	PrereqTech="TECH_MINING"	/>
+		<Row 	Technology="TECH_MASONRY" 			ContributionType="EVENT_RESOURCE_IN_STOCK" 			MaxContributionPercent="100"	TypeTag="CLASS_MASONRY_RES"			BaseValue="1"	PrereqTech="TECH_MINING"	/>
 		
 		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_RESOURCE" 			MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES"			BaseValue="2"	PrereqTech="TECH_MINING"	/>
 		<Row 	Technology="TECH_BRONZE_WORKING"	ContributionType="EVENT_WORKED_IMPROVED_RESOURCE" 	MaxContributionPercent="100"	TypeTag="CLASS_COPPER_RES"			BaseValue="3"	PrereqTech="TECH_MINING"	/>
@@ -962,6 +972,9 @@
 	<!--
 		New TypeTags related to Research
 	-->
+	<Vocabularies>
+		<Row Vocabulary="IMPROVEMENT_CLASS"/>
+	</Vocabularies>
 	<Tags>
 		<Row Tag="CLASS_PASTURE_RES"	Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_BOAT_RES" 		Vocabulary="RESOURCE_CLASS"/>
@@ -971,7 +984,9 @@
 		<Row Tag="CLASS_SEA_FOOD" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_MINED_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_COPPER_RES" 	Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_MASONRY_RES" 	Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_IRON_RES" 		Vocabulary="RESOURCE_CLASS"/>
+		<Row Tag="CLASS_STONE_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_HORSE_RES" 		Vocabulary="RESOURCE_CLASS"/>
 		
 		<Row Tag="CLASS_ARCHERY_EQUIPMENT" 	Vocabulary="RESOURCE_CLASS"/>
@@ -980,7 +995,9 @@
 		<Row Tag="CLASS_IRON_EQUIPMENT" 	Vocabulary="RESOURCE_CLASS"/>
 		<Row Tag="CLASS_CHARIOT_EQUIPMENT" 	Vocabulary="RESOURCE_CLASS"/>
 		
-		<Row Tag="CLASS_ARMOR" 			Vocabulary="ABILITY_CLASS"/>
+		<Row Tag="CLASS_ARMOR" 				Vocabulary="ABILITY_CLASS"/>
+		
+		<Row Tag="CLASS_CULTIVATION_IMPROVEMENT" 	Vocabulary="IMPROVEMENT_CLASS"/>
 	</Tags>
 	<TypeTags>
 	
@@ -1031,8 +1048,12 @@
 		<Row Type="RESOURCE_STONE" 		Tag="CLASS_MINED_RES"/>
 		
 		<Row Type="RESOURCE_COPPER" 	Tag="CLASS_COPPER_RES"/>
-		
 		<Row Type="RESOURCE_IRON" 		Tag="CLASS_IRON_RES"/>
+		<Row Type="RESOURCE_STONE" 		Tag="CLASS_STONE_RES"/>
+		
+		<Row Type="RESOURCE_GYPSUM" 	Tag="CLASS_MASONRY_RES"/>
+		<Row Type="RESOURCE_MARBLE" 	Tag="CLASS_MASONRY_RES"/>
+		<Row Type="RESOURCE_STONE" 		Tag="CLASS_MASONRY_RES"/>
 		
 		<Row Type="EQUIPMENT_WOODEN_BOWS" 	Tag="CLASS_ARCHERY_EQUIPMENT"/>
 		<Row Type="EQUIPMENT_LONGBOWS" 		Tag="CLASS_ARCHERY_EQUIPMENT"/>
@@ -1052,6 +1073,9 @@
 		<Row Type="EQUIPMENT_IRON_ARMOR" 		Tag="CLASS_IRON_EQUIPMENT"/>
 		
 		<Row Type="EQUIPMENT_CHARIOT" 		Tag="CLASS_CHARIOT_EQUIPMENT"/>
+		
+		<Row Type="IMPROVEMENT_FARM" 		Tag="CLASS_CULTIVATION_IMPROVEMENT"/>
+		<Row Type="IMPROVEMENT_PLANTATION" 	Tag="CLASS_CULTIVATION_IMPROVEMENT"/>
 		
 		<!-- 
 		<Row Type="RESOURCE_OIL" Tag="CLASS_PRODUCTION"/>

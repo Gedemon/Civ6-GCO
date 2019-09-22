@@ -4598,8 +4598,13 @@ function GetScienceStockStringTable(self, scienceToolTipTab, scienceToolTipMode)
 	end
 	
 	table.sort(scienceList, function(a, b) return a.Order < b.Order; end)
+	local linesLimit	= 50 -- to do : this should be relative to screen height
 	for i, data in ipairs(scienceList) do
-		table.insert(stringTable, data.String)
+		if i < linesLimit then
+			table.insert(stringTable, data.String)
+		elseif i == linesLimit then
+			table.insert(stringTable, "[...]")
+		end
 	end
 	
 	return stringTable
@@ -5508,6 +5513,9 @@ function DoCollectResources(self)
 				outputFactor = self:GetOutputPerYield()
 			end
 			local improvementID = plot:GetImprovementType()
+			if bWorked and bImproved then
+				LuaEvents.ResearchGCO("EVENT_WORKED_IMPROVEMENT", playerID, plot:GetX(), plot:GetY(), GameInfo.Improvements[improvementID].ImprovementType, self)
+			end
 			if plot:GetResourceCount() > 0 then
 				local resourceID 	= plot:GetResourceType()
 				local resourceCost 	= GCO.GetBaseResourceCost(resourceID)

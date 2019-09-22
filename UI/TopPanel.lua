@@ -42,6 +42,8 @@ local m_FaithYieldButton:table = nil;
 local m_DebtYieldButton:table 		= nil;
 local m_LogisticCostButton:table 	= nil;
 local mResearchYieldButton:table 	= {};
+local m_PopulationYieldButton:table = nil;
+local m_AdministrationYieldButton:table = nil;
 -- GCO >>>>>
 
 -- ===========================================================================
@@ -132,7 +134,39 @@ function RefreshYields()
 	if ExposedMembers.GCO_Initialized then GCO.InitializePlayerFunctions(localPlayer) end
 	-- GCO >>>>>
 	
-	-- GCO <<<<<
+	-- GCO <<<<<	
+	---- ADMINISTRATION ----
+	-- Strength (empire wide, affect stability), Efficiency (per city, affect production factor)
+	-- administrative records
+	--  / ICON_Government
+	m_AdministrationYieldButton	= m_AdministrationYieldButton or m_YieldButtonSingleManager:GetInstance()
+	if ExposedMembers.GCO_Initialized then
+		local PopulationBalance, PopulationYield = localPlayer:GetTotalPopulation()
+		local popSize			=  math.floor(GCO.GetSizeAtPopulation(PopulationBalance))
+		local citiesSize		=  localPlayer:GetCities():GetCount()
+		local territorySize		=  localPlayer:GetTerritorySize()
+		local numTechs			=  localPlayer:GetNumTechs()
+		local balanceColorName	= "DiplomaticLabelCS" -- ResMilitaryLabelCS
+		local backingColorName 	= "NeutralCS"
+		local territoryCost		= territorySize/10
+		local territorySurface	= territorySize*10000
+		local techFactor		= numTechs/2
+		local empireCost		= math.floor(popSize + citiesSize + territoryCost) * techFactor
+		local toolTipStr 		= Locale.Lookup("LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP", empireCost, popSize, PopulationBalance, citiesSize, territoryCost, territorySurface, techFactor)
+		
+		--LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP
+		--	<Replace Tag="LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP"	Text="Administrative cost =  {1_Num : number #,###}[NEWLINE][ICON_BULLET]Population cost = {2_Num : number #,###} from {3_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Cities cost = {4_Num : number #,###} from number of cities[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #,###} from managing {6_Num : number #,###}km²[NEWLINE][ICON_BULLET]Technology Factor: management cost x{7_Num : number #.##} from technological advancement." Language="en_US" />
+
+		
+		m_AdministrationYieldButton.YieldPerTurn:SetText( Locale.ToNumber(empireCost, "#,###") );
+		m_AdministrationYieldButton.YieldIconString:SetText("[ICON_Government]"); -- [ICON_DISTRICT_GOVERNMENT] requires R&F
+		m_AdministrationYieldButton.YieldPerTurn:SetColorByName(balanceColorName);
+		
+		m_AdministrationYieldButton.YieldBacking:SetToolTipString( toolTipStr );
+		m_AdministrationYieldButton.YieldBacking:SetColorByName(backingColorName);
+		m_AdministrationYieldButton.YieldButtonStack:CalculateSize();
+	end
+	
 	---- POPULATION ----
 	m_PopulationYieldButton = m_PopulationYieldButton or m_YieldButtonDoubleManager:GetInstance();
 	

@@ -119,6 +119,10 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["RESOURCE_BOOKS"].Index]				= "[ICON_RESOURCE_BOOKS]",
 		[GameInfo.Resources["RESOURCE_TABLETS"].Index]				= "[ICON_RESOURCE_TABLETS]",
 		
+		[GameInfo.Resources["RESOURCE_ADMINISTRATIVE_SCROLLS"].Index]		= "[ICON_RESOURCE_SCROLLS]",
+		[GameInfo.Resources["RESOURCE_ADMINISTRATIVE_BOOKS"].Index]			= "[ICON_RESOURCE_BOOKS]",
+		[GameInfo.Resources["RESOURCE_ADMINISTRATIVE_TABLETS"].Index]		= "[ICON_RESOURCE_TABLETS]",
+		
 		[GameInfo.Resources["EQUIPMENT_CHARIOT"].Index]				= "[ICON_EQUIPMENT_CHARIOT]",
 		[GameInfo.Resources["EQUIPMENT_HORSES"].Index]				= "[ICON_EQUIPMENT_WAR_HORSES]",
 		[GameInfo.Resources["EQUIPMENT_WAR_HORSES"].Index]			= "[ICON_EQUIPMENT_WAR_HORSES]",

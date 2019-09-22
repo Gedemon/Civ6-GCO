@@ -42,9 +42,11 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 /* ************************ */
 /* Improvements             */
 /* ************************ */
-UPDATE Improvements SET OnePerCity = 1, SameAdjacentValid = 0 WHERE Buildable = 1 AND TraitType IS NOT NULL;		-- After updating "CanBuildOutsideTerritory"
+UPDATE Improvements SET OnePerCity = 1, SameAdjacentValid = 0 WHERE Buildable = 1 AND TraitType IS NOT NULL;		-- Before updating "CanBuildOutsideTerritory"
 UPDATE Improvements SET CanBuildOutsideTerritory = 1 WHERE Buildable = 1 AND TraitType ISNULL AND OnePerCity = 0;	-- After setting "OnePerCity", before removing "TraitType"
 UPDATE Improvements SET TraitType = NULL WHERE Buildable = 1;														-- After updating "CanBuildOutsideTerritory"
+UPDATE Improvements SET Housing = 0;
+
 UPDATE Improvements SET PrereqTech ='TECH_DEFENSIVE_TACTICS',	DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_FORT';
 --UPDATE Improvements SET PrereqTech ='TECH_MASONRY', 			DefenseModifier = 2, GrantFortification = 1, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ROMAN_FORT';
 UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 		DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ALCAZAR';
@@ -52,20 +54,31 @@ UPDATE Improvements SET PrereqTech ='TECH_CONSTRUCTION', 		SameAdjacentValid = 1
 
 UPDATE Improvements SET PrereqTech ='TECH_AGRICULTURE'		WHERE ImprovementType ='IMPROVEMENT_FARM';
 UPDATE Improvements SET PrereqTech ='TECH_TRAPPING'			WHERE ImprovementType ='IMPROVEMENT_CAMP';
-
 UPDATE Improvements SET PrereqTech ='TECH_REFINING'			WHERE ImprovementType ='IMPROVEMENT_OIL_WELL';
 
-UPDATE Improvement_YieldChanges SET YieldChange = 3 WHERE ImprovementType ='IMPROVEMENT_FARM' 		AND YieldType="YIELD_FOOD";
+INSERT INTO Improvement_BonusYieldChanges (Id, ImprovementType,YieldType,BonusYieldChange,PrereqTech) VALUES (10001,'IMPROVEMENT_FARM','YIELD_FOOD',2,'TECH_CALENDAR');
+INSERT INTO Improvement_BonusYieldChanges (Id, ImprovementType,YieldType,BonusYieldChange,PrereqTech) VALUES (10002,'IMPROVEMENT_FARM','YIELD_FOOD',4,'TECH_FERTILIZER');
+INSERT INTO Improvement_BonusYieldChanges (Id, ImprovementType,YieldType,BonusYieldChange,PrereqTech) VALUES (10003,'IMPROVEMENT_FARM','YIELD_FOOD',8,'TECH_INDUSTRIALIZATION');
+
+UPDATE Improvement_YieldChanges SET YieldChange = 2 WHERE ImprovementType ='IMPROVEMENT_FARM' 		AND YieldType="YIELD_FOOD";
 UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_PASTURE' 	AND YieldType="YIELD_FOOD";
 UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_PLANTATION' AND YieldType="YIELD_FOOD";
 UPDATE Improvement_YieldChanges SET YieldChange = 1 WHERE ImprovementType ='IMPROVEMENT_CAMP' 		AND YieldType="YIELD_FOOD";
 
-UPDATE Adjacency_YieldChanges	SET YieldChange = 2 WHERE ID ='Farms_MedievalAdjacency';
-UPDATE Adjacency_YieldChanges	SET YieldChange = 3 WHERE ID ='Farms_MechanizedAdjacency';
+-- Before adding 'Farms_DefaultAdjacency' for UI display order
+INSERT INTO Improvement_Adjacencies (ImprovementType,YieldChangeId)	VALUES ('IMPROVEMENT_FARM','Farms_River_Food_Bonus');
+INSERT INTO Adjacency_YieldChanges 	(ID, Description, YieldType, YieldChange, TilesRequired, AdjacentRiver, PrereqTech) VALUES ('Farms_River_Food_Bonus', 'LOC_FARM_RIVER_FOOD_ADJACENCY_BONUS', 'YIELD_FOOD', 	2 , 1 , 1, 'TECH_IRRIGATION');
 
 INSERT OR REPLACE INTO Improvement_Adjacencies(ImprovementType, YieldChangeId) VALUES ('IMPROVEMENT_FARM', 'Farms_DefaultAdjacency');
-INSERT OR REPLACE INTO Adjacency_YieldChanges (ID, Description, YieldType, YieldChange, TilesRequired, AdjacentImprovement, ObsoleteTech, ObsoleteCivic) 
-				VALUES ('Farms_DefaultAdjacency', 'Placeholder', 'YIELD_FOOD', 1, 2,'IMPROVEMENT_FARM','TECH_REPLACEABLE_PARTS','CIVIC_FEUDALISM');
+--INSERT OR REPLACE INTO Adjacency_YieldChanges (ID, Description, YieldType, YieldChange, TilesRequired, AdjacentImprovement, ObsoleteTech, ObsoleteCivic) 
+--				VALUES ('Farms_DefaultAdjacency', 'Placeholder', 'YIELD_FOOD', 1, 2,'IMPROVEMENT_FARM','TECH_REPLACEABLE_PARTS','CIVIC_FEUDALISM');
+INSERT OR REPLACE INTO Adjacency_YieldChanges (ID, Description, YieldType, YieldChange, TilesRequired, AdjacentImprovement) 
+				VALUES ('Farms_DefaultAdjacency', 'Placeholder', 'YIELD_FOOD', 1, 2,'IMPROVEMENT_FARM');
+
+-- After adding 'Farms_DefaultAdjacency' for UI display order
+UPDATE Adjacency_YieldChanges	SET YieldChange = 2, rowid = rowid + 100, ObsoleteTech = NULL, ObsoleteCivic = NULL, PrereqCivic = NULL, PrereqTech = 'TECH_FEUDALISM' WHERE ID ='Farms_MedievalAdjacency';
+UPDATE Adjacency_YieldChanges	SET YieldChange = 4, rowid = rowid + 100, ObsoleteTech = NULL, ObsoleteCivic = NULL, PrereqCivic = NULL WHERE ID ='Farms_MechanizedAdjacency';
+
 
 DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_KURGAN';
 DELETE FROM Improvements WHERE ImprovementType = 'IMPROVEMENT_COLOSSAL_HEAD';

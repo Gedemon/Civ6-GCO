@@ -255,6 +255,10 @@ UPDATE Technologies SET Cost = Cost*4.30 WHERE EraType ='ERA_ATOMIC';
 UPDATE Technologies SET Cost = Cost*4.80 WHERE EraType ='ERA_INFORMATION';
 UPDATE Technologies SET Cost = Cost*5.50 WHERE EraType ='ERA_FUTURE';
 
+/* Remove description if asked */	
+UPDATE Technologies SET Description	=	NULL
+			WHERE EXISTS (SELECT * FROM TechnologiesGCO WHERE Technologies.TechnologyType = TechnologiesGCO.TechnologyType AND TechnologiesGCO.Description = 'NONE');
+
 /* Create Resources from Technologies */
 INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
 	SELECT 'RESOURCE_KNOWLEDGE_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, 1, Technologies.TechnologyType

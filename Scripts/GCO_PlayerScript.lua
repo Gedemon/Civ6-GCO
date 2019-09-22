@@ -405,6 +405,19 @@ function GetTotalPopulation(self)
 	return populationTotal, populationVariation
 end
 
+function GetTerritorySize(self)
+	local territory		= 0
+	local playerCities = self:GetCities()
+	if playerCities then
+		for i, city in playerCities:Members() do
+			--GCO.AttachCityFunctions(city)
+			local cityPlots	= GCO.GetCityPlots(city)
+			territory 		= territory + #cityPlots
+		end
+	end
+	return territory
+end
+
 function GetPersonnelInCities(self) -- logistic support
 	local personnel = 0
 	local playerCities = self:GetCities()
@@ -526,6 +539,17 @@ function SetKnownTech(self)
 			end
 		end
 	end
+end
+
+function GetNumTechs(self)
+	local numTech	= 0
+	local pTechs	= self:GetTechs()
+	for row in GameInfo.Technologies() do
+		if pTechs:HasTech(row.Index) then
+			numTech = numTech + 1
+		end
+	end
+	return numTech
 end
 
 --Events
@@ -1184,6 +1208,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 		--
 		p.IsKnownTech								= IsKnownTech
 		p.SetKnownTech								= SetKnownTech
+		p.GetNumTechs								= GetNumTechs
 		--
 		p.UpdateUnitsFlags							= UpdateUnitsFlags
 		p.UpdateCitiesBanners						= UpdateCitiesBanners
@@ -1202,6 +1227,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 		p.CanDeclareWarOn							= CanDeclareWarOn
 		--
 		p.GetTotalPopulation						= GetTotalPopulation
+		p.GetTerritorySize							= GetTerritorySize
 		p.GetPersonnelInCities						= GetPersonnelInCities
 		p.GetPersonnelInUnits						= GetPersonnelInUnits
 		p.GetLogisticPersonnelInActiveDuty			= GetLogisticPersonnelInActiveDuty
