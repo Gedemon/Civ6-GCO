@@ -70,6 +70,12 @@ function GetCityPlots(city)
 	return Map.GetCityPlots():GetPurchasedPlots(contextCity)
 end
 
+function GetBuildingsAtLocation(city, plotID)
+	local contextCity 	= CityManager.GetCity(city:GetOwner(), city:GetID())
+	local pBuildings	= contextCity:GetBuildings()
+	return pBuildings:GetBuildingsAtLocation(plotID)
+end
+
 function GetCityYield(city, yieldType)
 	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
 	if not contextCity then return 0 end
@@ -431,12 +437,12 @@ function Initialize()
 	
 	-- LuaEvents
 	ExposedMembers.GCO.LuaEvents					= LuaEvents
-	
 	-- calendar
 	ExposedMembers.GCO.GetTurnYear					= GetTurnYear
 	-- cities
 	ExposedMembers.GCO.GetCityCultureYield 			= GetCityCultureYield
 	ExposedMembers.GCO.GetCityPlots					= GetCityPlots
+	ExposedMembers.GCO.GetBuildingsAtLocation		= GetBuildingsAtLocation
 	ExposedMembers.GCO.GetCityYield 				= GetCityYield
 	ExposedMembers.GCO.GetCityTrade 				= GetCityTrade
 	ExposedMembers.GCO.CityCanProduce				= CityCanProduce

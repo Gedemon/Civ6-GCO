@@ -125,7 +125,7 @@ ResourceUseType	= {	-- ENUM for resource use types (string as it it used as a ke
 		Product		= "3",	-- Produced by buildings (industrie) (ref = buildingID)
 		Import		= "4",	-- Received from foreign cities (ref = cityKey)
 		Export		= "5",	-- Send to foreign cities (ref = cityKey)
-		TransferIn	= "6",	-- Reveived from own cities (ref = cityKey)
+		TransferIn	= "6",	-- Received from own cities (ref = cityKey)
 		TransferOut	= "7",	-- Send to own cities (ref = cityKey)
 		Supply		= "8",	-- Send to units (ref = unitKey)
 		Pillage		= "9",	-- Received from units (ref = unitKey)

@@ -191,7 +191,7 @@
 	<Replace Tag="LOC_TOP_PANEL_POPULATION_TOOLTIP"		Text="Total population =  {1_Num : number #,###}[NEWLINE]Active Duty = {2_Num : number #,###} personnel ({7_Num : number #,###} in logistic + {6_Num : number #,###} in units)[NEWLINE]{3_Num : number #.##} % of population in service[NEWLINE]Conscription Efficiency = {4_Num : number #.##} %[NEWLINE][NEWLINE]Conscription Efficiency goes down when the number of your Personnel in Active Duty get closer to the maximum percentage of population in service (currently {5_Num : number #.##} %).[NEWLINE][NEWLINE]It affects the number of personnel drafted each turn in your cities.[NEWLINE][NEWLINE]Some Policies allow you to raise a bigger army, and being at war give a boost to the percentage of population that can be drafted, until the end of the war.[NEWLINE][NEWLINE]The personnel in units and the personnel required to provide support to those units are considered in Active Duty." Language="en_US" />
 	
 	<Replace Tag="LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP" Language="en_US" >
-		<Text>Administrative Efficiency = {9_Num : number #,##}%[NEWLINE][NEWLINE]Empire Administrative cost = {1_Num : number #,###}[NEWLINE][ICON_BULLET]Population cost = {2_Num : number #,###} from {3_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #.#} from managing {6_Num : number #,###}km²[NEWLINE][ICON_BULLET]Cities Factor = {4_Num : number #.#} from number of cities[NEWLINE][ICON_BULLET]Development Factor = {7_Num : number #.#} from technological advancement.[NEWLINE][NEWLINE]Empire Administrative support = {8_Num : number #,###}[NEWLINE][ICON_BULLET]Administrative Tablets, Scrolls, Books = {8_Num : number #,###}</Text>
+		<Text>Empire Administrative Efficiency = {9_Num : number #,###}%[NEWLINE][NEWLINE]Empire Administrative cost = {1_Num : number #,###}[NEWLINE][ICON_BULLET]Population cost = {2_Num : number #,###} from {3_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #.##} from managing {6_Num : number #,###}km²[NEWLINE][ICON_BULLET]Cities Factor = {4_Num : number #.##} from number of cities[NEWLINE][ICON_BULLET]Units Factor = {12_Num : number #.##} from number of units[NEWLINE][ICON_BULLET]Development Factor = {7_Num : number #.##} from technological advancement.[NEWLINE][NEWLINE]Empire Administrative support = {8_Num : number #,###}[NEWLINE][ICON_BULLET]Administrative Tablets, Scrolls, Books = {10_Num : number #,###}[NEWLINE][ICON_BULLET]Administrative Buildings = {11_Num : number #,###}</Text>
 	</Replace>
 	
 	<Replace Tag="LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP" Text="[ICON_Science][COLOR:SuzerainDark]{2_Name}[ENDCOLOR] : {1_Num : number #.##} scholars in cities" Language="en_US" />
@@ -275,6 +275,9 @@
     </Replace>
     <Replace Tag="LOC_CITYBANNER_HEALTH_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------------ Health ------------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_ADMINISTRATIVE_COST_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]----------------- Administrative Cost---------------------[ENDCOLOR]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_TOTAL_POPULATION" Language="en_US">
@@ -497,6 +500,10 @@
     <Replace Tag="LOC_CITYBANNER_HEALTH_CHANGE" Language="en_US">
       <Text>[ICON_HEALTH2] Variation per turn = {1_Name}</Text>
     </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_ADMINISTRATIVE_COST_DETAILS" Language="en_US" >
+		<Text>Administrative Efficiency = {1_Num : number #,###}%[NEWLINE]City Administrative cost = {2_Num : number #,###}[NEWLINE][ICON_BULLET]Population cost = {3_Num : number #,###} from {4_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #.#} from managing {6_Num : number #,###}km²[NEWLINE][ICON_BULLET]Buildings Factor = {7_Num : number #.##} from {8_Num : number #,###} buildings[NEWLINE][ICON_BULLET]Development Factor = {9_Num : number #.#} from technological advancement.[NEWLINE]City Administrative support = {10_Num : number #,###}[NEWLINE][ICON_BULLET]Administrative Buildings = {11_Num : number #,###}[NEWLINE][ICON_BULLET]Using Tablets, Scrolls, Books = {12_Num : number #,###}</Text>
+	</Replace>
 	
     <Replace Tag="LOC_HEALTH_BONUS_FROM_FOREST" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Forests</Text>
@@ -1414,6 +1421,7 @@
     <Replace Tag="LOC_YIELD_UPPER_HOUSING_NAME" 	Text="Upper Class Housing"	Language="en_US" />
     <Replace Tag="LOC_YIELD_MIDDLE_HOUSING_NAME" 	Text="Middle Class Housing"	Language="en_US" />
     <Replace Tag="LOC_YIELD_LOWER_HOUSING_NAME" 	Text="Lower Class Housing"	Language="en_US" />
+    <Replace Tag="LOC_YIELD_ADMINISTRATION_NAME" 	Text="Administration"		Language="en_US" />
   </LocalizedText>
   
   <LocalizedText> <!-- Government Naming -->

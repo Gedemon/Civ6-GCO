@@ -423,11 +423,15 @@ function GetTerritoryAdministrativeCost(self)
 end
 
 function GetTechAdministrativeFactor(self)
-	return 1+(self:GetNumTechs()/4)
+	return 1+(self:GetNumTechs()/5)
 end
 
 function GetCitiesAdministrativeFactor(self)
-	return 1+(self:GetCities():GetCount()/5)
+	return 1+(self:GetCities():GetCount()/4)
+end
+
+function GetUnitsAdministrativeFactor(self)
+	return 1+(self:GetUnits():GetCount()/6)
 end
 
 function GetAdministrativeCost(self)
@@ -441,7 +445,8 @@ function SetAdministrativeCost(self) -- must be updated each turn and on territo
 	local citiesFactor		= self:GetCitiesAdministrativeFactor()
 	local techFactor		= self:GetTechAdministrativeFactor()
 	local territoryCost 	= self:GetTerritoryAdministrativeCost()
-	local empireCost		= math.floor((popSize + territoryCost) * techFactor * citiesFactor)
+	local unitsFactor		= self:GetUnitsAdministrativeFactor()
+	local empireCost		= math.floor((popSize + territoryCost) * techFactor * citiesFactor * unitsFactor)
 	
 	self:SetCached("AdministrativeCost", empireCost)
 	return empireCost
@@ -453,30 +458,28 @@ end
 
 function SetAdministrativeSupport(self) -- must be updated each turn and on territory change & city change
 
-	local adminSupport	= 0
+	local AdminSupport	= {}
 	local playerCities	= self:GetCities()
+	local YieldID		= GameInfo.CustomYields["YIELD_ADMINISTRATION"].Index
 	for i, city in playerCities:Members() do
-		-- attach city function ?
 		for resourceKey, value in pairs(city:GetResources()) do
 			local resourceID = tonumber(resourceKey)
 			if GCO.IsAdministrativeResource(resourceID) then
-				adminSupport = adminSupport + value
+				AdminSupport.Resources = (AdminSupport.Resources or 0) + value
 			end
 		end
+		AdminSupport.Yield = (AdminSupport.Yield or 0) + city:GetCustomYield(YieldID)
 	end
-	--[[
-	local techFactor		= self:GetTechAdministrativeFactor()
-	local territoryCost 	= self:GetTerritoryAdministrativeCost()
-	local empireCost		= math.floor(popSize + citiesSize + territoryCost) * techFactor
-	--]]
 	
-	self:SetCached("AdministrativeSupport", adminSupport)
-	return adminSupport
+	self:SetCached("AdministrativeSupport", AdminSupport)
+	return AdminSupport
 end
 
 function GetAdministrativeEfficiency(self)
 	local minEfficiency = 5 -- to do : rise with new Governement types
-	return math.max(100 - (self:GetAdministrativeCost() / (self:GetAdministrativeSupport() + 1)), minEfficiency)
+	local cost			= self:GetAdministrativeCost()
+	local support		= GCO.TableSummation(self:GetAdministrativeSupport())
+	return (support >= cost or cost == 0) and 100 or GCO.GetMaxPercentFromLowDiff(100, cost, support)--math.max(100 - ( cost / ( support + 1)), minEfficiency)
 end
 
 function GetAdministrationTooltip(self)
@@ -487,10 +490,12 @@ function GetAdministrationTooltip(self)
 	local landCost, landSurface = self:GetTerritoryAdministrativeCost()
 	local empireCost			= self:GetAdministrativeCost()
 	local techFactor			= self:GetTechAdministrativeFactor()
-	local adminSupport			= self:GetAdministrativeSupport()
+	local adminSupportTable		= self:GetAdministrativeSupport()
+	local adminSupport			= GCO.TableSummation(adminSupportTable)
 	local adminEfficiency		= self:GetAdministrativeEfficiency()
+	local unitsFactor			= self:GetUnitsAdministrativeFactor()
 	
-	return Locale.Lookup("LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP", empireCost, popSize, PopBalance, citiesFactor, landCost, landSurface, techFactor, adminSupport, adminEfficiency)
+	return Locale.Lookup("LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP", empireCost, popSize, PopBalance, citiesFactor, landCost, landSurface, techFactor, adminSupport, adminEfficiency, adminSupportTable.Resources, adminSupportTable.Yield, unitsFactor)
 end
 
 -----------------------------------------------------------------------------------------
@@ -1378,6 +1383,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 		p.GetTerritoryAdministrativeCost			= GetTerritoryAdministrativeCost
 		p.GetTechAdministrativeFactor				= GetTechAdministrativeFactor
 		p.GetCitiesAdministrativeFactor				= GetCitiesAdministrativeFactor
+		p.GetUnitsAdministrativeFactor				= GetUnitsAdministrativeFactor
 		p.GetAdministrativeCost						= GetAdministrativeCost
 		p.SetAdministrativeCost						= SetAdministrativeCost
 		p.GetAdministrativeSupport					= GetAdministrativeSupport

@@ -958,13 +958,13 @@ function GetPlayerColors(playerID)
 	
 	local colorRow 		= GameInfo.PlayerColors[pPlayerConfig:GetLeaderTypeName()]
 	
-	if colorRow == nil or colorRow.PrimaryColor == nil or colorRow.SecondaryColor == nil or GameInfo.Colors[colorRow.PrimaryColor] == nil or GameInfo.Colors[colorRow.SecondaryColor] == nil then
-		GCO.Warning("colorRow has nil entry for ".. tostring(pPlayerConfig:GetLeaderTypeName()), colorRow, colorRow and colorRow.PrimaryColor, colorRow and colorRow.SecondaryColor )
+	if colorRow == nil or colorRow.PrimaryColor == nil or colorRow.SecondaryColor == nil or GameInfo.ColorsLegacy[colorRow.PrimaryColor] == nil or GameInfo.ColorsLegacy[colorRow.SecondaryColor] == nil then
+		--GCO.Warning("colorRow has nil entry for ".. tostring(pPlayerConfig:GetLeaderTypeName()), colorRow, colorRow and colorRow.PrimaryColor, colorRow and colorRow.SecondaryColor )
 		return ExposedMembers.UI.GetPlayerColors(playerID)
 	end
 --Dline(ColorStringToNumber, GameInfo.Colors, colorRow.PrimaryColor, GameInfo.Colors and colorRow.PrimaryColor and GameInfo.Colors[colorRow.PrimaryColor], GameInfo.Colors and colorRow.PrimaryColor and GameInfo.Colors[colorRow.PrimaryColor] and GameInfo.Colors[colorRow.PrimaryColor].Color)	
-	local frontColor	= ColorStringToNumber(GameInfo.Colors[colorRow.PrimaryColor].Color)
-	local backColor		= ColorStringToNumber(GameInfo.Colors[colorRow.SecondaryColor].Color)
+	local frontColor	= ColorStringToNumber(GameInfo.ColorsLegacy[colorRow.PrimaryColor].Color)
+	local backColor		= ColorStringToNumber(GameInfo.ColorsLegacy[colorRow.SecondaryColor].Color)
 	
 	return frontColor, backColor
 end

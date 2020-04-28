@@ -146,6 +146,7 @@
 			</Properties>
                 <File>Scripts/GCO_SaveLoad.xml</File>
                 <File>Scripts/GCO_ContextFunctions.xml</File>
+                <File>Scripts/GCO_VisualizerScript.xml</File>
 				<File>InGame/GCO_ModInGame.xml</File>
         </AddUserInterfaces>
 		
@@ -181,6 +182,7 @@
 				<File Priority="1">Data/Unlockers.sql</File>
 				<File Priority="1">Data/BaseGameFix.xml</File>
 				<File Priority="1">Data/TSL.xml</File>
+				<File Priority="1">Data/Colors.xml</File> <!-- Because we still need to access them in Gameplay Database, set in a new table "ColorsLegacy" -->
 		</UpdateDatabase>
 		<UpdateText id="GCO_DEFAULT_LOC">
            	<Properties>
@@ -321,6 +323,8 @@
 		<File>Scripts/GCO_SaveLoad.xml</File>
 		<File>Scripts/GCO_ContextFunctions.lua</File>
 		<File>Scripts/GCO_ContextFunctions.xml</File>
+		<File>Scripts/GCO_VisualizerScript.lua</File>
+		<File>Scripts/GCO_VisualizerScript.xml</File>
 		<File>Scripts/GCO_Serialize.lua</File>
 		<File>Scripts/GCO_RouteConnections.lua</File>
 		<File>Scripts/GCO_PlotIterators.lua</File>

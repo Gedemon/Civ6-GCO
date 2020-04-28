@@ -1056,8 +1056,12 @@ function CityBanner.UpdateStats( self : CityBanner)
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
 				--end
 				
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_NEEDS_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. city:GetPopulationNeedsEffectsString()
+				--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_NEEDS_TITLE")
+				--cityString = cityString .. "[NEWLINE]" .. city:GetPopulationNeedsEffectsString()
+				
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_ADMINISTRATIVE_COST_TITLE")
+				cityString = cityString .. "[NEWLINE]" .. city:GetAdministrativeCostText()
+				
 				
 				popTooltip = cityString
 			--[[

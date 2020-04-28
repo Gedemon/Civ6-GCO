@@ -97,3 +97,7 @@ function NumToString(num, limit)
 		end
 	end
 end
+
+function GetKeyFromIDs(i,j)
+	return tostring(i)..","..tostring(j)
+end

@@ -55,10 +55,12 @@
 	</Yields>
 	
 	<CustomYields>
-		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_HEALTH2]"	OccupiedCityChange="0"/>
-		<Row YieldType="YIELD_UPPER_HOUSING"	Name="LOC_YIELD_UPPER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
-		<Row YieldType="YIELD_MIDDLE_HOUSING"	Name="LOC_YIELD_MIDDLE_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
-		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>	
+		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_HEALTH2]"		OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_UPPER_HOUSING"	Name="LOC_YIELD_UPPER_HOUSING_NAME" 	IconString="[ICON_Housing]"		OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_MIDDLE_HOUSING"	Name="LOC_YIELD_MIDDLE_HOUSING_NAME" 	IconString="[ICON_Housing]"		OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"		OccupiedCityChange="0"/>
+		<Row YieldType="YIELD_ADMINISTRATION"	Name="LOC_YIELD_ADMINISTRATION_NAME" 	IconString="[ICON_Government]"	OccupiedCityChange="0"/>
+		
 	</CustomYields>
 
 	<!-- 		ERAS

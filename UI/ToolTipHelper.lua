@@ -338,7 +338,7 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 	for row in GameInfo.BuildingResourcesConverted() do
 		local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
 		if(row.BuildingType == buildingType) then	
-			local maxConverted 	= GCO.Round(row.MaxConverted * outputPerYield * RequiredResourceFactor)
+			local maxConverted 	= GCO.Round(row.MaxConverted * RequiredResourceFactor) --* outputPerYield
 			local ratio			= row.Ratio * ProducedResourceFactor
 			
 			local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index

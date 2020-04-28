@@ -1186,8 +1186,26 @@
 		<Row BuildingType="BUILDING_SENATE"				YieldType="YIELD_RESEARCH_SOCIAL"	YieldChange="5"/>
 		<Row BuildingType="BUILDING_PARLIAMENT"			YieldType="YIELD_RESEARCH_SOCIAL"	YieldChange="7"/>
 		
+		<Row BuildingType="BUILDING_ANCESTOR_HALL"		YieldType="YIELD_ADMINISTRATION"	YieldChange="5"/>
+		<Row BuildingType="BUILDING_FORUM"				YieldType="YIELD_ADMINISTRATION"	YieldChange="25"/>
+		<Row BuildingType="BUILDING_SENATE"				YieldType="YIELD_ADMINISTRATION"	YieldChange="75"/>
+		<Row BuildingType="BUILDING_PARLIAMENT"			YieldType="YIELD_ADMINISTRATION"	YieldChange="150"/>
+		
+		<Row BuildingType="BUILDING_PALACE"				YieldType="YIELD_ADMINISTRATION"	YieldChange="25"/>
+		
 		<Row BuildingType="BUILDING_SHRINE"				YieldType="YIELD_RESEARCH_INSPIRATION" YieldChange="1"/>
 		<Row BuildingType="BUILDING_TEMPLE"				YieldType="YIELD_RESEARCH_INSPIRATION" YieldChange="3"/>
+		
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT" 	YieldType="YIELD_ADMINISTRATION" 	YieldChange="5"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	YieldType="YIELD_ADMINISTRATION"	YieldChange="10"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	YieldType="YIELD_ADMINISTRATION"	YieldChange="20"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" YieldType="YIELD_ADMINISTRATION"	YieldChange="30"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	YieldType="YIELD_ADMINISTRATION"	YieldChange="40"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		YieldType="YIELD_ADMINISTRATION"	YieldChange="50"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	YieldType="YIELD_ADMINISTRATION"	YieldChange="50"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		YieldType="YIELD_ADMINISTRATION"	YieldChange="80"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" YieldType="YIELD_ADMINISTRATION"	YieldChange="80"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		YieldType="YIELD_ADMINISTRATION"	YieldChange="100"/>
 		
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT" 	YieldType="YIELD_LOWER_HOUSING" 	YieldChange="2"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="2"/>

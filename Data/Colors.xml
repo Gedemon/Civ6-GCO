@@ -4,7 +4,7 @@
 	<!-- Civilizations Colors -->
 	<!-- ++++++++++++++++++++ -->
 	
-	<Colors>		
+	<ColorsLegacy>		
 		<Replace Type="COLOR_PLAYER_ALGERIA_PRIMARY" Color="239,233,220,255" />
 		<Replace Type="COLOR_PLAYER_ALGERIA_SECONDARY" Color="7,91,52,255" />
 		<Replace Type="COLOR_PLAYER_ANGOLA_PRIMARY" Color="196,43,61,255" />
@@ -139,7 +139,7 @@
 		<Replace Type="COLOR_PLAYER_VIETNAM_SECONDARY" Color="212,5,25,255" />		
 		<Replace Type="COLOR_PLAYER_BARBARIAN_PRIMARY" Color="0,0,0,255" />
 		<Replace Type="COLOR_PLAYER_BARBARIAN_SECONDARY" Color="229,19,0,255" />
-      		<Replace Type="COLOR_PLAYER_CITY_STATE_MILITARISTIC_SECONDARY" Color="71,239,0,255" />
-	</Colors>
+      	<Replace Type="COLOR_PLAYER_CITY_STATE_MILITARISTIC_SECONDARY" Color="71,239,0,255" />
+	</ColorsLegacy>
 	
 </GameInfo>

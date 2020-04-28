@@ -45,6 +45,7 @@ local YieldHealthID			= GameInfo.CustomYields["YIELD_HEALTH"].Index
 local YieldUpperHousingID	= GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index
 local YieldMiddleHousingID	= GameInfo.CustomYields["YIELD_MIDDLE_HOUSING"].Index
 local YieldLowerHousingID	= GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index
+local YieldAdministrationID	= GameInfo.CustomYields["YIELD_ADMINISTRATION"].Index
 
 local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
 	DeathRate				= 1,
@@ -374,6 +375,8 @@ local healOuterDefensesMaxPerTurn	= tonumber(GameInfo.GlobalParameters["CITY_HEA
 local healOuterDefensesBaseMateriel	= tonumber(GameInfo.GlobalParameters["CITY_HEAL_OUTER_DEFENSES_BASE_MATERIEL"].Value)
 
 local ConscriptsBaseActiveTurns		= tonumber(GameInfo.GlobalParameters["ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS"].Value)
+
+local minAdmSupportPercent			= tonumber(GameInfo.GlobalParameters["MIN_ADMIN_SUPPORT_PERCENT"].Value)
 
 -- Population
 local UpperClassID 				= GameInfo.Resources["POPULATION_UPPER"].Index
@@ -3157,6 +3160,114 @@ end
 
 
 -----------------------------------------------------------------------------------------
+-- Administrative Functions
+-----------------------------------------------------------------------------------------
+function GetAdministrativeEfficiency(self)
+	local minAdminEfficiency = 25 -- to do : tech, gov, policies
+	return math.max(self:GetValue("AdministrativeEfficiency") or 100, minAdminEfficiency)
+end
+
+function SetAdministrativeEfficiency(self, value) -- set when processing administrative resource use
+	self:SetValue("AdministrativeEfficiency", GCO.ToDecimals(value))
+end
+
+function GetAdministrativeSupport(self)
+	return self:GetValue("AdministrativeSupport") or self:SetAdministrativeSupport()
+end
+
+function SetAdministrativeSupport(self) -- set when processing administrative resource use
+
+	local minPercent			= minAdmSupportPercent -- to do : change with policies
+	local AdministrativeSupport = {}
+	local adminResources		= 0
+		
+	for resourceKey, value in pairs(self:GetResources()) do
+		local resourceID	= tonumber(resourceKey)
+		if GCO.IsAdministrativeResource(resourceID) then
+			local reserved	= math.floor(self:GetMaxStock(resourceID)*minPercent/100)
+			local available = (value > reserved and value - reserved) or 0
+			if available > 0 then
+				adminResources	= adminResources + available
+			end
+		end
+	end
+	
+	AdministrativeSupport.Resources	= adminResources
+	AdministrativeSupport.Yield		= self:GetCustomYield(YieldAdministrationID)
+	
+	self:SetValue("AdministrativeSupport", AdministrativeSupport)
+	return AdministrativeSupport
+end
+
+function GetAdministrativeCost(self)
+	return self:GetValue("AdministrativeCost") or self:SetAdministrativeCost()
+end
+
+function SetAdministrativeCost(self) -- update each turn
+	local adminCost			= 0
+	local techFactor 		= self:GetTechAdministrativeFactor()
+	local buildingsFactor	= self:GetBuildingsAdministrativeFactor()
+	local popCost			= self:GetpopulationAdministrativeCost()
+	local landCost			= self:GetTerritoryAdministrativeCost()
+	
+	local adminCost	= math.floor((popCost + landCost)*techFactor*buildingsFactor)
+	
+	self:SetValue("AdministrativeCost", adminCost)
+	return adminCost
+end
+
+function GetTechAdministrativeFactor(self)
+	local player	 = GCO.GetPlayer(self:GetOwner())
+	local techFactor = player:GetTechAdministrativeFactor()
+	return math.max(1, techFactor / 4)
+end
+
+function GetBuildingsAdministrativeFactor(self)
+	local numBuildings	= 0
+	local pBuildings	= self:GetBuildings()
+	local kCityPlots	= GCO.GetCityPlots(self)
+	if (kCityPlots ~= nil) then
+		for _,plotID in pairs(kCityPlots) do
+			local kTypes	= GCO.GetBuildingsAtLocation(self, plotID)
+			for _, buildingType in ipairs(kTypes) do
+				local row	= GameInfo.Buildings[buildingType]
+				if not row.NoCityScreen then
+					numBuildings	= numBuildings + 1
+				end
+			end
+		end
+	end
+	return 1+(numBuildings/4), numBuildings
+end
+
+function GetTerritoryAdministrativeCost(self)
+	local kPlots	= GCO.GetCityPlots(self)
+	local territory	= #kPlots
+	local surface	= territory*10000
+	return math.floor(territory / 2), surface
+end
+
+function GetpopulationAdministrativeCost(self)
+	local population	= self:GetTotalPopulation()
+	local popSize		= math.floor(GCO.GetSizeAtPopulation(population))
+	return popSize, population
+end
+
+function GetAdministrativeCostText(self)
+	local adminEfficiency 	= self:GetAdministrativeEfficiency()
+	local adminCost			= self:GetAdministrativeCost()
+	local popCost, popValue	= self:GetpopulationAdministrativeCost()
+	local landCost, surface	= self:GetTerritoryAdministrativeCost()
+	local bldFactor, numBld	= self:GetBuildingsAdministrativeFactor()
+	local techFactor 		= self:GetTechAdministrativeFactor()
+	local SupportTable		= self:GetAdministrativeSupport()
+	local adminSupport		= GCO.TableSummation(SupportTable)
+
+	return Locale.Lookup("LOC_CITYBANNER_ADMINISTRATIVE_COST_DETAILS", adminEfficiency, adminCost, popCost, popValue, landCost, surface, bldFactor, numBld, techFactor, adminSupport, SupportTable.Yield, SupportTable.Resources)
+end
+
+
+-----------------------------------------------------------------------------------------
 -- City Panel Stats
 -----------------------------------------------------------------------------------------
 function GetResourcesStockTable(self)
@@ -4401,7 +4512,8 @@ function GetUrbanProductionFactor(self)
 end
 
 function GetOutputPerYield(self)
-	return math.max(1, self:GetUrbanProductionFactor() * self:GetSize())
+	local adminEfficiency = self:GetAdministrativeEfficiency()/100
+	return math.max(1, self:GetUrbanProductionFactor() * self:GetSize() * adminEfficiency)
 end
 
 
@@ -4531,7 +4643,6 @@ end
 	end
 	return strFull
 end
-
 
 function GetScienceStockStringTable(self, scienceToolTipTab, scienceToolTipMode)
 	local turnKey 			= GCO.GetTurnKey()
@@ -6050,7 +6161,6 @@ function DoStockDecay(self)
 	Dlog("DoStockDecay ".. Locale.Lookup(self:GetName()).." /END")
 end
 
-
 function DoStockUpdate(self)
 
 	Dlog("DoStockUpdate ".. Locale.Lookup(self:GetName()).." /START")
@@ -6652,6 +6762,42 @@ function DoTaxes(self)
 		local extraGold 	= goldPerTurn * ratio
 		player:ProceedTransaction(AccountType.MiddleTaxes, extraGold)		
 	end
+end
+
+function DoAdministration(self) -- after processing resources
+
+	-- Update administrative cost first
+	-- "Set" returns the updated values, "Get" are used for UI
+	local totalNeeded 	= self:SetAdministrativeCost()
+	local Support		= self:SetAdministrativeSupport()
+	local minPercent	= minAdmSupportPercent -- to do : change with policies
+	local needed		= totalNeeded
+	local provided		= 0
+	local adminYield	= Support.Yield
+	
+	if adminYield > 0 then
+		local used	= math.min(needed, adminYield)
+		needed 		= needed - used
+		provided	= provided + used	
+	end
+	
+	if needed > 0 then
+		for resourceKey, value in pairs(self:GetResources()) do
+			local resourceID	= tonumber(resourceKey)
+			if GCO.IsAdministrativeResource(resourceID) then
+				local reserved	= math.floor(self:GetMaxStock(resourceID)*minPercent/100)
+				local available = (value > reserved and value - reserved) or 0
+				if available > 0 then
+					local used = math.min(needed, available)
+					self:ChangeStock(resourceID, -used, ResourceUseType.OtherOut) -- to do: new ResourceUseType ?
+					needed 		= needed - used
+					provided	= provided + used
+				end
+			end
+		end
+	end
+	local efficiency = ((provided >= totalNeeded or totalNeeded == 0) and 100) or GCO.GetMaxPercentFromLowDiff(100, totalNeeded, provided)--(100 - ( totalNeeded / (provided + 1))))
+	self:SetAdministrativeEfficiency(efficiency)
 end
 
 -- todo : move to defines
@@ -7413,6 +7559,7 @@ function DoTurnFourthPass(self)
 	--self:SetProductionFactorFromBuildings()
 	self:SetEmploymentFactorFromBuildings()
 	self:SetLiteracy()
+	self:DoAdministration()
 	GCO.ShowTimer("CitySize/SocialClasses for ".. name)
 	
 	GCO.StartTimer("Set Health for ".. name)
@@ -7826,12 +7973,12 @@ function AttachCityFunctions(city)
 		
 		if not c.GetLiteracy						then c.GetLiteracy							= GetLiteracy                     	 	end
 		if not c.SetLiteracy						then c.SetLiteracy							= SetLiteracy                     	 	end
-		if not c.CanDoResearch						then c.CanDoResearch						= CanDoResearch                     	 	end
+		if not c.CanDoResearch						then c.CanDoResearch						= CanDoResearch                      	end
 		--
 		if not c.DoRecruitPersonnel					then c.DoRecruitPersonnel					= DoRecruitPersonnel					end
 		-- text
 		if not c.GetHealthString					then c.GetHealthString						= GetHealthString						end
-		if not c.GetHealthIcon						then c.GetHealthIcon						= GetHealthIcon								end
+		if not c.GetHealthIcon						then c.GetHealthIcon						= GetHealthIcon							end
 		if not c.GetResourcesStockString			then c.GetResourcesStockString				= GetResourcesStockString           	end
 		if not c.GetScienceStockStringTable			then c.GetScienceStockStringTable			= GetScienceStockStringTable      		end
 		if not c.GetResourcesStockStringTable		then c.GetResourcesStockStringTable			= GetResourcesStockStringTable      	end
@@ -7841,6 +7988,19 @@ function AttachCityFunctions(city)
 		if not c.GetResourceUseToolTipStringForTurn	then c.GetResourceUseToolTipStringForTurn	= GetResourceUseToolTipStringForTurn	end
 		if not c.GetPopulationNeedsEffectsString	then c.GetPopulationNeedsEffectsString		= GetPopulationNeedsEffectsString   	end
 		if not c.GetHousingToolTip					then c.GetHousingToolTip					= GetHousingToolTip   					end
+		--
+		if not c.GetAdministrativeEfficiency		then c.GetAdministrativeEfficiency			= GetAdministrativeEfficiency   		end
+		if not c.SetAdministrativeEfficiency		then c.SetAdministrativeEfficiency			= SetAdministrativeEfficiency   		end
+		if not c.GetAdministrativeCost				then c.GetAdministrativeCost				= GetAdministrativeCost   				end
+		if not c.SetAdministrativeCost				then c.SetAdministrativeCost				= SetAdministrativeCost   				end
+		if not c.GetBuildingsAdministrativeFactor	then c.GetBuildingsAdministrativeFactor		= GetBuildingsAdministrativeFactor		end
+		if not c.GetAdministrativeCostText			then c.GetAdministrativeCostText			= GetAdministrativeCostText   			end
+		if not c.GetAdministrativeSupport			then c.GetAdministrativeSupport				= GetAdministrativeSupport   			end
+		if not c.SetAdministrativeSupport			then c.SetAdministrativeSupport				= SetAdministrativeSupport   			end
+		if not c.GetpopulationAdministrativeCost	then c.GetpopulationAdministrativeCost		= GetpopulationAdministrativeCost   	end
+		if not c.GetTerritoryAdministrativeCost		then c.GetTerritoryAdministrativeCost		= GetTerritoryAdministrativeCost   		end
+		if not c.GetTechAdministrativeFactor		then c.GetTechAdministrativeFactor			= GetTechAdministrativeFactor   		end
+		if not c.DoAdministration					then c.DoAdministration						= DoAdministration   					end
 		--              
 		if not c.CanConstruct						then c.CanConstruct							= CanConstruct                      	end
 		if not c.CanTrain							then c.CanTrain								= CanTrain                          	end

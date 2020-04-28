@@ -142,13 +142,11 @@ function RefreshYields()
 	m_AdministrationYieldButton	= m_AdministrationYieldButton or m_YieldButtonSingleManager:GetInstance()
 	if ExposedMembers.GCO_Initialized then
 
-		local empireCost		= localPlayer:GetAdministrativeCost()
-		local empireSupport		= localPlayer:GetAdministrativeSupport()
 		local toolTipStr 		= localPlayer:GetAdministrationTooltip()
 		local balanceColorName	= "DiplomaticLabelCS" -- ResMilitaryLabelCS
 		local backingColorName 	= "NeutralCS"
 		
-		local yieldText			= tostring(Locale.ToNumber(localPlayer:GetAdministrativeEfficiency(), "#,##")).."%"--tostring(Locale.ToNumber(empireCost, "#,###")) .. "/" .. tostring(Locale.ToNumber(empireSupport, "#,###"))
+		local yieldText			= tostring(Locale.ToNumber(localPlayer:GetAdministrativeEfficiency(), "#,###")).."%"
 		
 		m_AdministrationYieldButton.YieldPerTurn:SetText( yieldText );
 		m_AdministrationYieldButton.YieldIconString:SetText("[ICON_Government]"); -- [ICON_DISTRICT_GOVERNMENT] <- requires R&F

@@ -899,7 +899,11 @@ CREATE TABLE IF NOT EXISTS SupplyRouteChanges
          IncomingRoute INT,				-- Number of incoming routes to this building
          RouteLengthEfficiencyChange INT,
          MaxRouteTonnageChange  INT);
-	
+
+
+-- Create a new Colors table because if we use the old one, the game is messed up between the new jersey and the old colors (human player = full white)		 
+CREATE TABLE IF NOT EXISTS ColorsLegacy ('Type' text  not null , 'Color' text , 'Red' float , 'Green' float , 'Blue' float , 'Alpha' float , PRIMARY KEY (Type));
+
 -----------------------------------------------
 -- Edit Tables
 -----------------------------------------------
