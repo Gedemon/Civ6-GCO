@@ -82,6 +82,7 @@
 		<Row FeatureType="FEATURE_MARSH" 			ResourceType="RESOURCE_PLANTS" 	NumPerFeature="8"/>
 		<Row FeatureType="FEATURE_MARSH" 			ResourceType="RESOURCE_CLAY" 	NumPerFeature="4"/>
 		<Row FeatureType="FEATURE_FLOODPLAINS"		ResourceType="RESOURCE_CLAY" 	NumPerFeature="6"/>
+		<Row FeatureType="FEATURE_FLOODPLAINS"		ResourceType="RESOURCE_PLANTS" 	NumPerFeature="3"/>
 		<Row FeatureType="FEATURE_OASIS"			ResourceType="RESOURCE_CLAY" 	NumPerFeature="4"/>
 	</FeatureResourcesProduced>
 	

@@ -276,7 +276,7 @@
 		<Replace Tag="LOC_CITY_NAME_RED_DEER"								 Text="Red Deer"							Language="en_US" />
 		<Replace Tag="LOC_CITY_NAME_SAGUENAY"								 Text="Saguenay"							Language="en_US" />
 		<Replace Tag="LOC_CITY_NAME_KINGSTON"								 Text="Kingston"							Language="en_US" />
-		<Replace Tag="LOC_CITY_NAME_THUNDER_BAY"							 Text="Thunder_Bay"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_THUNDER_BAY"							 Text="Thunder Bay"							Language="en_US" />
 		<Replace Tag="LOC_CITY_NAME_ST_CATHARINES"							 Text="St. Catharines"							Language="en_US" />
 		<Replace Tag="LOC_CITY_NAME_NANAIMO"								 Text="Nanaimo"								Language="en_US" />
 		<Replace Tag="LOC_CITY_NAME_LETHBRIDGE"								 Text="Lethbridge"							Language="en_US" />

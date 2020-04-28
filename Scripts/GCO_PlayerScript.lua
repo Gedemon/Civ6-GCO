@@ -245,7 +245,6 @@ end
 -----------------------------------------------------------------------------------------
 -- General functions
 -----------------------------------------------------------------------------------------	
-
 function Define(self)
 
 	local DEBUG_PLAYER_SCRIPT = "debug"
@@ -370,6 +369,11 @@ function IsResourceVisible(self, resourceID)
 	return GCO.IsResourceVisibleFor(self, resourceID)
 end
 
+
+-----------------------------------------------------------------------------------------
+-- Empire Management functions
+-----------------------------------------------------------------------------------------
+-- Player function
 function HasPolicyActive(self, policyID)
 	return GCO.HasPolicyActive(self, policyID)
 end
@@ -380,15 +384,6 @@ end
 
 function GetCurrentGovernment(self)
 	return GCO.GetCurrentGovernment(self)
-end
-
-function IsObsoleteEquipment(self, equipmentTypeID)
-	if not GCO.IsResourceEquipment(equipmentTypeID) then return false end
-	local ObsoleteTech = EquipmentInfo[equipmentTypeID].ObsoleteTech
-	if not ObsoleteTech then return false end
-	local pScience = self:GetTechs()
-	local iTech	= GameInfo.Technologies[ObsoleteTech].Index
-	return pScience:HasTech(iTech)
 end
 
 function GetTotalPopulation(self)
@@ -418,7 +413,104 @@ function GetTerritorySize(self)
 	return territory
 end
 
+function GetTerritoryAdministrativeCost(self)
+
+	local territorySize		= self:GetTerritorySize()
+	local territoryCost		= territorySize/10
+	local territorySurface	= territorySize*10000
+
+	return territoryCost, territorySurface
+end
+
+function GetTechAdministrativeFactor(self)
+	return 1+(self:GetNumTechs()/4)
+end
+
+function GetCitiesAdministrativeFactor(self)
+	return 1+(self:GetCities():GetCount()/5)
+end
+
+function GetAdministrativeCost(self)
+	return self:GetCached("AdministrativeCost") or self:SetAdministrativeCost()
+end
+
+function SetAdministrativeCost(self) -- must be updated each turn and on territory change & city change
+
+	local PopulationBalance = self:GetTotalPopulation()
+	local popSize			= math.floor(GCO.GetSizeAtPopulation(PopulationBalance))
+	local citiesFactor		= self:GetCitiesAdministrativeFactor()
+	local techFactor		= self:GetTechAdministrativeFactor()
+	local territoryCost 	= self:GetTerritoryAdministrativeCost()
+	local empireCost		= math.floor((popSize + territoryCost) * techFactor * citiesFactor)
+	
+	self:SetCached("AdministrativeCost", empireCost)
+	return empireCost
+end
+
+function GetAdministrativeSupport(self)
+	return self:GetCached("AdministrativeSupport") or self:SetAdministrativeSupport()
+end
+
+function SetAdministrativeSupport(self) -- must be updated each turn and on territory change & city change
+
+	local adminSupport	= 0
+	local playerCities	= self:GetCities()
+	for i, city in playerCities:Members() do
+		-- attach city function ?
+		for resourceKey, value in pairs(city:GetResources()) do
+			local resourceID = tonumber(resourceKey)
+			if GCO.IsAdministrativeResource(resourceID) then
+				adminSupport = adminSupport + value
+			end
+		end
+	end
+	--[[
+	local techFactor		= self:GetTechAdministrativeFactor()
+	local territoryCost 	= self:GetTerritoryAdministrativeCost()
+	local empireCost		= math.floor(popSize + citiesSize + territoryCost) * techFactor
+	--]]
+	
+	self:SetCached("AdministrativeSupport", adminSupport)
+	return adminSupport
+end
+
+function GetAdministrativeEfficiency(self)
+	local minEfficiency = 5 -- to do : rise with new Governement types
+	return math.max(100 - (self:GetAdministrativeCost() / (self:GetAdministrativeSupport() + 1)), minEfficiency)
+end
+
+function GetAdministrationTooltip(self)
+
+	local PopBalance, PopYield	= self:GetTotalPopulation()
+	local popSize				= math.floor(GCO.GetSizeAtPopulation(PopBalance))
+	local citiesFactor			= self:GetCitiesAdministrativeFactor()
+	local landCost, landSurface = self:GetTerritoryAdministrativeCost()
+	local empireCost			= self:GetAdministrativeCost()
+	local techFactor			= self:GetTechAdministrativeFactor()
+	local adminSupport			= self:GetAdministrativeSupport()
+	local adminEfficiency		= self:GetAdministrativeEfficiency()
+	
+	return Locale.Lookup("LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP", empireCost, popSize, PopBalance, citiesFactor, landCost, landSurface, techFactor, adminSupport, adminEfficiency)
+end
+
+-----------------------------------------------------------------------------------------
+-- Army Management functions
+-----------------------------------------------------------------------------------------
+function IsObsoleteEquipment(self, equipmentTypeID)
+	if not GCO.IsResourceEquipment(equipmentTypeID) then return false end
+	local ObsoleteTech = EquipmentInfo[equipmentTypeID].ObsoleteTech
+	if not ObsoleteTech then return false end
+	local pScience = self:GetTechs()
+	local iTech	= GameInfo.Technologies[ObsoleteTech].Index
+	return pScience:HasTech(iTech)
+end
+
 function GetPersonnelInCities(self) -- logistic support
+	return self:GetCached("PersonnelInCities") or self:SetPersonnelInCities()
+end
+
+function SetPersonnelInCities(self) -- todo : update on city capture
+
 	local personnel = 0
 	local playerCities = self:GetCities()
 	if playerCities then
@@ -427,6 +519,8 @@ function GetPersonnelInCities(self) -- logistic support
 			personnel = personnel + city:GetPersonnel()
 		end
 	end
+	
+	self:SetCached("PersonnelInCities", personnel)
 	return personnel
 end
 
@@ -480,6 +574,24 @@ function GetDraftEfficiencyPercent(self)
 end
 
 function GetLogisticCost(self, PromotionClassID)
+	local LogisticCost = self:GetCached("LogisticCost") or self:SetLogisticCost()
+	return LogisticCost[PromotionClassID] or 0
+end
+
+function SetLogisticCost(self) -- to do : update after units are killed for UI ?
+
+	local LogisticCost	= {}
+	local playerUnits = self:GetUnits()
+	if playerUnits then
+		for i, unit in playerUnits:Members() do
+			GCO.AttachUnitFunctions(unit)
+			local PromotionClassID = unit:GetPromotionClassID()
+			if PromotionClassID then
+				LogisticCost[PromotionClassID] = (LogisticCost[PromotionClassID] or 0) + unit:GetLogisticCost()
+			end
+		end
+	end
+	--[[
 	local logisticCost = 0
 	local playerUnits = self:GetUnits()
 	if playerUnits then
@@ -490,7 +602,9 @@ function GetLogisticCost(self, PromotionClassID)
 			end
 		end
 	end
-	return logisticCost
+	--]]
+	self:SetCached("LogisticCost", LogisticCost)
+	return LogisticCost
 end
 
 function GetLogisticSupport(self, PromotionClassID) -- the logistic support available from personnel in cities 
@@ -1008,10 +1122,16 @@ function DoPlayerTurn( playerID )
 		Dprint( DEBUG_PLAYER_SCRIPT, "--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(playerName) .." )")
 		Dprint( DEBUG_PLAYER_SCRIPT, "---============================================================================================================================================================================---")
 		
+		-- Set cost before Cities turn
+		player:SetAdministrativeCost()
+		player:SetLogisticCost()
+		
 		-- May need that when launching a game with a later era start
 		player:UpdateMilitaryOrganizationLevel()
 		
+		--
 		--player:UpdatePopulationNeeds()
+		
 		GCO.StartTimer("DoUnitsTurn for ".. tostring(playerName))
 		LuaEvents.DoUnitsTurn( playerID )
 		GCO.ShowTimer("DoUnitsTurn for ".. tostring(playerName))
@@ -1019,6 +1139,11 @@ function DoPlayerTurn( playerID )
 		--GCO.StartTimer("DoCitiesTurn for ".. tostring(playerName))
 		LuaEvents.DoCitiesTurn( playerID )
 		--GCO.ShowTimer("DoCitiesTurn for ".. tostring(playerName))
+		
+		-- Set support after Cities turn	
+		player:SetAdministrativeSupport()
+		--
+		player:SetPersonnelInCities()
 		
 		-- update flags after resources transfers
 		player:Define()
@@ -1138,7 +1263,28 @@ end
 -- Events Functions
 -----------------------------------------------------------------------------------------
 
+function OnNewCityCreated(playerID, city)
+	local player = GCO.GetPlayer(playerID)
+	player:SetPersonnelInCities()
+	player:SetAdministrativeSupport()
+	player:SetAdministrativeCost()
+end
 
+function OnCapturedCityInitialized(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+	local originalPlayer	= GCO.GetPlayer(originalOwnerID)
+	local newPlayer 		= GCO.GetPlayer(newOwnerID)
+	--
+	originalPlayer:SetPersonnelInCities()
+	originalPlayer:SetAdministrativeSupport()
+	originalPlayer:SetAdministrativeCost()
+	--
+	newPlayer:SetPersonnelInCities()
+	newPlayer:SetAdministrativeSupport()
+	newPlayer:SetAdministrativeCost()
+end
+
+GameEvents.CapturedCityInitialized.Add( OnCapturedCityInitialized )
+GameEvents.NewCityCreated.Add(OnNewCityCreated)
 
 -----------------------------------------------------------------------------------------
 -- Functions passed from UI Context
@@ -1228,11 +1374,24 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 		--
 		p.GetTotalPopulation						= GetTotalPopulation
 		p.GetTerritorySize							= GetTerritorySize
+		--
+		p.GetTerritoryAdministrativeCost			= GetTerritoryAdministrativeCost
+		p.GetTechAdministrativeFactor				= GetTechAdministrativeFactor
+		p.GetCitiesAdministrativeFactor				= GetCitiesAdministrativeFactor
+		p.GetAdministrativeCost						= GetAdministrativeCost
+		p.SetAdministrativeCost						= SetAdministrativeCost
+		p.GetAdministrativeSupport					= GetAdministrativeSupport
+		p.SetAdministrativeSupport					= SetAdministrativeSupport
+		p.GetAdministrativeEfficiency				= GetAdministrativeEfficiency
+		p.GetAdministrationTooltip					= GetAdministrationTooltip
+		--
 		p.GetPersonnelInCities						= GetPersonnelInCities
+		p.SetPersonnelInCities						= SetPersonnelInCities
 		p.GetPersonnelInUnits						= GetPersonnelInUnits
 		p.GetLogisticPersonnelInActiveDuty			= GetLogisticPersonnelInActiveDuty
 		p.GetLogisticCost							= GetLogisticCost
 		p.GetLogisticSupport						= GetLogisticSupport
+		p.SetLogisticCost							= SetLogisticCost
 		p.GetMaxDraftedPercentage					= GetMaxDraftedPercentage
 		p.GetDraftedPercentage						= GetDraftedPercentage
 		p.GetDraftEfficiencyPercent					= GetDraftEfficiencyPercent

@@ -934,7 +934,7 @@
 	</TechnologyNeedsContribution>
 	
 	<!--
-		TypeTag		: New TypeTags to be added to Units, Resources, Terrains, Features, Improvments, ...
+		TypeTag		: New TypeTags to be added to Units, Resources, Terrains, Features, Improvements, ...
 	-->
 	<TechnologyNeedsRequirement>
 	

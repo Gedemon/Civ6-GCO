@@ -186,7 +186,7 @@ function PostInitialize() -- everything that may require other context to be loa
 	SetInitialMapPopulation()
 	CacheMapFeatures()
 	
-	LuaEvents.CapturedCityInitialized.Add( UpdateCultureOnCityCapture )
+	GameEvents.CapturedCityInitialized.Add( UpdateCultureOnCityCapture )
 end
 
 function CacheMapFeatures()
@@ -1295,7 +1295,7 @@ function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID
 		end
 	end
 end
---LuaEvents.CapturedCityInitialized.Add( UpdateCultureOnCityCapture )
+--GameEvents.CapturedCityInitialized.Add( UpdateCultureOnCityCapture )
 
 -----------------------------------------------------------------------------------------
 -- Initialize Culture Functions

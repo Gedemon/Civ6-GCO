@@ -44,7 +44,7 @@
 		<Text>Double Loots from Tribal Villages.</Text>
 	</Replace>
 	<Replace Tag="LOC_POLICY_RAID_DESCRIPTION"	Language="en_US">
-		<Text>Double Loots from pillaging Improvments and cleaning Barbarian Camps.</Text>
+		<Text>Double Loots from pillaging Improvements and cleaning Barbarian Camps.</Text>
 	</Replace>
 	<Replace Tag="LOC_POLICY_GOD_KING_DESCRIPTION" 	Language="en_US">
 		<Text>+1 [ICON_Culture] Culture and +1 [ICON_Gold] Gold in the [ICON_Capital] Capital.</Text>
@@ -190,7 +190,9 @@
 	<Replace Tag="LOC_TOP_PANEL_PROMOTION_COST_TOOLTIP" Text="{1_Name} units require {2_Name} Support, {3_Num : number #,###} available for that class" Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_POPULATION_TOOLTIP"		Text="Total population =  {1_Num : number #,###}[NEWLINE]Active Duty = {2_Num : number #,###} personnel ({7_Num : number #,###} in logistic + {6_Num : number #,###} in units)[NEWLINE]{3_Num : number #.##} % of population in service[NEWLINE]Conscription Efficiency = {4_Num : number #.##} %[NEWLINE][NEWLINE]Conscription Efficiency goes down when the number of your Personnel in Active Duty get closer to the maximum percentage of population in service (currently {5_Num : number #.##} %).[NEWLINE][NEWLINE]It affects the number of personnel drafted each turn in your cities.[NEWLINE][NEWLINE]Some Policies allow you to raise a bigger army, and being at war give a boost to the percentage of population that can be drafted, until the end of the war.[NEWLINE][NEWLINE]The personnel in units and the personnel required to provide support to those units are considered in Active Duty." Language="en_US" />
 	
-	<Replace Tag="LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP"	Text="Empire Administrative cost = {1_Num : number #,###}[NEWLINE][NEWLINE][ICON_BULLET]Population cost = {2_Num : number #,###} from {3_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Cities cost = {4_Num : number #,###} from number of cities[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #.#} from managing {6_Num : number #,###}km²[NEWLINE][NEWLINE]Administrative cost multiplied by {7_Num : number #.#} from technological advancement." Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP" Language="en_US" >
+		<Text>Administrative Efficiency = {9_Num : number #,##}%[NEWLINE][NEWLINE]Empire Administrative cost = {1_Num : number #,###}[NEWLINE][ICON_BULLET]Population cost = {2_Num : number #,###} from {3_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #.#} from managing {6_Num : number #,###}km²[NEWLINE][ICON_BULLET]Cities Factor = {4_Num : number #.#} from number of cities[NEWLINE][ICON_BULLET]Development Factor = {7_Num : number #.#} from technological advancement.[NEWLINE][NEWLINE]Empire Administrative support = {8_Num : number #,###}[NEWLINE][ICON_BULLET]Administrative Tablets, Scrolls, Books = {8_Num : number #,###}</Text>
+	</Replace>
 	
 	<Replace Tag="LOC_TOP_PANEL_RESEARCH_TITLE_TOOLTIP" Text="[ICON_Science][COLOR:SuzerainDark]{2_Name}[ENDCOLOR] : {1_Num : number #.##} scholars in cities" Language="en_US" />
 	

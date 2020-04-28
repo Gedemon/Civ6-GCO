@@ -482,7 +482,7 @@ function PostInitialize() -- everything that may require other context to be loa
 	
 	LuaEvents.SetCitiesDebugLevel.Add(SetDebugLevel)
 	LuaEvents.RestoreCitiesDebugLevel.Add(RestorePreviousDebugLevel)
-	LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
+	GameEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
 	LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 end
 
@@ -617,7 +617,8 @@ function RegisterNewCity(playerID, city)
 	
 	--plot:MatchCultureToPopulation()
 	
-	LuaEvents.NewCityCreated()
+	LuaEvents.NewCityCreated(playerID, city)
+	GameEvents.NewCityCreated.Call(playerID, city, true)
 end
 
 function InitializeCity(playerID, cityID) -- added to Events.CityAddedToMap in initialize()
@@ -769,7 +770,7 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 		GCO.Error("no data for original City on capture, cityID #", originalCityID, "playerID #", originalOwnerID)
 	end
 end
---LuaEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
+--GameEvents.CapturedCityInitialized.Add( UpdateCapturedCity ) -- called in Events.CityInitialized (after Events.CityAddedToMap and InitializeCity...)
 
 -- for debugging
 function ShowCityData()
@@ -4439,6 +4440,23 @@ function GetHealthString(self)
 	return returnStr .. table.concat(strTable, "[NEWLINE]") ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR") .. Locale.Lookup("LOC_CITYBANNER_HEALTH_CHANGE", GCO.GetEvaluationStringFromValue(change, 15, -15))
 end
 
+function GetHealthIcon(self)
+
+	if not self:GetCached("Health") then self:SetHealthValues() end	
+	
+	local health	= self:GetValue("Health") or 0
+	local healthPct	= (100 + (health)) / 2 -- to do: no hardcoding of the max (+100) and min (-100) health values
+	local str		= "[ICON_HealthGood]" --"[ICON_HEALTH2]"
+	
+	if healthPct < 25 then
+		str		= "[ICON_HealthBad]"
+	elseif healthPct < 50 then
+		str		= "[ICON_HealthLow]"
+	end
+	
+	return str
+end
+
 function GetResourcesStockString(self)
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
@@ -4883,6 +4901,21 @@ function GetFoodStockString(self)
 		str = str .." (".. Locale.Lookup("LOC_CITYBANNER_RESOURCE_COST", resourceCost)..costVarStr..")"
 	end
 
+	return str
+end
+
+function GetFoodStockIcon(self)
+	local cityRationning 		= self:GetFoodRationing()
+	local str 					= "[ICON_FoodSurplus]"
+	if cityRationning <= Starvation then
+		str = "[ICON_FoodDeficit]"
+	elseif cityRationning <= heavyRationing then
+		str = "[ICON_FoodDeficit]"
+	elseif cityRationning <= mediumRationing then
+		str = "[ICON_FoodRationing]"
+	elseif cityRationning <= lightRationing then
+		str = "[ICON_FoodPerTurn]"
+	end
 	return str
 end
 
@@ -7798,10 +7831,12 @@ function AttachCityFunctions(city)
 		if not c.DoRecruitPersonnel					then c.DoRecruitPersonnel					= DoRecruitPersonnel					end
 		-- text
 		if not c.GetHealthString					then c.GetHealthString						= GetHealthString						end
+		if not c.GetHealthIcon						then c.GetHealthIcon						= GetHealthIcon								end
 		if not c.GetResourcesStockString			then c.GetResourcesStockString				= GetResourcesStockString           	end
 		if not c.GetScienceStockStringTable			then c.GetScienceStockStringTable			= GetScienceStockStringTable      		end
 		if not c.GetResourcesStockStringTable		then c.GetResourcesStockStringTable			= GetResourcesStockStringTable      	end
 		if not c.GetFoodStockString 				then c.GetFoodStockString 					= GetFoodStockString                	end
+		if not c.GetFoodStockIcon 					then c.GetFoodStockIcon 					= GetFoodStockIcon          	      	end
 		if not c.GetFoodConsumptionString			then c.GetFoodConsumptionString				= GetFoodConsumptionString          	end
 		if not c.GetResourceUseToolTipStringForTurn	then c.GetResourceUseToolTipStringForTurn	= GetResourceUseToolTipStringForTurn	end
 		if not c.GetPopulationNeedsEffectsString	then c.GetPopulationNeedsEffectsString		= GetPopulationNeedsEffectsString   	end

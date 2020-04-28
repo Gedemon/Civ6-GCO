@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
+	<Logos>
+		<Row LogoTexture="MainLogoGCO.dds" LogoMovie="TitleBG.bk2" Priority="100" />
+	</Logos>
 	<Parameters>
 		<!--	Add specific resources around TSL (see CivilizationRequestedResource table and PostConfig.sql)
 		-->

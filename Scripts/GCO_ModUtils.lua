@@ -911,7 +911,7 @@ Dprint("Calling CityCaptureCityInitialized (", playerID, cityID, iX, iY,")")
 			local newCityID			= cityID
 			if cityCaptureTest[key].PlayerID == originalOwnerID then
 				Dprint("Calling LuaEvents.CapturedCityInitialized (", originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY,")")
-				LuaEvents.CapturedCityInitialized(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
+				GameEvents.CapturedCityInitialized.Add(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
 				cityCaptureTest[key] = {}
 			end
 		else
@@ -1026,6 +1026,10 @@ end
 
 function IsResourceEquipment(resourceID)
 	return (IsEquipment[resourceID] == true)
+end
+
+function IsAdministrativeResource(resourceID)
+	return GameInfo.Resources[resourceID] and GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_ADMINISTRATIVE"
 end
 
 function IsResourceFood(resourceID)
@@ -1369,6 +1373,7 @@ function Initialize()
 	ExposedMembers.GCO.GetResourceImprovementID		= GetResourceImprovementID
 	ExposedMembers.GCO.IsImprovingResource			= IsImprovingResource
 	ExposedMembers.GCO.IsKnowledgeResource			= IsKnowledgeResource
+	ExposedMembers.GCO.IsAdministrativeResource		= IsAdministrativeResource
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 				= GetVariationString

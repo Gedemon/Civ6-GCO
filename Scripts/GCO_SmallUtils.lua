@@ -11,11 +11,11 @@ local indentationSpaces	= "                              "
 function Indentation(str, maxLength, bAlignRight, bShowSpace)
 	local bIsNumber	= type(str) == "number"
 	local minLength	= 2
+	local indentStr	= (bShowSpace and indentationString) or indentationSpaces
 	local maxLength = math.max(maxLength or string.len(indentStr))
 	--local str 		= (bIsNumber and str > math.pow(10,maxLength-2)-1 and tostring(math.floor(str))) or tostring(str)
 	--local str 		= (bIsNumber and str > 9 and tostring(math.floor(str))) or tostring(str)
 	local str 		= tostring(str)
-	local indentStr	= (bShowSpace and indentationString) or indentationSpaces
 	local length 	= string.len(str)
 	
 	if length > maxLength and bIsNumber then

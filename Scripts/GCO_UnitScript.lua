@@ -584,7 +584,7 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizati
 	The DLL return the HP left after all combats, which are processed in GameCore before any of the current (non-crashing) Events
 	related to player turn or units can be called, including Events.UnitAddedToMap.
 	So we're using a virtual HP value, stocked in the UnitData table, updated only when the mod is controlling healing or checking damage,
-	and we monitor and revert changes made outside the mod's control (actually only hardcoded healing from pillaging improvments)
+	and we monitor and revert changes made outside the mod's control (actually only hardcoded healing from pillaging improvements)
 	***********
 	--]]
 	

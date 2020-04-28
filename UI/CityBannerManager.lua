@@ -1207,7 +1207,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 				end				
 				self.m_Instance.FoodIcon:RegisterMouseEnterCallback(ShowFoodToolTip)
 				self.m_Instance.FoodIcon:RegisterMouseExitCallback(CleanToolTip)
-				--self.m_Instance.FoodIcon:SetToolTipString(foodToolTip)
+				self.m_Instance.FoodIcon:SetText(city:GetFoodStockIcon())
 				
 				-- Strategic
 				local strategicParameters	= {}
@@ -1443,6 +1443,7 @@ function CityBanner.UpdateStats( self : CityBanner)
 				-- Health
 				local healthToolTip = Locale.Lookup("LOC_CITYBANNER_HEALTH_TITLE").."[NEWLINE]"..city:GetHealthString()
 				self.m_Instance.HealthIcon:SetToolTipString(healthToolTip)
+				self.m_Instance.HealthIcon:SetText(city:GetHealthIcon())
 				
 				-- Population Needs & Stability/Unrest
 				local populationNeedsToolTip = Locale.Lookup("LOC_CITYBANNER_POPULATION_NEEDS_TITLE").."[NEWLINE]"..city:GetPopulationNeedsEffectsString()

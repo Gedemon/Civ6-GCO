@@ -134,7 +134,7 @@ INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) 
 /* ************************ */
 DELETE FROM Feature_Removes;
 INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_GRASS');
-INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_PLAINS');
+--INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_PLAINS');
 
 
 /* ************************ */
