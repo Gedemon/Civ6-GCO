@@ -936,27 +936,6 @@ function IsCoastal(self)
 	return (_cached[cityKey].Coastal == 1)
 end
 
-function GetSeaRange(self)
-	if not self:IsCoastal() then return 0 end -- to do: harbor
-	local range = 0
-	local pTech = Players[self:GetOwner()]:GetTechs()
-	if pTech then
-		if pTech:HasTech(GameInfo.Technologies["TECH_SAILING"].Index) 				then range = range + 1	end
-		if pTech:HasTech(GameInfo.Technologies["TECH_CELESTIAL_NAVIGATION"].Index) 	then range = range + 1	end
-		if pTech:HasTech(GameInfo.Technologies["TECH_SHIPBUILDING"].Index) 			then range = range + 1	end
-		if pTech:HasTech(GameInfo.Technologies["TECH_CARTOGRAPHY"].Index) 			then range = range + 1	end
-		if pTech:HasTech(GameInfo.Technologies["TECH_SQUARE_RIGGING"].Index) 		then range = range + 1	end
-	end
-	local buildings = self:GetBuildings()
-	if buildings then
-		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index) then range = range + 1 end
-		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) then range = range + 1 end
-		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_SHIPYARD"].Index) then range = range + 1 end
-		if buildings:HasBuilding(GameInfo.Buildings["BUILDING_SEAPORT"].Index) then range = range + 3 end
-	end
-	return range
-end
-
 function RecordTransaction(self, accountType, value, refKey, turnKey) --turnKey optionnal
 	local cityData 	= self:GetData()
 	local turnKey 	= turnKey or GCO.GetTurnKey()
@@ -970,6 +949,33 @@ function GetTransactionValue(self, accountType, refKey, turnKey)
 	if not cityData.Account[turnKey] then return 0 end
 	if not cityData.Account[turnKey][accountType] then return 0 end
 	return cityData.Account[turnKey][accountType][refKey] or 0
+end
+
+function GetModifiersForEffect(self, eEffectType) -- Cities, Units
+	local list		= {}
+	local pPlayer 	= GCO.GetPlayer(self:GetOwner())
+	local pTechs	= pPlayer:GetTechs()
+	local bValid	= false
+	local modifiers	= GCO.GetEffectModifiers(eEffectType)
+	local value		= 0 -- to do: column for type of result: stacked (added) or best in <EffectsGCO>
+	for i, row in ipairs(modifiers) do
+		local data = GameInfo[row.Table] and GameInfo[row.Table][row.ObjectType]
+		if row.Table == "Technologies" then
+			bValid = pTechs:HasTech(data.Index)
+		elseif row.Table == "Policies" then
+			bValid = pPlayer:HasPolicyActive(data.Index)
+		elseif row.Table == "Governments" then
+			bValid = pPlayer:GetCurrentGovernment() == data.Index
+		elseif row.Table == "Buildings" then
+			bValid = self:GetBuildings():HasBuilding(data.Index)
+		end
+		
+		if bValid then
+			value = value + row.Value
+			table.insert(list, {Type = row.ObjectType, Value = row.Value, Name = GameInfo[row.Table][row.ObjectType].Name})
+		end
+	end
+	return value, list
 end
 
 
@@ -3253,19 +3259,15 @@ function GetpopulationAdministrativeCost(self)
 	return popSize, population
 end
 
-function GetAdministrativeCostText(self)
-	local adminEfficiency 	= self:GetAdministrativeEfficiency()
-	local adminCost			= self:GetAdministrativeCost()
-	local popCost, popValue	= self:GetpopulationAdministrativeCost()
-	local landCost, surface	= self:GetTerritoryAdministrativeCost()
-	local bldFactor, numBld	= self:GetBuildingsAdministrativeFactor()
-	local techFactor 		= self:GetTechAdministrativeFactor()
-	local SupportTable		= self:GetAdministrativeSupport()
-	local adminSupport		= GCO.TableSummation(SupportTable)
 
-	return Locale.Lookup("LOC_CITYBANNER_ADMINISTRATIVE_COST_DETAILS", adminEfficiency, adminCost, popCost, popValue, landCost, surface, bldFactor, numBld, techFactor, adminSupport, SupportTable.Yield, SupportTable.Resources)
+-----------------------------------------------------------------------------------------
+-- Sea Exploitation function
+-----------------------------------------------------------------------------------------
+function GetSeaRange(self)
+	if not self:IsCoastal() then return 0 end -- to do: harbor
+	
+	return self:GetModifiersForEffect("RAISE_CITY_SEA_RANGE")
 end
-
 
 -----------------------------------------------------------------------------------------
 -- City Panel Stats
@@ -5124,6 +5126,35 @@ function GetHousingToolTip(self)
 		housingToolTip		= housingToolTip .. "[NEWLINE][ICON_Bullet]" .. Locale.Lookup("LOC_CITYBANNER_LOWER_CLASS", lowerClass)
 	end
 	return housingToolTip
+end
+
+function GetAdministrativeCostText(self)
+	local adminEfficiency 	= self:GetAdministrativeEfficiency()
+	local adminCost			= self:GetAdministrativeCost()
+	local popCost, popValue	= self:GetpopulationAdministrativeCost()
+	local landCost, surface	= self:GetTerritoryAdministrativeCost()
+	local bldFactor, numBld	= self:GetBuildingsAdministrativeFactor()
+	local techFactor 		= self:GetTechAdministrativeFactor()
+	local SupportTable		= self:GetAdministrativeSupport()
+	local adminSupport		= GCO.TableSummation(SupportTable)
+
+	return Locale.Lookup("LOC_CITYBANNER_ADMINISTRATIVE_COST_DETAILS", adminEfficiency, adminCost, popCost, popValue, landCost, surface, bldFactor, numBld, techFactor, adminSupport, SupportTable.Yield, SupportTable.Resources)
+end
+
+function GetSeaRangeToolTip(self)
+	local eEffectType		= "RAISE_CITY_SEA_RANGE"
+	local value, list 		= self:GetModifiersForEffect(eEffectType)
+	local applicationText	= GCO.GetEffectApplicationText(eEffectType)
+	local strTable			= {Locale.Lookup(GCO.GetEffectName(eEffectType)) .. " = ".. tostring(value)}
+	if not self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index) then
+		table.insert(strTable, Locale.Lookup("LOC_CITYBANNER_HARBOR_REQUIRED"))
+	end
+	-- for a small text separation
+	--table.insert(strTable, "[NEWLINE]")
+	for i, row in ipairs(list) do
+		table.insert(strTable, "[ICON_BULLET]"..Locale.Lookup(applicationText,row.Value,row.Name))
+	end
+	return table.concat(strTable, "[NEWLINE]")
 end
 
 
@@ -8011,8 +8042,11 @@ function AttachCityFunctions(city)
 		if not c.GetProductionProgress				then c.GetProductionProgress				= GetProductionProgress             	end
 		if not c.RecruitUnits						then c.RecruitUnits							= RecruitUnits                      	end
 		--
+		if not c.GetModifiersForEffect				then c.GetModifiersForEffect				= GetModifiersForEffect                	end
+		--
 		if not c.IsCoastal							then c.IsCoastal							= IsCoastal                        		end
 		if not c.GetSeaRange						then c.GetSeaRange							= GetSeaRange                       	end
+		if not c.GetSeaRangeToolTip					then c.GetSeaRangeToolTip					= GetSeaRangeToolTip					end
 		--
 		if not c.GetCityYield						then c.GetCityYield							= GetCityYield                      	end
 		if not c.GetCustomYield						then c.GetCustomYield						= GetCustomYield                    	end

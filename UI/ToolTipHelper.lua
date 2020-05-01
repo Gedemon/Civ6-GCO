@@ -217,6 +217,14 @@ ToolTipHelper.GetBuildingToolTip = function(buildingHash, playerId, city)
 				end
 			end
 		end
+		
+		-- Modifiers
+		-- GCO.GetEffectName
+		-- GCO.GetModifierEffects	table.insert(TypeModifiers[eObject], {EffectType = eEffectType, Value = row.EffectValue })
+		local effects = GCO.GetModifierEffects(buildingType)
+		for i, row in ipairs(effects) do
+			table.insert(stats, GCO.GetEffectValueDescription(row.EffectType, row.Value))
+		end
 	--[[
 	else
 		for yield in GameInfo.Yields() do

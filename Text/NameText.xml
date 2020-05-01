@@ -266,6 +266,7 @@
 		<Replace Tag="LOC_EQUIPMENTCLASS_RANGED_ARMOR_NAME" 		Text="Ranged Armor"			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SIEGE_WEAPONS_NAME" 		Text="Siege Weapons"		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_MELEE_SHIPS_NAME" 			Text="Melee Ships"			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_RANGED_SHIPS_NAME" 		Text="Ranged Ships"			Language="en_US" />
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_CAVALRY_EXTRA_NAME" 		Text="Cavalry Equipment"	Language="en_US" />
 		
@@ -562,6 +563,22 @@
 		
 		<Replace Tag="LOC_IMPROVEMENT_FISHING_BOATS_DESCRIPTION" Language="en_US">
 			<Text>Fishing Boats are automatically exploiting Sea Resources in the City range (require a Harbor).</Text>
+		</Replace>
+	</LocalizedText>
+	
+	<LocalizedText> <!-- Modifiers Effects -->
+		<Replace Tag="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" Text="Territory Cost"			Language="en_US" />
+		<Replace Tag="LOC_RAISE_CITY_SEA_RANGE" 				Text="Sea Exploitation Range"	Language="en_US" />
+
+		<Replace Tag="LOC_MODIFIER_ADD_VALUE" Language="en_US">
+		  <Text>+{1_Num} from {2_Name}.</Text>
+		</Replace>
+		<Replace Tag="LOC_MODIFIER_GREEN_ADD_VALUE" Language="en_US">
+		  <Text>[COLOR_Civ6Green]+{1_Num}[ENDCOLOR] from {2_Name}.</Text>
+		</Replace>
+		
+		<Replace Tag="LOC_MODIFIER_GREEN_REMOVE_PERCENT_TO_FROM" Language="en_US">
+		  <Text>[COLOR_Civ6Green]-{1_Num : number #.##}[ENDCOLOR]% to {2_Name} from {3_Name}.</Text>
 		</Replace>
 	</LocalizedText>
 	

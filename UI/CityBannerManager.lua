@@ -964,6 +964,8 @@ function CityBanner.UpdateStats( self : CityBanner)
 				maxFoodStock 		= city:GetMaxStock(foodResourceID)
 				foodStock 			= city:GetStock(foodResourceID)
 				
+				local outputPerYield= GCO.Round(city:GetOutputPerYield()*100)/100
+				
 				population 			= city:GetTotalPopulation() --city:GetRealPopulation()
 				popVariation 		= city:GetTotalPopulationVariation() --city:GetRealPopulationVariation()
 				urbanPopulation		= city:GetUrbanPopulation()
@@ -1011,7 +1013,8 @@ function CityBanner.UpdateStats( self : CityBanner)
 						cityString = cityString .. "[NEWLINE][ICON_INDENT]" .. Locale.Lookup("LOC_CITYBANNER_SLAVES", city:GetSlaveClass()) .. GCO.GetVariationString(city:GetSlaveClass() - city:GetPreviousSlaveClass())
 					end
 					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_RURAL_POPULATION", city:GetRuralPopulation()) .. GCO.GetVariationString(city:GetRuralPopulationVariation())
-					
+					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+
 					-- Rural Population
 					--[[
 					local UpperClassID 				= GameInfo.Resources["POPULATION_UPPER"].Index
@@ -1047,48 +1050,57 @@ function CityBanner.UpdateStats( self : CityBanner)
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_BUILDING_EMPLOYMENT_EFFECT", city:GetUrbanEmploymentSize(), city:GetMaxEmploymentUrban())
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_EMPLOYMENT_DETAILS", city:GetUrbanEmployed(), city:GetUrbanPopulation() - city:GetUrbanEmployed() )
 				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_EMPLOYMENT_EFFECT", city:GetMaxEmploymentUrban() - city:GetUrbanEmployed(), GCO.Round(city:GetUrbanActivityFactor()*100))
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_PRODUCTION_OUTPUT", GCO.Round(city:GetOutputPerYield()*100)/100, city:GetSize() )
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_URBAN_PRODUCTION_OUTPUT", outputPerYield, city:GetSize() )
 				--cityString = cityString .. "[NEWLINE]"
 					
 				-- Personnel				
 				--if city:GetPersonnel() > 0 then
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
-					cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
+				--	cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE")
+				--	cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
 				--end
 				
 				--cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_POPULATION_NEEDS_TITLE")
 				--cityString = cityString .. "[NEWLINE]" .. city:GetPopulationNeedsEffectsString()
 				
-				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_ADMINISTRATIVE_COST_TITLE")
-				cityString = cityString .. "[NEWLINE]" .. city:GetAdministrativeCostText()
-				
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_OUTPUT_YIELD_TITLE")
+				cityString = cityString .. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_OUTPUT_YIELD_DETAILS", city:GetSize(), city:GetUrbanActivityFactor()*100, city:GetAdministrativeEfficiency(), outputPerYield )
+
 				
 				popTooltip = cityString
-			--[[
-				foodpct = Clamp( foodStock / maxFoodStock, 0.0, 1.0 )
-				foodpctNextTurn = 0
-				local foodVar = city:GetStockVariation(foodResourceID)
-				if foodVar > 0 then				
-					foodpctNextTurn = Clamp( (foodStock + foodVar) / maxFoodStock, 0.0, 1.0 )
-				end
-				
-				urbanPopulation		= city:GetUrbanPopulation()
-				urbanPopulationVar	= city:GetUrbanPopulationVariation()
-				
-				local nextPop		= GCO.GetPopulationPerSize(citySize+1)
-				local prevPop		= GCO.GetPopulationPerSize(citySize)-- -1)
-			--]]
 				local poppct = Clamp( (urbanPopulation-prevPop) / (nextPop-prevPop), 0.0, 1.0 )
 				poppctNextTurn = 0
 				if urbanPopulationVar > 0 then				
 					poppctNextTurn = Clamp( ((urbanPopulation-prevPop) + urbanPopulationVar) / (nextPop-prevPop), 0.0, 1.0 )
 				end
 				
+				
+				--[[
 				local growthIndicator = ""
 				if urbanPopulationVar > 0 then
 					growthIndicator = "[ICON_PressureUp]"
 				elseif urbanPopulationVar < 0 then
 					growthIndicator = "[ICON_PressureDown]"
+				end
+				--]]
+				
+				-- override growth indicator to display the Output Per Yield value
+				self.m_Instance.CityPopTurnsLeft:SetColorByName("ResProductionLabelCS")
+				local growthIndicator = Locale.Lookup("LOC_MULT_NUMBER_2", outputPerYield)
+				
+				-- Use color to show population variation
+				if popVariation < 0 then
+					self.m_Instance.CityPopulationMeter:SetColor( COLOR_CITY_RED )
+				elseif urbanPopulationVar <= 0 then
+					self.m_Instance.CityPopulationMeter:SetColor( COLOR_CITY_YELLOW )
+				else
+					self.m_Instance.CityPopulationMeter:SetColor( COLOR_CITY_GREEN )
+				end
+				
+				-- Hide/Show Harbor
+				if city:GetSeaRange() > 0 then
+					self.m_Instance.SeaResourcesIcon:SetHide(false)
+				else
+					self.m_Instance.SeaResourcesIcon:SetHide(true)
 				end
 				
 				self.m_Instance.CityPopulation:SetToolTipString(popTooltip);
@@ -1439,6 +1451,16 @@ function CityBanner.UpdateStats( self : CityBanner)
 				self.m_Instance.ScienceIcon:RegisterMouseEnterCallback(ShowScienceToolTip)
 				self.m_Instance.ScienceIcon:RegisterMouseExitCallback(CleanToolTip)
 				
+				
+				-- Sea Range
+				if city:GetSeaRange() > 0 then
+					local seaRangeToolTip = Locale.Lookup("LOC_CITYBANNER_SEA_RANGE_TITLE").."[NEWLINE]"..city:GetSeaRangeToolTip()
+					self.m_Instance.SeaResourcesIcon:SetToolTipString(seaRangeToolTip)
+				end
+				
+				-- Administration
+				local administrationToolTip = Locale.Lookup("LOC_CITYBANNER_ADMINISTRATIVE_COST_TITLE").."[NEWLINE]"..city:GetAdministrativeCostText()
+				self.m_Instance.AdministrationIcon:SetToolTipString(administrationToolTip)
 				
 				-- Housing / Employment
 				local housingToolTip = Locale.Lookup("LOC_CITYBANNER_POPULATION_TITLE").."[NEWLINE]"..city:GetHousingToolTip()

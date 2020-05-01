@@ -423,15 +423,15 @@ function GetTerritoryAdministrativeCost(self)
 end
 
 function GetTechAdministrativeFactor(self)
-	return 1+(self:GetNumTechs()/5)
+	return 1+(self:GetNumTechs()/7)
 end
 
 function GetCitiesAdministrativeFactor(self)
-	return 1+(self:GetCities():GetCount()/4)
+	return 1+(self:GetCities():GetCount()/1.75)
 end
 
 function GetUnitsAdministrativeFactor(self)
-	return 1+(self:GetUnits():GetCount()/6)
+	return 1+(self:GetUnits():GetCount()/8)
 end
 
 function GetAdministrativeCost(self)

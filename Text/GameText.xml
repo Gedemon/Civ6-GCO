@@ -123,11 +123,19 @@
   
 	<Replace Tag="LOC_VAR_NUMBER_0"					Text="{1_Num : number +#;-#}" 		Language="en_US" />
 	<Replace Tag="LOC_VAR_NUMBER_1"					Text="{1_Num : number +#.#;-#.#}" 	Language="en_US" />
-	<Replace Tag="LOC_VAR_NUMBER_2"					Text="{1_Num : number +#.##;-#.##}" Language="en_US" />	
+	<Replace Tag="LOC_VAR_NUMBER_2"					Text="{1_Num : number +#.##;-#.##}" Language="en_US" />
 	
-	<Replace Tag="LOC_PERCENT_0"					Text="{1_Num : number #}%" 		Language="en_US" />
+	<Replace Tag="LOC_MULT_NUMBER_0"				Text="x{1_Num : number #}" 			Language="en_US" />
+	<Replace Tag="LOC_MULT_NUMBER_1"				Text="x{1_Num : number #.#}" 		Language="en_US" />
+	<Replace Tag="LOC_MULT_NUMBER_2"				Text="x{1_Num : number #.##}" 		Language="en_US" />
+	
+	<Replace Tag="LOC_PERCENT_0"					Text="{1_Num : number #}%" 			Language="en_US" />
 	<Replace Tag="LOC_PERCENT_1"					Text="{1_Num : number #.#}%" 		Language="en_US" />
 	<Replace Tag="LOC_PERCENT_2"					Text="{1_Num : number #.##}%"		Language="en_US" />	
+	
+	<Replace Tag="LOC_VAR_PERCENT_0"				Text="{1_Num : number +#;-#}%" 		Language="en_US" />
+	<Replace Tag="LOC_VAR_PERCENT_1"				Text="{1_Num : number +#.#;#.#}%" 	Language="en_US" />
+	<Replace Tag="LOC_VAR_PERCENT_2"				Text="{1_Num : number +#.##;#.##}%"	Language="en_US" />	
 	
     <Replace Tag="LOC_TOOLTIP_SEPARATOR"			Text="[NEWLINE][COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" />
     <Replace Tag="LOC_TOOLTIP_SEPARATOR_NO_LB"		Text="[COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR]" 	Language="en_US" />
@@ -277,7 +285,13 @@
       <Text>[COLOR_Grey]------------------------ Health ------------------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_ADMINISTRATIVE_COST_TITLE" Language="en_US">
-      <Text>[COLOR_Grey]----------------- Administrative Cost---------------------[ENDCOLOR]</Text>
+      <Text>[COLOR_Grey]------------------- Administration -----------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_OUTPUT_YIELD_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]----------------- Production Factor ---------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_SEA_RANGE_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]--------------------- Sea Range --------------------[ENDCOLOR]</Text>
     </Replace>
 	
     <Replace Tag="LOC_CITYBANNER_TOTAL_POPULATION" Language="en_US">
@@ -491,6 +505,18 @@
       <Text>x {1_Num} resource/equipment production (Size {2_Num} city)</Text>
     </Replace>
 	
+    <Replace Tag="LOC_CITYBANNER_HARBOR_REQUIRED" Language="en_US">
+      <Text>A Harbor is required to work the Sea Resources in the City Range.</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_ADMINISTRATIVE_COST_DETAILS" Language="en_US" >
+		<Text>Administrative Efficiency = {1_Num : number #,###}%[NEWLINE][NEWLINE]City Administrative cost = {2_Num : number #,###}[NEWLINE][ICON_BULLET]Population cost = {3_Num : number #,###} from {4_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #.#} from managing {6_Num : number #,###}km²[NEWLINE][ICON_BULLET]Buildings Factor = {7_Num : number #.##} from {8_Num : number #,###} buildings[NEWLINE][ICON_BULLET]Development Factor = {9_Num : number #.#} from technological advancement.[NEWLINE][NEWLINE]City Administrative support = {10_Num : number #,###}[NEWLINE][ICON_BULLET]Administrative Buildings = {11_Num : number #,###}[NEWLINE][ICON_BULLET]Using Tablets, Scrolls, Books = {12_Num : number #,###}</Text>
+	</Replace>
+	
+	<Replace Tag="LOC_CITYBANNER_OUTPUT_YIELD_DETAILS" Language="en_US" >
+		<Text>Production Factor = {4_Num : number #.##}[NEWLINE]This value affects the rate at which resources are collected on the city territory and the rate at which they are processed in the city buildings.[NEWLINE][ICON_BULLET]Base Value = {1_Num : number #,###} from City Size[NEWLINE][ICON_BULLET]Urban Activity = {2_Num : number ###}% from employment rate[NEWLINE][ICON_BULLET]Administrative Efficiency = {3_Num : number ###}%</Text>
+	</Replace>
+	
     <Replace Tag="LOC_CITYBANNER_HEALTH_PERCENTAGE" Language="en_US">
       <Text>[ICON_HEALTH2]{1_Name} {2_Name}</Text>
     </Replace>
@@ -500,10 +526,6 @@
     <Replace Tag="LOC_CITYBANNER_HEALTH_CHANGE" Language="en_US">
       <Text>[ICON_HEALTH2] Variation per turn = {1_Name}</Text>
     </Replace>
-	
-	<Replace Tag="LOC_CITYBANNER_ADMINISTRATIVE_COST_DETAILS" Language="en_US" >
-		<Text>Administrative Efficiency = {1_Num : number #,###}%[NEWLINE]City Administrative cost = {2_Num : number #,###}[NEWLINE][ICON_BULLET]Population cost = {3_Num : number #,###} from {4_Num : number #,###} pop.[NEWLINE][ICON_BULLET]Territory cost = {5_Num : number #.#} from managing {6_Num : number #,###}km²[NEWLINE][ICON_BULLET]Buildings Factor = {7_Num : number #.##} from {8_Num : number #,###} buildings[NEWLINE][ICON_BULLET]Development Factor = {9_Num : number #.#} from technological advancement.[NEWLINE]City Administrative support = {10_Num : number #,###}[NEWLINE][ICON_BULLET]Administrative Buildings = {11_Num : number #,###}[NEWLINE][ICON_BULLET]Using Tablets, Scrolls, Books = {12_Num : number #,###}</Text>
-	</Replace>
 	
     <Replace Tag="LOC_HEALTH_BONUS_FROM_FOREST" Language="en_US">
       <Text>[ICON_PressureUp][COLOR_Civ6Green]{1_Num : number +#.##;-#.##} [ENDCOLOR] From Forests</Text>
@@ -1545,5 +1567,6 @@
     <Replace Tag="LOC_CULTURE_SEPARATIST_ADJECTIVE" 			Text="Separatist"			Language="en_US" />
 	
   </LocalizedText> 
+
 
 </GameData>

@@ -1942,6 +1942,104 @@ function Initialize()
 	TruncateStringWithTooltip(Controls.CompletedLabelKey, MAX_BEFORE_TRUNC_KEY_LABEL, Controls.CompletedLabelKey:GetText());
 end
 
+-- GCO <<<<<
+-- build Governments table
+--[[
+local TechGovernments = {}
+for row in GameInfo.Governments() do 
+	if row.PrereqTech then
+		TechGovernments[row.PrereqTech] = TechGovernments[row.PrereqTech] or {}
+		table.insert(TechGovernments[row.PrereqTech]), {GovernmentType = row.GovernmentType, Name = row.Name })
+	end
+end
+
+-- Override this for Governments
+function PopulateUnlockablesForTech(playerID:number, techID:number, instanceManager:table, callback:ifunction )
+
+	local kTechData:table = GameInfo.Technologies[techID];
+	if kTechData==nil then
+		UI.DataError("Unable to find a tech type in the database with an ID value of #"..tostring(techID));
+		return;
+	end
+
+	local techType:string = kTechData.TechnologyType;
+
+
+	-- Unlockables is an array of {type, name}
+	local numIcons:number = 0;
+	local unlockables:table = GetUnlockablesForTech_Cached(techType, playerID);
+	
+	-- GCO <<<<<
+	if TechGovernments[techType] then
+		for i,row in ipairs(TechGovernments[techType]) do
+			table.insert(unlockables, {row.GovernmentType, row.Name,})
+		end
+	end
+	-- GCO >>>>>
+
+	-- Hard-coded goodness.
+	if unlockables and table.count(unlockables) > 0 then
+print("tech =", techType)
+		for i,v in ipairs(unlockables) do
+print("  - ",i, v)
+for k, w in pairs(v) do print("     - ",k, w) end
+			local typeName	:string = v[1];
+			local civilopediaKey = v[3];
+			local unlockIcon:table	= instanceManager:GetInstance();
+			
+			local iconName :string = GetUnlockIcon(typeName);					
+			unlockIcon.Icon:SetHide( not unlockIcon.Icon:SetIcon("ICON_"..typeName));	-- Hide if an icon isn't found with that type.
+			 
+			local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas(iconName,38);
+			if textureSheet ~= nil then
+				unlockIcon.UnlockIcon:SetTexture(textureOffsetX, textureOffsetY, textureSheet);
+			end
+
+			local toolTip :string = ToolTipHelper.GetToolTip(typeName, playerID, nil);
+			unlockIcon.UnlockIcon:LocalizeAndSetToolTip(toolTip);
+			if callback ~= nil then		
+				unlockIcon.UnlockIcon:RegisterCallback(Mouse.eLClick, callback);
+			else
+				unlockIcon.UnlockIcon:ClearCallback(Mouse.eLClick);
+			end
+
+			if(not IsTutorialRunning()) then
+				unlockIcon.UnlockIcon:RegisterCallback(Mouse.eRClick, function() 
+					LuaEvents.OpenCivilopedia(civilopediaKey);
+				end);
+			end
+		end
+
+		numIcons = numIcons + 1;
+	end
+
+	if kTechData.Description then
+		local unlockIcon:table	= instanceManager:GetInstance();
+		unlockIcon.Icon:SetHide(true); -- foreground icon unnecessary in this case
+		local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas("ICON_TECHUNLOCK_13",38);
+		if textureSheet ~= nil then
+			unlockIcon.UnlockIcon:SetTexture(textureOffsetX, textureOffsetY, textureSheet);
+		end
+		unlockIcon.UnlockIcon:LocalizeAndSetToolTip(kTechData.Description);
+		if callback ~= nil then		
+			unlockIcon.UnlockIcon:RegisterCallback(Mouse.eLClick, callback);
+		else
+			unlockIcon.UnlockIcon:ClearCallback(Mouse.eLClick);
+		end
+
+		if(not IsTutorialRunning()) then
+			unlockIcon.UnlockIcon:RegisterCallback(Mouse.eRClick, function() 
+				LuaEvents.OpenCivilopedia(kTechData.TechnologyType);
+			end);
+		end
+
+		numIcons = numIcons + 1;
+	end
+
+	return numIcons;
+end
+--]]
+-- GCO >>>>>
 if HasCapability("CAPABILITY_TECH_TREE") then
 	Initialize();
 end

@@ -848,4 +848,43 @@
 		<Row SupplyRouteType="Air"		BaseRouteLengthEfficiency="95"	BaseMaxRouteTonnage="20"	BaseMaintainedRoute="1" BaseIncomingRoute="1"/>
 	</SupplyRoutes> 
 	
+	
+	<ModifiersGCO>
+		<Row ModifierOrigin="POLICY_LANDSURVEYORS"	OriginType="Policies" 		EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	EffectValue="20"/>
+		
+		<Row ModifierOrigin="TECH_SAILING"				OriginType="Technologies" 	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="TECH_CELESTIAL_NAVIGATION"	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="TECH_SHIPBUILDING"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="TECH_CARTOGRAPHY"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="TECH_SQUARE_RIGGING"		EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		
+		<Row ModifierOrigin="BUILDING_CITY_SHIPYARD"	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="BUILDING_LIGHTHOUSE"		EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="BUILDING_SHIPYARD"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="BUILDING_SEAPORT"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="3"/>		
+		
+	</ModifiersGCO>
+	
+	<EffectsGCO> <!-- To build strings for UI, see "Modifiers" in ModUtils -->
+		<Row EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	Name="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" ValueString="LOC_VAR_PERCENT_0" Application = "LOC_MODIFIER_GREEN_REMOVE_PERCENT_TO_FROM" />
+		<Row EffectType="RAISE_CITY_SEA_RANGE" 					Name="LOC_RAISE_CITY_SEA_RANGE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" />
+	</EffectsGCO>
+	<!--
+	
+		<Replace Tag="LOC_VAR_NUMBER_0"					Text="{1_Num : number +#;-#}" 		Language="en_US" />
+		<Replace Tag="LOC_VAR_NUMBER_1"					Text="{1_Num : number +#.#;-#.#}" 	Language="en_US" />
+		<Replace Tag="LOC_VAR_NUMBER_2"					Text="{1_Num : number +#.##;-#.##}" Language="en_US" />
+		
+		<Replace Tag="LOC_MULT_NUMBER_0"				Text="x{1_Num : number #}" 			Language="en_US" />
+		<Replace Tag="LOC_MULT_NUMBER_1"				Text="x{1_Num : number #.#}" 		Language="en_US" />
+		<Replace Tag="LOC_MULT_NUMBER_2"				Text="x{1_Num : number #.##}" 		Language="en_US" />
+		
+		<Replace Tag="LOC_PERCENT_0"					Text="{1_Num : number #}%" 			Language="en_US" />
+		<Replace Tag="LOC_PERCENT_1"					Text="{1_Num : number #.#}%" 		Language="en_US" />
+		<Replace Tag="LOC_PERCENT_2"					Text="{1_Num : number #.##}%"		Language="en_US" />	
+		
+		<Replace Tag="LOC_VAR_PERCENT_0"				Text="{1_Num : number +#;-#}%" 		Language="en_US" />
+		<Replace Tag="LOC_VAR_PERCENT_1"				Text="{1_Num : number +#.#;#.#}%" 	Language="en_US" />
+		<Replace Tag="LOC_VAR_PERCENT_2"				Text="{1_Num : number +#.##;#.##}%"	Language="en_US" />	
+	-->
 </GameInfo>

@@ -295,6 +295,16 @@ UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_LIBERALISM' 			WHERE 
 DELETE FROM Government_SlotCounts WHERE GovernmentType ='GOVERNMENT_CHIEFDOM';
 INSERT INTO Government_SlotCounts (GovernmentType, GovernmentSlotType, NumSlots) VALUES ('GOVERNMENT_CHIEFDOM', 'SLOT_WILDCARD', '2');
 
+UPDATE Governments SET PrereqTech = 'TECH_EARLY_EMPIRE' 		WHERE GovernmentType ='GOVERNMENT_AUTOCRACY';
+UPDATE Governments SET PrereqTech = 'TECH_MILITARY_TRAINING' 	WHERE GovernmentType ='GOVERNMENT_OLIGARCHY';
+UPDATE Governments SET PrereqTech = 'TECH_POLITICAL_PHILOSOPHY' WHERE GovernmentType ='GOVERNMENT_CLASSICAL_REPUBLIC';
+UPDATE Governments SET PrereqTech = 'TECH_DIVINE_RIGHT'			WHERE GovernmentType ='GOVERNMENT_MONARCHY';
+UPDATE Governments SET PrereqTech = 'TECH_REFORMED_CHURCH'		WHERE GovernmentType ='GOVERNMENT_THEOCRACY';
+UPDATE Governments SET PrereqTech = 'TECH_BANKING' 				WHERE GovernmentType ='GOVERNMENT_MERCHANT_REPUBLIC';
+UPDATE Governments SET PrereqTech = 'TECH_TOTALITARIANISM' 		WHERE GovernmentType ='GOVERNMENT_FASCISM';
+UPDATE Governments SET PrereqTech = 'TECH_CLASS_STRUGGLE'		WHERE GovernmentType ='GOVERNMENT_COMMUNISM';
+UPDATE Governments SET PrereqTech = 'TECH_SUFFRAGE' 			WHERE GovernmentType ='GOVERNMENT_DEMOCRACY';
+
 
 /* ************************ */
 /* Conscripts               */

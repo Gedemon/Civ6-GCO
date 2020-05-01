@@ -443,14 +443,13 @@ ALTER TABLE Buildings ADD COLUMN NoCityScreen 	BOOLEAN NOT NULL CHECK (NoCityScr
 --
 ALTER TABLE Buildings ADD COLUMN Unlockers 		BOOLEAN NOT NULL CHECK (Unlockers IN (0,1)) DEFAULT 0; 		-- Unlockers for buildings and units
 ALTER TABLE Buildings ADD COLUMN EquipmentStock	INTEGER DEFAULT 0; 											-- Equipment that can be stocked by the building
-ALTER TABLE Buildings ADD COLUMN FishingRange 	INTEGER DEFAULT 0;											-- Range to work sea resources
 -- Materiel ratio for Buildings construction
 ALTER TABLE Buildings ADD COLUMN MaterielPerProduction 	INTEGER DEFAULT 4; 		-- Materiel per unit of production needed for buildings construction
 -- Employment
 ALTER TABLE Buildings ADD COLUMN EmploymentSize	REAL DEFAULT 0; 					-- Employment slots provided by the building
 
--- Technologies
-ALTER TABLE Technologies ADD COLUMN FishingRange INTEGER DEFAULT 0;					-- Range to work sea resources
+-- Governments
+ALTER TABLE Governments ADD COLUMN PrereqTech TEXT;
 
 
 -----------------------------------------------
@@ -900,8 +899,23 @@ CREATE TABLE IF NOT EXISTS SupplyRouteChanges
          RouteLengthEfficiencyChange INT,
          MaxRouteTonnageChange  INT);
 
+CREATE TABLE IF NOT EXISTS ModifiersGCO
+     (   ModifierOrigin TEXT NOT NULL,
+         OriginType 	TEXT,  -- Buildings, Policies, Technologies, Government <- maybe determine on initialization in ModUtils ?
+         EffectType 	TEXT NOT NULL,
+         EffectValue 	INT NOT NULL,
+		 PRIMARY KEY(ModifierOrigin, EffectType));
+		 
+CREATE TABLE IF NOT EXISTS EffectsGCO
+     (   EffectType 	TEXT NOT NULL,
+         Name 			TEXT NOT NULL,
+		 ValueString	TEXT,
+         Application	TEXT,
+		 PRIMARY KEY(EffectType) );
 
--- Create a new Colors table because if we use the old one, the game is messed up between the new jersey and the old colors (human player = full white)		 
+		 
+-- Create a new Colors table because we need one accessible from gameplay and if we use the old one
+-- the game seems to mess up (human player = full white)		 
 CREATE TABLE IF NOT EXISTS ColorsLegacy ('Type' text  not null , 'Color' text , 'Red' float , 'Green' float , 'Blue' float , 'Alpha' float , PRIMARY KEY (Type));
 
 -----------------------------------------------

@@ -346,6 +346,41 @@
         <Replace CivilizationType="CIVILIZATION_EGYPT" CityName="LOC_CITY_NAME_BENI_SUEF"/>
         <Replace CivilizationType="CIVILIZATION_EGYPT" CityName="LOC_CITY_NAME_HURGHADA"/> 
     </CityNames>
+	<CityNames>		<!-- England --> 
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_LONDON"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_LIVERPOOL"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_MANCHESTER"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_BIRMINGHAM"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_LEEDS"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_SHEFFIELD"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_BRISTOL"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_PLYMOUTH"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_NEWCASTLE_UPON_TYNE"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_BRADFORD"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_STOKE_UPON_TRENT"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_HULL"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_PORTSMOUTH"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_PRESTON"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_SUNDERLAND"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_BRIGHTON"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_NORWICH"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_NOTTINGHAM"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_YORK"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_LEICESTER"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_BLACKBURN"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_WOLVERHAMPTON"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_BATH"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_COVENTRY"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_EXETER"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_LINCOLN"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_CANTERBURY"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_IPSWICH"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_DOVER"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_HASTINGS"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_OXFORD"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_SHREWSBURY"/>
+		<Replace CivilizationType="CIVILIZATION_ENGLAND" CityName="LOC_CITY_NAME_CAMBRIDGE"/>
+	</CityNames>
     <CityNames> 	<!-- Ethiopia -->
         <Replace CivilizationType="CIVILIZATION_ETHIOPIA" CityName="LOC_CITY_NAME_ADDIS_ABABA"/>     
         <Replace CivilizationType="CIVILIZATION_ETHIOPIA" CityName="LOC_CITY_NAME_ADAMA"/>     

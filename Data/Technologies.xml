@@ -434,6 +434,7 @@
 		<Row Technology="TECH_MILITARY_SCIENCE"		PrereqTech="TECH_STEEL"/>
 		<!-- Tiers III -->
 		<Row Technology="TECH_CAPITALISM"			PrereqTech="TECH_ECONOMICS"/>
+		<Row Technology="TECH_CAPITALISM"			PrereqTech="TECH_SUFFRAGE"/>
 		<Row Technology="TECH_OPERA_BALLET"			PrereqTech="TECH_THE_ENLIGHTENMENT"/>
 		<Row Technology="TECH_INDUSTRIALIZATION"	PrereqTech="TECH_ASSEMBLY_LINE"/>
 		<Row Technology="TECH_INDUSTRIALIZATION"	PrereqTech="TECH_STEAM_POWER"/>
@@ -455,10 +456,9 @@
 		<Row Technology="TECH_CIVIL_ENGINEERING"	PrereqTech="TECH_EXPLOSIVES"/>
 		<Row Technology="TECH_ATOMIC_THEORY"		PrereqTech="TECH_ELECTRICITY"/>
 		<Row Technology="TECH_ATOMIC_THEORY"		PrereqTech="TECH_CHEMISTRY"/>
-		<Row Technology="TECH_MOBILIZATION"			PrereqTech="TECH_SUFFRAGE"/>
+		<Row Technology="TECH_MOBILIZATION"			PrereqTech="TECH_INDUSTRIALIZATION"/>
 		<Row Technology="TECH_MOBILIZATION"			PrereqTech="TECH_MILITARY_SCIENCE"/>
 		<!-- Tiers II -->
-		<Row Technology="TECH_TOTALITARIANISM"		PrereqTech="TECH_INDUSTRIALIZATION"/>
 		<Row Technology="TECH_TOTALITARIANISM"		PrereqTech="TECH_MOBILIZATION"/>
 		<Row Technology="TECH_ELECTRONICS"			PrereqTech="TECH_ELECTRICITY"/>
 		<Row Technology="TECH_ELECTRONICS"			PrereqTech="TECH_REPLACEABLE_PARTS"/>
@@ -474,6 +474,7 @@
 		<Row Technology="TECH_BIOTECHNOLOGY"		PrereqTech="TECH_REFRIGERATION"/>
 		<Row Technology="TECH_BIOTECHNOLOGY"		PrereqTech="TECH_CHEMISTRY"/>
 		<Row Technology="TECH_PROFESSIONAL_SPORTS"	PrereqTech="TECH_URBANIZATION"/>
+		<Row Technology="TECH_PROFESSIONAL_SPORTS"	PrereqTech="TECH_CAPITALISM"/>
 		<Row Technology="TECH_ARMORED_WARFARE" 		PrereqTech="TECH_COMBUSTION"/>
 		<Row Technology="TECH_ARMORED_WARFARE" 		PrereqTech="TECH_EXPLOSIVES"/>
 		

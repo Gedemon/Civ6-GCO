@@ -2795,7 +2795,7 @@ end
 
 function DoMigration(self)
 
-	if self:IsCity() then return end -- cities handle migration differently
+	--if self:IsCity() then return end -- cities handle migration differently
 	
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
@@ -2835,56 +2835,65 @@ function DoMigration(self)
 		
 		-- migration to adjacent plots
 		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
-			local adjacentPlot 		= Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction)
-			local diffusionValues	= self:GetPlotDiffusionValuesTo(direction)
-			
-			-- debug
-			if (not diffusionValues) and adjacentPlot and not (adjacentPlot:IsCity() or adjacentPlot:IsWater()) then
-				local toStr 			= self:GetX() ..",".. self:GetY() .. " to " .. adjacentPlot:GetX() ..",".. adjacentPlot:GetY()
-				local plotTerrainStr	= Locale.Lookup(GameInfo.Terrains[self:GetTerrainType()].Name)
-				local toTerrainStr		= Locale.Lookup(GameInfo.Terrains[adjacentPlot:GetTerrainType()].Name)
-				GCO.Warning("No diffusion value from ".. plotTerrainStr .. " " .. toStr .. " " .. toTerrainStr)
-			end
-			
-			if diffusionValues and adjacentPlot and not (adjacentPlot:IsCity() or adjacentPlot:IsWater()) then
-			
-				local adjacentPlotKey 		= adjacentPlot:GetKey()
-				local adjacentPlotMigration = adjacentPlot:GetMigration()
-				local bWorked 				= (adjacentPlot:GetWorkerCount() > 0)
-				local plotWeight			= 0
-				Dprint( DEBUG_PLOT_SCRIPT, "  - Looking for better conditions in ".. DirectionString[direction] .." on plot ".. adjacentPlot:GetX() ..",".. adjacentPlot:GetY().." Diffusion Values : Bonus = "..tostring(diffusionValues.Bonus)..", Penalty = "..tostring(diffusionValues.Penalty)..", Ratio = "..tostring(diffusionValues.MaxRatio))
-				for motivation, pushValue in pairs(plotMigration.Push) do
-					local adjacentPull	= adjacentPlotMigration.Pull[motivation] or 0
-					local adjacentPush	= adjacentPlotMigration.Push[motivation] or 0
-					-- to do : effect of owned / foreign / free plots
-					local weightRatio	= 1	
-					Dprint( DEBUG_PLOT_SCRIPT, "    -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " adjacentPush = ", GCO.ToDecimals(adjacentPush), " adjacentPull = ", GCO.ToDecimals(adjacentPull))
-					if adjacentPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
-						if adjacentPull > 1 then
-							weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
+			local adjacentPlot 	= Map.GetAdjacentPlot(self:GetX(), self:GetY(), direction)
+			if adjacentPlot then
+				local bNotSameOwner	= adjacentPlot:GetOwner() ~= self:GetOwner()
+				local bCanDiffuse 	= (not adjacentPlot:IsWater()) and ((not (adjacentPlot:IsCity() or self:IsCity())) or bNotSameOwner) -- we update adjacent city plots only when not owned by the city, else the city itself handles that
+local bTestPlots = (adjacentPlot:GetX() == 24 and adjacentPlot:GetY() == 12 and self:GetX() == 24 and self:GetY() == 11) or (self:GetX() == 24 and self:GetY() == 12 and adjacentPlot:GetX() == 24 and adjacentPlot:GetY() == 11)
+local DEBUG_PLOT_SCRIPT = bTestPlots
+if (bTestPlots) then print("***HERE", bCanDiffuse) end
+				if bCanDiffuse then
+					local diffusionValues	= self:GetPlotDiffusionValuesTo(direction)
+					-- debug
+					if (not diffusionValues) then
+						local toStr 			= self:GetX() ..",".. self:GetY() .. " to " .. adjacentPlot:GetX() ..",".. adjacentPlot:GetY()
+						local plotTerrainStr	= Locale.Lookup(GameInfo.Terrains[self:GetTerrainType()].Name)
+						local toTerrainStr		= Locale.Lookup(GameInfo.Terrains[adjacentPlot:GetTerrainType()].Name)
+						GCO.Warning("No diffusion value from ".. plotTerrainStr .. " " .. toStr .. " " .. toTerrainStr)
+					end
+					
+					if diffusionValues then
+					
+						local adjacentPlotKey 		= adjacentPlot:GetKey()
+						local adjacentPlotMigration = adjacentPlot:GetMigration()
+						local bWorked 				= (adjacentPlot:GetWorkerCount() > 0)
+						local plotWeight			= 0
+						Dprint( DEBUG_PLOT_SCRIPT, "  - Looking for better conditions in ".. DirectionString[direction] .." on plot ".. adjacentPlot:GetX() ..",".. adjacentPlot:GetY().." Diffusion Values : Bonus = "..tostring(diffusionValues.Bonus)..", Penalty = "..tostring(diffusionValues.Penalty)..", Ratio = "..tostring(diffusionValues.MaxRatio))
+						for motivation, pushValue in pairs(plotMigration.Push) do
+							local adjacentPull	= adjacentPlotMigration.Pull[motivation] or 0
+							local adjacentPush	= adjacentPlotMigration.Push[motivation] or 0
+							-- to do : effect of owned / foreign / free plots
+							local weightRatio	= 1	
+							Dprint( DEBUG_PLOT_SCRIPT, "    -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " adjacentPush = ", GCO.ToDecimals(adjacentPush), " adjacentPull = ", GCO.ToDecimals(adjacentPull))
+							if adjacentPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
+								if adjacentPull > 1 then
+									weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
+								end
+								if pushValue > 1 then
+									weightRatio = weightRatio * 5		-- situation is bad on currentPlot
+								end
+								if motivation == plotMigration.Motivation then
+									weightRatio = weightRatio * 10		-- this is the most important motivation for migration
+								end
+								if bWorked then
+									weightRatio = weightRatio * 10		-- we want migration on worked plots
+								end
+								local motivationWeight = (adjacentPull + pushValue) * weightRatio
+								plotWeight = plotWeight + motivationWeight
+								Dprint( DEBUG_PLOT_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
+							end
 						end
-						if pushValue > 1 then
-							weightRatio = weightRatio * 5		-- situation is bad on currentPlot
+						
+						if plotWeight > 0 then
+							plotWeight = (plotWeight + diffusionValues.Bonus + diffusionValues.Penalty) * diffusionValues.MaxRatio
+							Dprint( DEBUG_PLOT_SCRIPT, "  - After diffusionValues: plotWeight = ", GCO.ToDecimals(plotWeight))
+							totalWeight = totalWeight + plotWeight
+							table.insert (possibleDestination, {PlotID = adjacentPlot:GetIndex(), Weight = plotWeight, MigrationEfficiency = math.min(1,diffusionValues.MaxRatio)})
 						end
-						if motivation == plotMigration.Motivation then
-							weightRatio = weightRatio * 10		-- this is the most important motivation for migration
-						end
-						if bWorked then
-							weightRatio = weightRatio * 10		-- we want migration on worked plots
-						end
-						local motivationWeight = (adjacentPull + pushValue) * weightRatio
-						plotWeight = plotWeight + motivationWeight
-						Dprint( DEBUG_PLOT_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
 					end
 				end
-				
-				if plotWeight > 0 then
-					plotWeight = (plotWeight + diffusionValues.Bonus + diffusionValues.Penalty) * diffusionValues.MaxRatio
-					Dprint( DEBUG_PLOT_SCRIPT, "  - After diffusionValues: plotWeight = ", GCO.ToDecimals(plotWeight))
-					totalWeight = totalWeight + plotWeight
-					table.insert (possibleDestination, {PlotID = adjacentPlot:GetIndex(), Weight = plotWeight, MigrationEfficiency = math.min(1,diffusionValues.MaxRatio)})
-				end
 			end
+if (bTestPlots) then print("***HERE4", bCanDiffuse) end
 		end
 		
 		-- migration to owning city

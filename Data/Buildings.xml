@@ -39,8 +39,8 @@
 		
 		<Row BuildingType="BUILDING_ANCESTOR_HALL"				Cost="60" 	MaterielPerProduction="2"	EmploymentSize="0.15"	PrereqTech="TECH_CEREMONIAL_BURIAL" />
 		<Row BuildingType="BUILDING_FORUM"						Cost="90" 	MaterielPerProduction="2"	EmploymentSize="0.15"	PrereqTech="TECH_CODE_OF_LAWS" />
-		<Row BuildingType="BUILDING_SENATE"						Cost="150" 	MaterielPerProduction="2"	EmploymentSize="0.25"	MaxPlayerInstances="1"	PrereqTech="TECH_POLITICAL_PHILOSOPHY" />
-		<Row BuildingType="BUILDING_PARLIAMENT"					Cost="350" 	MaterielPerProduction="2"	EmploymentSize="0.25"	MaxPlayerInstances="1"	PrereqTech="TECH_CONSTITUTION" />
+		<Row BuildingType="BUILDING_SENATE"						Cost="150" 	MaterielPerProduction="2"	EmploymentSize="0.25"	PrereqTech="TECH_POLITICAL_PHILOSOPHY" /> 	<!-- MaxPlayerInstances="1" disabled for now as there is no UI feedback yet -->
+		<Row BuildingType="BUILDING_PARLIAMENT"					Cost="350" 	MaterielPerProduction="2"	EmploymentSize="0.25"	PrereqTech="TECH_CONSTITUTION" />  			<!-- MaxPlayerInstances="1" disabled for now as there is no UI feedback yet -->
 		
 		<Row BuildingType="BUILDING_WEAPONSMITH"				Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_CONSTRUCTION" 		EmploymentSize="0.25"	EquipmentStock="100" 	ObsoleteEra="ERA_INDUSTRIAL"/>
 		<Row BuildingType="BUILDING_ARMORSMITH"					Cost="30" 	MaterielPerProduction="15" PrereqTech="TECH_MACHINERY" 			EmploymentSize="0.25"	EquipmentStock="100" />

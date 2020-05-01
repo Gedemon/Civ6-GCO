@@ -205,6 +205,60 @@ local FLOATING_TEXT_SHORT 	= 1
 local FLOATING_TEXT_LONG 	= 2
 local floatingTextLevel 	= FLOATING_TEXT_SHORT
 
+-- Custom Modifiers for GCO
+local TypeModifiers		= {}	-- for UI
+local EffectModifiers	= {}	--
+for row in GameInfo.ModifiersGCO() do
+	print ("Initialize GCO Modifiers Tables...")
+	local eObject		= row.ModifierOrigin
+	local eType			= row.OriginType
+	local eEffectType	= row.EffectType
+	local Warned		= {}
+	
+	
+	if GameInfo.EffectsGCO[row.EffectType] == nil and Warned[row.EffectType] == nil then
+		print("WARNING: EffectType is not defined in GameInfo.EffectsGCO ", row.EffectType)
+		Warned[row.EffectType] = true
+	end
+	
+	if eType == nil then
+		if GameInfo.Technologies[eObject]	then eType = "Technologies" end
+		if GameInfo.Policies[eObject]		then eType = "Policies" end
+		if GameInfo.Governments[eObject]	then eType = "Governments" end
+		if GameInfo.Buildings[eObject]		then eType = "Buildings" end
+		--if GameInfo.Units[eObject]			then eType = "Units" end
+	end
+	
+	if eType == nil then
+		print("ERROR: can't determine Table type in GameInfo.ModifiersGCO")
+		for k, v in pairs(row) do print("   - ",k, v) end
+	else
+		EffectModifiers[eEffectType] = EffectModifiers[eEffectType] or {}
+		table.insert(EffectModifiers[eEffectType], {ObjectType = eObject, Table = eType, Value = row.EffectValue })
+		
+		
+		TypeModifiers[eObject] = TypeModifiers[eObject] or {}
+		table.insert(TypeModifiers[eObject], {EffectType = eEffectType, Value = row.EffectValue })
+	end
+end
+
+-- Order EffectModifiers by Types (Tech, Policy, Building, ...)
+for row in GameInfo.EffectsGCO() do
+	if EffectModifiers[row.EffectType] == nil then
+		print("WARNING: can't find EffectModifiers for ", row.EffectType)
+	else
+		table.sort(EffectModifiers[row.EffectType], function(a,b) return a.Table>b.Table end)
+	end
+end
+
+
+-- to player script
+function GetModifiersList(self, eEffectType) -- Player: Technologies, Policies, Governments
+
+
+end
+
+
 --=====================================================================================--
 -- Initialize Functions
 --=====================================================================================--
@@ -388,7 +442,7 @@ local debugFilter = {
 --	["CityScript"] 		= true,
 --	["PlayerScript"] 	= true,
 --	["UnitScript"] 		= true,
---	["PlotScript"] 		= true,
+	["PlotScript"] 		= true,
 --	["ResearchScript"] 	= true,
 }
 
@@ -856,6 +910,39 @@ function GetAdjacentPlots(plot)
 		end		
 	end
 	return list
+end
+
+
+--=====================================================================================--
+-- Modifiers
+--=====================================================================================--
+function GetEffectModifiers(eEffectType)
+	return EffectModifiers[eEffectType] or {}
+end
+
+function GetModifierEffects(eObject)
+	return TypeModifiers[eObject] or {}
+end
+
+function GetEffectApplicationText(eEffectType)
+	return GameInfo.EffectsGCO[eEffectType] and GameInfo.EffectsGCO[eEffectType].Application or "WARNING: no application text for "..tostring(eEffectType)
+end
+
+function GetEffectName(eEffectType)
+	return GameInfo.EffectsGCO[eEffectType] and GameInfo.EffectsGCO[eEffectType].Name or "WARNING: no tag name for "..tostring(eEffectType)
+end
+
+function GetEffectValueString(eEffectType)
+	return GameInfo.EffectsGCO[eEffectType] and GameInfo.EffectsGCO[eEffectType].ValueString or "WARNING: no value formatting for "..tostring(eEffectType)
+end
+
+function GetEffectValueDescription(eEffectType, value)
+	local row 	= GameInfo.EffectsGCO[eEffectType]
+	if row and row.ValueString and row.Name then
+		return Locale.Lookup(row.ValueString, value).." "..Locale.Lookup(row.Name)
+	else
+		return "WARNING: no value formatting and/or no tag name for "..tostring(eEffectType)
+	end
 end
 
 --=====================================================================================--
@@ -1354,6 +1441,13 @@ function Initialize()
 	ExposedMembers.GCO.SupplyPathBlocked 			= SupplyPathBlocked
 	ExposedMembers.GCO.TradePathBlocked 			= TradePathBlocked
 	ExposedMembers.GCO.GetAdjacentPlots				= GetAdjacentPlots
+	-- Modifiers
+	ExposedMembers.GCO.GetEffectModifiers			= GetEffectModifiers
+	ExposedMembers.GCO.GetModifierEffects			= GetModifierEffects
+	ExposedMembers.GCO.GetEffectApplicationText		= GetEffectApplicationText
+	ExposedMembers.GCO.GetEffectName				= GetEffectName
+	ExposedMembers.GCO.GetEffectValueString			= GetEffectValueString
+	ExposedMembers.GCO.GetEffectValueDescription	= GetEffectValueDescription
 	-- player
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
