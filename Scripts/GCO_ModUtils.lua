@@ -252,12 +252,6 @@ for row in GameInfo.EffectsGCO() do
 end
 
 
--- to player script
-function GetModifiersList(self, eEffectType) -- Player: Technologies, Policies, Governments
-
-
-end
-
 
 --=====================================================================================--
 -- Initialize Functions
@@ -442,7 +436,7 @@ local debugFilter = {
 --	["CityScript"] 		= true,
 --	["PlayerScript"] 	= true,
 --	["UnitScript"] 		= true,
-	["PlotScript"] 		= true,
+--	["PlotScript"] 		= true,
 --	["ResearchScript"] 	= true,
 }
 
@@ -1116,7 +1110,10 @@ function IsResourceEquipment(resourceID)
 end
 
 function IsAdministrativeResource(resourceID)
-	return GameInfo.Resources[resourceID] and GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_ADMINISTRATIVE"
+	return GameInfo.Resources[resourceID] and GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_ADMINISTRATIVE" --AdminValue
+end
+function GetAdministrativeResourceValue(resourceID)
+	return GameInfo.Resources[resourceID] and GameInfo.Resources[resourceID].AdminValue
 end
 
 function IsResourceFood(resourceID)
@@ -1459,15 +1456,16 @@ function Initialize()
 	ExposedMembers.GCO.IsResourceEquipment			= IsResourceEquipment
 	ExposedMembers.GCO.IsResourceFood 				= IsResourceFood
 	
-	ExposedMembers.GCO.IsResourceLuxury 			= IsResourceLuxury
-	ExposedMembers.GCO.IsResourceEquipmentMaker		= IsResourceEquipmentMaker
-	ExposedMembers.GCO.IsResourceEdibleFood 		= IsResourceEdibleFood
-	ExposedMembers.GCO.GetEdibleFoodList 			= GetEdibleFoodList
-	ExposedMembers.GCO.GetResourceIcon				= GetResourceIcon
-	ExposedMembers.GCO.GetResourceImprovementID		= GetResourceImprovementID
-	ExposedMembers.GCO.IsImprovingResource			= IsImprovingResource
-	ExposedMembers.GCO.IsKnowledgeResource			= IsKnowledgeResource
-	ExposedMembers.GCO.IsAdministrativeResource		= IsAdministrativeResource
+	ExposedMembers.GCO.IsResourceLuxury 				= IsResourceLuxury
+	ExposedMembers.GCO.IsResourceEquipmentMaker			= IsResourceEquipmentMaker
+	ExposedMembers.GCO.IsResourceEdibleFood 			= IsResourceEdibleFood
+	ExposedMembers.GCO.GetEdibleFoodList 				= GetEdibleFoodList
+	ExposedMembers.GCO.GetResourceIcon					= GetResourceIcon
+	ExposedMembers.GCO.GetResourceImprovementID			= GetResourceImprovementID
+	ExposedMembers.GCO.IsImprovingResource				= IsImprovingResource
+	ExposedMembers.GCO.IsKnowledgeResource				= IsKnowledgeResource
+	ExposedMembers.GCO.IsAdministrativeResource			= IsAdministrativeResource
+	ExposedMembers.GCO.GetAdministrativeResourceValue	= GetAdministrativeResourceValue
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 				= GetVariationString

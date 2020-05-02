@@ -458,17 +458,20 @@ end
 
 function SetAdministrativeSupport(self) -- must be updated each turn and on territory change & city change
 
-	local AdminSupport	= {}
-	local playerCities	= self:GetCities()
-	local YieldID		= GameInfo.CustomYields["YIELD_ADMINISTRATION"].Index
+	local AdminSupport		= {}
+	AdminSupport.Resources	= 0
+	AdminSupport.Yield		= 0
+	local playerCities		= self:GetCities()
+	local YieldID			= GameInfo.CustomYields["YIELD_ADMINISTRATION"].Index
 	for i, city in playerCities:Members() do
 		for resourceKey, value in pairs(city:GetResources()) do
 			local resourceID = tonumber(resourceKey)
-			if GCO.IsAdministrativeResource(resourceID) then
-				AdminSupport.Resources = (AdminSupport.Resources or 0) + value
+			local adminValue = GCO.GetAdministrativeResourceValue(resourceID)
+			if adminValue then
+				AdminSupport.Resources = AdminSupport.Resources + (value*adminValue)
 			end
 		end
-		AdminSupport.Yield = (AdminSupport.Yield or 0) + city:GetCustomYield(YieldID)
+		AdminSupport.Yield = AdminSupport.Yield + city:GetCustomYield(YieldID)
 	end
 	
 	self:SetCached("AdministrativeSupport", AdminSupport)
@@ -504,6 +507,14 @@ end
 function IsObsoleteEquipment(self, equipmentTypeID)
 	if not GCO.IsResourceEquipment(equipmentTypeID) then return false end
 	local ObsoleteTech = EquipmentInfo[equipmentTypeID].ObsoleteTech
+	if not ObsoleteTech then return false end
+	local pScience = self:GetTechs()
+	local iTech	= GameInfo.Technologies[ObsoleteTech].Index
+	return pScience:HasTech(iTech)
+end
+
+function IsObsoleteResource(self, resourceID)
+	local ObsoleteTech = GameInfo.Resources[resourceID].ObsoleteTech
 	if not ObsoleteTech then return false end
 	local pScience = self:GetTechs()
 	local iTech	= GameInfo.Technologies[ObsoleteTech].Index
@@ -1350,6 +1361,7 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 		p.GetCurrentGovernment						= GetCurrentGovernment
 		--
 		p.IsObsoleteEquipment						= IsObsoleteEquipment
+		p.IsObsoleteResource						= IsObsoleteResource
 		p.CanTrain									= CanTrain
 		--
 		p.SetMilitaryOrganizationLevel				= SetMilitaryOrganizationLevel

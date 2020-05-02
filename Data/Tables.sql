@@ -156,8 +156,11 @@ CREATE TABLE IF NOT EXISTS ResourcesGCO (
 		NoTransfer 	BOOLEAN,				-- Not allowed on internal trade routes		
 		SpecialStock BOOLEAN, 				-- Stocked in specific buildings only
 		NotLoot BOOLEAN, 					-- Can't be captured when attacking cities
-		DecayRate REAL,					-- Also used to get minimal route efficiency (bUseroute = RouteEfficiency >= DecayRate*DecayToEfficiencyFactor)
+		DecayRate REAL,						-- Also used to get minimal route efficiency (bUseroute = RouteEfficiency >= DecayRate*DecayToEfficiencyFactor)
 		UnitsPerTonnage INTEGER,			-- Number of units of this resource per SupplyRoute tonnage
+		ObsoleteTech	TEXT,
+		AdminValue		INTEGER,
+		ResearchValue	INTEGER,
 		PRIMARY KEY(ResourceType),
 		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE,
 		FOREIGN KEY (PrereqCivic) REFERENCES Civics(CivicType) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -425,7 +428,7 @@ ALTER TABLE Terrains ADD COLUMN CultureThreshold integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CulturePenalty integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CultureMaxPercent integer DEFAULT '0';
 
--- Resources trading
+-- Resources
 ALTER TABLE Resources ADD COLUMN FixedPrice 				BOOLEAN NOT NULL CHECK (FixedPrice IN (0,1)) DEFAULT 0; 	-- Not price variation after production
 ALTER TABLE Resources ADD COLUMN MaxPriceVariationPercent 	INTEGER NOT NULL DEFAULT 100; 								-- Max price variation each turn
 ALTER TABLE Resources ADD COLUMN NoExport 					BOOLEAN NOT NULL CHECK (NoExport IN (0,1)) DEFAULT 0; 		-- Not allowed on international trade routes
@@ -436,6 +439,9 @@ ALTER TABLE Resources ADD COLUMN NotLoot 					BOOLEAN NOT NULL CHECK (NotLoot IN
 ALTER TABLE Resources ADD COLUMN DecayRate 					REAL; 														-- Also used to get minimal route efficiency (bUseroute = RouteEfficiency >= DecayRate*DecayToEfficiencyFactor)
 ALTER TABLE Resources ADD COLUMN ResearchType				TEXT; 														-- is a knowledge resource for a specific research
 ALTER TABLE Resources ADD COLUMN TechnologyType				TEXT; 														-- is a knowledge resource for a specific technology
+ALTER TABLE Resources ADD COLUMN ObsoleteTech				TEXT;
+ALTER TABLE Resources ADD COLUMN AdminValue					TEXT;
+ALTER TABLE Resources ADD COLUMN ResearchValue				TEXT;
 
 -- Hidden Buildings
 ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; 		-- Do not show in Civilopedia

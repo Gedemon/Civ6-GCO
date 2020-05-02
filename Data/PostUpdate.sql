@@ -113,15 +113,19 @@ UPDATE Resources SET SpecialStock 				= ifnull((SELECT ResourcesGCO.SpecialStock
 UPDATE Resources SET NotLoot 					= ifnull((SELECT ResourcesGCO.NotLoot 					FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.NotLoot						IS NOT NULL) , Resources.NotLoot					);
 UPDATE Resources SET DecayRate					= ifnull((SELECT ResourcesGCO.DecayRate 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.DecayRate					IS NOT NULL) , Resources.DecayRate					);
 UPDATE Resources SET UnitsPerTonnage			= ifnull((SELECT ResourcesGCO.UnitsPerTonnage 			FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.UnitsPerTonnage				IS NOT NULL) , Resources.UnitsPerTonnage			);
+UPDATE Resources SET ObsoleteTech				= ifnull((SELECT ResourcesGCO.ObsoleteTech 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.ObsoleteTech				IS NOT NULL) , Resources.ObsoleteTech				);
+UPDATE Resources SET AdminValue					= ifnull((SELECT ResourcesGCO.AdminValue 				FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.AdminValue					IS NOT NULL) , Resources.AdminValue					);
+UPDATE Resources SET ResearchValue				= ifnull((SELECT ResourcesGCO.ResearchValue 			FROM ResourcesGCO WHERE ResourcesGCO.ResourceType = Resources.ResourceType AND ResourcesGCO.ResearchValue				IS NOT NULL) , Resources.ResearchValue				);
+--
 
 /* Create new Resources entries from the temporary ResourcesGCO table (after updating existing resources) */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot, DecayRate, UnitsPerTonnage)
-	SELECT ResourcesGCO.ResourceType, 'LOC_' || ResourcesGCO.ResourceType || '_NAME', ResourcesGCO.ResourceClassType, ResourcesGCO.Frequency, ResourcesGCO.PrereqTech, ResourcesGCO.FixedPrice, ResourcesGCO.MaxPriceVariationPercent, ResourcesGCO.NoExport, ResourcesGCO.NoTransfer, ResourcesGCO.SpecialStock, ResourcesGCO.NotLoot, ResourcesGCO.DecayRate, ResourcesGCO.UnitsPerTonnage
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot, DecayRate, UnitsPerTonnage, ObsoleteTech, AdminValue, ResearchValue)
+	SELECT ResourcesGCO.ResourceType, 'LOC_' || ResourcesGCO.ResourceType || '_NAME', ResourcesGCO.ResourceClassType, ResourcesGCO.Frequency, ResourcesGCO.PrereqTech, ResourcesGCO.FixedPrice, ResourcesGCO.MaxPriceVariationPercent, ResourcesGCO.NoExport, ResourcesGCO.NoTransfer, ResourcesGCO.SpecialStock, ResourcesGCO.NotLoot, ResourcesGCO.DecayRate, ResourcesGCO.UnitsPerTonnage, ResourcesGCO.ObsoleteTech, ResourcesGCO.AdminValue, ResourcesGCO.ResearchValue
 	FROM ResourcesGCO WHERE NOT EXISTS (SELECT * FROM Resources WHERE Resources.ResourceType = ResourcesGCO.ResourceType);
 
 /* Create new Resources entries from the Equipment table */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot)
-	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech, Equipment.FixedPrice, Equipment.MaxPriceVariationPercent, Equipment.NoExport, Equipment.NoTransfer, Equipment.SpecialStock, Equipment.NotLoot
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot, ObsoleteTech)
+	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech, Equipment.FixedPrice, Equipment.MaxPriceVariationPercent, Equipment.NoExport, Equipment.NoTransfer, Equipment.SpecialStock, Equipment.NotLoot, Equipment.ObsoleteTech
 	FROM Equipment;
 	
 /* update UnitsPerTonnage entries from the Size entries in Equipment table */
@@ -132,6 +136,9 @@ INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequen
 	SELECT Populations.PopulationType, 'LOC_' || Populations.PopulationType || '_NAME', "RESOURCECLASS_POPULATION", 0, NULL, 1, 0, 1, 1, 1, 1
 	FROM Populations;
 
+/* Link existing description entries (set in NamesTexts.xml) to Resources <- no desc in resource table */
+--UPDATE Resources SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Resources.ResourceType || '_DESCRIPTION' = Tag AND Language='en_US')
+--				WHERE EXISTS			(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Resources.ResourceType || '_DESCRIPTION' = Tag AND Language='en_US');
 
 -----------------------------------------------
 -- Technologies
@@ -260,20 +267,20 @@ UPDATE Technologies SET Description	=	NULL
 			WHERE EXISTS (SELECT * FROM TechnologiesGCO WHERE Technologies.TechnologyType = TechnologiesGCO.TechnologyType AND TechnologiesGCO.Description = 'NONE');
 
 /* Create Resources from Technologies */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
-	SELECT 'RESOURCE_KNOWLEDGE_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType, ResearchValue)
+	SELECT 'RESOURCE_KNOWLEDGE_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, 1, Technologies.TechnologyType, 1
 	FROM Technologies;
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
-	SELECT 'RESOURCE_TABLETS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_TABLETS}', 'RESOURCECLASS_TABLETS', 0, 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType, ResearchValue)
+	SELECT 'RESOURCE_TABLETS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_TABLETS}', 'RESOURCECLASS_TABLETS', 0, 0, 1, Technologies.TechnologyType, 1
 	FROM Technologies;
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
-	SELECT 'RESOURCE_SCROLLS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_SCROLLS}', 'RESOURCECLASS_SCROLLS', 0, 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType, ResearchValue)
+	SELECT 'RESOURCE_SCROLLS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_SCROLLS}', 'RESOURCECLASS_SCROLLS', 0, 0, 1, Technologies.TechnologyType, 2
 	FROM Technologies;
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
-	SELECT 'RESOURCE_BOOKS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_BOOKS}', 'RESOURCECLASS_BOOKS', 0, 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType, ResearchValue)
+	SELECT 'RESOURCE_BOOKS_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_BOOKS}', 'RESOURCECLASS_BOOKS', 0, 0, 1, Technologies.TechnologyType, 3
 	FROM Technologies;
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType)
-	SELECT 'RESOURCE_DIGITAL_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_DIGITAL}', 'RESOURCECLASS_DIGITAL', 0, 0, 1, Technologies.TechnologyType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, SpecialStock, TechnologyType, ResearchValue)
+	SELECT 'RESOURCE_DIGITAL_' || Technologies.TechnologyType , '{' || Technologies.Name || '} {LOC_RESOURCECLASS_DIGITAL}', 'RESOURCECLASS_DIGITAL', 0, 0, 1, Technologies.TechnologyType, 3
 	FROM Technologies;
 	
 INSERT OR REPLACE INTO Types (Type, Kind)
@@ -294,8 +301,8 @@ INSERT OR REPLACE INTO Types (Type, Kind)
 
 
 /* Create Resources from Research Types */
-INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, ResearchType)
-	SELECT 'RESOURCE_KNOWLEDGE_' || T.ContributionType , '{' || T.Name || '} {LOC_RESOURCECLASS_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, T.ContributionType
+INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, FixedPrice, ResearchType, ResearchValue)
+	SELECT 'RESOURCE_KNOWLEDGE_' || T.ContributionType , '{' || T.Name || '} {LOC_RESOURCECLASS_KNOWLEDGE}', 'RESOURCECLASS_KNOWLEDGE', 0, 1, T.ContributionType, 1
 	FROM TechnologyContributionTypes AS T WHERE IsResearch ='1';
 	
 INSERT OR REPLACE INTO Types (Type, Kind)

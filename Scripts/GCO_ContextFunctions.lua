@@ -196,6 +196,11 @@ function GetPlotAppeal(plot)
 	return contextPlot:GetAppeal()
 end
 
+function GetPlotActualYield(plot, yieldID)
+	local contextPlot = Map.GetPlot(plot:GetX(), plot:GetY())
+	return contextPlot:GetYield(yieldID)
+end
+
 
 -- ===========================================================================
 -- Units functions
@@ -225,6 +230,7 @@ end
 --	Send Status message
 -- =========================================================================== 
 function StatusMessage( str:string, fDisplayTime:number, type:number, bForceDisplay )
+	local type = type or ReportingStatusTypes.DEFAULT
 	LuaEvents.StatusMessage(str, fDisplayTime, type)
 end
 
@@ -463,6 +469,7 @@ function Initialize()
 	--ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged -- attaching this in script context doesn't work as the plot object from script miss other elements required for this by the plot object in UI context 
 	ExposedMembers.GCO.IsImprovementPillaged 		= IsImprovementPillaged
 	ExposedMembers.GCO.GetPlotAppeal				= GetPlotAppeal
+	ExposedMembers.GCO.GetPlotActualYield			= GetPlotActualYield
 	-- units
 	ExposedMembers.GCO.GetMoveToPath				= GetMoveToPath
 	ExposedMembers.GCO.SetUnitName					= SetUnitName

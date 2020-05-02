@@ -2052,7 +2052,7 @@ function GetAvailableEmployment(self)
 				end
 			end
 		elseif not self:IsWater() then  -- I don't like hardcoding, todo: find something else...
-			local resourceEmploymentValue	= self:GetEmploymentValue(self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index))
+			local resourceEmploymentValue	= self:GetEmploymentValue(math.ceil(self:GetPlotActualYield(GameInfo.Yields["YIELD_FOOD"].Index)/2))
 			Employment["Crop Farmers"] 		= (Employment["Crop Farmers"] or 0) + resourceEmploymentValue
 			availableEmployment 			= availableEmployment + resourceEmploymentValue
 		end
@@ -2222,7 +2222,7 @@ end
 function GetMaxSize(self)
 	local maxSize = 0
 	if (not self:IsWater()) then
-		local food 			= self:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)
+		local food 			= math.ceil(self:GetPlotActualYield(GameInfo.Yields["YIELD_FOOD"].Index)/2)
 		local bonus			= 0
 		local appeal		= self:GetPlotAppeal()
 		local numResource	= self:GetResourceCount()
@@ -2839,11 +2839,12 @@ function DoMigration(self)
 			if adjacentPlot then
 				local bNotSameOwner	= adjacentPlot:GetOwner() ~= self:GetOwner()
 				local bCanDiffuse 	= (not adjacentPlot:IsWater()) and ((not (adjacentPlot:IsCity() or self:IsCity())) or bNotSameOwner) -- we update adjacent city plots only when not owned by the city, else the city itself handles that
-local bTestPlots = (adjacentPlot:GetX() == 24 and adjacentPlot:GetY() == 12 and self:GetX() == 24 and self:GetY() == 11) or (self:GetX() == 24 and self:GetY() == 12 and adjacentPlot:GetX() == 24 and adjacentPlot:GetY() == 11)
+--local bTestPlots = (adjacentPlot:GetX() == 24 and adjacentPlot:GetY() == 12 and self:GetX() == 24 and self:GetY() == 11) or (self:GetX() == 24 and self:GetY() == 12 and adjacentPlot:GetX() == 24 and adjacentPlot:GetY() == 11)
 local DEBUG_PLOT_SCRIPT = bTestPlots
 if (bTestPlots) then print("***HERE", bCanDiffuse) end
 				if bCanDiffuse then
 					local diffusionValues	= self:GetPlotDiffusionValuesTo(direction)
+if (bTestPlots) then print("***", diffusionValues, diffusionValues and diffusionValues.Bonus, diffusionValues and diffusionValues.Penalty, diffusionValues and diffusionValues.MaxRatio) end
 					-- debug
 					if (not diffusionValues) then
 						local toStr 			= self:GetX() ..",".. self:GetY() .. " to " .. adjacentPlot:GetX() ..",".. adjacentPlot:GetY()
@@ -2853,18 +2854,23 @@ if (bTestPlots) then print("***HERE", bCanDiffuse) end
 					end
 					
 					if diffusionValues then
-					
+if (bTestPlots) then Dline() end					
 						local adjacentPlotKey 		= adjacentPlot:GetKey()
 						local adjacentPlotMigration = adjacentPlot:GetMigration()
 						local bWorked 				= (adjacentPlot:GetWorkerCount() > 0)
 						local plotWeight			= 0
+if (bTestPlots) then Dline() end				
+if (bTestPlots) then Dline(DirectionString[direction], adjacentPlot:GetX(), adjacentPlot:GetY()) end			
 						Dprint( DEBUG_PLOT_SCRIPT, "  - Looking for better conditions in ".. DirectionString[direction] .." on plot ".. adjacentPlot:GetX() ..",".. adjacentPlot:GetY().." Diffusion Values : Bonus = "..tostring(diffusionValues.Bonus)..", Penalty = "..tostring(diffusionValues.Penalty)..", Ratio = "..tostring(diffusionValues.MaxRatio))
 						for motivation, pushValue in pairs(plotMigration.Push) do
+if (bTestPlots) then Dline(motivation, pushValue) end			
 							local adjacentPull	= adjacentPlotMigration.Pull[motivation] or 0
 							local adjacentPush	= adjacentPlotMigration.Push[motivation] or 0
 							-- to do : effect of owned / foreign / free plots
 							local weightRatio	= 1	
+if (bTestPlots) then print("***HERE2", bCanDiffuse) end
 							Dprint( DEBUG_PLOT_SCRIPT, "    -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " adjacentPush = ", GCO.ToDecimals(adjacentPush), " adjacentPull = ", GCO.ToDecimals(adjacentPull))
+if (bTestPlots) then print("***HERE2.1", bCanDiffuse) end
 							if adjacentPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
 								if adjacentPull > 1 then
 									weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
@@ -2872,17 +2878,20 @@ if (bTestPlots) then print("***HERE", bCanDiffuse) end
 								if pushValue > 1 then
 									weightRatio = weightRatio * 5		-- situation is bad on currentPlot
 								end
+if (bTestPlots) then print("***HERE2.3", bCanDiffuse) end
 								if motivation == plotMigration.Motivation then
 									weightRatio = weightRatio * 10		-- this is the most important motivation for migration
 								end
 								if bWorked then
 									weightRatio = weightRatio * 10		-- we want migration on worked plots
 								end
+if (bTestPlots) then print("***HERE2.2", bCanDiffuse) end
 								local motivationWeight = (adjacentPull + pushValue) * weightRatio
 								plotWeight = plotWeight + motivationWeight
 								Dprint( DEBUG_PLOT_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
 							end
 						end
+if (bTestPlots) then print("***HERE3", bCanDiffuse) end
 						
 						if plotWeight > 0 then
 							plotWeight = (plotWeight + diffusionValues.Bonus + diffusionValues.Penalty) * diffusionValues.MaxRatio
@@ -3136,6 +3145,9 @@ function IsPlotImprovementPillaged(self)
 	return GCO.IsImprovementPillaged( self )
 end
 
+function GetPlotActualYield(self, yieldID)
+	return GCO.GetPlotActualYield(self, yieldID )
+end
 
 
 -----------------------------------------------------------------------------------------
@@ -3212,6 +3224,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 	
 		p.IsPlotImprovementPillaged		= IsPlotImprovementPillaged -- not working ?
 		p.GetPlotAppeal					= GetPlotAppeal
+		p.GetPlotActualYield			= GetPlotActualYield
 		
 		p.GetKey						= GetKey
 		p.GetData						= GetData

@@ -1374,7 +1374,29 @@ function GetMigration(self)
 	return _cached[cityKey].Migration
 end
 
+function GetHousingOccupiedByHigherClass(self)
+	local upperClass				= self:GetUpperClass()
+	local middleClass				= self:GetMiddleClass()
+	local lowerClass				= self:GetLowerClass()
+	local slaveClass				= self:GetSlaveClass()
+	local upperHousingSize			= self:GetCustomYield( GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index )
+	local upperHousing				= GCO.GetPopulationPerSize(upperHousingSize)
+	local upperHousingAvailable		= math.max( 0, upperHousing - upperClass)
+	local upperLookingForMiddle		= math.max( 0, upperClass - upperHousing)
+	local middleHousingSize			= self:GetCustomYield( GameInfo.CustomYields["YIELD_MIDDLE_HOUSING"].Index )
+	local middleHousing				= GCO.GetPopulationPerSize(middleHousingSize)
+	local middleHousingAvailable	= math.max( 0, middleHousing - middleClass - upperLookingForMiddle)
+	local middleLookingForLower		= math.max( 0, (middleClass + upperLookingForMiddle) - middleHousing)
+	local lowerHousingSize			= self:GetCustomYield( GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index )
+	local lowerHousing				= GCO.GetPopulationPerSize(lowerHousingSize)
+	local lowerHousingAvailable		= math.max( 0, lowerHousing - lowerClass - middleLookingForLower)
 
+	local HousingOccupiedByHigher				= {}
+	HousingOccupiedByHigher[UpperClassID] 		= 0
+	HousingOccupiedByHigher[MiddleClassID] 		= math.min( middleHousing, upperLookingForMiddle)
+	HousingOccupiedByHigher[LowerClassID] 		= math.min( lowerHousing, middleLookingForLower)
+	return HousingOccupiedByHigher
+end
 -----------------------------------------------------------------------------------------
 -- Science Functions
 -----------------------------------------------------------------------------------------
@@ -2405,7 +2427,7 @@ function GetRequirements(self, fromCity)
 			local bCanRequest 			= false
 			local bCanTradeResource 	= (not((row.NoExport and bExternalRoute) or (row.NoTransfer and (not bExternalRoute))))
 			Dprint( DEBUG_CITY_SCRIPT, Indentation20("...") .. Indentation20("... can trade") .. tostring(bCanTradeResource),", no export = ",row.NoExport," external route = ",bExternalRoute,", no transfer = ",row.NoTransfer,", internal route = ",(not bExternalRoute))
-			if bCanTradeResource and not player:IsObsoleteEquipment(resourceID) then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources, do not ask for obsolete resource
+			if bCanTradeResource and not player:IsObsoleteResource(resourceID) then -- player:IsResourceVisible(resourceID) and -- Allow trading (but not collection or production) of unresearched resources, do not ask for obsolete resource
 				local numResourceNeeded = self:GetNumResourceNeeded(resourceID, bExternalRoute)
 				if numResourceNeeded > 0 then
 					local bPriorityRequest	= false
@@ -3189,11 +3211,12 @@ function SetAdministrativeSupport(self) -- set when processing administrative re
 		
 	for resourceKey, value in pairs(self:GetResources()) do
 		local resourceID	= tonumber(resourceKey)
-		if GCO.IsAdministrativeResource(resourceID) then
+		local adminValue	= GCO.GetAdministrativeResourceValue(resourceID)
+		if adminValue then
 			local reserved	= math.floor(self:GetMaxStock(resourceID)*minPercent/100)
 			local available = (value > reserved and value - reserved) or 0
 			if available > 0 then
-				adminResources	= adminResources + available
+				adminResources	= adminResources + (available*adminValue)
 			end
 		end
 	end
@@ -4369,10 +4392,11 @@ function GetRuralPopulationVariation(self)
 end
 
 function GetUrbanEmploymentSize(self)
-	local employment 	= 0
+	local employment 		= 0
+	--local maxEmploymentSize	= 5  -- to do : limit max size scale per building, use it in production too
 	for buildingID, employmentValue in pairs(BuildingEmployment) do
 		if self:GetBuildings():HasBuilding(buildingID) then
-			employment = employment + employmentValue
+			employment = employment + employmentValue --(employmentValue + (math.min(self:GetSize(),maxEmploymentSize)))
 		end
 	end
 	return employment
@@ -4433,7 +4457,7 @@ function SetMaxEmploymentUrban(self)
 	if not _cached[cityKey] then _cached[cityKey] = {} end
 	-- We want the max value before reaching the next city size...
 	local employmentSize = self:GetUrbanEmploymentSize() --self:GetSize() + 1
-	_cached[cityKey].MaxEmploymentUrban = GCO.Round(math.pow(employmentSize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
+	_cached[cityKey].MaxEmploymentUrban = GCO.Round(self:GetUrbanPopulation()*(employmentSize/self:GetSize()))--GCO.Round(math.pow(employmentSize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
 end
 
 -- duplicate usage with GetUrbanActivityFactor...
@@ -5061,12 +5085,19 @@ function GetPopulationNeedsEffectsString(self) -- draft for a global string
 	local returnStrTable 	= {}
 	local NeedsEffects		= self:GetCached("NeedsEffects") or {}
 	local needClasses		= {UpperClassID, MiddleClassID, LowerClassID}
-	
+	table.insert(returnStrTable, Locale.Lookup("LOC_BIRTHRATE_PER_1000", self:GetBirthRate()))
+	table.insert(returnStrTable, Locale.Lookup("LOC_DEATHRATE_PER_1000", self:GetDeathRate()))
+	table.insert(returnStrTable, Locale.Lookup("LOC_TOOLTIP_SEPARATOR_NO_LB"))
+
 	if NeedsEffects then --and _cached[cityKey].NeedsEffects[populationID] then
 		for populationID, data1 in pairs(NeedsEffects) do
 		-- for _, populationID in pairs(needClasses) do 
 			--local data1 = NeedsEffects[populationID]
-			table.insert(returnStrTable, "[ICON_BULLET]"..Locale.Lookup(GameInfo.Resources[populationID].Name))
+			if BirthRateFactor[populationID] then
+				table.insert(returnStrTable, "[ICON_BULLET]"..Locale.Lookup(GameInfo.Resources[populationID].Name) .. ": " .. Locale.Lookup("LOC_BIRTHRATE_PER_1000_SHORT", self:GetPopulationBirthRate(populationID)).." "..Locale.Lookup("LOC_DEATHRATE_PER_1000_SHORT", self:GetPopulationDeathRate(populationID)) )
+			else
+				table.insert(returnStrTable, "[ICON_BULLET]"..Locale.Lookup(GameInfo.Resources[populationID].Name))
+			end
 			for needsEffectType, data2 in pairs(data1) do
 				if needsEffectType == NeedsEffectType.Consumption then
 					for resourceID, value in pairs(data2) do
@@ -5100,8 +5131,8 @@ function GetHousingToolTip(self)
 	local lowerHousingSize	= self:GetCustomYield( GameInfo.CustomYields["YIELD_LOWER_HOUSING"].Index )
 	local lowerHousing		= GCO.GetPopulationPerSize(lowerHousingSize)
 	local lowerHousingAvailable	= math.max( 0, lowerHousing - lowerClass - middleLookingForLower)
-	local realPopulation	= self:GetRealPopulation()	
 	
+	local realPopulation	= self:GetRealPopulation()
 	local maxPopulation		= upperHousing + middleHousing + lowerHousing + slaveClass -- slave class doesn't use housing space	
 
 	local housingToolTip	= Locale.Lookup("LOC_HUD_CITY_TOTAL_HOUSING", realPopulation, maxPopulation)
@@ -5588,7 +5619,7 @@ function DoCollectResources(self)
 	Dlog("DoCollectResources ".. Locale.Lookup(self:GetName()).." /START")
 	Dprint( DEBUG_CITY_SCRIPT, "-- Collecting Resources...")
 	--local DEBUG_CITY_SCRIPT = false
-
+	
 	local cityKey 		= self:GetKey()
 	local cityData 		= ExposedMembers.CityData[cityKey]
 	local cityWealth	= self:GetWealth()
@@ -5627,13 +5658,14 @@ function DoCollectResources(self)
 			end
 			local cityPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
 			local pBuildings	= self:GetBuildings()
-			local pDistricts	= self:GetDistricts()
-			local harbor		= pDistricts:GetDistrict(GameInfo.Districts["DISTRICT_HARBOR"].Index)
-			local bHasBoat		= harbor or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index)
+			local bHasBoat		= pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index)
+			--local pDistricts	= self:GetDistricts()
+			--local harbor		= pDistricts:GetDistrict(GameInfo.Districts["DISTRICT_HARBOR"].Index)
+			--local bHasBoat		= harbor or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index)
 			
-			if harbor then
-				cityPlot 		= GCO.GetPlot(harbor:GetX(), harbor:GetY())
-			end
+			--if harbor then
+			--	cityPlot 		= GCO.GetPlot(harbor:GetX(), harbor:GetY())
+			--end
 			
 			for ring = 1, seaRange do
 				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
@@ -5643,7 +5675,7 @@ function DoCollectResources(self)
 							local bIsPlotConnected 	= false --GCO.IsPlotConnected(pPlayer, cityPlot, pEdgePlot, sRouteType, true, nil, GCO.TradePathBlocked)
 							local routeLength		= 0
 							GCO.StartTimer("GetPathToPlot"..sRouteType)
-							local path = cityPlot:GetPathToPlot(pEdgePlot, pPlayer, sRouteType, GCO.TradePathBlocked, seaRange)
+							local path = cityPlot:GetPathToPlot(pEdgePlot, pPlayer, sRouteType, GCO.TradePathBlocked, seaRange+1) -- origin count as 1 for distance
 							GCO.ShowTimer("GetPathToPlot"..sRouteType)
 							if path then
 								bIsPlotConnected 	= true
@@ -5652,7 +5684,7 @@ function DoCollectResources(self)
 							
 							if bIsPlotConnected then
 								--local routeLength = GCO.GetRouteLength()
-								if routeLength <= seaRange then -- not needed with GetPathToPlot called with seaRange ?
+								if routeLength <= seaRange + 1  then -- not needed with GetPathToPlot called with seaRange ?
 									local resourceID = pEdgePlot:GetResourceType()
 									if player:IsResourceVisible(resourceID) then
 										if plotOwner == NO_PLAYER then
@@ -5783,7 +5815,7 @@ function DoIndustries(self)
 		if self:GetBuildings():HasBuilding(buildingID) then
 			local resourceRequiredID 	= GameInfo.Resources[row.ResourceType].Index
 			local resourceCreatedID 	= GameInfo.Resources[row.ResourceCreated].Index
-			if player:IsResourceVisible(resourceCreatedID) and not player:IsObsoleteEquipment(resourceCreatedID) then -- don't create resources we don't have the tech for or that are obsolete...
+			if player:IsResourceVisible(resourceCreatedID) and not player:IsObsoleteResource(resourceCreatedID) then -- don't create resources we don't have the tech for or that are obsolete...
 				if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
 				ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + maxConverted
 				ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + maxConverted
@@ -6247,7 +6279,7 @@ function DoStockUpdate(self)
 		--]]
 		
 		-- Obsolete equipment is removed at a faster rate
-		if player:IsObsoleteEquipment(resourceID) then
+		if player:IsObsoleteResource(resourceID) then
 			if self:GetNumRequiredInQueue(resourceID) == 0 then
 				excedent = math.ceil(stock * SurplusWasteFastPercent / 100)
 			end		
@@ -6525,7 +6557,7 @@ function SetNeedsValues(self)
 
 	-- Housing Upper Class
 	Dprint( DEBUG_CITY_SCRIPT, "Upper class Housing effect...")
-	local upperGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(UpperClassID) - self:GetBasePopulationDeathRate(UpperClassID))
+	local upperGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(UpperClassID) - self:GetBasePopulationDeathRate(UpperClassID)) --* 1.25
 	if upperHousingAvailable > upperHousing / 2 then -- BirthRate bonus from housing available
 		local maxEffectValue 	= 5
 		local higherValue 		= (upperHousing / 2)
@@ -6535,7 +6567,7 @@ function SetNeedsValues(self)
 		AddNeeds(UpperClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
 	elseif upperGrowthRateLeft > 0 and (upperHousingAvailable < upperHousing * 25 / 100) and (middleHousingAvailable < middleHousing * 25 / 100) then -- BirthRate malus from low housing left (upper class can use middle class housing if available)
-		local maxEffectValue 	= upperGrowthRateLeft
+		local maxEffectValue 	= upperGrowthRateLeft--self:GetBasePopulationBirthRate(UpperClassID)--upperGrowthRateLeft
 		local higherValue 		= (upperHousing + middleHousing) * 25 / 100
 		local lowerValue 		= upperHousingAvailable + middleHousingAvailable
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
@@ -6548,7 +6580,7 @@ function SetNeedsValues(self)
 
 	-- Housing Middle Class
 	Dprint( DEBUG_CITY_SCRIPT, "Middle class Housing effect...")
-	local middleGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(MiddleClassID) - self:GetBasePopulationDeathRate(MiddleClassID))
+	local middleGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(MiddleClassID) - self:GetBasePopulationDeathRate(MiddleClassID)) --* 1.25
 	if middleHousingAvailable > middleHousing / 2 then -- BirthRate bonus from housing available
 		local maxEffectValue 	= 5
 		local higherValue 		= (middleHousing / 2)
@@ -6558,11 +6590,11 @@ function SetNeedsValues(self)
 		AddNeeds(MiddleClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
 	elseif middleGrowthRateLeft > 0 and (middleHousingAvailable < middleHousing * 25 / 100) and (lowerHousingAvailable < lowerHousing * 25 / 100)  then -- BirthRate malus from low housing left (middle class can use lower class housing if available)
-		local maxEffectValue 	= middleGrowthRateLeft
+		local maxEffectValue 	= middleGrowthRateLeft--self:GetBasePopulationBirthRate(MiddleClassID)--
 		local higherValue 		= (middleHousing + lowerHousing) * 25 / 100
 		local lowerValue 		= middleHousingAvailable + lowerHousingAvailable
 		local effectValue		= GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue)
-		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		effectValue				= LimitEffect(maxEffectValue, effectValue)--math.min(middleGrowthRateLeft,LimitEffect(maxEffectValue, effectValue))
 		--NeedsEffects[MiddleClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
 		AddNeeds(MiddleClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
@@ -6571,7 +6603,7 @@ function SetNeedsValues(self)
 
 	-- Housing Lower Class
 	Dprint( DEBUG_CITY_SCRIPT, "Lower class Housing effect...")
-	local lowerGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(LowerClassID) - self:GetBasePopulationDeathRate(LowerClassID))
+	local lowerGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(LowerClassID) - self:GetBasePopulationDeathRate(LowerClassID)) --* 1.25
 	if lowerHousingAvailable > lowerHousing / 2 then -- BirthRate bonus from housing available
 		local maxEffectValue 	= 5
 		local higherValue 		= (lowerHousing / 2)
@@ -6581,11 +6613,11 @@ function SetNeedsValues(self)
 		AddNeeds(LowerClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
 	elseif lowerGrowthRateLeft > 0 and lowerHousingAvailable < lowerHousing * 25 / 100  then -- BirthRate malus from low housing left
-		local maxEffectValue 	= lowerGrowthRateLeft
+		local maxEffectValue 	= lowerGrowthRateLeft--self:GetBasePopulationBirthRate(LowerClassID) --
 		local higherValue 		= lowerHousing * 25 / 100
 		local lowerValue 		= lowerHousingAvailable
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
-		effectValue				= LimitEffect(maxEffectValue, effectValue)
+		effectValue				= LimitEffect(maxEffectValue, effectValue)--math.min(lowerGrowthRateLeft,LimitEffect(maxEffectValue, effectValue))
 		--NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING"] = - effectValue
 		AddNeeds(LowerClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING", - effectValue))
@@ -6620,8 +6652,8 @@ function SetNeedsValues(self)
 		end
 	end
 	
-	local minLuxuriesNeeded 	= math.max(1, GCO.Round(upperPopulation * MinNeededLuxuriesPerMil / 1000))
-	local maxLuxuriesConsumed 	= math.min(totalLuxuries, GCO.Round(upperPopulation * MaxLuxuriesConsumedPerMil / 1000 ))
+	local minLuxuriesNeeded 	= math.floor(self:GetSize()*(upperPopulation/self:GetUrbanPopulation())*25) --math.max(1, GCO.Round(upperPopulation * MinNeededLuxuriesPerMil / 1000))
+	local maxLuxuriesConsumed 	= math.min(totalLuxuries, math.floor(self:GetSize()*(upperPopulation/self:GetUrbanPopulation())*50))--math.min(totalLuxuries, GCO.Round(upperPopulation * MaxLuxuriesConsumedPerMil / 1000 ))
 	
 	if totalLuxuries > 0 then
 	
@@ -6815,14 +6847,15 @@ function DoAdministration(self) -- after processing resources
 	if needed > 0 then
 		for resourceKey, value in pairs(self:GetResources()) do
 			local resourceID	= tonumber(resourceKey)
-			if GCO.IsAdministrativeResource(resourceID) then
+			local adminValue	= GCO.GetAdministrativeResourceValue(resourceID)
+			if adminValue then
 				local reserved	= math.floor(self:GetMaxStock(resourceID)*minPercent/100)
 				local available = (value > reserved and value - reserved) or 0
 				if available > 0 then
 					local used = math.min(needed, available)
 					self:ChangeStock(resourceID, -used, ResourceUseType.OtherOut) -- to do: new ResourceUseType ?
 					needed 		= needed - used
-					provided	= provided + used
+					provided	= provided + (used * adminValue)
 				end
 			end
 		end
@@ -6837,7 +6870,7 @@ end
 local migrationClassMotivation	= {
 	-- Main motivations
 	["Employment"] 	= { [UpperClassID] 	= 0.10, [MiddleClassID] = 2.00, [LowerClassID] 	= 3.00, },
-	["Housing"] 	= { [UpperClassID] 	= 2.00, [MiddleClassID] = 0.75, [LowerClassID] 	= 0.50, },
+	["Housing"] 	= { [UpperClassID] 	= 3.00, [MiddleClassID] = 1.75, [LowerClassID] 	= 1.50, },
 	["Food"] 		= { [UpperClassID] 	= 0.25, [MiddleClassID] = 2.00, [LowerClassID] 	= 3.00, },
 	["Threat"] 		= { [UpperClassID] 	= 3.00, [MiddleClassID] = 2.00, [LowerClassID] 	= 1.00, },
 	-- Values below are used for further calculation
@@ -6872,6 +6905,7 @@ function SetMigrationValues(self)
 	local possibleDestination 		= {}
 	local migrantClasses			= {UpperClassID, MiddleClassID, LowerClassID}
 	local housingID					= { [UpperClassID] 	= YieldUpperHousingID, [MiddleClassID] = YieldMiddleHousingID, [LowerClassID] 	= YieldLowerHousingID, } -- to do : something else...
+	local tOccupiedHousing			= self:GetHousingOccupiedByHigherClass()
 	--local migrantMotivations		= {"Under threat", "Starvation", "Employment", "Overpopulation"}
 	local migrants					= {}
 	local totalPopulation 			= self:GetUrbanPopulation()
@@ -6892,7 +6926,7 @@ function SetMigrationValues(self)
 	
 		local population			= self:GetPopulationClass(populationID)		
 		local housingSize			= self:GetCustomYield( housingID[populationID] )
-		local maxPopulation			= GetPopulationPerSize(housingSize)
+		local maxPopulation			= GetPopulationPerSize(housingSize) - tOccupiedHousing[populationID]
 		local bestMotivationWeight	= 0
 		
 		Dprint( DEBUG_CITY_SCRIPT, "  - "..Indentation20(Locale.ToUpper(GameInfo.Resources[populationID].Name)).." current population = "..Indentation15(population).. " motivations : employment = ".. tostring(migrationClassMotivation.Employment[populationID]) ..", housing = ".. migrationClassMotivation.Housing[populationID] ..", food = ".. tostring(migrationClassMotivation.Food[populationID]))
@@ -7028,6 +7062,14 @@ function DoMigration(self)
 				if migrants > 0 then
 					-- Get possible destinations from this city own plots
 					local cityPlots	= GCO.GetCityPlots(self)
+					
+					-- Add adjacent plots owned by another player as there won't be migration to it if it's surrounded by water
+					for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+						local adjacentPlot 	= Map.GetAdjacentPlot(iX, iY, direction)
+						if adjacentPlot and not adjacentPlot:IsWater() and adjacentPlot:GetOwner() ~= self:GetOwner() then
+							table.insert(cityPlots, adjacentPlot:GetIndex())
+						end		
+					end
 					for _, plotID in ipairs(cityPlots) do
 						local plot = GCO.GetPlotByIndex(plotID)
 						if plot and (not plot:IsCity()) then
@@ -8001,6 +8043,7 @@ function AttachCityFunctions(city)
 		if not c.SetPopulationBirthRate				then c.SetPopulationBirthRate				= SetPopulationBirthRate            	end
 		if not c.GetBasePopulationBirthRate			then c.GetBasePopulationBirthRate			= GetBasePopulationBirthRate        	end
 		if not c.GetMigration						then c.GetMigration							= GetMigration                      	end
+		if not c.GetHousingOccupiedByHigherClass	then c.GetHousingOccupiedByHigherClass		= GetHousingOccupiedByHigherClass      	end
 		
 		if not c.GetLiteracy						then c.GetLiteracy							= GetLiteracy                     	 	end
 		if not c.SetLiteracy						then c.SetLiteracy							= SetLiteracy                     	 	end

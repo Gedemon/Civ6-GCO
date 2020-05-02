@@ -37,15 +37,14 @@
 		<Row ResourceType="RESOURCE_AVIONIC" 					ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
 		<Row ResourceType="RESOURCE_ADVANCED_AVIONIC" 			ResourceClassType="RESOURCECLASS_STRATEGIC" Frequency="0"	NoExport="1" SpecialStock="1" NotLoot="1"/>
 		
-		<Row ResourceType="RESOURCE_TABLETS" 					ResourceClassType="RESOURCECLASS_TABLETS" 	Frequency="0"	SpecialStock="1"/>
-		<Row ResourceType="RESOURCE_SCROLLS" 					ResourceClassType="RESOURCECLASS_SCROLLS" 	Frequency="0"	SpecialStock="1"/>
+		<Row ResourceType="RESOURCE_TABLETS" 					ResourceClassType="RESOURCECLASS_TABLETS" 	Frequency="0"	SpecialStock="1"	PrereqTech="TECH_PICTOGRAM"	ObsoleteTech="TECH_PAPER"/>
+		<Row ResourceType="RESOURCE_SCROLLS" 					ResourceClassType="RESOURCECLASS_SCROLLS" 	Frequency="0"	SpecialStock="1"	PrereqTech="TECH_WRITING"	ObsoleteTech="TECH_PRINTING"/>
 		<Row ResourceType="RESOURCE_BOOKS" 						ResourceClassType="RESOURCECLASS_BOOKS" 	Frequency="0"	SpecialStock="1"	PrereqTech="TECH_PAPER"/>
 		<Row ResourceType="RESOURCE_DIGITAL" 					ResourceClassType="RESOURCECLASS_DIGITAL" 	Frequency="0"	SpecialStock="1"	PrereqTech="TECH_COMPUTERS"/>
 		
-		<Row ResourceType="RESOURCE_ADMINISTRATIVE_TABLETS" 	ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1"/>
-		<Row ResourceType="RESOURCE_ADMINISTRATIVE_SCROLLS" 	ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1"/>
-		<Row ResourceType="RESOURCE_ADMINISTRATIVE_BOOKS"		ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1"	PrereqTech="TECH_PAPER"/>
-
+		<Row ResourceType="RESOURCE_ADMINISTRATIVE_TABLETS" 	ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1" AdminValue="1" PrereqTech="TECH_PICTOGRAM"	ObsoleteTech="TECH_PAPER"/>
+		<Row ResourceType="RESOURCE_ADMINISTRATIVE_SCROLLS" 	ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1" AdminValue="2" PrereqTech="TECH_WRITING"		ObsoleteTech="TECH_PRINTING" />
+		<Row ResourceType="RESOURCE_ADMINISTRATIVE_BOOKS"		ResourceClassType="RESOURCECLASS_ADMINISTRATIVE"	Frequency="0"	NoExport="1" SpecialStock="1" AdminValue="3" PrereqTech="TECH_PAPER"/>
 		
 		<Row ResourceType="RESOURCE_RICE" 		DecayRate="2" />
 		<Row ResourceType="RESOURCE_WHEAT" 		DecayRate="2" />

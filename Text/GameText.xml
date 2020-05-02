@@ -790,13 +790,25 @@
   </LocalizedText>	
  
   <LocalizedText> <!-- Needs Effects -->
-
+    <Replace Tag="LOC_BIRTHRATE_PER_1000" Language="en_US">
+      <Text>[ICON_Birth]{1_Num: number ##.##} Birth per 1000.</Text>
+    </Replace>
+    <Replace Tag="LOC_DEATHRATE_PER_1000" Language="en_US">
+      <Text>[ICON_Death][COLOR_Civ6Red]{1_Num: number ##.##}[ENDCOLOR] Death per 1000.</Text>
+    </Replace>
+    <Replace Tag="LOC_BIRTHRATE_PER_1000_SHORT" Language="en_US">
+      <Text>{1_Num: number ##.##}[ICON_Birth]</Text>
+    </Replace>
+    <Replace Tag="LOC_DEATHRATE_PER_1000_SHORT" Language="en_US">
+      <Text>[COLOR_Civ6Red]{1_Num: number ##.##}[ENDCOLOR][ICON_Death]</Text>
+    </Replace>
+	
     <Replace Tag="LOC_BIRTHRATE_BONUS_FROM_HOUSING" Language="en_US">
-      <Text>[COLOR_Civ6Green]+{1_Num}[ENDCOLOR] Birthrate from available [ICON_Housing] Housing.</Text>
+      <Text>[COLOR_Civ6Green]+{1_Num}[ENDCOLOR][ICON_Birth] Birthrate from available [ICON_Housing] Housing.</Text>
     </Replace>
 	
     <Replace Tag="LOC_BIRTHRATE_MALUS_FROM_LOW_HOUSING" Language="en_US">
-      <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR] Birthrate from low [ICON_Housing] Housing left.</Text>
+      <Text>[COLOR_Civ6Red]{1_Num}[ENDCOLOR][ICON_Birth] Birthrate from low [ICON_Housing] Housing left.</Text>
     </Replace>
 	
     <Replace Tag="LOC_DEATHRATE_FROM_FOOD_RATIONING" Language="en_US">

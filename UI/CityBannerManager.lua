@@ -1220,9 +1220,14 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self:UpdateStats()
 					LuaEvents.ShowCustomToolTip(foodParameters)
 					sCurrentResourceTooltip = "Food"
-				end				
+				end
+				function CleanFoodToolTip()
+					if sCurrentResourceTooltip == "Food" then
+						CleanToolTip()
+					end
+				end					
 				self.m_Instance.FoodIcon:RegisterMouseEnterCallback(ShowFoodToolTip)
-				self.m_Instance.FoodIcon:RegisterMouseExitCallback(CleanToolTip)
+				self.m_Instance.FoodIcon:RegisterMouseExitCallback(CleanFoodToolTip)
 				self.m_Instance.FoodIcon:SetText(city:GetFoodStockIcon())
 				
 				-- Strategic
@@ -1268,9 +1273,14 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self:UpdateStats()
 					LuaEvents.ShowCustomToolTip(strategicParameters)
 					sCurrentResourceTooltip = "Strategic"
-				end				
+				end
+				function CleanStrategicToolTip()
+					if sCurrentResourceTooltip == "Strategic" then
+						CleanToolTip()
+					end
+				end
 				self.m_Instance.StrategicStockIcon:RegisterMouseEnterCallback(ShowStrategicToolTip)
-				self.m_Instance.StrategicStockIcon:RegisterMouseExitCallback(CleanToolTip)
+				self.m_Instance.StrategicStockIcon:RegisterMouseExitCallback(CleanStrategicToolTip)
 				
 		
 				-- Other Resources
@@ -1316,9 +1326,14 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self:UpdateStats()
 					LuaEvents.ShowCustomToolTip(otherParameters)
 					sCurrentResourceTooltip = "Other"
-				end				
+				end
+				function CleanOtherToolTip()
+					if sCurrentResourceTooltip == "Other" then
+						CleanToolTip()
+					end
+				end
 				self.m_Instance.LuxuriesStockIcon:RegisterMouseEnterCallback(ShowOtherToolTip)
-				self.m_Instance.LuxuriesStockIcon:RegisterMouseExitCallback(CleanToolTip)
+				self.m_Instance.LuxuriesStockIcon:RegisterMouseExitCallback(CleanOtherToolTip)
 				
 				-- Equipment
 				--local equipmentToolTip = Locale.Lookup("LOC_CITYBANNER_PERSONNEL_TITLE").. "[NEWLINE]" .. Locale.Lookup("LOC_CITYBANNER_PERSONNEL", city:GetPersonnel(), city:GetMaxPersonnel()) .. GCO.GetVariationString(city:GetPersonnel() - city:GetPreviousPersonnel())
@@ -1371,9 +1386,14 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self:UpdateStats()
 					LuaEvents.ShowCustomToolTip(equipmentParameters)
 					sCurrentResourceTooltip = "Equipment"
-				end				
+				end
+				function CleanEquipmentToolTip()
+					if sCurrentResourceTooltip == "Equipment" then
+						CleanToolTip()
+					end
+				end
 				self.m_Instance.EquipmentStockIcon:RegisterMouseEnterCallback(ShowEquipmentToolTip)
-				self.m_Instance.EquipmentStockIcon:RegisterMouseExitCallback(CleanToolTip)
+				self.m_Instance.EquipmentStockIcon:RegisterMouseExitCallback(CleanEquipmentToolTip)
 				
 				--self.m_Instance.EquipmentStockIcon:SetToolTipString(equipmentToolTip)
 				
@@ -1447,9 +1467,14 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self:UpdateStats()
 					LuaEvents.ShowCustomToolTip(scienceParameters)
 					sCurrentResourceTooltip = "Science"
-				end				
+				end
+				function CleanScienceToolTip()
+					if sCurrentResourceTooltip == "Science" then
+						CleanToolTip()
+					end
+				end
 				self.m_Instance.ScienceIcon:RegisterMouseEnterCallback(ShowScienceToolTip)
-				self.m_Instance.ScienceIcon:RegisterMouseExitCallback(CleanToolTip)
+				self.m_Instance.ScienceIcon:RegisterMouseExitCallback(CleanScienceToolTip)
 				
 				
 				-- Sea Range

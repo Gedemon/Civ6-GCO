@@ -318,6 +318,12 @@
 		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_TABLETS_NAME"		Text="Administrative Tablets"	 	Language="en_US" />
 		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_SCROLLS_NAME"		Text="Administrative Scrolls" 		Language="en_US" />
 		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_BOOKS_NAME"		Text="Administrative Books"	 		Language="en_US" />
+		
+		<!-- no desc in resource table ATM
+		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_TABLETS_DESCRIPTION"		Text="Provide 1 [ICON_Government] Administrative support"	Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_SCROLLS_DESCRIPTION"		Text="Provide 2 [ICON_Government] Administrative support"	Language="en_US" />
+		<Replace Tag="LOC_RESOURCE_ADMINISTRATIVE_BOOKS_DESCRIPTION"		Text="Provide 3 [ICON_Government] Administrative support"	Language="en_US" />
+		-->
 	
 		<Replace Tag="LOC_RESOURCECLASS_KNOWLEDGE"			Text="Scholars" 			Language="en_US" />
 		<Replace Tag="LOC_RESOURCECLASS_TABLETS"			Text="Tablets"	 			Language="en_US" />

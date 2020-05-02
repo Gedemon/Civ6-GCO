@@ -50,8 +50,11 @@
 						<Stack					ID="CityNameStack"							Anchor="C,C"	StackGrowth="Right" Padding="2" >
 		<!--GCO <<<<<-->
 		<Stack		Offset="-6,-2"		ID="GrowthStack"							Anchor="C,C"	StackGrowth="Right" Padding="-6" >
+		<!-- ->
               <Label				ID="FoodIcon"			Anchor="L,C"	Style="HeaderSmallCaps" String="[ICON_FoodSurplus]" Offset="0,-1"/>
               <Label				ID="HealthIcon"			Anchor="L,C"	Style="HeaderSmallCaps" String="[ICON_HEALTH2]" 	Offset="0,0"/>
+              <Label				ID="HousingIcon"		Anchor="L,C"	Style="HeaderSmallCaps" String="[ICON_Housing]" 	Offset="0,-1"/>
+		<!-- -->
 		</Stack>
 		<!--GCO >>>>>-->
 							<Label				ID="TradingPostIcon"						Anchor="R,C"	Offset="0,2"	String="[ICON_TradingPost]" Hidden="1">
@@ -123,15 +126,15 @@
 				<Button							ID="DynamicContentButton"				Anchor="C,T"					Size="Parent-30,20"		NoStateChange="true">
 						<Grid					ID="DynamicContentBackground"			Anchor="C,T"  Offset="1,0"		Size="Parent,18"		TextureOffset="0,14"	Color="255,255,255,150" SliceTextureSize="50,20" 	SliceCorner="25,10" Texture="Banner_BannerBacking" />
 				</Button>
-			<Stack	Offset="0,-3"	ID="DynamicContentStack"		Anchor="C,T" StackGrowth="Right" Padding="0" >
+			<Stack	Offset="0,-3"	ID="DynamicContentStack"		Anchor="C,T" StackGrowth="Right" Padding="-4" >
 		<!--GCO <<<<<
-		<!-- ->
+		<!-- -->
               <Label				ID="FoodIcon"			Anchor="L,C"	Style="FontNormal20" String="[ICON_FoodSurplus]"/>
               <Label				ID="HealthIcon"			Anchor="L,C"	Style="FontNormal20" String="[ICON_HEALTH2]"/>
 		<!---->
               <Label				ID="AdministrationIcon"	Anchor="L,C"	Style="FontNormal20" String="[ICON_Government]"/>
               <Label				ID="HousingIcon"		Anchor="L,C"	Style="FontNormal20" String="[ICON_Housing]"/>
-              <Label				ID="StabilityIcon"		Anchor="L,C"	Style="FontNormal20" String="[ICON_Unit]"/>
+              <Label				ID="StabilityIcon"		Anchor="L,C"	Style="FontNormal20" String="[ICON_Position]"/>
               <Label				ID="TradeRouteIcon"		Anchor="L,C"	Style="FontNormal20" String="[ICON_TradeRoute]"/>
               <Label				ID="ScienceIcon"		Anchor="L,C"	Style="FontNormal20" String="[ICON_Science]"/>
               <Label				ID="LuxuriesStockIcon"	Anchor="L,C"	Style="FontNormal20" String="[ICON_STOCK2]"/>
@@ -206,8 +209,11 @@
 						<Stack					ID="CityNameStack"			          StackGrowth="Right" Padding="2" Anchor="C,C" >
 		<!--GCO <<<<<-->
 		<Stack		Offset="-6,-2"		ID="GrowthStack"							Anchor="C,C"	StackGrowth="Right" Padding="-6" >
+			<!--  ->
               <Label				ID="FoodIcon"			Anchor="L,C"	Style="HeaderSmallCaps" String="[ICON_FoodSurplus]" Offset="0,-1"/>
               <Label				ID="HealthIcon"			Anchor="L,C"	Style="HeaderSmallCaps" String="[ICON_HEALTH2]" 	Offset="0,0"/>
+              <Label				ID="HousingIcon"	  	Anchor="L,C"	Style="HeaderSmallCaps" String="[ICON_Housing]"	Offset="0,-1"/>
+			<!-- -->
 		</Stack>
 		<!--GCO >>>>>-->
 							<Label				ID="TradingPostIcon"							Anchor="R,C" Offset="0,2"	String="[ICON_TradingPost]" Hidden="1">
@@ -276,19 +282,19 @@
         <Container ID="DynamicContentAnchor" Anchor="C,B"/>
 		-->
         <Container ID="DynamicContentAnchor" Anchor="C,B">
-				<Button							ID="DynamicContentButton"				Anchor="C,T"					Size="Parent-30,20"		NoStateChange="true">
+				<Button							ID="DynamicContentButton"				Anchor="C,T"					Size="Parent-40,20"		NoStateChange="true">
 						<Grid					ID="DynamicContentBackground"			Anchor="C,T"  Offset="1,0"		Size="Parent,18"		TextureOffset="0,14"	Color="255,255,255,150" SliceTextureSize="50,20" 	SliceCorner="25,10" Texture="Banner_BannerBacking" />
 				</Button>
-			<Stack	Offset="0,-3"	ID="DynamicContentStack"		Anchor="C,T" StackGrowth="Right" Padding="0" >
-			<!-- ->
+			<Stack	Offset="0,-3"	ID="DynamicContentStack"		Anchor="C,T" StackGrowth="Right" Padding="-4" >
+			<!-- -->
               <Label				ID="FoodIcon"			Anchor="L,C"	Style="FontNormal20" String="[ICON_FoodSurplus]"/>
               <Label				ID="HealthIcon"			Anchor="L,C"	Style="FontNormal20" String="[ICON_HEALTH2]"/>
 			<!-- -->
               <Label				ID="AdministrationIcon"	Anchor="L,C"	Style="FontNormal20" String="[ICON_Government]"/>
               <Label				ID="HousingIcon"	  	Anchor="L,C"	Style="FontNormal20" String="[ICON_Housing]"/>
-              <Label				ID="StabilityIcon"	  	Anchor="L,C"	Style="FontNormal20" String="[ICON_Unit]"/>
+              <Label				ID="StabilityIcon"	  	Anchor="L,C"	Style="FontNormal20" String="[ICON_Position]"/>
               <Label				ID="TradeRouteIcon"		Anchor="L,C"	Style="FontNormal20" String="[ICON_TradeRoute]"/>
-              <Label				ID="ScienceIcon"		Anchor="L,C"	Style="FontNormal20" String="[ICON_Policy]"/>
+              <Label				ID="ScienceIcon"		Anchor="L,C"	Style="FontNormal20" String="[ICON_Science]"/>
               <Label				ID="LuxuriesStockIcon"	Anchor="L,C"	Style="FontNormal20" String="[ICON_STOCK2]"/>
               <Label				ID="StrategicStockIcon"	Anchor="L,C"	Style="FontNormal20" String="[ICON_STOCK3]"/>
               <Label				ID="EquipmentStockIcon"	Anchor="L,C"	Style="FontNormal20" String="[ICON_STOCK4]"/>

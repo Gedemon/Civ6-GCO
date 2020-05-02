@@ -416,7 +416,7 @@ UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT
 
 UPDATE Districts SET PrereqTech = 'TECH_MILITARY_ENGINEERING' 	WHERE DistrictType ='DISTRICT_ENCAMPMENT';
 UPDATE Districts SET PrereqTech = 'TECH_INDUSTRIALIZATION' 		WHERE DistrictType ='DISTRICT_INDUSTRIAL_ZONE';
-UPDATE Districts SET PrereqTech = 'TECH_MERCANTILISM' 			WHERE DistrictType ='DISTRICT_HARBOR';
+--UPDATE Districts SET PrereqTech = 'TECH_MERCANTILISM' 			WHERE DistrictType ='DISTRICT_HARBOR';
 --*/
 
 -- Update projects before removing the distric themselves because of the cascade update...
@@ -432,7 +432,7 @@ DELETE FROM Projects WHERE ProjectType ='PROJECT_REPAIR_OUTER_DEFENSES';
 --*/
 
 --/*
---DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_HARBOR';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_CAMPUS';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_ENTERTAINMENT_COMPLEX';
