@@ -433,7 +433,7 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 local GCO 		= {}
 local pairs 	= pairs
 local oldpairs 	= pairs
-local Dprint, Dline, Dlog
+local Dprint, Dline, Dlog, Div
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts
 	LuaEvents	= GCO.LuaEvents
@@ -441,6 +441,7 @@ function InitializeUtilityFunctions()
 	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	Div			= GCO.Divide
 	pairs 		= GCO.OrderedPairs
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
@@ -910,7 +911,7 @@ end
 function SetWealth(self)
 	local cityKey = self:GetKey()
 	if not _cached[cityKey] then _cached[cityKey] = {} end
-	local wealth = (self:GetUpperClass()*WealthUpperRatio + self:GetMiddleClass()*WealthMiddleRatio + self:GetLowerClass()*WealthLowerRatio + self:GetSlaveClass()*WealthSlaveRatio) / self:GetRealPopulation()
+	local wealth = Div((self:GetUpperClass()*WealthUpperRatio + self:GetMiddleClass()*WealthMiddleRatio + self:GetLowerClass()*WealthLowerRatio + self:GetSlaveClass()*WealthSlaveRatio), self:GetRealPopulation())
 	_cached[cityKey].Wealth = GCO.ToDecimals(wealth)
 end
 
@@ -1406,7 +1407,7 @@ end
 
 function SetLiteracy(self) -- must be updated before Research:DoTurn()
 	local population	= self:GetRealPopulation()
-	local literacy		= GCO.ToDecimals(math.min(100, (100 * self:GetUpperClass() / population) + (50 * self:GetMiddleClass() / population)))
+	local literacy		= GCO.ToDecimals(math.min(100, (100 * Div(self:GetUpperClass(), population)) + (50 * Div(self:GetMiddleClass(), population))))
 	self:SetCached("Literacy", literacy)
 	return literacy
 end
@@ -1868,7 +1869,7 @@ function TransferToCities(self)
 			end
 		end
 		transfers.Resources[resourceID] = math.min(value, availableStock)
-		transfers.ResPerCity[resourceID] = math.floor(transfers.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
+		transfers.ResPerCity[resourceID] = math.floor(Div(transfers.Resources[resourceID],supplyDemand.NeedResources[resourceID]))
 		Dprint( DEBUG_CITY_SCRIPT, "- Required ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(availableStock)..", transfer = ".. tostring(transfers.Resources[resourceID]) .. ", transfer priority = " ..tostring(supplyDemand.HasPrecedence[resourceID]) .. ", local priority = " ..tostring(bHasLocalPrecedence) )
 	end
 
@@ -2246,7 +2247,7 @@ function ExportToForeignCities(self)
 
 	for resourceID, value in pairs(supplyDemand.Resources) do
 		transfers.Resources[resourceID] = math.min(value, self:GetAvailableStockForExport(resourceID))
-		transfers.ResPerCity[resourceID] = math.floor(transfers.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
+		transfers.ResPerCity[resourceID] = math.floor(Div(transfers.Resources[resourceID],supplyDemand.NeedResources[resourceID]))
 		Dprint( DEBUG_CITY_SCRIPT, "- Required ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." = ".. tostring(value), " for " , tostring(supplyDemand.NeedResources[resourceID]) ," cities, available = " .. tostring(self:GetAvailableStockForExport(resourceID))..", transfer = ".. tostring(transfers.Resources[resourceID]))
 	end
 
@@ -2584,7 +2585,8 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 		local surplus		= math.max(0, (actualStock + value) - maxStock)
 		local virtualStock 	= math.max(actualStock, (math.ceil(maxStock/2)))
 		local virtualValue 	= value - surplus
-		local newCost 		= GCO.ToDecimals((virtualValue*unitCost + virtualStock*actualCost ) / (virtualValue + virtualStock))
+		local divisor		= virtualValue + virtualStock
+		local newCost 		= divisor > 0 and GCO.ToDecimals(Div((virtualValue*unitCost + virtualStock*actualCost ), divisor)) or unitCost
 
 		Dprint( DEBUG_CITY_SCRIPT, "newCost = (virtualValue[".. tostring(virtualValue) .."] * unitCost["..tostring(unitCost).."] + virtualStock["..tostring(virtualStock).."]*actualCost["..tostring(actualCost).."] ) / (virtualValue["..tostring(virtualValue).."] + virtualStock["..tostring(virtualStock).."])")
 
@@ -2842,7 +2844,7 @@ end
 function GetMaxEquipmentStock(self, equipmentID)
 	local equipmentType = GameInfo.Resources[equipmentID].ResourceType
 	local equipmentSize = GameInfo.Equipment[equipmentType].Size
-	return math.floor(self:GetMaxEquipmentStorage() / equipmentSize)
+	return math.floor(Div(self:GetMaxEquipmentStorage(), equipmentSize))
 end
 
 function GetEquipmentStorageLeft(self, equipmentID)
@@ -3085,7 +3087,7 @@ function GetAverageUseTypeOnTurns(self, resourceID, useType, numTurn)
 		loop = loop + 1
 	end
 	if loop > 0 then
-		return GCO.Round(total/loop)
+		return GCO.Round(Div(total,loop))
 	end
 	return 0
 end
@@ -3670,11 +3672,11 @@ function GetFoodConsumption(self, optionalRatio)
 	if data.Prisoners then
 		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisoners(data) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) )
 	end
-	return math.max(1, GCO.Round(( foodConsumption1000 * ratio / 1000  )/ self:GetFoodNeededByPopulationFactor())) -- self:GetFoodNeededByPopulation(population, consumptionRatio )))--
+	return math.max(1, GCO.Round(Div(( foodConsumption1000 * ratio / 1000  ), self:GetFoodNeededByPopulationFactor()))) -- self:GetFoodNeededByPopulation(population, consumptionRatio )))--
 end
 
 function GetFoodNeededByPopulationFactor(self)	-- reduce food consumption relatively to city size as population per size is exponential, set FOOD_CONSUMPTION_SIZE_EFFECT_REDUCTION > 1 to limit the effect of city size on food consumption
-	return math.max(1, self:GetRealSize() / tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SIZE_EFFECT_REDUCTION"].Value))
+	return math.max(1, Div(self:GetRealSize(), tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_SIZE_EFFECT_REDUCTION"].Value)))
 end
 
 function GetFoodStock(self) -- return all edible food stock
@@ -3765,7 +3767,7 @@ function CanTrain(self, unitType)
 	local bHasComponents 	= true
 	local bCanShow			= true -- can this unit been shown in the production Panel
 	local production 		= self:GetProductionYield()
-	local turnsToBuild 		= math.max(1, math.ceil(row.Cost / production))
+	local turnsToBuild 		= production == 0 and 1 or math.max(1, math.ceil(Div(row.Cost, production)))
 	local turnsLeft 		= self:GetProductionTurnsLeft(unitType) or turnsToBuild
 	local resTable 			= GCO.GetUnitConstructionResources(unitID, organizationLevel)
 	local resOrTable 		= GCO.GetUnitConstructionOrResources(unitID, organizationLevel)
@@ -3822,7 +3824,7 @@ function CanTrain(self, unitType)
 		end
 	
 		local reserved 					= self:GetBuildingQueueStock(resourceID, unitType)
-		local needPerTurn 				= math.ceil( (value - reserved) / turnsLeft)
+		local needPerTurn 				= math.ceil( Div((value - reserved), turnsLeft))
 		local stock						= self:GetStock(resourceID)
 		local supplied					= math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))
 		local resourceCost				= self:GetResourceCost(resourceID)
@@ -3985,7 +3987,7 @@ function CanConstruct(self, buildingType)
 	local prereqCivic		= GameInfo.Buildings[buildingType].PrereqCivic
 	local bHasComponents 	= true
 	local production 		= self:GetProductionYield()
-	local turnsToBuild 		= math.max(1, math.ceil(row.Cost / production))
+	local turnsToBuild 		= production == 0 and 1 or math.max(1, math.ceil(Div(row.Cost, production)))
 	local resTable 			= GCO.GetBuildingConstructionResources(buildingType)
 	local requirementStr 	= {} -- table to build the string
 	local reservedStr		= Locale.Lookup("LOC_ALREADY_RESERVED_RESOURCE")
@@ -4085,7 +4087,7 @@ function CanConstruct(self, buildingType)
 		local previousTurnKey 	= GCO.GetPreviousTurnKey()
 		local turn				= Game.GetCurrentGameTurn()
 		local previousTurn		= math.max(0, turn - 1 )
-		local needPerTurn 		= math.ceil( value / turnsToBuild)
+		local needPerTurn 		= math.ceil( Div(value, turnsToBuild))
 		local stock				= self:GetStock(resourceID)
 		local supplied			= math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))		
 		local reserved 			= self:GetBuildingQueueStock(resourceID, buildingType)
@@ -4411,7 +4413,7 @@ function GetCityEmploymentFactor(self)
 end
 
 function GetEmploymentSize(self, num)
-	return GCO.Round(math.pow( num / self:GetCityEmploymentFactor(), 1  / self:GetCityEmploymentPow()))
+	return GCO.Round(math.pow( Div(num, self:GetCityEmploymentFactor()), Div(1, self:GetCityEmploymentPow())))
 end
 
 -- unused [[
@@ -4457,7 +4459,7 @@ function SetMaxEmploymentUrban(self)
 	if not _cached[cityKey] then _cached[cityKey] = {} end
 	-- We want the max value before reaching the next city size...
 	local employmentSize = self:GetUrbanEmploymentSize() --self:GetSize() + 1
-	_cached[cityKey].MaxEmploymentUrban = GCO.Round(self:GetUrbanPopulation()*(employmentSize/self:GetSize()))--GCO.Round(math.pow(employmentSize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
+	_cached[cityKey].MaxEmploymentUrban = GCO.Round(self:GetUrbanPopulation()*Div(employmentSize, self:GetSize()))--GCO.Round(math.pow(employmentSize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
 end
 
 -- duplicate usage with GetUrbanActivityFactor...
@@ -4482,7 +4484,7 @@ function SetProductionFactorFromBuildings(self)
 	
 	local ratio = 1
 	if employment > 0 then 
-		ratio = math.min(1,(size / employment))
+		ratio = math.min(1,Div(size, employment))
 	end
 	_cached[cityKey].ProductionFactorFromBuildings = ratio
 end
@@ -4506,7 +4508,7 @@ function SetEmploymentFactorFromBuildings(self)
 	local size 			= self:GetSize()
 	local employment 	= self:GetUrbanEmploymentSize()
 	
-	_cached[cityKey].EmploymentFactorFromBuildings = math.min(1,(employment / size))
+	_cached[cityKey].EmploymentFactorFromBuildings = math.min(1,Div(employment, size))
 end
 
 -- duplicate usage with GetUrbanActivityFactor...
@@ -4526,8 +4528,8 @@ function GetUrbanActivityFactor(self)
 	local employmentFromBuilding 	= self:GetMaxEmploymentUrban()
 	local employed					= self:GetUrbanEmployed()
 	if employmentFromBuilding > employed then
-		--return (self:GetUrbanEmployed() / employmentFromBuilding)
-		return self:GetEmploymentSize(employed) / self:GetEmploymentSize(employmentFromBuilding)
+		--return Div(self:GetUrbanEmployed(), employmentFromBuilding)
+		return Div(self:GetEmploymentSize(employed), self:GetEmploymentSize(employmentFromBuilding))
 	else
 		return 1
 	end
@@ -5018,7 +5020,7 @@ function GetFoodStockString(self)
 	local resourceCost 			= self:GetResourceCost(foodResourceID)
 	local costVariation 		= self:GetResourceCostVariation(foodResourceID)
 
-	local pctFood				= foodStock / maxFoodStock * 100
+	local pctFood				= Div(foodStock, maxFoodStock) * 100
 	local str 					= Locale.Lookup("LOC_CITYBANNER_FOOD_PERCENTAGE", GCO.GetPercentBarString(pctFood), pctFood) .. "[NEWLINE]"-- ..Locale.Lookup("LOC_TOOLTIP_SEPARATOR")--""
 	if cityRationning <= Starvation then
 		str = str ..Locale.Lookup("LOC_CITYBANNER_FOOD_RATION_STARVATION", foodStock, maxFoodStock)
@@ -5207,7 +5209,7 @@ function SetCityRationing(self)
 	local foodSent 				= GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.Export, previousTurn)) +  GCO.Round(self:GetUseTypeAtTurn(foodResourceID, ResourceUseType.TransferOut, previousTurn))
 	local normalRatio 			= 1
 	local foodVariation 		= previousTurnSupply - self:GetFoodConsumption(normalRatio) -- self:GetStockVariation(foodResourceID) can't use stock variation here, as it will be equal to 0 when consumption > supply and there is not enough stock left (consumption capped at stock left...)
-	local consumptionRatio		= math.min(normalRatio, previousTurnSupply / self:GetFoodConsumption(normalRatio)) -- GetFoodConsumption returns a value >= 1
+	local consumptionRatio		= math.min(normalRatio, Div(previousTurnSupply, self:GetFoodConsumption(normalRatio))) -- GetFoodConsumption returns a value >= 1
 
 --Dline(" Food stock = ", foodStock," Variation = ",foodVariation, " Previous turn supply = ", previousTurnSupply, " Wanted = ", self:GetFoodConsumption(normalRatio), " Actual Consumption = ", self:GetFoodConsumption(), " Export+Transfer = ", foodSent, " Actual ratio = ", ratio, " Turn(s) locked left = ", (RationingTurnsLocked - (Game.GetCurrentGameTurn() - cityData.FoodRatioTurn)), " Consumption ratio = ",  consumptionRatio)
 
@@ -5215,7 +5217,7 @@ function SetCityRationing(self)
 
 	--[[
 	if foodVariation < 0 and foodSent == 0 and foodStock < self:GetMaxStock(foodResourceID) * 0.75 then
-		local turnBeforeFamine		= -(foodStock / foodVariation)
+		local turnBeforeFamine		= -Div(foodStock, foodVariation)
 		Dprint( DEBUG_CITY_SCRIPT, " Turns Before Starvation = ", turnBeforeFamine)
 		if foodStock == 0 then
 			ratio = math.max(consumptionRatio, Starvation)
@@ -5293,12 +5295,12 @@ function UpdateCosts(self)
 				if supply > demand or stock >= maxStock then
 					local turnUntilFull = 0
 					if stock < maxStock then
-						turnUntilFull = (maxStock - stock) / (supply - demand) -- (don't worry, supply - demand > 0 if we're here)
+						turnUntilFull = Div((maxStock - stock), (supply - demand)) -- (don't worry, supply - demand > 0 if we're here)
 					end
 					if turnUntilFull == 0 then
 						varPercent = math.min(maxVarPercent, MaxCostReductionPercent)
 					else
-						varPercent = math.min(maxVarPercent, MaxCostReductionPercent, 1 / (turnUntilFull / (maxStock / 2)))
+						varPercent = math.min(maxVarPercent, MaxCostReductionPercent, Div(1, (Div(turnUntilFull, (maxStock / 2)))))
 					end
 					local variation = math.min(actualCost * varPercent / 100, (actualCost - minCost) / 2)
 					newCost = math.max(minCost, math.min(maxCost, actualCost - variation))
@@ -5306,11 +5308,11 @@ function UpdateCosts(self)
 					Dprint( DEBUG_CITY_SCRIPT, "          ........... "..Indentation20("...").." new cost..... ".. Indentation8(newCost).. "  max cost ".. Indentation8(maxCost).." min cost ".. Indentation8(minCost).." turn until full ".. Indentation8(turnUntilFull).." variation ".. Indentation8(variation))
 				elseif demand > supply then
 
-					local turnUntilEmpty = stock / (demand - supply)
+					local turnUntilEmpty = Div(stock, (demand - supply))
 					if turnUntilEmpty == 0 then
 						varPercent = math.min(maxVarPercent, MaxCostIncreasePercent)
 					else
-						varPercent = math.min(maxVarPercent, MaxCostIncreasePercent, 1 / (turnUntilEmpty / (maxStock / 2)))
+						varPercent = math.min(maxVarPercent, MaxCostIncreasePercent, Div(1, (Div(turnUntilEmpty, (maxStock / 2)))))
 					end
 					local variation = math.min(actualCost * varPercent / 100, (maxCost - actualCost) / 2)
 					newCost = math.max(minCost, math.min(maxCost, actualCost + variation))
@@ -5470,9 +5472,9 @@ function DoRecruitPersonnel(self)
 	self:ChangeUpperClass(-recruitedGenerals)
 	self:ChangeMiddleClass(-recruitedOfficers)
 	self:ChangeLowerClass(-recruitedSoldiers)
-	self:ChangePersonnel(math.floor(recruitedGenerals/populationRatio), ResourceUseType.Recruit, RefPopulationUpper)
-	self:ChangePersonnel(math.floor(recruitedOfficers/populationRatio), ResourceUseType.Recruit, RefPopulationMiddle)
-	self:ChangePersonnel(math.floor(recruitedSoldiers/populationRatio), ResourceUseType.Recruit, RefPopulationLower)
+	self:ChangePersonnel(math.floor(Div(recruitedGenerals,populationRatio)), ResourceUseType.Recruit, RefPopulationUpper)
+	self:ChangePersonnel(math.floor(Div(recruitedOfficers,populationRatio)), ResourceUseType.Recruit, RefPopulationMiddle)
+	self:ChangePersonnel(math.floor(Div(recruitedSoldiers,populationRatio)), ResourceUseType.Recruit, RefPopulationLower)
 	
 	Dlog("DoRecruitPersonnel /END")
 end
@@ -5493,7 +5495,7 @@ function DoReinforceUnits(self)
 
 	for resourceID, value in pairs(supplyDemand.Resources) do
 		reinforcements.Resources[resourceID] = math.min(value, self:GetAvailableStockForUnits(resourceID))
-		reinforcements.ResPerUnit[resourceID] = math.floor(reinforcements.Resources[resourceID]/supplyDemand.NeedResources[resourceID])
+		reinforcements.ResPerUnit[resourceID] = math.floor(Div(reinforcements.Resources[resourceID],supplyDemand.NeedResources[resourceID]))
 		Dprint( DEBUG_CITY_SCRIPT, "- Max transferable ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. " = ".. tostring(value), " for " .. tostring(supplyDemand.NeedResources[resourceID]), " units, available = " .. tostring(self:GetAvailableStockForUnits(resourceID)), ", send = ".. tostring(reinforcements.Resources[resourceID]))
 	end
 	
@@ -5857,8 +5859,8 @@ function DoIndustries(self)
 				local buildingConsumptionRatio = {}
 				for buildingID, value in pairs(data.Buildings) do
 					numBuildings = numBuildings + 1
-					buildingConsumptionRatio[buildingID] = value / totalResNeeded					
-					Dprint( DEBUG_CITY_SCRIPT, " - Set ratio for ..................... : ".. Indentation20(Locale.Lookup(GameInfo.Buildings[buildingID].Name)) ..", requires = "..tostring(value), ", calculated ratio = "..tostring(value / totalResNeeded))
+					buildingConsumptionRatio[buildingID] = Div(value, totalResNeeded)
+					Dprint( DEBUG_CITY_SCRIPT, " - Set ratio for ..................... : ".. Indentation20(Locale.Lookup(GameInfo.Buildings[buildingID].Name)) ..", requires = "..tostring(value), ", calculated ratio = "..tostring(Div(value, totalResNeeded)))
 				end
 				
 				for buildingID, _ in pairs(data.Buildings) do
@@ -5894,14 +5896,14 @@ function DoIndustries(self)
 					local stockVariation 		= self:GetStockVariation(resourceCreatedID)
 					if amountCreated + self:GetStock(resourceCreatedID) > self:GetMaxStock(resourceCreatedID) and stockVariation >= 0 then
 						local maxCreated 	= self:GetMaxStock(resourceCreatedID) - self:GetStock(resourceCreatedID)
-						amountUsed 			= math.floor(maxCreated / row.Ratio)
+						amountUsed 			= math.floor(Div(maxCreated, row.Ratio))
 						amountCreated		= math.floor(amountUsed * row.Ratio)
 						bLimitedByExcedent	= true
 					end
 
 					if amountCreated > 0 then
 						local costFactor	= row.CostFactor
-						local resourceCost 	= (GCO.GetBaseResourceCost(resourceCreatedID) / row.Ratio * wealth * costFactor) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
+						local resourceCost 	= (Div(GCO.GetBaseResourceCost(resourceCreatedID), row.Ratio) * wealth * costFactor) + (Div(self:GetResourceCost(resourceRequiredID), row.Ratio))
 						Dprint( DEBUG_CITY_SCRIPT, " - " .. Indentation20(Locale.Lookup(GameInfo.Buildings[buildingID].Name)) .." production: ".. tostring(amountCreated), " ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)).." at ".. tostring(GCO.ToDecimals(resourceCost)), " cost/unit, using ".. tostring(amountUsed), " ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 						self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
 						resPerBuilding[buildingID][resourceRequiredID] = resPerBuilding[buildingID][resourceRequiredID] - amountUsed
@@ -5939,7 +5941,7 @@ function DoIndustries(self)
 
 					if amountCreated > 0 then
 						local costFactor	= row.CostFactor
-						local resourceCost 	= (GCO.GetBaseResourceCost(row.ResourceCreated) / row.Ratio * wealth) + (self:GetResourceCost(resourceRequiredID) / row.Ratio)
+						local resourceCost 	= (Div(GCO.GetBaseResourceCost(row.ResourceCreated), row.Ratio) * wealth) + Div(self:GetResourceCost(resourceRequiredID), row.Ratio)
 						Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountCreated) .." ".. Indentation20(Locale.Lookup(GameInfo.Resources[row.ResourceCreated].Name)).." created at ".. tostring(GCO.ToDecimals(resourceCost)), " cost/unit, ratio = " .. tostring(row.Ratio), ", used ".. tostring(amountUsed), " ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)) ..", limited by excedent = ".. tostring(bLimitedByExcedent))
 						self:ChangeStock(row.ResourceCreated, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 						bUsed = true
@@ -5999,16 +6001,16 @@ function DoIndustries(self)
 				for i, row in pairs(requiredResourcesRatio) do
 					local resourceRequiredID 	= row.ResourceRequiredID
 					local ratio 				= row.Ratio
-					local amountUsed 			= GCO.Round(amountCreated / ratio) -- we shouldn't be here if ratio = 0, and the rounded value should be < maxAmountUsed
-					local resourceCost 			= (self:GetResourceCost(resourceRequiredID) / ratio) * row.CostFactor
+					local amountUsed 			= GCO.Round(Div(amountCreated, ratio)) -- we shouldn't be here if ratio = 0, and the rounded value should be < maxAmountUsed
+					local resourceCost 			= Div(self:GetResourceCost(resourceRequiredID), ratio) * row.CostFactor
 					requiredResourceCost = requiredResourceCost + resourceCost
 					totalRatio = totalRatio + ratio
 					Dprint( DEBUG_CITY_SCRIPT, "    - ".. tostring(amountUsed) .." ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)) .." used at ".. tostring(GCO.ToDecimals(resourceCost)), " cost/unit, ratio = " .. tostring(ratio))
 					self:ChangeStock(resourceRequiredID, - amountUsed, ResourceUseType.Consume, buildingID)
 					resPerBuilding[buildingID][resourceRequiredID] = resPerBuilding[buildingID][resourceRequiredID] - amountUsed
 				end
-				local baseRatio = totalRatio / totalResourcesRequired
-				resourceCost = (GCO.GetBaseResourceCost(resourceCreatedID) / baseRatio * wealth ) + requiredResourceCost
+				local baseRatio = Div(totalRatio, totalResourcesRequired)
+				resourceCost = (Div(GCO.GetBaseResourceCost(resourceCreatedID), baseRatio) * wealth ) + requiredResourceCost
 				Dprint( DEBUG_CITY_SCRIPT, "    - " ..  Indentation20(Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)).. " cost per unit  = ".. tostring(resourceCost), ", limited by excedent = ".. tostring(bLimitedByExcedent))
 				self:ChangeStock(resourceCreatedID, amountCreated, ResourceUseType.Product, buildingID, resourceCost)
 			end
@@ -6059,10 +6061,10 @@ function DoConstruction(self)
 		-- Get construction efficiency from global resources...
 		local usedTable = {}
 		for resourceID, value in pairs(resTable) do
-			local neededPerTurn 	= math.ceil( (value - self:GetBuildingQueueStock(resourceID, currentlyBuilding)) / turnsLeft)
+			local neededPerTurn 	= math.ceil( Div((value - self:GetBuildingQueueStock(resourceID, currentlyBuilding)), turnsLeft))
 			Dprint( DEBUG_CITY_SCRIPT, "Need : ".. tostring(neededPerTurn), " " ..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. ", Actual Stock = " .. Indentation15(tostring(self:GetStock(resourceID))).. " (Resource)" )
 			usedTable[resourceID] = neededPerTurn
-			if neededPerTurn > self:GetStock(resourceID) then efficiency = math.min(efficiency, self:GetStock(resourceID) / neededPerTurn) end
+			if neededPerTurn > self:GetStock(resourceID) then efficiency = math.min(efficiency, Div(self:GetStock(resourceID), neededPerTurn)) end
 		end
 
 		-- Get construction efficiency from mandatory equipment (OR list)
@@ -6074,7 +6076,7 @@ function DoConstruction(self)
 				alreadyStocked = alreadyStocked + self:GetBuildingQueueStock(resourceID, currentlyBuilding)
 			end
 			if totalNeeded > alreadyStocked then -- we may already have enough of that resource/equipment in the reserved stock
-				local neededPerTurn 		= math.ceil( (totalNeeded-alreadyStocked) / turnsLeft ) -- total needed for that class at 100% production efficiency
+				local neededPerTurn 		= math.ceil( Div((totalNeeded-alreadyStocked), turnsLeft )) -- total needed for that class at 100% production efficiency
 				local numResourceToProvide	= neededPerTurn
 				local totalClass			= 0
 				for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
@@ -6092,7 +6094,7 @@ function DoConstruction(self)
 				Dprint( DEBUG_CITY_SCRIPT, "Need : ".. tostring(neededPerTurn), " " ..Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClass].Name)).. ", Actual Stock = " .. Indentation15(tostring(totalClass)).. " (Equipment)" )
 
 				if numResourceToProvide > 0 	then
-					efficiency = math.min(efficiency, providedResources / neededPerTurn)
+					efficiency = math.min(efficiency, Div(providedResources, neededPerTurn))
 				end
 			else -- if we already have enough of that resource/equipment, mark it...
 				resOrTable[equipmentClass].Value = 0
@@ -6122,7 +6124,7 @@ function DoConstruction(self)
 		-- Now get the equipment needed for that turn at the calculated production efficiency...
 		-- from mandatory equipment (OR list)
 		for equipmentClass, resourceTable in pairs(resOrTable) do
-			local neededPerTurn 		= math.ceil( (resourceTable.Value / turnsToBuild) * efficiency) -- needed at calculated efficiency for that class
+			local neededPerTurn 		= math.ceil( Div(resourceTable.Value, turnsToBuild) * efficiency) -- needed at calculated efficiency for that class
 			local numResourceToProvide	= neededPerTurn
 			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
 				if numResourceToProvide > 0 then
@@ -6140,7 +6142,7 @@ function DoConstruction(self)
 
 		-- from optional equipment (OR list)
 		for equipmentClass, resourceTable in pairs(resOptionalTable) do
-			local neededPerTurn 		= math.ceil( (resourceTable.Value / turnsToBuild) * efficiency ) -- needed at calculated efficiency for that class
+			local neededPerTurn 		= math.ceil( Div(resourceTable.Value, turnsToBuild) * efficiency ) -- needed at calculated efficiency for that class
 			local numResourceToProvide	= neededPerTurn
 			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
 				if numResourceToProvide > 0 then
@@ -6476,7 +6478,7 @@ function SetNeedsValues(self)
 
 	-- Food for population
 	function GetFoodEaten(classID, population, consumption, maxEffectValue)
-		local need		= GCO.ToDecimals((population * consumption / 1000)/ self:GetFoodNeededByPopulationFactor()) -- 
+		local need		= GCO.ToDecimals(Div((population * consumption / 1000), self:GetFoodNeededByPopulationFactor())) -- 
 		local ration	= GCO.ToDecimals(need * rationing)
 		local eaten		= GCO.ToDecimals(math.min(availableFood, ration))
 		availableFood 		= availableFood - eaten
@@ -6652,8 +6654,8 @@ function SetNeedsValues(self)
 		end
 	end
 	
-	local minLuxuriesNeeded 	= math.floor(self:GetSize()*(upperPopulation/self:GetUrbanPopulation())*25) --math.max(1, GCO.Round(upperPopulation * MinNeededLuxuriesPerMil / 1000))
-	local maxLuxuriesConsumed 	= math.min(totalLuxuries, math.floor(self:GetSize()*(upperPopulation/self:GetUrbanPopulation())*50))--math.min(totalLuxuries, GCO.Round(upperPopulation * MaxLuxuriesConsumedPerMil / 1000 ))
+	local minLuxuriesNeeded 	= math.floor(self:GetSize() * (Div(upperPopulation, self:GetUrbanPopulation())) * 25) --math.max(1, GCO.Round(upperPopulation * MinNeededLuxuriesPerMil / 1000))
+	local maxLuxuriesConsumed 	= math.min(totalLuxuries, math.floor(self:GetSize() * Div(upperPopulation, self:GetUrbanPopulation()) * 50))--math.min(totalLuxuries, GCO.Round(upperPopulation * MaxLuxuriesConsumedPerMil / 1000 ))
 	
 	if totalLuxuries > 0 then
 	
@@ -6689,7 +6691,7 @@ function SetNeedsValues(self)
 			Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", - effectValue))
 		end
 		
-		local ratio = maxLuxuriesConsumed / totalLuxuries
+		local ratio = Div(maxLuxuriesConsumed, totalLuxuries)
 		for resourceID, value in pairs(luxuryTable) do
 			local consumed = GCO.Round(value * ratio)
 			--self:ChangeStock(resourceID, - consumed, ResourceUseType.Consume, RefPopulationUpper)
@@ -6815,13 +6817,13 @@ function DoTaxes(self)
 	local goldPerTurn 	= self:GetCityYield(YieldTypes.GOLD )
 	
 	if player:HasPolicyActive(GameInfo.Policies["POLICY_UPPER_TAX"].Index) then 
-		local ratio 		= self:GetUpperClass() / self:GetRealPopulation()
+		local ratio 		= Div(self:GetUpperClass(), self:GetRealPopulation())
 		local extraGold 	= goldPerTurn * ratio * 2
 		player:ProceedTransaction(AccountType.UpperTaxes, extraGold)		
 	end
 	
 	if player:HasPolicyActive(GameInfo.Policies["POLICY_MIDDLE_TAX"].Index) then 
-		local ratio 		= self:GetMiddleClass() / self:GetRealPopulation()
+		local ratio 		= Div(self:GetMiddleClass(), self:GetRealPopulation())
 		local extraGold 	= goldPerTurn * ratio
 		player:ProceedTransaction(AccountType.MiddleTaxes, extraGold)		
 	end
@@ -6860,7 +6862,7 @@ function DoAdministration(self) -- after processing resources
 			end
 		end
 	end
-	local efficiency = ((provided >= totalNeeded or totalNeeded == 0) and 100) or GCO.GetMaxPercentFromLowDiff(100, totalNeeded, provided)--(100 - ( totalNeeded / (provided + 1))))
+	local efficiency = ((provided >= totalNeeded or totalNeeded == 0) and 100) or GCO.GetMaxPercentFromLowDiff(100, totalNeeded, provided)--(100 - Div( totalNeeded, (provided + 1))))
 	self:SetAdministrativeEfficiency(efficiency)
 end
 
@@ -6917,7 +6919,7 @@ function SetMigrationValues(self)
 	
 	local classesRatio				= {}
 	for i, classID in ipairs(migrantClasses) do
-		classesRatio[classID] = self:GetPopulationClass(classID) / totalPopulation
+		classesRatio[classID] = Div(self:GetPopulationClass(classID), totalPopulation)
 	end
 	
 	Dprint( DEBUG_CITY_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " totalPopulation = ", totalPopulation)
@@ -6926,7 +6928,7 @@ function SetMigrationValues(self)
 	
 		local population			= self:GetPopulationClass(populationID)		
 		local housingSize			= self:GetCustomYield( housingID[populationID] )
-		local maxPopulation			= GetPopulationPerSize(housingSize) - tOccupiedHousing[populationID]
+		local maxPopulation			= math.max(GetPopulationPerSize(1), GetPopulationPerSize(housingSize) - tOccupiedHousing[populationID])
 		local bestMotivationWeight	= 0
 		
 		Dprint( DEBUG_CITY_SCRIPT, "  - "..Indentation20(Locale.ToUpper(GameInfo.Resources[populationID].Name)).." current population = "..Indentation15(population).. " motivations : employment = ".. tostring(migrationClassMotivation.Employment[populationID]) ..", housing = ".. migrationClassMotivation.Housing[populationID] ..", food = ".. tostring(migrationClassMotivation.Food[populationID]))
@@ -6937,8 +6939,8 @@ function SetMigrationValues(self)
 			-- Employment
 			-- for now global, but todo : per class employment in cities
 			if employment > 0 then
-				cityMigration.Pull.Employment[populationID]		= employment / totalPopulation
-				cityMigration.Push.Employment[populationID]		= totalPopulation / employment
+				cityMigration.Pull.Employment[populationID]		= Div(employment, totalPopulation)
+				cityMigration.Push.Employment[populationID]		= Div(totalPopulation, employment)
 				cityMigration.Migrants.Employment[populationID]	= 0
 				if cityMigration.Push.Employment[populationID] > 1 then
 					local motivationWeight = cityMigration.Push.Employment[populationID] * migrationClassMotivation.Employment[populationID]
@@ -6956,8 +6958,8 @@ function SetMigrationValues(self)
 			Dprint( DEBUG_CITY_SCRIPT, "  - Employment migrants for ...."..Indentation20(Locale.Lookup(GameInfo.Resources[populationID].Name)).." = ".. tostring(cityMigration.Migrants.Employment[populationID]) .."/".. population )
 			
 			-- Housing
-			cityMigration.Pull.Housing[populationID]		= maxPopulation / population
-			cityMigration.Push.Housing[populationID]		= population / maxPopulation
+			cityMigration.Pull.Housing[populationID]		= Div(maxPopulation, population)
+			cityMigration.Push.Housing[populationID]		= Div(population, maxPopulation)
 			cityMigration.Migrants.Housing[populationID]	= 0
 			if cityMigration.Push.Housing[populationID] > 1 then 
 				local motivationWeight = cityMigration.Push.Housing[populationID] * migrationClassMotivation.Housing[populationID]
@@ -6976,8 +6978,8 @@ function SetMigrationValues(self)
 			local consumptionRatio						= 1
 			local foodNeeded							= self:GetFoodConsumption(consumptionRatio)
 			local foodstock								= self:GetFoodStock()
-			cityMigration.Pull.Food[populationID]		= foodstock / foodNeeded
-			cityMigration.Push.Food[populationID]		= foodNeeded / foodstock
+			cityMigration.Pull.Food[populationID]		= Div(foodstock, foodNeeded)
+			cityMigration.Push.Food[populationID]		= Div(foodNeeded, foodstock)
 			cityMigration.Migrants.Food[populationID]	= 0
 			
 			if cityMigration.Push.Food[populationID] > 1 then 
@@ -6986,7 +6988,7 @@ function SetMigrationValues(self)
 					cityMigration.Motivation[populationID]		= "Food"
 					bestMotivationWeight						= motivationWeight
 				end
-				local starving								= population - (population / cityMigration.Push.Food[populationID])
+				local starving								= population - Div(population, cityMigration.Push.Food[populationID])
 				cityMigration.Migrants.Food[populationID]	= math.floor(starving * classesRatio[populationID] * math.min(1, migrationClassMotivation.Food[populationID]))
 			end
 			--Dprint( DEBUG_CITY_SCRIPT, "  - Starving = ", starving," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
@@ -7036,7 +7038,7 @@ function DoMigration(self)
 			
 			local classesRatio				= {}
 			for i, classID in ipairs(migrantClasses) do
-				classesRatio[classID] = self:GetPopulationClass(classID) / totalPopulation
+				classesRatio[classID] = Div(self:GetPopulationClass(classID), totalPopulation)
 			end
 			
 			-- Do Migration for each population class
@@ -7137,7 +7139,7 @@ function DoMigration(self)
 							local otherCityMigration = city:GetMigration()
 							if otherCityMigration then
 								local cityWeight 	= 0
-								local efficiency	= routeData.Efficiency / 100 * migrationClassMotivation["Transport"][populationID]
+								local efficiency	= (routeData.Efficiency / 100) * migrationClassMotivation["Transport"][populationID]
 								local factor		= migrationClassMotivation["Urban"][populationID] * efficiency
 								if majorMotivation == "Greener Pastures" then								
 									cityWeight = 1  -- Any city will have mimimun attraction for adventurers
@@ -7185,7 +7187,7 @@ function DoMigration(self)
 							local otherCityMigration = city:GetMigration()
 							if otherCityMigration then
 								local cityWeight 	= 0
-								local efficiency	= routeData.Efficiency / 100 * migrationClassMotivation["Transport"][populationID]
+								local efficiency	= (routeData.Efficiency / 100) * migrationClassMotivation["Transport"][populationID]
 								local factor		= migrationClassMotivation["Emigration"][populationID] * efficiency
 								if majorMotivation == "Greener Pastures" then								
 									cityWeight = 1  -- Any city will have mimimun attraction for adventurers
@@ -7234,7 +7236,7 @@ function DoMigration(self)
 							-- MigrationEfficiency already affect destination.Weight, but when there is not many possible destination 
 							-- we want to limit the number of migrants over long routes, so it's included here too 
 							totalWeight		= math.max(1, totalWeight) -- do not divide by 0 !!!
-							local popMoving = math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
+							local popMoving = math.floor(migrants * Div(destination.Weight, totalWeight) * destination.MigrationEfficiency)
 							if popMoving > 0 then
 								if destination.PlotID then
 									local plot 				= GCO.GetPlotByIndex(destination.PlotID)
@@ -7281,7 +7283,7 @@ function Heal(self)
 	if cityDamage > 0 then
 		local requiredMaterielPerHP = healGarrisonBaseMateriel * self:GetSize()
 		local availableMateriel 	= self:GetStock(materielResourceID)
-		local maxHealed				= math.min(cityDamage, healGarrisonMaxPerTurn, math.floor(availableMateriel / requiredMaterielPerHP))
+		local maxHealed				= math.min(cityDamage, healGarrisonMaxPerTurn, math.floor(Div(availableMateriel, requiredMaterielPerHP)))
 		local materielUsed			= maxHealed * requiredMaterielPerHP
 		
 		self:ChangeStock(materielResourceID, -materielUsed, ResourceUseType.Consume, self:GetKey())	--to do : repair usage	
@@ -7312,7 +7314,7 @@ function Heal(self)
 		
 			local requiredMaterielPerHP = healOuterDefensesBaseMateriel * self:GetSize()
 			local availableMateriel 	= self:GetStock(materielResourceID)
-			local maxHealed				= math.min(wallDamage, healOuterDefensesMaxPerTurn, math.floor(availableMateriel / requiredMaterielPerHP))
+			local maxHealed				= math.min(wallDamage, healOuterDefensesMaxPerTurn, math.floor(Div(availableMateriel, requiredMaterielPerHP)))
 			local materielUsed			= maxHealed * requiredMaterielPerHP
 			
 			self:ChangeStock(materielResourceID, -materielUsed, ResourceUseType.Consume, self:GetKey())	--to do : repair usage	
@@ -7390,10 +7392,10 @@ function SetHealthValues(self)
 			local featureID 	= plot:GetFeatureType()
 			local resourceID 	= plot:GetResourceType()
 			if ChangeHealthFeatures[featureID] then
-				health.Condensed[StringsFromFeatures[featureID]] = (health.Condensed[StringsFromFeatures[featureID]] or 0) + (ChangeHealthFeatures[featureID] / Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), plot:GetX(), plot:GetY()))
+				health.Condensed[StringsFromFeatures[featureID]] = (health.Condensed[StringsFromFeatures[featureID]] or 0) + Div(ChangeHealthFeatures[featureID], Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), plot:GetX(), plot:GetY()))
 			end
 			if GCO.IsResourceFood(resourceID) then
-				health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] = (health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] or 0) + (1 / Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), plot:GetX(), plot:GetY()))
+				health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] = (health.Condensed["LOC_HEALTH_BONUS_FROM_FRESH_FOOD"] or 0) + Div(1, Map.GetPlotDistance(selfPlot:GetX(), selfPlot:GetY(), plot:GetX(), plot:GetY()))
 			end
 		end
 	end

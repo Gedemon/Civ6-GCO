@@ -327,6 +327,7 @@ Events.LoadGameViewStateDone.Add( OnLoadGameViewStateDone )
 -- Maths/Tables
 --=====================================================================================--
 function Round(num)
+	--[[
     under = math.floor(num)
     upper = math.floor(num) + 1
     underV = -(under - num)
@@ -336,6 +337,18 @@ function Round(num)
     else
         return upper
     end
+	--]]
+	return tonumber(string.format("%.0f", num))
+end
+
+function Divide(num, divisor)
+	if divisor == 0 then Error("Divide by 0") end
+	if num == nil or divisor == nil then
+		Error("Divide called with a nil operand:", num, divisor)
+		return 0
+	else
+		return num / divisor
+	end
 end
 
 function Shuffle(t)
@@ -368,9 +381,12 @@ function GetSize(t)
 end
 
 function ToDecimals(num)
+	--[[
 	num = Round(num*100)/100
 	string.format("%5.2f", num)
 	return num
+	--]]
+	return tonumber(string.format("%.2f", num))
 end
 
 function TableSummation(data) -- return the Summation of all values in a table formatted like { key = value }
@@ -1389,6 +1405,7 @@ function Initialize()
 	ExposedMembers.GCO.OrderedPairs 	= orderedPairs
 	-- maths
 	ExposedMembers.GCO.Round 						= Round
+	ExposedMembers.GCO.Divide						= Divide
 	ExposedMembers.GCO.Shuffle 						= Shuffle
 	ExposedMembers.GCO.GetSize 						= GetSize
 	ExposedMembers.GCO.ToDecimals 					= ToDecimals

@@ -69,13 +69,14 @@ local PlayerFromCivilizationType	= {}	-- to get the PlayerID for a CivilizationT
 
 local GCO 	= {}
 local pairs = pairs
-local Dprint, Dline, Dlog
+local Dprint, Dline, Dlog, Div
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO 			= ExposedMembers.GCO
 	LuaEvents		= GCO.LuaEvents
 	Dprint 			= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline			= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog			= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	Div				= GCO.Div
 	pairs 			= GCO.OrderedPairs
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
@@ -247,7 +248,7 @@ end
 -----------------------------------------------------------------------------------------	
 function Define(self)
 
-	local DEBUG_PLAYER_SCRIPT = "debug"
+	--local DEBUG_PLAYER_SCRIPT = "debug"
 	
 	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLAYER_SCRIPT, "Defining properties for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))

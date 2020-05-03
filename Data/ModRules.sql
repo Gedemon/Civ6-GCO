@@ -421,7 +421,7 @@ UPDATE Districts SET PrereqTech = 'TECH_INDUSTRIALIZATION' 		WHERE DistrictType 
 
 -- Update projects before removing the distric themselves because of the cascade update...
 --/* 
---DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
+DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_HARBOR';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Projects WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';

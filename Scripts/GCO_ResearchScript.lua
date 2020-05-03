@@ -173,12 +173,14 @@ DEBUG_RESEARCH_SCRIPT		= "ResearchScript"
 local GCO 		= {}
 local lpairs	= pairs
 local pairs 	= pairs
+local Dprint, Dline, Dlog, Div
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO 		= ExposedMembers.GCO
 	LuaEvents	= ExposedMembers.GCO.LuaEvents
 	Dprint 		= GCO.Dprint
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	Div			= GCO.Divide
 	pairs 		= GCO.OrderedPairs
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()

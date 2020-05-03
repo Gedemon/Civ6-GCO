@@ -257,6 +257,38 @@
         <Replace CivilizationType="CIVILIZATION_CANADA" CityName="LOC_CITY_NAME_LABRADOR_CITY"/>
         <Replace CivilizationType="CIVILIZATION_CANADA" CityName="LOC_CITY_NAME_IQALUIT"/>
     </CityNames>
+    <CityNames>     <!-- China -->
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_XIAN"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_BEIJING"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_TAIYUAN"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_CHENGDU"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_JIAODONG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_CHANGSHA"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_LONGXI"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_GUANGZHOU"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_HANDAN"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_SHENYANG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_SHANGHAI"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_WUHAN"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_YIYANG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_XIURONG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_CHEN"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_XINGZHOU"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_QUXIAN"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_NANJING"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_LANGFANG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_LINZI"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_JIUJIANG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_KAIFENG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_XUZHOU"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_HEFEI"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_XINZHENG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_LUAN"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_QUFU"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_JIANGZHOU"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_LUOYANG"/>
+		<Replace CivilizationType="CIVILIZATION_CHINA" CityName="LOC_CITY_NAME_YINGCHUAN"/>
+    </CityNames>
     <CityNames>     <!-- Colombia -->
         <Replace CivilizationType="CIVILIZATION_COLOMBIA" CityName="LOC_CITY_NAME_BOGOTA"/>   
         <Replace CivilizationType="CIVILIZATION_COLOMBIA" CityName="LOC_CITY_NAME_MEDELLIN"/> 
@@ -671,6 +703,40 @@
         <Replace CivilizationType="CIVILIZATION_KENYA" CityName="LOC_CITY_NAME_ISIOLO"/>
         <Replace CivilizationType="CIVILIZATION_KENYA" CityName="LOC_CITY_NAME_KERICHO"/>
         <Replace CivilizationType="CIVILIZATION_KENYA" CityName="LOC_CITY_NAME_KIMILILI"/>
+    </CityNames>
+    <CityNames>		<!-- Korea -->
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GYEONGJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GWANGJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_JEONJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_JINJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_CHUNCHEON"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_YANGSAN"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GANGNEUNG"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_SEOUL"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GONGJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_SANGJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_DAEGU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_BUSAN"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_PYONGYANG"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_DAEJEON"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_SUWON"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_CHANGWON"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_CHEONGJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GIMHAE"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GUMI"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_IKSAN"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_KAESONG"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_JEJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GUNPO"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_YEOSU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_SUNCHEON"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_MOKPO"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GEOJE"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_JEONGEUP"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_INCHEON"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_HAMHUNG"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_GYEONGGI_GWANGJU"/>
+		<Replace CivilizationType="CIVILIZATION_KOREA" CityName="LOC_CITY_NAME_POHANG"/>
     </CityNames>
     <CityNames>		<!-- Malaysia -->
          <Replace CivilizationType="CIVILIZATION_MALAYSIA" CityName="LOC_CITY_NAME_KUALA_LUMPUR"/>

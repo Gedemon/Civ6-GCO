@@ -260,6 +260,7 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -----------------------------------------------------------------------------------------
 local CombatTypes = {}
 local pairs = pairs
+local Dprint, Dline, Dlog, Div
 function InitializeUtilityFunctions()
 	GCO 		= ExposedMembers.GCO			-- contains functions from other contexts
 	LuaEvents	= GCO.LuaEvents
@@ -267,6 +268,7 @@ function InitializeUtilityFunctions()
 	Dprint 		= GCO.Dprint					-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline						-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog						-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	Div			= GCO.Divide
 	pairs 		= GCO.OrderedPairs
 	print("Exposed Functions from other contexts initialized...")
 	PostInitialize()
@@ -6020,7 +6022,7 @@ local FeatureRemovedChangeTo	= {
 }
 function OnUnitOperationStarted(ownerID, unitID, operationID)
 
-	local DEBUG_UNIT_SCRIPT = "debug"
+	--local DEBUG_UNIT_SCRIPT = "debug"
 	Dprint( DEBUG_UNIT_SCRIPT, "- Calling OnUnitOperationStarted ", ownerID, unitID, operationID )
 
 	if operationID == UnitOperationTypes.REMOVE_FEATURE then

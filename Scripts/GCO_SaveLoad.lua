@@ -97,6 +97,13 @@ function SaveTableToSlot(t, sSlotName)
 			GCO.Error("ERROR: GameConfiguration.GetValue doesn't return the same string that was set in GameConfiguration.SetValue for slot " ..tostring(sSlotName))
 		end
 		--local t2 = GCO.deserialize(s2)
+		local status, retval = pcall(GCO.deserialize,s2)
+		GCO.ShowTimer(sTimer)
+		if not status then
+			GCO.Error("Failed to save "..tostring(sSlotName).." ("..tostring(size).." chars)")
+			print(retval)
+			print(s)
+		end
 	end
 	
 end
@@ -114,9 +121,26 @@ function LoadTableFromSlot(sSlotName)
 		local size = string.len(s)
 		local sTimer = "Deserialize "..tostring(sSlotName).." ("..tostring(size).." chars)"
 		GCO.StartTimer(sTimer)
-		local t = GCO.deserialize(s)
+		--local t = GCO.deserialize(s)
+		local status, retval = pcall(GCO.deserialize,s)
 		GCO.ShowTimer(sTimer)
-		return t
+		if status then
+			return retval
+		else
+			GCO.Error("Failed to load "..tostring(sSlotName).." ("..tostring(size).." chars)")
+			print(retval)
+			print(s)
+			
+			f, msg = loadstring(s)
+			if f == nil then
+				GCO.Error("In deserialize: "..tostring(msg))
+			else
+				print("loadstring returns", f, msg)
+			end
+			
+			return nil -- {}
+		end
+		--return t
 	else
 		GCO.Dprint( DEBUG_SAVELOAD_SCRIPT, "WARNING: No saved data table in slot ".. tostring(sSlotName) .." (this happens when initializing the table, you can ignore this warning when launching a new game)") 
 	end

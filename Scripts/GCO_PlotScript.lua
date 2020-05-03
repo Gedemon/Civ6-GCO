@@ -127,12 +127,15 @@ local debugTable 			= {}	-- table used to output debug data from some functions
 -----------------------------------------------------------------------------------------
 local GCO = {}
 local pairs = pairs
+local Dprint, Dline, Dlog, Div
+
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO 		= ExposedMembers.GCO
 	LuaEvents	= ExposedMembers.GCO.LuaEvents
 	Dprint 		= GCO.Dprint
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	Div			= GCO.Divide
 	pairs 		= GCO.OrderedPairs
 	print ("Exposed Functions from other contexts initialized...")
 	PostInitialize()
@@ -146,6 +149,11 @@ function SaveTables()
 	GCO.SaveTableToSlot(ExposedMembers.PreviousCultureMap, "PreviousCultureMap")
 	GCO.SaveTableToSlot(ExposedMembers.MigrationMap, "MigrationMap")
 	GCO.SaveTableToSlot(ExposedMembers.PlotData, "PlotData")
+	
+	-- debug
+	for plotKey, values in pairs(ExposedMembers.MigrationMap) do
+		GCO.SaveTableToSlot(values, "debug_"..plotKey) -- if the MigrationMap fail to save, this will also return an error, but for specific plots
+	end
 end
 GameEvents.SaveTables.Add(SaveTables)
 
@@ -588,7 +596,7 @@ function GetCulturePercentTable( self )
 	local plotCulture = self:GetCultureTable()
 	if  plotCulture and totalCulture > 0 then
 		for cultureID, value in pairs (plotCulture) do
-			plotCulturePercent[cultureID] = (value / totalCulture * 100)
+			plotCulturePercent[cultureID] = GCO.ToDecimals(value * Div(100, totalCulture))
 		end
 	end
 	return plotCulturePercent, totalCulture
@@ -597,7 +605,7 @@ end
 function GetCulturePercent( self, cultureID )
 	local totalCulture = self:GetTotalCulture()
 	if totalCulture > 0 then
-		return GCO.Round(self:GetCulture(cultureID) * 100 / totalCulture)
+		return GCO.Round(self:GetCulture(cultureID) * Div(100, totalCulture))
 	end
 	return 0
 end
@@ -631,14 +639,14 @@ end
 function GetCulturePer10000( self, cultureID )
 	local totalCulture = GetTotalCulture( self )
 	if totalCulture > 0 then
-		return GCO.Round(GetCulture( self, cultureID ) * 10000 / totalCulture)
+		return GCO.Round(GetCulture( self, cultureID ) * Div(10000, totalCulture))
 	end
 	return 0
 end
 function GetPreviousCulturePer10000( self, cultureID )
 	local totalCulture = GetTotalPreviousCulture( self )
 	if totalCulture > 0 then
-		return GCO.Round(GetPreviousCulture( self, cultureID ) * 10000 / totalCulture)
+		return GCO.Round(GetPreviousCulture( self, cultureID ) * Div(10000, totalCulture))
 	end
 	return 0
 end
@@ -764,10 +772,10 @@ function MatchCultureToPopulation( self )
 
 	if totalPopulation < totalCulture then
 		local toRemove	= totalCulture - totalPopulation
-		removeRatio		= toRemove / totalCulture
+		removeRatio		= Div(toRemove, totalCulture)
 	elseif totalCulture < totalPopulation then
 		local toAdd		= totalPopulation - totalCulture
-		addRatio		= toAdd / totalPopulation	
+		addRatio		= Div(toAdd, totalPopulation)	
 	end
 	
 	local plotCulture = self:GetCultureTable()
@@ -814,7 +822,7 @@ end
 function UpdateCulture( self )
 
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
-	if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
+	--if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
 
 	if debugTable["UpdateCulture"] ~= nil then
 		GCO.Error("previous call to UpdateCulture has failed for ".. self:GetX()..","..self:GetY())
@@ -865,7 +873,7 @@ function UpdateCulture( self )
 	
 	if maxCulture < totalCulture then
 		local toRemove	= totalCulture - maxCulture
-		minDecayRatio	= toRemove / totalCulture
+		minDecayRatio	= Div(toRemove, totalCulture)
 	end
 	
 	-- Decay
@@ -1001,7 +1009,7 @@ function UpdateCulture( self )
 		self:DoConquestCountDown()
 	end	
 	--if self:IsAdjacentPlayer(0) then ShowDebug() end
-	if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
+	--if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
 	debugTable["UpdateCulture"] = nil
 end
 
@@ -1213,7 +1221,7 @@ function DiffuseCulture( self )
 				for cultureID, value in pairs (plotCulture) do
 				
 					local iPlayerPlotMax = iPlotMax * self:GetCulturePercent(cultureID) / 100
-					local iPlayerDiffusedCulture = (self:GetCulture(cultureID) * (iDiffusionRatePer1000 + (iDiffusionRatePer1000 * iBonus / 100))) / (1000 + (1000 * iPenalty / 100))
+					local iPlayerDiffusedCulture = Div((self:GetCulture(cultureID) * (iDiffusionRatePer1000 + (iDiffusionRatePer1000 * iBonus / 100))), (1000 + (1000 * iPenalty / 100)))
 					local iPreviousCulture = pAdjacentPlot:GetCulture(cultureID);
 					local iNextculture = math.min(iPlayerPlotMax, iPreviousCulture + iPlayerDiffusedCulture);
 					table.insert(textTable, " - Diffuse for player#"..cultureID..", iPlotMax = "..iPlotMax..", iPlayerPlotMax = ".. GCO.ToDecimals(iPlayerPlotMax) ..", iPreviousCulture = ".. GCO.ToDecimals(iPreviousCulture) ..", iNextculture = " ..GCO.ToDecimals(iNextculture)) 
@@ -1310,12 +1318,12 @@ function SetCultureDiffusionRatePer1000()
 	local iStandardTurns 	= 500
 	local iTurnsFactor 		= 1
 	-- to do : GameSpeed_Turns, GameSpeedType, add all TurnsPerIncrement
-	-- iTurnsFactor = (iStandardTurns * 100 / (getEstimateEndTurn() - getGameTurn()))
+	-- iTurnsFactor = Div((iStandardTurns * 100), (getEstimateEndTurn() - getGameTurn()))
 	
 	local iStandardSize		= 84*54 -- to do : Maps, MapSizeType = Map.GetMapSize(), GridWidth*GridHeight
 	local g_iW, g_iH 		= Map.GetGridSize()
 	local iMapsize 			= g_iW * g_iH
-	local iSizeFactor 		= (iMapsize * 100 / iStandardSize)
+	local iSizeFactor 		= Div((iMapsize * 100), iStandardSize)
 	
 	iSettingFactor = iSettingFactor * iSizeFactor
 	
@@ -1983,7 +1991,7 @@ function GetEmploymentValue(self, num)
 end
 
 function GetEmploymentSize(self, num)
-	return GCO.Round(math.pow( num / self:GetRuralEmploymentFactor(), 1  / self:GetRuralEmploymentPow()))
+	return GCO.Round(math.pow( Div(num, self:GetRuralEmploymentFactor()), Div(1, self:GetRuralEmploymentPow())))
 end
 
 local resourceActivities = {
@@ -2164,7 +2172,7 @@ function GetActivityFactor(self)
 	local employmentFromResources 	= self:GetMaxEmployment()
 	local employed					= self:GetEmployed()
 	if employmentFromResources > employed  then
-		return (self:GetEmploymentSize(employed) / self:GetEmploymentSize(employmentFromResources))
+		return Div(self:GetEmploymentSize(employed), self:GetEmploymentSize(employmentFromResources))
 	else
 		return 1
 	end
@@ -2221,7 +2229,7 @@ function SetInitialMapPopulation()
 end
 
 function GetSize(self)
-	return math.pow(self:GetPopulation()/1000, 1/populationPerSizepower) --GCO.Round(math.pow(self:GetPopulation()/1000, 1/populationPerSizepower))
+	return math.pow(self:GetPopulation()/1000, Div(1,populationPerSizepower)) --GCO.Round(math.pow(self:GetPopulation()/1000, 1/populationPerSizepower))
 end
 
 function GetMaxSize(self)
@@ -2260,173 +2268,67 @@ function GetPopulation(self)
 end
 
 function GetPreviousPopulation(self)
-	-- temporary waiting for population migration
-	--[[
-	local city = self:GetCity()
-	if city then
-		--return GCO.Round(city:GetRuralPopulation() / city:GetSize())
-		local numPlots = #GCO.GetCityPlots(city)
-		if numPlots > 0 then
-			return GCO.Round(city:GetRuralPopulation() / numPlots)
-		end
-	end
-	return 0
-	--]]
+
 	return self:GetPreviousUpperClass() + self:GetPreviousMiddleClass() + self:GetPreviousLowerClass() + self:GetPreviousSlaveClass()
 end
 
 function ChangeUpperClass(self, value)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= plotData.Population[turnKey].UpperClass or 0
-	plotData.Population[turnKey].UpperClass = math.max(0 , previous + value)
-	--]]
 	self:ChangePopulationClass(UpperClassID, value)
 end
 
 function ChangeMiddleClass(self, value)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= plotData.Population[turnKey].MiddleClass or 0
-	plotData.Population[turnKey].MiddleClass = math.max(0 , previous + value)
-	--]]
 	self:ChangePopulationClass(MiddleClassID, value)
 end
 
 function ChangeLowerClass(self, value)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= plotData.Population[turnKey].LowerClass or 0
-	plotData.Population[turnKey].LowerClass = math.max(0 , previous + value)
-	--]]
 	self:ChangePopulationClass(LowerClassID, value)
 end
 
 function ChangeSlaveClass(self, value)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= plotData.Population[turnKey].Slaves or 0
-	plotData.Population[turnKey].Slaves = math.max(0 , previous + value)
-	--]]
 	self:ChangePopulationClass(SlaveClassID, value)
 end
 
 function GetUpperClass(self)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetTurnKey()
-	if not plotData.Population[turnKey] then return 0 end
-	return plotData.Population[turnKey].UpperClass or 0
-	--]]
 	return self:GetStock(UpperClassID)
 end
 
 function GetMiddleClass(self)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetTurnKey()
-	if not plotData.Population[turnKey] then return 0 end
-	return plotData.Population[turnKey].MiddleClass or 0
-	--]]
 	return self:GetStock(MiddleClassID)
 end
 
 function GetLowerClass(self)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetTurnKey()
-	if not plotData.Population[turnKey] then return 0 end
-	return plotData.Population[turnKey].LowerClass or 0
-	--]]
 	return self:GetStock(LowerClassID)
 end
 
 function GetSlaveClass(self)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetTurnKey()
-	if not plotData.Population[turnKey] then return 0 end
-	return plotData.Population[turnKey].Slaves or 0
-	--]]
 	return self:GetStock(SlaveClassID)
 end
 
 function GetPopulationClass(self, populationID)
-	--[[
-	if populationID == UpperClassID 	then return self:GetUpperClass() end
-	if populationID == MiddleClassID 	then return self:GetMiddleClass() end
-	if populationID == LowerClassID 	then return self:GetLowerClass() end
-	if populationID == SlaveClassID 	then return self:GetSlaveClass() end
-	GCO.Error("can't find population class for ID = ", populationID)
-	return 0
-	--]]
 	return self:GetStock(populationID)
 end
 
 function GetPreviousPopulationClass(self, populationID)
-	--[[
-	if populationID == UpperClassID 	then return self:GetPreviousUpperClass() end
-	if populationID == MiddleClassID 	then return self:GetPreviousMiddleClass() end
-	if populationID == LowerClassID 	then return self:GetPreviousLowerClass() end
-	if populationID == SlaveClassID 	then return self:GetPreviousSlaveClass() end
-	GCO.Error("can't find population class for ID = ", populationID)
-	return 0
-	--]]
 	return self:GetPreviousStock(populationID)
 end
 
 function ChangePopulationClass(self, populationID, value)
-	--[[
-	if populationID == UpperClassID 	then return self:ChangeUpperClass(value) end
-	if populationID == MiddleClassID 	then return self:ChangeMiddleClass(value) end
-	if populationID == LowerClassID 	then return self:ChangeLowerClass(value) end
-	if populationID == SlaveClassID 	then return self:ChangeSlaveClass(value) end
-	GCO.Error("can't find population class for ID = ", populationID)
-	--]]
 	self:ChangeStock(populationID, value)
 end
 
 function GetPreviousUpperClass(self)
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetPreviousTurnKey()
-	if not plotData.Population[turnKey] then return 0 end
-	return plotData.Population[turnKey].UpperClass or 0
-	--]]
 	return self:GetPreviousStock(UpperClassID)
 end
 
 function GetPreviousMiddleClass(self )
-	--[[
-	local plotData 	= self:GetData()
-	local turnKey 	= GCO.GetPreviousTurnKey()
-	if not plotData.Population[turnKey] then return 0 end
-	return plotData.Population[turnKey].MiddleClass or 0
-	--]]
 	return self:GetPreviousStock(MiddleClassID)
 end
 
 function GetPreviousLowerClass(self)
-	--[[
-	local plotData 		= self:GetData()
-	local turnKey 		= GCO.GetPreviousTurnKey()
-	if not plotData.Population[turnKey] then return 0 end
-	return plotData.Population[turnKey].LowerClass or 0
-	--]]
 	return self:GetPreviousStock(LowerClassID)
 end
 
 function GetPreviousSlaveClass(self)
-	--[[
-	local plotData 		= self:GetData()
-	local turnKey 		= GCO.GetPreviousTurnKey()
-	if not plotData.Population[turnKey] then return 0 end
-	return plotData.Population[turnKey].Slaves or 0
-	--]]
 	return self:GetPreviousStock(SlaveClassID)
 end
 -- Legacy methods >>>>>
@@ -2496,11 +2398,11 @@ end
 function MigrationTo(self, plot, migrants)
 
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
-	if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
+	--if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
 	
 	local cultureTable	 	= self:GetCultureTable() or {}
-	local leaveRatio		= math.min(1, migrants / math.max(1, self:GetPopulation()))
-	local destinationRatio 	= math.min(1, migrants / math.max(1, plot:GetPopulation()))
+	local leaveRatio		= math.min(1, Div(migrants, math.max(1, self:GetPopulation())))
+	local destinationRatio 	= math.min(1, Div(migrants, math.max(1, plot:GetPopulation())))
 	--local changeRatio		= migrantRatio * populationRatio
 	Dprint( DEBUG_PLOT_SCRIPT, "Diffuse Culture Migration from plot (".. self:GetX()..","..self:GetY() ..") to plot (".. plot:GetX()..","..plot:GetY() .."), Migrants =  "..tostring(migrants))
 
@@ -2538,7 +2440,7 @@ function GetMaxStock(self, resourceID)
 		if GCO.IsResourceEquipment(resourceID) 	then		
 			local equipmentType = GameInfo.Resources[equipmentID].ResourceType
 			local equipmentSize = GameInfo.Equipment[equipmentType].Size
-			maxStock = math.floor(EquipmentBaseStock / equipmentSize)
+			maxStock = math.floor(Div(EquipmentBaseStock, equipmentSize))
 		end
 		if GCO.IsResourceLuxury(resourceID) 	then maxStock = GCO.Round(maxStock * LuxuryStockRatio) end
 	end
@@ -2745,8 +2647,8 @@ function SetMigrationValues(self)
 	
 		-- Employment
 		if employment > 0 then
-			plotMigration.Pull.Employment	= employment / population
-			plotMigration.Push.Employment	= population / employment
+			plotMigration.Pull.Employment	= Div(employment, population)
+			plotMigration.Push.Employment	= Div(population, employment)
 			if plotMigration.Push.Employment > 1 then 
 				plotMigration.Motivation 			= "Employment"
 				plotMigration.Migrants.Employment	= unEmployed
@@ -2758,8 +2660,8 @@ function SetMigrationValues(self)
 		Dprint( DEBUG_PLOT_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " population = ", population)
 		
 		-- Population
-		plotMigration.Pull.Housing	= maxPopulation / population
-		plotMigration.Push.Housing	= population / maxPopulation	
+		plotMigration.Pull.Housing	= Div(maxPopulation, population)
+		plotMigration.Push.Housing	= Div(population, maxPopulation)
 		if plotMigration.Push.Housing > 1 then 
 			plotMigration.Motivation 			= "Population"
 			local overPopulation				= population - maxPopulation
@@ -2776,11 +2678,11 @@ function SetMigrationValues(self)
 			local foodNeeded		= city:GetFoodConsumption(consumptionRatio)
 			local foodstock			= city:GetFoodStock()
 			-- pondered by plots own sustainability
-			plotMigration.Pull.Food	= ((foodstock / foodNeeded) + plotMigration.Pull.Housing) / 2 
-			plotMigration.Push.Food	= ((foodNeeded / foodstock) + plotMigration.Push.Housing) / 2
+			plotMigration.Pull.Food	= (Div(foodstock, foodNeeded) + plotMigration.Pull.Housing) / 2 
+			plotMigration.Push.Food	= (Div(foodNeeded, foodstock) + plotMigration.Push.Housing) / 2
 			if plotMigration.Push.Food > 1 then 
 				plotMigration.Motivation 	= "Food"
-				local starving				= population - (population / plotMigration.Push.Food)
+				local starving				= population - Div(population, plotMigration.Push.Food)
 				plotMigration.Migrants.Food	= starving
 			end
 			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", starving," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
@@ -2813,6 +2715,9 @@ function DoMigration(self)
 	local plotMigration 		= self:GetMigration()
 	--local migrationMap	 		= self:GetMigrationMap()
 	local population			= self:GetPopulation()
+	
+	if population == 0 then return end
+	
 	local possibleDestination 	= {}
 	local city					= self:GetCity()
 	local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
@@ -2824,7 +2729,7 @@ function DoMigration(self)
 	
 	local classesRatio			= {}
 	for i, classID in ipairs(migrantClasses) do
-		classesRatio[classID] = self:GetPopulationClass(classID) / population
+		classesRatio[classID] = Div(self:GetPopulationClass(classID), population)
 	end
 	-- Get the number of migrants from this plot
 	for motivation, value in pairs(plotMigration.Migrants) do
@@ -2964,7 +2869,7 @@ if (bTestPlots) then print("***HERE4", bCanDiffuse) end
 					destination.MigrationEfficiency = 1
 				end
 				totalWeight				= math.max(1, totalWeight) -- do not divide by 0 !!!
-				local totalPopMoving 	= math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
+				local totalPopMoving 	= math.floor(migrants * Div(destination.Weight, totalWeight) * destination.MigrationEfficiency)
 				if totalPopMoving > 0 then
 					for i, classID in ipairs(migrantClasses) do
 						local classMoving = math.floor(totalPopMoving * classesRatio[classID])
@@ -3114,7 +3019,7 @@ function EmploymentValueUpdate(x,y)
 end
 
 function OnFeatureChanged(x,y)
-	local DEBUG_PLOT_SCRIPT = "debug"
+	--local DEBUG_PLOT_SCRIPT = "debug"
 	Dprint( DEBUG_PLOT_SCRIPT, "Feature changed at ", x,y)
 	
 	local plot 		= GetPlot(x,y)	
