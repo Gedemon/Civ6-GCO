@@ -7233,7 +7233,8 @@ function DoMigration(self)
 						if migrants > 0 and destination.Weight > 0 then
 							-- MigrationEfficiency already affect destination.Weight, but when there is not many possible destination 
 							-- we want to limit the number of migrants over long routes, so it's included here too 
-							local popMoving 	= math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
+							totalWeight		= math.max(1, totalWeight) -- do not divide by 0 !!!
+							local popMoving = math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
 							if popMoving > 0 then
 								if destination.PlotID then
 									local plot 				= GCO.GetPlotByIndex(destination.PlotID)

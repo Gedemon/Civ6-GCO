@@ -290,7 +290,7 @@ function GetMigrationDataWith(self, plot)
 	if not MigrationMap[otherPlotKey] then
 		local prevTurnData = self:GetMigrationDataAtTurn(plot, GCO.GetPreviousTurnKey())
 		if prevTurnData then
-			MigrationMap[otherPlotKey] = { Migrants = 0, Total = prevTurnData.Total }
+			MigrationMap[otherPlotKey] = { Migrants = 0, Total = prevTurnData.Total or 0 } -- to do: check why prevTurnData.Total can be nil ?
 		else
 			MigrationMap[otherPlotKey] = { Migrants = 0, Total = 0 }
 		end
@@ -807,7 +807,7 @@ function MatchCultureToPopulation( self )
 		
 		table.insert(textTable, "----- ----- -----")
 	end
-	if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
+	--if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
 	debugTable["MatchCultureToPopulation"] = nil
 end
 
@@ -1000,6 +1000,8 @@ function UpdateCulture( self )
 	if tonumber(GameInfo.GlobalParameters["CULTURE_CONQUEST_ENABLED"].Value) > 0 then
 		self:DoConquestCountDown()
 	end	
+	--if self:IsAdjacentPlayer(0) then ShowDebug() end
+	if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
 	debugTable["UpdateCulture"] = nil
 end
 
@@ -1107,6 +1109,7 @@ function UpdateOwnership( self )
 		end	
 	end
 	--if self:IsAdjacentPlayer(0) then ShowDebug() end
+	--if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
 	debugTable["UpdateOwnership"] = nil
 end
 
@@ -1230,6 +1233,8 @@ function DiffuseCulture( self )
 		end
 	end
 	table.insert(textTable, "----- ----- -----")
+	--if self:IsAdjacentPlayer(0) then ShowDebug() end
+	--if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
 	debugTable["DiffuseCulture"] = nil
 end
 
@@ -2514,8 +2519,10 @@ function MigrationTo(self, plot, migrants)
 	local destMigrationData	= plot:GetMigrationDataWith(self)	
 	
 	migrationData.Migrants 		= migrationData.Migrants - migrants
+if not migrationData.Total then GCO.Error("migrationData.Total is nil", self:GetX(), self:GetY()) end
 	migrationData.Total 		= migrationData.Total - migrants
 	destMigrationData.Migrants 	= destMigrationData.Migrants + migrants
+if not destMigrationData.Total then GCO.Error("destMigrationData.Total is nil", self:GetX(), self:GetY()) end
 	destMigrationData.Total 	= destMigrationData.Total + migrants
 end
 
@@ -2956,6 +2963,7 @@ if (bTestPlots) then print("***HERE4", bCanDiffuse) end
 					for k, v in pairs(destination) do print(k,v) end
 					destination.MigrationEfficiency = 1
 				end
+				totalWeight				= math.max(1, totalWeight) -- do not divide by 0 !!!
 				local totalPopMoving 	= math.floor(migrants * (destination.Weight / totalWeight) * destination.MigrationEfficiency)
 				if totalPopMoving > 0 then
 					for i, classID in ipairs(migrantClasses) do
