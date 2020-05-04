@@ -4240,7 +4240,7 @@ function RecruitUnits(self, UnitType, number)
 		local unit 				= UnitManager.InitUnit(playerID, UnitType, self:GetX(), self:GetY())
 		
 		-- initialize at 0 HP...
-		Dprint( DEBUG_self_SCRIPT, "Initializing unit...")
+		Dprint( DEBUG_CITY_SCRIPT, "Initializing unit...")
 		unit:SetDamage(100)
 		local initialHP 				= 0
 		local organizationLevel			= player:GetConscriptOrganizationLevel()
@@ -4251,8 +4251,8 @@ function RecruitUnits(self, UnitType, number)
 			turnsActive = turnsActive + GameInfo.Policies[policyID].ActiveTurnsLeftBoost
 		end
 
-		GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
 		GCO.AttachUnitFunctions(unit)
+		GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
 		unit:InitializeEquipment()
 		unit:SetValue("CanChangeOrganization", nil)
 		unit:SetValue("ActiveTurnsLeft", turnsActive)
@@ -4260,7 +4260,7 @@ function RecruitUnits(self, UnitType, number)
 		unit:SetValue("UnitPersonnelType", UnitPersonnelType.Conscripts)
 		
 		-- get full reinforcement...
-		Dprint( DEBUG_self_SCRIPT, "Getting full reinforcement...")
+		Dprint( DEBUG_CITY_SCRIPT, "Getting full reinforcement...")
 		local bTotal		= true
 		local recruitmentCostFactor	= tonumber(GameInfo.GlobalParameters["CITY_RECRUITMENT_COST_FACTOR"].Value)
 		--local requirements 	= unit:GetRequirements(bTotal)
@@ -4268,12 +4268,12 @@ function RecruitUnits(self, UnitType, number)
 		local resTable 		= GCO.GetUnitConstructionResources(unit:GetType(), organizationLevel)
 		local resOrTable 	= GCO.GetUnitConscriptionEquipment(unit:GetType(), organizationLevel)
 					
-		Dprint( DEBUG_self_SCRIPT, "Get available resources in city...")
+		Dprint( DEBUG_CITY_SCRIPT, "Get available resources in city...")
 		for resourceID, value in pairs(resTable) do
 			if value > 0 then
 				local maxValue	= math.min(self:GetStock(resourceID), value)
 				local cost 		= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
-				Dprint( DEBUG_self_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
+				Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
 				unit:ChangeStock(resourceID, maxValue)
 				self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
 				if cost > 0 then
@@ -4289,7 +4289,7 @@ function RecruitUnits(self, UnitType, number)
 			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
 				local maxValue 	= math.min(self:GetStock(resourceID), stillNeeded)
 				local cost 		= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
-				Dprint( DEBUG_self_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
+				Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
 				unit:ChangeStock(resourceID, maxValue)
 				self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
 				if cost > 0 then
@@ -4300,13 +4300,13 @@ function RecruitUnits(self, UnitType, number)
 		end
 			
 		-- heal completly...			
-		Dprint( DEBUG_self_SCRIPT, "Healing...")
+		Dprint( DEBUG_CITY_SCRIPT, "Healing...")
 		local bNoLimit 	= true
 		local maxHP		= 100
 		unit:Heal(maxHP, maxHP, bNoLimit)
 		
 		-- try to upgrade...
-		Dprint( DEBUG_self_SCRIPT, "Upgrading...")
+		Dprint( DEBUG_CITY_SCRIPT, "Upgrading...")
 		local newUnitType 	= unit:GetTypesFromEquipmentList()			
 		if newUnitType and newUnitType ~= unit:GetType() then
 			local newUnit = GCO.ChangeUnitTo(unit, newUnitType)
@@ -5067,9 +5067,9 @@ function GetFoodStockIcon(self)
 	elseif cityRationning <= heavyRationing then
 		str = "[ICON_FoodDeficit]"
 	elseif cityRationning <= mediumRationing then
-		str = "[ICON_FoodRationing]"
+		str = "[ICON_FoodDeficit]"--"[ICON_FoodRationing]"
 	elseif cityRationning <= lightRationing then
-		str = "[ICON_FoodPerTurn]"
+		str = "[ICON_FoodRationing]"--"[ICON_FoodPerTurn]"
 	end
 	return str
 end
@@ -7680,7 +7680,7 @@ function DoTurnFourthPass(self)
 	Dlog("DoTurnFourthPass ".. name.." /END")
 end
 
-function DoCitiesTurn( playerID )
+function CitiesTurn( playerID ) -- DoCitiesTurn
 	--local DEBUG_CITY_SCRIPT = "debug"
 	CitiesToIgnoreThisTurn = {}
 	Dlog("DoCitiesTurn /START")
@@ -7704,6 +7704,12 @@ function DoCitiesTurn( playerID )
 end
 --LuaEvents.DoCitiesTurn.Add( DoCitiesTurn )
 
+---[[
+function DoCitiesTurn( playerID )
+	--GCO.Monitor(CitiesTurn, {playerID}, "Cities Turn Player#".. tostring(playerID))
+	CitiesTurn( playerID )
+end
+--]]
 
 -----------------------------------------------------------------------------------------
 -- Events
@@ -7750,7 +7756,10 @@ function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCa
 			if city:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_BARRACKS"].Index) then
 				number = 2
 			end
-			city:RecruitUnits("UNIT_LIGHT_SPEARMAN", number) -- called with the first unit of the conscript line, it will be upgraded automatically to the best available with the current equipment in city
+			
+			-- called with the first unit of the conscript line, it will be upgraded automatically to the best available with the current equipment in city
+			-- to do : something not hardcoded
+			city:RecruitUnits("UNIT_LIGHT_SPEARMAN", number) 
 			
 			--LuaEvents.RestoreUnitsDebugLevel()	-- restore previous debug level for UnitScript
 	

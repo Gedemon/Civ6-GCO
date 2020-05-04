@@ -2042,7 +2042,8 @@ function GetData()
 			
 			-- GCO <<<<<
 			local bCanConstruct, requirementStr, prereqStr, bCanShow = pSelectedCity:CanConstruct(row.BuildingType)
-			if (bCanShow or isCanStart) and not (row.IsWonder and (not isCanStart)) then
+			--if (bCanShow or isCanStart) and not (row.IsWonder and (not isCanStart)) then
+			if (bCanShow and not row.IsWonder) or isCanStart then
 				sToolTip = ToolTipHelper.GetBuildingToolTip( row.Hash, playerID, pSelectedCity ) .. prereqStr .. ComposeProductionCostString( iProductionProgress, iProductionCost ) .. requirementStr
 			-- GCO >>>>>
 			

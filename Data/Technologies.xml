@@ -283,12 +283,14 @@
 		<Row Technology="TECH_POLYTHEISM"			PrereqTech="TECH_MYSTICISM"/>
 		<Row Technology="TECH_POLYTHEISM"			PrereqTech="TECH_CALENDAR"/>
 		<!--<Row Technology="TECH_UNLOCK_GAMES" 		PrereqTech="TECH_MILITARY_ENGINEERING"/>	 Added using Lua -->
+		<Row Technology="TECH_GAMES_RECREATION" 	PrereqTech="TECH_MAP_MAKING"/>
 		<Row Technology="TECH_GAMES_RECREATION" 	PrereqTech="TECH_MILITARY_TRADITION"/>
 		<Row Technology="TECH_PHILOSOPHY"			PrereqTech="TECH_CODE_OF_LAWS"/>
 		<Row Technology="TECH_PHILOSOPHY"			PrereqTech="TECH_MYSTICISM"/>
 		<Row Technology="TECH_PHILOSOPHY"			PrereqTech="TECH_WRITING"/>
 		<Row Technology="TECH_CELESTIAL_NAVIGATION" PrereqTech="TECH_CALENDAR"/>
 		<Row Technology="TECH_RECORDED_HISTORY"		PrereqTech="TECH_WRITING"/>
+		<Row Technology="TECH_RECORDED_HISTORY"		PrereqTech="TECH_CODE_OF_LAWS"/>
 		<Row Technology="TECH_HORSEBACK_RIDING"		PrereqTech="TECH_MILITARY_TRADITION"/>
 		<Row Technology="TECH_IRON_WORKING"			PrereqTech="TECH_BRONZE_WORKING"/>
 		<!-- Tiers II -->
@@ -305,7 +307,7 @@
 		<Row Technology="TECH_SHIPBUILDING"			PrereqTech="TECH_SAILING"/>
 		<Row Technology="TECH_SHIPBUILDING"			PrereqTech="TECH_BRONZE_WORKING"/>
 		<Row Technology="TECH_MILITARY_TRAINING"	PrereqTech="TECH_MILITARY_TRADITION"/>
-		<Row Technology="TECH_MILITARY_TRAINING"	PrereqTech="TECH_CODE_OF_LAWS"/>
+		<Row Technology="TECH_MILITARY_TRAINING"	PrereqTech="TECH_GAMES_RECREATION"/>
 		<Row Technology="TECH_MILITARY_TRAINING"	PrereqTech="TECH_RECORDED_HISTORY"/>
 		<!-- Tiers III -->
 		<Row Technology="TECH_THEOLOGY"				PrereqTech="TECH_MONOTHEISM"/>
@@ -367,6 +369,7 @@
 		<Row Technology="TECH_NATIONALISM"			PrereqTech="TECH_CIVIL_SERVICE"/>
 		<Row Technology="TECH_DIPLOMATIC_SERVICE"	PrereqTech="TECH_CIVIL_SERVICE"/>
 		<Row Technology="TECH_CARTOGRAPHY"			PrereqTech="TECH_EXPLORATION"/>
+		<Row Technology="TECH_CARTOGRAPHY"			PrereqTech="TECH_NAVAL_TRADITION"/>
 		<Row Technology="TECH_BANKING"				PrereqTech="TECH_EDUCATION"/>
 		<Row Technology="TECH_BANKING"				PrereqTech="TECH_GUILDS"/>
 		<Row Technology="TECH_GUNPOWDER"			PrereqTech="TECH_METAL_CASTING"/>
@@ -676,6 +679,7 @@
 		<Row 	Technology="TECH_CELESTIAL_NAVIGATION"	ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_GAMES_RECREATION" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_GAMES_RECREATION" 		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
+		<Row 	Technology="TECH_GAMES_RECREATION" 		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_PHILOSOPHY" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_PHILOSOPHY" 			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_RECORDED_HISTORY"		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="50"/>
@@ -686,7 +690,7 @@
 		<Row 	Technology="TECH_IRON_WORKING" 			ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="25"/>
 		<Row 	Technology="TECH_HORSEBACK_RIDING"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
 		<!-- Tiers II -->
-		<Row 	Technology="TECH_MONOTHEISM" 		ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_MONOTHEISM" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_SHIPBUILDING"			ContributionType="RESEARCH_NAVAL" 			MaxContributionPercent="60"/>
 		<Row 	Technology="TECH_SHIPBUILDING"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="60"/>
 		<Row 	Technology="TECH_DRAMA_POETRY" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="75"/>
@@ -694,9 +698,9 @@
 		<Row 	Technology="TECH_POLITICAL_PHILOSOPHY" 	ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="25"/>
 		<Row 	Technology="TECH_POLITICAL_PHILOSOPHY" 	ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="75"/>
 		<Row 	Technology="TECH_CONSTRUCTION"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="65"/>
-		<Row 	Technology="TECH_MILITARY_TRAINING"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_MILITARY_TRAINING"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers III -->
-		<Row 	Technology="TECH_THEOLOGY" 			ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_THEOLOGY" 				ContributionType="RESEARCH_INSPIRATION" 	MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_PAPER"					ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="35"/>
 		<Row 	Technology="TECH_PAPER"					ContributionType="RESEARCH_ECONOMIC" 		MaxContributionPercent="65"/>
 		<Row 	Technology="TECH_ENGINEERING"			ContributionType="RESEARCH_CRAFTSMANSHIP" 	MaxContributionPercent="65"/>

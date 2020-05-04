@@ -147,16 +147,13 @@ end
 		
 local TechUnlockGovernement	= {}	-- helper to convert Governement prereqCivic to prereqTech (to do: directly add prereqTech column in Governments table
 for row in GameInfo.Governments() do
-    if row.PrereqCivic then
-        local techType = "TECH_"..string.sub(row.PrereqCivic, 7, -1)
-        local techID
-        if GameInfo.Technologies[techType] then
-            techID = GameInfo.Technologies[techType].Index
-            if TechUnlockGovernement[techID] then
-                table.insert(TechUnlockGovernement[techID], row.Index)
-            else
-                TechUnlockGovernement[techID] = { row.Index }
-            end
+	local techType = row.PrereqTech
+    if techType and GameInfo.Technologies[techType] then
+        local techID = GameInfo.Technologies[techType].Index
+        if TechUnlockGovernement[techID] then
+			table.insert(TechUnlockGovernement[techID], row.Index)
+		else
+			TechUnlockGovernement[techID] = { row.Index }
         end
     end
 end
@@ -1598,5 +1595,20 @@ function Initialize()
 	ExposedMembers.GCO.CityResearch 			= CityResearch
 	--
 	ExposedMembers.ResearchScript_Initialized 	= true
+	
+	-- legacy: unlock Governement on loading previous save
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
+print(playerID)
+	    for techID, techs in pairs (TechUnlockGovernement) do
+print(techID)
+			local pResearch = Research:Create(playerID)
+print(pResearch:HasTech(techID))
+			if pResearch:HasTech(techID) then
+				for _, govID in pairs(techs) do
+					pResearch:UnlockGovernement(govID)
+				end
+			end
+		end
+	end
 end
 Initialize()

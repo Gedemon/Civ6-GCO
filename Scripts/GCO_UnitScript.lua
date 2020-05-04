@@ -5183,9 +5183,11 @@ function DoCollect(self)
 	Dlog("DoCollect /START")
 	if GameInfo.Units[self:GetType()].UnitType == "UNIT_BUILDER" then
 		local plot	= GCO.GetPlot(self:GetX(), self:GetY())
-		local list 	= plot:GetBaseVisibleResources(self:GetOwner())
-		for resourceID, value in pairs(list) do
-			self:ChangeStock(resourceID, value)
+		if plot then 
+			local list 	= plot:GetBaseVisibleResources(self:GetOwner())
+			for resourceID, value in pairs(list) do
+				self:ChangeStock(resourceID, value)
+			end
 		end
 	end	
 	Dlog("DoCollect /END")
@@ -5716,7 +5718,7 @@ function HealingUnits(playerID)
 	Dlog("HealingUnits /END")
 end
 
-function DoUnitsTurn( playerID )
+function UnitsTurn( playerID ) -- DoUnitsTurn
 	
 	--local DEBUG_UNIT_SCRIPT = "UnitScript"	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
@@ -5737,6 +5739,13 @@ function DoUnitsTurn( playerID )
 	GCO.PlayerTurnsDebugChecks[playerID].UnitsTurn	= true
 end
 --LuaEvents.DoUnitsTurn.Add( DoUnitsTurn )
+
+---[[
+function DoUnitsTurn( playerID )
+	--GCO.Monitor(UnitsTurn, {playerID}, "Units Turn Player#".. tostring(playerID))
+	UnitsTurn( playerID )
+end
+--]]
 
 
 -----------------------------------------------------------------------------------------

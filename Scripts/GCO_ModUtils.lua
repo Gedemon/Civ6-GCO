@@ -524,6 +524,12 @@ function DlineFull(...)
 	Dprint(str)
 end
 
+function LogFullLine(...)
+	local status, err = pcall(function () error("custom error") end)
+	local str = string.match(err, 'DlineFull.-$')
+	return str
+end
+
 function DfullLog()
 	local status, err = pcall(function () error("logged call") end)
 	local str = string.match(err, '\'Dlog.-$')
@@ -558,11 +564,11 @@ function ShowLastLog(n)
 end
 --LuaEvents.ShowLastLog.Add( ShowLastLog )
 
-function Monitor(f, arguments, name) -- doesn't work as intended, fail on pcall when used like this GCO.Monitor(self.SetCityRationing, {self}, "SetCityRationing for ".. name)
+function Monitor(f, arguments, name) -- GCO.Monitor(self.SetCityRationing, {self}, "SetCityRationing for ".. name) -- 	GCO.Monitor(self.DoMigration, {self}, "DoMigration for ".. name)
+	local name = name or "Monitoring"
 	StartTimer(name)
-	print(f, name)
-	local status, err = pcall(f(unpack(arguments)))	
-	print(status, err)
+	print("Monitoring", f, name)
+	local status, err = pcall(f,unpack(arguments))
 	if not status then
 		Error(err)
 	end
@@ -662,6 +668,14 @@ end
 -- http://lua-users.org/wiki/SortedIteration
 -- Ordered table iterator, allow to iterate on the natural order of the keys of a table.
 --=====================================================================================--
+
+local prevKey, prevValue, prevLine
+function ShowLastOrderedCall()
+	print("*** orderedNext previous call was:")
+	print("  - key :", prevKey, " - value = ", prevValue)
+	print(prevLine)
+end
+
 function __genOrderedIndex( t )
     local orderedIndex = {}
     for key in pairs (t) do
@@ -671,6 +685,7 @@ function __genOrderedIndex( t )
     return orderedIndex
 end
 
+
 function orderedNext(t, state)
     -- Equivalent of the next function, but returns the keys in the alphabetic
     -- order.  We use a temporary ordered key table that is stored in the
@@ -679,12 +694,15 @@ function orderedNext(t, state)
     local key = nil
     --print("orderedNext: state = "..tostring(state) )
     if state == nil and t.__orderedIndex then
+		ShowLastOrderedCall()
 		Error("__orderedIndex already exists on orderedNext first call")
 	end
     if state == nil then
         -- the first time, generate the index
         t.__orderedIndex = __genOrderedIndex( t )
         key = t.__orderedIndex[1]
+		-- log which function did the call
+		prevLine = LogFullLine()
     else
         -- fetch the next value
         for i = 1, #t.__orderedIndex do
@@ -695,6 +713,8 @@ function orderedNext(t, state)
     end
 
     if key and type(key) ~= "table" then
+		prevKey 	= key
+		prevValue	= t[key]
         return key, t[key]
     end
 

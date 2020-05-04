@@ -96,7 +96,7 @@ end
 
 function GetCityProductionTurnsLeft(city, productionType)
 	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
-	if not contextCity then return 0 end
+	if not contextCity then return 1 end -- do not return 0, this can be used as a divisor
 	local pCityBuildQueue = contextCity:GetBuildQueue()
 	return pCityBuildQueue:GetTurnsLeft( productionType )
 end
