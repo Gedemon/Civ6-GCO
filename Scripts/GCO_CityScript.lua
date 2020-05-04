@@ -1375,7 +1375,7 @@ function GetMigration(self)
 	return _cached[cityKey].Migration
 end
 
-function GetHousingOccupiedByHigherClass(self)
+function GetPopulationHousing(self)
 	local upperClass				= self:GetUpperClass()
 	local middleClass				= self:GetMiddleClass()
 	local lowerClass				= self:GetLowerClass()
@@ -1392,11 +1392,27 @@ function GetHousingOccupiedByHigherClass(self)
 	local lowerHousing				= GCO.GetPopulationPerSize(lowerHousingSize)
 	local lowerHousingAvailable		= math.max( 0, lowerHousing - lowerClass - middleLookingForLower)
 
+	
+	
+	local PopulationHousing							= { [UpperClassID] = {}, [MiddleClassID] = {}, [LowerClassID] = {}}
+	PopulationHousing.TotalMaxHousing				= upperHousing + middleHousing + lowerHousing + slaveClass -- slave class doesn't use housing space
+	PopulationHousing[UpperClassID].MaxHousing		= upperHousing + math.max(0, middleHousing - middleClass)
+	PopulationHousing[MiddleClassID].MaxHousing		= middleHousing + math.max(0, lowerHousing - lowerClass)
+	PopulationHousing[LowerClassID].MaxHousing		= lowerHousing
+	PopulationHousing[UpperClassID].HigherReserved 	= 0
+	PopulationHousing[MiddleClassID].HigherReserved = upperLookingForMiddle
+	PopulationHousing[LowerClassID].HigherReserved 	= middleLookingForLower
+	PopulationHousing[UpperClassID].Available 		= math.max(0, upperHousing + middleHousing - upperClass)
+	PopulationHousing[MiddleClassID].Available		= math.max(0, middleHousing + lowerHousing - middleClass - upperLookingForMiddle)
+	PopulationHousing[LowerClassID].Available	 	= math.max(0, lowerHousing - lowerClass - middleLookingForLower)
+	--[[
 	local HousingOccupiedByHigher				= {}
 	HousingOccupiedByHigher[UpperClassID] 		= 0
 	HousingOccupiedByHigher[MiddleClassID] 		= math.min( middleHousing, upperLookingForMiddle)
 	HousingOccupiedByHigher[LowerClassID] 		= math.min( lowerHousing, middleLookingForLower)
 	return HousingOccupiedByHigher
+	--]]
+	return PopulationHousing
 end
 -----------------------------------------------------------------------------------------
 -- Science Functions
@@ -6560,17 +6576,18 @@ function SetNeedsValues(self)
 	-- Housing Upper Class
 	Dprint( DEBUG_CITY_SCRIPT, "Upper class Housing effect...")
 	local upperGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(UpperClassID) - self:GetBasePopulationDeathRate(UpperClassID)) --* 1.25
-	if upperHousingAvailable > upperHousing / 2 then -- BirthRate bonus from housing available
+	if upperHousingAvailable > upperHousing * 0.5 then -- BirthRate bonus from housing available
 		local maxEffectValue 	= 5
-		local higherValue 		= (upperHousing / 2)
-		local lowerValue 		= upperHousingAvailable - (upperHousing / 2)
+		local higherValue 		= (upperHousing * 0.5)
+		local lowerValue 		= upperHousingAvailable - (upperHousing * 0.5)
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
 		--NeedsEffects[UpperClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
 		AddNeeds(UpperClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
-	elseif upperGrowthRateLeft > 0 and (upperHousingAvailable < upperHousing * 25 / 100) and (middleHousingAvailable < middleHousing * 25 / 100) then -- BirthRate malus from low housing left (upper class can use middle class housing if available)
-		local maxEffectValue 	= upperGrowthRateLeft--self:GetBasePopulationBirthRate(UpperClassID)--upperGrowthRateLeft
-		local higherValue 		= (upperHousing + middleHousing) * 25 / 100
+	-- upperGrowthRateLeft > 0 and 
+	elseif (upperHousingAvailable < upperHousing * 0.25) and (middleHousingAvailable < middleHousing * 0.25) then -- BirthRate malus from low housing left (upper class can use middle class housing if available)
+		local maxEffectValue 	= self:GetBasePopulationBirthRate(UpperClassID)--upperGrowthRateLeft
+		local higherValue 		= (upperHousing + middleHousing) * 0.25
 		local lowerValue 		= upperHousingAvailable + middleHousingAvailable
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 		effectValue				= LimitEffect(maxEffectValue, effectValue)
@@ -6583,17 +6600,18 @@ function SetNeedsValues(self)
 	-- Housing Middle Class
 	Dprint( DEBUG_CITY_SCRIPT, "Middle class Housing effect...")
 	local middleGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(MiddleClassID) - self:GetBasePopulationDeathRate(MiddleClassID)) --* 1.25
-	if middleHousingAvailable > middleHousing / 2 then -- BirthRate bonus from housing available
+	if middleHousingAvailable > middleHousing * 0.5 then -- BirthRate bonus from housing available
 		local maxEffectValue 	= 5
-		local higherValue 		= (middleHousing / 2)
-		local lowerValue 		= middleHousingAvailable - (middleHousing / 2)
+		local higherValue 		= (middleHousing * 0.5)
+		local lowerValue 		= middleHousingAvailable - (middleHousing * 0.5)
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
 		--NeedsEffects[MiddleClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
 		AddNeeds(MiddleClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
-	elseif middleGrowthRateLeft > 0 and (middleHousingAvailable < middleHousing * 25 / 100) and (lowerHousingAvailable < lowerHousing * 25 / 100)  then -- BirthRate malus from low housing left (middle class can use lower class housing if available)
-		local maxEffectValue 	= middleGrowthRateLeft--self:GetBasePopulationBirthRate(MiddleClassID)--
-		local higherValue 		= (middleHousing + lowerHousing) * 25 / 100
+	-- middleGrowthRateLeft > 0 and 
+	elseif (middleHousingAvailable < middleHousing * 0.25) and (lowerHousingAvailable < lowerHousing * 0.25)  then -- BirthRate malus from low housing left (middle class can use lower class housing if available)
+		local maxEffectValue 	= math.max(middleGrowthRateLeft, self:GetBasePopulationBirthRate(MiddleClassID) * 0.35)
+		local higherValue 		= (middleHousing + lowerHousing) * 0.25
 		local lowerValue 		= middleHousingAvailable + lowerHousingAvailable
 		local effectValue		= GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue)
 		effectValue				= LimitEffect(maxEffectValue, effectValue)--math.min(middleGrowthRateLeft,LimitEffect(maxEffectValue, effectValue))
@@ -6606,17 +6624,17 @@ function SetNeedsValues(self)
 	-- Housing Lower Class
 	Dprint( DEBUG_CITY_SCRIPT, "Lower class Housing effect...")
 	local lowerGrowthRateLeft = math.max ( 0, self:GetBasePopulationBirthRate(LowerClassID) - self:GetBasePopulationDeathRate(LowerClassID)) --* 1.25
-	if lowerHousingAvailable > lowerHousing / 2 then -- BirthRate bonus from housing available
+	if lowerHousingAvailable > lowerHousing * 0.5 then -- BirthRate bonus from housing available
 		local maxEffectValue 	= 5
-		local higherValue 		= (lowerHousing / 2)
-		local lowerValue 		= lowerHousingAvailable - (lowerHousing / 2)
+		local higherValue 		= (lowerHousing * 0.5)
+		local lowerValue 		= lowerHousingAvailable - (lowerHousing * 0.5)
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromLowDiff(maxEffectValue, higherValue, lowerValue))
 		--NeedsEffects[LowerClassID][NeedsEffectType.BirthRate]["LOC_BIRTHRATE_BONUS_FROM_HOUSING"] = effectValue
 		AddNeeds(LowerClassID, NeedsEffectType.BirthRate, "LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue)
 		Dprint( DEBUG_CITY_SCRIPT, maxEffectValue, higherValue, lowerValue, Locale.Lookup("LOC_BIRTHRATE_BONUS_FROM_HOUSING", effectValue))
-	elseif lowerGrowthRateLeft > 0 and lowerHousingAvailable < lowerHousing * 25 / 100  then -- BirthRate malus from low housing left
+	elseif lowerGrowthRateLeft > 0 and lowerHousingAvailable < lowerHousing * 0.25  then -- BirthRate malus from low housing left
 		local maxEffectValue 	= lowerGrowthRateLeft--self:GetBasePopulationBirthRate(LowerClassID) --
-		local higherValue 		= lowerHousing * 25 / 100
+		local higherValue 		= lowerHousing * 0.25
 		local lowerValue 		= lowerHousingAvailable
 		local effectValue		= GCO.ToDecimals(GetMaxPercentFromHighDiff(maxEffectValue, higherValue, lowerValue))
 		effectValue				= LimitEffect(maxEffectValue, effectValue)--math.min(lowerGrowthRateLeft,LimitEffect(maxEffectValue, effectValue))
@@ -6684,7 +6702,7 @@ function SetNeedsValues(self)
 			--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES"] 	= totalLuxuries
 			--NeedsEffects[UpperClassID][NeedsEffectType.SocialStratificationReq]["LOC_SOCIAL_STRATIFICATION_REQUIRED_LUXURIES"] 		= minLuxuriesNeeded
 			
-			AddNeeds(UpperClassID, NeedsEffectType.SocialStratification, "LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", effectValue)
+			AddNeeds(UpperClassID, NeedsEffectType.SocialStratification, "LOC_SOCIAL_STRATIFICATION_PENALTY_FROM_LUXURIES", -effectValue)
 			AddNeeds(UpperClassID, NeedsEffectType.SocialStratificationReq, "LOC_SOCIAL_STRATIFICATION_AVAILABLE_LUXURIES", totalLuxuries)
 			AddNeeds(UpperClassID, NeedsEffectType.SocialStratificationReq, "LOC_SOCIAL_STRATIFICATION_REQUIRED_LUXURIES", minLuxuriesNeeded)
 			
@@ -6731,7 +6749,8 @@ end
 
 function DoSocialClassStratification(self)
 
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
+	--if Locale.Lookup(self:GetName()) =="London" then DEBUG_CITY_SCRIPT = "debug" end
 	
 	Dlog("DoSocialClassStratification ".. Locale.Lookup(self:GetName()).." /START")
 	local totalPopulation = self:GetRealPopulation()
@@ -6766,44 +6785,45 @@ function DoSocialClassStratification(self)
 	Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: minLower .. = ", minLower)
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 
+	-- to do : change magic ratio number, influence by era/tech/policies
 	-- Move Upper to Middle
 	if actualUpper > maxUpper then
-		toMove = actualUpper - maxUpper
+		toMove = GCO.Round(math.min(actualUpper * 0.20, actualUpper - maxUpper))
 		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Upper to Middle (from actualUpper > maxUpper) ..... = ", toMove)
 		self:ChangeUpperClass(- toMove)
 		self:ChangeMiddleClass( toMove)
 	end
 	-- Move Middle to Upper
 	if actualUpper < minUpper then
-		toMove = minUpper - actualUpper
+		toMove = GCO.Round(math.min(actualMiddle * 0.075, minUpper - actualUpper))
 		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Upper (from actualUpper < minUpper) ..... = ", toMove)
 		self:ChangeUpperClass(toMove)
 		self:ChangeMiddleClass(-toMove)
 	end
 	-- Move Middle to Lower
 	if actualMiddle > maxMiddle then
-		toMove = actualMiddle - maxMiddle
+		toMove = GCO.Round(math.min(actualMiddle * 0.25, actualMiddle - maxMiddle))
 		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Lower (from actualMiddle > maxMiddle) ... = ", toMove)
 		self:ChangeMiddleClass(-toMove)
 		self:ChangeLowerClass(toMove)
 	end
 	-- Move Lower to Middle
 	if actualMiddle < minMiddle then
-		toMove = minMiddle - actualMiddle
+		toMove = GCO.Round(math.min(actualLower * 0.10, minMiddle - actualMiddle))
 		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Lower to Middle (from actualMiddle < minMiddle) ... = ", toMove)
 		self:ChangeMiddleClass(toMove)
 		self:ChangeLowerClass(-toMove)
 	end
 	-- Move Lower to Middle
 	if actualLower > maxLower then
-		toMove = actualLower - maxLower
+		toMove = GCO.Round(math.min(actualLower * 0.10, actualLower - maxLower))
 		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Lower to Middle (from actualLower > maxLower) ..... = ", toMove)
 		self:ChangeMiddleClass(toMove)
 		self:ChangeLowerClass(-toMove)
 	end
 	-- Move Middle to Lower
 	if actualLower < minLower then
-		toMove = minLower - actualLower
+		toMove = GCO.Round(math.min(actualMiddle * 0.25, minLower - actualLower))
 		Dprint( DEBUG_CITY_SCRIPT, "Social Stratification: Middle to Lower (from actualLower < minLower) ..... = ", toMove)
 		self:ChangeMiddleClass(-toMove)
 		self:ChangeLowerClass(toMove)
@@ -6886,7 +6906,7 @@ function SetMigrationValues(self)
 
 	Dlog("SetMigrationValues ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
-	--if Locale.Lookup(self:GetName()) =="Nidaros" then DEBUG_CITY_SCRIPT = "debug" end
+	--if Locale.Lookup(self:GetName()) =="London" then DEBUG_CITY_SCRIPT = "debug" end
 	
 	local cityKey = self:GetKey()
 	if not _cached[cityKey] then
@@ -6907,7 +6927,7 @@ function SetMigrationValues(self)
 	local possibleDestination 		= {}
 	local migrantClasses			= {UpperClassID, MiddleClassID, LowerClassID}
 	local housingID					= { [UpperClassID] 	= YieldUpperHousingID, [MiddleClassID] = YieldMiddleHousingID, [LowerClassID] 	= YieldLowerHousingID, } -- to do : something else...
-	local tOccupiedHousing			= self:GetHousingOccupiedByHigherClass()
+	local tPopulationHousing		= self:GetPopulationHousing()
 	--local migrantMotivations		= {"Under threat", "Starvation", "Employment", "Overpopulation"}
 	local migrants					= {}
 	local totalPopulation 			= self:GetUrbanPopulation()
@@ -6928,7 +6948,7 @@ function SetMigrationValues(self)
 	
 		local population			= self:GetPopulationClass(populationID)		
 		local housingSize			= self:GetCustomYield( housingID[populationID] )
-		local maxPopulation			= math.max(GetPopulationPerSize(1), GetPopulationPerSize(housingSize) - tOccupiedHousing[populationID])
+		local maxPopulation			= tPopulationHousing[populationID].MaxHousing--math.max(GetPopulationPerSize(1), GetPopulationPerSize(housingSize) - tPopulationHousing[populationID])
 		local bestMotivationWeight	= 0
 		
 		Dprint( DEBUG_CITY_SCRIPT, "  - "..Indentation20(Locale.ToUpper(GameInfo.Resources[populationID].Name)).." current population = "..Indentation15(population).. " motivations : employment = ".. tostring(migrationClassMotivation.Employment[populationID]) ..", housing = ".. migrationClassMotivation.Housing[populationID] ..", food = ".. tostring(migrationClassMotivation.Food[populationID]))
@@ -7012,7 +7032,7 @@ function DoMigration(self)
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /START")
 	
 	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
-	--if Locale.Lookup(self:GetName()) =="Nidaros" then DEBUG_CITY_SCRIPT = "debug" end
+	--if Locale.Lookup(self:GetName()) =="London" then DEBUG_CITY_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "- Population Migration for ".. Locale.Lookup(self:GetName()))
@@ -8046,7 +8066,7 @@ function AttachCityFunctions(city)
 		if not c.SetPopulationBirthRate				then c.SetPopulationBirthRate				= SetPopulationBirthRate            	end
 		if not c.GetBasePopulationBirthRate			then c.GetBasePopulationBirthRate			= GetBasePopulationBirthRate        	end
 		if not c.GetMigration						then c.GetMigration							= GetMigration                      	end
-		if not c.GetHousingOccupiedByHigherClass	then c.GetHousingOccupiedByHigherClass		= GetHousingOccupiedByHigherClass      	end
+		if not c.GetPopulationHousing				then c.GetPopulationHousing					= GetPopulationHousing     			 	end
 		
 		if not c.GetLiteracy						then c.GetLiteracy							= GetLiteracy                     	 	end
 		if not c.SetLiteracy						then c.SetLiteracy							= SetLiteracy                     	 	end

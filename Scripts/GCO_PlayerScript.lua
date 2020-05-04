@@ -1318,7 +1318,11 @@ end
 function GetPlayer(playerID)
 	local player= Players[playerID]
 	if not player then
-		GCO.Error("player is nil in GetPlayer for playerID#", playerID)
+		if playerID == -1 then
+			GCO.Warning("Calling GetPlayer for playerID# -1")
+		else
+			GCO.Error("player is nil in GetPlayer for playerID#", playerID)
+		end
 		return
 	end
 	InitializePlayerFunctions(player)
