@@ -338,6 +338,7 @@
 		<Row Technology="TECH_CASTLES"				PrereqTech="TECH_ENGINEERING"/>
 		<Row Technology="TECH_MILITARY_ENGINEERING" PrereqTech="TECH_DEFENSIVE_TACTICS"/>
 		<Row Technology="TECH_MILITARY_ENGINEERING" PrereqTech="TECH_ENGINEERING"/>
+		<Row Technology="TECH_MILITARY_ENGINEERING" PrereqTech="TECH_HORSEBACK_RIDING"/>
 		<!-- Tiers II -->
 		<Row Technology="TECH_OPTICS"				PrereqTech="TECH_MACHINERY"/>
 		<Row Technology="TECH_EDUCATION"			PrereqTech="TECH_MATHEMATICS"/>
@@ -401,6 +402,7 @@
 		<Row Technology="TECH_LIBERALISM"			PrereqTech="TECH_HUMANISM"/>
 		<Row Technology="TECH_LIBERALISM"			PrereqTech="TECH_MERCANTILISM"/>
 		<Row Technology="TECH_MASS_PRODUCTION"		PrereqTech="TECH_MERCANTILISM"/>
+		<Row Technology="TECH_MASS_PRODUCTION"		PrereqTech="TECH_PRINTING"/>
 		<Row Technology="TECH_GEOLOGY"				PrereqTech="TECH_CARTOGRAPHY"/>
 		<Row Technology="TECH_GEOLOGY"				PrereqTech="TECH_MAGNETISM"/>
 	

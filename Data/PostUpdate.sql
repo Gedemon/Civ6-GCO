@@ -58,6 +58,23 @@ INSERT INTO ModifierArguments (ModifierId, Name, Value)
 INSERT INTO BuildingModifiers (BuildingType, ModifierId)
 	SELECT BuildingUpgrades.BuildingType, 'PRODUCTION_BONUS_FROM_' || BuildingUpgrades.BuildingType
 	FROM BuildingUpgrades;
+	
+/* Set modifiers for Buildings Production Bonus */	
+INSERT INTO Modifiers (ModifierId, ModifierType)
+	SELECT 'PRODUCTION_BONUS_FROM_' || BuildingProductionBonus.BuildingType || '_TO_' || BuildingProductionBonus.BonusToType, 'MODIFIER_SINGLE_CITY_ADJUST_BUILDING_PRODUCTION'
+	FROM BuildingProductionBonus;
+	
+INSERT INTO ModifierArguments (ModifierId, Name, Value)
+	SELECT 'PRODUCTION_BONUS_FROM_' || BuildingProductionBonus.BuildingType || '_TO_' || BuildingProductionBonus.BonusToType, 'BuildingType', BuildingProductionBonus.BonusToType
+	FROM BuildingProductionBonus;
+	
+INSERT INTO ModifierArguments (ModifierId, Name, Value)
+	SELECT 'PRODUCTION_BONUS_FROM_' || BuildingProductionBonus.BuildingType || '_TO_' || BuildingProductionBonus.BonusToType, 'Amount', BuildingProductionBonus.ProductionBonus
+	FROM BuildingProductionBonus;
+	
+INSERT INTO BuildingModifiers (BuildingType, ModifierId)
+	SELECT BuildingProductionBonus.BuildingType, 'PRODUCTION_BONUS_FROM_' || BuildingProductionBonus.BuildingType || '_TO_' || BuildingProductionBonus.BonusToType
+	FROM BuildingProductionBonus;
 
 
 -----------------------------------------------

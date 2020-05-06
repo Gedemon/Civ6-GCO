@@ -322,7 +322,8 @@ function TooltipOn(parameters)
 	end
 
 	--Controls.TooltipGCO:ReprocessAnchoring()
-	Controls.TooltipGCO:ChangeParent(ContextPtr:LookUpControl("/InGame/CityBannerManager")) -- Why is this now needed since the GS patch ?
+	Controls.TooltipGCO:ChangeParent(ContextPtr:LookUpControl("/InGame/DiplomacyRibbon")) -- Why is this now needed since the GS patch ?
+	--Controls.TooltipGCO:Reparent()
 	Controls.TooltipGCO:SetHide(false);
 	Controls.TooltipGCO:SetToBeginning();
 	Controls.TooltipGCO:Play();

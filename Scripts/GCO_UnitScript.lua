@@ -5918,7 +5918,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 		local player 	= GCO.GetPlayer(unitOwner)
 			
 		function GetNum(num)
-			return GCO.Round(TerrainBuilder.GetRandomNumber(num, "OnImprovementActivated GetNum") * (gameEra+1) * 0.35)
+			return GCO.Round((TerrainBuilder.GetRandomNumber(num, "OnImprovementActivated GetNum")+1) * (gameEra+1) * 0.35)
 		end
 		if( GameInfo.Improvements[improvementType].BarbarianCamp ) then
 			Dprint( DEBUG_UNIT_SCRIPT, "Barbarian Village Cleaned, Era = "..tostring(eraType));
@@ -5971,6 +5971,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 			local wheat 	= GetNum(500)   * factor
 			local rice 		= GetNum(500)   * factor
 			local materiel 	= GetNum(300)   * factor
+			local techNum	= GetNum(3) 	* factor
 			
 			unit:ChangeStock(foodResourceID, food)
 			unit:ChangeStock(materielResourceID, materiel)
@@ -5978,6 +5979,14 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 			unit:ChangeStock(medicineResourceID, medicine)
 			unit:ChangeStock(GameInfo.Resources["RESOURCE_WHEAT"].Index, wheat)
 			unit:ChangeStock(GameInfo.Resources["RESOURCE_RICE"].Index, rice)
+			
+			-- 
+			--Research:GetRandomUnknownTechResource(eraType)
+			local pResearch = GCO.Research:Create(unitOwner)
+			local techResID	= pResearch:GetRandomUnknownTechResource(eraType)
+			if techResID then
+				unit:ChangeStock(techResID, techNum)
+			end
 			
 			LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)
 			
@@ -5988,7 +5997,13 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
 					
 					local sText = "+" .. tostring(medicine).." "..GCO.GetResourceIcon(medicineResourceID)..", +" .. tostring(wheat).." "..GCO.GetResourceIcon(GameInfo.Resources["RESOURCE_WHEAT"].Index)..", +" .. tostring(rice).." "..GCO.GetResourceIcon(GameInfo.Resources["RESOURCE_RICE"].Index)
-					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)			
+					Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)	
+
+					if techResID then
+						local name	= Locale.Lookup(GameInfo.Resources[techResID].Name)
+						local sText = "+" .. tostring(techNum).." "..GCO.GetResourceIcon(techResID).." ".. name
+						Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, locationX, locationY, 0)
+					end					
 				end
 			end			
 		end

@@ -419,6 +419,10 @@ function GetTerritoryAdministrativeCost(self)
 	local territorySize		= self:GetTerritorySize()
 	local territoryCost		= territorySize/10
 	local territorySurface	= territorySize*10000
+	local landCostModifier	= self:GetModifiersForEffect("REDUCE_ADMINISTRATIVE_TERRITORY_COST")
+	if landCostModifier then
+		territoryCost	= territoryCost - (territoryCost * landCostModifier / 100)
+	end
 
 	return territoryCost, territorySurface
 end
@@ -447,7 +451,8 @@ function SetAdministrativeCost(self) -- must be updated each turn and on territo
 	local techFactor		= self:GetTechAdministrativeFactor()
 	local territoryCost 	= self:GetTerritoryAdministrativeCost()
 	local unitsFactor		= self:GetUnitsAdministrativeFactor()
-	local empireCost		= math.floor((popSize + territoryCost) * techFactor * citiesFactor * unitsFactor)
+	
+	local empireCost	= math.floor((popSize + territoryCost) * techFactor * citiesFactor * unitsFactor)
 	
 	self:SetCached("AdministrativeCost", empireCost)
 	return empireCost
@@ -499,7 +504,51 @@ function GetAdministrationTooltip(self)
 	local adminEfficiency		= self:GetAdministrativeEfficiency()
 	local unitsFactor			= self:GetUnitsAdministrativeFactor()
 	
-	return Locale.Lookup("LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP", empireCost, popSize, PopBalance, citiesFactor, landCost, landSurface, techFactor, adminSupport, adminEfficiency, adminSupportTable.Resources, adminSupportTable.Yield, unitsFactor)
+	-- Modifiers
+	local landModifier, list	= self:GetModifiersForEffect("REDUCE_ADMINISTRATIVE_TERRITORY_COST")
+	local landModifierTextList	= GCO.GetModifierBulletList("REDUCE_ADMINISTRATIVE_TERRITORY_COST", list)
+	
+	local costString			= Locale.Lookup("LOC_TOP_PANEL_ADMINISTRATIVE_COST_TOOLTIP", adminEfficiency, empireCost, popSize, PopBalance, landCost, landSurface, citiesFactor, unitsFactor, techFactor)
+	local supportString			= Locale.Lookup("LOC_TOP_PANEL_ADMINISTRATIVE_SUPPORT_TOOLTIP", adminSupport, adminSupportTable.Resources, adminSupportTable.Yield)
+	local modifierString		= landModifierTextList:len() > 0 and "[NEWLINE][NEWLINE]"..Locale.Lookup("LOC_ACTIVE_MODIFIERS").."[NEWLINE]"..landModifierTextList or ""
+	
+	return costString.."[NEWLINE][NEWLINE]"..supportString..modifierString
+	
+end
+
+
+-----------------------------------------------------------------------------------------
+-- Modifiers
+-----------------------------------------------------------------------------------------
+function GetModifiersForEffect(self, eEffectType)
+	local list		= {}
+	local pTechs	= self:GetTechs()
+	local bValid	= false
+	local modifiers	= GCO.GetEffectModifiers(eEffectType)
+	local value		= 0 -- to do: column for type of result: stacked (added) or best in <EffectsGCO>
+	for i, row in ipairs(modifiers) do
+		local data = GameInfo[row.Table] and GameInfo[row.Table][row.ObjectType]
+		if row.Table == "Technologies" then
+			bValid = pTechs:HasTech(data.Index)
+		elseif row.Table == "Policies" then
+			bValid = self:HasPolicyActive(data.Index)
+		elseif row.Table == "Governments" then
+			bValid = self:GetCurrentGovernment() == data.Index
+		elseif row.Table == "Buildings" and row.IsGlobal then
+			local playerCities = self:GetCities()
+			if playerCities then
+				for i, city in playerCities:Members() do
+					bValid = city:GetBuildings():HasBuilding(data.Index)
+				end
+			end
+		end
+		
+		if bValid then
+			value = value + row.Value
+			table.insert(list, {Type = row.ObjectType, Value = row.Value, Name = GameInfo[row.Table][row.ObjectType].Name})
+		end
+	end
+	return value, list
 end
 
 -----------------------------------------------------------------------------------------
@@ -1131,7 +1180,7 @@ function DoPlayerTurn( playerID )
 	
 	local player = Players[playerID]
 	if player and not player:HasStartedTurn() then
-		LuaEvents.PlayerTurnStartGCO(playerID)
+		GameEvents.PlayerTurnStartGCO.Call(playerID)
 		local playerConfig						= PlayerConfigurations[playerID]
 		GCO.PlayerTurnsDebugChecks[playerID]	= {}
 		local playerName						= Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
@@ -1188,7 +1237,7 @@ function DoPlayerTurn( playerID )
 			GameEvents.SaveGameGCO.Call(saveGame)
 		end
 		
-		LuaEvents.PlayerTurnDoneGCO(playerID)
+		GameEvents.PlayerTurnDoneGCO.Call(playerID)
 	end
 end
 
@@ -1303,6 +1352,15 @@ end
 GameEvents.CapturedCityInitialized.Add( OnCapturedCityInitialized )
 GameEvents.NewCityCreated.Add(OnNewCityCreated)
 
+function OnModifierChanged(playerID)
+	local player = GetPlayer(playerID)
+	if player then
+		player:SetCached("AdministrativeCost", nil) -- force a refresh on next UI call, at this point in the code the change is not yet applied
+	end
+end
+Events.GovernmentChanged.Add(OnModifierChanged)
+Events.GovernmentPolicyChanged.Add(OnModifierChanged)
+
 -----------------------------------------------------------------------------------------
 -- Functions passed from UI Context
 -----------------------------------------------------------------------------------------
@@ -1407,6 +1465,8 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 		p.SetAdministrativeSupport					= SetAdministrativeSupport
 		p.GetAdministrativeEfficiency				= GetAdministrativeEfficiency
 		p.GetAdministrationTooltip					= GetAdministrationTooltip
+		--
+		p.GetModifiersForEffect						= GetModifiersForEffect
 		--
 		p.GetPersonnelInCities						= GetPersonnelInCities
 		p.SetPersonnelInCities						= SetPersonnelInCities

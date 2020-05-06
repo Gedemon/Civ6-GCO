@@ -2098,14 +2098,14 @@ function GetData()
 	);
 
 		for row in GameInfo.Units() do
-		if row.Hash == m_CurrentProductionHash then
+			if row.Hash == m_CurrentProductionHash then
 				new_data.CurrentProduction = row.Name;
-			new_data.CurrentProductionType= row.UnitType;
+				new_data.CurrentProductionType= row.UnitType;
 			end
 
-		local kBuildParameters = {};
-		kBuildParameters.UnitType = row.Hash;
-		kBuildParameters.MilitaryFormationType = MilitaryFormationTypes.STANDARD_MILITARY_FORMATION;
+			local kBuildParameters = {};
+			kBuildParameters.UnitType = row.Hash;
+			kBuildParameters.MilitaryFormationType = MilitaryFormationTypes.STANDARD_MILITARY_FORMATION;
 
 			-- Can it be built normally?
 			-- GCO <<<<<

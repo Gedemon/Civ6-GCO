@@ -2125,6 +2125,7 @@ function GetAvailableEmployment(self)
 	
 	return EmploymentByActivities, availableEmployment
 	--]]
+	--	local maxEmploymentUrban = GCO.Round(self:GetUrbanPopulation()*Div(employmentSize, self:GetSize()))
 	return Employment, availableEmployment
 end
 
@@ -2637,8 +2638,9 @@ function SetMigrationValues(self)
 	--local migrantMotivations		= {"Under threat", "Starvation", "Employment", "Overpopulation"}
 	local migrants					= {}
 	local population				= self:GetPopulation()
-	local maxPopulation				= GCO.GetPopulationAtSize(self:GetMaxSize())
 	local employment				= self:GetMaxEmployment()
+	local maxPlotPopulation			= GCO.GetPopulationAtSize(self:GetMaxSize())
+	local maxHousedPopulation		= math.max(employment, maxPlotPopulation) -- employment provides housing
 	local employed					= self:GetEmployed()
 	local unEmployed				= math.max(0, population - employment)
 	
@@ -2660,14 +2662,14 @@ function SetMigrationValues(self)
 		Dprint( DEBUG_PLOT_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " population = ", population)
 		
 		-- Population
-		plotMigration.Pull.Housing	= Div(maxPopulation, population)
-		plotMigration.Push.Housing	= Div(population, maxPopulation)
+		plotMigration.Pull.Housing	= Div(maxHousedPopulation, population)
+		plotMigration.Push.Housing	= Div(population, maxHousedPopulation)
 		if plotMigration.Push.Housing > 1 then 
-			plotMigration.Motivation 			= "Population"
-			local overPopulation				= population - maxPopulation
+			plotMigration.Motivation 		= "Population"
+			local overPopulation			= population - maxHousedPopulation
 			plotMigration.Migrants.Housing	= overPopulation
 		end
-		Dprint( DEBUG_PLOT_SCRIPT, "  - Overpopulation = ", overPopulation," maxPopulation : ", maxPopulation, " population = ", population)
+		Dprint( DEBUG_PLOT_SCRIPT, "  - Overpopulation = ", overPopulation," maxHousedPopulation : ", maxHousedPopulation, " population = ", population)
 		
 		-- Starvation
 		if city then
@@ -2675,11 +2677,11 @@ function SetMigrationValues(self)
 			-- on free plots, the risk of starvation is part of the "Overpopulation" motivation
 			-- if food rationning in city, try to move to external plot (other civ or unowned), reason : "food is requisitioned"
 			local consumptionRatio	= 1
-			local foodNeeded		= city:GetFoodConsumption(consumptionRatio)
-			local foodstock			= city:GetFoodStock()
+			local foodNeeded		= math.max(1, city:GetFoodConsumption(consumptionRatio))
+			local foodstock			= math.max(1, city:GetFoodStock())
 			-- pondered by plots own sustainability
-			plotMigration.Pull.Food	= (Div(foodstock, foodNeeded) + plotMigration.Pull.Housing) / 2 
-			plotMigration.Push.Food	= (Div(foodNeeded, foodstock) + plotMigration.Push.Housing) / 2
+			plotMigration.Pull.Food	= (Div(foodstock, foodNeeded) + Div(maxPlotPopulation, population)) / 2 
+			plotMigration.Push.Food	= (Div(foodNeeded, foodstock) + Div(population, maxPlotPopulation)) / 2
 			if plotMigration.Push.Food > 1 then 
 				plotMigration.Motivation 	= "Food"
 				local starving				= population - Div(population, plotMigration.Push.Food)
@@ -2687,7 +2689,8 @@ function SetMigrationValues(self)
 			end
 			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", starving," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
 		else
-			plotMigration.Pull.Food	= plotMigration.Pull.Housing -- free plots use the population support value for Food when "pulling" migrants that are pushed out of a city influence by starvation 
+			plotMigration.Pull.Food	= Div(maxPlotPopulation, population) -- free plots use the population support value for Food when "pulling" migrants that are pushed out of a city influence by starvation 
+			plotMigration.Push.Food	= Div(population, maxPlotPopulation)
 		end
 		
 		-- Threat
@@ -2751,12 +2754,9 @@ function DoMigration(self)
 			if adjacentPlot then
 				local bNotSameOwner	= adjacentPlot:GetOwner() ~= self:GetOwner()
 				local bCanDiffuse 	= (not adjacentPlot:IsWater()) and ((not (adjacentPlot:IsCity() or self:IsCity())) or bNotSameOwner) -- we update adjacent city plots only when not owned by the city, else the city itself handles that
---local bTestPlots = (adjacentPlot:GetX() == 24 and adjacentPlot:GetY() == 12 and self:GetX() == 24 and self:GetY() == 11) or (self:GetX() == 24 and self:GetY() == 12 and adjacentPlot:GetX() == 24 and adjacentPlot:GetY() == 11)
-local DEBUG_PLOT_SCRIPT = bTestPlots
-if (bTestPlots) then print("***HERE", bCanDiffuse) end
+
 				if bCanDiffuse then
 					local diffusionValues	= self:GetPlotDiffusionValuesTo(direction)
-if (bTestPlots) then print("***", diffusionValues, diffusionValues and diffusionValues.Bonus, diffusionValues and diffusionValues.Penalty, diffusionValues and diffusionValues.MaxRatio) end
 					-- debug
 					if (not diffusionValues) then
 						local toStr 			= self:GetX() ..",".. self:GetY() .. " to " .. adjacentPlot:GetX() ..",".. adjacentPlot:GetY()
@@ -2765,24 +2765,20 @@ if (bTestPlots) then print("***", diffusionValues, diffusionValues and diffusion
 						GCO.Warning("No diffusion value from ".. plotTerrainStr .. " " .. toStr .. " " .. toTerrainStr)
 					end
 					
-					if diffusionValues then
-if (bTestPlots) then Dline() end					
+					if diffusionValues then			
 						local adjacentPlotKey 		= adjacentPlot:GetKey()
 						local adjacentPlotMigration = adjacentPlot:GetMigration()
 						local bWorked 				= (adjacentPlot:GetWorkerCount() > 0)
 						local plotWeight			= 0
-if (bTestPlots) then Dline() end				
-if (bTestPlots) then Dline(DirectionString[direction], adjacentPlot:GetX(), adjacentPlot:GetY()) end			
+						
 						Dprint( DEBUG_PLOT_SCRIPT, "  - Looking for better conditions in ".. DirectionString[direction] .." on plot ".. adjacentPlot:GetX() ..",".. adjacentPlot:GetY().." Diffusion Values : Bonus = "..tostring(diffusionValues.Bonus)..", Penalty = "..tostring(diffusionValues.Penalty)..", Ratio = "..tostring(diffusionValues.MaxRatio))
 						for motivation, pushValue in pairs(plotMigration.Push) do
-if (bTestPlots) then Dline(motivation, pushValue) end			
 							local adjacentPull	= adjacentPlotMigration.Pull[motivation] or 0
 							local adjacentPush	= adjacentPlotMigration.Push[motivation] or 0
 							-- to do : effect of owned / foreign / free plots
 							local weightRatio	= 1	
-if (bTestPlots) then print("***HERE2", bCanDiffuse) end
 							Dprint( DEBUG_PLOT_SCRIPT, "    -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " adjacentPush = ", GCO.ToDecimals(adjacentPush), " adjacentPull = ", GCO.ToDecimals(adjacentPull))
-if (bTestPlots) then print("***HERE2.1", bCanDiffuse) end
+
 							if adjacentPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
 								if adjacentPull > 1 then
 									weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
@@ -2790,20 +2786,17 @@ if (bTestPlots) then print("***HERE2.1", bCanDiffuse) end
 								if pushValue > 1 then
 									weightRatio = weightRatio * 5		-- situation is bad on currentPlot
 								end
-if (bTestPlots) then print("***HERE2.3", bCanDiffuse) end
 								if motivation == plotMigration.Motivation then
 									weightRatio = weightRatio * 10		-- this is the most important motivation for migration
 								end
 								if bWorked then
 									weightRatio = weightRatio * 10		-- we want migration on worked plots
 								end
-if (bTestPlots) then print("***HERE2.2", bCanDiffuse) end
 								local motivationWeight = (adjacentPull + pushValue) * weightRatio
 								plotWeight = plotWeight + motivationWeight
 								Dprint( DEBUG_PLOT_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
 							end
 						end
-if (bTestPlots) then print("***HERE3", bCanDiffuse) end
 						
 						if plotWeight > 0 then
 							plotWeight = (plotWeight + diffusionValues.Bonus + diffusionValues.Penalty) * diffusionValues.MaxRatio
@@ -2814,7 +2807,6 @@ if (bTestPlots) then print("***HERE3", bCanDiffuse) end
 					end
 				end
 			end
-if (bTestPlots) then print("***HERE4", bCanDiffuse) end
 		end
 		
 		-- migration to owning city

@@ -776,6 +776,15 @@ CREATE TABLE BuildingUpgrades (
 		FOREIGN KEY (UpgradeType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
 	);
 	
+CREATE TABLE BuildingProductionBonus (
+		BuildingType TEXT NOT NULL,
+		BonusToType TEXT NOT NULL,
+		ProductionBonus INTEGER,
+		PRIMARY KEY(BuildingType, BonusToType),
+		FOREIGN KEY (BuildingType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (BonusToType) REFERENCES Buildings(BuildingType) ON DELETE CASCADE ON UPDATE CASCADE
+	);
+	
 CREATE TABLE LeadersTimeLine (
 		CivilizationType TEXT NOT NULL,
 		LeaderName TEXT NOT NULL,
@@ -910,6 +919,7 @@ CREATE TABLE IF NOT EXISTS ModifiersGCO
          OriginType 	TEXT,  -- Buildings, Policies, Technologies, Government <- maybe determine on initialization in ModUtils ?
          EffectType 	TEXT NOT NULL,
          EffectValue 	INT NOT NULL,
+		 IsGlobal BOOLEAN NOT NULL CHECK (IsGlobal IN (0,1)) DEFAULT 0,
 		 PRIMARY KEY(ModifierOrigin, EffectType));
 		 
 CREATE TABLE IF NOT EXISTS EffectsGCO

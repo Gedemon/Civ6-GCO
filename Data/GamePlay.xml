@@ -849,10 +849,10 @@
 	</SupplyRoutes> 
 	
 	
-	<ModifiersGCO>
-		<Row ModifierOrigin="POLICY_LANDSURVEYORS"	OriginType="Policies" 		EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	EffectValue="20"/>
+	<ModifiersGCO>	<!-- ModifierOrigin can be Technology, Government, Policy or Building -->
+		<Row ModifierOrigin="POLICY_LAND_SURVEYORS"		EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	EffectValue="50"/>
 		
-		<Row ModifierOrigin="TECH_SAILING"				OriginType="Technologies" 	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="TECH_SAILING"				EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
 		<Row ModifierOrigin="TECH_CELESTIAL_NAVIGATION"	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
 		<Row ModifierOrigin="TECH_SHIPBUILDING"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
 		<Row ModifierOrigin="TECH_CARTOGRAPHY"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
@@ -861,16 +861,21 @@
 		<Row ModifierOrigin="BUILDING_CITY_SHIPYARD"	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
 		<Row ModifierOrigin="BUILDING_LIGHTHOUSE"		EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
 		<Row ModifierOrigin="BUILDING_SHIPYARD"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
-		<Row ModifierOrigin="BUILDING_SEAPORT"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="3"/>		
+		<Row ModifierOrigin="BUILDING_SEAPORT"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="3"/>
+		
+		<Row ModifierOrigin="BUILDING_SCRIBE_HOUSE"		EffectType="NEW_COPY_TECH_RESOURCE" 				EffectValue="1"/>
+		<Row ModifierOrigin="BUILDING_LIBRARY"			EffectType="NEW_COPY_TECH_RESOURCE" 				EffectValue="2"/>
+		<Row ModifierOrigin="BUILDING_UNIVERSITY"		EffectType="NEW_COPY_TECH_RESOURCE" 				EffectValue="4"/>
 		
 	</ModifiersGCO>
 	
 	<EffectsGCO> <!-- To build strings for UI, see "Modifiers" in ModUtils -->
-		<Row EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	Name="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" ValueString="LOC_VAR_PERCENT_0" Application = "LOC_MODIFIER_GREEN_REMOVE_PERCENT_TO_FROM" />
+		<Row EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	Name="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" ValueString="LOC_VAR_PERCENT_0" Application = "LOC_MODIFIER_REMOVE_PERCENT_TO_FROM" />
 		<Row EffectType="RAISE_CITY_SEA_RANGE" 					Name="LOC_RAISE_CITY_SEA_RANGE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" />
+		<Row EffectType="NEW_COPY_TECH_RESOURCE" 				Name="LOC_NEW_COPY_TECH_RESOURCE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" />
 	</EffectsGCO>
 	<!--
-	
+		
 		<Replace Tag="LOC_VAR_NUMBER_0"					Text="{1_Num : number +#;-#}" 		Language="en_US" />
 		<Replace Tag="LOC_VAR_NUMBER_1"					Text="{1_Num : number +#.#;-#.#}" 	Language="en_US" />
 		<Replace Tag="LOC_VAR_NUMBER_2"					Text="{1_Num : number +#.##;-#.##}" Language="en_US" />

@@ -19,6 +19,7 @@
 local GCO = {}
 -- GCO >>>>>
 
+---[[
 local no_identity = { number=1, boolean=1, string=1, ['nil']=1 }
 
 function serialize (x)
@@ -138,7 +139,6 @@ function serialize (x)
          for k, v in pairs(x) do
             if np and (np[k] or np[v]) then
                --check_multiple(k); check_multiple(v) -- force dumps in localdefs
-if (v ~= v) then GCO.Error("Trying to save nan value", k, v) end
             elseif not idx_dumped[k] then
                table.insert (acc, "[" .. dump_or_ref_val(k) .. "] = " .. dump_or_ref_val(v))
             end
@@ -177,6 +177,7 @@ function deserialize (x)
 	if f == nil then GCO.Error("In deserialize: "..tostring(msg)) end
 	return f()
 end
+--]]
 
 --===========================================================================
 -- Addition for Civ6 mod (Gedemon)

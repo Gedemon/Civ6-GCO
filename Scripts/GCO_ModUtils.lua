@@ -208,17 +208,16 @@ local floatingTextLevel 	= FLOATING_TEXT_SHORT
 -- Custom Modifiers for GCO
 local TypeModifiers		= {}	-- for UI
 local EffectModifiers	= {}	--
+print ("Initialize GCO Modifiers Tables...")
 for row in GameInfo.ModifiersGCO() do
-	print ("Initialize GCO Modifiers Tables...")
 	local eObject		= row.ModifierOrigin
 	local eType			= row.OriginType
 	local eEffectType	= row.EffectType
 	local Warned		= {}
 	
-	
-	if GameInfo.EffectsGCO[row.EffectType] == nil and Warned[row.EffectType] == nil then
-		print("WARNING: EffectType is not defined in GameInfo.EffectsGCO ", row.EffectType)
-		Warned[row.EffectType] = true
+	if GameInfo.EffectsGCO[eEffectType] == nil and Warned[row.EffectType] == nil then
+		print("WARNING: EffectType is not defined in GameInfo.EffectsGCO ", eEffectType)
+		Warned[eEffectType] = true
 	end
 	
 	if eType == nil then
@@ -230,11 +229,11 @@ for row in GameInfo.ModifiersGCO() do
 	end
 	
 	if eType == nil then
-		print("ERROR: can't determine Table type in GameInfo.ModifiersGCO")
+		print("ERROR: can't determine Table type in GameInfo.ModifiersGCO for ", eObject)
 		for k, v in pairs(row) do print("   - ",k, v) end
 	else
 		EffectModifiers[eEffectType] = EffectModifiers[eEffectType] or {}
-		table.insert(EffectModifiers[eEffectType], {ObjectType = eObject, Table = eType, Value = row.EffectValue })
+		table.insert(EffectModifiers[eEffectType], {ObjectType = eObject, Table = eType, Value = row.EffectValue, IsGlobal = row.IsGlobal})
 		
 		
 		TypeModifiers[eObject] = TypeModifiers[eObject] or {}
@@ -665,6 +664,116 @@ end
 
 
 --=====================================================================================--
+-- Coroutines
+--=====================================================================================--
+
+local g_LastPause 		= 0
+local g_TimeForPause	= 0.075	--0.1/0.05	-- running time in seconds before yielding
+local g_TickBeforeResume= 4		--5		-- number of call to GameCoreEventPublishComplete before resuming the coroutine
+local g_Tick			= 0
+local bLoadScreenClosed	= false
+local CoroutineList		= {}
+
+local bDelayedStart			= true
+local g_DelayedStartTimer	= 0
+local g_DelayedStartPause	= 1
+
+
+function AddCoToList(newCo, arg)
+	print("Adding coroutine to script with pause :"..tostring(newCo))
+	table.insert(CoroutineList, { Coroutine = newCo, Arg = arg })
+end
+
+function LaunchScriptWithPause(args)
+
+	bDelayedStart 		= args.DelayedStart or bDelayedStart
+	g_DelayedStartTimer	= args.DelayedStartTimer or g_DelayedStartTimer
+	g_DelayedStartPause	= args.DelayedStartPause or g_DelayedStartPause
+	
+	print("LaunchScriptWithPause")
+	Events.GameCoreEventPublishComplete.Add( CheckTimer )
+end
+
+function StopScriptWithPause() -- GameCoreEventPublishComplete is called frequently, keep it clean
+
+	print("Stopping ScriptWithPause...")
+	Events.GameCoreEventPublishComplete.Remove( CheckTimer )
+end
+
+function CheckCoroutinePause()
+	if bDelayedStart or (g_LastPause + g_TimeForPause < Automation.GetTime()) then
+		print("**** coroutine.yield at ", Automation.GetTime() - g_LastPause, g_TimeForPause)
+		if bDelayedStart then
+			print("**** Delayed start, pause for ", g_DelayedStartPause)
+			g_DelayedStartTimer = Automation.GetTime()
+		end
+		coroutine.yield()
+		--return true
+	end
+end
+
+local countdown = 999
+function CheckTimer()
+
+	if bDelayedStart then
+		if g_DelayedStartTimer > 0 then
+			if (g_DelayedStartTimer + g_DelayedStartPause > Automation.GetTime()) then
+				local t = g_DelayedStartPause - Round(Automation.GetTime()-g_DelayedStartTimer)
+				if t < countdown then
+					print(t)
+					countdown = t
+				end
+				return
+			else
+				print("**** Starting...")
+				bDelayedStart = false
+			end
+		end
+	end
+
+	g_Tick	= g_Tick + 1
+	
+	if #CoroutineList > 0 then -- show ticking only when there are Coroutine running
+		--print("**** Tick = ", g_Tick)
+	end
+
+	if g_Tick >= g_TickBeforeResume then
+		local toRemove 	= {}
+		g_Tick			= 0
+		for i, row in ipairs(CoroutineList) do
+			local runningCo = row.Coroutine
+			local arg		= row.Arg
+			if coroutine.status(runningCo)=="dead" then
+				print("**** removing dead coroutine: "..tostring(runningCo), i)
+				table.insert(toRemove, i)
+			elseif coroutine.status(runningCo)=="suspended" then
+				g_LastPause = Automation.GetTime()
+				local ok, errorMsg
+				if arg then
+					ok, errorMsg = coroutine.resume(runningCo, arg)
+				else
+					ok, errorMsg = coroutine.resume(runningCo)
+				end
+				if not ok then
+					error("**** ERROR in co-routine : " .. errorMsg)
+				end
+			end
+		end
+		for _, i in ipairs(toRemove) do
+			if CoroutineList[i] and coroutine.status(CoroutineList[i].Coroutine)=="dead" then
+				table.remove(CoroutineList, i)
+			else
+				print("**** ERROR, trying to remove not dead Coroutine: "..tostring(CoroutineList[i].Coroutine), i)
+			end
+		end
+	end
+	if #CoroutineList == 0 and not bDelayedStart then
+		StopScriptWithPause()
+	end
+end
+
+
+--=====================================================================================--
 -- http://lua-users.org/wiki/SortedIteration
 -- Ordered table iterator, allow to iterate on the natural order of the keys of a table.
 --=====================================================================================--
@@ -973,6 +1082,24 @@ function GetEffectValueDescription(eEffectType, value)
 	else
 		return "WARNING: no value formatting and/or no tag name for "..tostring(eEffectType)
 	end
+end
+
+function GetModifierBulletList(eEffectType, modifierList)
+
+	if modifierList == nil or #modifierList == 0 then return "" end
+
+	local applicationText	= GCO.GetEffectApplicationText(eEffectType)
+	local effectName		= GCO.GetEffectName(eEffectType)
+	local bHasTwoParameters	= Locale.Lookup(applicationText,1,2):len() > 0 -- any other way ?
+	local strTable			= {}
+	for i, row in ipairs(modifierList) do
+		if bHasTwoParameters then
+			table.insert(strTable, "[ICON_BULLET]"..Locale.Lookup(applicationText, row.Value, row.Name))
+		else
+			table.insert(strTable, "[ICON_BULLET]"..Locale.Lookup(applicationText, row.Value, effectName, row.Name))
+		end
+	end
+	return table.concat(strTable, "[NEWLINE]")
 end
 
 --=====================================================================================--
@@ -1482,6 +1609,7 @@ function Initialize()
 	ExposedMembers.GCO.GetEffectName				= GetEffectName
 	ExposedMembers.GCO.GetEffectValueString			= GetEffectValueString
 	ExposedMembers.GCO.GetEffectValueDescription	= GetEffectValueDescription
+	ExposedMembers.GCO.GetModifierBulletList		= GetModifierBulletList
 	-- player
 	ExposedMembers.GCO.GetPlayerUpperClassPercent 	= GetPlayerUpperClassPercent
 	ExposedMembers.GCO.GetPlayerMiddleClassPercent 	= GetPlayerMiddleClassPercent
@@ -1514,11 +1642,17 @@ function Initialize()
 	ExposedMembers.GCO.GetEquipmentPropertyString		= GetEquipmentPropertyString
 	ExposedMembers.GCO.GetPercentBarString				= GetPercentBarString
 	ExposedMembers.GCO.GetEvaluationStringFromValue		= GetEvaluationStringFromValue
+	-- Coroutines
+	ExposedMembers.GCO.CheckCoroutinePause				= CheckCoroutinePause
+	ExposedMembers.GCO.AddCoToList						= AddCoToList
+	ExposedMembers.GCO.LaunchScriptWithPause			= LaunchScriptWithPause
+	ExposedMembers.GCO.StopScriptWithPause				= StopScriptWithPause
 	-- Options
 	ExposedMembers.GCO.IsOptionActive					= IsOptionActive
 	ExposedMembers.GCO.ChangeOption						= ChangeOption
 	-- initialization	
 	ExposedMembers.Utils_Initialized 	= true
+	
 end
 Initialize()
 

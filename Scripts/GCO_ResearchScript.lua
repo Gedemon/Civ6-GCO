@@ -218,8 +218,8 @@ function PostInitialize() -- everything that may require other context to be loa
 	ExposedMembers.GCO.ResearchData 	= GCO.LoadTableFromSlot("ResearchData") or {}
 	ExposedMembers.GCO.CityResearchData = GCO.LoadTableFromSlot("CityResearchData") or {}
 	
-	LuaEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
-	LuaEvents.PlayerTurnStartGCO.Add( OnPlayerTurnStart )
+	GameEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
+	GameEvents.PlayerTurnStartGCO.Add( OnPlayerTurnStart )
 	LuaEvents.ResearchGCO.Add( OnLuaResearchEvent )
 	LuaEvents.CityResearchGCO.Add( OnLuaCityResearchEvent )
 end
@@ -708,6 +708,26 @@ function Research:DoTurn()
 				local available	= row.Value
 				local techList	= {}
 				Dprint( DEBUG_RESEARCH_SCRIPT, "  - Available : " .. Indentation8(available) .. " blank ".. Indentation20(Locale.Lookup(GameInfo.Resources[row.ResourceID].Name)))
+				
+				-- Create new copies of available book, scroll, tablet for techs that can be researched
+				local numCopy = city:GetModifiersForEffect("NEW_COPY_TECH_RESOURCE")
+				if numCopy > 0 then
+					for _, techResRow in ipairs(techResources) do
+						local copiedClassType = GameInfo.Resources[techResRow.ResourceID].ResourceClassType
+						if classType == copiedClassType then
+							local techID		= techResRow.TechID
+							local createdResID	= techResRow.ResourceID
+							local maxAddition	= city:GetMaxStock(createdResID) - city:GetStock(createdResID)
+							Dprint( DEBUG_RESEARCH_SCRIPT, "  - Can stock : " .. Indentation8(maxAddition) .. Indentation20(Locale.Lookup(GameInfo.Resources[createdResID].Name)))
+							if maxAddition > 0 then
+								required = required + maxAddition
+								techList[techID] = {CreatedResID = createdResID, MaxAddition = maxAddition}
+							end
+						end
+					end
+				end
+				
+				-- Create book, scroll, tablet for techs that are already researched (for trade)
 				for j, techID in ipairs(knownTechs) do
 					local createdResID	= self:GetTechnologyResourceID(techID, classType)
 					local maxAddition	= city:GetMaxStock(createdResID) - city:GetStock(createdResID)
@@ -1347,6 +1367,25 @@ function Research:GetYieldTooltip(yieldType)
 	return table.concat(makeStr, "[NEWLINE]")
 end
 
+function Research:GetRandomUnknownTechResource(eraType, resourceClassType)
+	local eraType 			= eraType or "ERA_ANCIENT"
+	local resourceClassType = resourceClassType or (eraType == "ERA_ANCIENT" and "RESOURCECLASS_TABLETS") or (eraType == "ERA_CLASSICAL" and "RESOURCECLASS_SCROLLS") or "RESOURCECLASS_BOOKS"
+	local Techlist			= {}
+	for row in GameInfo.Technologies() do
+		if row.EraType == eraType then
+			local techID = row.Index
+			if not self:HasTech(techID) then
+				table.insert(Techlist, techID)
+			end
+		end
+	end
+	local numTechs = #Techlist
+	if numTechs > 0 then
+		local i = TerrainBuilder.GetRandomNumber(numTechs, "Get Random Unknown TechResource")+1
+		return self:GetTechnologyResourceID(Techlist[i], resourceClassType)
+	end
+end
+
 -----------------------------------------------------------------------------------------
 -- City Research Functions
 -----------------------------------------------------------------------------------------
@@ -1596,13 +1635,10 @@ function Initialize()
 	--
 	ExposedMembers.ResearchScript_Initialized 	= true
 	
-	-- legacy: unlock Governement on loading previous save
+	-- legacy: unlock Governments on loading previous saves
 	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
-print(playerID)
 	    for techID, techs in pairs (TechUnlockGovernement) do
-print(techID)
 			local pResearch = Research:Create(playerID)
-print(pResearch:HasTech(techID))
 			if pResearch:HasTech(techID) then
 				for _, govID in pairs(techs) do
 					pResearch:UnlockGovernement(govID)

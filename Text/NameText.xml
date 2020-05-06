@@ -55,15 +55,15 @@
 		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_INFORMATION_NAME" Text="Modern Central Square"		Language="en_US" />
 		<Replace Tag="LOC_BUILDING_CENTRAL_SQUARE_FUTURE_NAME" 		Text="Modern Central Square"		Language="en_US" />
 		
-		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_1_NAME" 	Text="Ancient Wealthy Housing"	Language="en_US" />
-		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_1_NAME" 	Text="Ancient Housing"			Language="en_US" />
-		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_1_NAME" 	Text="Ancient Cheap Housing"	Language="en_US" />
-		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_2_NAME" 	Text="Ancient Wealthy Housing"	Language="en_US" />
-		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_2_NAME" 	Text="Ancient Housing"			Language="en_US" />
-		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_2_NAME" 	Text="Ancient Cheap Housing"	Language="en_US" />
-		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_3_NAME" 	Text="Ancient Wealthy Housing"	Language="en_US" />
-		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_3_NAME" 	Text="Ancient Housing"			Language="en_US" />
-		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_3_NAME" 	Text="Ancient Cheap Housing"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_1_NAME" 	Text="Ancient Wealthy Housing"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_1_NAME" 	Text="Ancient Small Housing"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_1_NAME" 	Text="Ancient Small Cheap Housing"	Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_2_NAME" 	Text="Ancient Wealthy Housing"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_2_NAME" 	Text="Ancient Housing"				Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_2_NAME" 	Text="Ancient Cheap Housing"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_UPPER_HOUSING_3_NAME" 	Text="Ancient Wealthy Housing"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_MIDDLE_HOUSING_3_NAME" 	Text="Ancient Large Housing"		Language="en_US" />
+		<Replace Tag="LOC_BUILDING_ANCIENT_LOWER_HOUSING_3_NAME" 	Text="Ancient Large Cheap Housing"	Language="en_US" />
 		
 		<Replace Tag="LOC_BUILDING_MEDIEVAL_UPPER_HOUSING_1_NAME" 	Text="Medieval Wealthy Housing"	Language="en_US" />
 		<Replace Tag="LOC_BUILDING_MEDIEVAL_MIDDLE_HOUSING_1_NAME" 	Text="Medieval Housing"			Language="en_US" />
@@ -573,8 +573,12 @@
 	</LocalizedText>
 	
 	<LocalizedText> <!-- Modifiers Effects -->
-		<Replace Tag="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" Text="Territory Cost"			Language="en_US" />
-		<Replace Tag="LOC_RAISE_CITY_SEA_RANGE" 				Text="Sea Exploitation Range"	Language="en_US" />
+	
+		<Replace Tag="LOC_ACTIVE_MODIFIERS" Text="Active Modifiers" Language="en_US" />
+	
+		<Replace Tag="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" Text="Territory Cost"								Language="en_US" />
+		<Replace Tag="LOC_RAISE_CITY_SEA_RANGE" 				Text="Sea Exploitation Range"						Language="en_US" />
+		<Replace Tag="LOC_NEW_COPY_TECH_RESOURCE" 				Text="Copy of researched Scrolls, Books, Tablets"	Language="en_US" />
 
 		<Replace Tag="LOC_MODIFIER_ADD_VALUE" Language="en_US">
 		  <Text>+{1_Num} from {2_Name}.</Text>
@@ -585,6 +589,9 @@
 		
 		<Replace Tag="LOC_MODIFIER_GREEN_REMOVE_PERCENT_TO_FROM" Language="en_US">
 		  <Text>[COLOR_Civ6Green]-{1_Num : number #.##}[ENDCOLOR]% to {2_Name} from {3_Name}.</Text>
+		</Replace>
+		<Replace Tag="LOC_MODIFIER_REMOVE_PERCENT_TO_FROM" Language="en_US">
+		  <Text>-{1_Num : number #.##}% to {2_Name} from {3_Name}.</Text>
 		</Replace>
 	</LocalizedText>
 	

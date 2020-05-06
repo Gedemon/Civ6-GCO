@@ -3928,5 +3928,5 @@ Initialize();
 function OnCityCompositionUpdated(playerID, cityID)
 	RefreshBanner (playerID, cityID)
 end
-LuaEvents.CityCompositionUpdated.Add(OnCityCompositionUpdated)
+LuaEvents.CityCompositionUpdated.Add(OnCityCompositionUpdated) -- don't replace by GameEvents, it crashes, define LuaEvents in GamePlay/Script context instead
 -- GCO >>>>>

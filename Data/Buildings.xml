@@ -33,9 +33,9 @@
 		
 		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 				Cost="40" 	MaterielPerProduction="2" PrereqTech="TECH_PICTOGRAM" 			EmploymentSize="0.15"	ObsoleteEra="ERA_MEDIEVAL"/>
 		
-		<Row BuildingType="BUILDING_BRICKMAKER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75" /><!--	PrereqTech="TECH_MASONRY" -->
-		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
-		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.75"/>
+		<Row BuildingType="BUILDING_BRICKMAKER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.60" /><!--	PrereqTech="TECH_MASONRY" -->
+		<Row BuildingType="BUILDING_CARPENTER"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.60"/>
+		<Row BuildingType="BUILDING_STONEMASON"					Cost="30" 	MaterielPerProduction="2"	EmploymentSize="0.60"/>
 		
 		<Row BuildingType="BUILDING_ANCESTOR_HALL"				Cost="60" 	MaterielPerProduction="2"	EmploymentSize="0.15"	PrereqTech="TECH_CEREMONIAL_BURIAL" />
 		<Row BuildingType="BUILDING_FORUM"						Cost="90" 	MaterielPerProduction="2"	EmploymentSize="0.15"	PrereqTech="TECH_CODE_OF_LAWS" />
@@ -142,8 +142,9 @@
 		<Replace BuildingType="BUILDING_FISH_MARKET"		UpgradeType="BUILDING_MARKET"				ProductionBonus="75" />
 		<Replace BuildingType="BUILDING_BUTCHERY"			UpgradeType="BUILDING_MARKET"				ProductionBonus="75" />
 		
-		<Replace BuildingType="BUILDING_CARPENTER"			UpgradeType="BUILDING_WORKSHOP"				ProductionBonus="75" />
-		<Replace BuildingType="BUILDING_STONEMASON"			UpgradeType="BUILDING_WORKSHOP"				ProductionBonus="75" />
+		<Replace BuildingType="BUILDING_CARPENTER"			UpgradeType="BUILDING_WORKSHOP"				ProductionBonus="65" />
+		<Replace BuildingType="BUILDING_STONEMASON"			UpgradeType="BUILDING_WORKSHOP"				ProductionBonus="65" />
+		<Replace BuildingType="BUILDING_BRICKMAKER"			UpgradeType="BUILDING_WORKSHOP"				ProductionBonus="65" />
 		
 		<Replace BuildingType="BUILDING_BLACKSMITH"			UpgradeType="BUILDING_FOUNDRY"				ProductionBonus="100" />
 		
@@ -154,6 +155,29 @@
 		<Replace BuildingType="BUILDING_INDUSTRIAL_MARKET"	UpgradeType="BUILDING_HYPERMARKET"			ProductionBonus="100" />
 		
 		
+		<Replace BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 		UpgradeType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 		UpgradeType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_1" 		UpgradeType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 		UpgradeType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 		UpgradeType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 		UpgradeType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 		UpgradeType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 		UpgradeType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 		UpgradeType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	ProductionBonus="100" />
+		
+		<Replace BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 		UpgradeType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 		UpgradeType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 		UpgradeType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 		UpgradeType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 		UpgradeType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 		UpgradeType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	ProductionBonus="100" />
+		
+		<Replace BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	UpgradeType="BUILDING_ATOMIC_LOWER_HOUSING_1" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	UpgradeType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	UpgradeType="BUILDING_ATOMIC_UPPER_HOUSING_1" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	UpgradeType="BUILDING_ATOMIC_LOWER_HOUSING_2" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	UpgradeType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	UpgradeType="BUILDING_ATOMIC_UPPER_HOUSING_2" 		ProductionBonus="100" />
 	<!---- >
 		<Replace BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 		UpgradeType="BUILDING_ANCIENT_LOWER_HOUSING_2" 		ProductionBonus="100" />
 		<Replace BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 		UpgradeType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	ProductionBonus="100" />
@@ -173,6 +197,120 @@
 	<!---->
 		
 	</BuildingUpgrades>
+	
+	<BuildingProductionBonus>
+		
+		<!-- ->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT" 	BonusToType=""		ProductionBonus="100" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_MARKET"					ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_LOWER_HOUSING_1" 	ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_UPPER_HOUSING_1" 	ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" ProductionBonus="100" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	BonusToType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	ProductionBonus="100" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	BonusToType="BUILDING_MARKET"						ProductionBonus="150" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	BonusToType="BUILDING_WORKSHOP"						ProductionBonus="150" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	BonusToType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	ProductionBonus="150" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	BonusToType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	ProductionBonus="150" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	BonusToType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	ProductionBonus="150" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	BonusToType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	ProductionBonus="150" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	BonusToType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	ProductionBonus="150" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	BonusToType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	ProductionBonus="150" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_MARKET_EXTENSION"				ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_WORKSHOP"						ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_BANK"							ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" BonusToType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	ProductionBonus="200" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_MARKET_EXTENSION"				ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_STOCK_EXCHANGE"				ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_BANK"							ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_WORKSHOP"						ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	BonusToType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	ProductionBonus="200" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_INDUSTRIAL_MARKET"			ProductionBonus="150" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_STOCK_EXCHANGE"				ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_BANK"							ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_WORKSHOP"						ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_FACTORY"						ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_POWER_PLANT"					ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		BonusToType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	ProductionBonus="200" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_INDUSTRIAL_MARKET"			ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_STOCK_EXCHANGE"				ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_BANK"							ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_WORKSHOP"						ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_FACTORY"						ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_POWER_PLANT"					ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_ATOMIC_LOWER_HOUSING_1" 		ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 		ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_ATOMIC_UPPER_HOUSING_1" 		ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_ATOMIC_LOWER_HOUSING_2" 		ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 		ProductionBonus="200" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	BonusToType="BUILDING_ATOMIC_UPPER_HOUSING_2" 		ProductionBonus="200" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_INDUSTRIAL_MARKET"			ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_STOCK_EXCHANGE"				ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_BANK"							ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_WORKSHOP"						ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_FACTORY"						ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_POWER_PLANT"					ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_ATOMIC_LOWER_HOUSING_1" 		ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 		ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_ATOMIC_UPPER_HOUSING_1" 		ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_ATOMIC_LOWER_HOUSING_2" 		ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 		ProductionBonus="250" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		BonusToType="BUILDING_ATOMIC_UPPER_HOUSING_2" 		ProductionBonus="250" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_HYPERMARKET"					ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_STOCK_EXCHANGE"				ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_BANK"							ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_WORKSHOP"						ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_FACTORY"						ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_POWER_PLANT"					ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_ATOMIC_LOWER_HOUSING_1" 		ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 		ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_ATOMIC_UPPER_HOUSING_1" 		ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_ATOMIC_LOWER_HOUSING_2" 		ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 		ProductionBonus="300" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" BonusToType="BUILDING_ATOMIC_UPPER_HOUSING_2" 		ProductionBonus="300" />
+		<!-- -->
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_HYPERMARKET"					ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_STOCK_EXCHANGE"				ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_BANK"							ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_WORKSHOP"						ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_FACTORY"						ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_POWER_PLANT"					ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_ATOMIC_LOWER_HOUSING_1" 		ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 		ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_ATOMIC_UPPER_HOUSING_1" 		ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_ATOMIC_LOWER_HOUSING_2" 		ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 		ProductionBonus="500" />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		BonusToType="BUILDING_ATOMIC_UPPER_HOUSING_2" 		ProductionBonus="500" />
+	
+	
+	</BuildingProductionBonus>
 
 	<BuildingPopulationEffect>
 		<Row BuildingType="BUILDING_PALACE" 		PopulationType="POPULATION_UPPER" 	EffectType="CLASS_MAX_PERCENT"	EffectValue="25"/>
@@ -219,6 +357,7 @@
 	<!---->
 		<Row Building="BUILDING_LIGHTHOUSE" 				PrereqBuilding="BUILDING_CITY_SHIPYARD" 	/>
 		
+		<!-- Should be handled with upgrade path now ->
 		<Row Building="BUILDING_ANCIENT_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 	/>
 		<Row Building="BUILDING_ANCIENT_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_UPPER_HOUSING_1" 	/>
@@ -238,6 +377,7 @@
 		<Row Building="BUILDING_ATOMIC_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_LOWER_HOUSING_1" 	/>
 		<Row Building="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	/>
 		<Row Building="BUILDING_ATOMIC_UPPER_HOUSING_2" 	PrereqBuilding="BUILDING_ATOMIC_UPPER_HOUSING_1" 	/>
+		<!-- -->
 		
 		<!--
 		<Row Building="BUILDING_FARRIER"					PrereqBuilding="BUILDING_BLACKSMITH" 	/>
@@ -426,7 +566,8 @@
 		
 		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_WOOD" 		MaxConverted="30" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_WOOD" 		MaxConverted="30" 	ResourceCreated="RESOURCE_WOOD_PLANKS" 	Ratio="0.5"	MultiResCreated="1" />
-		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_STONE" 		MaxConverted="30" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"	MultiResCreated="1" />
+		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_STONE" 		MaxConverted="30" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="2"	 />
+		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_CLAY" 		MaxConverted="30" 	ResourceCreated="RESOURCE_MATERIEL" 	Ratio="0.15" />
 	
 		<Row BuildingType="BUILDING_FISH_MARKET"	ResourceType="RESOURCE_WHALES" 		MaxConverted="10" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="6"/>
 		<Row BuildingType="BUILDING_FISH_MARKET"	ResourceType="RESOURCE_FISH" 		MaxConverted="25" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1.0"/>
@@ -456,13 +597,17 @@
 		
 		<Row BuildingType="BUILDING_HERBALIST" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MEDICINE" Ratio="1.0"/>
 		
-		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="0.25"/>
-		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_LEATHER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="1.0"/>
-		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_CLAY" 		MaxConverted="10" 	ResourceCreated="RESOURCE_TABLETS"	Ratio="0.5"/>
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="2.25"/>
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_LEATHER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="3.0"/>
+		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 	ResourceType="RESOURCE_CLAY" 		MaxConverted="10" 	ResourceCreated="RESOURCE_TABLETS"	Ratio="2.5"/>
 		
-		<Row BuildingType="BUILDING_LIBRARY" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="30" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="0.25"/>
-		<Row BuildingType="BUILDING_LIBRARY" 		ResourceType="RESOURCE_LEATHER" 	MaxConverted="15" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="1.0"/>
-		<Row BuildingType="BUILDING_LIBRARY" 		ResourceType="RESOURCE_WOOD" 		MaxConverted="10" 	ResourceCreated="RESOURCE_BOOKS"	Ratio="1.0"/>
+		<Row BuildingType="BUILDING_LIBRARY" 		ResourceType="RESOURCE_PLANTS" 		MaxConverted="30" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="2.25"/>
+		<Row BuildingType="BUILDING_LIBRARY" 		ResourceType="RESOURCE_LEATHER" 	MaxConverted="15" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="3.0"/>
+		<Row BuildingType="BUILDING_LIBRARY" 		ResourceType="RESOURCE_WOOD" 		MaxConverted="10" 	ResourceCreated="RESOURCE_BOOKS"	Ratio="3.0"/>
+		
+		<Row BuildingType="BUILDING_UNIVERSITY" 	ResourceType="RESOURCE_PLANTS" 		MaxConverted="60" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="2.25"/>
+		<Row BuildingType="BUILDING_UNIVERSITY" 	ResourceType="RESOURCE_LEATHER" 	MaxConverted="30" 	ResourceCreated="RESOURCE_SCROLLS"	Ratio="3.0"/>
+		<Row BuildingType="BUILDING_UNIVERSITY" 	ResourceType="RESOURCE_WOOD" 		MaxConverted="30" 	ResourceCreated="RESOURCE_BOOKS"	Ratio="3.0"/>
 		
 		<Row BuildingType="BUILDING_ANCESTOR_HALL" 	ResourceType="RESOURCE_PLANTS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_ADMINISTRATIVE_SCROLLS"	Ratio="0.25"/>
 		<Row BuildingType="BUILDING_ANCESTOR_HALL" 	ResourceType="RESOURCE_LEATHER" 	MaxConverted="10" 	ResourceCreated="RESOURCE_ADMINISTRATIVE_SCROLLS"	Ratio="1.0"/>
@@ -721,6 +866,7 @@
 		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_MATERIEL" 	Stock="25"/>
 		<Row BuildingType="BUILDING_BRICKMAKER"		ResourceType="RESOURCE_CLAY" 		Stock="50"/>
 		
+		<!-- ResourceClassType are tech-specific Tablets, Scrolls, Books, while ResourceType are the blanks Tablets, Scrolls, Books -->
 		<Row BuildingType="BUILDING_SCRIBE_HOUSE"	ResourceClassType="RESOURCECLASS_TABLETS" 		Stock="5" 	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SCRIBE_HOUSE"	ResourceClassType="RESOURCECLASS_SCROLLS" 		Stock="10" 	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SCRIBE_HOUSE"	ResourceType="RESOURCE_TABLETS" 				Stock="20" 	FixedValue="1"/>
@@ -732,6 +878,11 @@
 		<Row BuildingType="BUILDING_LIBRARY"		ResourceType="RESOURCE_TABLETS" 				Stock="30" 	FixedValue="1"/>
 		<Row BuildingType="BUILDING_LIBRARY"		ResourceType="RESOURCE_SCROLLS" 				Stock="50" 	FixedValue="1"/>
 		<Row BuildingType="BUILDING_LIBRARY"		ResourceType="RESOURCE_BOOKS" 					Stock="100" FixedValue="1"/>
+		
+		<Row BuildingType="BUILDING_UNIVERSITY"		ResourceClassType="RESOURCECLASS_SCROLLS" 		Stock="35" 	FixedValue="1"/>
+		<Row BuildingType="BUILDING_UNIVERSITY"		ResourceClassType="RESOURCECLASS_BOOKS" 		Stock="70" 	FixedValue="1"/>
+		<Row BuildingType="BUILDING_UNIVERSITY"		ResourceType="RESOURCE_SCROLLS" 				Stock="100" FixedValue="1"/>
+		<Row BuildingType="BUILDING_UNIVERSITY"		ResourceType="RESOURCE_BOOKS" 					Stock="200" FixedValue="1"/>
 		
 		<Row BuildingType="BUILDING_ANCESTOR_HALL"	ResourceType="RESOURCE_ADMINISTRATIVE_TABLETS" 	Stock="10" 	/>
 		<Row BuildingType="BUILDING_ANCESTOR_HALL"	ResourceType="RESOURCE_ADMINISTRATIVE_SCROLLS" 	Stock="20" 	/>
@@ -1021,6 +1172,7 @@
 		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_WOOD" 			Stock="125"/>
 		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_STONE" 			Stock="125"/>
 		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_MATERIEL" 		Stock="125"/>
+		<Row BuildingType="BUILDING_WORKSHOP"		ResourceType="RESOURCE_CLAY" 			Stock="125"/>
 		
 		<Row BuildingType="BUILDING_ELECTRONICS_FACTORY"	ResourceType="RESOURCE_COPPER" 	Stock="125"/>
 		
@@ -1247,31 +1399,31 @@
 		
 		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="3"/>
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="2"/>
-		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="2"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
 		
 		<Row BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_3" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="4"/>
 		<Row BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_3" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="3"/>
-		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="2"/>
+		<Row BuildingType="BUILDING_ANCIENT_UPPER_HOUSING_3" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="1"/>
 		
-		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="3"/>
-		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="2"/>
-		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="2"/>
-		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="4"/>
-		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="3"/>
+		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="6"/>
+		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="4"/>
+		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="3"/>
+		<Row BuildingType="BUILDING_MEDIEVAL_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="6"/>
+		<Row BuildingType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="4"/>
 		<Row BuildingType="BUILDING_MEDIEVAL_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="2"/>
 		
-		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="4"/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="3"/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="3"/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="5"/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="4"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="8"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="5"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="4"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="8"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="5"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="3"/>
 		
-		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="5"/>
-		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="4"/>
-		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="4"/>
-		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="6"/>
-		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="5"/>
+		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_1" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="10"/>
+		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_1" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="6"/>
+		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_1" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="5"/>
+		<Row BuildingType="BUILDING_ATOMIC_LOWER_HOUSING_2" 	YieldType="YIELD_LOWER_HOUSING"		YieldChange="10"/>
+		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	YieldType="YIELD_MIDDLE_HOUSING"	YieldChange="6"/>
 		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	YieldType="YIELD_UPPER_HOUSING"		YieldChange="4"/>
 	<!---->	
 	</Building_CustomYieldChanges>

@@ -209,17 +209,18 @@ for row in GameInfo.BuildingUpgrades() do
 	local upgradeType 	= row.UpgradeType
 	local buildingID 	= GameInfo.Buildings[buildingType].Index
 	local upgradeID		= GameInfo.Buildings[upgradeType].Index
-	BuildingUpgrade[buildingID]	= upgradeID
+	BuildingUpgrade[buildingID]	= { UpgradeID = upgradeID, ProductionBonus = row.ProductionBonus }
 	if not BuildingReplacements[upgradeID] then BuildingReplacements[upgradeID] = {} end
 	table.insert(BuildingReplacements[upgradeID], buildingID)
 end
 
 local BuildingFullUpgrades	= {} -- All buildings that are replacing a Building, directly or indirectly
-for buildingID, upgradeID in pairs(BuildingUpgrade) do
+for buildingID, row in pairs(BuildingUpgrade) do
+	local upgradeID = row.UpgradeID
 	BuildingFullUpgrades[buildingID] = {}
 	while (upgradeID ~= nil) do
 		table.insert(BuildingFullUpgrades[buildingID], upgradeID)
-		upgradeID = BuildingUpgrade[upgradeID]
+		upgradeID = BuildingUpgrade[upgradeID] and BuildingUpgrade[upgradeID].UpgradeID
 	end
 end
 
@@ -2749,19 +2750,34 @@ end
 
 function GetMaxStock(self, resourceID)
 
+	local MaxStock	= self:GetCached("MaxStock") or {}
+	
+	return MaxStock[resourceID] or self:SetMaxStock(resourceID)
+end
+
+function SetMaxStock(self, resourceID)
+
+	local MaxStockTable	= self:GetCached("MaxStock") or {} -- will reset in city:DoTurn()
+	
 	local maxStock 	= 0
 	local sizeRatio	= self:GetSizeStockRatio()
 	local classType	= GameInfo.Resources[resourceID].ResourceClassType
 
 	-- special case for Knowledge (scholars)
 	if classType == "RESOURCECLASS_KNOWLEDGE" then
-		return GCO.Round(sizeRatio * KnowledgePerSize * self:GetLiteracy() / 100)
+		maxStock = GCO.Round(sizeRatio * KnowledgePerSize * self:GetLiteracy() / 100)
+		MaxStockTable[resourceID] = maxStock
+		self:SetCached("MaxStock", MaxStockTable)
+		return maxStock
 	end
-	
+		
 	-- special case for Food
 	if resourceID == foodResourceID then
 		local normalRatio = 1
-		return self:GetFoodConsumption(normalRatio) * FoodStockPerConsumption
+		maxStock = self:GetFoodConsumption(normalRatio) * FoodStockPerConsumption
+		MaxStockTable[resourceID] = maxStock
+		self:SetCached("MaxStock", MaxStockTable)
+		return maxStock
 	end
 	
 	if not GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
@@ -2794,6 +2810,24 @@ function GetMaxStock(self, resourceID)
 			end
 		end
 	end
+	
+	if GCO.IsKnowledgeResource(resourceID) then
+		local pResearch 		= GCO.Research:Create(self:GetOwner())
+		local pTechs			= pResearch:GetTechs()	
+		local techType			= pResearch:GetResourceTechnologyType(resourceID)
+		local techRow			= techType and GameInfo.Technologies[techType]
+		local techID			= techRow and techRow.Index
+		local bHasTech			= techID and pTechs:HasTech(techID)
+		if bHasTech then
+			maxStock = math.min(5, maxStock)
+			MaxStockTable[resourceID] = maxStock
+			self:SetCached("MaxStock", MaxStockTable)
+			return maxStock
+		end
+	end
+	
+	MaxStockTable[resourceID] = maxStock
+	self:SetCached("MaxStock", MaxStockTable)
 	return maxStock
 end
 
@@ -3213,7 +3247,44 @@ function GetAdministrativeEfficiency(self)
 	return math.max(self:GetValue("AdministrativeEfficiency") or 100, minAdminEfficiency)
 end
 
-function SetAdministrativeEfficiency(self, value) -- set when processing administrative resource use
+function SetAdministrativeEfficiency(self, value) -- set when processing administrative resource use or with a nil value for UI update
+
+	if value == nil then
+		-- Update administrative cost first
+		-- "Set" returns the updated values, "Get" are used for UI
+		local totalNeeded 	= self:SetAdministrativeCost()
+		local Support		= self:SetAdministrativeSupport()
+		local minPercent	= minAdmSupportPercent -- to do : change with policies
+		local needed		= totalNeeded
+		local provided		= 0
+		local adminYield	= Support.Yield
+		
+		if adminYield > 0 then
+			local support	= math.min(needed, adminYield)
+			needed 			= needed - support
+			provided		= provided + support	
+		end
+		
+		if needed > 0 then
+			for resourceKey, currValue in pairs(self:GetResources()) do
+				local resourceID	= tonumber(resourceKey)
+				local adminValue	= GCO.GetAdministrativeResourceValue(resourceID)
+				if adminValue then
+					-- SetAdministrativeEfficiency is called with a nil value, it means we're updating the UI after the current stock has been used, so get estimation using previous turn data
+					local prevStock	= self:GetPreviousStock(resourceID) + self:GetSupply(resourceID)
+					local reserved	= math.floor(self:GetMaxStock(resourceID)*minPercent/100)
+					local available = (prevStock > reserved and prevStock - reserved) or 0
+					if available > 0 then
+						local used = math.min(needed, available)
+						needed 		= needed - used
+						provided	= provided + (used * adminValue)
+					end
+				end
+			end
+		end
+		value = ((provided >= totalNeeded or totalNeeded == 0) and 100) or GCO.GetMaxPercentFromLowDiff(100, totalNeeded, provided)--(100 - Div( totalNeeded, (provided + 1))))
+	end
+
 	self:SetValue("AdministrativeEfficiency", GCO.ToDecimals(value))
 end
 
@@ -3260,6 +3331,7 @@ function SetAdministrativeCost(self) -- update each turn
 	local adminCost	= math.floor((popCost + landCost)*techFactor*buildingsFactor)
 	
 	self:SetValue("AdministrativeCost", adminCost)
+	
 	return adminCost
 end
 
@@ -3291,7 +3363,14 @@ function GetTerritoryAdministrativeCost(self)
 	local kPlots	= GCO.GetCityPlots(self)
 	local territory	= #kPlots
 	local surface	= territory*10000
-	return math.floor(territory / 2), surface
+	local cost		= math.floor(territory / 2)
+	local modifier	= self:GetModifiersForEffect("REDUCE_ADMINISTRATIVE_TERRITORY_COST")
+	
+	if modifier then
+		cost = cost - (cost * modifier / 100)
+	end
+	
+	return cost, surface
 end
 
 function GetpopulationAdministrativeCost(self)
@@ -4025,8 +4104,8 @@ function CanConstruct(self, buildingType)
 			if self:GetBuildings():HasBuilding(upgradeID) then
 				bCheckNoUpgradeBuild 	= false
 				bCanShow				= false
-			elseif BuildingUpgrade[buildingID] == upgradeID then -- this is the direct upgrade to this building
-				table.insert(preReqStr, "[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_UPGRADE_TO", GameInfo.Buildings[upgradeID].Name))
+			elseif BuildingUpgrade[buildingID].UpgradeID == upgradeID then -- this is the direct upgrade to this building
+				table.insert(preReqStr, "[NEWLINE][NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_UPGRADE_TO", GameInfo.Buildings[upgradeID].Name, BuildingUpgrade[buildingID].ProductionBonus))
 			end
 		end
 	end
@@ -4461,21 +4540,14 @@ end
 -- unused ]]
 
 function GetMaxEmploymentUrban(self)
-	local cityKey = self:GetKey()
-	if not _cached[cityKey] then
-		self:SetMaxEmploymentUrban()
-	elseif not _cached[cityKey].MaxEmploymentUrban then
-		self:SetMaxEmploymentUrban()
-	end
-	return _cached[cityKey].MaxEmploymentUrban
+	return self:GetCached("MaxEmploymentUrban") or self:SetMaxEmploymentUrban()
 end
 
 function SetMaxEmploymentUrban(self)
-	local cityKey = self:GetKey()
-	if not _cached[cityKey] then _cached[cityKey] = {} end
-	-- We want the max value before reaching the next city size...
-	local employmentSize = self:GetUrbanEmploymentSize() --self:GetSize() + 1
-	_cached[cityKey].MaxEmploymentUrban = GCO.Round(self:GetUrbanPopulation()*Div(employmentSize, self:GetSize()))--GCO.Round(math.pow(employmentSize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
+	local employmentSize = self:GetUrbanEmploymentSize()
+	local maxEmploymentUrban = GCO.Round(self:GetUrbanPopulation()*Div(employmentSize, self:GetSize()))--GCO.Round(math.pow(employmentSize, self:GetCityEmploymentPow()) * self:GetCityEmploymentFactor())
+	self:GetCached("MaxEmploymentUrban", maxEmploymentUrban)
+	return maxEmploymentUrban
 end
 
 -- duplicate usage with GetUrbanActivityFactor...
@@ -5186,8 +5258,13 @@ function GetAdministrativeCostText(self)
 	local techFactor 		= self:GetTechAdministrativeFactor()
 	local SupportTable		= self:GetAdministrativeSupport()
 	local adminSupport		= GCO.TableSummation(SupportTable)
+	
+	-- Modifiers
+	local landModifier, list	= self:GetModifiersForEffect("REDUCE_ADMINISTRATIVE_TERRITORY_COST")
+	local landModifierTextList	= GCO.GetModifierBulletList("REDUCE_ADMINISTRATIVE_TERRITORY_COST", list)
+	local modifierString		= landModifierTextList:len() > 0 and "[NEWLINE][NEWLINE]"..Locale.Lookup("LOC_ACTIVE_MODIFIERS").."[NEWLINE]"..landModifierTextList or ""
 
-	return Locale.Lookup("LOC_CITYBANNER_ADMINISTRATIVE_COST_DETAILS", adminEfficiency, adminCost, popCost, popValue, landCost, surface, bldFactor, numBld, techFactor, adminSupport, SupportTable.Yield, SupportTable.Resources)
+	return Locale.Lookup("LOC_CITYBANNER_ADMINISTRATIVE_COST_DETAILS", adminEfficiency, adminCost, popCost, popValue, landCost, surface, bldFactor, numBld, techFactor, adminSupport, SupportTable.Yield, SupportTable.Resources)..modifierString
 end
 
 function GetSeaRangeToolTip(self)
@@ -6861,9 +6938,9 @@ function DoAdministration(self) -- after processing resources
 	local adminYield	= Support.Yield
 	
 	if adminYield > 0 then
-		local used	= math.min(needed, adminYield)
-		needed 		= needed - used
-		provided	= provided + used	
+		local support	= math.min(needed, adminYield)
+		needed 			= needed - support
+		provided		= provided + support	
 	end
 	
 	if needed > 0 then
@@ -6996,8 +7073,8 @@ function SetMigrationValues(self)
 			-- Starvation
 			-- Todo : get values per population class from NeedsEffects instead of global values here
 			local consumptionRatio						= 1
-			local foodNeeded							= self:GetFoodConsumption(consumptionRatio)
-			local foodstock								= self:GetFoodStock()
+			local foodNeeded							= math.max(1, self:GetFoodConsumption(consumptionRatio))
+			local foodstock								= math.max(1, self:GetFoodStock())
 			cityMigration.Pull.Food[populationID]		= Div(foodstock, foodNeeded)
 			cityMigration.Push.Food[populationID]		= Div(foodNeeded, foodstock)
 			cityMigration.Migrants.Food[populationID]	= 0
@@ -7098,7 +7175,7 @@ function DoMigration(self)
 							local plotMigration = plot:GetMigration()
 							if plotMigration then
 								local distance		= Map.GetPlotDistance(self:GetX(), self:GetY(), plot:GetX(), plot:GetY())
-								local efficiency 	= (1 - math.min(0.95, distance / 4)) * migrationClassMotivation["Transport"][populationID]
+								local efficiency 	= (1 - math.min(0.95, distance / 4)) --* migrationClassMotivation["Transport"][populationID]
 								local factor		= migrationClassMotivation["Rural"][populationID] * efficiency
 								local plotWeight 	= 0
 								local bWorked 		= (plot:GetWorkerCount() > 0)
@@ -7512,6 +7589,9 @@ function DoTurnFirstPass(self)
 		return
 	end
 	
+	-- Reset MaxStock cache first
+	self:SetCached("MaxStock", {})
+	
 	-- set food rationing
 	self:SetCityRationing()
 	
@@ -7826,6 +7906,69 @@ function OnCityInitialized( playerID: number, cityID : number, cityX : number, c
 end
 Events.CityInitialized.Add(OnCityInitialized)
 
+-- Delayed UI update for Government/Policies effect as at the time the event is fired here, the "HasPolicyActive" function (passed from UI context) still return the old cached value
+local bOnModifierChangedRunning = false
+function DelayedOnModifierChanged(playerID)
+	if not bOnModifierChangedRunning then
+		bOnModifierChangedRunning = true
+		local co = coroutine.create(OnModifierChangedCo)
+		GCO.AddCoToList(co, playerID)
+		local args = {}
+		args.DelayedStart 		= true
+		args.DelayedStartPause	= 2
+		GCO.LaunchScriptWithPause(args)
+	end
+end
+
+local cityUpdatedOnModifierChanged = {}
+function OnModifierChangedCo(playerID)
+	GCO.CheckCoroutinePause()
+	local player = Players[playerID]
+	if player then
+		local playerCities	= player:GetCities()
+		for i, city in playerCities:Members() do
+			local cityID = city:GetID()
+			if not cityUpdatedOnModifierChanged[cityID] then
+				city:SetAdministrativeEfficiency() -- also set AdministrativeCost
+				LuaEvents.CityCompositionUpdated(playerID, city:GetID())
+				cityUpdatedOnModifierChanged[cityID] = true
+			end
+		end
+	end
+	cityUpdatedOnModifierChanged = {}
+	bOnModifierChangedRunning = false
+end
+Events.GovernmentChanged.Add(DelayedOnModifierChanged)
+Events.GovernmentPolicyChanged.Add(DelayedOnModifierChanged)
+
+--[[
+local CityUpdatedOnModifierChanged = false
+function OnModifierChanged(playerID)
+	if not CityUpdatedOnModifierChanged then
+		local player = Players[playerID]
+		if player then
+			local playerCities	= player:GetCities()
+			for i, city in playerCities:Members() do
+				local cityID = city:GetID()
+
+				print("reset AdministrativeCost for ", city:GetName(), city:GetValue("AdministrativeCost"), city:GetValue("AdministrativeEfficiency"),playerID, city:GetID())
+				city:SetValue("AdministrativeCost", nil) -- force a refresh on next UI call, at this point in the code the change is not yet applied
+				--city:SetAdministrativeCost()
+				--print("new AdministrativeCost = ", city:GetValue("AdministrativeCost"))
+				--LuaEvents.CityCompositionUpdated(playerID, city:GetID())
+			end
+		end
+		CityUpdatedOnModifierChanged = true
+	end
+end
+Events.GovernmentChanged.Add(OnModifierChanged)
+Events.GovernmentPolicyChanged.Add(OnModifierChanged)
+
+function OnPlayerTurnDone()
+	CityUpdatedOnModifierChanged = false
+end
+GameEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
+--]]
 
 -----------------------------------------------------------------------------------------
 -- Functions passed from UI Context
@@ -7944,6 +8087,7 @@ function AttachCityFunctions(city)
 		if not c.GetTransactionValue				then c.GetTransactionValue					= GetTransactionValue               	end
 		-- resources
 		if not c.GetMaxStock						then c.GetMaxStock							= GetMaxStock                       	end
+		if not c.SetMaxStock						then c.SetMaxStock							= SetMaxStock                       	end
 		if not c.GetStock 							then c.GetStock 							= GetStock                          	end
 		if not c.GetResources						then c.GetResources							= GetResources                      	end
 		if not c.GetEquipmentList					then c.GetEquipmentList						= GetEquipmentList						end

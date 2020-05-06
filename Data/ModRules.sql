@@ -394,11 +394,11 @@ UPDATE Buildings SET EmploymentSize ='0.40' WHERE BuildingType ='BUILDING_ARENA'
 UPDATE Buildings SET EmploymentSize ='2.00' WHERE BuildingType ='BUILDING_MARKET';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_AMPHITHEATER';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_UNIVERSITY';
-UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_WORKSHOP';
+UPDATE Buildings SET EmploymentSize ='2.00' WHERE BuildingType ='BUILDING_WORKSHOP';
 UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_BANK';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_MUSEUM_ART';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_MUSEUM_ARTIFACT';
-UPDATE Buildings SET EmploymentSize ='9.00' WHERE BuildingType ='BUILDING_FACTORY';
+UPDATE Buildings SET EmploymentSize ='8.00' WHERE BuildingType ='BUILDING_FACTORY';
 UPDATE Buildings SET EmploymentSize ='4.00' WHERE BuildingType ='BUILDING_STOCK_EXCHANGE';
 UPDATE Buildings SET EmploymentSize ='2.00' WHERE BuildingType ='BUILDING_MILITARY_ACADEMY';
 UPDATE Buildings SET EmploymentSize ='1.00' WHERE BuildingType ='BUILDING_ZOO';
