@@ -16,6 +16,12 @@ include( "ProductionHelper" );
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 GCO = ExposedMembers.GCO -- ExposedMembers.GCO can't be nil at this point
+
+-----------------------------------------------------------------------------------------
+-- Define
+-----------------------------------------------------------------------------------------
+local MustHaveYields = {}	-- Filter Buildings per required yield
+local FilteredYields = {}	-- Filter Buildings per ignored yield
 -- GCO >>>>>
 
 -- ===========================================================================
@@ -2042,8 +2048,21 @@ function GetData()
 			
 			-- GCO <<<<<
 			local bCanConstruct, requirementStr, prereqStr, bCanShow = pSelectedCity:CanConstruct(row.BuildingType)
+			
+			local bFiltered = false
+			for yieldType, _ in pairs(MustHaveYields) do
+				if GCO.GetBuildingYieldValueFromType(row.BuildingType, yieldType) == 0 then
+					bFiltered = true
+				end
+			end
+			for yieldType, _ in pairs(FilteredYields) do
+				if GCO.GetBuildingYieldValueFromType(row.BuildingType, yieldType) > 0 then
+					bFiltered = true
+				end
+			end
+			
 			--if (bCanShow or isCanStart) and not (row.IsWonder and (not isCanStart)) then
-			if (bCanShow and not row.IsWonder) or isCanStart then
+			if not bFiltered  and ((bCanShow and not row.IsWonder) or isCanStart) then
 				sToolTip = ToolTipHelper.GetBuildingToolTip( row.Hash, playerID, pSelectedCity ) .. prereqStr .. ComposeProductionCostString( iProductionProgress, iProductionCost ) .. requirementStr
 			-- GCO >>>>>
 			
@@ -2955,6 +2974,51 @@ function Initialize()
 	LuaEvents.StrageticView_MapPlacement_ProductionOpen.Add( OnStrategicViewMapPlacementProductionOpen );
 	LuaEvents.Tutorial_ProductionOpen.Add( OnTutorialProductionOpen );	
 	LuaEvents.ProductionManager_SelectedIndexChanged.Add( OnManagerSelectedIndexChanged );
+	
+	-- GCO <<<<<
+	Controls.HousingCheck:RegisterCheckHandler(					function() OnCheckYield( "YIELD_HOUSING",	"Housing"); end );	
+	Controls.CultureCheck:RegisterCheckHandler(					function() OnCheckYield( "YIELD_CULTURE",	"Culture"); end );	
+	Controls.FaithCheck:RegisterCheckHandler(					function() OnCheckYield( "YIELD_FAITH",		"Faith"); end );	
+	Controls.FoodCheck:RegisterCheckHandler(					function() OnCheckYield( "YIELD_FOOD",		"Food"); end );	
+	Controls.GoldCheck:RegisterCheckHandler(					function() OnCheckYield( "YIELD_GOLD",		"Gold"); end );	
+	Controls.ProductionCheck:RegisterCheckHandler(				function() OnCheckYield( "YIELD_PRODUCTION","Production"); end );	
+	Controls.ScienceCheck:RegisterCheckHandler(					function() OnCheckYield( "YIELD_SCIENCE",	"Science"); end );	
+	Controls.HousingIgnore:RegisterCallback(	Mouse.eLClick,	function() OnResetYieldToNormal( "YIELD_HOUSING",	"Housing"); end);
+	Controls.CultureIgnore:RegisterCallback(	Mouse.eLClick,	function() OnResetYieldToNormal( "YIELD_CULTURE",	"Culture"); end);
+	Controls.FaithIgnore:RegisterCallback(		Mouse.eLClick,	function() OnResetYieldToNormal( "YIELD_FAITH",		"Faith"); end);
+	Controls.FoodIgnore:RegisterCallback(		Mouse.eLClick,	function() OnResetYieldToNormal( "YIELD_FOOD",		"Food"); end);
+	Controls.GoldIgnore:RegisterCallback(		Mouse.eLClick,	function() OnResetYieldToNormal( "YIELD_GOLD",		"Gold"); end);
+	Controls.ProductionIgnore:RegisterCallback(	Mouse.eLClick,	function() OnResetYieldToNormal( "YIELD_PRODUCTION","Production"); end);
+	Controls.ScienceIgnore:RegisterCallback(	Mouse.eLClick,	function() OnResetYieldToNormal( "YIELD_SCIENCE",	"Science"); end);	
+	-- GCO >>>>>
+	
 end
+-- GCO <<<<<
+
+-- ===========================================================================
+--	Set a filter to one of 3 check states
+-- ===========================================================================
+function OnCheckYield( yieldType, yieldName:string )
+	if Controls[yieldName.."Check"]:IsChecked() then
+		MustHaveYields[yieldType] = true
+	else
+		MustHaveYields[yieldType] = nil
+		FilteredYields[yieldType] = true
+		Controls[yieldName.."Ignore"]:SetHide( false );
+		Controls[yieldName.."Check"]:SetDisabled( true );
+	end
+	Refresh()
+end
+
+-- ===========================================================================
+--	Reset a filter to not be must have nor ignored
+-- ===========================================================================
+function OnResetYieldToNormal( yieldType, yieldName:string )
+	Controls[yieldName.."Ignore"]:SetHide( true );
+	Controls[yieldName.."Check"]:SetDisabled( false );
+	FilteredYields[yieldType] = nil
+	Refresh()
+end
+-- GCO >>>>>
 Initialize();
 

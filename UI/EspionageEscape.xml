@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Style="FontNormal18" ColorSet="Beige_Black" FontStyle="Shadow">
+    <Box								ID="PopupGenericBlocker" Color="0,0,0,150" Size="parent,parent" ConsumeMouse="1">
+      <AlphaAnim        ID="PopupAlphaIn" AlphaBegin="0" AlphaEnd="1" Speed="3" Function="Root" Cycle="Once" Size="parent,parent">
+        <SlideAnim      ID="PopupSlideIn" Start="0,-20" End="0,0" Speed="3" Function="Root" Cycle="Once" Size="parent,parent">
+
+          <Grid         ID="PopupDialog"      Size="auto,auto"             Anchor="C,C" Offset="0,0" Style="DropShadow2"     Color="255,255,255,200" AutoSizePadding="25,25" ConsumeMouse="1">
+
+            <Grid       ID="EscapeWindow"     Size="500,auto"          Anchor="C,C" Offset="0,0" Style="WindowFrameTitle" AutoSizePadding="0,15">
+              <Container                            Size="parent,38"     Anchor="C,T"                       Offset="0,4">
+                <Label  ID="PanelHeader"   Style="WindowHeader"        Anchor="C,C" String="ESCAPE SEQUENCE"/>
+              </Container>
+
+
+              <Stack Anchor="L,T" Offset="0,50" Padding="2">
+                <Grid Style="DivHeader" Size="parent-40,24" Color="85,137,151,220" Anchor="C,T">
+                  <Label Style="BodyTextDark16alt" ID="CityHeader"     Anchor="C,C"  />
+                  <Image Texture="Controls_Gradient_HalfRadial" Size="225,94" FlipY="1" Anchor="C,B" AnchorSide="I,O" Offset="0,1" Color="255,255,255,150"/>
+                </Grid>
+
+                <Stack StackGrowth="Right" Padding="2,0">
+                  <Container Size="250, 23">
+                    <Label Style="BodyTextDark16alt" ID="AgentLabel"     Anchor="R,T"/>
+                  </Container>
+                  <Container Size="250, 23">
+                    <Label Style="BodyTextDark16" ID="AgentDetails"   Anchor="L,T"/>
+                  </Container>
+                </Stack>
+                <Stack StackGrowth="Right" Padding="2,0">
+                  <Container Size="250, 23">
+                    <Label Style="BodyTextDark16alt" ID="LootLabel"     Anchor="R,T"/>
+                  </Container>
+                  <Container Size="250, 23">
+                    <Label Style="BodyTextDark16" ID="LootDetails"   Anchor="L,T"/>
+                  </Container>
+                </Stack>
+                <Stack StackGrowth="Right" Padding="2,0">
+                  <Container Size="250, 23">
+                    <Label Style="BodyTextDark16alt" ID="PursuitLabel"     Anchor="R,T"/>
+                  </Container>
+                  <Container Size="250, 23">
+                    <Label Style="BodyTextDark16" ID="PursuitDetails"   Anchor="L,T"/>
+                  </Container>
+                </Stack>
+
+                <Grid Style="DivHeader" Size="parent-40,24" Color="85,137,151,220" Anchor="C,T">
+                  <Label Style="BodyTextDark16alt" ID="ChoiceHeader"   Anchor="C,C"/>
+                  <Image Texture="Controls_Gradient_HalfRadial" Size="225,94" FlipY="1" Anchor="C,B" AnchorSide="I,O" Offset="0,1" Color="255,255,255,150"/>
+                </Grid>
+                <Container Size="5,5"/>
+
+                <Stack StackGrowth="Right" Offset="50,0">
+                  <GridButton ID="Button1" Anchor="L,C" Size="200,40" Style="MainButton" FontStyle="Shadow"/>
+                  <Label ID="Label1" Anchor="L,C" WrapWidth="240" Style="BodyTextDark16"/>
+                </Stack>
+                <Stack StackGrowth="Right" Offset="50,0">
+                  <GridButton ID="Button2" Anchor="L,C" Size="200,40" Style="MainButton" FontStyle="Shadow"/>
+                  <Label ID="Label2" Anchor="L,C" WrapWidth="240" Style="BodyTextDark16"/>
+                </Stack>
+                <Stack StackGrowth="Right" Offset="50,0">
+                  <GridButton ID="Button3" Anchor="L,C" Size="200,40" Style="MainButton" FontStyle="Shadow"/>
+                  <Label ID="Label3" Anchor="L,C" WrapWidth="240" Style="BodyTextDark16"/>
+                </Stack>
+                <Stack StackGrowth="Right" Offset="50,0">
+                  <GridButton ID="Button4" Anchor="L,C" Size="200,40" Style="MainButton" FontStyle="Shadow"/>
+                  <Label ID="Label4" Anchor="L,C" WrapWidth="240" Style="BodyTextDark16"/>
+                </Stack>
+              </Stack>
+            </Grid>
+          </Grid>
+        </SlideAnim>
+      </AlphaAnim>
+    </Box>
+</Context>

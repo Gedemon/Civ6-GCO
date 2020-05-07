@@ -72,32 +72,41 @@
 			<File>Data/CivilizationIcons.xml</File>
 		</UpdateIcons>
 		<ImportFiles id="GCO_IMPORT">
-			<File>UI/UnitFlagManager.lua</File>
-			<File>UI/UnitFlagManager.xml</File>
 			<File>UI/CityBannerManager.lua</File>
 			<File>UI/CityBannerManager.xml</File>
-			<File>UI/PlotToolTip.lua</File>
-			<File>UI/PlotToolTip.xml</File>
-			<File>UI/TopPanel.lua</File>
-			<File>UI/ToolTips.xml</File>
-			<File>UI/ToolTipHelper.lua</File>
-			<File>UI/ToolTipHelper_PlayerYields.lua</File>
-			<File>UI/WorldViewIconsManager.lua</File>
+			<File>UI/CityPanel.lua</File>
+			<File>UI/CityPanel.xml</File>
 			<File>UI/CityPanelOverview.lua</File>
 			<File>UI/CityPanelOverview.xml</File>
-			<File>UI/CityPanel.lua</File>
 			<File>UI/CitySupport.lua</File>
-			<File>UI/ProductionPanel.lua</File>
-			<File>UI/EspionageEscape.lua</File>
-			<File>UI/EspionageChooser.lua</File>
-			<File>UI/EspionageOverview.lua</File>
-			<File>UI/UnitPanel.lua</File>
 			<File>UI/CivilizationIcon.lua</File>
+			<File>UI/EspionageChooser.lua</File>
+			<File>UI/EspionageEscape.lua</File>
+			<File>UI/EspionageOverview.lua</File>
+			<File>UI/EspionageChooser.xml</File>
+			<File>UI/EspionageEscape.xml</File>
+			<File>UI/EspionageOverview.xml</File>
 			<File>UI/LeaderIcon.lua</File>
 			<File>UI/LeaderIcon.xml</File>
-			<File>UI/TechTree.lua</File>
+			<File>UI/PlotToolTip.lua</File>
+			<File>UI/PlotToolTip.xml</File>
+			<File>UI/ProductionPanel.lua</File>
+			<File>UI/ProductionPanel.xml</File>
 			<File>UI/TechAndCivicUnlockables.lua</File>
 			<File>UI/TechCivicCompletedPopup.xml</File>
+			<File>UI/TechTree.lua</File>
+			<File>UI/TechTree.xml</File>
+			<File>UI/ToolTipHelper.lua</File>
+			<File>UI/ToolTipHelper_PlayerYields.lua</File>
+			<File>UI/ToolTips.xml</File>
+			<File>UI/TopPanel.lua</File>
+			<File>UI/TopPanel.xml</File>
+			<File>UI/UnitFlagManager.lua</File>
+			<File>UI/UnitFlagManager.xml</File>
+			<File>UI/UnitPanel.lua</File>
+			<File>UI/UnitPanel.xml</File>
+			<File>UI/WorldViewIconsManager.lua</File>
+			<File>UI/WorldViewIconsManager.xml</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
             <File>Scripts/GCO_PlayerConfig.lua</File>
@@ -334,31 +343,41 @@
 		<File>Scripts/GCO_PlayerConfig.lua</File>
 		<File>InGame/GCO_ModInGame.lua</File>
 		<File>InGame/GCO_ModInGame.xml</File>
-		<File>UI/UnitFlagManager.lua</File>
-		<File>UI/UnitFlagManager.xml</File>
 		<File>UI/CityBannerManager.lua</File>
 		<File>UI/CityBannerManager.xml</File>
-		<File>UI/PlotToolTip.lua</File>
-		<File>UI/PlotToolTip.xml</File>
-		<File>UI/TopPanel.lua</File>
-		<File>UI/ToolTipHelper.lua</File>
-		<File>UI/ToolTipHelper_PlayerYields.lua</File>
-		<File>UI/WorldViewIconsManager.lua</File>
+		<File>UI/CityPanel.lua</File>
+		<File>UI/CityPanel.xml</File>
 		<File>UI/CityPanelOverview.lua</File>
 		<File>UI/CityPanelOverview.xml</File>
-		<File>UI/CityPanel.lua</File>
 		<File>UI/CitySupport.lua</File>
-		<File>UI/ProductionPanel.lua</File>
-		<File>UI/EspionageEscape.lua</File>
-		<File>UI/EspionageChooser.lua</File>
-		<File>UI/EspionageOverview.lua</File>
-		<File>UI/UnitPanel.lua</File>
 		<File>UI/CivilizationIcon.lua</File>
+		<File>UI/EspionageChooser.lua</File>
+		<File>UI/EspionageEscape.lua</File>
+		<File>UI/EspionageOverview.lua</File>
+		<File>UI/EspionageChooser.xml</File>
+		<File>UI/EspionageEscape.xml</File>
+		<File>UI/EspionageOverview.xml</File>
 		<File>UI/LeaderIcon.lua</File>
 		<File>UI/LeaderIcon.xml</File>
-		<File>UI/TechTree.lua</File>
+		<File>UI/PlotToolTip.lua</File>
+		<File>UI/PlotToolTip.xml</File>
+		<File>UI/ProductionPanel.lua</File>
+		<File>UI/ProductionPanel.xml</File>
 		<File>UI/TechAndCivicUnlockables.lua</File>
 		<File>UI/TechCivicCompletedPopup.xml</File>
+		<File>UI/TechTree.lua</File>
+		<File>UI/TechTree.xml</File>
+		<File>UI/ToolTipHelper.lua</File>
+		<File>UI/ToolTipHelper_PlayerYields.lua</File>
+		<File>UI/ToolTips.xml</File>
+		<File>UI/TopPanel.lua</File>
+		<File>UI/TopPanel.xml</File>
+		<File>UI/UnitFlagManager.lua</File>
+		<File>UI/UnitFlagManager.xml</File>
+		<File>UI/UnitPanel.lua</File>
+		<File>UI/UnitPanel.xml</File>
+		<File>UI/WorldViewIconsManager.lua</File>
+		<File>UI/WorldViewIconsManager.xml</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>UI/Replacements/StatusMessagePanel_GCO.lua</File>
 		<File>Art/dom_blank.dds</File>

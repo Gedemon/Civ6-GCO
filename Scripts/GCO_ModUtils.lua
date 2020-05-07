@@ -250,6 +250,22 @@ for row in GameInfo.EffectsGCO() do
 	end
 end
 
+local BuildingYields		= {}		-- cached table with all the buildings that yield Upper/Middle/Lower Housing or Health
+local translateYieldTable	= {}
+translateYieldTable.YIELD_LOWER_HOUSING = "YIELD_HOUSING"
+translateYieldTable.YIELD_MIDDLE_HOUSING = "YIELD_HOUSING"
+translateYieldTable.YIELD_UPPER_HOUSING = "YIELD_HOUSING"
+for row in GameInfo.Building_CustomYieldChanges() do
+	if not BuildingYields[row.BuildingType] then BuildingYields[row.BuildingType] = {} end
+	BuildingYields[row.BuildingType][row.YieldType] = row.YieldChange
+	if translateYieldTable[row.YieldType] then
+		BuildingYields[row.BuildingType][translateYieldTable[row.YieldType]] = row.YieldChange
+	end
+end
+for row in GameInfo.Building_YieldChanges() do
+	if not BuildingYields[row.BuildingType] then BuildingYields[row.BuildingType] = {} end
+	BuildingYields[row.BuildingType][row.YieldType] = row.YieldChange
+end
 
 
 --=====================================================================================--
@@ -794,7 +810,6 @@ function __genOrderedIndex( t )
     return orderedIndex
 end
 
-
 function orderedNext(t, state)
     -- Equivalent of the next function, but returns the keys in the alphabetic
     -- order.  We use a temporary ordered key table that is stored in the
@@ -855,7 +870,6 @@ end
 function ShowCounter(name)
 	print(Counter[name])
 end
-
 
 function ShowLoggedCounter()
 	print(GCO.Separator)
@@ -956,6 +970,13 @@ function CreateEverAliveTableWithEmptyTable()
 	return t
 end
 
+
+--=====================================================================================--
+-- Buildings
+--=====================================================================================--
+function GetBuildingYieldValueFromType(buildingType, yieldType)
+	return BuildingYields[buildingType] and BuildingYields[buildingType][yieldType] or 0
+end
 
 --=====================================================================================--
 -- Map
@@ -1589,6 +1610,8 @@ function Initialize()
 	-- civilizations
 	ExposedMembers.GCO.CreateEverAliveTableWithDefaultValue = CreateEverAliveTableWithDefaultValue
 	ExposedMembers.GCO.CreateEverAliveTableWithEmptyTable 	= CreateEverAliveTableWithEmptyTable
+	-- buildings
+	ExposedMembers.GCO.GetBuildingYieldValueFromType		= GetBuildingYieldValueFromType
 	-- color
 	ExposedMembers.GCO.GetPlayerColors				= GetPlayerColors
 	-- common

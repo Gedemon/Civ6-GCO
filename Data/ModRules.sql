@@ -357,6 +357,8 @@ UPDATE Eras SET ArmyPersonnelPopulationRatio = 250	WHERE EraType='ERA_INFORMATIO
 UPDATE UnitOperations SET TargetDistrict = 'DISTRICT_CITY_CENTER' WHERE OperationType='UNITOPERATION_SPY_SIPHON_FUNDS';
 UPDATE UnitOperations SET TargetDistrict = 'DISTRICT_CITY_CENTER' WHERE OperationType='UNITOPERATION_SPY_STEAL_TECH_BOOST';
 
+UPDATE Buildings SET ObsoleteEra = 'ERA_ANCIENT' WHERE BuildingType ='BUILDING_PALACE'; -- to hide from production panel
+
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_CAMPUS';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_COMMERCIAL_HUB';
 UPDATE Buildings SET PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE PrereqDistrict ='DISTRICT_ENTERTAINMENT_COMPLEX';
@@ -408,7 +410,6 @@ UPDATE Buildings SET EmploymentSize ='2.00' WHERE BuildingType ='BUILDING_BROADC
 UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_POWER_PLANT';
 UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_STADIUM';
 UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_AIRPORT';
-
 
 UPDATE Building_YieldChanges SET YieldChange ='4' WHERE BuildingType ='BUILDING_WORKSHOP' AND YieldType ='YIELD_PRODUCTION';
 
