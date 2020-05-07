@@ -717,7 +717,7 @@ function Research:DoTurn()
 						if classType == copiedClassType then
 							local techID		= techResRow.TechID
 							local createdResID	= techResRow.ResourceID
-							local maxAddition	= city:GetMaxStock(createdResID) - city:GetStock(createdResID)
+							local maxAddition	= math.min(numCopy, city:GetMaxStock(createdResID) - city:GetStock(createdResID))
 							Dprint( DEBUG_RESEARCH_SCRIPT, "  - Can stock : " .. Indentation8(maxAddition) .. Indentation20(Locale.Lookup(GameInfo.Resources[createdResID].Name)))
 							if maxAddition > 0 then
 								required = required + maxAddition
@@ -741,7 +741,7 @@ function Research:DoTurn()
 				local left = available
 				for techID, techRow in pairs(techList) do
 					local ratio = techRow.MaxAddition / required
-					local used	= GCO.ToDecimals(math.min(left, available * ratio, required))
+					local used	= GCO.ToDecimals(math.min(left, available * ratio, required, techRow.MaxAddition))
 					if used > 0 then
 						local cost = city:GetResourceCost(row.ResourceID)
 						city:ChangeStock(techRow.CreatedResID, used, nil, nil, cost + baseTechCost)

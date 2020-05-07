@@ -409,6 +409,9 @@ UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_POWER_
 UPDATE Buildings SET EmploymentSize ='1.50' WHERE BuildingType ='BUILDING_STADIUM';
 UPDATE Buildings SET EmploymentSize ='5.00' WHERE BuildingType ='BUILDING_AIRPORT';
 
+
+UPDATE Building_YieldChanges SET YieldChange ='4' WHERE BuildingType ='BUILDING_WORKSHOP' AND YieldType ='YIELD_PRODUCTION';
+
 --DELETE FROM Buildings WHERE BuildingType='BUILDING_GRANARY';
 --DELETE FROM Buildings WHERE BuildingType='BUILDING_MONUMENT';
 

@@ -2,7 +2,7 @@
 print("Loading EspionageEscape.lua.")
 
 local district1 = "DISTRICT_AERODROME";
-local district2 = "DISTRICT_HARBOR";
+local district2 = "DISTRICT_CITY_CENTER";
 local district3 = "DISTRICT_CITY_CENTER"--"DISTRICT_COMMERCIAL_HUB";
 local district4 = "DISTRICT_CITY_CENTER";
 
