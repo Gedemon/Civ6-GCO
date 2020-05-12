@@ -519,6 +519,7 @@ function Research:DoTurn()
 	
 	local data 			= self:GetData()
 	data.RsrchF			= data.RsrchF or {} -- ResearchField	: [rsrchKey][cntrKey] = value
+	data.RsrchL			= data.RsrchL or {} -- ResearchLocale	: [rsrchKey][cntrKey] = value
 	local pTech			= self:GetTechs()
 	local player		= self:GetPlayer()
 	local playerCities 	= player:GetCities()
@@ -656,6 +657,7 @@ function Research:DoTurn()
 		local resources			= city:GetResources()
 		local techResources		= {}
 		local blankResources	= {}
+		local scholarResources	= {}
 		for resourceKey, value in pairs(resources) do
 			if value > 0 then
 				local resourceID 	= tonumber(resourceKey)
@@ -664,6 +666,7 @@ function Research:DoTurn()
 					local techID	= GameInfo.Technologies[techType].Index
 					if pTech:CanResearch(techID) then --and not pTech:HasTech(techID) then
 						if self:IsScholarResource(resourceID) then
+							table.insert(scholarResources, {ResourceID = resourceID, TechID = techID, Value = value, ResearchRate = self:GetResearchRate(resourceID)})
 							local rsrchPoints	= self:CalculateResearchPoints(value, literacy, resourceID) --value * literacy / 100  -- todo : ponder value by ResourceClass type
 							local arg 			= { MaxContributionPercent = 100, BaseValue = rsrchPoints }
 							Dprint( DEBUG_RESEARCH_SCRIPT, "  - Producing " .. Indentation8(rsrchPoints) .. " research points from " .. Indentation8(value) .. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)))
@@ -672,7 +675,7 @@ function Research:DoTurn()
 							local decayRate = self:GetDecayRate(resourceID)
 							city:ChangeStock(resourceID, - GCO.ToDecimals(value * decayRate / 100))
 						else -- this is a book, scroll, tablet, digital media that contain knowledge of a tech we can research
-							table.insert(techResources, {ResourceID = resourceID, TechID = techID, Value = value})
+							table.insert(techResources, {ResourceID = resourceID, TechID = techID, Value = value, ResearchRate = self:GetResearchRate(resourceID)})
 						end
 					end
 				elseif self:IsBlankKnowledgeResource(resourceID) and value > 0 then -- this is a blank book, scroll, tablet, digital media that can be used to store knowledge
@@ -687,7 +690,7 @@ function Research:DoTurn()
 			-- Add knowledge from tech resources
 			Dprint( DEBUG_RESEARCH_SCRIPT, " - Add knowledge from tech resources...")
 			for _, row in ipairs(techResources) do
-				local rate 			= self:GetResearchRate(row.ResourceID)
+				local rate 			= row.ResearchRate
 				local createdResID	= self:GetTechnologyResourceID(row.TechID)
 				local maxAddition	= city:GetMaxStock(createdResID) - city:GetStock(createdResID)
 				if maxAddition > 0 then
@@ -709,18 +712,36 @@ function Research:DoTurn()
 				local techList	= {}
 				Dprint( DEBUG_RESEARCH_SCRIPT, "  - Available : " .. Indentation8(available) .. " blank ".. Indentation20(Locale.Lookup(GameInfo.Resources[row.ResourceID].Name)))
 				
-				-- Create new copies of available book, scroll, tablet for techs that can be researched
+				-- Create books, scrolls, tablets for techs that can be researched
 				local numCopy = city:GetModifiersForEffect("NEW_COPY_TECH_RESOURCE")
 				if numCopy > 0 then
+				
+					-- scribes can make copy of tablets, scrolls, books
 					for _, techResRow in ipairs(techResources) do
 						local copiedClassType = GameInfo.Resources[techResRow.ResourceID].ResourceClassType
 						if classType == copiedClassType then
 							local techID		= techResRow.TechID
-							local createdResID	= techResRow.ResourceID
+							local createdResID	= techResRow.ResourceID -- we've just checked, it's the same classType
 							local maxAddition	= math.min(numCopy, city:GetMaxStock(createdResID) - city:GetStock(createdResID))
 							Dprint( DEBUG_RESEARCH_SCRIPT, "  - Can stock : " .. Indentation8(maxAddition) .. Indentation20(Locale.Lookup(GameInfo.Resources[createdResID].Name)))
 							if maxAddition > 0 then
 								required = required + maxAddition
+								techList[techID] = {CreatedResID = createdResID, MaxAddition = maxAddition}
+							end
+						end
+					end
+					
+					-- scholars can create new tablets, scrolls, books
+					for _, techResRow in ipairs(scholarResources) do
+						local techID		= techResRow.TechID
+						local createdResID	= self:GetTechnologyResourceID(techID, classType)
+						local maxAddition	= math.floor(math.min(numCopy, city:GetMaxStock(createdResID) - city:GetStock(createdResID), techResRow.Value * ( techResRow.ResearchRate / 100) * (literacy / 100)))
+						Dprint( DEBUG_RESEARCH_SCRIPT, "  - Can stock : " .. Indentation8(maxAddition) .. Indentation20(Locale.Lookup(GameInfo.Resources[createdResID].Name)))
+						if maxAddition > 0 then
+							required = required + maxAddition
+							if techList[techID] then
+								techList[techID].MaxAddition = math.max(techList[techID].MaxAddition, maxAddition) -- best value between copied
+							else
 								techList[techID] = {CreatedResID = createdResID, MaxAddition = maxAddition}
 							end
 						end
@@ -730,7 +751,7 @@ function Research:DoTurn()
 				-- Create book, scroll, tablet for techs that are already researched (for trade)
 				for j, techID in ipairs(knownTechs) do
 					local createdResID	= self:GetTechnologyResourceID(techID, classType)
-					local maxAddition	= city:GetMaxStock(createdResID) - city:GetStock(createdResID)
+					local maxAddition	= city:GetMaxStock(createdResID) - city:GetStock(createdResID) -- max stock is lower than other tech resources for known tech, no need to limit here
 					Dprint( DEBUG_RESEARCH_SCRIPT, "  - Can stock : " .. Indentation8(maxAddition) .. Indentation20(Locale.Lookup(GameInfo.Resources[createdResID].Name)))
 					if maxAddition > 0 then
 						required = required + maxAddition
@@ -1618,7 +1639,49 @@ function OnPlayerTurnStart(playerID)
 	pResearch:DoPreTurn()
 end
 
+function OnSpyMissionCompleted( playerID:number, missionID:number )
+
+	local pPlayer = Players[playerID]
+	if pPlayer then
 	
+		-- Find the mission in the mission history
+		local mission = GCO.GetMission(playerID, missionID)
+		if mission == 0 then
+			GCO.Warning("Unable to show misison completed popup for mission ID: " .. tostring(missionID))
+			return
+		end
+	
+		-- Get operation
+		local operation = GameInfo.UnitOperations[mission.Operation];
+
+		-- Check if the mission was about stealing tech
+		if operation.Hash == UnitOperationTypes.SPY_STEAL_TECH_BOOST then
+			if 	mission.InitialResult == EspionageResultTypes.SUCCESS_UNDETECTED or	mission.InitialResult == EspionageResultTypes.SUCCESS_MUST_ESCAPE then
+			
+				-- Find the spy by name because misison history doesn't contain the spies ID
+				local pPlayerUnits	= pPlayer:GetUnits()
+				local spyKey		= nil
+				for i, pUnit in pPlayerUnits:Members() do
+					local kUnitInfo:table = GameInfo.Units[pUnit:GetType()]
+					if kUnitInfo.Spy and pUnit:GetName() == mission.Name then
+						spyKey = pUnit:GetKey()
+					end
+				end
+				local pResearch 		= Research:Create(playerID)
+				local techInfo:table 	= GameInfo.Technologies[mission.LootInfo]
+				local eraType			= GCO.GetGameEra()
+				local resourceClassType = (eraType == "ERA_ANCIENT" and "RESOURCECLASS_TABLETS") or (eraType == "ERA_CLASSICAL" and "RESOURCECLASS_SCROLLS") or "RESOURCECLASS_BOOKS"
+				local resourceID		= pResearch:GetTechnologyResourceID(techInfo.Index, resourceClassType)
+				local city				= pResearch:GetNationalLibraryCity()
+				local number			= TerrainBuilder.GetRandomNumber(10, "Get Num Spy Stole TechResource")+10
+				city:ChangeStock(resourceID, number, ResourceUseType.Pillage, spyKey)
+			end
+		end
+	end
+end
+Events.SpyMissionCompleted.Add( OnSpyMissionCompleted )
+
+
 --=====================================================================================--
 -- Shared Functions
 --=====================================================================================--

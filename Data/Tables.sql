@@ -441,7 +441,7 @@ ALTER TABLE Resources ADD COLUMN ResearchType				TEXT; 														-- is a kno
 ALTER TABLE Resources ADD COLUMN TechnologyType				TEXT; 														-- is a knowledge resource for a specific technology
 ALTER TABLE Resources ADD COLUMN ObsoleteTech				TEXT;
 ALTER TABLE Resources ADD COLUMN AdminValue					TEXT;
-ALTER TABLE Resources ADD COLUMN ResearchValue				TEXT;
+ALTER TABLE Resources ADD COLUMN ResearchValue				TEXT; -- to do : remove, redundant with ResearchPer100 in TechnologyKnowledgeResourceClass
 
 -- Hidden Buildings
 ALTER TABLE Buildings ADD COLUMN NoPedia 		BOOLEAN NOT NULL CHECK (NoPedia IN (0,1)) DEFAULT 0; 		-- Do not show in Civilopedia
@@ -925,6 +925,7 @@ CREATE TABLE IF NOT EXISTS ModifiersGCO
 CREATE TABLE IF NOT EXISTS EffectsGCO
      (   EffectType 	TEXT NOT NULL,
          Name 			TEXT NOT NULL,
+		 IconString 	TEXT,
 		 ValueString	TEXT,
          Application	TEXT,
 		 PRIMARY KEY(EffectType) );

@@ -721,12 +721,12 @@ function View(data:table, bIsUpdate:boolean)
 		local numLength			= 3
 		local totalNumLength	= 5
 		local iconArrow 		= {
-				[DirectionTypes.DIRECTION_NORTHEAST] 	= "[ICON_NE_ARROW]",
-				[DirectionTypes.DIRECTION_EAST] 		= "[ICON_E_ARROW]",
-				[DirectionTypes.DIRECTION_SOUTHEAST] 	= "[ICON_SE_ARROW]",
-				[DirectionTypes.DIRECTION_SOUTHWEST] 	= "[ICON_SW_ARROW]",
-				[DirectionTypes.DIRECTION_WEST] 		= "[ICON_W_ARROW]",
-				[DirectionTypes.DIRECTION_NORTHWEST] 	= "[ICON_NW_ARROW]",
+				[DirectionTypes.DIRECTION_NORTHEAST] 	= "[ICON_COMPASS_NE_ARROW]",
+				[DirectionTypes.DIRECTION_EAST] 		= "[ICON_COMPASS_E_ARROW]",
+				[DirectionTypes.DIRECTION_SOUTHEAST] 	= "[ICON_COMPASS_SE_ARROW]",
+				[DirectionTypes.DIRECTION_SOUTHWEST] 	= "[ICON_COMPASS_SW_ARROW]",
+				[DirectionTypes.DIRECTION_WEST] 		= "[ICON_COMPASS_W_ARROW]",
+				[DirectionTypes.DIRECTION_NORTHWEST] 	= "[ICON_COMPASS_NW_ARROW]",
 			}
 			
 		local iconMotivation 		= {

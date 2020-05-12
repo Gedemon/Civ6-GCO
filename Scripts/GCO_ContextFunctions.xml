@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Context Name="GCO_ContextFunctions">
 
-  <AlphaAnim	ID="TooltipGCO" Anchor="L,B" Offset="0,200" Speed="4" Cycle="Once"  Hidden="1">
-    <Grid			ID="TooltipInfo"	Style="TTGrid" Anchor="L,B" Size="450,140" />
-	  <Stack		ID="InfoStack"		StackGrowth="Bottom" Anchor="L,B" Offset="7,12" StackPadding="5">
+	<AlphaAnim	ID="TooltipGCO" Anchor="L,B" Offset="0,200" Speed="4" Cycle="Once"  Hidden="1">
+		<Grid			ID="TooltipInfo"	Style="TTGrid" Anchor="L,B" Size="450,140" />
+		<Stack		ID="InfoStack"		StackGrowth="Bottom" Anchor="L,B" Offset="7,12" StackPadding="5">
 			<Label	ID="Title1"			WrapWidth="430"	Style="TTText" Anchor="C,C"/>
 			<Label	ID="Text1"			WrapWidth="430"	Style="TTText" />
 			<Label	ID="Header1"		WrapWidth="430"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
@@ -22,6 +22,18 @@
 			<Label	ID="List4"			WrapWidth="430"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="14"/>
 			<Label	ID="ListSmall"		WrapWidth="430"	Style="FontMono14" Color0="5,29,51,255" Color1="0,0,0,50" FontStyle="Shadow" FontSize="10"/>
 			<Label	ID="DebugTxt"		WrapWidth="430"	Style="TTText" />
-	  </Stack>
-  </AlphaAnim>
+		</Stack>
+	</AlphaAnim>
+	
+	<Container	ID="PlotIconsContainer" />
+	<Instance	Name="PlotIcons">
+		<WorldAnchor		ID="Anchor" Scaling="1" UnitsPerPixel="0.40" > <!-- Scaling="1" UnitsPerPixel="0.06" Billboard="1"> -->
+			<Stack			ID="IconStack"	StackGrowth="Right"		Anchor="C,C">
+				<Container	ID="TextContainer" Size="256,256">
+					<Label	ID="ListText" Style="FontNormalBold16" Text="TextLabel" Anchor="C,C"/>
+				</Container>
+			</Stack>
+		</WorldAnchor>
+	</Instance>
+
 </Context>

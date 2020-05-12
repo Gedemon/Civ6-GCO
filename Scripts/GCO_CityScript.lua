@@ -890,12 +890,11 @@ function GetCityFromKey ( cityKey )
 		if city then
 			return city
 		else
-			GCO.Warning("city is nil for GetCityFromKey(".. tostring(cityKey)..")")
-			GCO.DlineFull()
+			GCO.Warning("city is nil for GetCityFromKey(".. tostring(cityKey)..")") -- , nil, true
 			Dprint( DEBUG_CITY_SCRIPT, "--- CityId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID)
 		end
 	else
-		GCO.Warning("ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")")
+		GCO.Warning("ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")") --, nil, true
 	end
 end
 
@@ -1700,7 +1699,7 @@ function UpdateTransferCities(self)
 				
 				if CitiesForTransfer[transferKey] then tradeRouteFrom = CitiesForTransfer[transferKey][selfKey] end
 				
-				-- check if the city at the other side of the route is already maintening it
+				-- check if the city at the other side of the route is already maintaining it
 				local bFreeRoute 	= (tradeRouteFrom and tradeRouteFrom.MaintainedRoute)
 					
 				-- do we need to update the route ?
@@ -1787,7 +1786,7 @@ function UpdateTransferCities(self)
 
 						-- check if the city can (still) maintain that route or update the number of route slots left
 						-- a closer city may have replaced it, or an event may have removed some available route slots
-						if not bFreeRoute then
+						if not (bFreeRoute or transferCity:IsCapital()) then
 							if routeType == SupplyRouteType.Road 	then
 								if availableLandRoutes > 0 then
 									availableLandRoutes = availableLandRoutes - 1
@@ -7123,6 +7122,10 @@ function DoMigration(self)
 	local plotsToUpdate			= {} -- list of plots that will need updating for Culture to Population matching
 	
 	if availableMigrants  > 0 then
+	
+		-- to do: add minimal number of migrant to rural plots from city population birth, based on era
+		-- (require to split migrants pass into rural and urban)
+		
 		local maxMigrants		= math.floor(availableMigrants * maxMigrantPercent / 100)
 		local minMigrants		= math.floor(availableMigrants * minMigrantPercent / 100)
 		
@@ -7977,6 +7980,10 @@ function GetCityYield(self, yieldType)
 	return GCO.GetCityYield( self, yieldType )
 end
 
+function IsCityCapital(self, yieldType)
+	return GCO.IsCityCapital( self )
+end
+
 function GetProductionTurnsLeft(self, productionType)
 	return GCO.GetCityProductionTurnsLeft(self, productionType)
 end
@@ -8266,10 +8273,11 @@ function AttachCityFunctions(city)
 		if not c.IsCoastal							then c.IsCoastal							= IsCoastal                        		end
 		if not c.GetSeaRange						then c.GetSeaRange							= GetSeaRange                       	end
 		if not c.GetSeaRangeToolTip					then c.GetSeaRangeToolTip					= GetSeaRangeToolTip					end
-		--
+		-- UI context
 		if not c.GetCityYield						then c.GetCityYield							= GetCityYield                      	end
 		if not c.GetCustomYield						then c.GetCustomYield						= GetCustomYield                    	end
 		if not c.TurnCreated						then c.TurnCreated							= TurnCreated                       	end
+		if not c.IsCapital							then c.IsCapital							= IsCityCapital        	             	end
 		--
 		if not c.GetEraType							then c.GetEraType							= GetEraType                        	end
 		if not c.GetUrbanEmploymentSize				then c.GetUrbanEmploymentSize				= GetUrbanEmploymentSize            	end

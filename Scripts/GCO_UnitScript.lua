@@ -2290,7 +2290,7 @@ end
 function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType, HP, organizationLevel)
 	
 	local DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT
-	--if GameInfo.Units[oldUnitType].UnitType == "UNIT_CONSCRIPT_WARRIOR" then DEBUG_UNIT_SCRIPT = "debug" end
+	--if GameInfo.Units[oldUnitType].UnitType == "UNIT_LIGHT_SWORDSMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name) .. " current type = " ..GameInfo.Units[oldUnitType].Name)
@@ -6160,7 +6160,7 @@ end
 
 function UpdateUnitsData() -- called in GCO_GameScript.lua
 
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	local DEBUG_UNIT_SCRIPT = "UnitScript"
 	
 	-- remove dead units from the table
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
@@ -6184,6 +6184,7 @@ function UpdateUnitsData() -- called in GCO_GameScript.lua
 			Dprint( DEBUG_UNIT_SCRIPT, "REMOVING... unitKey#"..tostring(unitKey))--tostring(unitData.unitID).." from player ID#"..tostring(unitData.playerID), "unit type = ".. tostring(GameInfo.Units[unitData.unitType].UnitType))
 			ExposedMembers.UnitData[unitKey] = nil
 		else
+
 			Dprint( DEBUG_UNIT_SCRIPT, "KEEPING.... unit ID#"..unit:GetKey(), "damage = ", unit:GetDamage(), "location =", unit:GetX(), unit:GetY(), "unit type =", Locale.Lookup(UnitManager.GetTypeName(unit)))
 
 			local coreHP 	= unit:GetMaxDamage() - unit:GetDamage()

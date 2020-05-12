@@ -871,7 +871,7 @@
 	
 	<EffectsGCO> <!-- To build strings for UI, see "Modifiers" in ModUtils -->
 		<Row EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	Name="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" ValueString="LOC_VAR_PERCENT_0" Application = "LOC_MODIFIER_REMOVE_PERCENT_TO_FROM" />
-		<Row EffectType="RAISE_CITY_SEA_RANGE" 					Name="LOC_RAISE_CITY_SEA_RANGE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" />
+		<Row EffectType="RAISE_CITY_SEA_RANGE" 					Name="LOC_RAISE_CITY_SEA_RANGE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" 		IconString="[ICON_Range]"/>
 		<Row EffectType="NEW_COPY_TECH_RESOURCE" 				Name="LOC_NEW_COPY_TECH_RESOURCE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" />
 	</EffectsGCO>
 	<!--

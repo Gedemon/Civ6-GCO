@@ -123,6 +123,11 @@ function GetCityProductionProgress(city, productionType, objetID)
 	end
 end
 
+function IsCityCapital(city)
+	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
+	return contextCity:IsCapital()
+end
+
 
 -- ===========================================================================
 -- Game functions
@@ -182,7 +187,13 @@ function GetCurrentGovernment(player)
 	return kPlayerCulture:GetCurrentGovernment()
 end
 
-
+function GetMission(playerID, missionID)
+	local pPlayer:table				= Players[playerID]
+	local pPlayerDiplomacy:table 	= pPlayer:GetDiplomacy()
+	if pPlayerDiplomacy then
+		return pPlayerDiplomacy:GetMission(playerID, missionID)
+	end
+end
 -- ===========================================================================
 -- Plots functions
 -- ===========================================================================
@@ -431,6 +442,144 @@ print("OnInputHandler")
 end
 
 
+----------------------------------------------------------------------------------------
+-- Show plot population on map
+----------------------------------------------------------------------------------------
+
+local g_InstanceManager	:table = InstanceManager:new( "PlotIcons",	"Anchor", Controls.PlotIconsContainer )
+local g_MapIconsInstances	:table = {
+	[DirectionTypes.DIRECTION_NORTHEAST] 	= {},
+	[DirectionTypes.DIRECTION_NORTHWEST] 	= {},
+	[DirectionTypes.DIRECTION_EAST]			= {}, 
+	[DirectionTypes.DIRECTION_WEST]			= {},
+	[DirectionTypes.DIRECTION_SOUTHEAST] 	= {}, 
+	[DirectionTypes.DIRECTION_SOUTHWEST] 	= {}
+	}
+local g_MapIconsInfo	:table = {
+	[DirectionTypes.DIRECTION_NORTHEAST] 	= {OffsetX = 12.0,	OffsetY = 24.0,	IconSuffixOut = "NE",	IconSuffixIn = "SW"	},
+	[DirectionTypes.DIRECTION_NORTHWEST] 	= {OffsetX = -12.0,	OffsetY = 24.0,	IconSuffixOut = "NW",	IconSuffixIn = "SE"	},
+	[DirectionTypes.DIRECTION_EAST]			= {OffsetX = 20.0,	OffsetY = 8.0,	IconSuffixOut = "E",	IconSuffixIn = "W"	}, 
+	[DirectionTypes.DIRECTION_WEST]			= {OffsetX = -20.0,	OffsetY = 8.0,	IconSuffixOut = "W",	IconSuffixIn = "E"	},
+	[DirectionTypes.DIRECTION_SOUTHEAST] 	= {OffsetX = 12.0,	OffsetY = -8.0,	IconSuffixOut = "SE",	IconSuffixIn = "NW"	}, 
+	[DirectionTypes.DIRECTION_SOUTHWEST] 	= {OffsetX = -12.0,	OffsetY = -8.0,	IconSuffixOut = "SW",	IconSuffixIn = "NE"	}
+	}
+
+function GetPlotIconInstanceAt(x, y, direction)
+	local plotIndex = Map.GetPlotIndex(x, y)
+	local pInstance = g_MapIconsInstances[direction][plotIndex]
+	if (pInstance == nil) then
+		return SetPlotIconInstanceAt(x, y, direction)
+	end
+	return pInstance
+end
+
+function SetPlotIconInstanceAt(x, y, direction)
+	local plotIndex = Map.GetPlotIndex(x, y)
+	local row		= g_MapIconsInfo[direction]
+	local pInstance = g_InstanceManager:GetInstance();
+	local worldX, worldY = UI.GridToWorld( plotIndex );
+	pInstance.Anchor:SetWorldPositionVal( worldX + row.OffsetX, worldY + row.OffsetY, 0.0 )
+	--pInstance.Anchor:ChangeParent(ContextPtr:LookUpControl("/InGame/CityBannerManager"))
+	
+	--
+	adjacentPlot = Map.GetAdjacentPlot(x, y, direction)
+	if adjacentPlot then
+		local plot			= GCO.GetPlot(x, y)
+		local migrationData	= plot:GetMigrationDataWith(adjacentPlot)
+		local migrants		= migrationData.Migrants
+		local total			= migrationData.Total
+		if migrants ~= 0 or total ~= 0 then 
+			--
+			local flow			= math.abs(migrants)
+			local iconSuffix 	= (migrants > 0 and row.IconSuffixIn) or (migrants < 0 and row.IconSuffixOut) or (total > 0 and row.IconSuffixIn) or row.IconSuffixOut
+			local iconType		= (flow > 10000 and "DOUBLE") or (flow > 1000 and "LONG") or "SMALL"--(flow > 10000 and "DOUBLE") or (flow > 1000 and "SIMPLE") or (flow > 100 and "LONG") or "SMALL"
+			local iconStr		= "[ICON_"..iconType.."_ARROW_"..iconSuffix.."]"
+			pInstance.TextContainer:SetHide( false )
+			pInstance.ListText:SetText(iconStr)
+			--
+			pInstance.ListText:SetToolTipString("Migrants = ".. tostring(migrants) .."[NEWLINE]Total = "..tostring(total))
+			--pInstance.ListText:SetToolTipType("ToolTipMono")
+			g_MapIconsInstances[direction][plotIndex] = pInstance
+				
+			return pInstance
+		end
+	end
+end
+
+function ReleaseAllPlotIconInstances()
+	for direction, plotInstances in pairs(g_MapIconsInstances) do
+		for plotID, pInstance in pairs(plotInstances) do
+			g_InstanceManager:ReleaseInstance( pInstance )
+		end
+	end
+end
+
+function ReleasePlotIconInstanceAt(x, y, direction)
+	local pInstance = g_MapIconsInstances[direction][plotIndex]
+	if (pInstance ~= nil) then
+		g_InstanceManager:ReleaseInstance( pInstance )
+		g_MapIcons[direction][plotIndex] = nil
+	end
+end
+
+function HidePlotIcons()
+	Controls.PlotIconsContainer:SetHide(true)
+end
+
+function ShowPlotIcons()
+	Controls.PlotIconsContainer:SetHide(false)
+end
+
+function RemoveAll(plotIndex)
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		local pInstance = g_MapIconsInstances[direction][plotIndex]
+		if (pInstance ~= nil) then
+			g_InstanceManager:ReleaseInstance( pInstance )
+			g_MapIcons[direction][plotIndex] = nil
+		end
+	end
+end
+
+function SetAll(plotIndex)
+	local plot = Map.GetPlotByIndex(plotIndex)
+	local x, y = plot:GetX(), plot:GetY()
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		local pInstance = g_MapIconsInstances[direction][plotIndex]
+		--if (pInstance == nil) then
+			SetPlotIconInstanceAt(x, y, direction)
+		--end
+	end
+end
+
+function Rebuild()
+
+	local eObserverID = Game.GetLocalObserver();
+	local pLocalPlayerVis = PlayerVisibilityManager.GetPlayerVisibility(eObserverID);
+
+	if (pLocalPlayerVis ~= nil) then
+		local iCount = Map.GetPlotCount();
+		for plotIndex = 0, iCount-1, 1 do
+
+			local visibilityType = pLocalPlayerVis:GetState(plotIndex);
+			if (visibilityType == RevealedState.HIDDEN) then
+				RemoveAll(plotIndex);
+			else
+				SetAll(plotIndex)
+				--[[
+				if (visibilityType == RevealedState.REVEALED) then
+					ChangeToMidFog(plotIndex);
+				else
+					if (visibilityType == RevealedState.VISIBLE) then
+						ChangeToVisible(plotIndex);
+					end
+				end
+				--]]
+			end
+		end
+	end
+	Controls.PlotIconsContainer:ChangeParent(ContextPtr:LookUpControl("/InGame/CityBannerManager"))
+end
+
 -- ===========================================================================
 -- Initialize functions for other contexts
 -- ===========================================================================
@@ -438,6 +587,10 @@ function Initialize()
 
 	-- Input Handler for CustomToolTip
 	ContextPtr:SetInputHandler( OnInputHandler, true )
+	
+	--
+	Controls.PlotIconsContainer:ChangeParent(ContextPtr:LookUpControl("/InGame/CityBannerManager"))
+	
 
 	-- Set shared table
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end	
@@ -451,6 +604,7 @@ function Initialize()
 	ExposedMembers.GCO.GetCityPlots					= GetCityPlots
 	ExposedMembers.GCO.GetBuildingsAtLocation		= GetBuildingsAtLocation
 	ExposedMembers.GCO.GetCityYield 				= GetCityYield
+	ExposedMembers.GCO.IsCityCapital				= IsCityCapital
 	ExposedMembers.GCO.GetCityTrade 				= GetCityTrade
 	ExposedMembers.GCO.CityCanProduce				= CityCanProduce
 	ExposedMembers.GCO.GetCityProductionTurnsLeft	= GetCityProductionTurnsLeft
@@ -465,6 +619,7 @@ function Initialize()
 	ExposedMembers.GCO.HasPolicyActive 				= HasPolicyActive
 	ExposedMembers.GCO.GetActivePolicies			= GetActivePolicies
 	ExposedMembers.GCO.GetCurrentGovernment			= GetCurrentGovernment
+	ExposedMembers.GCO.GetMission					= GetMission
 	-- plots
 	--local p = getmetatable(Map.GetPlot(1,1)).__index
 	--ExposedMembers.GCO.PlotIsImprovementPillaged	= p.IsImprovementPillaged -- attaching this in script context doesn't work as the plot object from script miss other elements required for this by the plot object in UI context 

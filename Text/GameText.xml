@@ -1464,7 +1464,7 @@
     <Replace Tag="LOC_YIELD_ADMINISTRATION_NAME" 	Text="Administration"		Language="en_US" />
   </LocalizedText>
   
-  <LocalizedText> <!-- Government Naming -->
+  <LocalizedText> <!-- Government Naming (generic) -->
   
     <Replace Tag="LOC_MALE_GOVERNMENT_TRIBE_NAME" 				Text="Patriarch {1_Name}"			Language="en_US" />
     <Replace Tag="LOC_MALE_GOVERNMENT_CHIEFDOM_NAME" 			Text="Chieftain {1_Name}"			Language="en_US" />
@@ -1502,31 +1502,6 @@
     <Replace Tag="LOC_UNKNOWN_GOVERNMENT_COMMUNISM_NAME"			Text="General Secretary of {1_Name}"	Language="en_US" />
     <Replace Tag="LOC_UNKNOWN_GOVERNMENT_DEMOCRACY_NAME"			Text="President of {1_Name}"			Language="en_US" />
 	
-	<!--
-    <Replace Tag="LOC_UNKNOWN_MALE_TRIBE_NAME" 				Text="Patriarch of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_CHIEFDOM_NAME" 			Text="Chieftain of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_AUTOCRACY_NAME" 			Text="Emperor of {1_Name}"				Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_OLIGARCHY_NAME" 			Text="Imperator of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_CLASSICAL_REPUBLIC_NAME"	Text="Citizen of {1_Name}"				Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_MONARCHY_NAME"			Text="King of {1_Name}"					Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_THEOCRACY_NAME"			Text="Holy Emperor of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_MERCHANT_REPUBLIC_NAME"	Text="Doge of {1_Name}"					Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_FASCISM_NAME"			Text="Supreme Leader of {1_Name}"		Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_COMMUNISM_NAME"			Text="General Secretary of {1_Name}"	Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_MALE_DEMOCRACY_NAME"			Text="President of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_TRIBE_NAME" 				Text="Matriarch of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_CHIEFDOM_NAME" 			Text="Chieftess of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_AUTOCRACY_NAME" 			Text="Empress of {1_Name}"				Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_OLIGARCHY_NAME" 			Text="Imperatess of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_CLASSICAL_REPUBLIC_NAME"	Text="Citizen of {1_Name}"				Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_MONARCHY_NAME"				Text="Queen of {1_Name}"				Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_THEOCRACY_NAME"			Text="Holy Empress of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_MERCHANT_REPUBLIC_NAME"	Text="Dogaressa of {1_Name}"			Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_FASCISM_NAME"				Text="Supreme Leader of {1_Name}"		Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_COMMUNISM_NAME"			Text="General Secretary of {1_Name}"	Language="en_US" />
-    <Replace Tag="LOC_UNKNOWN_FEMALE_DEMOCRACY_NAME"			Text="President of {1_Name}"			Language="en_US" />
-	-->
-	
     <Replace Tag="LOC_SHORT_GOVERNMENT_TRIBE_NAME" 				Text="{1_Name} tribesmen"		Language="en_US" />
     <Replace Tag="LOC_SHORT_GOVERNMENT_CHIEFDOM_NAME" 			Text="{1_Name} clansmen"		Language="en_US" />
     <Replace Tag="LOC_SHORT_GOVERNMENT_AUTOCRACY_NAME" 			Text="{1_Name} people"			Language="en_US" />
@@ -1552,7 +1527,8 @@
     <Replace Tag="LOC_LONG_GOVERNMENT_DEMOCRACY_NAME"			Text="Democratic Republic of {1_Name}"	Language="en_US" />
 	
   </LocalizedText> 
-  <LocalizedText> <!-- Government Naming -->
+
+  <LocalizedText> <!-- Government Naming (example/template) -->
   
     <Replace Tag="LOC_CIVILIZATION_EGYPT_MALE_GOVERNMENT_TRIBE_NAME" 				Text="Pharaoh {1_Name}"			Language="en_US" />
     <Replace Tag="LOC_CIVILIZATION_EGYPT_MALE_GOVERNMENT_CHIEFDOM_NAME" 			Text="Pharaoh {1_Name}"			Language="en_US" />
@@ -1574,15 +1550,934 @@
     <Replace Tag="LOC_CIVILIZATION_EGYPT_UNKNOWN_GOVERNMENT_OLIGARCHY_NAME" 			Text="Pharaoh of {1_Name}"		Language="en_US" />
     <Replace Tag="LOC_CIVILIZATION_EGYPT_UNKNOWN_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"	Text="Pharaoh of {1_Name}"		Language="en_US" />
     <Replace Tag="LOC_CIVILIZATION_EGYPT_UNKNOWN_GOVERNMENT_MONARCHY_NAME"				Text="Pharaoh of {1_Name}"		Language="en_US" />
-	
+  </LocalizedText> 
+  
+  <LocalizedText> <!-- Government Naming (Vanilla civ, thanks SeelingCat) -->
+    
+	<Replace Tag="LOC_LONG_CIVILIZATION_AMERICA_GOVERNMENT_COMMUNISM_NAME"     Text="United Socialist States of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AMERICA_GOVERNMENT_DEMOCRACY_NAME"     Text="United States of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AMERICA_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Republic of Gilead"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AMERICA_GOVERNMENT_THEOCRACY_GENERIC_NAME"     Text="Holy United States of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AMERICA_GOVERNMENT_THEOCRACY_ISLAMIIC_NAME"     Text="Islamic States of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ARABIA_GOVERNMENT_COMMUNISM_NAME"     Text="Democratic Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ARABIA_GOVERNMENT_DEMOCRACY_NAME"     Text="United Arab Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ARABIA_GOVERNMENT_FASCISM_NAME"     Text="Ba'athist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AUSTRALIA_GOVERNMENT_DEMOCRACY_NAME"     Text="Commonwealth of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AUSTRALIA_GOVERNMENT_FASCISM_NAME"     Text="New Guard"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AUSTRALIA_GOVERNMENT_THEOCRACY_ISLAMIIC_NAME"     Text="Islamic Commonwealth of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_AUTOCRACY_NAME"     Text="Triple Alliance"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Aztec Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Triple Alliance"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_COMMUNISM_NAME"     Text="United Socialist Aztec States"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_DEMOCRACY_NAME"     Text="United Aztec States"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_FASCISM_NAME"     Text="National Aztec Synarchist Union"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Aztec Kingdom"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Aztec Kingdom"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Aztec Principality"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_AZTECS_GOVERNMENT_OLIGARCHY_NAME"     Text="Triple Alliance"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_BRAZIL_GOVERNMENT_COMMUNISM_NAME"     Text="Brazilian Socialist Union"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_BRAZIL_GOVERNMENT_DEMOCRACY_NAME"     Text="Federative Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_BRAZIL_GOVERNMENT_FASCISM_NAME"     Text="Estado Novo"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CANADA_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CANADA_GOVERNMENT_FASCISM_NAME"     Text="Canadian Union"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CANADA_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Hudson's Bay Company"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHINA_GOVERNMENT_FASCISM_NAME"     Text="China Reconstruction Society"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHINA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Middle Kingdom"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHINA_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Duchy of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHINA_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} State"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHINA_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Heavenly Kingdom"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CREE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Cree Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CREE_GOVERNMENT_COMMUNISM_NAME"     Text="Cree People's Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CREE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kingdom of the Cree"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CREE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Kingdom of the Cree"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CREE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Cree Principality"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_EGYPT_GOVERNMENT_AUTOCRACY_NAME"     Text="Old Kingdom of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_EGYPT_GOVERNMENT_COMMUNISM_NAME"     Text="Egyptian Socialist Union"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_EGYPT_GOVERNMENT_FASCISM_NAME"     Text="Young {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_EGYPT_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="New Kingdom of Egypt"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_EGYPT_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="New Kingdom of Egypt"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_EGYPT_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="New Kingdom of Egypt"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_EGYPT_GOVERNMENT_OLIGARCHY_NAME"     Text="Old Kingdom of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ENGLAND_GOVERNMENT_COMMUNISM_NAME"     Text="Commonwealth"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ENGLAND_GOVERNMENT_DEMOCRACY_NAME"     Text="United Kingdom"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ENGLAND_GOVERNMENT_FASCISM_NAME"     Text="Imperial Fascist League"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_FASCISM_GOVERNMENT_FASCISM_NAME"     Text="American Bund"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_FRANCE_GOVERNMENT_COMMUNISM_NAME"     Text="French Commune"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_FRANCE_GOVERNMENT_DEMOCRACY_NAME"     Text="French Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GEORGIA_GOVERNMENT_COMMUNISM_NAME"     Text="Georgian Soviet Socialist Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GEORGIA_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GEORGIA_GOVERNMENT_FASCISM_NAME"     Text="Georgian Legion"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GERMANY_GOVERNMENT_COMMUNISM_NAME"     Text="German Democratic Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GERMANY_GOVERNMENT_DEMOCRACY_NAME"     Text="Federal Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GERMANY_GOVERNMENT_FASCISM_NAME"     Text="Third Reich"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GERMANY_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Hanseatic League"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GERMANY_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Holy Roman Empire"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GREECE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_GREECE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="{1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_GREECE_GOVERNMENT_COMMUNISM_NAME"     Text="Democratic Army of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GREECE_GOVERNMENT_DEMOCRACY_NAME"     Text="Hellenic Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GREECE_GOVERNMENT_FASCISM_NAME"     Text="Hellenic State"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_GREECE_GOVERNMENT_OLIGARCHY_NAME"     Text="{1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_HUNGARY_GOVERNMENT_AUTOCRACY_NAME"     Text="Magyar Empire"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_HUNGARY_GOVERNMENT_CHIEFDOM_NAME"     Text="Magyar Chiefdom"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_HUNGARY_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Magyar Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_HUNGARY_GOVERNMENT_COMMUNISM_NAME"     Text="Hungarian People's Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_HUNGARY_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_HUNGARY_GOVERNMENT_FASCISM_NAME"     Text="The Regency"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_HUNGARY_GOVERNMENT_OLIGARCHY_NAME"     Text="Magyar League"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_INCA_GOVERNMENT_AUTOCRACY_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_INCA_GOVERNMENT_COMMUNISM_NAME"     Text="The Shining Path"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_INCA_GOVERNMENT_DEMOCRACY_NAME"     Text="Inca Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_INCA_GOVERNMENT_FASCISM_NAME"     Text="Inca Revolutionary Union"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_INCA_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Inca Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_INCA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Inca Empire"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_INCA_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_INCA_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_INDIA_GOVERNMENT_FASCISM_NAME"     Text="Azad Hind"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_INDONESIA_GOVERNMENT_FASCISM_NAME"     Text="The New Order"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_INDONESIA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Kingdom"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_INDONESIA_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Kingdom"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_INDONESIA_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Kingdom"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_JAPAN_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_JAPAN_GOVERNMENT_FASCISM_NAME"     Text="Empire of Great {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_JAPAN_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Empire of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_JAPAN_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Shogunate of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_JAPAN_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Daimyoate of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_KHMER_GOVERNMENT_COMMUNISM_NAME"     Text="Khmer Rouge"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KHMER_GOVERNMENT_DEMOCRACY_NAME"     Text="Kingdom of Cambodia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KHMER_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Khmer Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KHMER_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Khmer Empire"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KHMER_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Khmer Kingdom"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KHMER_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Khmer Principality"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KONGO_GOVERNMENT_COMMUNISM_NAME"     Text="People's Republic of the Congo"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KONGO_GOVERNMENT_DEMOCRACY_NAME"     Text="Democratic Republic of the Congo"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KOREA_GOVERNMENT_COMMUNISM_NAME"     Text="Democratic People's Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KOREA_GOVERNMENT_FASCISM_NAME"     Text="One-People {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KOREA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kingdom of Great {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MACEDON_GOVERNMENT_COMMUNISM_NAME"     Text="Socialist Republic of Macedonia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MACEDON_GOVERNMENT_FASCISM_NAME"     Text="Independen Macedonia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MALI_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Mali Empire"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_AUTOCRACY_NAME"     Text="Aotearoa"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_CHIEFDOM_NAME"     Text="{1_Name} Hapū"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_COMMUNISM_NAME"     Text="Māori People's Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_DEMOCRACY_NAME"     Text="Aotearoa"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_FASCISM_NAME"     Text="Māori Legion"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Māori Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Iwi"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Hapū"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAORI_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Whānau"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAPUCHE_GOVERNMENT_AUTOCRACY_NAME"     Text="Mapuche Butulmapu"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAPUCHE_GOVERNMENT_COMMUNISM_NAME"     Text="Mapuche People's Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAPUCHE_GOVERNMENT_DEMOCRACY_NAME"     Text="Wallmapuyen"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAPUCHE_GOVERNMENT_FASCISM_NAME"     Text="Mapuche Junta"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAPUCHE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Mapuche Butulmapu"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAPUCHE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Mapuche Ayllarewe"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MAPUCHE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Lof of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MONGOLIA_GOVERNMENT_COMMUNISM_NAME"     Text="Mongolian People's Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MONGOLIA_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MONGOLIA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Mongol Khaganate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MONGOLIA_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Mongol Khanate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MONGOLIA_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Mongol Khanate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MONGOLIA_GOVERNMENT_THEOCRACY_GENERIC_NAME"     Text="Bogd Khanate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NETHERLANDS_GOVERNMENT_COMMUNISM_NAME"     Text="People's United Provinces"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NETHERLANDS_GOVERNMENT_DEMOCRACY_NAME"     Text="Kingdom of the Netherlands"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NETHERLANDS_GOVERNMENT_FASCISM_NAME"     Text="Vaderland"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NETHERLANDS_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Republic of the United Provinces"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NETHERLANDS_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="United Provinces"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NETHERLANDS_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="United Provinces"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NETHERLANDS_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="United Provinces"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NORWAY_GOVERNMENT_FASCISM_NAME"     Text="National Government"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NUBIA_GOVERNMENT_AUTOCRACY_NAME"     Text="Kingdom of Kush"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NUBIA_GOVERNMENT_OLIGARCHY_NAME"     Text="Kingdom of Kush"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NUBIA_GOVERNMENT_THEOCRACY_ISLAMIIC_NAME"     Text="Mahdist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_OTTOMANS_GOVERNMENT_COMMUNISM_NAME"     Text="People's Republic of Turkey"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_OTTOMANS_GOVERNMENT_DEMOCRACY_NAME"     Text="Republic of Turkey"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_OTTOMANS_GOVERNMENT_FASCISM_NAME"     Text="Turkish State"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_OTTOMANS_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Ottoman Vizierate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_OTTOMANS_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Ottoman Empire"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_OTTOMANS_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Ottoman Sultanate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_OTTOMANS_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Beylik of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_OTTOMANS_GOVERNMENT_OLIGARCHY_NAME"     Text="Ottoman Beylik"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PERSIA_GOVERNMENT_COMMUNISM_NAME"     Text="Tudeh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PERSIA_GOVERNMENT_DEMOCRACY_NAME"     Text="Islamic Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PERSIA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Expansive Realm of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PERSIA_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Satrapy of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHOENICIA_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Phoenician Empire"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHOENICIA_GOVERNMENT_DEMOCRACY_NAME"     Text="Phoenician Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHOENICIA_GOVERNMENT_FASCISM_NAME"     Text="Phalangist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_POLAND_GOVERNMENT_COMMUNISM_NAME"     Text="Polish People's Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ROME_GOVERNMENT_DEMOCRACY_NAME"     Text="Roman Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ROME_GOVERNMENT_FASCISM_NAME"     Text="Roman Social Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ROME_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Holy See"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_RUSSIA_GOVERNMENT_COMMUNISM_NAME"     Text="Union of Soviet Socialist Republics"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_RUSSIA_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Republic of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_RUSSIA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Russian Tsardom"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_RUSSIA_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Grand Principality of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_RUSSIA_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Principality of {1_Name}"     Language="en_US" />     <!--Ref. Capital Name-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_SCOTLAND_GOVERNMENT_AUTOCRACY_NAME"     Text="Alba"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SCOTLAND_GOVERNMENT_FASCISM_NAME"     Text="Caledonia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SCOTLAND_GOVERNMENT_OLIGARCHY_NAME"     Text="Alba"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SCYTHIA_GOVERNMENT_COMMUNISM_NAME"     Text="Scythian Soviet Socialist Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SPAIN_GOVERNMENT_DEMOCRACY_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SPAIN_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Inquisitionary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SPAIN_GOVERNMENT_THEOCRACY_ISLAMIIC_NAME"     Text="Al-Andalus"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SPAIN_GOVERNMENT_THEOCRACY_JEWISH_NAME"     Text="Sephardia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SUMERIA_GOVERNMENT_COMMUNISM_NAME"     Text="Democratic Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SUMERIA_GOVERNMENT_FASCISM_NAME"     Text="Ba'athist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SWEDEN_GOVERNMENT_AUTOCRACY_NAME"     Text="Svíþjóð"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SWEDEN_GOVERNMENT_DEMOCRACY_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SWEDEN_GOVERNMENT_FASCISM_NAME"     Text="Nordic Realm"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ZULU_GOVERNMENT_FASCISM_NAME"     Text="Inkatha Zululand"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ZULU_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Zulu Paramountcy"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ZULU_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Zulu Paramountcy"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ZULU_GOVERNMENT_OLIGARCHY_NAME"     Text="Zulu Paramountcy"     Language="en_US" />     
+
+
+	<Replace Tag="LOC_CIVILIZATION_AMERICA_MALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Commander {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ARABIA_MALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ARABIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ARABIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Sultan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ARABIA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Amir {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AUSTRALIA_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Hueyi Tlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_MALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Hueyi Tlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Tlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Cuāuhtlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Tlahtohcāpilli {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Hueyi Tlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_MALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Teōpixqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_BRAZIL_MALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CANADA_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CANADA_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Governor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHINA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name} Huangdi"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHINA_MALE_GOVERNMENT_FASCISM_NAME"     Text="Jun Fa {1_Name}"     Language="en_US" />     <!--Warlord-->
+	<Replace Tag="LOC_CIVILIZATION_CHINA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Wang"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHINA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Gong"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHINA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Hou"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CREE_MALE_GOVERNMENT_CHIEFDOM_NAME"     Text="Kihcôkimâw {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CREE_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kihcôkimâw {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CREE_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Kihcôkimâw {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CREE_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Okimâwikosisân {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Heqa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ENGLAND_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ENGLAND_MALE_GOVERNMENT_FASCISM_NAME"     Text="Director-General"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ENGLAND_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Earl {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FASCISM_MALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FRANCE_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name}, Emperor of the Franks"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FRANCE_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Duc {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FRANCE_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Comte {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GEORGIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Mepe-Mepeta {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GEORGIA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GEORGIA_MALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Catholicos-Patriarch {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GERMANY_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Chancellor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GERMANY_MALE_GOVERNMENT_FASCISM_NAME"     Text="Führer {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GERMANY_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Mayor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GERMANY_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name}, Holy Roman Emperor"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Basileus {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_MALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Strategos {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_MALE_GOVERNMENT_FASCISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Basileus {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Doukas {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Komes {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Strategos {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_HUNGARY_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_HUNGARY_MALE_GOVERNMENT_FASCISM_NAME"     Text="Regent {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INCA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Sapa Inka {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INCA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sapa Inka {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INCA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Qhapaq {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INCA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Kuraka {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Maharaja {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Raja {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Senapati {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDONESIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Devaraja {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDONESIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Raja {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDONESIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Adipati {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name} Tennō"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_MALE_GOVERNMENT_FASCISM_NAME"     Text="{1_Name} Tennō"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name}-ō"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Shōgun {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Daimyō {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KHMER_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KONGO_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Manikongo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KONGO_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Manikongo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KONGO_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Manikongo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KONGO_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Manikongo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Taewang {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="Supreme Leader"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_MALE_GOVERNMENT_FASCISM_NAME"     Text="Chairman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Wang {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Wang {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Gun {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Basileus {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Strategos {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_FASCISM_NAME"     Text="Chairman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Basileus {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Doukas {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Komes {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Strategos {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MALI_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Mansa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MALI_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Faama {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Rangatira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_MALE_GOVERNMENT_CHIEFDOM_NAME"     Text="Rangatira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Rangatira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Rangatira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Kaumātua {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Great Toqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_MALE_GOVERNMENT_CHIEFDOM_NAME"     Text="Toqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_MALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Great Toqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Toqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Longko {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_MALE_GOVERNMENT_THEOCRACY_GENERIC_NAME"     Text="Machi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="Chairman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Khagan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Khan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Khan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_MALE_GOVERNMENT_THEOCRACY_GENERIC_NAME"     Text="Bogd Khan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NETHERLANDS_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="King {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NETHERLANDS_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Stadtholder {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NETHERLANDS_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name}, Prince of Orange"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NORWAY_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NORWAY_MALE_GOVERNMENT_FASCISM_NAME"     Text="Minister Preident {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NORWAY_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Jarl {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_MALE_GOVERNMENT_THEOCRACY_ISLAMIIC_NAME"     Text="Mahdi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Padishah {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Vizier {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Padishah {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Sultan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Bey"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="{1_Name} Bey"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PERSIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Shahanshah {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PERSIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Shah {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PERSIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Shah {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PERSIA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Satrap {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHOENICIA_MALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Shophet {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHOENICIA_MALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHOENICIA_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Shophet {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_POLAND_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_POLAND_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="High Commissioner {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_POLAND_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="King {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Imperator {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Princeps {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_FASCISM_NAME"     Text="Dux {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Dux {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Rex"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Dux {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Princeps {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Princeps {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_MALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="{1_Name}, Pontifex Maximus"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Tsar {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Knyaz {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Tsar {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Velikiy Knyaz {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Knyaz {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCOTLAND_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Thane {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCYTHIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name}, Rex Scythorum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCYTHIA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCYTHIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name}, Rex Scythorum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCYTHIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name}, Rex Scythorum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SPAIN_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SPAIN_MALE_GOVERNMENT_FASCISM_NAME"     Text="Caudillo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SPAIN_MALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Grand Inquistor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SPAIN_MALE_GOVERNMENT_THEOCRACY_ISLAMIIC_NAME"     Text="Emir {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Lugal {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_MALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Lugal {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_MALE_GOVERNMENT_FASCISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Lugal {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Ensi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Bel {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Lugal {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SWEDEN_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SWEDEN_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Jarl {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ZULU_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Inkosi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ZULU_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Inkosi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ZULU_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Inkosi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ZULU_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Inkosi {1_Name}"     Language="en_US" />     
+
+	<Replace Tag="LOC_CIVILIZATION_AMERICA_FEMALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Commander {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ARABIA_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ARABIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultana {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ARABIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Sultana {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ARABIA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Amira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AUSTRALIA_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Hueyi Cihuātlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_FEMALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Hueyi Cihuātlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Cihuātlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Cihuātlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Cihuāpilli {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Hueyi Cihuātlahtoāni {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_AZTECS_FEMALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Cihuāteōpixqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_BRAZIL_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CANADA_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CANADA_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Governor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHINA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name} Huangdi"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHINA_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Jun Fa {1_Name}"     Language="en_US" />     <!--Warlord-->
+	<Replace Tag="LOC_CIVILIZATION_CHINA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Nuwang"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHINA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Gongzhu"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHINA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Gongzhu"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CREE_FEMALE_GOVERNMENT_CHIEFDOM_NAME"     Text="Kihcôkimâskwew {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CREE_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kihcôkimâskwew {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CREE_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Kihcôkimâskwew {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CREE_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Okimâskwêsis {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Heqa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_EGYPT_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Pharaoh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ENGLAND_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ENGLAND_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Director-General"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ENGLAND_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Countess {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FASCISM_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FRANCE_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name}, Empress of the Franks"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FRANCE_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Duchesse {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FRANCE_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Comtesse {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GEORGIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Mepe-Mepeta {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GEORGIA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GEORGIA_FEMALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Catholicos-Matriarch {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GERMANY_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Chancellor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GERMANY_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Führerin {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GERMANY_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Mayor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GERMANY_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name}, Holy Roman Empress"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Basilissa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_FEMALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Strategos {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Basilissa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Doukissa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Komissa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_GREECE_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Strategos {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_HUNGARY_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_HUNGARY_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Regent {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INCA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Sapa Inka {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INCA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sapa Inka {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INCA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Quya {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INCA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Kuraka {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Maharani {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Rani {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDONESIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Devaratu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDONESIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Ratu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_INDONESIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Adipati Perempuan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name} Tennō"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="{1_Name} Tennō"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name}-joō"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Ama-Shōgun {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_JAPAN_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Daimyō {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KHMER_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KONGO_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Manikongo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KONGO_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Manikongo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KONGO_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Manikongo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KONGO_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Manikongo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Taeyeowang {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="Supreme Leader"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Chairwoman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Yeowang {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Yeowang {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KOREA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Gongju {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Basilissa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Strategos {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Chairwoman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Basilissa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Doukissa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Komissa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MACEDON_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Strategos {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MALI_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Mansa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MALI_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Faama {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Rangatira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_FEMALE_GOVERNMENT_CHIEFDOM_NAME"     Text="Rangatira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Rangatira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Rangatira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAORI_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Kaumātua {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Great Toqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_FEMALE_GOVERNMENT_CHIEFDOM_NAME"     Text="Toqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Great Toqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Toqui {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Longko {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MAPUCHE_FEMALE_GOVERNMENT_THEOCRACY_GENERIC_NAME"     Text="Machi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="Chairwoman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Khatun"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Khanum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Khanum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MONGOLIA_FEMALE_GOVERNMENT_THEOCRACY_GENERIC_NAME"     Text="Bogd Khanum {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NETHERLANDS_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Queen {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NETHERLANDS_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Stadtholder {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NETHERLANDS_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name}, Princess of Orange"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NORWAY_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NORWAY_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Minister President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NORWAY_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Grevinne {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Kandake {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kandake {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Kandake {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Kandake {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Kandake {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NUBIA_FEMALE_GOVERNMENT_THEOCRACY_ISLAMIIC_NAME"     Text="Mahdia {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Padishahbanu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Vizier {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Padishahbanu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Sultana {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Begum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_OTTOMANS_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="{1_Name} Begum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PERSIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name}, Banbishnan Banbishn"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PERSIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Shahbanu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PERSIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Shahbanu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PERSIA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Satrap {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHOENICIA_FEMALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Shophet {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHOENICIA_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHOENICIA_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Shophet {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_POLAND_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_POLAND_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="High Commissioner {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_POLAND_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="King {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Imperatrix {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Princeps {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Dux {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Dux {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Regina"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Dux {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Princeps {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Princeps {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROME_FEMALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="{1_Name}, Pontifex Maximus"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Tsaritsa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Knyaginya {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Tsaritsa {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Velikiaya Knyaginya {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_RUSSIA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Knyaginya {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCOTLAND_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Lady {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCYTHIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name}, Queen of the Scythians"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCYTHIA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCYTHIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name}, Queen of the Scythians"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SCYTHIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name}, Queen of the Scythians"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SPAIN_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SPAIN_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Caudilla {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SPAIN_FEMALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Grand Inquistress {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SPAIN_FEMALE_GOVERNMENT_THEOCRACY_ISLAMIIC_NAME"     Text="Emira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Nin {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_FEMALE_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Nin {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Nin {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Nin {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Belit {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUMERIA_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Nin {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SWEDEN_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SWEDEN_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Grevinna {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ZULU_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Indlovukazi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ZULU_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Indlovukazi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ZULU_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Indlovukazi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ZULU_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Indlovukazi {1_Name}"     Language="en_US" />
+  </LocalizedText> 
+  
+  <LocalizedText> <!-- Government Naming (Basic Modern civ, thanks SeelingCat) -->
+	<Replace Tag="LOC_LONG_CIVILIZATION_ALGERIA_GOVERNMENT_COMMUNISM_NAME"     Text="National Liberation Army of Algeria"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ALGERIA_GOVERNMENT_DEMOCRACY_NAME"     Text="People's Democratic Republic of Algeria"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ANGOLA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kingdom of Ndongo"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ANGOLA_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Duchy of Ndongo"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ANGOLA_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="County of Ndongo"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ARGENTINA_GOVERNMENT_DEMOCRACY_NAME"     Text="Argentine Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ARGENTINA_GOVERNMENT_FASCISM_NAME"     Text="National Reorganization Process"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHILE_GOVERNMENT_FASCISM_NAME"     Text="Chilean Military Junta"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHILE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="New Kingdom of Granada"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHILE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="New Duchy of Granada"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CHILE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="New County of Granada"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_COLOMBIA_GOVERNMENT_FASCISM_NAME"     Text="Falangist Colombia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_CUBA_GOVERNMENT_COMMUNISM_NAME"     Text="Republic of Cuba"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_DENMARK_GOVERNMENT_DEMOCRACY_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_DENMARK_GOVERNMENT_FASCISM_NAME"     Text="Protectorate of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ETHIOPIA_GOVERNMENT_AUTOCRACY_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     <!--Ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_ETHIOPIA_GOVERNMENT_COMMUNISM_NAME"     Text="Derg"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ETHIOPIA_GOVERNMENT_DEMOCRACY_NAME"     Text="Federal Democratic Republic of Ethiopia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_FINLAND_GOVERNMENT_COMMUNISM_NAME"     Text="Finnish Socialist Workers' Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_FINLAND_GOVERNMENT_FASCISM_NAME"     Text="Greater Finland"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ICELAND_GOVERNMENT_COMMUNISM_NAME"     Text="People's Alliance of Iceland"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ICELAND_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ICELAND_GOVERNMENT_FASCISM_NAME"     Text="Nationalist Iceland"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_IRAN_GOVERNMENT_COMMUNISM_NAME"     Text="Tudeh {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_IRAN_GOVERNMENT_DEMOCRACY_NAME"     Text="Islamic Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_IRAN_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Expansive Realm of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_IRAN_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Satrapy of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_IRAQ_GOVERNMENT_FASCISM_NAME"     Text="Al-Muthanna {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ISRAEL_GOVERNMENT_AUTOCRACY_NAME"     Text="United Monarchy of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ISRAEL_GOVERNMENT_COMMUNISM_NAME"     Text="Maki {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ISRAEL_GOVERNMENT_DEMOCRACY_NAME"     Text="State of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ISRAEL_GOVERNMENT_FASCISM_NAME"     Text="Lehi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ISRAEL_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="United Monarchy of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ISRAEL_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="United Monarchy of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ISRAEL_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="United Monarchy of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ITALY_GOVERNMENT_DEMOCRACY_NAME"     Text="Italian Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ITALY_GOVERNMENT_FASCISM_NAME"     Text="Italian Social Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ITALY_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Most Serene Republic of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_ITALY_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Duchy of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_ITALY_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="County of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_KAZAKHSTAN_GOVERNMENT_COMMUNISM_NAME"     Text="Kazakh Soviet Socialist Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KAZAKHSTAN_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kazakh Khaganate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KAZAKHSTAN_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Kazakh Khanate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KAZAKHSTAN_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Kazakh Khanate"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KENYA_GOVERNMENT_AUTOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_KENYA_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="{1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_KENYA_GOVERNMENT_FASCISM_NAME"     Text="Kenya National Union"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_KENYA_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="{1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_KENYA_GOVERNMENT_OLIGARCHY_NAME"     Text="{1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_LIBYA_GOVERNMENT_COMMUNISM_NAME"     Text="Libyan Arab Jamahiriya"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_LIBYA_GOVERNMENT_DEMOCRACY_NAME"     Text="State of Libya"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_LIBYA_GOVERNMENT_FASCISM_NAME"     Text="Libyan Arab Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MADAGASCAR_GOVERNMENT_COMMUNISM_NAME"     Text="Democratic Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MALAYSIA_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MALAYSIA_GOVERNMENT_FASCISM_NAME"     Text="Perkasa Malaysia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MALAYSIA_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultanate of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MALAYSIA_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Emirate of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MALAYSIA_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Principality of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MEXICO_GOVERNMENT_COMMUNISM_NAME"     Text="United Socialist Mexican States"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MEXICO_GOVERNMENT_DEMOCRACY_NAME"     Text="United Mexican States"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MEXICO_GOVERNMENT_FASCISM_NAME"     Text="National Mexican Synarchist Union"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MOROCCO_GOVERNMENT_DEMOCRACY_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MOROCCO_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultanate of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MOROCCO_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Emirate of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MOROCCO_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Sheikhdom of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MYANMAR_GOVERNMENT_COMMUNISM_NAME"     Text="Socialist Republic of the Union of Burma"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MYANMAR_GOVERNMENT_DEMOCRACY_NAME"     Text="Republic of the Union of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MYANMAR_GOVERNMENT_FASCISM_NAME"     Text="State Peace and Development Council"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_MYANMAR_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MYANMAR_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Petty Kingdom of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_MYANMAR_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Principality of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_NEW_ZEALAND_GOVERNMENT_COMMUNISM_NAME"     Text="Socialist Aotearoa"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NEW_ZEALAND_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NEW_ZEALAND_GOVERNMENT_FASCISM_NAME"     Text="{1_Name} Legion"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NEW_ZEALAND_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="{1_Name} Company"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_NIGERIA_GOVERNMENT_DEMOCRACY_NAME"     Text="Federal Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PAKISTAN_GOVERNMENT_COMMUNISM_NAME"     Text="Awami {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PERU_GOVERNMENT_COMMUNISM_NAME"     Text="Shining Path"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHILIPPINES_GOVERNMENT_CHIEFDOM_NAME"     Text="Barangay of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHILIPPINES_GOVERNMENT_COMMUNISM_NAME"     Text="Huk Commune"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHILIPPINES_GOVERNMENT_FASCISM_NAME"     Text="Makapili Philippines"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHILIPPINES_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHILIPPINES_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_PHILIPPINES_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_PORTUGAL_GOVERNMENT_COMMUNISM_NAME"     Text="Maximalist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PORTUGAL_GOVERNMENT_DEMOCRACY_NAME"     Text="Portuguese Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_PORTUGAL_GOVERNMENT_FASCISM_NAME"     Text="Estado Novo"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_ROMANIA_GOVERNMENT_FASCISM_NAME"     Text="National Legionary State"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SAUDI_ARABIA_GOVERNMENT_COMMUNISM_NAME"     Text="Democratic Republic of Arabia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SAUDI_ARABIA_GOVERNMENT_DEMOCRACY_NAME"     Text="United Arab Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SAUDI_ARABIA_GOVERNMENT_FASCISM_NAME"     Text="Ba'athist Arabia"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SOUTH_AFRICA_GOVERNMENT_FASCISM_NAME"     Text="Greyshirt {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_SUDAN_GOVERNMENT_THEOCRACY_ISLAMIC_NAME"     Text="Mahdist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_TANZANIA_GOVERNMENT_COMMUNISM_NAME"     Text="People's Republic of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_TANZANIA_GOVERNMENT_DEMOCRACY_NAME"     Text="United Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_THAILAND_GOVERNMENT_DEMOCRACY_NAME"     Text="Kingdom of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_THAILAND_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Kingdom"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_THAILAND_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Duchy"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_THAILAND_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} State"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_UKRAINE_GOVERNMENT_AUTOCRACY_NAME"     Text="Kievan Rus"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_UKRAINE_GOVERNMENT_CHIEFDOM_NAME"     Text="Ukrainian Host"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_UKRAINE_GOVERNMENT_COMMUNISM_NAME"     Text="Ukrainian People's Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_UKRAINE_GOVERNMENT_DEMOCRACY_NAME"     Text="{1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_UKRAINE_GOVERNMENT_FASCISM_NAME"     Text="All-Ukrainian Union"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_UKRAINE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Grand Principality of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_UKRAINE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Principality of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_UKRAINE_GOVERNMENT_OLIGARCHY_NAME"     Text="Kievan Rus"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_UZBEKISTAN_GOVERNMENT_COMMUNISM_NAME"     Text="Uzbek Soviet Socialist Republic"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_UZBEKISTAN_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Khanate of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_UZBEKISTAN_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Khanate of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_UZBEKISTAN_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Khanate of {1_Name}"     Language="en_US" />     <!--ref. Capital-->
+	<Replace Tag="LOC_LONG_CIVILIZATION_VENEZUELA_GOVERNMENT_COMMUNISM_NAME"     Text="Bolivarian Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VENEZUELA_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Guipuzcoan Company"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VIETNAM_GOVERNMENT_AUTOCRACY_NAME"     Text="Văn Lang"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VIETNAM_GOVERNMENT_CLASSICAL_REPUBLIC_NAME"     Text="Văn Lang"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VIETNAM_GOVERNMENT_COMMUNISM_NAME"     Text="Socialist Republic of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VIETNAM_GOVERNMENT_FASCISM_NAME"     Text="Empire of {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VIETNAM_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Dai Viet"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VIETNAM_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Dai Viet"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VIETNAM_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Dai Viet"     Language="en_US" />     
+	<Replace Tag="LOC_LONG_CIVILIZATION_VIETNAM_GOVERNMENT_OLIGARCHY_NAME"     Text="Văn Lang"     Language="en_US" />     
+
+
+
+	<Replace Tag="LOC_CIVILIZATION_ALGERIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ALGERIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Amir {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ANGOLA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ANGOLA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Ngola {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ANGOLA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Ngola {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ANGOLA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Ngola {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHILE_MALE_GOVERNMENT_FASCISM_NAME"     Text="General {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CUBA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_DENMARK_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Negus {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="Chairman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Negus {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Negus {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Abeto {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_MALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Negusa Nagast {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FINLAND_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAN_MALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Shahanshah {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAN_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Shah {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAN_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Shah {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAN_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Satrap {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAQ_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAQ_MALE_GOVERNMENT_FASCISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAQ_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAQ_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Amir {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ISRAEL_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ISRAEL_MALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Judge {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ITALY_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ITALY_MALE_GOVERNMENT_FASCISM_NAME"     Text="Duce {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KAZAKHSTAN_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KAZAKHSTAN_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Khagan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KAZAKHSTAN_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Khan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KAZAKHSTAN_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Khan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_LIBYA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="Brotherly Leader {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_LIBYA_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Chairman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_LIBYA_MALE_GOVERNMENT_FASCISM_NAME"     Text="Chairman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MADAGASCAR_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MALAYSIA_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MOROCCO_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MYANMAR_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MYANMAR_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="State Counsellor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MYANMAR_MALE_GOVERNMENT_FASCISM_NAME"     Text="Chairman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NEW_ZEALAND_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NEW_ZEALAND_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Governor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PAKISTAN_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHILIPPINES_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Lakan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHILIPPINES_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Datu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHILIPPINES_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Bilanggo {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PORTUGAL_MALE_GOVERNMENT_FASCISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROMANIA_MALE_GOVERNMENT_FASCISM_NAME"     Text="Conducător {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SAUDI_ARABIA_MALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SAUDI_ARABIA_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultan {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SAUDI_ARABIA_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Amir {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUDAN_MALE_GOVERNMENT_THEOCRACY_ISLAMIC_NAME"     Text="Mahdi {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_TANZANIA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_THAILAND_MALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_THAILAND_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Prince {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UKRAINE_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UKRAINE_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Knyaz {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UKRAINE_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Knyaz {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UZBEKISTAN_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UZBEKISTAN_MALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Khan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UZBEKISTAN_MALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Khan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UZBEKISTAN_MALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Khan"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_VENEZUELA_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_VENEZUELA_MALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Director {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_VIETNAM_MALE_GOVERNMENT_COMMUNISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_VIETNAM_MALE_GOVERNMENT_FASCISM_NAME"     Text="Emperor {1_Name}"     Language="en_US" />     
+
+
+
+	<Replace Tag="LOC_CIVILIZATION_ALGERIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultana {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ALGERIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Amira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ANGOLA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ANGOLA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Ngola {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ANGOLA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Ngola {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ANGOLA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Ngola {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CHILE_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="General {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_CUBA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_DENMARK_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Nigist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="Chairwoman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Nigist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Nigist {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Emebet {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ETHIOPIA_FEMALE_GOVERNMENT_THEOCRACY_CHRISTIAN_NAME"     Text="Nigiste Negestatt {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_FINLAND_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAN_FEMALE_GOVERNMENT_AUTOCRACY_NAME"     Text="Banbishnan Banbishn {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAN_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Shahbanu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAN_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Shahbanu {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAN_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Satrap {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAQ_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAQ_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAQ_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultana {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_IRAQ_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Amira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ISRAEL_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ISRAEL_FEMALE_GOVERNMENT_OLIGARCHY_NAME"     Text="Judge {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ITALY_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ITALY_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Duce {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KAZAKHSTAN_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KAZAKHSTAN_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Khatun"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KAZAKHSTAN_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Khanum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_KAZAKHSTAN_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Khanum"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_LIBYA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="Guide of the Revolution {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_LIBYA_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Chairwoman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_LIBYA_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Chairwoman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MADAGASCAR_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MALAYSIA_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MOROCCO_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MYANMAR_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MYANMAR_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="State Counsellor {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_MYANMAR_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Chairwoman {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NEW_ZEALAND_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_NEW_ZEALAND_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Governess {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PAKISTAN_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHILIPPINES_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Lakambini {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHILIPPINES_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Dayang {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PHILIPPINES_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Binokot {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_PORTUGAL_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_ROMANIA_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Conducătoare {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SAUDI_ARABIA_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SAUDI_ARABIA_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="Sultana {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SAUDI_ARABIA_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Amira {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_SUDAN_FEMALE_GOVERNMENT_THEOCRACY_ISLAMIC_NAME"     Text="Mahdia {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_TANZANIA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_THAILAND_FEMALE_GOVERNMENT_DEMOCRACY_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_THAILAND_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Princess {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UKRAINE_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UKRAINE_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="Knyaginya {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UKRAINE_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="Knyaginya {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UZBEKISTAN_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="First Secretary {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UZBEKISTAN_FEMALE_GOVERNMENT_MONARCHY_LARGE_NAME"     Text="{1_Name} Khatun"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UZBEKISTAN_FEMALE_GOVERNMENT_MONARCHY_MEDIUM_NAME"     Text="{1_Name} Khatun"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_UZBEKISTAN_FEMALE_GOVERNMENT_MONARCHY_SMALL_NAME"     Text="{1_Name} Khatun"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_VENEZUELA_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="President {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_VENEZUELA_FEMALE_GOVERNMENT_MERCHANT_REPUBLIC_NAME"     Text="Director name"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_VIETNAM_FEMALE_GOVERNMENT_COMMUNISM_NAME"     Text="Prime Minister {1_Name}"     Language="en_US" />     
+	<Replace Tag="LOC_CIVILIZATION_VIETNAM_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Empress {1_Name}"     Language="en_US" />     
   </LocalizedText> 
   
   <LocalizedText> <!-- Culture Groups -->
   
-    <Replace Tag="LOC_CULTURE_INDEPENDENT_NAME" 				Text="Independent"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_INDEPENDENT_ADJECTIVE" 			Text="Independent"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SEPARATIST_NAME" 					Text="Separatist"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SEPARATIST_ADJECTIVE" 			Text="Separatist"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_INDEPENDENT_NAME" 			Text="Independent"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_INDEPENDENT_ADJECTIVE" 		Text="Independent"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SEPARATIST_NAME" 				Text="Separatist"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SEPARATIST_ADJECTIVE" 		Text="Separatist"			Language="en_US" />
+	
+    <Replace Tag="LOC_CULTURE_HAFIT_NAME" 					Text="Hafit" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_UMM_AN_NAR_NAME" 				Text="Umm An-Nar" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_MAGAN_NAME" 					Text="Magan" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_WADI_SUQ_NAME" 				Text="Wadi Suq" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SAYHADIC_NAME" 				Text="Sayhadic" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ARABIC_NAME" 					Text="Arabic" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KISH_NAME" 		 			Text="Kish" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_EBLAITE_NAME" 		 		Text="Eblaite" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AMORITE_NAME" 		 		Text="Amorite" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_CANAANITE_NAME" 	 			Text="Canaanite" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ARAMAIC_NAME" 		 		Text="Aramaic" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_UBAID_NAME"					Text="Ubaid"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_URUK_NAME"					Text="Uruk"					Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SUMERIAN_NAME" 				Text="Sumerian" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ELAMITE_NAME"					Text="Elamite"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AKKADIAN_NAME"				Text="Akkadian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_HURRIAN_NAME"					Text="Hurrian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ASSYRIAN_NAME"				Text="Assyrian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_BABYLONIAN_NAME"				Text="Babylonian"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_GALZU_NAME"					Text="Galzu"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KURDISH_NAME"					Text="Kurdish"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SHULAVERI_SHOMU_NAME"			Text="Shulaveri-Shomu"		Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KURA_ARAXES_NAME"				Text="Kura-Araxes"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_YAMNA_NAME"					Text="Yamna"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_POLTAVKA_NAME"				Text="Poltavka"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_JIROFT_NAME"					Text="Jiroft"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SINTASHTA_NAME"				Text="Sintashta"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ANDRONOVO_NAME"				Text="Andronovo"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AVESTAN_NAME"					Text="Avestan"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_PERSIAN_NAME"					Text="Persian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_MEDIAN_NAME"					Text="Median"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AZERI_NAME"					Text="Azeri"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_HATTIC_NAME"					Text="Hattic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_PALAIC_NAME"					Text="Palaic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_HITTITE_NAME"					Text="Hittite"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_LUWIC_NAME"					Text="Luwic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KASKIAN_NAME"					Text="Kaskian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_LYDIAN_NAME"					Text="Lydian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ARMENIAN_NAME" 				Text="Armenian" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_LYCIAN_NAME"					Text="Lycian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_MILYAN_NAME"					Text="Milyan"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ANATOLIAN_TURKIC_NAME"		Text="Anatolian Turkic"		Language="en_US" />
+    <Replace Tag="LOC_CULTURE_COLCHIAN_NAME"				Text="Colchian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KARTVELIAN_NAME"				Text="Kartvelian"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_GEORGIAN_NAME"				Text="Georgian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_EL_OMARI_NAME"				Text="El Omari"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_MAADI_NAME"					Text="Maadi"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AMRATIAN_NAME"				Text="Amratian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_GERZEAN_NAME"					Text="Gerzean"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_EGYPTIAN_NAME"				Text="Egyptian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_COPTIC_NAME"					Text="Coptic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KENZI_NAME"					Text="Kenzi"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_CUSHITIC_NAME"				Text="Cushitic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KERMA_NAME"					Text="Kerma"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_GE_EZ_NAME"					Text="Ge'ez"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_TIGRAYA_NAME"					Text="Tigraya"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_BEJA_NAME"					Text="Beja"					Language="en_US" />
+    <Replace Tag="LOC_CULTURE_NOBA_NAME"					Text="Noba"					Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AMHARIC_NAME"					Text="Amharic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_TIGRINYA_NAME"				Text="Tigrinya"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_NOBIIN_NAME"					Text="Nobiin"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_DONGOLAWI_NAME"				Text="Dongolawi"			Language="en_US" />
+	
+	
+    <Replace Tag="LOC_CULTURE_HAFIT_ADJECTIVE" 					Text="Hafit" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_UMM_AN_NAR_ADJECTIVE" 			Text="Umm An-Nar" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_MAGAN_ADJECTIVE" 					Text="Magan" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_WADI_SUQ_ADJECTIVE" 				Text="Wadi Suq" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SAYHADIC_ADJECTIVE" 				Text="Sayhadic" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ARABIC_ADJECTIVE" 				Text="Arabic" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KISH_ADJECTIVE" 		 			Text="Kish" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_EBLAITE_ADJECTIVE" 		 		Text="Eblaite" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AMORITE_ADJECTIVE" 		 		Text="Amorite" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_CANAANITE_ADJECTIVE" 	 			Text="Canaanite" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ARAMAIC_ADJECTIVE" 		 		Text="Aramaic" 				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_UBAID_ADJECTIVE"					Text="Ubaid"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_URUK_ADJECTIVE"					Text="Uruk"					Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SUMERIAN_ADJECTIVE" 				Text="Sumerian" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ELAMITE_ADJECTIVE"				Text="Elamite"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AKKADIAN_ADJECTIVE"				Text="Akkadian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_HURRIAN_ADJECTIVE"				Text="Hurrian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ASSYRIAN_ADJECTIVE"				Text="Assyrian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_BABYLONIAN_ADJECTIVE"				Text="Babylonian"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_GALZU_ADJECTIVE"					Text="Galzu"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KURDISH_ADJECTIVE"				Text="Kurdish"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SHULAVERI_SHOMU_ADJECTIVE"		Text="Shulaveri-Shomu"		Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KURA_ARAXES_ADJECTIVE"			Text="Kura-Araxes"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_YAMNA_ADJECTIVE"					Text="Yamna"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_POLTAVKA_ADJECTIVE"				Text="Poltavka"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_JIROFT_ADJECTIVE"					Text="Jiroft"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_SINTASHTA_ADJECTIVE"				Text="Sintashta"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ANDRONOVO_ADJECTIVE"				Text="Andronovo"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AVESTAN_ADJECTIVE"				Text="Avestan"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_PERSIAN_ADJECTIVE"				Text="Persian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_MEDIAN_ADJECTIVE"					Text="Median"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AZERI_ADJECTIVE"					Text="Azeri"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_HATTIC_ADJECTIVE"					Text="Hattic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_PALAIC_ADJECTIVE"					Text="Palaic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_HITTITE_ADJECTIVE"				Text="Hittite"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_LUWIC_ADJECTIVE"					Text="Luwic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KASKIAN_ADJECTIVE"				Text="Kaskian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_LYDIAN_ADJECTIVE"					Text="Lydian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ARMENIAN_ADJECTIVE" 				Text="Armenian" 			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_LYCIAN_ADJECTIVE"					Text="Lycian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_MILYAN_ADJECTIVE"					Text="Milyan"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_ANATOLIAN_TURKIC_ADJECTIVE"		Text="Anatolian Turkic"		Language="en_US" />
+    <Replace Tag="LOC_CULTURE_COLCHIAN_ADJECTIVE"				Text="Colchian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KARTVELIAN_ADJECTIVE"				Text="Kartvelian"			Language="en_US" />
+    <Replace Tag="LOC_CULTURE_GEORGIAN_ADJECTIVE"				Text="Georgian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_EL_OMARI_ADJECTIVE"				Text="El Omari"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_MAADI_ADJECTIVE"					Text="Maadi"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AMRATIAN_ADJECTIVE"				Text="Amratian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_GERZEAN_ADJECTIVE"				Text="Gerzean"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_EGYPTIAN_ADJECTIVE"				Text="Egyptian"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_COPTIC_ADJECTIVE"					Text="Coptic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KENZI_ADJECTIVE"					Text="Kenzi"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_CUSHITIC_ADJECTIVE"				Text="Cushitic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_KERMA_ADJECTIVE"					Text="Kerma"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_GE_EZ_ADJECTIVE"					Text="Ge'ez"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_TIGRAYA_ADJECTIVE"				Text="Tigraya"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_BEJA_ADJECTIVE"					Text="Beja"					Language="en_US" />
+    <Replace Tag="LOC_CULTURE_NOBA_ADJECTIVE"					Text="Noba"					Language="en_US" />
+    <Replace Tag="LOC_CULTURE_AMHARIC_ADJECTIVE"				Text="Amharic"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_TIGRINYA_ADJECTIVE"				Text="Tigrinya"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_NOBIIN_ADJECTIVE"					Text="Nobiin"				Language="en_US" />
+    <Replace Tag="LOC_CULTURE_DONGOLAWI_ADJECTIVE"				Text="Dongolawi"			Language="en_US" />
 	
   </LocalizedText> 
 

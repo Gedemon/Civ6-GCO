@@ -10,14 +10,17 @@ print ("Loading GCO_PlotScript.lua...")
 -----------------------------------------------------------------------------------------
 include( "GCO_TypeEnum" )
 include( "GCO_SmallUtils" )
+include( "YnAMP_Common" )
 
 
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
-local _cached						= {}	-- cached table to reduce calculations
+local _cached			= {}	-- cached table to reduce calculations
 
-local DirectionString = {
+local mapName			= MapConfiguration.GetValue("MapName")
+
+local DirectionString 	= {
 	[DirectionTypes.DIRECTION_NORTHEAST] 	= "NORTHEAST",
 	[DirectionTypes.DIRECTION_EAST] 		= "EAST",
 	[DirectionTypes.DIRECTION_SOUTHEAST] 	= "SOUTHEAST",
@@ -114,6 +117,24 @@ local DeathRateFactor = {
     [SlaveClassID] 	= SlaveClassDeathRateFactor,
 	}
 
+	
+local Regions	= {}
+for RegionRow in GameInfo.RegionPosition() do
+	if RegionRow.MapName == mapName  then
+		table.insert(Regions, {Region = RegionRow.Region, X = RegionRow.X, Y = RegionRow.Y, Width = RegionRow.Width, Height = RegionRow.Height})
+	end
+end
+
+local CultureRegions	= {}
+local RegionCultures	= {}
+for row in GameInfo.CultureGroupsStartingRegions() do
+	CultureRegions[row.CultureType]		= CultureRegions[row.CultureType] or {}
+	RegionCultures[row.StartingRegion]	= RegionCultures[row.StartingRegion] or {}
+	
+	CultureRegions[row.CultureType][row.StartingRegion] = true
+	RegionCultures[row.StartingRegion][row.CultureType]	= true
+end
+	
 -----------------------------------------------------------------------------------------
 -- Debug
 -----------------------------------------------------------------------------------------
@@ -125,12 +146,14 @@ local debugTable 			= {}	-- table used to output debug data from some functions
 -----------------------------------------------------------------------------------------
 -- Initialize
 -----------------------------------------------------------------------------------------
-local GCO = {}
+local GCO 	= {}
+local YnAMP = {}
 local pairs = pairs
 local Dprint, Dline, Dlog, Div
 
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	GCO 		= ExposedMembers.GCO
+	YnAMP		= ExposedMembers.YnAMP
 	LuaEvents	= ExposedMembers.GCO.LuaEvents
 	Dprint 		= GCO.Dprint
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
@@ -189,6 +212,8 @@ function PostInitialize() -- everything that may require other context to be loa
 	ExposedMembers.PreviousCultureMap 	= GCO.LoadTableFromSlot("PreviousCultureMap") 	or {}
 	ExposedMembers.MigrationMap 		= GCO.LoadTableFromSlot("MigrationMap") 		or {}	-- MigrationMap[plotKey] = { [turnKey] = {[otherPlotKey] = { Migrants = value, }, ...} }
 	ExposedMembers.PlotData 			= GCO.LoadTableFromSlot("PlotData") 			or CreatePlotData()
+	
+	SetGlobals() -- initialize YnAMP Common
 	InitializePlotFunctions()
 	SetCultureDiffusionRatePer1000()
 	SetInitialMapPopulation()
@@ -868,63 +893,6 @@ function UpdateCulture( self )
 	local totalCulture		= self:GetTotalCulture()
 	local minCulture		= self:GetPopulation() -- (self:GetSize() + 1) * 50
 	local maxCulture		= self:GetPopulation() * 2 -- (self:GetSize() + 1) * 50	
-	--[[
-	local minDecayRatio		= 0
-	
-	if maxCulture < totalCulture then
-		local toRemove	= totalCulture - maxCulture
-		minDecayRatio	= Div(toRemove, totalCulture)
-	end
-	
-	-- Decay
-	if false then --plotCulture then
-		table.insert(textTable, "----- Decay -----")
-		for cultureID, value in pairs (plotCulture) do
-			
-			-- Apply decay
-			if value > 0 then
-				local minDecay		= GCO.Round(minDecayRatio * value)
-				local decay 		= math.max(1, GCO.Round(value * cultureDecayRate) / 100, minDecay)
-				
-				if (value - decay) <= 0 then
-					if self:GetOwner() == GetPlayerIDFromCultureID(cultureID) then
-						self:SetCulture(cultureID, minValueOwner)
-						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")
-					else -- don't remove yet, to show variation with previous turn
-						self:SetCulture(cultureID, 0)
-						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", ".. tostring(0)..")")
-					end
-				else
-					if self:GetOwner() == GetPlayerIDFromCultureID(cultureID) and (value - decay) < minValueOwner then
-						self:SetCulture(cultureID, minValueOwner)
-						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) <= minValueOwner [".. tostring(minValueOwner).."  -> SetCulture("..tostring(cultureID) ..", minimum for plot owner = ".. tostring(minValueOwner)..")")						
-					else
-						self:ChangeCulture(cultureID, -decay)
-						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - decay [".. tostring(decay) .."]) = ".. tostring(value - decay).."  -> ChangeCulture("..tostring(cultureID) ..", ".. tostring(- decay)..")")	
-					end					
-				end
-			else -- remove dead culture
-				ExposedMembers.CultureMap[self:GetKey()][tostring(cultureID)] = nil
-				table.insert(textTable, "Player #"..tostring(cultureID) .." value ["..tostring(value).."] <= 0 before decay, removing entry...")	
-			end
-		end
-		
-		-- Minimal culture value based on population
-		if minCulture > totalCulture then
-			self:ChangeCulture(INDEPENDENT_CULTURE, minCulture - totalCulture )
-		end
-		
-		table.insert(textTable, "----- ----- -----")
-	end
-	--]]
-	
-	-- diffuse culture on adjacent plots
-	--[[
-	table.insert(textTable, "Check for diffuse, self:GetTotalCulture() = "..tostring(self:GetTotalCulture()) ..",  CULTURE_DIFFUSION_THRESHOLD = "..tostring(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value))
-	if totalCulture > tonumber(GameInfo.GlobalParameters["CULTURE_DIFFUSION_THRESHOLD"].Value) then
-		--self:DiffuseCulture()
-	end
-	--]]
 	
 	-- update culture in cities
 	table.insert(textTable, "Check for city")
@@ -1426,6 +1394,30 @@ function InitializeCityPlots(playerID, cityID, iX, iY)
 end
 Events.CityInitialized.Add(InitializeCityPlots)
 
+
+-----------------------------------------------------------------------------------------
+-- Region Functions
+-----------------------------------------------------------------------------------------
+
+function GetRegions(self)
+	return self:GetCached("Regions") or self:SetRegions()
+end
+
+function SetRegions(self)
+	PlotRegions = {}
+	for i, row in pairs(Regions) do
+		local x, y			= self:GetX(), self:GetY()
+		local regX, regY 	= GetXYFromRefMapXY(row.X, row.Y)
+		local regionWidth 	= g_ReferenceWidthRatio * row.Width
+		local regionHeight 	= g_ReferenceHeightRatio * row.Height
+--print(x, y, regX, regY, regionWidth, regionHeight, row.X, row.Y, row.Width, row.Height)
+		if x >= regX and x <= regX + regionWidth and y >= regY and y <= regY + regionHeight then
+			table.insert(PlotRegions, row.Region)
+		end
+	end
+	self:SetCached("Regions", PlotRegions)
+	return PlotRegions
+end
 
 -----------------------------------------------------------------------------------------
 -- Rivers Functions
@@ -2195,7 +2187,9 @@ function SetInitialMapPopulation()
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "Initializing Map Population at turn "..tostring(GCO.GetTurnKey()))
 	
-	local eraFactor = math.max(1, GCO.GetGameEra() / 2)
+	local eraFactor 	= math.max(1, GCO.GetGameEra() / 2)
+	local currentTurn	= Game.GetCurrentGameTurn()
+	local currentYear	= GCO.GetTurnYear(currentTurn)
 	
 	local iPlotCount = Map.GetPlotCount()
 	for i = 0, iPlotCount - 1 do
@@ -2212,7 +2206,45 @@ function SetInitialMapPopulation()
 			Dprint( DEBUG_PLOT_SCRIPT, " - Set " .. Indentation20("population = ".. tostring(population)) .. " at ", plot:GetX(), plot:GetY(), " maxSize = ", maxSize)
 			
 			plot:ChangeLowerClass(population)
-			plot:SetCulture(INDEPENDENT_CULTURE, population )
+			
+			local plotRegions 	= plot:GetRegions()
+			local plotCultures	= {}
+			local totalStrength	= 0
+			
+local DEBUG_PLOT_SCRIPT = "debug"
+
+			for r, region in pairs(plotRegions) do
+				local cultures	= RegionCultures[region]
+				if cultures then
+					for cultureType, c in pairs(cultures) do
+						local cultureRow	= GameInfo.CultureGroups[cultureType]
+						if cultureRow and cultureRow.StartDate <= currentYear and (cultureRow.EndDate == nil or cultureRow.EndDate >= currentYear) then
+							local strength 	= 10 -- to do : actual calculation based on PeakDate / PeakStrength or StartDate / EndDate
+							totalStrength	= totalStrength + strength
+							table.insert(plotCultures, { CultureType = cultureType, CultureID = cultureRow.Index, Strength = strength})
+							Dprint( DEBUG_PLOT_SCRIPT, "    - Found culture " .. Indentation(cultureType, 25) .. " in region " .. Indentation(region,25), cultureRow.StartDate, cultureRow.EndDate)
+						end
+					end
+				end
+				--RegionCultures[row.StartingRegion][row.CultureType]
+			end
+			local numCulture = #plotCultures
+			if numCulture > 0 then
+				local cultureLeft 	= population
+				local perCulture	= Div(population, totalStrength)
+				for _, row in ipairs(plotCultures) do
+					local value = math.floor(perCulture * row.Strength)
+					Dprint( DEBUG_PLOT_SCRIPT, "       - Set culture = " .. tostring(value).."/"..tostring(population))
+					plot:SetCulture(row.CultureID, value )
+					cultureLeft = GCO.Round(cultureLeft - value)
+				end
+				if cultureLeft > 0 then
+					Dprint( DEBUG_PLOT_SCRIPT, "       - Set culture = " .. tostring(cultureLeft).."/"..tostring(population))
+					plot:SetCulture(INDEPENDENT_CULTURE, cultureLeft)
+				end
+			else
+				plot:SetCulture(INDEPENDENT_CULTURE, population )
+			end
 		end
 	end
 	
@@ -3219,6 +3251,9 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 		p.GetPreviousStock				= GetPreviousStock
 		p.ChangeStock 					= ChangeStock
 		p.GetBaseVisibleResources		= GetBaseVisibleResources
+		--
+		p.GetRegions					= GetRegions
+		p.SetRegions					= SetRegions
 		--
 		p.IsEOfRiver					= IsEOfRiver
 		p.IsSEOfRiver					= IsSEOfRiver

@@ -498,6 +498,7 @@ function Error(...)
 	LuaEvents.StopAuToPlay()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then GCO.StatusMessage("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 20) end
+	return str
 end
 
 function ErrorWithLog(...)
@@ -509,16 +510,20 @@ function ErrorWithLog(...)
 	LuaEvents.ShowLastLog()
 	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then GCO.StatusMessage("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 60) end
+	return str
 end
 
-function Warning(str, seconds)
+function Warning(str, seconds, bTrace)
 	local seconds = seconds or 7
 	local status, err = pcall(function () error("custom error") end)
 	local line = string.match(err, 'Warning.-$')
 	local line = string.match(line, 'GCO_.-$')
 	local line = string.match(line, ':.-\'')
 	local line = string.match(line, '%d+')
-	print("WARNING : ".. str .. " at line "..line )	
+	print("WARNING : ".. str .. " at line "..line )
+	if bTrace then
+		print(string.match(err, 'Warning.-$')) -- for detailled warning
+	end
 	ExposedMembers.UI.PlaySound("Alert_Neutral")
 	if bWarningToScreen then GCO.StatusMessage("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
 end
@@ -530,7 +535,7 @@ function Dline(...)
 	local str = string.match(str, ':.-\'')
 	local str = string.match(str, '%d+')
 	Dprint("debug", "at line "..str, select(1,...))	
-	print("at line "..str, select(1,...))
+	--print("at line "..str, select(1,...))
 end
 
 function DlineFull(...)
@@ -541,7 +546,7 @@ end
 
 function LogFullLine(...)
 	local status, err = pcall(function () error("custom error") end)
-	local str = string.match(err, 'DlineFull.-$')
+	local str = string.match(err, 'LogFullLine.-$')
 	return str
 end
 
@@ -819,14 +824,19 @@ function orderedNext(t, state)
     --print("orderedNext: state = "..tostring(state) )
     if state == nil and t.__orderedIndex then
 		ShowLastOrderedCall()
-		Error("__orderedIndex already exists on orderedNext first call")
+		local errMsg = Error("__orderedIndex already exists on orderedNext first call")
+		if string.find(errMsg, "\\UI\\") then
+			Error("Called from UI context, may not be critical")
+		else
+			Error("Critical, please report with log")
+		end
 	end
     if state == nil then
-        -- the first time, generate the index
+        -- the first time, generate the index and log which function did the call
+		prevLine = LogFullLine()
         t.__orderedIndex = __genOrderedIndex( t )
         key = t.__orderedIndex[1]
-		-- log which function did the call
-		prevLine = LogFullLine()
+		
     else
         -- fetch the next value
         for i = 1, #t.__orderedIndex do
@@ -1099,7 +1109,8 @@ end
 function GetEffectValueDescription(eEffectType, value)
 	local row 	= GameInfo.EffectsGCO[eEffectType]
 	if row and row.ValueString and row.Name then
-		return Locale.Lookup(row.ValueString, value).." "..Locale.Lookup(row.Name)
+		local iconStr = row.IconString or "" 
+		return Locale.Lookup(row.ValueString, value) .." ".. iconStr .." ".. Locale.Lookup(row.Name)
 	else
 		return "WARNING: no value formatting and/or no tag name for "..tostring(eEffectType)
 	end

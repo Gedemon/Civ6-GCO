@@ -161,6 +161,7 @@
 		
 		<Row EquipmentClass="EQUIPMENTCLASS_SHIELDS"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_MEDIEVAL_ARMOR"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"		/>
 		<Row EquipmentClass="EQUIPMENTCLASS_HEAVYARMOR"			/>
 		<Row EquipmentClass="EQUIPMENTCLASS_KNIGHTARMOR"		/>
@@ -256,6 +257,11 @@
 		<Row ResourceType="EQUIPMENT_BRONZE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
 		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		/>
+		
+		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_MEDIEVAL_ARMOR"	/>
+		<Row ResourceType="EQUIPMENT_IRON_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MEDIEVAL_ARMOR"	/>
+		<Row ResourceType="EQUIPMENT_CHAINMAIL_ARMOR"	EquipmentClass="EQUIPMENTCLASS_MEDIEVAL_ARMOR"	/>
+		<Row ResourceType="EQUIPMENT_PLATE_ARMOR"		EquipmentClass="EQUIPMENTCLASS_MEDIEVAL_ARMOR"	/>
 		
 		<Row ResourceType="EQUIPMENT_LINOTHORAX"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	/>
 		<Row ResourceType="EQUIPMENT_GAMBESON"			EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	/>
@@ -548,7 +554,7 @@
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SWORDS" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_SHIELDS"			IsRequired="0" />
-		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" />
+		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_MEDIEVAL_ARMOR"	IsRequired="1" />
 		<!-- To allow that we need to rethink the GetEquipmentClass() function and associed tables -- >
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" PercentageOfPersonnel="70" />
 		<Row UnitType="UNIT_SWORDSMAN"				EquipmentClass="EQUIPMENTCLASS_BODYARMOR_OPT"	IsRequired="0" />
@@ -571,7 +577,7 @@
 		
 		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="10" />
 		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_PIKES" />
-		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_BODYARMOR"		IsRequired="1" />
+		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_MEDIEVAL_ARMOR"	IsRequired="1" />
 		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_HELMET"			IsRequired="0" />
 		<Row UnitType="UNIT_HEAVY_LANDSKNECHT"		EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	IsRequired="0" PercentageOfPersonnel="5" />
 		

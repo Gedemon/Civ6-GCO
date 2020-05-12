@@ -10,104 +10,85 @@
 		<!-- Arabia etc-->
 
 		<Row CultureType="CULTURE_HAFIT" 		StartDate="-3200"	EndDate="-2600"	Ethnicity="ETHNICITY_MEDIT"	/>
-		<Row CultureType="CULTURE_UMM_AN-NAR" 	StartDate="-2600"	EndDate="-2000"	Ethnicity="ETHNICITY_MEDIT"	/>
+		<Row CultureType="CULTURE_UMM_AN_NAR" 	StartDate="-2600"	EndDate="-2000"	Ethnicity="ETHNICITY_MEDIT"	/>
 		<Row CultureType="CULTURE_MAGAN" 		StartDate="-2300"	EndDate="-550"	Ethnicity="ETHNICITY_MEDIT"	/>
 		<Row CultureType="CULTURE_WADI_SUQ" 	StartDate="-1900"	EndDate="-1300"	Ethnicity="ETHNICITY_MEDIT"	/>
-		<Row CultureType="CULTURE_EASTERN_SOUTH_ARABIAN" 	StartDate="-1200" Ethnicity="ETHNICITY_AFRICAN"/>
 		<Row CultureType="CULTURE_SAYHADIC" 	StartDate="-1200"	EndDate="550"	Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_OLD_ARABIC" 	StartDate="-900"	EndDate="600"	Ethnicity="ETHNICITY_MEDIT"	 SpawnCivilization="CIVILIZATION_ARABIA"/>
+		<Row CultureType="CULTURE_ARABIC" 		StartDate="-900"	EndDate="600"	Ethnicity="ETHNICITY_MEDIT"	 SpawnCivilization="CIVILIZATION_ARABIA"/>
 
 		<!-- Levant etc-->
 
-		<Row CultureType="CULTURE_KISH" Name="LOC_CULTURE_KISH" StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_EBLAITE" Name="LOC_CULTURE_EBLAITE" StartDate="-3000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AMORITE" Name="LOC_CULTURE_AMORITE" StartDate="-2100" EndDate="-1190" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_CANAANITE" Name="LOC_CULTURE_CANAANITE" StartDate="-1050" EndDate="-400" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_OLD_ARAMAIC" Name="LOC_CULTURE_OLD_ARAMAIC" StartDate="-900" EndDate="-700" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_IMPERIAL_ARAMAIC" Name="LOC_CULTURE_IMPERIAL_ARAMAIC" StartDate="-700" EndDate="-300" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MIDDLE_ARAMAIC" Name="LOC_CULTURE_MIDDLE_ARAMAIC" StartDate="200" EndDate="1200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_SYRIAN_TURKMEN" Name="LOC_CULTURE_SYRIAN_TURKMEN" StartDate="1516" EndDate="1918" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MODERN_HEBREW" Name="LOC_CULTURE_MODERN_HEBREW" StartDate="1900" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_NEO-ARAMAIC" Name="LOC_CULTURE_NEO-ARAMAIC" StartDate="1200" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_KISH" 		StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_EBLAITE" 		StartDate="-3000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_AMORITE" 		StartDate="-2100" EndDate="-1190" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_CANAANITE" 	StartDate="-1050" EndDate="-400" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_ARAMAIC" 		StartDate="-900" EndDate="-700" Ethnicity="ETHNICITY_MEDIT"/>
 
 		<!-- Mesopotamia, Sumeria etc-->
 
-		<Row CultureType="CULTURE_UBAID" Name="LOC_CULTURE_UBAID" StartDate="-6500" EndDate="-3800" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_URUK" Name="LOC_CULTURE_URUK" StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PROTO-ELAMITE" Name="LOC_CULTURE_PROTO-ELAMITE" StartDate="-3400" EndDate="-2500" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ARCHAIC_SUMERIAN" SpawnCivilization="CIVILIZATION_SUMERIA" Name="LOC_CULTURE_ARCHAIC_SUMERIAN" StartDate="-3100" EndDate="-2500" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ELAMITE" Name="LOC_CULTURE_ELAMITE" StartDate="-2700" EndDate="-330" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_EAST_SEMITIC_AKKADIAN" Name="LOC_CULTURE_EAST_SEMITIC_AKKADIAN" StartDate="-2600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_OLD_AKKADIAN" Name="LOC_CULTURE_OLD_AKKADIAN" StartDate="-2500" EndDate="-1950" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_HURRIAN" Name="LOC_CULTURE_HURRIAN" StartDate="-2300" EndDate="-1000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_OLD_ASSYRIAN" Name="LOC_CULTURE_OLD_ASSYRIAN" StartDate="-1950" EndDate="-1530" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_OLD_BABYLONIAN" Name="LOC_CULTURE_OLD_BABYLONIAN" StartDate="-1950" EndDate="-1530" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_GALZU" Name="LOC_CULTURE_GALZU" StartDate="-1531" EndDate="-1155" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MIDDLE_ASSYRIAN" Name="LOC_CULTURE_MIDDLE_ASSYRIAN" StartDate="-1530" EndDate="-1000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MIDDLE_BABYLONIAN" Name="LOC_CULTURE_MIDDLE_BABYLONIAN" StartDate="-1530" EndDate="-1000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_NEO-ASSYRIAN" Name="LOC_CULTURE_NEO-ASSYRIAN" StartDate="-1000" EndDate="-600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_NEO-BABYLONIAN" Name="LOC_CULTURE_NEO-BABYLONIAN" StartDate="-1000" EndDate="-600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KURDISH" Name="LOC_CULTURE_KURDISH" StartDate="-400" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_UBAID"		StartDate="-6500"	EndDate="-3800" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_URUK"			StartDate="-4000"	EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_SUMERIAN" 	StartDate="-3100"	EndDate="-2500" Ethnicity="ETHNICITY_MEDIT" 	SpawnCivilization="CIVILIZATION_SUMERIA"/>
+		<Row CultureType="CULTURE_ELAMITE"		StartDate="-2700"	EndDate="-330"	Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_AKKADIAN"		StartDate="-2600"	Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_HURRIAN"		StartDate="-2300"	EndDate="-1000" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_ASSYRIAN"		StartDate="-1950"	EndDate="-1530" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_BABYLONIAN"	StartDate="-1950"	EndDate="-1530" Ethnicity="ETHNICITY_MEDIT"		SpawnCivilization="CIVILIZATION_BABYLON"/>
+		<Row CultureType="CULTURE_GALZU"		StartDate="-1531"	EndDate="-1155" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_KURDISH"		StartDate="-400"	Ethnicity="ETHNICITY_MEDIT"/>
 
 		<!-- Persia etc-->
 
-		<Row CultureType="CULTURE_SHULAVERI-SHOMU" Name="LOC_CULTURE_SHULAVERI-SHOMU" StartDate="-6000" EndDate="-4000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KURA-ARAXES" Name="LOC_CULTURE_KURA-ARAXES" StartDate="-4000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_YAMNA" Name="LOC_CULTURE_YAMNA" StartDate="-3300" EndDate="-2600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PROTO-INDO-EUROPEAN" Name="LOC_CULTURE_PROTO-INDO-EUROPEAN" StartDate="-3000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_POLTAVKA" Name="LOC_CULTURE_POLTAVKA" StartDate="-2700" EndDate="-2100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_JIROFT" Name="LOC_CULTURE_JIROFT" StartDate="-2500" EndDate="-2200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_SINTASHTA" Name="LOC_CULTURE_SINTASHTA" StartDate="-2100" EndDate="-1800" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PROTO-INDO-IRANIAN" Name="LOC_CULTURE_PROTO-INDO-IRANIAN" StartDate="-2000" EndDate="-1500" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ANDRONOVO" Name="LOC_CULTURE_ANDRONOVO" StartDate="-2000" EndDate="-900" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AVESTAN" Name="LOC_CULTURE_AVESTAN" StartDate="-2000" EndDate="0" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PROTO-IRANIAN" SpawnCivilization="CIVILIZATION_PERSIA" Name="LOC_CULTURE_PROTO-IRANIAN" StartDate="-1500" EndDate="-525" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MEDIAN" Name="LOC_CULTURE_MEDIAN" StartDate="-1100" EndDate="500" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AZERI" Name="LOC_CULTURE_AZERI" StartDate="1067" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_SHULAVERI_SHOMU"	StartDate="-6000" EndDate="-4000" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_KURA_ARAXES"		StartDate="-4000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_YAMNA"			StartDate="-3300" EndDate="-2600" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_POLTAVKA"			StartDate="-2700" EndDate="-2100" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_JIROFT"			StartDate="-2500" EndDate="-2200" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_SINTASHTA"		StartDate="-2100" EndDate="-1800" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_ANDRONOVO"		StartDate="-2000" EndDate="-900" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_AVESTAN"			StartDate="-2000" EndDate="0" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_PERSIAN"			StartDate="-1500" EndDate="-525" Ethnicity="ETHNICITY_MEDIT"	SpawnCivilization="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_MEDIAN"			StartDate="-1100" EndDate="500" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_AZERI"			StartDate="1067" Ethnicity="ETHNICITY_MEDIT"/>
 
 		<!-- Anatolia etc-->
 
-		<Row CultureType="CULTURE_HATTIC" Name="LOC_CULTURE_HATTIC" StartDate="-3000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PALAIC" Name="LOC_CULTURE_PALAIC" StartDate="-2000" EndDate="-1300" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_HITTITE" Name="LOC_CULTURE_HITTITE" StartDate="-2000" EndDate="-1300" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_LUWIC" Name="LOC_CULTURE_LUWIC" StartDate="-2000" EndDate="-600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KASKIAN" Name="LOC_CULTURE_KASKIAN" StartDate="-1450" EndDate="-1076" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_LYDIAN" Name="LOC_CULTURE_LYDIAN" StartDate="-700" EndDate="-200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PROTO-ARMENIAN" Name="LOC_CULTURE_PROTO-ARMENIAN" StartDate="-600" EndDate="400" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_LYCIAN" Name="LOC_CULTURE_LYCIAN" StartDate="-500" EndDate="-200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MILYAN" Name="LOC_CULTURE_MILYAN" StartDate="-400" EndDate="-300" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_CLASSICAL_ARMENIAN" Name="LOC_CULTURE_CLASSICAL_ARMENIAN" StartDate="400" EndDate="1100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" Name="LOC_CULTURE_ANATOLIAN_TURKIC" StartDate="1072" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MIDDLE_ARMENIAN" Name="LOC_CULTURE_MIDDLE_ARMENIAN" StartDate="1100" EndDate="1700" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MODERN_ARMENIAN" Name="LOC_CULTURE_MODERN_ARMENIAN" StartDate="1700" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" Name="LOC_CULTURE_MODERN_TURKISH" StartDate="1932" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_HATTIC"			StartDate="-3000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_PALAIC"			StartDate="-2000" EndDate="-1300" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_HITTITE"			StartDate="-2000" EndDate="-1300" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_LUWIC"			StartDate="-2000" EndDate="-600" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_KASKIAN"			StartDate="-1450" EndDate="-1076" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_LYDIAN"			StartDate="-700" EndDate="-200" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_ARMENIAN" 		StartDate="-600" EndDate="400" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_LYCIAN"			StartDate="-500" EndDate="-200" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_MILYAN"			StartDate="-400" EndDate="-300" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_ANATOLIAN_TURKIC"	StartDate="1072" Ethnicity="ETHNICITY_MEDIT"/>
 
 		<!-- Georgia etc -->
 
-		<Row CultureType="CULTURE_COLCHIAN" Name="LOC_CULTURE_COLCHIAN" StartDate="-3000" EndDate="-600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PROTO-KARTVELIAN" Name="LOC_CULTURE_PROTO-KARTVELIAN" StartDate="-1300" EndDate="400" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_OLD_GEORGIAN" SpawnCivilization="CIVILIZATION_GEORGIA" Name="LOC_CULTURE_OLD_GEORGIAN" StartDate="400" EndDate="1100" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_COLCHIAN"			StartDate="-3000" EndDate="-600" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_KARTVELIAN"		StartDate="-1300" EndDate="400" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_GEORGIAN"			StartDate="400" EndDate="1100" Ethnicity="ETHNICITY_MEDIT"	SpawnCivilization="CIVILIZATION_GEORGIA"/>
 
 		<!-- Egypt & Nubia -->
 
-		<Row CultureType="CULTURE_EL_OMARI_CULTURE" Name="LOC_CULTURE_EL_OMARI_CULTURE" StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MAADI_CULTURE" Name="LOC_CULTURE_MAADI_CULTURE" StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AMRATIAN_CULTURE" Name="LOC_CULTURE_AMRATIAN_CULTURE" StartDate="-4000" EndDate="-3500" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_GERZEAN_CULTURE" Name="LOC_CULTURE_GERZEAN_CULTURE" StartDate="-3500" EndDate="-3200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ARCHAIC_EGYPTIAN" SpawnCivilization="CIVILIZATION_EGYPT" Name="LOC_CULTURE_ARCHAIC_EGYPTIAN" StartDate="-3300" EndDate="-2600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_COPTIC" Name="LOC_CULTURE_COPTIC" StartDate="200" EndDate="1700" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KENZI" Name="LOC_CULTURE_KENZI" StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_CUSHITIC" Name="LOC_CULTURE_CUSHITIC" StartDate="4000" EndDate="2000" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_ANCESTRAL_KERMA" Name="LOC_CULTURE_ANCESTRAL_KERMA" StartDate="-3500" EndDate="-2500" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_KERMA" SpawnCivilization="CIVILIZATION_NUBIA" Name="LOC_CULTURE_KERMA" StartDate="-2500" EndDate="-1500" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_GE'EZ" Name="LOC_CULTURE_GE'EZ" StartDate="-2000" EndDate="900" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_TIGRAYA" Name="LOC_CULTURE_TIGRAYAN" StartDate="400" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_BEJA" Name="LOC_CULTURE_BEJA" StartDate="200" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_NOBA" Name="LOC_CULTURE_NOBA" StartDate="300" EndDate="700" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_AMHARIC" Name="LOC_CULTURE_AMHARIC" StartDate="1314" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_TIGRINYA" Name="LOC_CULTURE_TIGRINYAN" StartDate="1314" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_NOBIIN" Name="LOC_CULTURE_NOBIIN" StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_DONGOLAWI" Name="LOC_CULTURE_DONGOLAWI" StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_EL_OMARI"		StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_MAADI"		StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_AMRATIAN"		StartDate="-4000" EndDate="-3500" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_GERZEAN"		StartDate="-3500" EndDate="-3200" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_EGYPTIAN"		StartDate="-3300" EndDate="-2600" Ethnicity="ETHNICITY_MEDIT"	 SpawnCivilization="CIVILIZATION_EGYPT"/>
+		<Row CultureType="CULTURE_COPTIC"		StartDate="200" EndDate="1700" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_KENZI"		StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_CUSHITIC"		StartDate="-4000" EndDate="-2000" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_KERMA"		StartDate="-3500" EndDate="-2500" Ethnicity="ETHNICITY_AFRICAN" SpawnCivilization="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_GE_EZ"		StartDate="-2000" EndDate="900" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_TIGRAYA"		StartDate="400" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_BEJA"			StartDate="200" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_NOBA"			StartDate="300" EndDate="700" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_AMHARIC"		StartDate="1314" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_TIGRINYA"		StartDate="1314" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_NOBIIN"		StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
+		<Row CultureType="CULTURE_DONGOLAWI"	StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
 
 	</CultureGroups>
 
@@ -118,12 +99,11 @@
 		<!-- Arabia etc-->
 
 		<Row CultureType="CULTURE_HAFIT" StartingRegion="SE_ARABIA"/>
-		<Row CultureType="CULTURE_UMM_AN-NAR" StartingRegion="SE_ARABIA"/>
+		<Row CultureType="CULTURE_UMM_AN_NAR" StartingRegion="SE_ARABIA"/>
 		<Row CultureType="CULTURE_MAGAN" StartingRegion="SE_ARABIA"/>
 		<Row CultureType="CULTURE_WADI_SUQ" StartingRegion="SE_ARABIA"/>
-		<Row CultureType="CULTURE_EASTERN_SOUTH_ARABIAN" StartingRegion="E_S_ARABIAN_REGION"/>
 		<Row CultureType="CULTURE_SAYHADIC" StartingRegion="YEMEN"/>
-		<Row CultureType="CULTURE_OLD_ARABIC" StartingRegion="NW_ARABIA"/>
+		<Row CultureType="CULTURE_ARABIC" StartingRegion="NW_ARABIA"/>
 
 		<!-- Levant etc-->
 
@@ -136,45 +116,33 @@
 		<Row CultureType="CULTURE_AMORITE" StartingRegion="N_SYRIA"/>
 		<Row CultureType="CULTURE_AMORITE" StartingRegion="CANAAN"/>
 		<Row CultureType="CULTURE_CANAANITE" StartingRegion="CANAAN"/>
-		<Row CultureType="CULTURE_OLD_ARAMAIC" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_IMPERIAL_ARAMAIC" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_IMPERIAL_ARAMAIC" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_IMPERIAL_ARAMAIC" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_IMPERIAL_ARAMAIC" StartingRegion="CANAAN"/>
-		<Row CultureType="CULTURE_IMPERIAL_ARAMAIC" StartingRegion="ARMENIAN_HIGHLANDS"/>
+		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="N_SYRIA"/>
+		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="UPPER_MESOPOTAMIA"/>
+		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="LOWER_MESOPOTAMIA"/>
+		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="CANAAN"/>
+		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="ARMENIAN_HIGHLANDS"/>
 		<Row CultureType="CULTURE_KURDISH" StartingRegion="KURDISH_REGION"/>
-		<Row CultureType="CULTURE_MIDDLE_ARAMAIC" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_MIDDLE_ARAMAIC" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_MIDDLE_ARAMAIC" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_NEO-ARAMAIC" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_NEO-ARAMAIC" StartingRegion="N_SYRIA"/>
 		<Row CultureType="CULTURE_SYRIAN_TURKMEN" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_MODERN_HEBREW" StartingRegion="CANAAN"/>
 
 		<!-- Mesopotamia, Sumeria etc-->
 
 		<Row CultureType="CULTURE_UBAID" StartingRegion="UPPER_MESOPOTAMIA"/>
 		<Row CultureType="CULTURE_UBAID" StartingRegion="LOWER_MESOPOTAMIA"/>
 		<Row CultureType="CULTURE_URUK" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_PROTO-ELAMITE" StartingRegion="ELAM"/>
-		<Row CultureType="CULTURE_ARCHAIC_SUMERIAN" StartingRegion="LOWER_MESOPOTAMIA"/>
 		<Row CultureType="CULTURE_ELAMITE" StartingRegion="ELAM"/>
-		<Row CultureType="CULTURE_OLD_AKKADIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_OLD_ASSYRIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_OLD_BABYLONIAN" StartingRegion="LOWER_MESOPOTAMIA"/>
+		<Row CultureType="CULTURE_SUMERIAN" StartingRegion="LOWER_MESOPOTAMIA"/>
+		<Row CultureType="CULTURE_AKKADIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
+		<Row CultureType="CULTURE_ASSYRIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
+		<Row CultureType="CULTURE_BABYLONIAN" StartingRegion="LOWER_MESOPOTAMIA"/>
 		<Row CultureType="CULTURE_GALZU" StartingRegion="LORESTAN"/>
-		<Row CultureType="CULTURE_MIDDLE_ASSYRIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_MIDDLE_BABYLONIAN" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_NEO-ASSYRIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_NEO-BABYLONIAN" StartingRegion="LOWER_MESOPOTAMIA"/>
 
 		<!-- Persia etc-->
 
-		<Row CultureType="CULTURE_KURA-ARAXES" StartingRegion="ARMENIAN_HIGHLANDS"/>
-		<Row CultureType="CULTURE_KURA-ARAXES" StartingRegion="NE_CAUCASUS"/>
-		<Row CultureType="CULTURE_KURA-ARAXES" StartingRegion="AZERBAIJAN"/>
-		<Row CultureType="CULTURE_KURA-ARAXES" StartingRegion="NW_IRAN"/>
-		<Row CultureType="CULTURE_KURA-ARAXES" StartingRegion="N_SYRIA"/>
+		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="ARMENIAN_HIGHLANDS"/>
+		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="NE_CAUCASUS"/>
+		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="AZERBAIJAN"/>
+		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="NW_IRAN"/>
+		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="N_SYRIA"/>
 		<Row CultureType="CULTURE_YAMNA" StartingRegion="YAMNA"/>
 		<Row CultureType="CULTURE_PROTO-INDO-EUROPEAN" StartingRegion="IRANIAN_PLATEAU"/>
 		<Row CultureType="CULTURE_PROTO-INDO-EUROPEAN" StartingRegion="NW_IRAN"/>
@@ -184,10 +152,10 @@
 		<Row CultureType="CULTURE_PROTO-INDO-IRANIAN" StartingRegion="IRANIAN_PLATEAU"/>
 		<Row CultureType="CULTURE_ANDRONOVO" StartingRegion="ANDRONOVO"/>
 		<Row CultureType="CULTURE_AVESTAN" StartingRegion="AVESTAN"/>
-		<Row CultureType="CULTURE_PROTO-IRANIAN" StartingRegion="NW_IRAN"/>
-		<Row CultureType="CULTURE_PROTO-IRANIAN" StartingRegion="IRANIAN_PLATEAU"/>
-		<Row CultureType="CULTURE_PROTO-IRANIAN" StartingRegion="FARS_PROVINCE"/>
-		<Row CultureType="CULTURE_PROTO-IRANIAN" StartingRegion="LORESTAN"/>
+		<Row CultureType="CULTURE_PERSIAN" StartingRegion="NW_IRAN"/>
+		<Row CultureType="CULTURE_PERSIAN" StartingRegion="IRANIAN_PLATEAU"/>
+		<Row CultureType="CULTURE_PERSIAN" StartingRegion="FARS_PROVINCE"/>
+		<Row CultureType="CULTURE_PERSIAN" StartingRegion="LORESTAN"/>
 		<Row CultureType="CULTURE_MEDIAN" StartingRegion="NW_IRAN"/>
 		<Row CultureType="CULTURE_MEDIAN" StartingRegion="LORESTAN"/>
 		<Row CultureType="CULTURE_AZERI" StartingRegion="AZERBAIJAN"/>
@@ -202,38 +170,27 @@
 		<Row CultureType="CULTURE_KASKIAN" StartingRegion="PONTUS"/>
 		<Row CultureType="CULTURE_KASKIAN" StartingRegion="PALA"/>
 		<Row CultureType="CULTURE_LYDIAN" StartingRegion="LYDIA"/>
-		<Row CultureType="CULTURE_PROTO-ARMENIAN" StartingRegion="ARMENIAN_HIGHLANDS"/>
-		<Row CultureType="CULTURE_CLASSICAL_ARMENIAN" StartingRegion="ARMENIAN_HIGHLANDS"/>
+		<Row CultureType="CULTURE_ARMENIAN" StartingRegion="ARMENIAN_HIGHLANDS"/>
 		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="LYDIA"/>
 		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="PALA"/>
 		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="HATTUSA"/>
 		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="LUWIYA"/>
 		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="PONTUS"/>
-		<Row CultureType="CULTURE_MIDDLE_ARMENIAN" StartingRegion="ARMENIAN_HIGHLANDS"/>
-		<Row CultureType="CULTURE_MODERN_ARMENIAN" StartingRegion="ARMENIAN_HIGHLANDS"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" StartingRegion="E_THRACE"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" StartingRegion="LYDIA"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" StartingRegion="LUWIYA"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" StartingRegion="PALA"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" StartingRegion="HATTUSA"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" StartingRegion="PONTUS"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" StartingRegion="ARMENIAN_HIGHLANDS"/>
-		<Row CultureType="CULTURE_MODERN_TURKISH" StartingRegion="CYPRUS"/>
 
 		<!-- Georgia etc-->
 
 		<Row CultureType="CULTURE_COLCHIAN" StartingRegion="GEORGIA"/>
-		<Row CultureType="CULTURE_PROTO-KARTVELIAN" StartingRegion="GEORGIA"/>
-		<Row CultureType="CULTURE_OLD_GEORGIAN" StartingRegion="GEORGIA"/>
+		<Row CultureType="CULTURE_KARTVELIAN" StartingRegion="GEORGIA"/>
+		<Row CultureType="CULTURE_GEORGIAN" StartingRegion="GEORGIA"/>
 
 		<!-- Egypt & Nubia -->
 
-		<Row CultureType="CULTURE_EL_OMARI_CULTURE" StartingRegion="LOWER_EGYPT"/>
-		<Row CultureType="CULTURE_MAADI_CULTURE" StartingRegion="LOWER_EGYPT"/>
-		<Row CultureType="CULTURE_AMRATIAN_CULTURE" StartingRegion="UPPER_EGYPT"/>
-		<Row CultureType="CULTURE_GERZEAN_CULTURE" StartingRegion="UPPER_EGYPT"/>
-		<Row CultureType="CULTURE_ARCHAIC_EGYPTIAN" StartingRegion="LOWER_EGYPT"/>
-		<Row CultureType="CULTURE_ARCHAIC_EGYPTIAN" StartingRegion="UPPER_EGYPT"/>
+		<Row CultureType="CULTURE_EL_OMARI" StartingRegion="LOWER_EGYPT"/>
+		<Row CultureType="CULTURE_MAADI" StartingRegion="LOWER_EGYPT"/>
+		<Row CultureType="CULTURE_AMRATIAN" StartingRegion="UPPER_EGYPT"/>
+		<Row CultureType="CULTURE_GERZEAN" StartingRegion="UPPER_EGYPT"/>
+		<Row CultureType="CULTURE_EGYPTIAN" StartingRegion="LOWER_EGYPT"/>
+		<Row CultureType="CULTURE_EGYPTIAN" StartingRegion="UPPER_EGYPT"/>
 		<Row CultureType="CULTURE_COPTIC" StartingRegion="LOWER_EGYPT"/>
 		<Row CultureType="CULTURE_COPTIC" StartingRegion="UPPER_EGYPT"/>
 		<Row CultureType="CULTURE_KENZI" StartingRegion="FIRST_CATARACT"/>
@@ -248,13 +205,11 @@
 		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="ERITREA"/>
 		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="TIGRAY_REGION"/>
 		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="AFAR_REGION"/>
-		<Row CultureType="CULTURE_ANCESTRAL_KERMA" StartingRegion="THIRD_CATARACT"/>
-		<Row CultureType="CULTURE_ANCESTRAL_KERMA" StartingRegion="FOURTH_CATARACT"/>
 		<Row CultureType="CULTURE_KERMA" StartingRegion="FIRST_CATARACT"/>
 		<Row CultureType="CULTURE_KERMA" StartingRegion="SECOND_CATARACT"/>
 		<Row CultureType="CULTURE_KERMA" StartingRegion="THIRD_CATARACT"/>
 		<Row CultureType="CULTURE_KERMA" StartingRegion="FOURTH_CATARACT"/>
-		<Row CultureType="CULTURE_GE'EZ" StartingRegion="ERITREA"/>
+		<Row CultureType="CULTURE_GE_EZ" StartingRegion="ERITREA"/>
 		<Row CultureType="CULTURE_TIGRAYA" StartingRegion="TIGRAY_REGION"/>
 		<Row CultureType="CULTURE_BEJA" StartingRegion="EASTERN_DESERT_NUBIA"/>
 		<Row CultureType="CULTURE_BEJA" StartingRegion="ERITREA"/>
