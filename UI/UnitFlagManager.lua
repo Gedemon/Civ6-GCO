@@ -1088,8 +1088,13 @@ function UnitFlag.UpdateName( self )
 		self.m_Instance.HealthIcon:SetToolTipString(pUnit:GetHealthString())
 		--ShowSupplyLine()
 		-- GCO >>>>>
-		
+print(nameString)
+print(self.m_Instance.UnitIcon.SetToolTipString)
+print(self.m_Instance.UnitIcon.GetToolTipString)
 		self.m_Instance.UnitIcon:SetToolTipString( Locale.Lookup(nameString) );
+print(self.m_Instance.UnitIcon:GetToolTipString())
+		--self.m_Instance.UnitIcon:SetToolTipString( "test" );
+--print(self.m_Instance.UnitIcon:GetToolTipString())
 	end
 end
 

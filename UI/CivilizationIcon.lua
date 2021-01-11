@@ -5,71 +5,59 @@ print("Loading CivilizationIcon.lua.")
 include( "GCO_PlayerConfig" )
 -- GCO >>>>>
 
-include("LuaClass");
-include("Colors");
-include("SupportFunctions");
+-- ===========================================================================
+--	CONSTANTS
+-- ===========================================================================
+ICON_UNKNOWN_CIV = "ICON_CIVILIZATION_UNKNOWN";
 
-------------------------------------------------------------------
--- Class Table
-------------------------------------------------------------------
-CivilizationIcon = LuaClass:Extend()
 
-------------------------------------------------------------------
--- Class Constants
-------------------------------------------------------------------
-CivilizationIcon.m_CivTooltip = {};
+-- ===========================================================================
+--	Class Table
+-- ===========================================================================
+CivilizationIcon = {
+	detailString	= "",
+	m_CivTooltip	= {},
+	playerID		= -1	
+}
+
 TTManager:GetTypeControlTable("CivTooltip", CivilizationIcon.m_CivTooltip);
 
-CivilizationIcon.ICON_UNKNOWN_CIV = "ICON_CIVILIZATION_UNKNOWN";
-CivilizationIcon.DATA_FIELD_CLASS = "CIVILIZATION_ICON_CLASS";
-
-------------------------------------------------------------------
--- Class Members
-------------------------------------------------------------------
--- This is needed for how we deal with tooltip callbacks.
-CivilizationIcon.playerID = -1;
-CivilizationIcon.detailString = "";
-
-------------------------------------------------------------------
--- Static-style initialization functions
-------------------------------------------------------------------
-function CivilizationIcon:GetInstance(instanceManager:table, newParent:table)
-	local instance = instanceManager:GetInstance(newParent);
+-- ===========================================================================
+function CivilizationIcon:GetInstance(instanceManager:table, uiNewParent:table)
+	local instance :table = instanceManager:GetInstance(uiNewParent);
 	return CivilizationIcon:AttachInstance(instance);
 end
 
+-- ===========================================================================
+--	Essentially the "new"
+-- ===========================================================================
 function CivilizationIcon:AttachInstance(instance:table)
-	self = instance[CivilizationIcon.DATA_FIELD_CLASS];
-	if not self then
-		self = CivilizationIcon:new(instance);
-		instance[CivilizationIcon.DATA_FIELD_CLASS] = self;
+	if instance == nil then
+		UI.DataError("NIL instance passed into CivilizationIcon:AttachInstance.  Setting the value to the ContextPtr's 'Controls'.");
+		instance = Controls;
 	end
+	setmetatable(instance, {__index = self });
+	self.Controls = instance;
 	self:Reset();
-	return self, instance;
+	return instance, "deprecated CivilizationIcon:AttachInstance 2nd return avalue";			-- TODO: remove 2nd parameter string (using it to catch debug.) ??TRON
 end
-------------------------------------------------------------------
 
-------------------------------------------------------------------
--- Constructor
-------------------------------------------------------------------
-function CivilizationIcon:new(instance:table)
-	self = LuaClass.new(CivilizationIcon)
-	self.Controls = instance or Controls;
-	return self;
-end
-------------------------------------------------------------------
-function CivilizationIcon:UpdateIconFromPlayerID(playerID:number)
 
-	local localPlayerID:number = Game.GetLocalPlayer();
-	local showCivIcon:boolean = playerID == localPlayerID;
-	local civIcon:string = self.ICON_UNKNOWN_CIV;
+-- ===========================================================================
+function CivilizationIcon:UpdateIconFromPlayerID( playerID:number )
 
-	if playerID ~= -1 then
-		if localPlayerID ~= -1 then
+	local localPlayerID	:number = Game.GetLocalPlayer();
+	local showCivIcon	:boolean= (playerID == localPlayerID);
+	local civIcon		:string = ICON_UNKNOWN_CIV;
+
+	if playerID ~= PlayerTypes.NONE then
+		if (localPlayerID ~= PlayerTypes.NONE and localPlayerID ~= PlayerTypes.OBSERVER) then
 			showCivIcon = showCivIcon or Players[localPlayerID]:GetDiplomacy():HasMet(playerID);
+		elseif (localPlayerID == PlayerTypes.OBSERVER) then
+			showCivIcon  = true;
 		end
 		if showCivIcon then
-	local playerConfig:table = PlayerConfigurations[playerID];
+			local playerConfig:table = PlayerConfigurations[playerID];
 			civIcon = "ICON_" .. playerConfig:GetCivilizationTypeName();
 		end
 	end
@@ -115,9 +103,8 @@ function CivilizationIcon:ColorCivIcon(playerID:number, showCivIcon:boolean)
 	end
 end
 	
+-- ===========================================================================
 function CivilizationIcon:SetLeaderTooltip(playerID:number, details:string)
-	local pPlayer:table = Players[playerID];
-	local playerConfig:table = PlayerConfigurations[playerID];
 	local localPlayerID:number = Game.GetLocalPlayer();
 	local localPlayer:table = Players[localPlayerID];
 
@@ -128,23 +115,21 @@ function CivilizationIcon:SetLeaderTooltip(playerID:number, details:string)
 	if(playerID ~= localPlayerID and localPlayer ~= nil and not localPlayer:GetDiplomacy():HasMet(playerID)) then
 		self.Controls.CivIcon:SetToolTipType();
 		self.Controls.CivIcon:ClearToolTipCallback();
-		if GameConfiguration.IsAnyMultiplayer() and pPlayer:IsHuman() then
-			self.Controls.CivIcon:SetToolTipString(Locale.Lookup("LOC_DIPLOPANEL_UNMET_PLAYER") .. " (" .. playerConfig:GetPlayerName() .. ")");
-		else
-			self.Controls.CivIcon:SetToolTipString(Locale.Lookup("LOC_DIPLOPANEL_UNMET_PLAYER"));
-		end
+		self.Controls.CivIcon:SetToolTipString(Locale.Lookup("LOC_DIPLOPANEL_UNMET_PLAYER"));
 	else
 		self.Controls.CivIcon:SetToolTipType("CivTooltip");
 		self.Controls.CivIcon:SetToolTipCallback(function() self:UpdateLeaderTooltip(self.playerID, self.detailString); end);
 	end
 end
 
+-- ===========================================================================
 function CivilizationIcon:SetTooltipString(tooltip:string)
 	self.Controls.CivIcon:SetToolTipType();
 	self.Controls.CivIcon:ClearToolTipCallback();
 	self.Controls.CivIcon:SetToolTipString(tooltip);
 end
 
+-- ===========================================================================
 function CivilizationIcon:UpdateLeaderTooltip(playerID:number, details:string)
 	local pPlayer:table = Players[playerID];
 	local playerConfig:table = PlayerConfigurations[playerID];
@@ -177,6 +162,7 @@ function CivilizationIcon:UpdateLeaderTooltip(playerID:number, details:string)
 	end
 end
 
+-- ===========================================================================
 function CivilizationIcon:Reset()
 	if self.Controls.LocalPlayer then
 		self.Controls.LocalPlayer:SetHide(true);
