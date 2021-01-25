@@ -157,7 +157,7 @@
 
 				<!-- Settlement Water Guide -->
 				<Container ID="SettlementWaterContainer" Anchor="C,B" Offset="40,26" Size="180,36">
-					<Label Anchor="C,T" Style="CityPanelHeader" String="LOC_HUD_UNIT_PANEL_WATER_AVAILABILITY_GUIDE"/>
+					<Label ID="SettlementWaterHeader" Anchor="C,T" Style="CityPanelHeader" String="LOC_HUD_UNIT_PANEL_WATER_AVAILABILITY_GUIDE"/>
 					<Grid Anchor="C,B"  Size="auto,auto" AutoSizePadding="1,1" Texture="Controls_KeySwatch" SliceCorner="6,6" SliceSize="5,5" Color="Black">
 						<Stack Anchor="C,C" StackGrowth="Right" StackPadding="-1">
 							<!-- Fresh Water -->
@@ -313,7 +313,7 @@
 					<!-- Unit Promotion Chooser -->
 					<Grid						ID="PromotionPanel"				Anchor="R,T" 										Size="300,287"	Style="WindowFrameHUD"  Hidden="1" ConsumeMouse="1">
 						<Label				ID="PromotionPanelHeader" Anchor="C,T"	Offset="0,5"											Style="FontNormal16" String="LOC_HUD_UNIT_CHOOSE_PROMOTION_TEXT" />
-						<ScrollPanel	ID="PromotionScrollPanel" Anchor="C,T"	Offset="0,24" 		Size="Parent-10, Parent-28" Vertical="1">
+						<ScrollPanel	ID="PromotionScrollPanel" Anchor="C,T"	Offset="0,24" 		Size="Parent-10, Parent-28" Vertical="1" >
 							<Stack			ID="PromotionList" StackGrowth="Bottom" StackPadding="1" />
 							<ScrollBar														Anchor="R,T"	Offset="-12,0" AnchorSide="I,I"	Style="Slider_Blue" Length="parent" />
 						</ScrollPanel>
@@ -525,9 +525,9 @@
 
   <!-- Promotion Selection Instance -->
   <Instance				Name="PromotionSelectionInstance">
-    <Container		ID="PromotionSelection"															Size="280,80" >
-      <GridButton   ID="PromotionSlot" Style="FontFlair16" Offset="-4,0" Size="Parent,Parent" Texture="Controls_ButtonControl.dds" SliceCorner="10,10" SliceSize="1,1" SliceTextureSize="24,24" StateOffsetIncrement="0,24" SmallCaps="18" SmallCapsType="EveryWord">
-        <Box			ID="PromotionListIcon"		Anchor="L,C" Offset="8,-20" Size="32,32"	Color="128,128,128,0" >
+    <Container		ID="PromotionSelection"															Size="280,Auto" >
+      <GridButton   ID="PromotionSlot" Style="FontFlair16" Offset="-4,0" Size="Parent,Auto" AutoSizePadding="0,8" Texture="Controls_ButtonControl.dds" SliceCorner="10,10" SliceSize="1,1" SliceTextureSize="24,24" StateOffsetIncrement="0,24" SmallCaps="18" SmallCapsType="EveryWord">
+        <Box			ID="PromotionListIcon"		Anchor="L,T" Offset="8,22" Size="32,32"	Color="128,128,128,0" >
           <Image  Texture="PromotionsSmall" Size="32,32" TextureOffset="32,0"/>
           <Label	ID="PromotionTier"				Anchor="C,C"	Offset="0,-1"												Style="FontFlair18" FontStyle="Glow" EffectColor="0,0,0,255"/>
         </Box>

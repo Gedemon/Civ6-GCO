@@ -48,10 +48,10 @@ INSERT INTO Unlockers (UnlockerType) SELECT 'UNLOCKER_' || UnitType FROM Units;
 
 INSERT INTO Types ("Type", Kind) SELECT UnlockerType, 'KIND_BUILDING' FROM Unlockers;
 
-INSERT INTO Buildings (BuildingType, Name, Cost, PrereqDistrict, NoPedia, NoCityScreen, Unlockers) SELECT UnlockerType, UnlockerType, 1, 'DISTRICT_CITY_CENTER', 1, 1, 1 FROM Unlockers;
+INSERT INTO Buildings (BuildingType, Name, Cost, PrereqDistrict, NoPedia, NoCityScreen, Unlockers, InternalOnly) SELECT UnlockerType, UnlockerType, 1, 'DISTRICT_CITY_CENTER', 1, 1, 1, 1 FROM Unlockers;
 
 INSERT INTO BuildingPrereqs (Building, PrereqBuilding) SELECT BuildingType, 'UNLOCKER_' || BuildingType FROM OriginalBuildingList;
-INSERT INTO BuildingPrereqs (Building, PrereqBuilding) SELECT UnlockerType, UnlockerType FROM Unlockers;
+--INSERT INTO BuildingPrereqs (Building, PrereqBuilding) SELECT UnlockerType, UnlockerType FROM Unlockers;
 
 INSERT INTO Unit_BuildingPrereqs (Unit, PrereqBuilding) SELECT UnitType, 'UNLOCKER_' || UnitType FROM Units;
 

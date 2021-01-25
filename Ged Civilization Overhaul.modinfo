@@ -98,7 +98,6 @@
 			<File>UI/TechTree.xml</File>
 			<File>UI/ToolTipHelper.lua</File>
 			<File>UI/ToolTipHelper_PlayerYields.lua</File>
-			<File>UI/ToolTips.xml</File>
 			<File>UI/TopPanel.lua</File>
 			<File>UI/TopPanel.xml</File>
 			<File>UI/UnitFlagManager.lua</File>
@@ -370,7 +369,6 @@
 		<File>UI/TechTree.xml</File>
 		<File>UI/ToolTipHelper.lua</File>
 		<File>UI/ToolTipHelper_PlayerYields.lua</File>
-		<File>UI/ToolTips.xml</File>
 		<File>UI/TopPanel.lua</File>
 		<File>UI/TopPanel.xml</File>
 		<File>UI/UnitFlagManager.lua</File>

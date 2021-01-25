@@ -19,17 +19,18 @@
 			-->
 			<Container																					Anchor="C,C"	Offset="0,-20"	Size="230,34">
 			<!-- GCO >>>>> -->
-				<Button							ID="CityBannerButton"					Anchor="C,T"									Size="Parent-20,34"		NoStateChange="true">
-						<Grid						ID="CityBannerBackground"			Anchor="C,T"  Offset="1,0"		Size="Parent,34"			Color="255,255,255,150" SliceTextureSize="50,34" SliceCorner="25,17" Texture="Banner_BannerBacking">
-							<Image				ID="CityProductionProgress"		Anchor="R,C"	Offset="2,0"		Size="14,32"	TextureOffset="14,0" Speed="1" Texture="Banner_ProductionMeter" >
-								<TextureBar ID="CityProductionNextTurn"		Anchor="L,C"									Size="14,32"  Direction="Up" Speed="1"	Texture="Banner_ProductionMeter"/>
-								<TextureBar ID="CityProductionMeter"			Anchor="L,C"									Size="14,32"  Direction="Up" Speed="1"	Texture="Banner_ProductionMeter"/>
-							</Image>
-							<Image																			Anchor="L,C"	Offset="2,0"		Size="14,32" Speed="1" TextureOffset="14,0" Texture="Banner_PopulationMeter" >
-								<TextureBar ID="CityPopulationNextTurn"		Anchor="R,C"									Size="14,32" Direction="Up" Speed="1"	Texture="Banner_PopulationMeter" CounterClockwise="1"/>
-								<TextureBar ID="CityPopulationMeter"			Anchor="R,C"									Size="14,32" Direction="Up" Speed="1"	Texture="Banner_PopulationMeter" CounterClockwise="1"/>
-							</Image>
-						</Grid>
+			<Container																				  Anchor="C,C"	Offset="0,-20"	Size="200,34">
+				<Button						ID="CityBannerButton"					  Anchor="C,T"									Size="Parent-20,34"		NoStateChange="true">
+					<Grid						ID="CityBannerBackground"			  Anchor="C,T"  Offset="1,0"		Size="Parent,34"			Color="255,255,255,150" SliceTextureSize="50,34" SliceCorner="25,17" Texture="Banner_BannerBacking">
+						<Image				ID="CityProductionProgress"		  Anchor="R,C"	Offset="2,0"		Size="14,32"	TextureOffset="14,0" Speed="1" Texture="Banner_ProductionMeter" >
+							<TextureBar ID="CityProductionNextTurn"		  Anchor="L,C"									Size="14,32"  Direction="Up" Speed="1"	Texture="Banner_ProductionMeter"/>
+							<TextureBar ID="CityProductionMeter"			  Anchor="L,C"									Size="14,32"  Direction="Up" Speed="1"	Texture="Banner_ProductionMeter"/>
+						</Image>
+						<Image																			  Anchor="L,C"	Offset="2,0"		Size="14,32" Speed="1" TextureOffset="14,0" Texture="Banner_PopulationMeter" >
+							<TextureBar ID="CityPopulationNextTurn"		  Anchor="R,C"									Size="14,32" Direction="Up" Speed="1"	Texture="Banner_PopulationMeter" CounterClockwise="1"/>
+							<TextureBar ID="CityPopulationMeter"			  Anchor="R,C"									Size="14,32" Direction="Up" Speed="1"	Texture="Banner_PopulationMeter" CounterClockwise="1"/>
+						</Image>
+					</Grid>
 					<Grid						ID="CityBannerFill"						  Anchor="C,T"									Size="Parent,Parent"	Texture="Banner_Base_Combo"			SliceTextureSize="196,34" SliceCorner="98,17"/>
 					<AlphaAnim																			Anchor="L,T"									Size="Parent,Parent" ShowOnMouseOver="1" AlphaStart="0" AlphaEnd="1" Speed="2" Function="Root" Cycle="Once">
 						<Grid						ID="CityBannerFillOver"				Anchor="C,T"									Size="Parent,Parent"     Texture="Banner_Secondary_Combo"    SliceTextureSize="196,34" SliceCorner="98,17"/>
@@ -57,14 +58,14 @@
 		<!-- -->
 		</Stack>
 		<!--GCO >>>>>-->
-							<Label				ID="TradingPostIcon"						Anchor="R,C"	Offset="0,2"	String="[ICON_TradingPost]" Hidden="1">
-								<Label			ID="TradingPostDisabledIcon"		Anchor="C,C"	String="[ICON_Exclamation]" Hidden="1"/>
-							</Label>
+              <Container Size="auto,auto" Anchor="L,C" Offset="0,2">
+                <Label			ID="TradingPostIcon"						Anchor="C,C"	String="[ICON_TradingPost]" Hidden="1"/>
+                <Label			ID="TradingPostDisabledIcon"		Anchor="C,C"	String="[ICON_Exclamation]" Hidden="1"/>
+              </Container>
               <Label				ID="CityUnderSiegeIcon"					Anchor="L,C"	Style="FontNormal20" String="[ICON_UnderSiege]" ConsumeMouse="1" ToolTip="LOC_HUD_REPORTS_STATUS_UNDER_SEIGE"/>
               <Label				ID="CityOccupiedIcon"	          Anchor="L,C"	Style="FontNormal20" String="[ICON_Occupied]" ConsumeMouse="1" ToolTip="LOC_HUD_CITY_GROWTH_OCCUPIED"/>
               <Label				ID="CityHousingInsufficientIcon"	  Anchor="L,C"	Style="FontNormal20" String="[ICON_HousingInsufficient]"/>
               <Label				ID="CityAmenitiesInsufficientIcon"	Anchor="L,C"	Style="FontNormal20" String="[ICON_AmenitiesInsufficient]"/>
-
 							<Label				ID="CityQuestIcon"							Anchor="L,C"	Style="FontNormal20" />
 							<Label				ID="CityName"										Anchor="L,C"	Style="HeaderSmallCaps" String="BALTIMORE" />
 		<!--GCO <<<<< -->
@@ -83,7 +84,7 @@
 					</Container>
 
 					<Container				ID="ProductionOrSpace"					Anchor="L,C" Offset="0,1" Size="40,34" >
-						<AlphaAnim			ID="ProductionIndicator"				Anchor="C,T" AlphaStart="0" AlphaEnd="1" Speed="1" Cycle="Once" Size="parent,parent" Hidden="1" >
+						<AlphaAnim							                        Anchor="C,T" AlphaStart="0" AlphaEnd="1" Speed="1" Cycle="Once" Size="parent,parent">
 							<SlideAnim																		Anchor="C,T" Function="Root" Start="-8,0" End="0,0" Speed="2.5" Cycle="Once" Size="parent,parent" >
 								<Image																			Anchor="R,C" Texture="Banner_ProductionCircle" Size="26,26" Offset="6,-2" Color="255,255,255,200">
 									<Button		ID="CityProduction"							Anchor="C,C" Texture="Production30" Size="30,30" Color="255,255,255,0">
@@ -163,7 +164,7 @@
 		-->
         
 			</Container>
-    </WorldAnchor>
+    </ZoomAnchor>
   </Instance>
 
 	
@@ -177,17 +178,17 @@
 			<!-- GCO >>>>> -->
 
 				<Button							ID="CityBannerButton" Size="Parent-20,34" Anchor="C,T" NoStateChange="true">
-						<Grid						ID="CityBannerBackground" Size="Parent,34" Offset="1,0" Anchor="C,T"  Color="255,255,255,150" SliceTextureSize="50,34" SliceCorner="25,17" Texture="Banner_BannerBacking" Hidden="1">
+					<Grid							ID="CityBannerBackground" Size="Parent,34" Offset="1,0" Anchor="C,T"  Color="255,255,255,150" SliceTextureSize="50,34" SliceCorner="25,17" Texture="Banner_BannerBacking" Hidden="1">
 
-							<Image				ID="CityProductionProgress" TextureOffset="14,0" Offset="2,0" Speed="1" Anchor="R,C" Size="14,32" Texture="Banner_ProductionMeter" Hidden="1">
-								<TextureBar ID="CityProductionNextTurn"  Direction="Up" Speed="1"	Anchor="L,C" Size="14,32" Texture="Banner_ProductionMeter"/>
-								<TextureBar ID="CityProductionMeter"     Direction="Up" Speed="1"	Anchor="L,C" Size="14,32" Texture="Banner_ProductionMeter"/>
-							</Image>
-							<Image																			Offset="2,0" Speed="1" TextureOffset="14,0" Anchor="L,C" Size="14,32" Texture="Banner_PopulationMeter" >
-								<TextureBar ID="CityPopulationNextTurn"  Direction="Up" Speed="1"	Anchor="R,C" Size="14,32" Texture="Banner_PopulationMeter" CounterClockwise="1"/>
-								<TextureBar ID="CityPopulationMeter"     Direction="Up" Speed="1"	Anchor="R,C" Size="14,32" Texture="Banner_PopulationMeter" CounterClockwise="1"/>
-							</Image>
-						</Grid>
+						<Image					ID="CityProductionProgress" TextureOffset="14,0" Offset="2,0" Speed="1" Anchor="R,C" Size="14,32" Texture="Banner_ProductionMeter" Hidden="1">
+							<TextureBar		ID="CityProductionNextTurn"  Direction="Up" Speed="1"	Anchor="L,C" Size="14,32" Texture="Banner_ProductionMeter"/>
+							<TextureBar		ID="CityProductionMeter"     Direction="Up" Speed="1"	Anchor="L,C" Size="14,32" Texture="Banner_ProductionMeter"/>
+						</Image>
+						<Image																				Offset="2,0" Speed="1" TextureOffset="14,0" Anchor="L,C" Size="14,32" Texture="Banner_PopulationMeter" >
+							<TextureBar		ID="CityPopulationNextTurn"  Direction="Up" Speed="1"	Anchor="R,C" Size="14,32" Texture="Banner_PopulationMeter" CounterClockwise="1"/>
+							<TextureBar		ID="CityPopulationMeter"     Direction="Up" Speed="1"	Anchor="R,C" Size="14,32" Texture="Banner_PopulationMeter" CounterClockwise="1"/>
+						</Image>
+					</Grid>
 					<Grid							ID="CityBannerFill"         Texture="Banner_Base_Combo"             Size="Parent,Parent"    Anchor="R,T"  SliceTextureSize="196,34" SliceCorner="98,17"/>
 					<AlphaAnim																		Size="Parent,Parent" ShowOnMouseOver="1" AlphaStart="0" AlphaEnd="1" Speed="2" Function="Root" Cycle="Once">
 						<Grid						ID="CityBannerFillOver"     Texture="Banner_Secondary_Combo"  Size="Parent,Parent"    Anchor="C,T"  SliceTextureSize="196,34" SliceCorner="98,17"/>
@@ -216,9 +217,10 @@
 			<!-- -->
 		</Stack>
 		<!--GCO >>>>>-->
-							<Label				ID="TradingPostIcon"							Anchor="R,C" Offset="0,2"	String="[ICON_TradingPost]" Hidden="1">
-								<Label			ID="TradingPostDisabledIcon"			Anchor="C,C"	String="[ICON_Exclamation]" Hidden="1"/>
-							</Label>
+              <Container Size="auto,auto" Anchor="L,C" Offset="0,2">
+                <Label			ID="TradingPostIcon"						Anchor="C,C"	String="[ICON_TradingPost]" Hidden="1"/>
+                <Label			ID="TradingPostDisabledIcon"		Anchor="C,C"	String="[ICON_Exclamation]" Hidden="1"/>
+              </Container>
               <Label				ID="CityUnderSiegeIcon"	          Anchor="L,C"		Style="FontNormal20" String="[ICON_UnderSiege]" ConsumeMouse="1" ToolTip="LOC_HUD_REPORTS_STATUS_UNDER_SEIGE"/>
               <Label				ID="CityOccupiedIcon"	            Anchor="L,C"	Style="FontNormal20" String="[ICON_Occupied]" ConsumeMouse="1" ToolTip="LOC_HUD_CITY_GROWTH_OCCUPIED"/>
               <Label				ID="CityQuestIcon"								Anchor="L,C"		Style="FontNormal20"/>
@@ -398,7 +400,7 @@
         <Grid ID="Banner_Base"    Size="Parent,Parent" Texture="BannerMini_Base_Combo" SliceCorner="18,9" SliceSize="44,16" SliceTextureSize="80,34"/>
 
         <!-- District Font Icon -->
-        <Label Anchor="L,C" Offset="7,3" Style="FontNormal14" String="[Icon_DISTRICT_ENCAMPMENT]"/>
+        <Label ID="EncampmentFontIcon" Anchor="L,C" Offset="7,3" Style="FontNormal14" String="[Icon_DISTRICT_ENCAMPMENT]"/>
         
         <!-- Healthbars -->
         <TextureBar ID="CityHealthBar"	Anchor="R,C" Offset="8,3"		Size="66,7"	Texture="CityBannerShieldsBar1"			Direction="Right" Speed="1" Percent="1.0" />

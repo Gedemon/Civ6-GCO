@@ -89,7 +89,7 @@
           <ScrollPanel      ID="ProductionDataScroll"		AutoScrollBar="1" Vertical="1" Size="130,101"  Anchor="L,T" Offset="-155,15">
             <Stack          ID="ProductionDataStack"		Padding="5"	>
               <Container																Size="10,1"/>
-              <Label				ID="ProductionNowLabel"		  Align="Left" Style="BlueGlow"		FontSize="16" WrapWidth="124" String="LOC_HUD_CITY_PRODUCTION_NOTHING_PRODUCED" />
+              <ScrollTextField		ID="ProductionNowLabel" Align="Left" Size="124, 20"  Style="BlueGlow"	FontSize="16" String="LOC_HUD_CITY_PRODUCTION_NOTHING_PRODUCED" />
               <Label				ID="ProductionStatString"		Align="Left"	Style="FontNormal15"		WrapWidth="190"	Color="102,122,145"		String="" LeadingOffset="2"/>
               <Label				ID="ProductionDescriptionString"		Align="Left"	Style="FontNormal12"		WrapWidth="124"	Color="102,122,145"		String="" />
             </Stack>

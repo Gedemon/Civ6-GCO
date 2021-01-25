@@ -6,7 +6,7 @@ include( "Civ6Common" );				-- GetYieldString()
 include( "InstanceManager" );
 include( "ToolTipHelper" );	
 include( "SupportFunctions" );			-- Round(), Clamp()
-include( "TabSupport" );	
+include( "TabSupport" );
 include( "CitySupport" );
 include( "EspionageViewManager" );
 
@@ -66,50 +66,29 @@ local m_kTransferRoutesIM	:table	= InstanceManager:new( "TransferRoutesInstance"
 local m_kSupplyLinesIM		:table	= InstanceManager:new( "SupplyLinesInstance",		"Top", Controls.SupplyLinesStack );
 -- GCO >>>>>
 
-local m_kBuildingsIM		= InstanceManager:new( "BuildingInstance",			"Top");
-local m_kDistrictsIM		= InstanceManager:new( "DistrictInstance",			"Top", Controls.BuildingAndDistrictsStack );
-local m_kHousingIM			= InstanceManager:new( "HousingInstance",			"Top", Controls.HousingStack );
-local m_kOtherReligionsIM	= InstanceManager:new( "OtherReligionInstance",		"Top", Controls.OtherReligions );
-local m_kProductionIM		= InstanceManager:new( "ProductionInstance",		"Top", Controls.ProductionQueueStack );
-local m_kReligionsBeliefsIM	= InstanceManager:new( "ReligionBeliefsInstance",	"Top", Controls.ReligionBeliefsStack );
-local m_kTradingPostsIM		= InstanceManager:new( "TradingPostInstance",		"Top", Controls.TradingPostsStack );
-local m_kWondersIM			= InstanceManager:new( "WonderInstance",			"Top", Controls.WondersStack );
+local m_kBuildingsIM		:table = InstanceManager:new( "BuildingInstance",			"Top");
+local m_kDistrictsIM		:table = InstanceManager:new( "DistrictInstance",			"Top", Controls.BuildingAndDistrictsStack );
+local m_kHousingIM			:table = InstanceManager:new( "HousingInstance",			"Top", Controls.HousingStack );
+local m_kOtherReligionsIM	:table = InstanceManager:new( "OtherReligionInstance",		"Top", Controls.OtherReligions );
+local m_kProductionIM		:table = InstanceManager:new( "ProductionInstance",			"Top", Controls.ProductionQueueStack );
+local m_kReligionsBeliefsIM	:table = InstanceManager:new( "ReligionBeliefsInstance",	"Top", Controls.ReligionBeliefsStack );
+local m_kTradingPostsIM		:table = InstanceManager:new( "TradingPostInstance",		"Top", Controls.TradingPostsStack );
+local m_kWondersIM			:table = InstanceManager:new( "WonderInstance",				"Top", Controls.WondersStack );
+local m_kKeyStackIM			:table = InstanceManager:new( "KeyEntry",					"KeyColorImage", Controls.KeyStack );
 
-local m_isInitializing		:boolean= false;		
+local m_isInitializing	:boolean = false;		
 local m_kData			:table = nil;
-local m_pCity				:table	= nil;
-local m_pPlayer				:table	= nil;
+local m_pCity			:table = nil;
+local m_pPlayer			:table = nil;
 local m_desiredLens		:string = "Default";
-
+ 
 local ms_eventID		:number = 0;
-local m_isShowingPanel		:boolean = false;
+local m_isShowingPanel	:boolean = false;
 
 local m_kTabButtonIM		= InstanceManager:new( "TabButtonInstance",	"Button", Controls.TabContainer );
 local m_tabs				= nil;
 
 local m_kEspionageViewManager = EspionageViewManager:CreateManager();
-
--- ===========================================================================
--- HACK: Something in the event city selection event chain is overriding the active lens after we open this screen
---		 Check lens next frame to ensure we end up with the correct lens active
--- TODO: We need to do figure out why this is happening, having it reactivate the lens every frame does not play well
---       with everywhere else that uses lenses, border growth, minimap panel, religious units, etc.
-function SetDesiredLens(desiredLens)
-	m_desiredLens = desiredLens;
-	UI.SetInterfaceMode(InterfaceModeTypes.SELECTION);
-	if m_isShowingPanel then
-		UILens.SetActive(m_desiredLens);
-		ContextPtr:SetUpdate(EnsureDesiredLens);
-	else
-		UILens.SetActive(m_desiredLens);
-	end
-end
-function EnsureDesiredLens()
-	if m_isShowingPanel then
-		UILens.SetActive(m_desiredLens);
-	end
-	ContextPtr:ClearUpdate();
-end
 
 -- ===========================================================================
 function HideAll()
@@ -138,8 +117,6 @@ function HideAll()
 	Controls.PanelProductionNow:SetHide(true);
 	Controls.PanelQueue:SetHide(true);
 	Controls.PanelDynamicTab:SetHide(true);
-
-	SetDesiredLens("Default");
 end
 
 -- ===========================================================================
@@ -155,9 +132,9 @@ function OnSelectHealthTab()
 		ViewPanelHousing( m_kData );
 
 		if m_kData.Owner == Game.GetLocalPlayer() then
-			SetDesiredLens("CityDetails");
+			UILens.SetActive("CityDetails");
 		else
-			SetDesiredLens("EnemyCityDetails");
+			UILens.SetActive("EnemyCityDetails");
 			LuaEvents.ShowEnemyCityDetails( m_kData.Owner, m_kData.City:GetID() );
 		end
 	end
@@ -177,11 +154,11 @@ function OnSelectBuildingsTab()
 	
 	if(m_kData ~= nil) then
 		ViewPanelBreakdown( m_kData );
-	
+
 		if m_kData.Owner == Game.GetLocalPlayer() then
-			SetDesiredLens("CityDetails");
+			UILens.SetActive("CityDetails");
 		else
-			SetDesiredLens("EnemyCityDetails");
+			UILens.SetActive("EnemyCityDetails");
 			LuaEvents.ShowEnemyCityDetails( m_kData.Owner, m_kData.City:GetID() );
 		end
 	end
@@ -227,30 +204,7 @@ function OnSelectResourcesTab()
 
 	--CalculateSizeAndAccomodate(Controls.PanelScrollPanel, Controls.PanelStack);
 end
--- GCO >>>>>
 
---function OnSelectQueueTab()
---	HideAll();
---	Controls.QueueButton:SetSelected(true);
---	Controls.QueueIcon:SetColorByName("DarkBlue");
---  UI.PlaySound("UI_CityPanel_ButtonClick");
-
---	if(m_kData ~= nil) then
---		ViewPanelQueue( m_kData );
---	end
---	Controls.PanelQueue:SetHide(false);
---	CalculateSizeAndAccomodate(Controls.PanelScrollPanel, Controls.PanelStack);
---end
-
---function OnSelectStrengthTab()
---	HideAll();
---	UI.PlaySound("UI_CityPanel_ButtonClick");
---	Controls.StrengthButton:SetSelected(true);
---	Controls.StrengthIcon:SetColorByName("DarkBlue");
---	CalculateSizeAndAccomodate(Controls.PanelScrollPanel, Controls.PanelStack);
---end
-
--- GCO <<<<<
 -- ===========================================================================
 function ViewPanelResources( data:table )	
 
@@ -575,7 +529,7 @@ function ViewPanelBreakdown( data:table )
 
 	for _, wonder in ipairs(data.Wonders) do
 		local kInstanceWonder:table = m_kWondersIM:GetInstance();
-		kInstanceWonder.WonderName:SetText( wonder.Name );			
+		kInstanceWonder.WonderName:SetText( wonder.Name );
 		local pRow = GameInfo.Buildings[wonder.Type];
 		local sToolTip = ToolTipHelper.GetBuildingToolTip( pRow.Hash, playerID, m_pCity );
 		kInstanceWonder.Top:SetToolTipString( sToolTip );
@@ -593,7 +547,7 @@ function ViewPanelBreakdown( data:table )
 	Controls.NoTradingPostsArea:SetHide(hideTradingPostsInfo or isHasTradingPosts);
 	Controls.TradingPostsArea:SetHide(hideTradingPostsInfo or not isHasTradingPosts);
 	Controls.TradingPostsHeader:SetHide(hideTradingPostsInfo);
-	
+
 	if isHasTradingPosts then
 		for _, tradePostPlayerId in ipairs(data.TradingPosts) do
 			local pTradePostPlayer:table = Players[tradePostPlayerId]
@@ -603,7 +557,7 @@ function ViewPanelBreakdown( data:table )
 
 			local iconName:string = "";
 			local iconSize:number = SIZE_LEADER_ICON;
-			local iconColor = 0xFFFFFFFF;
+			local iconColor = UI.GetColorValue("COLOR_WHITE");
 			if pTradePostPlayer:IsMinor() then
 				-- If we're a city-state display our city-state icon instead of leader since we don't have one
 				local civType:string = pTradePostPlayerConfig:GetCivilizationTypeName();
@@ -614,11 +568,11 @@ function ViewPanelBreakdown( data:table )
 			else
 				iconName = "ICON_"..pTradePostPlayerConfig:GetLeaderTypeName();
 			end
-		
+			
 			local textureOffsetX :number, textureOffsetY:number, textureSheet:string = IconManager:FindIconAtlas(iconName, iconSize);
 			kInstanceTradingPost.LeaderPortrait:SetTexture(textureOffsetX, textureOffsetY, textureSheet);
 			kInstanceTradingPost.LeaderPortrait:SetColor(iconColor);
-			kInstanceTradingPost.LeaderPortrait:SetHide(false);					
+			kInstanceTradingPost.LeaderPortrait:SetHide(false);
 							
 			if tradePostPlayerId == m_pPlayer:GetID() then
 				playerName = playerName .. " (" .. Locale.Lookup("LOC_HUD_CITY_YOU") .. ")";
@@ -629,7 +583,7 @@ function ViewPanelBreakdown( data:table )
 end
 
 -- ===========================================================================
-function ViewPanelReligion( data:table )	
+function ViewPanelReligion( data:table )
 
 	-- Precursor to religion:
 	Controls.PantheonArea:SetHide( data.PantheonBelief == -1 );
@@ -672,29 +626,54 @@ function ViewPanelReligion( data:table )
 		else
 			Controls.DominantReligionGrid:SetHide(true);
 		end
-			
+
 		-- Other religions
 		for _,religion in ipairs(data.Religions) do		
 			-- Don't show pantheons or dominate religions here. Dominate religion is handled above.
 			if religion.ReligionType ~= "RELIGION_PANTHEON" and (dominateReligion == nil or religion.ReligionType ~= dominateReligion.ReligionType) then
-			local religionName	:string = Game.GetReligion():GetName(religion.ID);
-			local iconName		:string = "ICON_" .. religion.ReligionType;
+				local religionName	:string = Game.GetReligion():GetName(religion.ID);
+				local iconName		:string = "ICON_" .. religion.ReligionType;
 				local textureOffsetX:number, textureOffsetY:number, textureSheet:string = IconManager:FindIconAtlas(iconName, 22);
 
-			if textureSheet ~= nil then
+				if textureSheet ~= nil then
 					local religionInstance:table = m_kOtherReligionsIM:GetInstance();	
 					religionInstance.ReligionSymbol:SetTexture( textureSheet );
 					religionInstance.ReligionSymbol:SetTextureOffsetVal( textureOffsetX, textureOffsetY );
 					religionInstance.ReligionName:SetText( Locale.Lookup("LOC_HUD_CITY_RELIGIOUS_CITIZENS_NUMBER",religion.Followers,religionName) );
-			else
-				error("Unable to find texture "..iconName.." in a texture sheet for a CityPanel's religion symbol.");
-			end
+				else
+					error("Unable to find texture "..iconName.." in a texture sheet for a CityPanel's religion symbol.");
+				end
 			end
 		end
-		end
+	end
 
+	--Add religions to the religion key
+	m_kKeyStackIM:ResetInstances();
+	local visibleTypesCount:number = 0;
+
+	local numFoundedReligions	:number = 0;
+	local pAllReligions			:table = Game.GetReligion():GetReligions();
+
+	for _, religionInfo in ipairs(pAllReligions) do
+		local religionType:number = religionInfo.Religion;
+		religionData = GameInfo.Religions[religionType];
+		if(religionData.Pantheon == false and Game.GetReligion():HasBeenFounded(religionType)) then
+			-- Add key entry
+			AddKeyEntry(Game.GetReligion():GetName(religionType), UI.GetColorValue(religionData.Color));
+			visibleTypesCount = visibleTypesCount + 1;
+			
+		end
+	end
+
+	if visibleTypesCount > 0 then
+		Controls.KeyPanel:SetHide(false);
+		Controls.KeyScrollPanel:CalculateSize();
+	else
+		Controls.KeyPanel:SetHide(true);
+	end
+	
 	if Controls.PanelReligion:IsVisible() then
-		SetDesiredLens("Religion");
+		UILens.SetActive("Religion");
 	end
 end
 
@@ -726,7 +705,7 @@ function GetPercentGrowthColor( percent:number )
 end
 
 -- ===========================================================================
-function ViewPanelAmenities( data:table )	
+function ViewPanelAmenities( data:table )
 	Controls.AmenitiesAdvisorBubble:SetHide( m_kEspionageViewManager:IsEspionageView() );
 	
 	local colorName:string = GetHappinessColor(data.Happiness);
@@ -765,8 +744,8 @@ function ViewPanelAmenities( data:table )
 	
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_AMENITIES_CIVICS") then
 		kInstance = g_kAmenitiesIM:GetInstance();
-	kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_CIVICS") );
-	kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromCivics) );
+		kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_CIVICS") );
+		kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromCivics) );
 	end
 	
 	kInstance = g_kAmenitiesIM:GetInstance();
@@ -775,27 +754,27 @@ function ViewPanelAmenities( data:table )
 		
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_AMENITIES_GREAT_PEOPLE") then
 		kInstance = g_kAmenitiesIM:GetInstance();
-	kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_GREAT_PEOPLE") );
-	kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromGreatPeople) );
+		kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_GREAT_PEOPLE") );
+		kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromGreatPeople) );
 	end
 
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_AMENITIES_CITY_STATES") then
 		kInstance = g_kAmenitiesIM:GetInstance();
-	kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_CITY_STATES") );
-	kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromCityStates) );
+		kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_CITY_STATES") );
+		kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromCityStates) );
 	end
 
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_AMENITIES_RELIGION") then
 		kInstance = g_kAmenitiesIM:GetInstance();
-	kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_RELIGION") );
-	kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromReligion) );
+		kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_RELIGION") );
+		kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromReligion) );
 	end
 
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_AMENITIES_NATIONAL_PARKS") then
 		if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_AMENITIES_NATIONAL_PARKS") then
 			kInstance = g_kAmenitiesIM:GetInstance();
-	kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_NATIONAL_PARKS") );
-	kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromNationalParks) );
+			kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_FROM_NATIONAL_PARKS") );
+			kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesFromNationalParks) );
 		end
 	end
 
@@ -813,22 +792,22 @@ function ViewPanelAmenities( data:table )
 
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_AMENITIES_WAR_WEARINESS") then
 		kInstance = g_kAmenitiesIM:GetInstance();
-	kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_LOST_FROM_WAR_WEARINESS") );
-	if data.AmenitiesLostFromWarWeariness == 0 then
-		kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesLostFromWarWeariness) );
-	else
-		kInstance.AmenityYield:SetText( Locale.ToNumber(-data.AmenitiesLostFromWarWeariness) );
-	end
+		kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_LOST_FROM_WAR_WEARINESS") );
+		if data.AmenitiesLostFromWarWeariness == 0 then
+			kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesLostFromWarWeariness) );
+		else
+			kInstance.AmenityYield:SetText( Locale.ToNumber(-data.AmenitiesLostFromWarWeariness) );
+		end
 	end
 
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_AMENITIES_BANKRUPTCY") then
 		kInstance = g_kAmenitiesIM:GetInstance();
-	kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_LOST_FROM_BANKRUPTCY") );
-	if data.AmenitiesLostFromBankruptcy == 0 then
-		kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesLostFromBankruptcy) );
-	else
-		kInstance.AmenityYield:SetText( Locale.ToNumber(-data.AmenitiesLostFromBankruptcy) );
-	end
+		kInstance.Amenity:SetText( Locale.Lookup("LOC_HUD_CITY_AMENITIES_LOST_FROM_BANKRUPTCY") );
+		if data.AmenitiesLostFromBankruptcy == 0 then
+			kInstance.AmenityYield:SetText( Locale.ToNumber(data.AmenitiesLostFromBankruptcy) );
+		else
+			kInstance.AmenityYield:SetText( Locale.ToNumber(-data.AmenitiesLostFromBankruptcy) );
+		end
 	end
 
 	data.AmenitiesFromDistricts = data.AmenitiesFromDistricts or 0;
@@ -858,7 +837,7 @@ function ViewPanelAmenities( data:table )
 end
 
 -- ===========================================================================
-function ViewPanelHousing( data:table )	
+function ViewPanelHousing( data:table )
 	Controls.HousingAdvisorBubble:SetHide( m_kEspionageViewManager:IsEspionageView() );
 
 	local colorName:string = GetPercentGrowthColor( data.HousingMultiplier ) ;
@@ -908,9 +887,9 @@ function ViewPanelHousing( data:table )
 	kInstance.HousingYield:SetText( Locale.ToNumber(data.HousingFromCivics) );
 
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_HOUSING_DISTRICTS") then
-	kInstance = m_kHousingIM:GetInstance();
-	kInstance.HousingName:SetText( Locale.Lookup("LOC_HUD_CITY_HOUSING_FROM_DISTRICTS") );
-	kInstance.HousingYield:SetText( Locale.ToNumber(data.HousingFromDistricts) );
+		kInstance = m_kHousingIM:GetInstance();
+		kInstance.HousingName:SetText( Locale.Lookup("LOC_HUD_CITY_HOUSING_FROM_DISTRICTS") );
+		kInstance.HousingYield:SetText( Locale.ToNumber(data.HousingFromDistricts) );
 	end
 
 	kInstance = m_kHousingIM:GetInstance();
@@ -922,9 +901,9 @@ function ViewPanelHousing( data:table )
 	kInstance.HousingYield:SetText( Locale.ToNumber(data.HousingFromWater) );
 
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_HOUSING_GREAT_PEOPLE") then
-	kInstance = m_kHousingIM:GetInstance();
-	kInstance.HousingName:SetText( Locale.Lookup("LOC_HUD_CITY_HOUSING_FROM_GREAT_PEOPLE") );
-	kInstance.HousingYield:SetText( Locale.ToNumber(data.HousingFromGreatPeople) );
+		kInstance = m_kHousingIM:GetInstance();
+		kInstance.HousingName:SetText( Locale.Lookup("LOC_HUD_CITY_HOUSING_FROM_GREAT_PEOPLE") );
+		kInstance.HousingYield:SetText( Locale.ToNumber(data.HousingFromGreatPeople) );
 	end
 
 	--Housing from Advanced Starts it is zero in the Ancient Era so we do not want to display it
@@ -961,7 +940,7 @@ function UpdateCitizenGrowthStatusIcon( turnsUntilGrowth:number, bOccupied:boole
 end
 
 -- ===========================================================================
-function ViewPanelCitizensGrowth( data:table )	
+function ViewPanelCitizensGrowth( data:table )
 
 	Controls.FoodPerTurnNum:SetText( toPlusMinusString(data.FoodPerTurn) );
 	Controls.FoodConsumption:SetText( toPlusMinusString(-(data.FoodPerTurn - data.FoodSurplus)) );
@@ -997,7 +976,7 @@ function ViewPanelCitizensGrowth( data:table )
 		iModifiedFood = Round(data.FoodSurplus * growthModifier, 2);
 		total = iModifiedFood * data.HousingMultiplier;		
 		if data.Occupied then
-			total = iModifiedFood * data.OccupationMultiplier;		
+			total = iModifiedFood * data.OccupationMultiplier;
 			Controls.TurnsUntilBornLost:SetText( Locale.Lookup("LOC_HUD_CITY_GROWTH_OCCUPIED"));
 		else
 			Controls.TurnsUntilBornLost:SetText( Locale.Lookup("LOC_HUD_CITY_TURNS_UNTIL_CITIZEN_BORN", data.TurnsUntilGrowth));
@@ -1114,7 +1093,7 @@ end
 -- ===========================================================================
 function GetSelectedTabButton()
 	return m_tabs.selectedControl;
-	end
+end
 
 -- ===========================================================================
 --	Call after all tabs are setup.
@@ -1140,9 +1119,10 @@ function Close()
 	if(offsetx ~= 0) then
 		Controls.OverviewSlide:SetToEnd();
 	end
-		Controls.OverviewSlide:Reverse();
-		UI.PlaySound("UI_CityPanel_Closed");
-	SetDesiredLens("Default");
+	Controls.OverviewSlide:Reverse();
+	UI.PlaySound("UI_CityPanel_Closed");
+	UILens.SetActive("Default");
+	UI.SetInterfaceMode(InterfaceModeTypes.SELECTION);
 end
 
 -- ===========================================================================
@@ -1159,7 +1139,7 @@ end
 
 -- ===========================================================================
 function View(data)
-		Controls.OverviewSubheader:SetText(Locale.ToUpper(Locale.Lookup(data.CityName)));
+	Controls.OverviewSubheader:SetText(Locale.ToUpper(Locale.Lookup(data.CityName)));
 
 	local canChangeName = GameCapabilities.HasCapability("CAPABILITY_RENAME");
 	if(canChangeName and not m_kEspionageViewManager:IsEspionageView()) then
@@ -1193,7 +1173,7 @@ function Refresh()
 	end
 
 	m_pPlayer = Players[Game.GetLocalPlayer()];
-		m_pCity	 = UI.GetHeadSelectedCity();
+	m_pCity	  = UI.GetHeadSelectedCity();
 
 	-- If we don't have a city selected see if we want to see details on an enemy city
 	if m_pCity == nil then
@@ -1205,13 +1185,13 @@ function Refresh()
 		m_kEspionageViewManager:ClearEspionageViewCity();
 	end
 
-			if m_kData == nil then
-				return;
-			end
+	if m_kData == nil then
+		return;
+	end
 		
 	if m_pPlayer ~= nil and m_pCity ~= nil then
 		-- Trigger selection callback
-			View( m_kData );
+		View( m_kData );
 		if m_tabs.selectedControl then
 			m_tabs.SelectTab(m_tabs.selectedControl);
 		end
@@ -1228,21 +1208,14 @@ end
 --	Input
 --	UI Event Handler
 -- ===========================================================================
-function KeyHandler( key:number )
-	if key == Keys.VK_ESCAPE then
+function OnInputHandler( pInputStruct:table )
+	local uiMsg = pInputStruct:GetMessageType();
+	if (uiMsg == MouseEvents.RButtonUp) or (uiMsg == KeyEvents.KeyUp and pInputStruct:GetKey() == Keys.VK_ESCAPE) then
 		if ( m_isShowingPanel ) then
 			OnCloseButtonClicked();
 			return true;
-		else
-			return false;
 		end
 	end
-	return false;  
-end
-
-function OnInputHandler( pInputStruct:table )
-	local uiMsg = pInputStruct:GetMessageType();
-	if (uiMsg == KeyEvents.KeyUp) then return KeyHandler( pInputStruct:GetKey() ); end;
 	return false;
 end 
 
@@ -1257,7 +1230,7 @@ end
 function OnLiveCityDataChanged( data:table, isSelected:boolean) 
 	if (not isSelected) then
 		if m_kEspionageViewManager:GetEspionageViewCity() == nil then
-		Close();
+			Close();
 		end
 	else
 		m_kData = data;
@@ -1308,6 +1281,7 @@ function OnShowOverviewPanel( isShowing: boolean )
 		Controls.OverviewSlide:SetToBeginning();
 		Controls.OverviewSlide:Play();
 		UI.PlaySound("UI_CityPanel_Open");
+		UI.SetInterfaceMode(InterfaceModeTypes.CITY_SELECTION);
 	else
 		local offsetx = Controls.OverviewSlide:GetOffsetX();
 		if(offsetx == 0) then
@@ -1316,6 +1290,7 @@ function OnShowOverviewPanel( isShowing: boolean )
 	end
 	-- Ensure button state in CityPanel is correct
 	LuaEvents.CityPanel_SetOverViewState(m_isShowingPanel);
+	LuaEvents.CityPanelOverview_Opened();
 end
 
 function ToggleOverviewTab(tabButton:table)
@@ -1344,6 +1319,26 @@ function OnToggleReligionTab()
 end
 
 -- ===========================================================================
+function AddKeyEntry(textString:string, colorValue:number)
+	local keyEntryInstance:table = m_kKeyStackIM:GetInstance();
+
+	-- Update key text
+	keyEntryInstance.KeyLabel:SetText(Locale.Lookup(textString));
+
+	-- Update key color
+	keyEntryInstance.KeyColorImage:SetColor(colorValue);
+end
+
+-- ===========================================================================
+function OnLensChanged( newLensName:string, oldLensName:string )
+	-- When a new city is selected we're always sent back to Default lens which overrides Overview lenses
+	-- This switches back to the proper Overview lens we were forced to switch away from
+	if m_isShowingPanel and newLensName == "Default" then
+		UILens.SetActive(oldLensName);
+	end
+end
+
+-- ===========================================================================
 --	UI Callback
 -- ===========================================================================
 function OnInit( isReload:boolean )
@@ -1362,8 +1357,7 @@ function LateInitialize()
 	LuaEvents.Tutorial_ResearchOpen.Add(OnClose);
 	LuaEvents.ActionPanel_OpenChooseResearch.Add(OnClose);
 	LuaEvents.ActionPanel_OpenChooseCivic.Add(OnClose);
-	Events.SystemUpdateUI.Add( OnUpdateUI );
-	LuaEvents.CityPanel_ShowOverviewPanel.Add( OnShowOverviewPanel );
+	LuaEvents.CityPanel_ShowOverviewPanel.Add( OnShowOverviewPanel );	
 	LuaEvents.CityPanel_ToggleOverviewCitizens.Add( OnToggleCitizensTab );
 	LuaEvents.CityPanel_ToggleOverviewBuildings.Add( OnToggleBuildingsTab );
 	LuaEvents.CityPanel_ToggleOverviewReligion.Add( OnToggleReligionTab );
@@ -1378,6 +1372,7 @@ function LateInitialize()
 	Events.ResearchCompleted.Add( OnResearchCompleted );
 	Events.GovernmentPolicyChanged.Add( OnPolicyChanged );
 	Events.GovernmentPolicyObsoleted.Add( OnPolicyChanged );
+	Events.LensChanged.Add( OnLensChanged );
 
 	-- Populate tabs	
 	AddTab( Controls.HealthButton,		OnSelectHealthTab );
@@ -1403,6 +1398,26 @@ end
 -- ===========================================================================
 function OnShutdown()
 	LuaEvents.GameDebug_AddValue(RELOAD_CACHE_ID, "m_isShowingPanel", m_isShowingPanel);
+
+	LuaEvents.Tutorial_ResearchOpen.Remove(OnClose);
+	LuaEvents.ActionPanel_OpenChooseResearch.Remove(OnClose);
+	LuaEvents.ActionPanel_OpenChooseCivic.Remove(OnClose);
+	LuaEvents.CityPanel_ShowOverviewPanel.Remove( OnShowOverviewPanel );	
+	LuaEvents.CityPanel_ToggleOverviewCitizens.Remove( OnToggleCitizensTab );
+	LuaEvents.CityPanel_ToggleOverviewBuildings.Remove( OnToggleBuildingsTab );
+	LuaEvents.CityPanel_ToggleOverviewReligion.Remove( OnToggleReligionTab );
+	LuaEvents.CityPanel_LiveCityDataChanged.Remove( OnLiveCityDataChanged );
+	LuaEvents.CityBannerManager_ShowEnemyCityOverview.Remove( OnShowEnemyCityOverview );
+	LuaEvents.CityBannerManager_CityPanelOverview.Remove( OnToggleCitizensTab );
+	LuaEvents.DiploScene_SceneOpened.Remove(OnClose); --We don't want this UI open when we return from Diplomacy
+
+	Events.SystemUpdateUI.Remove( OnUpdateUI );
+	Events.CityNameChanged.Remove(OnCityNameChanged);
+	Events.LocalPlayerTurnEnd.Remove( OnLocalPlayerTurnEnd );
+	Events.ResearchCompleted.Remove( OnResearchCompleted );
+	Events.GovernmentPolicyChanged.Remove( OnPolicyChanged );
+	Events.GovernmentPolicyObsoleted.Remove( OnPolicyChanged );
+	Events.LensChanged.Remove( OnLensChanged );
 end
 
 -- ===========================================================================

@@ -9,7 +9,7 @@ include( "CitySupport" );
 include( "Civ6Common" );				-- GetYieldString()
 include( "Colors" );
 include( "InstanceManager" );
-include( "SupportFunctions" );			-- Round(), Clamp(), DarkenLightenColor()
+include( "SupportFunctions" );			-- Round(), Clamp()
 include( "PortraitSupport" );
 include( "ToolTipHelper" );	
 include( "GameCapabilities" );
@@ -46,15 +46,15 @@ g_growthHexTextWidth				= -1;
 -- ===========================================================================
 local ANIM_OFFSET_OPEN						:number = -73;
 local ANIM_OFFSET_OPEN_WITH_PRODUCTION_LIST	:number = -250;
-local SIZE_SMALL_RELIGION_ICON		:number = 22;
-local SIZE_LEADER_ICON				:number = 32;
-local SIZE_PRODUCTION_ICON			:number = 32;	-- TODO: Switch this to 38 when the icons go in.
-local SIZE_MAIN_ROW_LEFT_WIDE		:number = 270;
-local SIZE_MAIN_ROW_LEFT_COLLAPSED	:number = 157;
-local TXT_NO_PRODUCTION				:string = Locale.Lookup("LOC_HUD_CITY_PRODUCTION_NOTHING_PRODUCED");
-local MAX_BEFORE_TRUNC_TURN_LABELS	:number = 160;
+local SIZE_SMALL_RELIGION_ICON				:number = 22;
+local SIZE_LEADER_ICON						:number = 32;
+local SIZE_PRODUCTION_ICON					:number = 32;	-- TODO: Switch this to 38 when the icons go in.
+local SIZE_MAIN_ROW_LEFT_WIDE				:number = 270;
+local SIZE_MAIN_ROW_LEFT_COLLAPSED			:number = 157;
+local TXT_NO_PRODUCTION						:string = Locale.Lookup("LOC_HUD_CITY_PRODUCTION_NOTHING_PRODUCED");
+local MAX_BEFORE_TRUNC_TURN_LABELS			:number = 160;
 local MAX_BEFORE_TRUNC_STATIC_LABELS		:number	= 112;
-local HEX_GROWTH_TEXT_PADDING		:number = 10;
+local HEX_GROWTH_TEXT_PADDING				:number = 10;
 
 local UV_CITIZEN_GROWTH_STATUS		:table	= {};
 		UV_CITIZEN_GROWTH_STATUS[0] = {u=0, v=0  };		-- revolt
@@ -86,6 +86,8 @@ local PANEL_BUTTON_LOCATIONS:table = {};
 		PANEL_BUTTON_LOCATIONS[3] = {x=79, y=90};
 local HOUSING_LABEL_OFFSET:number = 66;
 
+-- Mirrored in ProductionPanel
+local LISTMODE:table = {PRODUCTION = 1, PURCHASE_GOLD = 2, PURCHASE_FAITH = 3, PROD_QUEUE = 4};
 
 m_PurchasePlot						 = UILens.CreateLensLayerHash("Purchase_Plot");
 local m_CitizenManagement	: number = UILens.CreateLensLayerHash("Citizen_Management");
@@ -98,10 +100,11 @@ local m_kData						:table	= nil;
 local m_isInitializing				:boolean= false;		
 local m_isShowingPanels				:boolean= false;
 local m_pPlayer						:table	= nil;
-local m_primaryColor				:number = 0xcafef00d;	
-local m_secondaryColor				:number = 0xf00d1ace;
+local m_primaryColor				:number = UI.GetColorValueFromHexLiteral(0xcafef00d);	
+local m_secondaryColor				:number = UI.GetColorValueFromHexLiteral(0xf00d1ace);
 local m_kTutorialDisabledControls	:table	= nil;
 local m_CurrentPanelLine				:number = 0;
+local m_PrevInterfaceMode			:number = InterfaceModeTypes.SELECTION;
 
 
 -- ===========================================================================
@@ -197,10 +200,16 @@ end
 function ViewMain( data:table )
 	
 	-- GCO <<<<<
-	--m_primaryColor, m_secondaryColor  = UI.GetPlayerColors( m_pPlayer:GetID() );
+	--[[
+	m_primaryColor, m_secondaryColor  = UI.GetPlayerColors( m_pPlayer:GetID() );
+
+	if(m_primaryColor == nil or m_secondaryColor == nil or m_primaryColor == 0 or m_secondaryColor == 0) then
+		UI.DataError("Couldn't find player colors for player - " .. (m_pPlayer and tostring(m_pPlayer:GetID()) or "nil"));
+	end
+	--]]
 	m_primaryColor, m_secondaryColor  = GCO.GetPlayerColors( m_pPlayer:GetID() );
 	-- GCO >>>>>
-	local darkerBackColor = UI.DarkenLightenColor(m_primaryColor,(-85),100);
+	local darkerBackColor = UI.DarkenLightenColor(m_primaryColor,-85,100);
 	local brighterBackColor = UI.DarkenLightenColor(m_primaryColor,90,255);
 	m_CurrentPanelLine = 0;
 
@@ -272,9 +281,9 @@ function ViewMain( data:table )
 	if data.Religions[DATA_DOMINANT_RELIGION] ~= nil then
 		local kReligion		:table	= GameInfo.Religions[data.Religions[DATA_DOMINANT_RELIGION].ReligionType];
 		if (kReligion ~= nil) then
-		local iconName		:string = "ICON_" .. kReligion.ReligionType;
-		Controls.ReligionIcon:SetIcon(iconName);
-	end
+			local iconName		:string = "ICON_" .. kReligion.ReligionType;
+			Controls.ReligionIcon:SetIcon(iconName);
+		end
 	end
 
 
@@ -319,7 +328,7 @@ function ViewMain( data:table )
 	Controls.HousingNum:SetText( data.Population );
 	colorName = GetPercentGrowthColor( data.HousingMultiplier );
 	Controls.HousingNum:SetColorByName( colorName );
-	Controls.HousingMax:SetText( data.Housing );	
+	Controls.HousingMax:SetText( data.Housing );
 	Controls.HousingLabels:SetOffsetX(PANEL_BUTTON_LOCATIONS[m_CurrentPanelLine].x - HOUSING_LABEL_OFFSET);
 	Controls.HousingGrid:SetOffsetY(PANEL_INFOLINE_LOCATIONS[m_CurrentPanelLine]);
 	Controls.HousingButton:SetOffsetX(PANEL_BUTTON_LOCATIONS[m_CurrentPanelLine].x);
@@ -386,7 +395,7 @@ function ViewMain( data:table )
 			if iconName ~= nil and Controls.ProductionIcon:TrySetIcon(iconName) then
 				isIconSet = true;
 				break;
-	end
+			end
 		end
 	end
 	Controls.ProductionIcon:SetHide( not isIconSet );
@@ -609,9 +618,6 @@ end
 --	GAME Event
 -- ===========================================================================
 function OnCityProductionChanged(ownerPlayerID:number, cityID:number)
-	if Controls.ChangeProductionCheck:IsChecked() then
-		Controls.ChangeProductionCheck:SetCheck(false);
-	end
 	RefreshIfMatch(ownerPlayerID, cityID);
 end
 
@@ -652,9 +658,9 @@ end
 -- ===========================================================================
 function OnCitySelectionChanged( ownerPlayerID:number, cityID:number, i:number, j:number, k:number, isSelected:boolean, isEditable:boolean)
 	if ownerPlayerID == Game.GetLocalPlayer() then
-		if (isSelected) then
+		if (isSelected) then	
 			-- Determine if we should switch to the SELECTION interface mode
-			local shouldSwitchToSelection:boolean = true;
+			local shouldSwitchToSelection:boolean = UI.GetInterfaceMode() ~= InterfaceModeTypes.CITY_SELECTION;
 			if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT then
 				HideGrowthTile();
 				shouldSwitchToSelection = false;
@@ -671,7 +677,7 @@ function OnCitySelectionChanged( ownerPlayerID:number, cityID:number, i:number, 
 						shouldSwitchToSelection = false;
 					end
 				end
-			end
+			end			
 			if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_RANGE_ATTACK then
 				-- During CITY_RANGE_ATTACK only switch to SELECTION if we're selecting a city
 				-- which can't currently perform a ranged attack
@@ -794,6 +800,34 @@ end
 function OnShutdown()
 	-- Cache values for hotloading...
 	LuaEvents.GameDebug_AddValue("CityPanel", "isHidden",				ContextPtr:IsHidden() );
+
+	-- Game Core Events
+	Events.CityAddedToMap.Remove(			OnCityAddedToMap );
+	Events.CityNameChanged.Remove(			OnCityNameChanged );
+	Events.CitySelectionChanged.Remove(		OnCitySelectionChanged );
+	Events.CityFocusChanged.Remove(			OnCityFocusChange );
+	Events.CityProductionCompleted.Remove(	OnCityProductionCompleted );
+	Events.CityProductionUpdated.Remove(	OnCityProductionUpdated );	
+	Events.CityProductionChanged.Remove(	OnCityProductionChanged );
+	Events.CityWorkerChanged.Remove(		OnCityWorkerChanged );
+	Events.DistrictDamageChanged.Remove(	OnCityProductionChanged );
+	Events.LocalPlayerTurnBegin.Remove(		OnLocalPlayerTurnBegin );
+	Events.ImprovementChanged.Remove(		OnCityProductionChanged );
+	Events.InterfaceModeChanged.Remove(		OnInterfaceModeChanged );
+	Events.LocalPlayerChanged.Remove(		OnLocalPlayerChanged );
+	Events.PlayerResourceChanged.Remove(	OnPlayerResourceChanged );
+	Events.UnitSelectionChanged.Remove(		OnUnitSelectionChanged );
+
+	-- LUA Events
+	LuaEvents.CityPanelOverview_CloseButton.Remove(		OnCloseOverviewPanel );
+	LuaEvents.CityPanel_SetOverViewState.Remove(		OnCityPanelSetOverViewState );
+	LuaEvents.CityPanel_ToggleManageCitizens.Remove(	OnCityPanelToggleManageCitizens );
+	LuaEvents.GameDebug_Return.Remove(					OnGameDebugReturn );	
+	LuaEvents.ProductionPanel_Close.Remove(				OnProductionPanelClose );
+	LuaEvents.ProductionPanel_ListModeChanged.Remove(	OnProductionPanelListModeChanged );
+	LuaEvents.ProductionPanel_Open.Remove(				OnProductionPanelOpen );
+	LuaEvents.Tutorial_CityPanelOpen.Remove(			OnTutorialOpen );
+	LuaEvents.Tutorial_ContextDisableItems.Remove(		OnTutorial_ContextDisableItems );
 end
 
 -- ===========================================================================
@@ -817,12 +851,12 @@ end
 function OnProductionPanelClose()
 	-- If no longer checked, make sure the side Production Panel closes.
 	-- Clear the checks, even if hidden, the Production Pane can close after the City Panel has already been closed.
-		Controls.ChangeProductionCheck:SetCheck( false );
-		Controls.ProduceWithFaithCheck:SetCheck( false );
-		Controls.ProduceWithGoldCheck:SetCheck( false );
+	Controls.ChangeProductionCheck:SetCheck( false );
+	Controls.ProduceWithFaithCheck:SetCheck( false );
+	Controls.ProduceWithGoldCheck:SetCheck( false );
 
 	AnimateToOpenFromWithProductionQueue();
-	end
+end
 
 -- ===========================================================================
 --	LUA Event
@@ -939,13 +973,15 @@ end
 function OnTogglePurchaseTile()
 	if Controls.PurchaseTileCheck:IsChecked() then
 		if not Controls.ManageCitizensCheck:IsChecked() then
+			m_PrevInterfaceMode = UI.GetInterfaceMode();
 			UI.SetInterfaceMode(InterfaceModeTypes.CITY_MANAGEMENT);	-- Enter mode
 		end
 		RecenterCameraOnCity();
 		UILens.ToggleLayerOn( m_PurchasePlot );
 	else		
 		if not Controls.ManageCitizensCheck:IsChecked() and UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT then
-			UI.SetInterfaceMode(InterfaceModeTypes.SELECTION);			-- Exit mode		
+			UI.SetInterfaceMode(m_PrevInterfaceMode);			-- Exit mode		
+			m_PrevInterfaceMode = InterfaceModeTypes.SELECTION;
 		end
 		UILens.ToggleLayerOff( m_PurchasePlot );			
 	end
@@ -956,9 +992,6 @@ function OnToggleProduction()
 	if Controls.ChangeProductionCheck:IsChecked() then
 		RecenterCameraOnCity();
 		LuaEvents.CityPanel_ProductionOpen();
-		Controls.ProduceWithFaithCheck:SetCheck( false );
-		Controls.ProduceWithGoldCheck:SetCheck( false );
-		--AnimateToWithProductionQueue();
 	else
 		LuaEvents.CityPanel_ProductionClose();
 	end
@@ -969,9 +1002,6 @@ function OnTogglePurchaseWithGold()
 	if Controls.ProduceWithGoldCheck:IsChecked() then
 		RecenterCameraOnCity();
 		LuaEvents.CityPanel_PurchaseGoldOpen();
-		Controls.ChangeProductionCheck:SetCheck( false );
-		Controls.ProduceWithFaithCheck:SetCheck( false );
-		--AnimateToWithProductionQueue();
 	else
 		LuaEvents.CityPanel_ProductionClose();
 	end
@@ -982,17 +1012,16 @@ function OnTogglePurchaseWithFaith()
 	if Controls.ProduceWithFaithCheck:IsChecked() then
 		RecenterCameraOnCity();
 		LuaEvents.CityPanel_PurchaseFaithOpen();
-		Controls.ChangeProductionCheck:SetCheck( false );
-		Controls.ProduceWithGoldCheck:SetCheck( false );
-		--AnimateToWithProductionQueue();
 	else
 		LuaEvents.CityPanel_ProductionClose();
 	end
 end
 
+-- ===========================================================================
 function OnCloseOverviewPanel()
 	Controls.ToggleOverviewPanel:SetCheck(false);
 end
+
 -- ===========================================================================
 --	Turn on/off layers and switch the interface mode based on what is checked.
 --	Interface mode is changed first as the Lens system may inquire as to the
@@ -1001,13 +1030,15 @@ end
 function OnToggleManageCitizens()
 	if Controls.ManageCitizensCheck:IsChecked() then			
 		if not Controls.PurchaseTileCheck:IsChecked() then
+			m_PrevInterfaceMode = UI.GetInterfaceMode();
 			UI.SetInterfaceMode(InterfaceModeTypes.CITY_MANAGEMENT);	-- Enter mode
 		end
 		RecenterCameraOnCity();
 		UILens.ToggleLayerOn( m_CitizenManagement );
 	else		
 		if not Controls.PurchaseTileCheck:IsChecked() and UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT then
-			UI.SetInterfaceMode(InterfaceModeTypes.SELECTION);			-- Exit mode
+			UI.SetInterfaceMode(m_PrevInterfaceMode);			-- Exit mode
+			m_PrevInterfaceMode = InterfaceModeTypes.SELECTION;
 		end
 		UILens.ToggleLayerOff( m_CitizenManagement );
 	end
@@ -1112,6 +1143,23 @@ function OnCityMadePurchase(owner:number, cityID:number, plotX:number, plotY:num
 end
 
 -- ===========================================================================
+function OnProductionPanelListModeChanged( listMode:number )
+	Controls.ChangeProductionCheck:SetCheck(listMode == LISTMODE.PRODUCTION or listMode == LISTMODE.PROD_QUEUE);
+	Controls.ProduceWithGoldCheck:SetCheck(listMode == LISTMODE.PURCHASE_GOLD);
+	Controls.ProduceWithFaithCheck:SetCheck(listMode == LISTMODE.PURCHASE_FAITH);
+end
+
+-- ===========================================================================
+function OnCityPanelSetOverViewState( isOpened:boolean )
+	Controls.ToggleOverviewPanel:SetCheck(isOpened);
+end
+
+-- ===========================================================================
+function OnCityPanelToggleManageCitizens()
+	Controls.ManageCitizensCheck:SetAndCall(not Controls.ManageCitizensCheck:IsChecked());
+end
+
+-- ===========================================================================
 --	GAME Event
 --	eOldMode, mode the engine was formally in
 --	eNewMode, new mode the engine has just changed to
@@ -1160,7 +1208,7 @@ function OnInterfaceModeChanged( eOldMode:number, eNewMode:number )
 			local districtHash:number	= UI.GetInterfaceModeParameter(CityOperationTypes.PARAM_DISTRICT_TYPE);
 			local district:table		= GameInfo.Districts[districtHash];
 			local kPlot		:table			= Map.GetPlotByIndex(newGrowthPlot);
-			if kPlot:CanHaveDistrict(district.Index, m_pPlayer, g_pCity:GetID()) then
+			if kPlot:CanHaveDistrict(district.Index, g_pCity:GetOwner(), g_pCity:GetID()) then
 				DisplayGrowthTile();
 			end
 		end
@@ -1171,7 +1219,7 @@ function OnInterfaceModeChanged( eOldMode:number, eNewMode:number )
 			local buildingHash :number = UI.GetInterfaceModeParameter(CityOperationTypes.PARAM_BUILDING_TYPE);
 			local building = GameInfo.Buildings[buildingHash];
 			local kPlot		:table			= Map.GetPlotByIndex(newGrowthPlot);
-			if kPlot:CanHaveWonder(building.Index, m_pPlayer, g_pCity:GetID()) then
+			if kPlot:CanHaveWonder(building.Index, g_pCity:GetOwner(), g_pCity:GetID()) then
 				DisplayGrowthTile();
 			end
 		end
@@ -1292,7 +1340,7 @@ function Initialize()
 	
 
 	if GameCapabilities.HasCapability("CAPABILITY_GOLD") then
-		Controls.PurchaseTileCheck:RegisterCheckHandler(	OnTogglePurchaseTile );
+		Controls.PurchaseTileCheck:RegisterCheckHandler(OnTogglePurchaseTile );
 		Controls.PurchaseTileCheck:RegisterCallback( Mouse.eMouseEnter, function() UI.PlaySound("Main_Menu_Mouse_Over"); end);
 		Controls.ProduceWithGoldCheck:RegisterCheckHandler( OnTogglePurchaseWithGold );
 		Controls.ProduceWithGoldCheck:RegisterCallback( Mouse.eMouseEnter, function() UI.PlaySound("Main_Menu_Mouse_Over"); end);
@@ -1324,22 +1372,19 @@ function Initialize()
 	Events.ImprovementChanged.Add(		OnCityProductionChanged );
 	Events.InterfaceModeChanged.Add(	OnInterfaceModeChanged );
 	Events.LocalPlayerChanged.Add(		OnLocalPlayerChanged );
-	Events.UnitSelectionChanged.Add(	OnUnitSelectionChanged );
 	Events.PlayerResourceChanged.Add(	OnPlayerResourceChanged );
+	Events.UnitSelectionChanged.Add(	OnUnitSelectionChanged );
 
 	-- LUA Events
-	LuaEvents.CityPanelOverview_CloseButton.Add( OnCloseOverviewPanel );
-	LuaEvents.GameDebug_Return.Add( OnGameDebugReturn );			-- hotloading help	
-	LuaEvents.ProductionPanel_Close.Add( OnProductionPanelClose );
-	LuaEvents.ProductionPanel_Open.Add( OnProductionPanelOpen );
-	LuaEvents.Tutorial_CityPanelOpen.Add( OnTutorialOpen );
-	LuaEvents.Tutorial_ContextDisableItems.Add( OnTutorial_ContextDisableItems );
-	LuaEvents.CityPanel_SetOverViewState.Add(function(isOpened)
-		Controls.ToggleOverviewPanel:SetCheck(isOpened);
-	end);
-	LuaEvents.CityPanel_ToggleManageCitizens.Add(function()
-		Controls.ManageCitizensCheck:SetAndCall(not Controls.ManageCitizensCheck:IsChecked());
-	end);
+	LuaEvents.CityPanelOverview_CloseButton.Add(	OnCloseOverviewPanel );
+	LuaEvents.CityPanel_SetOverViewState.Add(		OnCityPanelSetOverViewState );
+	LuaEvents.CityPanel_ToggleManageCitizens.Add(	OnCityPanelToggleManageCitizens );
+	LuaEvents.GameDebug_Return.Add(					OnGameDebugReturn );	
+	LuaEvents.ProductionPanel_Close.Add(			OnProductionPanelClose );
+	LuaEvents.ProductionPanel_ListModeChanged.Add(	OnProductionPanelListModeChanged );
+	LuaEvents.ProductionPanel_Open.Add(				OnProductionPanelOpen );
+	LuaEvents.Tutorial_CityPanelOpen.Add(			OnTutorialOpen );
+	LuaEvents.Tutorial_ContextDisableItems.Add(		OnTutorial_ContextDisableItems );
 
 	-- Truncate possible static text overflows
 	TruncateStringWithTooltip(Controls.BreakdownLabel,	MAX_BEFORE_TRUNC_STATIC_LABELS,	Controls.BreakdownLabel:GetText());

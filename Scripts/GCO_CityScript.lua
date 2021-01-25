@@ -1287,25 +1287,25 @@ end
 function GetUpperClass(self)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
-	return ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass or 0
+	return ExposedMembers.CityData[cityKey] and ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass or 0
 end
 
 function GetMiddleClass(self)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
-	return ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass or 0
+	return ExposedMembers.CityData[cityKey] and ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass or 0
 end
 
 function GetLowerClass(self)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
-	return ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass or 0
+	return ExposedMembers.CityData[cityKey] and ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass or 0
 end
 
 function GetSlaveClass(self)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
-	return ExposedMembers.CityData[cityKey].Population[turnKey].Slaves or 0
+	return ExposedMembers.CityData[cityKey] and ExposedMembers.CityData[cityKey].Population[turnKey].Slaves or 0
 end
 
 function GetPopulationClass(self, populationID)

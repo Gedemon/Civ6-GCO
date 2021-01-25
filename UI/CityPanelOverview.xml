@@ -3,9 +3,9 @@
   
   <SlideAnim							ID="OverviewSlide"																						Size="300,parent"				Start="-330,27" End="0,27" Cycle="Once" Speed="3.5" Function="OutSine" Stopped="1" >
     <Box  								ID="OverviewBackground"																				Size="parent,parent+5" ConsumeMouse="1"				 Color="8,34,56,255">			
-      <Image ID="PanelDropShadow" Texture="Controls_GradientSmall" Size="22,parent" AnchorSide="O,I" Anchor="R,T" Color="0,0,0,190" Rotate="270" Offset="-1,0"/>
-      <Image Texture="Controls_Gradient" Size="parent, 120" Anchor="C,B" Color="13,57,92,255"/>
-      <Image Texture="Controls_Gradient_HalfRadial" Size="parent, 120" Offset="0,30" Anchor="C,B" Color="72,103,130,255"/>
+			<Image							ID="PanelDropShadow"	Texture="Controls_GradientSmall"				Size="22,parent" AnchorSide="O,I" Anchor="R,T" Color="0,0,0,190" Rotate="270" Offset="-1,0"/>					
+			<Image																		Texture="Controls_Gradient"							Size="parent, 120"								Anchor="C,B" Color="13,57,92,255"/>
+      <Image																		Texture="Controls_Gradient_HalfRadial"	Size="parent, 120"	Offset="0,30"	Anchor="C,B" Color="72,103,130,255"/>
       <Image																		Texture="Controls_Compass"							Size="193, 122"			Offset="0,35" Anchor="C,B" Color="62,93,120,150"/>
 			
       <ScrollPanel        ID="PanelScrollPanel"       Anchor="R,B"                  Size="parent,parent-125" AutoScrollBar="1" Vertical="1" Offset="0,35">
@@ -96,12 +96,12 @@
               <Container Size="parent,24">
                 <Image Texture="Controls_Gradient_HalfRadial" Size="parent, 120" FlipY="1" Anchor="C,T" Color="72,103,130,255"/>
               </Container>
-              <Label																	Anchor="C,C" Offset="5,0"													Style="CityPanelSubPanelTitle" String="LOC_HUD_CITY_AMENITIES" />
+              <Label																			Anchor="C,C" Offset="5,0"													Style="CityPanelSubPanelTitle" String="LOC_HUD_CITY_AMENITIES" />
             </Grid>
 
             <Stack																										 Offset="0,24"	 Size="parent,auto"			StackGrowth="Bottom" InnerPadding="10,5" StackPadding="5" >
               <Container																															 Size="parent,auto"		>
-                <Grid																			Anchor="R,T" Offset="0,10"		Size="155,48"				Style="CityPanelSubPanelContainer">
+                <Grid																			Anchor="R,T" Offset="0,10"	 Size="155,48"				Style="CityPanelSubPanelContainer">
                   <Label																	Anchor="L,C" Offset="4,-8"												Style="CityPanelText" String="LOC_HUD_CITY_STATUS" />
                   <Label		ID="Mood"											Anchor="L,C" Offset="4,8"		WrapWidth="parent"	Style="CityPanelText" String="LOC_HUD_CITY_STATUS_HAPPY" FontStyle="Glow"/>
                 </Grid>
@@ -179,7 +179,7 @@
                 <Stack																																	StackGrowth="Bottom" StackPadding="0">
                   <Stack			ID="HousingStack"																					StackGrowth="Bottom" StackPadding="4" />
                   <Container														 Size="parent,auto">
-                    <Label																Anchor="L,B" Offset="4,0" Style="CityPanelTextSmall" String="" />
+                    <Label																Anchor="L,B" Offset="4,0" Style="CityPanelTextSmall" String="LOC_HUD_CITY_TOTAL_HOUSING" />
                     <Label		ID="HousingTotalNum2"				Anchor="R,B" Offset="5,-2" Style="CityPanelNumLarge" String="0" FontStyle="Glow"/>
                   </Container>
                 </Stack>
@@ -263,7 +263,7 @@
             </Stack>
           </Grid>
 
-          <Grid						ID="PanelReligion"					Anchor="L,T" Offset="0,0"			Size="parent,0"				Style="CityPanelStatPanelGrid" ConsumeAllMouse="1">
+          <Grid						ID="PanelReligion"					Anchor="L,T" Offset="0,0"			Size="parent,0"				Style="CityPanelStatPanelGrid">
             <Grid																			Anchor="L,T"									Size="parent,24"		Style="DivHeader">
               <Container Size="parent,24">
                 <Image Texture="Controls_Gradient_HalfRadial" Size="parent, 120" FlipY="1" Anchor="C,T" Color="72,103,130,255"/>
@@ -286,13 +286,22 @@
                 <Grid																							 Offset="0,16"		Size="parent,24"		Style="CityPanelSubPanelContainer">
                   <Stack															StackGrowth="Right">
                     <Image	ID="DominantReligionSymbol"				Anchor="L,T" Offset="0,0"	Size="22,22"	Hidden="1" />
-                    <Label	ID="DominantReligionName"					Anchor="L,T" Offset="2,7"									Style="CityPanelText"			String="Other Religion Instance" />
+                    <Label	ID="DominantReligionName"					Anchor="L,T" Offset="2,7"	Style="CityPanelText" TruncateWidth="255" TruncatedTooltip="1"/>
                   </Stack>																															 >
                 </Grid>
                 <Stack	ID="ReligionBeliefsStack"		Anchor="R,T" Offset="0,42" StackPadding="2"/>
               </Grid>
               <Stack			ID="OtherReligions"											Offset="0,0" StackPadding="4" />
               <Container  Size="1,1" />
+							<!-- Lens Key -->
+							<Grid									ID="KeyPanel"		Anchor="C,T"			Offset="0,0" Size="195,auto"	AutoSizePadding="0,10" Texture="Controls_PanelBlue"  SliceCorner="25,28" SliceSize="33,18" SliceTextureSize="83,75">
+								<Line																Start="20,16"			End="174,16"		Color="55,95,126,255" Width="2" />
+								<Label															Anchor="C,T"			Offset="0,20"		Style="FontFlair16" SmallCaps="20" String="LOC_TREE_KEY" Color0="78,119,151,255" Color1="0,0,0,0" Color2="25,65,96,255" />
+								<Line																Start="20,40"			End="174,40"		Color="55,95,126,255" Width="2" />
+								<ScrollPanel ID="KeyScrollPanel" Offset="16,54" Size="150,204" Style="ScrollPanelWithRightBar">
+									<Stack ID="KeyStack" StackGrowth="Down" StackPadding="6"/>
+								</ScrollPanel>
+							</Grid>
             </Stack>
           </Grid>
 
@@ -401,7 +410,7 @@
 
 		  <!-- GCO >>>>> -->
 
-          <Grid						ID="PanelDynamicTab"					Anchor="L,T" Offset="0,0"			Size="parent,0"			Style="CityPanelStatPanelGrid" ConsumeAllMouse="1"/>
+          <Grid						ID="PanelDynamicTab"					Anchor="L,T" Offset="0,0"			Size="parent,0"			Style="CityPanelStatPanelGrid"/>
           
           <Grid									ID="PanelQueue"						Anchor="L,T"									Size="parent,0"			  Style="CityPanelStatPanelGrid">
             <Grid																			Anchor="L,T"									Size="parent,24"		Style="DivHeader">
@@ -457,8 +466,8 @@
 			<Image Texture="Controls_GradientSmall" Anchor="R,T" Size="parent,30" Color="8,34,56,255" Offset="0,90"/>
 			<Image Texture="Controls_GradientSmall" Anchor="R,T" Size="parent,20" Color="8,34,56,255" Offset="0,90"/>
 			<Image Texture="Controls_GradientSmall" Anchor="R,T" Size="parent,20" Color="8,34,56,255" Offset="0,90"/>
-     
-    </Box>
+
+		</Box>
     <Grid				  ID="OverviewHeader"			Style="HeaderBannerLeft" Size="320,65" Anchor="L,T"	Offset="0,0">
       <Container Size="parent-20,28" Anchor="L,T">
         <Label			ID="OverviewTitle"			Style="BannerHeaderText" Anchor="C,C" String="{LOC_HUD_CITY_DETAILS:upper}"/>
@@ -466,7 +475,7 @@
 
       <Grid Size="parent-20,parent-27" Anchor="L,B" Offset="0,2"	Style="Subheader" >
         <GridButton	ID="RenameCityButton" Size="parent,26" Offset="0,0" Anchor="C,C" Texture="Controls_TextEntry" SliceCorner="30,0" SliceTextureSize="44,26" StateOffsetIncrement="0,26">
-          <EditBox ID="EditCityName" Offset="25,0" Size="parent-25,parent" Anchor="L,C" EditMode="1" Style="HeaderSmallCaps" String="ChooseReligionName" MaxLength="32" Hidden="1" />
+          <EditBox ID="EditCityName" Offset="25,0" Size="parent-25,parent" Anchor="L,C" EditMode="1" Style="CityPanelName" String="ChooseReligionName" MaxLength="32" Hidden="1" />
           <Label ID="OverviewSubheader" Anchor="C,C" String="{LOC_HUD_CITY_DETAILS:upper}" Style="HeaderSmallCaps" TruncateWidth="300"/>
 
         </GridButton>
@@ -553,7 +562,7 @@
     <Grid				ID="Top"																							Size="parent,24"	Style="CityPanelSubPanelContainer" >
       <Stack															StackGrowth="Right">
         <Image	ID="ReligionSymbol"				Anchor="L,T" Offset="0,0"	Size="22,22"	 />
-        <Label	ID="ReligionName"					Anchor="L,T" Offset="4,5"										Style="CityPanelText"			String="$Other Religion Instance$" />
+        <Label	ID="ReligionName"					Anchor="L,T" Offset="4,5" Style="CityPanelText" TruncateWidth="255" TruncatedTooltip="1"/>
       </Stack>
     </Grid>
   </Instance>
@@ -576,7 +585,7 @@
 		<Grid ID="Top"														Size="parent-24,20"	Style="CityPanelSubPanelContainer">
 			<Label ID="BeliefLabel"										Offset="5,3"	Style="CityPanelTextSmall" String="Religion: [ICON_Faith]+0" />
 		</Grid>
-  </Instance>
+	</Instance>
 
   <Instance			Name="TradingPostInstance">
     <Grid				ID="Top"																						Size="parent,28"	Style="CityPanelSubPanelContainer" InnerPadding="2,4">
@@ -600,6 +609,14 @@
       <Image ID="Icon" Offset="0,0" Texture="Stats32" Size="32,32" Anchor="C,C"  Icon="ICON_BUILDINGS"/>
     </Button>
   </Instance>
+	
+	<Instance Name="KeyEntry">
+		<Image ID="KeyColorImage" Size="32,36" Texture="Controls_KeySwatchHex">
+			<Stack ID="KeyInfoStack" StackGrowth="Down" Anchor="L,C" Offset="38,0">
+				<Label ID="KeyLabel" Style="FontNormal14" String="LOC_HUD_UNIT_PANEL_TOOLTIP_NO_WATER" WrapWidth="110"/>
+			</Stack>
+		</Image>
+	</Instance>
   <!-- GCO <<<<< -->
   <!-- Total width size = ~280 -->
   <Instance			Name="ResourcesInstance">

@@ -88,7 +88,7 @@ function GetFilteredUnitStatString( statData:table )
 end
 
 -- ===========================================================================
-function FilterUnitStats( hashOrType:number, ignoreStatType:number )
+function FilterUnitStats( hashOrType:number, eMilitaryFormationType:number )
 	local unitInfo = GameInfo.Units[hashOrType];
 
 	if(unitInfo == nil) then
@@ -96,23 +96,32 @@ function FilterUnitStats( hashOrType:number, ignoreStatType:number )
 		return {};
 	end
 
+	local strengthMod : number = 0;
+
+	if(eMilitaryFormationType ~= nil)then
+		if eMilitaryFormationType == MilitaryFormationTypes.CORPS_MILITARY_FORMATION then
+			strengthMod = GlobalParameters.COMBAT_CORPS_STRENGTH_MODIFIER; 
+		elseif eMilitaryFormationType == MilitaryFormationTypes.ARMY_MILITARY_FORMATION then
+			strengthMod = GlobalParameters.COMBAT_ARMY_STRENGTH_MODIFIER;
+		end
+	end
 
 	local data:table = {};
 
 	-- Strength
-	if ( unitInfo.Combat > 0 and (ignoreStatType == nil or ignoreStatType ~= CombatTypes.MELEE)) then
-		table.insert(data, {Value = unitInfo.Combat, Type = "Combat", Label = "LOC_HUD_UNIT_PANEL_STRENGTH",				FontIcon="[ICON_Strength_Large]",		IconName="ICON_STRENGTH"});
+	if ( unitInfo.Combat > 0) then
+		table.insert(data, {Value = unitInfo.Combat + strengthMod, Type = "Combat", Label = "LOC_HUD_UNIT_PANEL_STRENGTH",				FontIcon="[ICON_Strength_Large]",		IconName="ICON_STRENGTH"});
 	end
-	if ( unitInfo.RangedCombat > 0 and (ignoreStatType == nil or ignoreStatType ~= CombatTypes.RANGED)) then
-		table.insert(data, {Value = unitInfo.RangedCombat,		Label = "LOC_HUD_UNIT_PANEL_RANGED_STRENGTH",		FontIcon="[ICON_RangedStrength_Large]",	IconName="ICON_RANGED_STRENGTH"});
+	if ( unitInfo.RangedCombat > 0) then
+		table.insert(data, {Value = unitInfo.RangedCombat + strengthMod,		Label = "LOC_HUD_UNIT_PANEL_RANGED_STRENGTH",		FontIcon="[ICON_RangedStrength_Large]",	IconName="ICON_RANGED_STRENGTH"});
 	end
-	if (unitInfo.Bombard > 0 and (ignoreStatType == nil or ignoreStatType ~= CombatTypes.BOMBARD)) then
-		table.insert(data, {Value = unitInfo.Bombard,	Label = "LOC_HUD_UNIT_PANEL_BOMBARD_STRENGTH",		FontIcon="[ICON_Bombard_Large]",		IconName="ICON_BOMBARD"});
+	if (unitInfo.Bombard > 0) then
+		table.insert(data, {Value = unitInfo.Bombard + strengthMod,	Label = "LOC_HUD_UNIT_PANEL_BOMBARD_STRENGTH",		FontIcon="[ICON_Bombard_Large]",		IconName="ICON_BOMBARD"});
 	end
-	if (unitInfo.ReligiousStrength > 0 and (ignoreStatType == nil or ignoreStatType ~= CombatTypes.RELIGIOUS)) then
+	if (unitInfo.ReligiousStrength > 0) then
 		table.insert(data, {Value = unitInfo.ReligiousStrength,	Label = "LOC_HUD_UNIT_PANEL_RELIGIOUS_STRENGTH",	FontIcon="[ICON_ReligionStat_Large]",	IconName="ICON_RELIGION"});
 	end
-	if (unitInfo.AntiAirCombat > 0 and (ignoreStatType == nil or ignoreStatType ~= CombatTypes.AIR)) then
+	if (unitInfo.AntiAirCombat > 0) then
 		table.insert(data, {Value = unitInfo.AntiAirCombat,	Label = "LOC_HUD_UNIT_PANEL_ANTI_AIR_STRENGTH",		FontIcon="[ICON_AntiAir_Large]",		IconName="ICON_STATS_ANTIAIR"});
 	end
 
@@ -243,11 +252,11 @@ function GetProductionInfoOfCity( pCity:table, productionHash:number )
 		local eMilitaryFormationType :number = pBuildQueue:GetCurrentProductionTypeModifier();
 		productionName	= Locale.Lookup(unitDef.Name);
 		description		= unitDef.Description;
-		tooltip			= ToolTipHelper.GetUnitToolTip(hash);
+		tooltip			= ToolTipHelper.GetUnitToolTip(hash, eMilitaryFormationType, pBuildQueue);
 		progress		= pBuildQueue:GetUnitProgress(unitDef.Index);
-		prodTurnsLeft	= pBuildQueue:GetTurnsLeft(unitDef.UnitType, eMilitaryFormationType);		
+		prodTurnsLeft	= pBuildQueue:GetTurnsLeft(unitDef.UnitType);		
 		kIcons			= { iconName, prefixOnlyIconName, eraOnlyIconName, fallbackIconName, "ICON_"..unitDef.UnitType.."_PORTRAIT"}
-		statString		= GetFilteredUnitStatString(FilterUnitStats(hash));
+		statString		= GetFilteredUnitStatString(FilterUnitStats(hash, eMilitaryFormationType));
 		type			= ProductionType.UNIT;
 
 		--Units need some additional information to represent the Standard, Corps, and Army versions. This is determined by the MilitaryFormationType
@@ -319,22 +328,22 @@ end
 --	Update the yield data for a city.
 -- ===========================================================================
 function UpdateYieldData( pCity:table, data:table )
-	data.CulturePerTurn				= Round( pCity:GetYield( YieldTypes.CULTURE ), 1);
+	data.CulturePerTurn				= math.floor( pCity:GetYield( YieldTypes.CULTURE )*10) / 10;
 	data.CulturePerTurnToolTip		= pCity:GetYieldToolTip(YieldTypes.CULTURE);
 
-	data.FaithPerTurn				= Round( pCity:GetYield( YieldTypes.FAITH ), 1);
+	data.FaithPerTurn				= math.floor( pCity:GetYield( YieldTypes.FAITH )*10) / 10;
 	data.FaithPerTurnToolTip		= pCity:GetYieldToolTip(YieldTypes.FAITH);
 
-	data.FoodPerTurn				= Round( pCity:GetYield( YieldTypes.FOOD ), 1);
+	data.FoodPerTurn				= math.floor( pCity:GetYield( YieldTypes.FOOD )*10) / 10;
 	data.FoodPerTurnToolTip			= pCity:GetYieldToolTip(YieldTypes.FOOD);
 
-	data.GoldPerTurn				= Round( pCity:GetYield( YieldTypes.GOLD ), 1);
+	data.GoldPerTurn				= math.floor( pCity:GetYield( YieldTypes.GOLD )*10) / 10;
 	data.GoldPerTurnToolTip			= pCity:GetYieldToolTip(YieldTypes.GOLD);
 
-	data.ProductionPerTurn			= Round( pCity:GetYield( YieldTypes.PRODUCTION ),1);
+	data.ProductionPerTurn			= math.floor( pCity:GetYield( YieldTypes.PRODUCTION )*10) / 10;
 	data.ProductionPerTurnToolTip	= pCity:GetYieldToolTip(YieldTypes.PRODUCTION);
 
-	data.SciencePerTurn				= Round( pCity:GetYield( YieldTypes.SCIENCE ), 1);
+	data.SciencePerTurn				= math.floor( pCity:GetYield( YieldTypes.SCIENCE )*10) / 10;
 	data.SciencePerTurnToolTip		= pCity:GetYieldToolTip(YieldTypes.SCIENCE);
 
 	return data;
@@ -417,7 +426,7 @@ function GetCityData( pCity:table )
 		FoodSurplus						= 0,
 		GoldPerTurn						= 0,
 		GrowthPercent					= 100,
-		GrowthThreshold					= 0,
+		GrowthThreshold				= 0,
 		Happiness						= 0,		
 		HappinessGrowthModifier			= 0,		-- Multiplier
 		HappinessNonFoodYieldModifier	= 0,		-- Multiplier
@@ -667,7 +676,7 @@ function GetCityData( pCity:table )
 		local locX			:number = district:GetX();
 		local locY			:number = district:GetY();
 		local kPlot			:table  = Map.GetPlot(locX,locY);
-		local plotID		:number = kPlot:GetIndex();		
+		local plotID		:number = kPlot:GetIndex();	
 		local districtTable :table	= { 
 			Name		= Locale.Lookup(districtInfo.Name), 
 			Type		= districtType,
@@ -764,7 +773,7 @@ function GetCityData( pCity:table )
 					FoodPerTurn			= food,		
 					GoldPerTurn			= gold,		
 					ProductionPerTurn	= production,
-					SciencePerTurn		= science
+					SciencePerTurn		= science							
 				});
 				-- GCO <<<<<
 				end
