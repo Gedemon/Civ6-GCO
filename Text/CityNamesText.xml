@@ -945,6 +945,40 @@
 		<Replace Tag="LOC_CITY_NAME_KERICHO"								 Text="Kericho"								Language="en_US" />
 		<Replace Tag="LOC_CITY_NAME_KIMILILI"								 Text="Kimilili"							Language="en_US" />
 	</LocalizedText>
+	<LocalizedText>		<!-- Korea -->
+		<Replace Tag="LOC_CITY_NAME_GYEONGJU"								 Text="Gyeongju"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_GWANGJU"								 Text="Gwangju"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_JEONJU"									 Text="Jeonju"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_JINJU"									 Text="Jinju"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_CHUNCHEON"								 Text="Chuncheon"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_YANGSAN"								 Text="Yangsan"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_GANGNEUNG"								 Text="Gangneung"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_GONGJU"									 Text="Gongju"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_SANGJU"									 Text="Sangju"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_DAEGU"									 Text="Daegu"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_BUSAN"									 Text="Busan"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_PYONGYANG"								 Text="Pyongyang"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_DAEJEON"								 Text="Daejeon"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_SUWON"									 Text="Suwon"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_CHANGWON"								 Text="Changwon"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_CHEONGJU"								 Text="Cheongju"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_GIMHAE"									 Text="Gimhae"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_GUMI"									 Text="Gumi"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_IKSAN"									 Text="Iksan"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_KAESONG"								 Text="Kaesong"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_JEJU"									 Text="Jeju"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_GUNPO"									 Text="Gunpo"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_YEOSU"									 Text="Yeosu"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_SUNCHEON"								 Text="Suncheon"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_MOKPO"									 Text="Mokpo"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_GEOJE"									 Text="Geoje"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_JEONGEUP"								 Text="Jeongeup"							Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_INCHEON"								 Text="Incheon"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_HAMHUNG"								 Text="Hamhung"								Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_GYEONGGI_GWANGJU"						 Text="Gyeonggi Gwangju"					Language="en_US" />
+		<Replace Tag="LOC_CITY_NAME_POHANG"									 Text="Pohang"								Language="en_US" />
+	</LocalizedText>
+
 	<LocalizedText>		<!-- Libya -->
 		 <Replace Tag="LOC_CITY_NAME_TRIPOLI"								 Text="Tripoli"								Language="en_US" />
 		 <Replace Tag="LOC_CITY_NAME_BENGHAZI"								 Text="Benghazi"							Language="en_US" />

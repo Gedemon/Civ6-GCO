@@ -15,11 +15,10 @@
 		<!-- Moving on the Z axis looks about the same but works with camera rotation -->
 		<ZoomAnchor ID="Anchor" ZoomOffsetNear="0,0,0" ZoomOffsetFar="0,0,-20">
 			<!-- GCO <<<<<
-			<Container																					Anchor="C,C"	Offset="0,-20"	Size="200,34">
+			<Container																				  Anchor="C,C"	Offset="0,-20"	Size="200,34">
 			-->
 			<Container																					Anchor="C,C"	Offset="0,-20"	Size="230,34">
 			<!-- GCO >>>>> -->
-			<Container																				  Anchor="C,C"	Offset="0,-20"	Size="200,34">
 				<Button						ID="CityBannerButton"					  Anchor="C,T"									Size="Parent-20,34"		NoStateChange="true">
 					<Grid						ID="CityBannerBackground"			  Anchor="C,T"  Offset="1,0"		Size="Parent,34"			Color="255,255,255,150" SliceTextureSize="50,34" SliceCorner="25,17" Texture="Banner_BannerBacking">
 						<Image				ID="CityProductionProgress"		  Anchor="R,C"	Offset="2,0"		Size="14,32"	TextureOffset="14,0" Speed="1" Texture="Banner_ProductionMeter" >
