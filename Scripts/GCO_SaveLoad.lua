@@ -163,7 +163,9 @@ function Initialize()
 		
 	-- Load / Save
 	ExposedMembers.GCO.SaveTableToSlot 				= SaveTableToSlot
-	ExposedMembers.GCO.LoadTableFromSlot 			= LoadTableFromSlot	
+	ExposedMembers.GCO.LoadTableFromSlot 			= LoadTableFromSlot
+	ExposedMembers.GCO.LoadValue 					= GameConfiguration.GetValue
+	ExposedMembers.GCO.SaveValue 					= GameConfiguration.SetValue
 	ExposedMembers.SaveLoad_Initialized 			= true
 end
 Initialize()

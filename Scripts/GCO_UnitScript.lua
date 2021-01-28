@@ -2290,7 +2290,7 @@ end
 function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitType, HP, organizationLevel)
 	
 	local DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT
-	--if GameInfo.Units[oldUnitType].UnitType == "UNIT_LIGHT_SWORDSMAN" then DEBUG_UNIT_SCRIPT = "debug" end
+	--if GameInfo.Units[oldUnitType].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Get UnitType From EquipmentList for promotionClass = " ..Locale.Lookup(GameInfo.UnitPromotionClasses[promotionClassID].Name) .. " current type = " ..GameInfo.Units[oldUnitType].Name)
@@ -2315,9 +2315,11 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 	local bestValue 			= 0
 	local totalWeight			= 0
 	local unitTable				= {}
+	local minEquipmentRatio		= 0.25
 	if promotionClassUnits[promotionClassID] then
 		for unitType, _ in pairs(promotionClassUnits[promotionClassID]) do
-			local bEnoughEquipmentForHP	= true
+			local bEnoughEquipmentForHP		= true
+			local bEnoughEquipmentForType	= true
 			local numRequiredClasses	= 0
 			--local promotionClass		= {}	-- to count only the different promotion's equipment class (ie Infantry Weapons), not all the unit's equipment class (ie Musket, Pikes classes) that can belong to the same promotion's equipment class
 			-- <- that can't be done, with the current code for healing and upgrade, an unit can only have one equipment class for the corresponding promotion equipment class
@@ -2359,6 +2361,10 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 					local classWeight	= (num * weight) / (requiredNum) -- with the introduction of weight from equipment Desirability, this is not a percentage anymore  (num) / (requiredNum) * 100 --(num*ratio) / (total) * 100
 					unitWeight 			= unitWeight + classWeight
 					--local classWeight	= weight
+					
+					if num < requiredNum * minEquipmentRatio then
+						bEnoughEquipmentForType = false
+					end
 						
 					--Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num).." ("..Indentation8(classWeight).." classWeight at ratio "..tostring(ratio)..")", " for "..Indentation15(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[unitEquipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 					Dprint( DEBUG_UNIT_SCRIPT, "Counted ........ = "..Indentation8(num)..", required = " ..Indentation8(requiredNum)..", classWeight = " ..Indentation8(weight).." x "..Indentation8(GCO.ToDecimals(num / requiredNum)).." = "..Indentation8(math.floor(classWeight)).." (ratio "..Indentation8(ratio)..")", " for "..Indentation20(Locale.Lookup(GameInfo.Units[unitType].Name)), ", equipmentClass = "..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name).." / "..Locale.Lookup(GameInfo.EquipmentClasses[promotionClassEquipmentClassID].Name))
@@ -2391,9 +2397,9 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 			if numRequiredClasses > 0 and unitWeight > 0 then
 				local mediumWeight = unitWeight / numRequiredClasses
 				totalWeight = totalWeight + mediumWeight
-				table.insert(unitTable, { Name = Locale.Lookup(GameInfo.Units[unitType].Name), Weight = mediumWeight, EnoughEquipmentForHP = bEnoughEquipmentForHP })
+				table.insert(unitTable, { Name = Locale.Lookup(GameInfo.Units[unitType].Name), Weight = mediumWeight, EnoughEquipmentForHP = bEnoughEquipmentForHP, EnoughEquipmentForType = bEnoughEquipmentForType })
 				--if bEnoughEquipmentForHP and (mediumWeight > bestValue or (mediumWeight >= bestValue and (unitType == oldUnitType))) then -- Return the old type if it's equal to the best possible value, return new type only when it's better.
-				if bEnoughEquipmentForHP and mediumWeight >= bestValue then -- check if we should replace the current best choice
+				if bEnoughEquipmentForHP and bEnoughEquipmentForType and mediumWeight >= bestValue then -- check if we should replace the current best choice
 					-- always replace if classWeightage match is superior
 					-- replace with the unit with the one at the higher construction cost (assuming it means better unit) when classWeightage match is egal
 					local bHigherCost = (bestUnitType and GameInfo.Units[unitType].Cost > GameInfo.Units[bestUnitType].Cost) or true
@@ -2401,6 +2407,17 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 						bestValue 		= mediumWeight
 						bestUnitType 	= unitType
 						Dprint( DEBUG_UNIT_SCRIPT, "New best value.. = ", bestValue.." classWeight for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
+					end
+				else
+					if mediumWeight < bestValue then
+						Dprint( DEBUG_UNIT_SCRIPT, "Low classWeight. = ", mediumWeight.." for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))
+					else
+						if not bEnoughEquipmentForHP then
+							Dprint( DEBUG_UNIT_SCRIPT, "Not Enough Equipment for HP for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))					
+						end
+						if not bEnoughEquipmentForType then
+							Dprint( DEBUG_UNIT_SCRIPT, "Not Enough Equipment for Type for unitType = "..Locale.Lookup(GameInfo.Units[unitType].Name))					
+						end
 					end
 				end
 			end
@@ -2411,7 +2428,7 @@ function GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, oldUnitTy
 	local sortedStringTable = {}
 	for _, data in ipairs(unitTable) do
 		local percent = GCO.ToDecimals(data.Weight / totalWeight * 100)
-		if data.EnoughEquipmentForHP then
+		if data.EnoughEquipmentForHP and data.EnoughEquipmentForType then
 			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_MATCH_TYPE", percent, data.Name))
 		else
 			table.insert(sortedStringTable, Locale.Lookup("LOC_UNITFLAG_NOT_ENOUGH_EQUIPMENT_MATCH_TYPE", percent, data.Name))

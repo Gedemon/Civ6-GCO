@@ -2938,6 +2938,12 @@ function OnNewTurn()
 		return
 	end
 	
+	-- delayed updates
+	local turnRate 	= 1
+	local step		= GCO.LoadValue("PlotsDoTurnCurrentStep") or 0
+	
+print("turnRate = ", turnRate, ", step = ", step )
+	
 	-- initialize and set local debug table
 	debugTable["OnNewTurn"] 		= {} 	
 	debugTable["OnNewTurnPlotNum"] 	= {}
@@ -2988,7 +2994,7 @@ function OnNewTurn()
 	-- Fourth Pass
 	GCO.StartTimer("Plots DoTurn Fourth Pass")
 	table.insert(textTable, "Fourth Pass")
-	for i = 0, iPlotCount - 1 do
+	for i = step, iPlotCount - 1, turnRate do
 		local plot = Map.GetPlotByIndex(i)
 		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:DoMigration()
@@ -2998,7 +3004,7 @@ function OnNewTurn()
 	-- Fifth Pass
 	GCO.StartTimer("Plots DoTurn Fifth Pass")
 	table.insert(textTable, "Fifth Pass")
-	for i = 0, iPlotCount - 1 do
+	for i = step, iPlotCount - 1, turnRate do
 		local plot = Map.GetPlotByIndex(i)
 		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:MatchCultureToPopulation()
@@ -3008,6 +3014,9 @@ function OnNewTurn()
 	--print("-----------------------------------------------------------------------------------------")
 	GCO.ShowTimer("Plots DoTurn")
 	--print("-----------------------------------------------------------------------------------------")
+	
+	step = (step == turnRate-1) and 0 or step + 1
+	GCO.SaveValue("PlotsDoTurnCurrentStep", step)
 	
 	debugTable["OnNewTurn"] = nil
 	debugTable["OnNewTurnPlotNum"] = nil

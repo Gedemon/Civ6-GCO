@@ -1223,7 +1223,9 @@ function DoPlayerTurn( playerID )
 			--GameEvents.SaveTables()
 		end
 		
-		if playerID == 0 then --and Automation.IsActive() then
+		--if playerID == 0 then --and Automation.IsActive() then
+		if playerID == Game.GetLocalPlayer() then		
+		
 			-- Making our own auto save...
 			GameEvents.SaveTables.Call()
 			startTurnAutoSaveNum = startTurnAutoSaveNum + 1
@@ -1268,21 +1270,34 @@ end
 --GameEvents.PlayerTurnStarted.Add(CheckPlayerTurn)
 --GameEvents.PlayerTurnStartComplete.Add(DoPlayerTurn)
 
-function DoTurnForLocal() -- The Error reported on the line below is triggered by something else.
-	local playerID = Game.GetLocalPlayer()
+function DoTurnForLocal()
+
+	local DEBUG_PLAYER_SCRIPT	= "debug"
+	local playerID = Game.GetLocalPlayer()  -- The Error reported on that line is triggered by something else.
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	Dprint( DEBUG_PLAYER_SCRIPT, "-- Events.LocalPlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-	local player = Players[playerID]
-	if player and not player:HasStartedTurn() then	
-		--DoPlayerTurn(playerID)
-		--CheckPlayerTurn(playerID)
-		LuaEvents.StartPlayerTurn(playerID)
+
+	-- In Network game we process all players turn at the same time in that case to try to prevent desync
+	-- In that case AI units and cities update is done after the AI have processed their turn, not before
+	if(GameConfiguration.IsNetworkMultiplayer()) then 
+		for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+			LuaEvents.StartPlayerTurn(playerID)
+		end
+	else	
+		local player = Players[playerID]
+		if player and not player:HasStartedTurn() then	
+			--DoPlayerTurn(playerID)
+			--CheckPlayerTurn(playerID)
+			LuaEvents.StartPlayerTurn(playerID)
+		end
 	end
 end
 
 
 function DoTurnForRemote( playerID )
+	if(GameConfiguration.IsNetworkMultiplayer()) then return end
+	local DEBUG_PLAYER_SCRIPT	= "debug"
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	Dprint( DEBUG_PLAYER_SCRIPT, "-- Events.RemotePlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -1294,6 +1309,8 @@ end
 
 --
 function DoTurnForNextPlayerFromRemote( playerID )
+	if(GameConfiguration.IsNetworkMultiplayer()) then return end
+	local DEBUG_PLAYER_SCRIPT	= "debug"
 
 	repeat
 		playerID = playerID + 1
@@ -1310,6 +1327,8 @@ end
 
 
 function DoTurnForNextPlayerFromLocal( playerID )
+	if(GameConfiguration.IsNetworkMultiplayer()) then return end
+	local DEBUG_PLAYER_SCRIPT	= "debug"
 	if not playerID then playerID = 0 end
 	repeat
 		playerID = playerID + 1

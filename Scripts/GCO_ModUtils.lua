@@ -919,7 +919,8 @@ function ShowTimer(name) -- bShowInGame, seconds are optionnal
 	if bNoOutput then -- spam control
 		return
 	end
-	local diff = 0
+	local diff 		= 0
+	local maxDif	= 0.1 -- 0.5
 	if Timer[name] and Timer[name].Start and Timer[name].Stop then
 		diff = Timer[name].Stop-Timer[name].Start
 	elseif Timer[name] and Timer[name].Start then
@@ -928,7 +929,7 @@ function ShowTimer(name) -- bShowInGame, seconds are optionnal
 	local str = tostring(name) .." timer = " .. tostring(diff) .. " seconds"
 	if TimerLog[name] then TimerLog[name] = TimerLog[name] + diff; end
 	Dprint(str)
-	if diff > 0.5 then
+	if diff > maxDif then
 		if diff < 2 then
 			GCO.Warning(str, 2)
 		elseif diff < 5 then
