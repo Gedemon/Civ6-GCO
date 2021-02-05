@@ -1175,6 +1175,7 @@ Dprint("Calling CityCaptureCityAddedToMap (", playerID, cityID, iX, iY,")")
 			end
 		else
 			GCO.Warning("City is nil in CityCaptureCityAddedToMap for cityID, playerID "..tostring(cityID)..","..tostring(playerID))
+			GCO.DlineFull();
 		end
 	end
 end

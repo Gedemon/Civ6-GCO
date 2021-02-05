@@ -822,6 +822,8 @@ function GetCityData( pCity:table )
 	end
 
 	-- GCO <<<<<
+	if pCity:GetData() == nil then return data end 
+	
 	data.ResourcesStock 	= pCity:GetResourcesStockTable()
 	data.ResourcesSupply 	= pCity:GetResourcesSupplyTable()
 	data.ResourcesDemand 	= pCity:GetResourcesDemandTable()

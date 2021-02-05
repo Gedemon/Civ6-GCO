@@ -81,6 +81,7 @@ function GetCityCultureYield(plot)
 end
 
 function GetCityPlots(city)
+	if not city then GCO.Warning("city is nil for GetCityPlots"); GCO.DlineFull(); return {} end
 	local contextCity = CityManager.GetCity(city:GetOwner(), city:GetID())
 	return Map.GetCityPlots():GetPurchasedPlots(contextCity)
 end

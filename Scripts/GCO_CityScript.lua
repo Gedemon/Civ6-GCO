@@ -1382,10 +1382,11 @@ function ChangePopulationClass(self, populationID, value)
 end
 
 function GetPreviousUpperClass(self)
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetPreviousTurnKey()
-	if ExposedMembers.CityData[cityKey].Population[turnKey] then -- for new city this will be nil
-		return ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass or 0
+	local kData 	= self:GetData()
+	local turnKey 	= GCO.GetPreviousTurnKey()
+	if not kData then GCO.Warning("cityData is nil for ".. Locale.Lookup(self:GetName())); GCO.DlineFull(); end
+	if kData.Population[turnKey] then -- for new city this will be nil
+		return kData.Population[turnKey].UpperClass or 0
 	else
 		return self:GetUpperClass()
 	end
@@ -3495,10 +3496,10 @@ end
 -- City Panel Stats
 -- ======================================================================================
 function GetResourcesStockTable(self)
-	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
-	local data 			= ExposedMembers.CityData[cityKey]
+	local data 			= self:GetData()
 	local stockTable	= {}
+	if not data then GCO.Warning("cityData is nil for " .. self:GetName(), self:GetKey()); return stockTable end
 	if not data.Stock[turnKey] then return {} end
 	for resourceKey, value in pairs(data.Stock[turnKey]) do
 		local resourceID 		= tonumber(resourceKey)
@@ -3557,11 +3558,11 @@ function GetResourcesStockTable(self)
 end
 
 function GetResourcesSupplyTable(self)
-	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey	= GCO.GetPreviousTurnKey()
-	local data 				= ExposedMembers.CityData[cityKey]
+	local data 				= self:GetData()
 	local supplyTable		= {}
+	if not data then GCO.Warning("cityData is nil for " .. self:GetName(), self:GetKey()); return supplyTable end
 	if not data.ResourceUse[turnKey] then return {} end
 	for resRow in GameInfo.Resources() do
 		local resourceID 	= resRow.Index
@@ -3637,11 +3638,11 @@ function GetResourcesSupplyTable(self)
 end
 
 function GetResourcesDemandTable(self)
-	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey	= GCO.GetPreviousTurnKey()
-	local data 				= ExposedMembers.CityData[cityKey]
+	local data 				= self:GetData()
 	local demandTable		= {}
+	if not data then GCO.Warning("cityData is nil for " .. self:GetName(), self:GetKey()); return stockTable end
 	if not data.ResourceUse[turnKey] then return {} end
 	--for resourceKey, useData in pairs(data.ResourceUse[turnKey]) do
 
@@ -8053,6 +8054,7 @@ function OnCityInitialized( playerID: number, cityID : number, cityX : number, c
 	--print("CityAddedToMap - " .. tostring(playerID) .. ":" .. tostring(cityID) .. " " .. tostring(cityX) .. "x" .. tostring(cityY));
 
 	local city = GetCity(playerID, cityID)
+	if not city then GCO.Warning("city is nil for OnCityInitialized:", playerID, cityID, cityX, cityY); GCO.DlineFull(); return end
 	
 	-- calling SetHealthValues() here because the initial call from the City Banner Manager is done before the City plots are initialized 
 	city:SetHealthValues()
