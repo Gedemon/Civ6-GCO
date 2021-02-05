@@ -57,6 +57,15 @@ g_kAmenitiesIM			= InstanceManager:new( "AmenityInstance",			"Top", Controls.Ame
 -- ===========================================================================
 
 -- GCO <<<<<
+local ExpandedProdBuilding		:table	= {}	-- Show/Hide Buildings Production
+--[[
+-- need to move those table to data, get them from gameplay
+-- then compare and send difference to gameplay/MP on closing panel
+local DisabledSingleToSingleResProduction	:table	= {}	-- Disabled usage/production per couple of required/produced resource
+local DisabledSingleToMultiResProduction	:table	= {}	-- Disabled multiproduction of required resource (per required resource, should be only one per building from design)
+local DisabledSingleResProductionFromList	:table	= {}	-- Disabled production of a single resource from a multi-production required resource (per produced/required couple)
+local DisabledMultiToSingleResProduction	:table	= {}	-- Disabled production of a single resource from a multi-required list of resource (per produced resource, should be only one per building from design)
+--]]
 local m_kResourcesIM		:table	= InstanceManager:new( "ResourcesInstance",			"Top", Controls.ResourcesStack );
 local m_kResourcesSupplyIM	:table	= InstanceManager:new( "ResourcesSupplyInstance",	"Top", Controls.ResourcesSupplyStack );
 local m_kResourcesDemandIM	:table	= InstanceManager:new( "ResourcesDemandInstance",	"Top", Controls.ResourcesDemandStack );
@@ -64,6 +73,11 @@ local m_kResourcesDemandIM	:table	= InstanceManager:new( "ResourcesDemandInstanc
 local m_kForeignRoutesIM	:table	= InstanceManager:new( "ForeignRoutesInstance",		"Top", Controls.ForeignRoutesStack );
 local m_kTransferRoutesIM	:table	= InstanceManager:new( "TransferRoutesInstance",	"Top", Controls.TransferRoutesStack );
 local m_kSupplyLinesIM		:table	= InstanceManager:new( "SupplyLinesInstance",		"Top", Controls.SupplyLinesStack );
+local m_kResProductionIM	:table 	= InstanceManager:new( "ResourceProduction",		"Top");
+local m_kMultiResProdIM		:table 	= InstanceManager:new( "MultiResourceProduction",	"Top");
+local m_kResOutProdIM		:table 	= InstanceManager:new( "ResourceOutProduction",		"Top");
+local m_kMultiResReqIM		:table 	= InstanceManager:new( "MultiResRequiredProduction","Top");
+local m_kResInProdIM		:table 	= InstanceManager:new( "ResourceInProduction",		"Top");
 -- GCO >>>>>
 
 local m_kBuildingsIM		:table = InstanceManager:new( "BuildingInstance",			"Top");
@@ -220,8 +234,8 @@ function ViewPanelResources( data:table )
 	
 	for _, row in ipairs(data.ResourcesStock) do
 		kInstance = m_kResourcesIM:GetInstance()
-		kInstance.Name:SetText( row.Icon )
-		kInstance.Name:SetToolTipString( row.Name )
+		kInstance.Name:SetText( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
+		--kInstance.Name:SetToolTipString( row.Name )
 		kInstance.Stock:SetText( row.Stock.."/" )
 		kInstance.Stock:SetToolTipString(row.StockToolTip)
 		kInstance.MaxStock:SetText( row.MaxStock )
@@ -261,8 +275,8 @@ function ViewPanelResourcesSupply( data:table )
 	---[[
 	for _, row in ipairs(data.ResourcesSupply) do
 		kInstance = m_kResourcesSupplyIM:GetInstance()
-		kInstance.Name:SetText		( row.Icon )
-		kInstance.Name:SetToolTipString( row.Name )
+		kInstance.Name:SetText		( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
+		--kInstance.Name:SetToolTipString( row.Name )
 		kInstance.Collect:SetText	( row.Collect )
 		kInstance.Collect:SetToolTipString	( row.CollectToolTip )
 		kInstance.Product:SetText	( row.Product )
@@ -313,8 +327,8 @@ function ViewPanelResourcesDemand( data:table )
 	---[[
 	for _, row in ipairs(data.ResourcesDemand) do
 		kInstance = m_kResourcesDemandIM:GetInstance()
-		kInstance.Name:SetText		( row.Icon )
-		kInstance.Name:SetToolTipString( row.Name )
+		kInstance.Name:SetText		( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
+		--kInstance.Name:SetToolTipString( row.Name )
 		kInstance.Consume:SetText	( row.Consume 		)
 		kInstance.Export:SetText	( row.Export 		)
 		kInstance.TransferOut:SetText( row.TransferOut	)
@@ -473,6 +487,15 @@ function ViewPanelBreakdown( data:table )
 	Controls.DistrictsConstructed:SetText( Locale.Lookup("LOC_HUD_CITY_DISTRICTS_CONSTRUCTED", data.DistrictsNum) );	
 	Controls.DistrictsPossibleNum:SetText( data.DistrictsPossibleNum );
 
+	-- GCO <<<<<
+	m_kResProductionIM:ResetInstances();
+	m_kMultiResProdIM:ResetInstances();
+	m_kResOutProdIM:ResetInstances();
+	m_kMultiResReqIM:ResetInstances();
+	m_kResInProdIM:ResetInstances();
+	local RequiredResourceFactor	= tonumber(GameInfo.GlobalParameters["CITY_REQUIRED_RESOURCE_BASE_FACTOR"].Value)
+	local ProducedResourceFactor	= tonumber(GameInfo.GlobalParameters["CITY_PRODUCED_RESOURCE_BASE_FACTOR"].Value)
+	-- GCO >>>>>
 	m_kBuildingsIM:ResetInstances();
 	m_kDistrictsIM:ResetInstances();	
 	m_kTradingPostsIM:ResetInstances();
@@ -492,6 +515,13 @@ function ViewPanelBreakdown( data:table )
 			kInstanceDistrict.Icon:SetIcon( district.Icon );
 			local sToolTip = ToolTipHelper.GetToolTip(district.Type, playerID)
 			kInstanceDistrict.Top:SetToolTipString( sToolTip);
+			-- GCO <<<<<
+			kInstanceDistrict.DistrictName:SetToolTipString( sToolTip);
+			kInstanceDistrict.Icon:SetToolTipString( sToolTip);
+			kInstanceDistrict.Top:SetToolTipString( "");
+			kInstanceDistrict.DistrictYield:SetText( "x"..GCO.ToDecimals(data.OutputPerYield).."[ICON_Production]" )
+			kInstanceDistrict.DistrictYield:SetToolTipString(data.OutputString)
+			-- GCO >>>>>
 			for _,building in ipairs(district.Buildings) do
 				if building.isBuilt then
 					local kInstanceBuild:table = m_kBuildingsIM:GetInstance(kInstanceDistrict.BuildingStack);
@@ -512,7 +542,111 @@ function ViewPanelBreakdown( data:table )
 					kInstanceBuild.BuildingYield:SetTruncateWidth( kInstanceBuild.Top:GetSizeX() - kInstanceBuild.BuildingName:GetSizeX() - 10 );
 					-- GCO <<<<<
 					kInstanceBuild.BuildingYield:SetHide( true );
-					kInstanceBuild.Top:SetToolTipString( building.Tooltip )
+					kInstanceBuild.Top:SetToolTipString( "");
+					kInstanceBuild.BuildingName:SetToolTipString( building.Tooltip )
+					kInstanceBuild.Icon:SetToolTipString( building.Tooltip )
+	
+					if GCO.IsResourceProducer(pRow.Index) then
+						kInstanceBuild.CollapseButton:SetHide(false)
+						kInstanceBuild.BuildingProd:SetHide(false)
+						kInstanceBuild.CollapseButton:RegisterCallback(Mouse.eLClick, function() OnToggleProduction( building.Type ); end)
+						if ExpandedProdBuilding[building.Type] then
+							local kSettings = building.ProductionSettings
+							-- Single to Single resource production
+							for resourceRequiredID, prodRow in pairs(GCO.GetSingleResProduction(pRow.Index)) do
+								local kInstanceResProd:table	= m_kResProductionIM:GetInstance(kInstanceBuild.ResProdStack);
+								local maxConverted 				= prodRow.MaxConverted * RequiredResourceFactor * data.OutputPerYield
+								local ratio 					= prodRow.Ratio * ProducedResourceFactor
+								local resourceCreatedID			= prodRow.ResourceCreated
+								local resRequiredName 			= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
+								local resCreatedName 			= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
+								if GCO.IsSingleToSingleProductionEnabled(kSettings[ProductionSettingsType.SingleToSingle], resourceRequiredID, resourceCreatedID) then
+									kInstanceResProd.ResProdCheck:SetCheck(true)
+								else
+									kInstanceResProd.ResProdCheck:SetCheck(false)
+									maxConverted = 0
+								end
+								kInstanceResProd.ResProdCheck:RegisterCallback(Mouse.eLClick, function() OnToggleDisableSingleToSingleResProduction( kSettings[ProductionSettingsType.SingleToSingle], resourceRequiredID, resourceCreatedID ); end)
+								kInstanceResProd.ResIn:SetText(tostring(GCO.Round(maxConverted))..resRequiredName)
+								--kInstanceResProd.ResIn:SetText(tostring(maxConverted)..resRequiredName)
+								kInstanceResProd.ResOut:SetText("[ICON_GoingTo] "..tostring(GCO.Round(maxConverted*ratio)).. resCreatedName)
+							end
+							
+							-- Single to multi
+							for resourceRequiredID, multiProdRows in pairs(GCO.GetMultiResCreatedProduction(pRow.Index)) do
+								local kInstanceMultiResProd:table	= m_kMultiResProdIM:GetInstance(kInstanceBuild.ResProdStack);
+								local resRequiredName 				= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
+								local maxConverted					= 0
+								local bCanConvert					= true
+								if GCO.IsSingleToMultiProductionEnabled(kSettings[ProductionSettingsType.SingleToMulti], resourceRequiredID) then
+									kInstanceMultiResProd.ResProdCheck:SetCheck(true)
+								else
+									kInstanceMultiResProd.ResProdCheck:SetCheck(false)
+									bCanConvert = false
+								end
+								
+								for _, prodRow in ipairs(multiProdRows) do
+									local kInstanceResOutProd:table	= m_kResOutProdIM:GetInstance(kInstanceMultiResProd.ResOutStack);
+									maxConverted	 				= bCanConvert and (prodRow.MaxConverted * RequiredResourceFactor * data.OutputPerYield) or 0
+									local ratio 					= prodRow.Ratio * ProducedResourceFactor
+									local created					= GCO.Round(maxConverted*ratio)
+									local resourceCreatedID			= prodRow.ResourceCreated
+									local resCreatedName 			= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
+									if GCO.IsSingleProductionFromListEnabled(kSettings[ProductionSettingsType.SingleFromList], resourceRequiredID, resourceCreatedID) then
+										kInstanceResOutProd.ResProdCheck:SetCheck(true)
+									else
+										kInstanceResOutProd.ResProdCheck:SetCheck(false)
+										created = 0									
+									end
+									kInstanceResOutProd.ResOut:SetText("[ICON_GoingTo] "..tostring(created).. resCreatedName)
+									kInstanceResOutProd.ResProdCheck:RegisterCallback(Mouse.eLClick, function() OnToggleDisableSingleResProductionFromList( kSettings[ProductionSettingsType.SingleFromList], resourceRequiredID, resourceCreatedID ); end)
+								end
+								kInstanceMultiResProd.ResProdCheck:RegisterCallback(Mouse.eLClick, function() OnToggleDisableSingleToMultiResProduction( kSettings[ProductionSettingsType.SingleToMulti], resourceRequiredID ); end)
+								kInstanceMultiResProd.ResIn:SetText(tostring(GCO.Round(maxConverted))..resRequiredName)
+							end
+						
+							-- Multi to Single
+							for resourceCreatedID, multiReqRows in pairs(GCO.GetMultiResRequiredProduction(pRow.Index)) do
+								local kInstanceMultiResReq:table	= m_kMultiResReqIM:GetInstance(kInstanceBuild.ResProdStack);
+								local resCreatedName 				= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
+								local totalCreated					= 0
+								local bUsageEnabled					= GCO.IsMultiToSingleProductionEnabled(kSettings[ProductionSettingsType.MultiToSingle], resourceCreatedID)
+								local numTypeRequired				= #multiReqRows > 0 and #multiReqRows or 1
+								local totalWeigth					= 0
+								
+								for _, prodRow in ipairs(multiReqRows) do
+									local kInstanceResInProd:table	= m_kResInProdIM:GetInstance(kInstanceMultiResReq.ResInStack);
+									local resourceRequiredID		= prodRow.ResourceRequired
+									local resRequiredName 			= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
+									local maxConverted	 			= prodRow.MaxConverted * RequiredResourceFactor * data.OutputPerYield
+									local ratio 					= prodRow.Ratio * ProducedResourceFactor
+									totalWeigth						= totalWeigth + ratio
+									totalCreated					= totalCreated + maxConverted
+									if not bUsageEnabled then
+										maxConverted = 0
+									end
+								
+									kInstanceResInProd.ResIn:SetText(tostring(GCO.Round(maxConverted))..resRequiredName)
+								end
+								
+								local prodRatio	= GCO.Divide(totalWeigth, numTypeRequired)
+								local created	= GCO.Round(totalCreated * prodRatio)
+								
+								if bUsageEnabled then
+									kInstanceMultiResReq.ResProdCheck:SetCheck(true)
+								else
+									kInstanceMultiResReq.ResProdCheck:SetCheck(false)
+									created = 0	
+								end
+								
+								kInstanceMultiResReq.ResProdCheck:RegisterCallback(Mouse.eLClick, function() OnToggleDisableMultiToSingleResProduction( kSettings[ProductionSettingsType.MultiToSingle], resourceCreatedID ); end)
+								kInstanceMultiResReq.ResOut:SetText("[ICON_GoingTo] "..tostring(GCO.Round(created)).. resCreatedName)
+							end
+						end
+					else
+						kInstanceBuild.CollapseButton:SetHide(true)
+						kInstanceBuild.BuildingProd:SetHide(true)
+					end
 					-- GCO >>>>>
 				end
 			end
@@ -1100,7 +1234,10 @@ end
 -- ===========================================================================
 function FinalizeTabs()
 	m_tabs.CenterAlignTabs(0);
-	m_tabs.SelectTab( Controls.HealthButton );
+	-- GCO <<<<<
+	--m_tabs.SelectTab( Controls.HealthButton );
+	m_tabs.SelectTab( Controls.BuildingsButton );
+	-- GCO >>>>>
 	m_tabs.AddAnimDeco(Controls.TabAnim, Controls.TabArrow, 0, -21);
 end
 
@@ -1123,6 +1260,42 @@ function Close()
 	UI.PlaySound("UI_CityPanel_Closed");
 	UILens.SetActive("Default");
 	UI.SetInterfaceMode(InterfaceModeTypes.SELECTION);
+	-- GCO <<<<<
+	print("Closing City Panel")
+	--Deepcompare(t1,t2)
+	if m_kData and m_pCity then
+		local pCity 			= m_pCity
+		local kChangedSettings	= {}
+		GCO.AttachCityFunctions(pCity)
+		for _, district in ipairs(m_kData.BuildingsAndDistricts) do
+			for _,building in ipairs(district.Buildings) do
+				local kSettings 	= building.ProductionSettings
+				local buildingID	= GameInfo.Buildings[building.Type].Index				
+				for key, settingType in pairs(ProductionSettingsType) do
+					-- send only the settings that have changed to Gameplay (and MP)
+					if not Deepcompare(kSettings[settingType], pCity:GetBuildingProductionSettings(buildingID, settingType)) then
+						bApplyChange = true
+						print("Changed =", building.Type, key, buildingID)
+						table.insert( kChangedSettings, {BuildingID = buildingID, SettingType = settingType, Settings = kSettings[settingType] })
+					end
+				end
+			end
+		end
+		
+		if #kChangedSettings > 0 then
+			
+			local kParameters:table = {}
+			
+			kParameters.CityID			= pCity:GetID()
+			kParameters.ChangedSettings	= kChangedSettings
+			kParameters.OnStart			= "PlayerCityProductionSettings" -- Send this GameEvent when processing the operation
+
+			UI.RequestPlayerOperation(Game.GetLocalPlayer(), PlayerOperations.EXECUTE_SCRIPT, kParameters);
+		end
+		
+		
+	end
+	-- GCO >>>>>
 end
 
 -- ===========================================================================
@@ -1375,7 +1548,9 @@ function LateInitialize()
 	Events.LensChanged.Add( OnLensChanged );
 
 	-- Populate tabs	
-	AddTab( Controls.HealthButton,		OnSelectHealthTab );
+	-- GCO <<<<<
+	--AddTab( Controls.HealthButton,		OnSelectHealthTab );
+	-- GCO >>>>>
 	AddTab( Controls.BuildingsButton,	OnSelectBuildingsTab );
 	if GameCapabilities.HasCapability("CAPABILITY_CITY_HUD_RELIGION_TAB") then
 		AddTab( Controls.ReligionButton,OnSelectReligionTab );
@@ -1383,6 +1558,7 @@ function LateInitialize()
 		Controls.ReligionButton:SetHide(true);
 	end
 	-- GCO <<<<<
+	Controls.HealthButton:SetHide(true)
 	AddTab( Controls.ResourcesButton,	OnSelectResourcesTab );
 	-- GCO >>>>>
 end
@@ -1429,3 +1605,45 @@ function Initialize()
 	LuaEvents.GameDebug_Return.Add(OnGameDebugReturn);	
 end
 Initialize();
+
+-- GCO <<<<<
+-- ExpandedProdBuilding
+-- ===========================================================================
+--	Toggle production view
+-- ===========================================================================
+function OnToggleProduction( buildingType )
+	ExpandedProdBuilding[buildingType] = not ExpandedProdBuilding[buildingType]
+	Refresh()
+end
+
+-- ===========================================================================
+--	Toggle production types
+-- ===========================================================================
+
+-- Toggle single usage/production resources
+function OnToggleDisableSingleToSingleResProduction( kProdBuilding, reqResID, proResID )
+	kProdBuilding[reqResID] = kProdBuilding[reqResID] or {}
+	kProdBuilding[reqResID][proResID] = not kProdBuilding[reqResID][proResID]
+	Refresh()
+end
+
+-- Toggle multiple resource production from a single required resource
+function OnToggleDisableSingleToMultiResProduction( kProdBuilding, reqResourceID )
+	kProdBuilding[reqResourceID] = not kProdBuilding[reqResourceID]
+	Refresh()
+end
+
+-- Toggle a single resource production from a list of resource produced by a single required resource
+function OnToggleDisableSingleResProductionFromList( kProdBuilding, reqResID, proResID )
+	kProdBuilding[reqResID] = kProdBuilding[reqResID] or {}
+	kProdBuilding[reqResID][proResID] = not kProdBuilding[reqResID][proResID]
+	Refresh()
+end
+
+-- Toggle single resource production from multiple required resourceq
+function OnToggleDisableMultiToSingleResProduction( kProdBuilding, prodResourceID )
+	kProdBuilding[prodResourceID] = not kProdBuilding[prodResourceID]
+	Refresh()
+end
+
+-- GCO >>>>>

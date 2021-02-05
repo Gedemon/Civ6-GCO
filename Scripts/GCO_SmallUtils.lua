@@ -101,3 +101,46 @@ end
 function GetKeyFromIDs(i,j)
 	return tostring(i)..","..tostring(j)
 end
+
+-- ===========================================================================
+--	Recursively duplicate (deep copy)
+--	Original from: http://lua-users.org/wiki/CopyTable
+-- ===========================================================================
+function DeepCopy( orig )
+    local orig_type = type(orig);
+    local copy;
+    if orig_type == 'table' then
+        copy = {};
+        for orig_key, orig_value in next, orig, nil do
+            copy[DeepCopy(orig_key)] = DeepCopy(orig_value);
+        end
+        setmetatable(copy, DeepCopy(getmetatable(orig)));
+    else -- number, string, boolean, etc
+        copy = orig;
+    end
+    return copy;
+end
+
+
+-- ===========================================================================
+--	Recursively Compare
+-- ===========================================================================
+function Deepcompare(t1,t2,test_mt)
+	local ty1 = type(t1)
+	local ty2 = type(t2)
+	if ty1 ~= ty2 then return false end
+	-- non-table types can be directly compared
+	if ty1 ~= 'table' and ty2 ~= 'table' then return t1 == t2 end
+	-- as well as tables which have the metamethod __eq
+	local mt = getmetatable(t1)
+	if test_mt and mt and mt.__eq then return t1 == t2 end
+	for k1,v1 in pairs(t1) do
+		local v2 = t2[k1]
+		if v2 == nil or not Deepcompare(v1,v2) then return false end
+	end
+	for k2,v2 in pairs(t2) do
+		local v1 = t1[k2]
+		if v1 == nil or not Deepcompare(v1,v2) then return false end
+	end
+	return true
+end

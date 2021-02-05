@@ -42,7 +42,8 @@ DELETE FROM DealItems WHERE DealItemType ='DEAL_ITEM_CITIES' OR DealItemType ='D
 /* ************************ */
 /* Improvements             */
 /* ************************ */
-UPDATE Improvements SET OnePerCity = 1, SameAdjacentValid = 0 WHERE Buildable = 1 AND TraitType IS NOT NULL;		-- Before updating "CanBuildOutsideTerritory"
+--UPDATE Improvements SET OnePerCity = 1, SameAdjacentValid = 0 WHERE Buildable = 1 AND TraitType IS NOT NULL;		-- Before updating "CanBuildOutsideTerritory"
+UPDATE Improvements SET Buildable = 0 WHERE TraitType IS NOT NULL;
 UPDATE Improvements SET CanBuildOutsideTerritory = 1 WHERE Buildable = 1 AND TraitType ISNULL AND OnePerCity = 0;	-- After setting "OnePerCity", before removing "TraitType"
 UPDATE Improvements SET TraitType = NULL WHERE Buildable = 1;														-- After updating "CanBuildOutsideTerritory"
 UPDATE Improvements SET Housing = 0;
@@ -416,6 +417,12 @@ UPDATE Building_YieldChanges SET YieldChange ='4' WHERE BuildingType ='BUILDING_
 --DELETE FROM Buildings WHERE BuildingType='BUILDING_GRANARY';
 --DELETE FROM Buildings WHERE BuildingType='BUILDING_MONUMENT';
 
+--DELETE FROM  Buildings WHERE EnabledByReligion='1';
+UPDATE Buildings SET InternalOnly = 1, ObsoleteEra = 'ERA_ANCIENT' WHERE EnabledByReligion='1';
+UPDATE Buildings SET InternalOnly = 1, ObsoleteEra = 'ERA_ANCIENT' WHERE TraitType IS NOT NULL;
+DELETE FROM  Buildings WHERE IsWonder = 1;
+--UPDATE Buildings SET IsWonder = 0, PrereqDistrict = 'DISTRICT_CITY_CENTER' WHERE IsWonder = 1;
+
 UPDATE Districts SET CaptureRemovesBuildings = '0' WHERE DistrictType ='DISTRICT_CITY_CENTER';
 
 UPDATE Districts SET PrereqTech = 'TECH_MILITARY_ENGINEERING' 	WHERE DistrictType ='DISTRICT_ENCAMPMENT';
@@ -442,6 +449,9 @@ DELETE FROM Districts WHERE DistrictType ='DISTRICT_COMMERCIAL_HUB';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_ENTERTAINMENT_COMPLEX';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_THEATER';
 DELETE FROM Districts WHERE DistrictType ='DISTRICT_HOLY_SITE';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_PRESERVE';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_DIPLOMATIC_QUARTER';
+DELETE FROM Districts WHERE DistrictType ='DISTRICT_NEIGHBORHOOD';
 --*/
 
 /* Remove Housing & Entertainment */

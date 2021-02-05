@@ -23,12 +23,15 @@ local NO_TAG					= "N"	-- key for saved tables
 local bUseLocalTech 			= GameConfiguration.GetValue("UseLocalTechStorage")
 local baseTechCost				= tonumber(GameInfo.GlobalParameters["BASE_TECH_COST"].Value)
 
+local bUnlockerCheckDisabled	= false
 local Unlocker					= {}	-- Helper to get the unlocker ID for a Tech
+local IsUnlocker				= {}	-- Helper to check if a techID is an unlocker Tech
 for row in GameInfo.TechnologyPrereqs() do
 	if string.sub(row.PrereqTech, 1, 11) == "TECH_UNLOCK" then
-		local unlockerID	= GameInfo.Technologies[row.PrereqTech].Index
-		local techID		= GameInfo.Technologies[row.Technology].Index
-		Unlocker[techID]	= unlockerID
+		local unlockerID		= GameInfo.Technologies[row.PrereqTech].Index
+		local techID			= GameInfo.Technologies[row.Technology].Index
+		Unlocker[techID]		= unlockerID
+		IsUnlocker[unlockerID]	= true
 	end
 end
 
@@ -811,6 +814,21 @@ function Research:DoTurn()
 	Dprint( DEBUG_RESEARCH_SCRIPT, GCO.Separator)
 end
 
+
+function Research:IsLocked(TechID)
+	if Unlocker[TechID] then 						-- this tech has an unlocked
+		local data = self:GetData()
+		if not data.Unlocked then return true end 	-- no locked techs are unlocked yet
+		return (not data.Unlocked[TechID])			-- if not unlocked, then it's locked
+	else
+		return false
+	end
+end
+
+function Research:IsUnlocker(TechID)
+	return IsUnlocker[TechID]
+end
+
 function Research:UnlockTech(TechID, x, y)				-- Give the Tech that unlock TechID
 
 	local unlockerID = Unlocker[TechID]
@@ -824,7 +842,12 @@ function Research:UnlockTech(TechID, x, y)				-- Give the Tech that unlock TechI
 			local currentTechID		= pTech:GetResearchingTech()
 			local currentProgress	= pTech:GetResearchProgress(currentTechID)
 			
+			bUnlockerCheckDisabled	= true
+			
 			pTech:SetResearchProgress(unlockerID, pTech:GetResearchCost(unlockerID))
+			
+			bUnlockerCheckDisabled	= false
+			
 			if currentTechID ~= NO_ITEM then
 				pTech:SetResearchProgress(currentTechID, currentProgress)
 			end
@@ -845,7 +868,7 @@ function Research:UnlockTech(TechID, x, y)				-- Give the Tech that unlock TechI
 			
 				-- Message Text
 				local sText = Locale.Lookup("LOC_TECH_UNLOCKED", GameInfo.Technologies[TechID].Name, GameInfo.Technologies[unlockerID].Description)
-				GCO.StatusMessage(sText, 8, ReportingStatusTypes.GOSSIP)
+				GCO.StatusMessage(sText, 8, ReportingStatusTypes.GOSSIP, GossipsSubType.Science)
 			end
 			return true
 		end
@@ -1680,6 +1703,30 @@ function OnSpyMissionCompleted( playerID:number, missionID:number )
 	end
 end
 Events.SpyMissionCompleted.Add( OnSpyMissionCompleted )
+
+-- check if an unlocker is selected for research (code by LeeS)
+-- not working when tested 31-jan-21, AI try to reselect the locked techs the same turn, may cause infinite loop)
+-- may try higher cost ? bigger negative value for AI Favored Items ?
+function OnResearchChanged(playerID, techID)
+	if bUnlockerCheckDisabled then return end
+	if IsUnlocker[techID] then
+		local pPlayer 		= Players[playerID]
+		local pTechs 		= pPlayer:GetTechs()
+		local pPlayerConfig	= PlayerConfigurations[playerID]
+		local errStr 		= "Trying to select an unlocker tech for research ![NEWLINE]"..Locale.Lookup(GameInfo.Technologies[techID].Name).."[NEWLINE]"..Locale.Lookup(pPlayerConfig and pPlayerConfig:GetCivilizationShortDescription())
+		GCO.Error(errStr)
+		--[[
+		for row in GameInfo.Technologies() do
+			local newTechID = row.Index
+			if (not IsUnlocker[newTechID]) and (not pTechs:HasTech(newTechID)) and pTechs:CanResearch(newTechID) then
+				pTechs:SetResearchingTech(newTechID)
+				return
+			end
+		end
+		--]]
+	end
+end
+Events.ResearchChanged.Add(OnResearchChanged)
 
 
 --=====================================================================================--

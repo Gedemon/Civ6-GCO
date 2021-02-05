@@ -334,6 +334,9 @@ INSERT INTO TechnologyPrereqs(Technology, PrereqTech)
 	SELECT TechnologyType, TechnologyType
 	FROM Technologies WHERE substr(Technologies.TechnologyType,1,11) = 'TECH_UNLOCK';
 --*/
+INSERT INTO AiFavoredItems(ListType, Item, Value)
+	SELECT 'UnlockerTechs', TechnologyType, -200
+	FROM Technologies WHERE substr(Technologies.TechnologyType,1,11) = 'TECH_UNLOCK';
 	
 /* Civics cost 
 UPDATE Civics SET Cost = Cost*1.20 WHERE EraType ='ERA_ANCIENT';

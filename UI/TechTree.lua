@@ -29,6 +29,40 @@ include( "TechFilterFunctions" );
 include( "ModalScreen_PlayerYieldsHelper" );
 include( "GameCapabilities" );
 
+-- GCO <<<<<
+-----------------------------------------------------------------------------------------
+-- Initialize Functions
+-----------------------------------------------------------------------------------------
+print("Loading TechTree.lua...")
+--[[
+local pResearch 	= nil
+local GameEvents	= ExposedMembers.GameEvents
+function InitializeUtilityFunctions()
+	pResearch = ExposedMembers.GCO.Research:Create(Game.GetLocalPlayer())
+end
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+if ExposedMembers.GCO_Initialized then InitializeUtilityFunctions() end
+--]]
+local tUnlocker		= {}	-- Helper to get the unlocker ID for a Tech
+local tIsUnlocker	= {}	-- Helper to check if a techID is an unlocker Tech
+for row in GameInfo.TechnologyPrereqs() do
+	if string.sub(row.PrereqTech, 1, 11) == "TECH_UNLOCK" then
+		local unlockerID		= GameInfo.Technologies[row.PrereqTech].Index
+		local techID			= GameInfo.Technologies[row.Technology].Index
+		tUnlocker[techID]		= unlockerID
+		tIsUnlocker[unlockerID]	= true
+	end
+end
+function IsLocked(techID)
+	local pTechs 	= Players[Game.GetLocalPlayer()]:GetTechs()
+	local unlockID	= tUnlocker[techID]
+	return pTechs and unlockID and not pTechs:HasTech(unlockID)
+end
+function IsUnlocker(techID)
+	return tIsUnlocker[techID]
+end
+-- GCO >>>>>
+
 -- ===========================================================================
 --	DEBUG
 --	Toggle these for temporary debugging help.
@@ -95,6 +129,7 @@ local ITEM_STATUS					:table  = {
 									RESEARCHED	= 4,
 									-- GCO <<<<<
 									PREREQ		= 5,
+									LOCKED		= 6,
 									-- GCO >>>>>
 								};
 local LINE_LENGTH_BEFORE_CURVE		:number = 20;			-- How long to make a line before a node before it curves
@@ -119,7 +154,8 @@ STATUS_ART[ITEM_STATUS.BLOCKED]		= { Name="BLOCKED",		TextColor0=0xff202726, Tex
 STATUS_ART[ITEM_STATUS.READY]		= { Name="READY",		TextColor0=0xaaffffff, TextColor1=0x88000000, FillTexture=nil,									BGU=0,BGV=0,				IsButton=true,	BoltOn=false,	IconBacking=PIC_METER_BACK  };
 STATUS_ART[ITEM_STATUS.CURRENT]		= { Name="CURRENT",		TextColor0=0xaaffffff, TextColor1=0x88000000, FillTexture=nil,									BGU=0,BGV=(SIZE_NODE_Y*4),	IsButton=false,	BoltOn=true,	IconBacking=PIC_METER_BACK };
 STATUS_ART[ITEM_STATUS.RESEARCHED]	= { Name="RESEARCHED",	TextColor0=0xaaffffff, TextColor1=0x88000000, FillTexture="TechTree_GearButtonTile_Done.dds",	BGU=0,BGV=(SIZE_NODE_Y*5),	IsButton=false,	BoltOn=true,	IconBacking=PIC_METER_BACK_DONE  };
---GCO <<<<<
+-- GCO <<<<<
+STATUS_ART[ITEM_STATUS.LOCKED]		= { Name="LOCKED",		TextColor0=0xff202726, TextColor1=0x00000000, FillTexture="CivicsTree_GearButtonTile_Disabled.dds",BGU=0,BGV=(SIZE_NODE_Y*3),	IsButton=false,	BoltOn=false,	IconBacking=PIC_METER_BACK  };
 STATUS_ART[ITEM_STATUS.PREREQ]		= { Name="PREREQ",		TextColor0=0xffffff00, TextColor1=0x00000000, FillTexture=nil,			BGU=0,BGV=(SIZE_NODE_Y*4),	IsButton=false,	BoltOn=true,	IconBacking=PIC_METER_BACK };
 -- GCO >>>>>
 
@@ -180,7 +216,12 @@ function SetCurrentNode( hash:number )
 		local localPlayerTechs = Players[Game.GetLocalPlayer()]:GetTechs();
 		-- Get the complete path to the tech
 		local pathToTech = localPlayerTechs:GetResearchPath( hash );
-
+		
+		-- GCO <<<<<
+		for n, techID in ipairs(pathToTech) do
+			if IsLocked(techID) then return end
+		end
+		-- GCO >>>>>
 		local tParameters = {};
 		tParameters[PlayerOperations.PARAM_TECH_TYPE]	= pathToTech;
 		if m_shiftDown then
@@ -408,6 +449,24 @@ function AllocateUI()
 				
 		node = m_kNodeIM:GetInstance();
 		node.Top:SetTag( item.Hash );	-- Set the hash of the technology to the tag of the node (for tutorial to be able to callout)
+		
+		-- GCO <<<<<
+		--[[
+		local localPlayerTechs = Players[playerId]:GetTechs();
+		local pathToTech 		= localPlayerTechs:GetResearchPath( item.Hash );
+		local bHidePath			= false
+		for n, techID in ipairs(pathToTech) do
+			if IsLocked(techID) then 
+				bHidePath = true
+			end
+		end
+		--]]
+		
+		--if bHidePath or pResearch:IsUnlocker(tech.Index) then
+		if IsUnlocker(tech.Index) then
+			node.Top:SetHide(true)
+		end
+		-- GCO >>>>>
 
 		local era:table = m_kEras[item.EraType];
 
@@ -846,6 +905,7 @@ function PopulateNode(node, playerTechData)
 			node.BoostMeter:SetPercent( boostAmount );
 		end
 		TruncateStringWithTooltip(node.BoostText, MAX_BEFORE_TRUNC_TO_BOOST, boostText); 
+
 	else
 		node.BoostIcon:SetHide( true );
 		node.BoostText:SetHide( true );
@@ -888,6 +948,29 @@ function PopulateNode(node, playerTechData)
 			node.BoostMeter:SetColor(0xffffffff);
 			node.BoostIcon:SetColor(0xffffffff);
 		end
+		-- GCO <<<<<
+		if(live.Status == ITEM_STATUS.LOCKED) then
+			node.IconBacking:SetHide(true);
+			iconName = iconName .. "_FOW";
+			node.BoostMeter:SetColor(0x66ffffff);
+			node.BoostIcon:SetColor(0x66000000);
+			node.BoostText:SetHide( false );
+			node.BoostText:SetColor( artInfo.TextColor0, 0 );
+			local lockStr = ""
+			if IsLocked(item.Index) then
+				local row = GameInfo.Technologies[item.Prereqs[1]]
+				lockStr = Locale.Lookup("LOC_RESEARCH_LOCKED_BY_UNLOCKER", row and row.Name or "")
+			else
+				for _, prereqType in pairs(item.Prereqs) do
+					local row = GameInfo.Technologies[prereqType]
+					if row and IsLocked(row.Index) then
+						lockStr = Locale.Lookup("LOC_RESEARCH_LOCKED_BY_PREVIOUS_TECH", row.Name )
+					end
+				end
+			end
+			node.BoostText:SetText( lockStr );
+		end
+		-- GCO >>>>>
 		local textureOffsetX, textureOffsetY, textureSheet = IconManager:FindIconAtlas(iconName, 42);	
 		if (textureOffsetX ~= nil) then
 			node.Icon:SetTexture( textureOffsetX, textureOffsetY, textureSheet );
@@ -925,6 +1008,13 @@ function PopulateNode(node, playerTechData)
 	else
 		node.FilteredOut:SetHide( false );
 	end
+
+	-- GCO <<<<<
+	if(live.Status == ITEM_STATUS.LOCKED) then
+		node.FilteredOut:SetHide( false )
+	end
+	-- GCO >>>>>
+	
 end
 
 
@@ -1086,6 +1176,21 @@ function GetLivePlayerData( ePlayer:number, eCompletedTech:number )
 		elseif playerTechs:CanResearch(techID) then
 			status = ITEM_STATUS.READY;
 		end
+		-- GCO <<<<<
+		local bLockedPath 	= false
+		--local pathToTech 	= playerTechs:GetResearchPath( item.Hash );
+		--for n, pathTechID in ipairs(pathToTech) do
+		for _, techType in pairs(item.Prereqs) do
+			local pathTechID = GameInfo.Technologies[techType] and GameInfo.Technologies[techType].Index
+			if IsLocked(pathTechID) then 
+				bLockedPath = true
+			end
+		end
+		if bLockedPath or IsLocked(techID) then
+			status = ITEM_STATUS.LOCKED;
+		end
+		--]]
+		-- GCO >>>>>
 
 		data[DATA_FIELD_LIVEDATA][type] = {
 			Cost		= playerTechs:GetResearchCost(techID),

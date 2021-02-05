@@ -16,10 +16,12 @@ include( "GCO_SmallUtils" )
 -- Debug
 -----------------------------------------------------------------------------------------
 
-DEBUG_UNIT_SCRIPT = "UnitScript"
+DEBUG_UNIT_SCRIPT 	= "UnitScript"
+DEBUG_LOCAL_COMBAT	= false			-- show logs for local player combats
+DEBUG_UNIT_TURN		= false			-- use pcall for units turn (slow down processing speed but returns silent errors)
 
 function ToggleDebug()
-	DEBUG_UNIT_SCRIPT = not DEBUG_UNIT_SCRIPT
+	DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT == "UnitScript" and "debug" or "UnitScript"
 end
 
 local previousDebugLevel = DEBUG_UNIT_SCRIPT
@@ -728,7 +730,7 @@ end
 function InitializeEquipment(self, equipmentList) -- equipmentList optional, equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
 	Dlog("InitializeEquipment /START")
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"	
+	--local DEBUG_UNIT_SCRIPT = "debug"	
 	Dprint( DEBUG_UNIT_SCRIPT, "Initializing equipment for unit (".. Locale.Lookup(self:GetName()) ..") for player #".. tostring(self:GetOwner()).. " id#" .. tostring(self:GetKey()))
 	
 	local unitKey 	= self:GetKey()
@@ -2485,6 +2487,25 @@ function GetAvailableEquipmentForUnitPromotionClassFromList(unitTypeID, promotio
 	return availableEquipment
 end
 
+function SortEquipmentList(equipmentList) -- Sort equipment list by desirability
+
+	local sortedEquipmentList 	= {} -- { EquipmentID = equipmentID, Value = value, Desirability = desirability }
+
+	for resourceKey, value in pairs(equipmentList) do
+		local resourceID 	= tonumber(resourceKey)
+		if GCO.IsResourceEquipment(resourceID) then
+			local desirability 	= EquipmentInfo[resourceID].Desirability
+			table.insert(sortedEquipmentList, { EquipmentID = resourceID, Value = value, Desirability = desirability })
+			Dprint( DEBUG_UNIT_SCRIPT, "- Add equipment ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " to list : { EquipmentID = resourceID, Value = value, Desirability = desirability })", resourceID, value, desirability )
+		end
+	end
+	
+	table.sort(sortedEquipmentList, function(a, b) return a.Desirability > b.Desirability; end)
+	
+	return sortedEquipmentList
+end
+
+
 -- Unit functions
 function IsSpecificEquipment(self, equipmentTypeID) 			-- to check if equipmentTypeID is used by this unit
 	return IsUnitSpecificEquipment(self:GetType(), equipmentTypeID)
@@ -3169,6 +3190,20 @@ function GetResourcesStockString(self)
 	return str
 end
 
+function GetDamagedEquipmentStockString(self)
+	local unitKey 	= self:GetKey()
+	local data 		= ExposedMembers.UnitData[unitKey]
+	local str 		= ""
+	for resourceKey, value in pairs(data.DamagedEquipment) do
+		local resourceID 		= tonumber(resourceKey)		
+		if (value) > 0 then
+			local resRow 			= GameInfo.Resources[resourceID]
+			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_RESOURCE_STOCK", value, resRow.Name, GCO.GetResourceIcon(resourceID))
+		end
+	end
+	return str
+end
+
 function GetMilitaryFormationSizeString(self)
 	local unitOrganization = self:GetMilitaryOrganization()
 	if not unitOrganization then return "" end
@@ -3248,6 +3283,7 @@ function GetUnitCompositionToolTip(self)
 		if bHasExtra then
 			nameString = nameString .. "[NEWLINE]" .. rearStrTitle
 			if unitData.WoundedPersonnel 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_WOUNDED_PERSONNEL", unitData.WoundedPersonnel) .. GCO.GetNeutralVariationString(self:GetComponentVariation("WoundedPersonnel")) end
+			nameString = nameString .. self:GetDamagedEquipmentStockString()
 			--if unitData.DamagedEquipment 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_DAMAGED_EQUIPMENT", unitData.DamagedEquipment)  .. GCO.GetNeutralVariationString(self:GetComponentVariation("DamagedEquipment"))end
 			if totalPrisoners	 			> 0 then nameString = nameString .. GCO.GetPrisonersStringByCiv(unitData) end	-- "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PRISONERS", totalPrisoners) .. GCO.GetPrisonersStringByCiv(unitData) end
 			if unitData.FoodStock 			> 0 then nameString = nameString .. "[NEWLINE]" .. self:GetFoodStockString() end
@@ -3883,13 +3919,13 @@ function AddCasualtiesInfoByTo(FromOpponent, Opponent)
 	end	
 	casualtiesToManage 	= casualtiesToManage - Opponent.Captured
 	local capturedRatio = 0	
-	if Opponent.PersonnelCasualties > 0 then deadRatio = Opponent.Captured / Opponent.PersonnelCasualties end
+	if Opponent.PersonnelCasualties > 0 then capturedRatio = Opponent.Captured / Opponent.PersonnelCasualties end
 	
 	-- Wounded
 	--to do : protection -> light injuries transferred to reserve
 	Opponent.Wounded 	= casualtiesToManage
 	local woundedRatio  = 0	
-	if Opponent.PersonnelCasualties > 0 then deadRatio = Opponent.Wounded / Opponent.PersonnelCasualties end
+	if Opponent.PersonnelCasualties > 0 then woundedRatio = Opponent.Wounded / Opponent.PersonnelCasualties end
 	
 	Dprint( DEBUG_UNIT_SCRIPT, "- Casualties to Personnel : ".. Indentation20("Dead = ".. tostring(Opponent.Dead)).. Indentation20(", Captured = ".. tostring(Opponent.Captured)).. Indentation20(", Wounded = ".. tostring(Opponent.Wounded)) )
 
@@ -4013,9 +4049,11 @@ local combatStart 	= {}
 local combatEnd		= {}
 function OnCombat( combatResult )
 
-	local DEBUG_UNIT_SCRIPT = "UnitScript"
-	--if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
-	--if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
+	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	if DEBUG_LOCAL_COMBAT then
+		if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
+		if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.SetUnitsDebugLevel("debug") end
+	end
 	
 	-- for console debugging...
 	ExposedMembers.lastCombat = combatResult
@@ -4038,6 +4076,7 @@ function OnCombat( combatResult )
 	defender.IsDistrict = defender[CombatResultParameters.ID].type == ComponentType.DISTRICT
 
 	local componentString = { [ComponentType.UNIT] = "UNIT", [ComponentType.CITY] = "CITY", [ComponentType.DISTRICT] = "DISTRICT"}
+
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Attacker is " .. tostring(componentString[attacker[CombatResultParameters.ID].type]) ..", Damage = " .. attacker[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(attacker[CombatResultParameters.MAX_HIT_POINTS] - attacker[CombatResultParameters.FINAL_DAMAGE_TO]))
 	Dprint( DEBUG_UNIT_SCRIPT, "-- Defender is " .. tostring(componentString[defender[CombatResultParameters.ID].type]) ..", Damage = " .. defender[CombatResultParameters.DAMAGE_TO] ..", Final HP = " .. tostring(defender[CombatResultParameters.MAX_HIT_POINTS] - defender[CombatResultParameters.FINAL_DAMAGE_TO]))
 
@@ -4445,8 +4484,11 @@ function OnCombat( combatResult )
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	--]]
 	
-	--if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
-	--if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
+
+	if DEBUG_LOCAL_COMBAT then
+		if combatResult[CombatResultParameters.ATTACKER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
+		if combatResult[CombatResultParameters.DEFENDER][CombatResultParameters.ID].player == Game.GetLocalPlayer() then LuaEvents.RestoreUnitsDebugLevel() end
+	end
 	
 	combatEnd[combatCount] = true
 end
@@ -4713,7 +4755,7 @@ function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 	-- wounded soldiers may die...
 	local potentialDeads 	= GCO.Round(woundedToHandle / 2)
 	local savedWithMedicine	= math.min(availableMedicine*10, GCO.Round(potentialDeads/2))
-	local medicineUsed		= math.ceil(savedWithMedicine/10)
+	local medicineUsed		= (savedWithMedicine/10)
 	
 	local deads				= potentialDeads - savedWithMedicine
 	availableMedicine		= availableMedicine - medicineUsed
@@ -4725,7 +4767,7 @@ function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 	local potentialHealed 		= woundedToHandle - potentialDeads
 	local healedDirectly		= GCO.Round(potentialHealed/2)
 	local healedWithMedicine	= math.min(availableMedicine*10, potentialHealed - healedDirectly )
-	medicineUsed				= medicineUsed + math.ceil(healedWithMedicine/10)
+	medicineUsed				= medicineUsed + (healedWithMedicine/10)
 	
 	local healed 				= healedDirectly + healedWithMedicine
 
@@ -4737,10 +4779,15 @@ function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 		GCO.Warning("used more medicine than available, initial stock = ".. tostring(unitData.MedicineStock) ..", used =".. tostring(medicineUsed)..", wounded to treat = ".. tostring(woundedToHandle))
 		Dprint( DEBUG_UNIT_SCRIPT, "deads = ", deads, " healed = ", healed, " potentialDeads = ", potentialDeads, " savedWithMedicine = ", savedWithMedicine, " potentialHealed = ", potentialHealed, " healedDirectly = ", healedDirectly, " requiredMedicine = ", requiredMedicine)
 	end
-	unitData.MedicineStock = math.max(0, unitData.MedicineStock - medicineUsed)
+	unitData.MedicineStock = math.max(0, GCO.ToDecimals(unitData.MedicineStock - medicineUsed))
+
+	-- Transfer equipment
+	Dprint( DEBUG_UNIT_SCRIPT, " - Checking to transfer equipment from reserve...")
+	local bLimitTransfer = true
+	self:DoInternalEquipmentTransfer(bLimitTransfer, alreadyUsed)
 
 	-- try to repair vehicles with materiel available left (= logistic/maintenance limit)
-	local repairedEquipment = {}
+	--local repairedEquipment = {}
 	--[[
 	if unitData.MaterielPerEquipment > 0 then
 		local materielAvailable = maxMaterielTransfer - alreadyUsed.Materiel
@@ -4752,13 +4799,19 @@ function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 			unitData.EquipmentReserve = unitData.EquipmentReserve + repairedEquipment
 		end
 	end
-	--]]
+	--]]	
+	for resourceKey, value in pairs(unitData.DamagedEquipment) do
+		local equipmentID 		= tonumber(resourceKey)
+		local equipmentClass	= self:GetEquipmentClass( equipmentID )
+		if (value) > 0 then
+			local maxEquipment	= self:GetMaxEquipmentFrontLine(equipmentClass)
+			local maxRepaired	= math.ceil(maxEquipment * 0.10)
+			local repaired 		= math.min(maxRepaired, value)
+			self:ChangeReserveEquipment(equipmentID, repaired)
+			unitData.DamagedEquipment[resourceKey] = value - repaired
+		end
+	end
 	
-	-- Transfer equipment
-	Dprint( DEBUG_UNIT_SCRIPT, " - Checking to transfer equipment from reserve...")
-	local bLimitTransfer = true
-	self:DoInternalEquipmentTransfer(bLimitTransfer, alreadyUsed)
-
 	-- Visualize healing
 	local healingData = {deads = deads, healed = healed, repairedEquipment = repairedEquipment, X = self:GetX(), Y = self:GetY() }
 	ShowReserveHealingFloatingText(healingData)
@@ -5759,8 +5812,11 @@ end
 
 ---[[
 function DoUnitsTurn( playerID )
-	--GCO.Monitor(UnitsTurn, {playerID}, "Units Turn Player#".. tostring(playerID))
-	UnitsTurn( playerID )
+	if DEBUG_UNIT_TURN then
+		GCO.Monitor(UnitsTurn, {playerID}, "Units Turn Player#".. tostring(playerID))
+	else
+		UnitsTurn( playerID )
+	end
 end
 --]]
 
@@ -5787,18 +5843,7 @@ function OnUnitProductionCompleted(playerID, cityID, productionID, objectID, bCa
 	Dprint( DEBUG_UNIT_SCRIPT, "OnCityProductionCompleted", unitTypeName)
 	
 	local equipmentList 		= city:GetBuildingQueueAllStock(unitTypeName)
-	local sortedEquipmentList 	= {} -- { EquipmentID = equipmentID, Value = value, Desirability = desirability }
-
-	for resourceKey, value in pairs(equipmentList) do
-		local resourceID 	= tonumber(resourceKey)
-		if GCO.IsResourceEquipment(resourceID) then
-			local desirability 	= EquipmentInfo[resourceID].Desirability
-			table.insert(sortedEquipmentList, { EquipmentID = resourceID, Value = value, Desirability = desirability })
-			Dprint( DEBUG_UNIT_SCRIPT, "- Add equipment ".. Locale.Lookup(GameInfo.Resources[resourceID].Name), " to list : { EquipmentID = resourceID, Value = value, Desirability = desirability })", resourceID, value, desirability )
-		end
-	end
-	
-	table.sort(sortedEquipmentList, function(a, b) return a.Desirability > b.Desirability; end)
+	local sortedEquipmentList 	= SortEquipmentList(equipmentList)
 	
 	-- search for the unit on city plots...
 	--[[
@@ -5935,7 +5980,7 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 		local player 	= GCO.GetPlayer(unitOwner)
 			
 		function GetNum(num)
-			return GCO.Round((TerrainBuilder.GetRandomNumber(num, "OnImprovementActivated GetNum")+1) * (gameEra+1) * 0.35)
+			return GCO.Round((TerrainBuilder.GetRandomNumber(num, "OnImprovementActivated GetNum")) * (gameEra+1) * 0.35)+1
 		end
 		if( GameInfo.Improvements[improvementType].BarbarianCamp ) then
 			Dprint( DEBUG_UNIT_SCRIPT, "Barbarian Village Cleaned, Era = "..tostring(eraType));
@@ -6415,6 +6460,7 @@ function AttachUnitFunctions(unit)
 			u.GetFrontLineEquipmentString			= GetFrontLineEquipmentString
 			u.GetReserveEquipmentString				= GetReserveEquipmentString
 			u.GetResourcesStockString				= GetResourcesStockString
+			u.GetDamagedEquipmentStockString		= GetDamagedEquipmentStockString
 			u.GetMilitaryFormationSizeString		= GetMilitaryFormationSizeString
 			u.GetMilitaryFormationTypeName			= GetMilitaryFormationTypeName
 			u.GetUnitCompositionToolTip				= GetUnitCompositionToolTip
@@ -6446,6 +6492,7 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetUnitConstructionOrResources						= GetUnitConstructionOrResources
 	ExposedMembers.GCO.GetUnitConstructionOptionalResources					= GetUnitConstructionOptionalResources
 	ExposedMembers.GCO.GetUnitConscriptionEquipment							= GetUnitConscriptionEquipment
+	ExposedMembers.GCO.SortEquipmentList									= SortEquipmentList
 	ExposedMembers.GCO.UpdateUnitsData 										= UpdateUnitsData
 	ExposedMembers.GCO.GetUnitPromotionClassID 								= GetUnitPromotionClassID
 	ExposedMembers.GCO.RegisterNewUnit										= RegisterNewUnit

@@ -5,18 +5,18 @@
 
 print("Loading CityScript.lua...")
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Includes
------------------------------------------------------------------------------------------
+-- ======================================================================================
 include( "GCO_TypeEnum" )
 include( "GCO_SmallUtils" )
 
-
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Debug
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
-DEBUG_CITY_SCRIPT = "CityScript"
+DEBUG_CITY_SCRIPT 	= "CityScript"
+DEBUG_CITY_TURN		= true			-- use pcall for cities turn (slow down processing speed but returns silent errors)
 
 function ToggleDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -33,9 +33,9 @@ end
 --LuaEvents.SetCitiesDebugLevel.Add(SetDebugLevel)
 --LuaEvents.RestoreCitiesDebugLevel.Add(RestorePreviousDebugLevel)
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- ENUMS
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 local NO_IMPROVEMENT 	= -1
 local NO_FEATURE 		= -1
@@ -57,9 +57,9 @@ local NeedsEffectType	= {	-- ENUM for effect types from Citizen Needs
 	Consumption				= 7, -- NeedsEffects[PopulationID][NeedsEffectType.Consumption][Locale.Lookup("LOC_RESOURCE_CONSUMED_BY_NEED", resName, resIcon)] 		= consumedValue
 	}
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Defines
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 local _cached					= {}	-- cached table to reduce calculations
 	
@@ -71,6 +71,8 @@ local CitiesTransferDemand		= {}	-- temporary table to list all resources requir
 local CitiesTradeDemand			= {}	-- temporary table to list all resources required by other civilizations cities
 local CitiesOutOfReach			= {}	-- temporary table to list all cities out of reach of another city (and turns left before next attempt)
 local CitiesToIgnoreThisTurn	= {}	-- temporary table to list all cities to ignore during the current "DoTurn"
+
+local BuildingsProductionSettings	:table	= {}	-- Loaded/Saved table with Buildings production settings per city
 
 local BaseCityYields			= {
 		[YieldHealthID]			= 1,
@@ -242,6 +244,7 @@ local resourceTradeLevel = {
 	[TradeLevelType.Allied] = {}	-- internal trade route are at this level
 }
 
+-- Helper to get Central Square Building ID per Era
 local centralSquareIDs	= {
 	["ERA_ANCIENT"] 		= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_ANCIENT"].Index ,
 	["ERA_CLASSICAL"] 		= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_CLASSICAL"].Index ,
@@ -255,6 +258,36 @@ local centralSquareIDs	= {
 	["ERA_FUTURE"] 			= GameInfo.Buildings["BUILDING_CENTRAL_SQUARE_FUTURE"].Index ,
 }
 
+-- Helper for Resources production in Buildings
+local kSingleResProd 	= {}
+local kMultiResRequired = {}
+local kMultiResCreated 	= {}
+local kIsResourceProd 	= {}
+for row in GameInfo.BuildingResourcesConverted() do
+	local buildingID 	= GameInfo.Buildings[row.BuildingType].Index
+	local maxConverted 	= row.MaxConverted
+	local ratio			= row.Ratio
+	
+	local resourceRequiredID = GameInfo.Resources[row.ResourceType].Index
+	local resourceCreatedID = GameInfo.Resources[row.ResourceCreated].Index
+	if row.MultiResRequired then
+		if not (kMultiResRequired[buildingID]) then	kMultiResRequired[buildingID] = {[resourceCreatedID] = {}} end
+		kMultiResRequired[buildingID][resourceCreatedID] = kMultiResRequired[buildingID][resourceCreatedID] or {}
+		table.insert(kMultiResRequired[buildingID][resourceCreatedID], {ResourceRequired = resourceRequiredID, MaxConverted = maxConverted, Ratio = ratio})
+		kIsResourceProd[buildingID] = true
+	elseif row.MultiResCreated then
+		if not (kMultiResCreated[buildingID]) then kMultiResCreated[buildingID] = {[resourceRequiredID] = {}} end
+		kMultiResCreated[buildingID][resourceRequiredID] = kMultiResCreated[buildingID][resourceRequiredID] or {}
+		table.insert(kMultiResCreated[buildingID][resourceRequiredID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio})
+		kIsResourceProd[buildingID] = true
+	else
+		if not kSingleResProd[buildingID] then	kSingleResProd[buildingID] = {[resourceRequiredID] = {}} end
+		kSingleResProd[buildingID][resourceRequiredID] = {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio}
+		kIsResourceProd[buildingID] = true
+	end
+end
+
+--
 local IncomeExportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_EXPORT_PERCENT"].Value)
 local IncomeImportPercent			= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_IMPORT_PERCENT"].Value)
 
@@ -428,9 +461,9 @@ local FLOATING_TEXT_SHORT 	= 1
 local FLOATING_TEXT_LONG 	= 2
 local floatingTextLevel 	= FLOATING_TEXT_SHORT
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Initialize
------------------------------------------------------------------------------------------
+-- ======================================================================================
 local GCO 		= {}
 local pairs 	= pairs
 local oldpairs 	= pairs
@@ -460,6 +493,7 @@ function PostInitialize() -- everything that may require other context to be loa
 	CitiesTradeDemand				= GCO.LoadTableFromSlot("CitiesTradeDemand") or {}
 	CitiesForTransfer				= GCO.LoadTableFromSlot("CitiesForTransfer") or {}
 	CitiesForTrade					= GCO.LoadTableFromSlot("CitiesForTrade") or {}
+	BuildingsProductionSettings		= GCO.LoadTableFromSlot("BuildingsProductionSettings") or {}
 	
 	-- Filling the helper to get the resources that can be traded at a specific trade level
 	-- (require initializing resources functions in ModUtils first)
@@ -509,6 +543,7 @@ function SaveTables()
 	GCO.SaveTableToSlot(CitiesTradeDemand, "CitiesTradeDemand")
 	GCO.SaveTableToSlot(CitiesForTransfer, "CitiesForTransfer")
 	GCO.SaveTableToSlot(CitiesForTrade, "CitiesForTrade")
+	GCO.SaveTableToSlot(BuildingsProductionSettings, "BuildingsProductionSettings")
 end
 GameEvents.SaveTables.Add(SaveTables)
 
@@ -560,9 +595,9 @@ function CompareData(data1, data2, tab)
 	print( "no more data to compare...")
 end
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Initialize Cities
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function RegisterNewCity(playerID, city)
 
 	local cityKey 			= city:GetKey()
@@ -814,9 +849,9 @@ function ShowCityData()
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Utils functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 _cached.CityPopulationAtSize = {}
 function GetPopulationPerSize(size)
 	if not _cached.CityPopulationAtSize[size] then
@@ -826,9 +861,29 @@ function GetPopulationPerSize(size)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
+-- Helpers functions
+-- ======================================================================================
+
+-- Resources Production in buildings	
+function IsResourceProducer(buildingID)
+	return kIsResourceProd[buildingID]
+end
+
+function GetSingleResProduction(buildingID)
+	return kSingleResProd[buildingID] or {}
+end
+function GetMultiResCreatedProduction(buildingID)
+	return kMultiResCreated[buildingID] or {}
+end
+function GetMultiResRequiredProduction(buildingID)
+	return kMultiResRequired[buildingID] or {}
+end
+	
+	
+-- ======================================================================================
 -- City functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function IsInitialized(self)
 	local cityKey = self:GetKey()
 	if ExposedMembers.CityData[cityKey] then return true end
@@ -843,6 +898,7 @@ function GetKey(self)
 end
 
 function GetData(self)
+	if not self then GCO.Warning("city is nil for GetData"); GCO.DlineFull(); return end
 	local cityKey 	= self:GetKey()
 	local cityData 	= ExposedMembers.CityData[cityKey]
 	if not cityData then GCO.Warning("cityData is nil for ".. Locale.Lookup(self:GetName())); GCO.DlineFull(); end
@@ -980,9 +1036,9 @@ function GetModifiersForEffect(self, eEffectType) -- Cities, Units
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Population functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetRealPopulation(self) -- the original city:GetPopulation() returns city size
 	--[[
 	local cityKey = self:GetKey()
@@ -1009,7 +1065,7 @@ function GetRealPopulationVariation(self)
 end
 
 function GetSize(self) -- for code consistency
-	return self:GetPopulation()
+	return math.max(1, self:GetPopulation()) -- no size 0 city, minimal is 1
 end
 
 function GetRealSize(self) -- size with decimals
@@ -1414,9 +1470,9 @@ function GetPopulationHousing(self)
 	--]]
 	return PopulationHousing
 end
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Science Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetLiteracy(self)
 	return self:GetCached("Literacy") or self:SetLiteracy()
 end
@@ -1440,9 +1496,9 @@ function CanDoResearch(self)
 	end
 end
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Resources Transfers
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function UpdateLinkedUnits(self)
 
 	Dlog("UpdateLinkedUnits ".. Locale.Lookup(self:GetName()).." /START")
@@ -2501,9 +2557,9 @@ function GetRequirements(self, fromCity)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Resources Stock
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 function GetSizeStockRatio(self)
 	return self:GetSize() * PerSizeStockRatio
@@ -2877,9 +2933,9 @@ function GetStockVariation(self, resourceID)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Equipment functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetMaxEquipmentStorage(self)
 	local storage = EquipmentBaseStock
 	for buildingID, value in pairs(EquipmentStockage) do
@@ -2903,9 +2959,9 @@ function GetEquipmentStorageLeft(self, equipmentID)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Resources Cost
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetMinimumResourceCost(self, resourceID)
 	return GCO.GetBaseResourceCost(resourceID) * MinCostFromBaseFactor -- MinCostFromBaseFactor < 1
 end
@@ -2971,9 +3027,9 @@ function GetTransportCostTo(self, city)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Resources Supply/Demand
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetDemand(self, resourceID)
 	local demand = 0
 
@@ -3238,9 +3294,56 @@ function GetResourceUseToolTipStringForTurn(self, resourceID, useTypeKey, turn)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
+-- Stock Management Functions
+-- ======================================================================================
+
+----------------------------------------------
+--	Check active production in settings
+----------------------------------------------
+function IsSingleToSingleProductionEnabled(kProdBuilding, reqResourceID, prodResourceID )
+	return (not kProdBuilding[reqResourceID])
+		or (not kProdBuilding[reqResourceID][prodResourceID])
+end
+
+function IsSingleToMultiProductionEnabled(kProdBuilding, reqResourceID )
+	return (not kProdBuilding[reqResourceID])
+end
+
+function IsSingleProductionFromListEnabled(kProdBuilding, reqResourceID, prodResourceID )
+	return (not kProdBuilding[reqResourceID])
+		or (not kProdBuilding[reqResourceID][prodResourceID] )
+end
+
+function IsMultiToSingleProductionEnabled(kProdBuilding, prodResourceID )
+	return (not kProdBuilding[prodResourceID])
+end
+
+----------------------------------------------
+-- Get/Set settings
+----------------------------------------------
+function GetBuildingAllProductionSettings(self, buildingID)
+	local buildingKey	= tostring(buildingID)
+	local cityKey		= self:GetKey()
+	if not BuildingsProductionSettings[cityKey] then BuildingsProductionSettings[cityKey] = {[buildingKey] = {}} end
+	if not BuildingsProductionSettings[cityKey][buildingKey] then BuildingsProductionSettings[cityKey][buildingKey] = {} end
+	return BuildingsProductionSettings[cityKey][buildingKey]
+end
+
+function GetBuildingProductionSettings(self, buildingID, ProductionSettingsType)
+	local kAllProductionSettings = self:GetBuildingAllProductionSettings(buildingID)
+	if not kAllProductionSettings[ProductionSettingsType] then kAllProductionSettings[ProductionSettingsType] = {} end
+	return kAllProductionSettings[ProductionSettingsType]
+end
+
+function SetBuildingProductionSettings(self, buildingID, ProductionSettingsType, kSettings:table )
+	local kAllProductionSettings = self:GetBuildingAllProductionSettings(buildingID)
+	kAllProductionSettings[ProductionSettingsType] = DeepCopy( kSettings )
+end
+
+-- ======================================================================================
 -- Administrative Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetAdministrativeEfficiency(self)
 	local minAdminEfficiency = 25 -- to do : tech, gov, policies
 	return math.max(self:GetValue("AdministrativeEfficiency") or 100, minAdminEfficiency)
@@ -3379,18 +3482,18 @@ function GetpopulationAdministrativeCost(self)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Sea Exploitation function
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetSeaRange(self)
 	if not self:IsCoastal() then return 0 end -- to do: harbor
 	
 	return self:GetModifiersForEffect("RAISE_CITY_SEA_RANGE")
 end
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- City Panel Stats
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetResourcesStockTable(self)
 	local cityKey 		= self:GetKey()
 	local turnKey 		= GCO.GetTurnKey()
@@ -3721,9 +3824,9 @@ function GetSupplyLinesTable(self)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Personnel functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetMaxPersonnel(self) -- equivalent to GetMaxStock(self, personnelResourceID)
 	return self:GetMaxStock(personnelResourceID)
 end
@@ -3746,12 +3849,12 @@ function ChangePersonnel(self, value, useType, reference) -- equivalent to Chang
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Food functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetFoodConsumption(self, optionalRatio)
-	local cityKey = self:GetKey()
-	local data = ExposedMembers.CityData[cityKey]
+	local data = self:GetData()
+	if not data then return {} end
 	local foodConsumption1000 = 0
 	local ratio = optionalRatio or data.FoodRatio
 	foodConsumption1000 = foodConsumption1000 + (self:GetUpperClass()	* UpperClassFoodConsumption 	)
@@ -4300,7 +4403,7 @@ function CanConstruct(self, buildingType)
 	return (bHasComponents and bCheckBuildingAND and bCheckBuildingOR and bCoastalCheck and bCheckSpecial and bCheckNoUpgradeBuild), requirementStr, table.concat(preReqStr), bCanShow
 end
 
-function RecruitUnits(self, UnitType, number)
+function RecruitUnits(self, UnitType, number, personnelType, equipmentList, personnel)
 	
 	--local DEBUG_CITY_SCRIPT = "debug"
 	
@@ -4309,9 +4412,10 @@ function RecruitUnits(self, UnitType, number)
 		return
 	end
 	
-	local number 	= number or 1
-	local playerID	= self:GetOwner()
-	local player	= GCO.GetPlayer(playerID)
+	local number 		= number or 1
+	local playerID		= self:GetOwner()
+	local player		= GCO.GetPlayer(playerID)
+	local personnelType	= personnelType or UnitPersonnelType.Conscripts
 	
 	for i = 1, number do
 	
@@ -4331,49 +4435,56 @@ function RecruitUnits(self, UnitType, number)
 
 		GCO.AttachUnitFunctions(unit)
 		GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
-		unit:InitializeEquipment()
-		unit:SetValue("CanChangeOrganization", nil)
-		unit:SetValue("ActiveTurnsLeft", turnsActive)
+		if personnel then
+			unit:ChangeStock(personnelResourceID, personnel)
+		end
+		unit:InitializeEquipment(equipmentList)
+		if personnelType ~= UnitPersonnelType.StandingArmy then
+			unit:SetValue("CanChangeOrganization", nil)
+			unit:SetValue("ActiveTurnsLeft", turnsActive)
+		end
 		unit:SetValue("HomeCityKey", self:GetKey())	-- send back personnel/equipment/resources here on disbanding (with no income from selling)
-		unit:SetValue("UnitPersonnelType", UnitPersonnelType.Conscripts)
+		unit:SetValue("UnitPersonnelType", personnelType)
 		
 		-- get full reinforcement...
-		Dprint( DEBUG_CITY_SCRIPT, "Getting full reinforcement...")
-		local bTotal		= true
-		local recruitmentCostFactor	= tonumber(GameInfo.GlobalParameters["CITY_RECRUITMENT_COST_FACTOR"].Value)
-		--local requirements 	= unit:GetRequirements(bTotal)
-		
-		local resTable 		= GCO.GetUnitConstructionResources(unit:GetType(), organizationLevel)
-		local resOrTable 	= GCO.GetUnitConscriptionEquipment(unit:GetType(), organizationLevel)
-					
-		Dprint( DEBUG_CITY_SCRIPT, "Get available resources in city...")
-		for resourceID, value in pairs(resTable) do
-			if value > 0 then
-				local maxValue	= math.min(self:GetStock(resourceID), value)
-				local cost 		= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
-				Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
-				unit:ChangeStock(resourceID, maxValue)
-				self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
-				if cost > 0 then
-					player:ProceedTransaction(AccountType.Reinforce, -cost)
+		if not equipmentList then
+			Dprint( DEBUG_CITY_SCRIPT, "Getting full reinforcement...")
+			local bTotal		= true
+			local recruitmentCostFactor	= tonumber(GameInfo.GlobalParameters["CITY_RECRUITMENT_COST_FACTOR"].Value)
+			--local requirements 	= unit:GetRequirements(bTotal)
+			
+			local resTable 		= GCO.GetUnitConstructionResources(unit:GetType(), organizationLevel)
+			local resOrTable 	= GCO.GetUnitConscriptionEquipment(unit:GetType(), organizationLevel)
+						
+			Dprint( DEBUG_CITY_SCRIPT, "Get available resources in city...")
+			for resourceID, value in pairs(resTable) do
+				if value > 0 then
+					local maxValue	= math.min(self:GetStock(resourceID), value)
+					local cost 		= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
+					Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
+					unit:ChangeStock(resourceID, maxValue)
+					self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
+					if cost > 0 then
+						player:ProceedTransaction(AccountType.Reinforce, -cost)
+					end
 				end
-			end
-		end			
-		
-		for equipmentClass, resourceTable in pairs(resOrTable) do
-			local totalNeeded 		= resourceTable.Value
-			local stillNeeded		= totalNeeded
-			-- get the number of resource already stocked for that class...
-			for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
-				local maxValue 	= math.min(self:GetStock(resourceID), stillNeeded)
-				local cost 		= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
-				Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
-				unit:ChangeStock(resourceID, maxValue)
-				self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
-				if cost > 0 then
-					player:ProceedTransaction(AccountType.Reinforce, -cost)
+			end			
+			
+			for equipmentClass, resourceTable in pairs(resOrTable) do
+				local totalNeeded 		= resourceTable.Value
+				local stillNeeded		= totalNeeded
+				-- get the number of resource already stocked for that class...
+				for _, resourceID in ipairs(resourceTable.Resources) do -- loop through the possible resources (ordered by desirability) for that class
+					local maxValue 	= math.min(self:GetStock(resourceID), stillNeeded)
+					local cost 		= self:GetResourceCost(resourceID) * maxValue * recruitmentCostFactor
+					Dprint( DEBUG_CITY_SCRIPT, " - ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ",maxValue, ", cost = ", cost)
+					unit:ChangeStock(resourceID, maxValue)
+					self:ChangeStock(resourceID, -maxValue, ResourceUseType.Supply, unit:GetKey())
+					if cost > 0 then
+						player:ProceedTransaction(AccountType.Reinforce, -cost)
+					end
+					stillNeeded = math.max(0, stillNeeded - maxValue)
 				end
-				stillNeeded = math.max(0, stillNeeded - maxValue)
 			end
 		end
 			
@@ -4398,9 +4509,9 @@ function RecruitUnits(self, UnitType, number)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Activities & Employment
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetEraType(self)
 	local player 	= Players[self:GetOwner()]
 	return GameInfo.Eras[player:GetEra()].EraType
@@ -5283,9 +5394,9 @@ function GetSeaRangeToolTip(self)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Do Turn for Cities
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function SetCityRationing(self)
 	Dlog("SetCityRationing ".. Locale.Lookup(self:GetName()).." /START")
 	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
@@ -5882,7 +5993,8 @@ end
 function DoIndustries(self)
 
 	Dlog("DoIndustries ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	local DEBUG_CITY_SCRIPT = "CityScript"
+	if Game.GetLocalPlayer() == self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
@@ -5907,9 +6019,18 @@ function DoIndustries(self)
 		local ratio			= row.Ratio * ProducedResourceFactor
 		
 		if self:GetBuildings():HasBuilding(buildingID) then
+			--Dprint( DEBUG_CITY_SCRIPT, "- Add Ressource Production for "..Locale.Lookup(GameInfo.Buildings[buildingID].Name))
 			local resourceRequiredID 	= GameInfo.Resources[row.ResourceType].Index
 			local resourceCreatedID 	= GameInfo.Resources[row.ResourceCreated].Index
-			if player:IsResourceVisible(resourceCreatedID) and not player:IsObsoleteResource(resourceCreatedID) then -- don't create resources we don't have the tech for or that are obsolete...
+			local kSettings				= self:GetBuildingAllProductionSettings(buildingID)
+			if player:IsResourceVisible(resourceCreatedID)			 	-- don't create resources we don't have the tech for
+			   and not player:IsObsoleteResource(resourceCreatedID) 	-- don't create resources that are obsolete
+			   and not (row.MultiResRequired and not IsMultiToSingleProductionEnabled(kSettings[ProductionSettingsType.MultiToSingle], resourceCreatedID) )
+			   and not (row.MultiResCreated and not IsSingleProductionFromListEnabled(kSettings[ProductionSettingsType.SingleFromList], resourceRequiredID, resourceCreatedID) )
+			   and not (row.MultiResCreated and not IsSingleToMultiProductionEnabled(kSettings[ProductionSettingsType.SingleToMulti], resourceRequiredID) )
+			   and not ((not row.MultiResCreated or row.MultiResRequired) and not IsSingleToSingleProductionEnabled(kSettings[ProductionSettingsType.SingleToSingle], resourceRequiredID, resourceCreatedID) )
+			   then
+			   
 				if not ResNeeded[resourceRequiredID] then ResNeeded[resourceRequiredID] = { Value = 0, Buildings = {} } end
 				ResNeeded[resourceRequiredID].Value = ResNeeded[resourceRequiredID].Value + maxConverted
 				ResNeeded[resourceRequiredID].Buildings[buildingID] = (ResNeeded[resourceRequiredID].Buildings[buildingID] or 0) + maxConverted
@@ -7109,6 +7230,7 @@ function DoMigration(self)
 	
 	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
 	--if Locale.Lookup(self:GetName()) =="London" then DEBUG_CITY_SCRIPT = "debug" end
+	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_CITY_SCRIPT = "debug" end	
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "- Population Migration for ".. Locale.Lookup(self:GetName()))
@@ -7119,6 +7241,7 @@ function DoMigration(self)
 	local totalPopulation 		= self:GetRealPopulation()
 	local minPopulationLeft		= GetPopulationPerSize(math.max(1, self:GetSize()-1))
 	local availableMigrants		= totalPopulation - minPopulationLeft
+	local totalMigration		= 0
 	local plotsToUpdate			= {} -- list of plots that will need updating for Culture to Population matching
 	
 	if availableMigrants  > 0 then
@@ -7162,70 +7285,80 @@ function DoMigration(self)
 				Dprint( DEBUG_CITY_SCRIPT, "  - Eager migrants for "..Indentation20(Locale.ToUpper(GameInfo.Resources[populationID].Name)).." = ".. tostring(migrants) .."/".. tostring(self:GetPopulationClass(populationID)) .. ", Major motivation = " .. tostring(majorMotivation) )
 			
 				if migrants > 0 then
+				
 					-- Get possible destinations from this city own plots
-					local cityPlots	= GCO.GetCityPlots(self)
-					
-					-- Add adjacent plots owned by another player as there won't be migration to it if it's surrounded by water
-					for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
-						local adjacentPlot 	= Map.GetAdjacentPlot(iX, iY, direction)
-						if adjacentPlot and not adjacentPlot:IsWater() and adjacentPlot:GetOwner() ~= self:GetOwner() then
-							table.insert(cityPlots, adjacentPlot:GetIndex())
-						end		
-					end
-					for _, plotID in ipairs(cityPlots) do
-						local plot = GCO.GetPlotByIndex(plotID)
-						if plot and (not plot:IsCity()) then
-							local plotMigration = plot:GetMigration()
-							if plotMigration then
-								local distance		= Map.GetPlotDistance(self:GetX(), self:GetY(), plot:GetX(), plot:GetY())
-								local efficiency 	= (1 - math.min(0.95, distance / 4)) --* migrationClassMotivation["Transport"][populationID]
-								local factor		= migrationClassMotivation["Rural"][populationID] * efficiency
-								local plotWeight 	= 0
-								local bWorked 		= (plot:GetWorkerCount() > 0)
-								if majorMotivation == "Greener Pastures" then								
-									plotWeight = 1  -- Any plots will have mimimun attraction for adventurers
-								end
-								Dprint( DEBUG_CITY_SCRIPT, "   - Looking for better conditions on plot (".. plot:GetX() ..",".. plot:GetY().."), Class Factor = ", GCO.ToDecimals(factor))
-								for motivation, pushValues in pairs(cityMigration.Push) do
-									local pushValue		= pushValues[populationID]
-									local weightRatio	= migrationClassMotivation[motivation][populationID] * factor
-									local plotPull		= plotMigration.Pull[motivation] or 0
-									local plotPush		= plotMigration.Push[motivation] or 0
-									-- special case here : use housing plotPull for food motivation (which is the same in a city and its plots) as sending people
-									-- in plots which could maintain more population if they were not attached to a city may help produce more food for the region
-									-- note : deprecated, plotMigration.Pull["Food"] is now directly pondered with plotMigration.Pull["Housing"]
-									--[[
-									if motivation == "Food" then
-										plotPull		= plotMigration.Pull["Housing"] or 0
-									end	
-									--]]									
-									Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " plotPush = ", GCO.ToDecimals(plotPush), " plotPull = ", GCO.ToDecimals(plotPull))
-									if plotPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
-										if plotPull > 1 then
-											weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
-										end
-										if pushValue > 1 then
-											weightRatio = weightRatio * 5		-- situation is bad on currentPlot
-										end
-										if motivation == majorMotivation then
-											weightRatio = weightRatio * 10		-- this is the most important motivation for migration
-										end
-										
-										if bWorked then
-											weightRatio = weightRatio * 10		-- we want migration on worked plots
-										end
-										local motivationWeight = (plotPull + pushValue) * weightRatio
-										plotWeight = plotWeight + motivationWeight
-										Dprint( DEBUG_CITY_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
-									end				
-								end
+					if populationID == LowerClassID then -- Rural migration is limited to reduce processing turn time during plot to plot Migration
+						
+						local cityPlots	= GCO.GetCityPlots(self)
+						
+						-- Add adjacent plots owned by another player as there won't be migration to it if it's surrounded by water
+						for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+							local adjacentPlot 	= Map.GetAdjacentPlot(iX, iY, direction)
+							if adjacentPlot and not adjacentPlot:IsWater() and adjacentPlot:GetOwner() ~= self:GetOwner() then
+								table.insert(cityPlots, adjacentPlot:GetIndex())
+							end		
+						end
+						for _, plotID in ipairs(cityPlots) do
+							local plot = GCO.GetPlotByIndex(plotID)
+							if plot and (not plot:IsCity()) then
+								local distance	= Map.GetPlotDistance(self:GetX(), self:GetY(), plot:GetX(), plot:GetY())
+								if distance < 3 then
+									local cityPlot = GCO.GetPlot(self:GetX(), self:GetY())
+									local path = cityPlot:GetPathToPlot(plot, nil, "Land", nil, 5)
+									if path then
+										local plotMigration = plot:GetMigration()
+										if plotMigration then
+											local efficiency 	= (1 - math.min(0.95, distance / 4)) --* migrationClassMotivation["Transport"][populationID]
+											local factor		= migrationClassMotivation["Rural"][populationID] * efficiency
+											local plotWeight 	= 0
+											local bWorked 		= (plot:GetWorkerCount() > 0)
+											if majorMotivation == "Greener Pastures" then								
+												plotWeight = 1  -- Any plots will have mimimun attraction for adventurers
+											end
+											Dprint( DEBUG_CITY_SCRIPT, "   - Looking for better conditions on plot (".. plot:GetX() ..",".. plot:GetY().."), Class Factor = ", GCO.ToDecimals(factor))
+											for motivation, pushValues in pairs(cityMigration.Push) do
+												local pushValue		= pushValues[populationID]
+												local weightRatio	= migrationClassMotivation[motivation][populationID] * factor
+												local plotPull		= plotMigration.Pull[motivation] or 0
+												local plotPush		= plotMigration.Push[motivation] or 0
+												-- special case here : use housing plotPull for food motivation (which is the same in a city and its plots) as sending people
+												-- in plots which could maintain more population if they were not attached to a city may help produce more food for the region
+												-- note : deprecated, plotMigration.Pull["Food"] is now directly pondered with plotMigration.Pull["Housing"]
+												--[[
+												if motivation == "Food" then
+													plotPull		= plotMigration.Pull["Housing"] or 0
+												end	
+												--]]									
+												Dprint( DEBUG_CITY_SCRIPT, "     -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " plotPush = ", GCO.ToDecimals(plotPush), " plotPull = ", GCO.ToDecimals(plotPull))
+												if plotPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
+													if plotPull > 1 then
+														weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
+													end
+													if pushValue > 1 then
+														weightRatio = weightRatio * 5		-- situation is bad on currentPlot
+													end
+													if motivation == majorMotivation then
+														weightRatio = weightRatio * 10		-- this is the most important motivation for migration
+													end
+													
+													if bWorked then
+														weightRatio = weightRatio * 10		-- we want migration on worked plots
+													end
+													local motivationWeight = (plotPull + pushValue) * weightRatio
+													plotWeight = plotWeight + motivationWeight
+													Dprint( DEBUG_CITY_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated plotWeight = ", GCO.ToDecimals(plotWeight))
+												end				
+											end
 
-								if plotWeight > 0 then
-									totalWeight = totalWeight + plotWeight
-									table.insert (possibleDestination, {PlotID = plot:GetIndex(), Weight = plotWeight, MigrationEfficiency = efficiency})
+											if plotWeight > 0 then
+												totalWeight = totalWeight + plotWeight
+												table.insert (possibleDestination, {PlotID = plot:GetIndex(), Weight = plotWeight, MigrationEfficiency = efficiency, Path = path})
+											end
+										else
+											GCO.Warning("plotMigration is nil for plot @(".. tostring(plot:GetX())..",".. tostring(plot:GetY())..")")
+										end
+									end
 								end
-							else
-								GCO.Warning("plotMigration is nil for plot @(".. tostring(plot:GetX())..",".. tostring(plot:GetY())..")")
 							end
 						end
 					end
@@ -7339,12 +7472,23 @@ function DoMigration(self)
 							local popMoving = math.floor(migrants * Div(destination.Weight, totalWeight) * destination.MigrationEfficiency)
 							if popMoving > 0 then
 								if destination.PlotID then
-									local plot 				= GCO.GetPlotByIndex(destination.PlotID)
-									plotsToUpdate[plot]		= true
+									local currentPlot	= originePlot
+									local plot 			= GCO.GetPlotByIndex(destination.PlotID)
+									plotsToUpdate[plot]	= true --
+									local path			= destination.Path
 									Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
-									originePlot:MigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
+									for num, plotID in ipairs(path) do
+										if num > 1 then -- 1 is the origin plot
+											local pathPlot = Map.GetPlotByIndex(plotID)
+											Dprint( DEBUG_CITY_SCRIPT, "- path plot #".. tostring(num) .." = ".. pathPlot:GetX() ..",".. pathPlot:GetY())
+											currentPlot:MigrationTo(pathPlot, popMoving)
+											currentPlot = pathPlot
+										end
+									end
+									--originePlot:MigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
 									self:ChangePopulationClass(populationID, -popMoving)
 									plot:ChangePopulationClass(populationID, popMoving)
+									totalMigration = totalMigration + popMoving
 								else
 									local city 				= destination.City
 									local plot				= GCO.GetPlot(city:GetX(), city:GetY())
@@ -7353,6 +7497,7 @@ function DoMigration(self)
 									originePlot:MigrationTo(plot, popMoving)
 									self:ChangePopulationClass(populationID, -popMoving)
 									city:ChangePopulationClass(populationID, popMoving)
+									totalMigration = totalMigration + popMoving
 								end
 							end
 						end	
@@ -7362,7 +7507,10 @@ function DoMigration(self)
 		end
 	end
 	
-	for plot, _ in oldpairs(plotsToUpdate) do -- orderedpairs crash here
+	
+	Dprint( DEBUG_CITY_SCRIPT, "=== total migrants : ".. tostring(totalMigration) .." for ".. Locale.Lookup(self:GetName()))
+	
+	for plot, _ in oldpairs(plotsToUpdate) do -- orderedpairs crash here, but call order should not cause desync in that loop
 		plot:MatchCultureToPopulation()
 	end
 	
@@ -7789,14 +7937,17 @@ end
 
 ---[[
 function DoCitiesTurn( playerID )
-	--GCO.Monitor(CitiesTurn, {playerID}, "Cities Turn Player#".. tostring(playerID))
-	CitiesTurn( playerID )
+	if DEBUG_CITY_TURN then
+		GCO.Monitor(CitiesTurn, {playerID}, "Cities Turn Player#".. tostring(playerID))
+	else
+		CitiesTurn( playerID )
+	end
 end
 --]]
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Events
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCanceled, typeModifier)
 
@@ -7973,9 +8124,126 @@ end
 GameEvents.PlayerTurnDoneGCO.Add( OnPlayerTurnDone )
 --]]
 
------------------------------------------------------------------------------------------
+--[[
+
+	local equipmentList	=  GCO.GetAvailableEquipmentForUnitPromotionClassFromList(unitType, promotionClassID, maxPersonnel, self:GetEquipmentList(), organizationLevel)
+	local recruitType	= nil
+	if promotionClassID then 
+		recruitType = GCO.GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, unitType, 75, organizationLevel)
+	end
+
+--]]
+
+-- ======================================================================================
+-- Handle Player Commands
+-- ======================================================================================
+local minProductionRatioForRushing	= 0.25
+local RushGoldMultiplier 			= 2 -- can't use the base GOLD_PURCHASE_MULTIPLIER because it's changed to 65534 to prevent the AI using it
+function GetRushUnitProductionCost(self, unitRow) -- unitRow is optionnal
+	local contextCity	= GetCity(self:GetOwner(), self:GetID()) -- we need buildQueue for gameplay context, and this function can be called from UI, with a City object that has this script functions attached, but is still using UI buildQueue...
+	local buildQueue	= contextCity:GetBuildQueue()
+	local unitRow		= unitRow or (buildQueue and GameInfo.Units[buildQueue:CurrentlyBuilding()])
+	if (unitRow and unitRow.FormationClass ~= "FORMATION_CLASS_CIVILIAN") then -- don't allow rushing Civilian units
+		local progress 		= self:GetProductionProgress(ProductionTypes.UNIT, unitRow.Index)
+		local buildCost		= unitRow.Cost
+		local prodLeft		= buildCost - progress
+		local goldCost		= prodLeft * RushGoldMultiplier
+		return (progress >= buildCost * minProductionRatioForRushing and goldCost)
+	end
+end
+
+function GetRushConfirmationString(self, goldCost)
+	local contextCity		= GetCity(self:GetOwner(), self:GetID()) -- we need buildQueue for gameplay context, and this function can be called from UI, with a City object that has this script functions attached, but is still using UI buildQueue...
+	local buildQueue		= contextCity:GetBuildQueue()
+	local unitRow			= unitRow or (buildQueue and GameInfo.Units[buildQueue:CurrentlyBuilding()])
+	local kConfirmationStr	= {}
+	if (unitRow) then
+		local resourceList 	= self:GetBuildingQueueAllStock(unitRow.UnitType)
+		local progress 		= self:GetProductionProgress(ProductionTypes.UNIT, unitRow.Index)
+		local buildCost		= unitRow.Cost
+		local percentProd	= GCO.Round(progress/buildCost*100)
+		local percentBarStr	= GCO.GetPercentBarString(percentProd)
+		local returnStr		= Locale.Lookup("LOC_HUD_CITY_RUSH_CONFIRM", unitRow.Name, goldCost)
+		for resourceKey, value in pairs(resourceList) do
+			local resourceID = tonumber(resourceKey)
+			table.insert(kConfirmationStr, Locale.Lookup("LOC_PRODUCTION_RESERVED_RESOURCE", GCO.GetResourceIcon(resourceID), GameInfo.Resources[resourceID].Name, value ))
+		end
+		returnStr = returnStr .. "[NEWLINE]"..Locale.Lookup("LOC_HUD_CITY_RUSH_PERCENTAGE", percentBarStr, percentProd)
+		returnStr = returnStr .. "[NEWLINE]"..table.concat(kConfirmationStr, "[NEWLINE]")
+		return returnStr
+	end
+	return "Warning : calling GetRushConfirmationString for something that is not an Unit"
+end
+
+
+function OnPlayerCityAction(iPlayer : number, kParameters : table)
+
+	local DEBUG_CITY_SCRIPT = "debug"
+	
+	Dprint( DEBUG_CITY_SCRIPT, "- OnPlayerCityAction...")
+	Dprint( DEBUG_CITY_SCRIPT, iPlayer, kParameters.Text, kParameters.value, kParameters.objectID)
+
+	local pCity 			= GetCity(iPlayer, kParameters.objectID)
+	local currentlyBuilding	= pCity:GetBuildQueue():CurrentlyBuilding() -- return hash
+	local unitRow			= GameInfo.Units[currentlyBuilding]
+	if (unitRow) then
+		local production 	= pCity:GetProductionYield()
+		local progress 		= pCity:GetProductionProgress(ProductionTypes.UNIT, unitRow.Index)
+		local resourceList 	= pCity:GetBuildingQueueAllStock(unitRow.UnitType)
+		local goldCost		= pCity:GetRushUnitProductionCost(unitRow)
+		local pPlayer		= GCO.GetPlayer(iPlayer)
+		
+		--[[
+		local strTable 		= {}
+		for k, v in pairs(resourceList) do
+			table.insert(strTable, k..","..v)
+		end
+		local text = kParameters.value .." " .. Locale.Lookup(unitRow.Name) .. " in ".. Locale.Lookup(pCity:GetName()).." for " .. tostring(goldCost) .." [ICON_Gold][NEWLINE]".. table.concat(strTable, "[NEWLINE]")
+		GCO.StatusMessage(text, 8, ReportingStatusTypes.GOSSIP, GossipsSubType.City)
+		--]]
+		
+		Dprint( DEBUG_CITY_SCRIPT, "- Recruiting  ".. Locale.Lookup(unitRow.Name))
+		local sortedEquipmentList 	= GCO.SortEquipmentList(resourceList)
+		local personnel				= resourceList[personnelResourceKey] -- personnel RESOURCE is not EQUIPMENT ! (and so is filtered out of the sorted equipment list)
+
+		pCity:RecruitUnits( unitRow.UnitType, 1, UnitPersonnelType.StandingArmy, sortedEquipmentList, personnel)
+		
+		pPlayer:ProceedTransaction(AccountType.Production, -goldCost)
+		
+		Dprint( DEBUG_CITY_SCRIPT, "- Clearing BuildingQueueStock...")
+		pCity:ClearBuildingQueueStock(unitRow.UnitType)
+		
+		Dprint( DEBUG_CITY_SCRIPT, "- Clearing Building Queue progress...")
+		pCity:GetBuildQueue():AddProgress(-progress)
+		
+		Dprint( DEBUG_CITY_SCRIPT, "- Reset Unlockers...")
+		pCity:SetUnlockers()
+	end
+end
+
+GameEvents.PlayerCityAction.Add(OnPlayerCityAction)
+
+function OnPlayerCityProductionSettings(iPlayer : number, kParameters : table)
+
+	local DEBUG_CITY_SCRIPT = "debug"
+	
+	Dprint( DEBUG_CITY_SCRIPT, "- OnPlayerCityProductionSettings for Player#"..tostring(iPlayer))
+	
+	local pCity = GetCity(iPlayer, kParameters.CityID)
+	for _, settingRow in ipairs(kParameters.ChangedSettings) do
+		local buildingID 	= settingRow.BuildingID
+		local settingType	= settingRow.SettingType
+		local kSettings		= settingRow.Settings
+		Dprint( DEBUG_CITY_SCRIPT, "Apply change to Production (settingType #".. settingType ..") for ".. Locale.Lookup(GameInfo.Buildings[buildingID].Name).." in ".. Locale.Lookup(pCity:GetName()) )
+	
+		pCity:SetBuildingProductionSettings( buildingID, settingType, kSettings )
+	end
+end
+GameEvents.PlayerCityProductionSettings.Add(OnPlayerCityProductionSettings)
+--PlayerCityProductionSettings
+-- ======================================================================================
 -- Functions passed from UI Context
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetCityYield(self, yieldType)
 	return GCO.GetCityYield( self, yieldType )
 end
@@ -7997,9 +8265,9 @@ function GetProductionProgress(self, productionType, objetID)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- General Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function CleanCitiesData() -- called in GCO_GameScript.lua
 
 	--local DEBUG_CITY_SCRIPT = "CityScript"
@@ -8035,9 +8303,9 @@ function CleanCitiesData() -- called in GCO_GameScript.lua
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Shared Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetCity(playerID, cityID) -- return a city with CityScript functions for another context
 	local city = CityManager.GetCity(playerID, cityID)
 	AttachCityFunctions(city)
@@ -8054,9 +8322,9 @@ function GetSupplyRouteString(iType)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Initialize City Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function InitializeCityFunctions(playerID, cityID) -- add to Events.CityAddedToMap in initialize()
 	-- Note that those functions are limited to this file context
 	local city = CityManager.GetCity(playerID, cityID)
@@ -8171,6 +8439,9 @@ function AttachCityFunctions(city)
 		if not c.GetDemandAtTurn					then c.GetDemandAtTurn						= GetDemandAtTurn                   	end
 		if not c.GetUseTypeAtTurn					then c.GetUseTypeAtTurn						= GetUseTypeAtTurn                  	end
 		if not c.GetAverageUseTypeOnTurns			then c.GetAverageUseTypeOnTurns				= GetAverageUseTypeOnTurns          	end
+		if not c.GetBuildingAllProductionSettings	then c.GetBuildingAllProductionSettings		= GetBuildingAllProductionSettings     	end
+		if not c.GetBuildingProductionSettings		then c.GetBuildingProductionSettings		= GetBuildingProductionSettings        	end
+		if not c.SetBuildingProductionSettings		then c.SetBuildingProductionSettings		= SetBuildingProductionSettings        	end
 		--
 		if not c.DoGrowth							then c.DoGrowth								= DoGrowth                          	end
 		if not c.GetBirthRate						then c.GetBirthRate							= GetBirthRate                      	end
@@ -8267,6 +8538,8 @@ function AttachCityFunctions(city)
 		if not c.SetConstructionEfficiency			then c.SetConstructionEfficiency			= SetConstructionEfficiency         	end
 		if not c.GetProductionProgress				then c.GetProductionProgress				= GetProductionProgress             	end
 		if not c.RecruitUnits						then c.RecruitUnits							= RecruitUnits                      	end
+		if not c.GetRushUnitProductionCost			then c.GetRushUnitProductionCost			= GetRushUnitProductionCost            	end
+		if not c.GetRushConfirmationString			then c.GetRushConfirmationString			= GetRushConfirmationString            	end
 		--
 		if not c.GetModifiersForEffect				then c.GetModifiersForEffect				= GetModifiersForEffect                	end
 		--
@@ -8333,6 +8606,16 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetSupplyRouteString 			= GetSupplyRouteString
 	--
 	ExposedMembers.GCO.GetBuildingConstructionResources	= GetBuildingConstructionResources
+	--
+	ExposedMembers.GCO.IsResourceProducer				= IsResourceProducer
+	ExposedMembers.GCO.GetSingleResProduction			= GetSingleResProduction
+	ExposedMembers.GCO.GetMultiResCreatedProduction		= GetMultiResCreatedProduction
+	ExposedMembers.GCO.GetMultiResRequiredProduction	= GetMultiResRequiredProduction
+	
+	ExposedMembers.GCO.IsSingleToSingleProductionEnabled	= IsSingleToSingleProductionEnabled
+	ExposedMembers.GCO.IsSingleToMultiProductionEnabled		= IsSingleToMultiProductionEnabled
+	ExposedMembers.GCO.IsSingleProductionFromListEnabled	= IsSingleProductionFromListEnabled
+	ExposedMembers.GCO.IsMultiToSingleProductionEnabled		= IsMultiToSingleProductionEnabled
 	--
 	ExposedMembers.CityScript_Initialized 				= true
 end

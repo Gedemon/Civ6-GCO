@@ -7,6 +7,23 @@ print ("Loading GCO_TypeEnum.lua...")
 
 
 -----------------------------------------------------------------------------------------
+-- Gossips SubTypes
+-----------------------------------------------------------------------------------------
+
+GossipsSubType	= {	-- ENUM for StatusMessage Subtypes - to do: loop on the Gossips table and get the first index from GroupType instead of using GossipType that may change in patches/mods
+		Science			= GameInfo.Gossips["GOSSIP_ERA_CHANGED"].Index,
+		Military		= GameInfo.Gossips["GOSSIP_CONQUER_CITY"].Index,
+		Religion		= GameInfo.Gossips["GOSSIP_CREATE_PANTHEON"].Index,
+		City			= GameInfo.Gossips["GOSSIP_CONSTRUCT_BUILDING"].Index,
+		Culture			= GameInfo.Gossips["GOSSIP_CHANGE_GOVERNMENT"].Index,
+		Diplomacy		= GameInfo.Gossips["GOSSIP_DELEGATION"].Index,
+		Discover		= GameInfo.Gossips["GOSSIP_FIND_NATURAL_WONDER"].Index,
+		Espionage		= GameInfo.Gossips["GOSSIP_SPY_SIPHON_FUNDS"].Index,
+		GreatPerson		= GameInfo.Gossips["GOSSIP_GREATPERSON_CREATED"].Index,
+		Settlement		= GameInfo.Gossips["GOSSIP_FOUND_CITY"].Index,
+		Victory			= GameInfo.Gossips["GOSSIP_SPACE_RACE_PROJECT_COMPLETED"].Index,
+}
+-----------------------------------------------------------------------------------------
 -- Treasury
 -----------------------------------------------------------------------------------------
 AccountType	= {	-- ENUM for treasury changes (string as it it used as a key for saved table)
@@ -43,7 +60,7 @@ TradeLevelType	= {	-- ENUM for trade route level types
 -----------------------------------------------------------------------------------------
 -- Units
 -----------------------------------------------------------------------------------------
-UnitPersonnelType	= {	-- ENUM for trade route level types
+UnitPersonnelType	= {	-- ENUM for type of Unit
 
 		StandingArmy 	= 1,	-- Permanent units
 		Conscripts		= 2,	-- Temporary units, built in city based on personnel/equipment available in the city
@@ -159,6 +176,13 @@ ResourceUseTypeReference	= {	-- Helper to get the reference type for a specific 
 	[ResourceUseType.Recruit] 		= ReferenceType.Population,
 	[ResourceUseType.Demobilize] 	= ReferenceType.Population,
 	[ResourceUseType.Stolen] 		= ReferenceType.Unit,
+}
+
+ProductionSettingsType = { -- ENUM to save/get Buildings resources production settings 
+	SingleToSingle	= "1",
+	SingleToMulti	= "2",
+	MultiToSingle	= "3",
+	SingleFromList	= "4",
 }
 
 -----------------------------------------------------------------------------------------

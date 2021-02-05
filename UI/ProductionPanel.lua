@@ -12,14 +12,14 @@ include( "AdjacencyBonusSupport");
 include( "ProductionHelper" );
 
 -- GCO <<<<<
------------------------------------------------------------------------------------------
+-- ===========================================================================
 -- Initialize Functions
------------------------------------------------------------------------------------------
+-- ===========================================================================
 GCO = ExposedMembers.GCO -- ExposedMembers.GCO can't be nil at this point
 
------------------------------------------------------------------------------------------
+-- ===========================================================================
 -- Define
------------------------------------------------------------------------------------------
+-- ===========================================================================
 local MustHaveYields = {}	-- Filter Buildings per required yield
 local FilteredYields = {}	-- Filter Buildings per ignored yield
 -- GCO >>>>>
@@ -2025,7 +2025,7 @@ function GetData()
 			
 		-- GCO <<<<<
 		--if row.Hash ~= m_CurrentProductionHash and (not row.MustPurchase or cityBuildings:IsPillaged(row.Hash)) and bCanProduce then
-		if not row.Unlockers and row.Hash ~= m_CurrentProductionHash and (not row.MustPurchase or cityBuildings:IsPillaged(row.Hash)) then--and buildQueue:CanProduce( row.Hash, true ) then
+		if (not row.Unlockers) and (not row.InternalOnly) and row.Hash ~= m_CurrentProductionHash and (not row.MustPurchase or cityBuildings:IsPillaged(row.Hash)) then--and buildQueue:CanProduce( row.Hash, true ) then
 		-- GCO >>>>>
 		
 				local isCanStart, results			 = buildQueue:CanProduce( row.Hash, false, true );

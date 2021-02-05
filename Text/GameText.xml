@@ -183,6 +183,15 @@
 	
   </LocalizedText>
   
+  <LocalizedText> <!-- HUD -->
+	<Replace Tag="LOC_HUD_MIGRATION_ROUTES_LENS" Language="en_US">
+		<Text>Migration</Text>
+	</Replace>
+	<Replace Tag="LOC_HUD_MIGRATION_ROUTES_LENS_TOOLTIP" Language="en_US">
+		<Text>Show major population migration routes</Text>
+	</Replace>	
+  </LocalizedText>
+  
   <LocalizedText> <!-- Top Panel -->
 		
 	<Replace Tag="LOC_TOP_PANEL_IMPORT_INCOME"			Text="{1_Num : number +#.#;-#.#} from importations taxes"		Language="en_US" />
@@ -791,7 +800,17 @@
     </Replace>
 	<Replace Tag="LOC_HUD_CITY_TOTAL_HOUSING" Language="en_US">
       <Text>{1_Num} total population for {2_Num} max Housing</Text>
-    </Replace>	
+    </Replace>
+	
+	<Replace Tag="LOC_HUD_CITY_RUSH_PRODUCTION_COST" Language="en_US">
+      <Text>Rush production for {1_Num} [ICON_Gold]</Text>
+    </Replace>
+    <Replace Tag="LOC_HUD_CITY_RUSH_PERCENTAGE" Language="en_US">
+      <Text>[ICON_Production]{1_Name} {2_Num}%</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RUSH_CONFIRM" Language="en_US">
+      <Text>Do you want to Rush Production ?[NEWLINE]{1_Name} for {2_Num} [ICON_Gold][NEWLINE]Health will be relative to production progress.</Text>
+    </Replace>
 	
   </LocalizedText>	
  
@@ -1233,6 +1252,9 @@
     </Replace>
     <Replace Tag="LOC_UNITFLAG_RESERVE_TITLE" Language="en_US">
       <Text>[COLOR_Grey]-------------- Reserve -------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_DAMAGED_EQUIPMENT_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]----------- Damaged Equipment ----------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_REAR_TITLE" Language="en_US">
       <Text>[COLOR_Grey]----------------- Rear ----------------[ENDCOLOR]</Text>
@@ -2481,5 +2503,15 @@
 	
   </LocalizedText> 
 
+  <LocalizedText> <!-- Technologies -->
+	
+	<Replace Tag="LOC_RESEARCH_LOCKED_BY_UNLOCKER"	Language="en_US">
+		<Text>[ICON_Not] Locked ({1_Name})</Text>
+	</Replace>
+	<Replace Tag="LOC_RESEARCH_LOCKED_BY_PREVIOUS_TECH"	Language="en_US">
+		<Text>[ICON_Not] Prerequisite ({1_Name}) is Locked.</Text>
+	</Replace>
 
+  </LocalizedText>
+  
 </GameData>

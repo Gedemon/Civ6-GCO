@@ -40,9 +40,24 @@ function InitializeUtilityFunctions()
 	GCO 	= ExposedMembers.GCO 	-- Reinitialize with what may have been added with other UI contexts
 	Dline	= GCO.Dline				-- output current code line number to firetuner/log
 	print ("Exposed Functions from other contexts initialized...")
+	PostInitialize()
 end
 GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
+function PostInitialize()
+	-- Migration Routes
+	local lensPanelOffSet	= 50
+	local lensStackCtrl 	= ContextPtr:LookUpControl("/InGame/MinimapPanel/LensToggleStack/")
+	local lensPanelCtrl		= ContextPtr:LookUpControl("/InGame/MinimapPanel/LensPanel/")
+	
+	Controls.MigrationRoutesButton:RegisterCallback( Mouse.eLClick, ToggleMigrationRoutes )
+	Controls.MigrationRoutesButton:SetHide( false )
+	Controls.MigrationRoutesButton:ChangeParent(lensStackCtrl)
+	
+	lensStackCtrl:CalculateSize();
+	lensPanelCtrl:SetSizeY(lensStackCtrl:GetSizeY() + lensPanelOffSet)
+	--
+end
 
 -- ===========================================================================
 -- Calendar functions
@@ -240,9 +255,9 @@ end
 -- =========================================================================== 
 --	Send Status message
 -- =========================================================================== 
-function StatusMessage( str:string, fDisplayTime:number, type:number, bForceDisplay )
-	local type = type or ReportingStatusTypes.DEFAULT
-	LuaEvents.StatusMessage(str, fDisplayTime, type)
+function StatusMessage( str:string, fDisplayTime:number, messageType:number, subType:number )
+	local messageType = messageType or ReportingStatusTypes.DEFAULT
+	LuaEvents.StatusMessage(str, fDisplayTime, messageType, subType)
 end
 
 -- ===========================================================================
@@ -442,9 +457,9 @@ print("OnInputHandler")
 end
 
 
-----------------------------------------------------------------------------------------
--- Show plot population on map
-----------------------------------------------------------------------------------------
+-- ===========================================================================
+-- Show plot population on map (buggy / deprecated)
+-- ===========================================================================
 
 local g_InstanceManager	:table = InstanceManager:new( "PlotIcons",	"Anchor", Controls.PlotIconsContainer )
 local g_MapIconsInstances	:table = {
@@ -530,6 +545,13 @@ function ShowPlotIcons()
 	Controls.PlotIconsContainer:SetHide(false)
 end
 
+function RemoveAllFromMap()
+	local iCount = Map.GetPlotCount();
+	for plotIndex = 0, iCount-1, 1 do
+		RemoveAll(plotIndex)
+	end
+end
+
 function RemoveAll(plotIndex)
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		local pInstance = g_MapIconsInstances[direction][plotIndex]
@@ -580,6 +602,146 @@ function Rebuild()
 	Controls.PlotIconsContainer:ChangeParent(ContextPtr:LookUpControl("/InGame/CityBannerManager"))
 end
 
+
+-- ===========================================================================
+-- Show MigrationRoute
+-- ===========================================================================
+
+
+g_TradeRoute 					= UILens.CreateLensLayerHash("TradeRoutes")
+local testedPlot 				= {} -- List plots that have been tested and doesn't have an exit path
+local numPathPlot				= {} -- Store current number of major migration paths found from a plot
+local testedPathDir				= {} -- List all plot/direction already stored in a path
+local maxPathsPerPlot			= 5
+local minMigrationRouteLength 	= 2
+local bShowMigrationRoute		= false
+
+function SetHasPathDirection(plotIndex,direction,nextIndex)
+	numPathPlot[plotIndex] 				= numPathPlot[plotIndex] and numPathPlot[plotIndex] + 1 or 1
+	testedPathDir[plotIndex] 			= testedPathDir[plotIndex] or {}
+	testedPathDir[plotIndex][direction] = true
+	
+	local oppDir 						= GCO.GetOppositeDirection(direction)
+	testedPathDir[nextIndex] 			= testedPathDir[nextIndex] or {}
+	testedPathDir[nextIndex][oppDir] 	= true
+end
+
+function HasPathInDirection(plotIndex,direction)
+	return testedPathDir[plotIndex] and testedPathDir[plotIndex][direction]
+end
+
+function GetMigrationPathFrom(plotIndex, path)
+	local prevID	= #path > 0 and path[#path]
+	local plot		= GCO.GetPlotByIndex(plotIndex)
+	local Best		= { Value = 0}
+	local worst		= 0
+	
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do					
+	
+		adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction)
+		if adjacentPlot and prevID ~= adjacentPlot:GetIndex() and not HasPathInDirection(plotIndex,direction) then
+			local migrationData	= plot:GetMigrationDataWith(adjacentPlot)
+			local total			= migrationData.Total
+			worst 				= total > worst and total or worst
+			
+			if total < Best.Value then -- looking for negative value here (ie population moving out)
+				Best.Value 	= total
+				Best.Plot	= adjacentPlot
+				Best.Dir	= direction
+			end
+			
+			if worst + Best.Value >= 0 then -- more pop moving in than out
+				Best.Plot = nil
+			end
+		end
+	end
+	
+	if Best.Plot then -- more people moving out than in, add to pass and test next
+	
+		local nextID 		= Best.Plot:GetIndex()
+		
+		SetHasPathDirection(plotIndex,Best.Dir,nextID)
+		table.insert(path, plotIndex)
+		--print("find path entry #"..tostring(#path).." from ".. plot:GetX() ..",".. plot:GetY() .. " to " .. Best.Plot:GetX() ..",".. Best.Plot:GetY())		
+		GetMigrationPathFrom(nextID, path)
+		
+	else
+		table.insert(path, plotIndex)
+		--print("no path after entry #"..tostring(#path).." from ".. plot:GetX() ..",".. plot:GetY())
+		testedPlot[plotIndex] = true
+	end
+end
+
+function GetMigrationRoutes()
+	local pLocalPlayerVis 	= PlayerVisibilityManager.GetPlayerVisibility(Game.GetLocalObserver())
+	local migrationRoutes 	= {}
+	-- Reset tables
+	testedPlot 				= {}
+	numPathPlot				= {}
+	testedPathDir			= {}
+
+	if (pLocalPlayerVis ~= nil) then
+		local iCount = Map.GetPlotCount();
+		for plotIndex = 0, iCount-1, 1 do
+			if not testedPlot[plotIndex] then
+				local visibilityType = pLocalPlayerVis:GetState(plotIndex);
+				if (visibilityType ~= RevealedState.HIDDEN) then
+					local numPaths = numPathPlot[plotIndex] or 0
+					for n = numPaths, maxPathsPerPlot - 1 do
+						local path = {}
+						GetMigrationPathFrom(plotIndex, path)
+						if #path >= minMigrationRouteLength then
+							table.insert(migrationRoutes, path)
+						end
+					end
+				end
+			end
+		end
+	end
+	ShowMigrationRoutes(migrationRoutes)
+end
+
+function ShowMigrationRoutes(migrationRoutes)
+	if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
+	UILens.SetActive(g_TradeRoute)
+	UILens.ClearLayerHexes( g_TradeRoute )
+	
+	for _, pathPlots in ipairs(migrationRoutes) do
+		if pathPlots then
+			local kVariations:table = {}				
+			local color = UI.GetColorValue(0.90, 0.90, 0.90, 0.90) --RGBAValuesToABGRHex(1, 1, 1, 1) --RGBAValuesToABGRHex
+			local startPlot = Map.GetPlotByIndex(pathPlots[1])
+			local ownerID	= startPlot:GetOwner()
+			if ownerID ~= -1 then
+				local backColor, frontColor = (GCO.GetPlayerColors and GCO.GetPlayerColors(ownerID)) or UI.GetPlayerColors(ownerID)
+				--UI.DarkenLightenColor(backColor, amt, alpha) -- +amt = lighter -amt = darjer alpha=0-255
+				color = backColor
+			end
+			UILens.SetLayerHexesPath( g_TradeRoute, Game.GetLocalPlayer(), pathPlots, kVariations, color )
+			bShowMigrationRoute = true
+			--end
+		end
+	end
+end
+	
+function ClearRoutes()
+	if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
+	bShowMigrationRoute = false
+	UILens.ClearLayerHexes( g_TradeRoute )
+	if UILens.IsLensActive(g_TradeRoute) then
+		-- Make sure to switch back to default lens
+		UILens.SetActive("Default");
+	end
+end
+
+function ToggleMigrationRoutes()
+	if bShowMigrationRoute then
+		ClearRoutes()
+	else
+		GetMigrationRoutes()
+	end
+end
+
 -- ===========================================================================
 -- Initialize functions for other contexts
 -- ===========================================================================
@@ -589,7 +751,7 @@ function Initialize()
 	ContextPtr:SetInputHandler( OnInputHandler, true )
 	
 	--
-	Controls.PlotIconsContainer:ChangeParent(ContextPtr:LookUpControl("/InGame/CityBannerManager"))
+	--Controls.PlotIconsContainer:ChangeParent(ContextPtr:LookUpControl("/InGame/CityBannerManager"))
 	
 
 	-- Set shared table
@@ -683,3 +845,4 @@ end
 		Cost					= cost;		
 	};
 --]]
+

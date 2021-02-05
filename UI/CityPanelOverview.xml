@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Context  ColorSet="BodyTextCool" FontStyle="Shadow">
-  
-  <SlideAnim							ID="OverviewSlide"																						Size="300,parent"				Start="-330,27" End="0,27" Cycle="Once" Speed="3.5" Function="OutSine" Stopped="1" >
+  <!-- GCO <<<<<-->
+  <SlideAnim							ID="OverviewSlide"																						Size="500,parent"				Start="-530,27" End="0,27" Cycle="Once" Speed="3.5" Function="OutSine" Stopped="1" >
+  <!-- GCO <<<<<-->
     <Box  								ID="OverviewBackground"																				Size="parent,parent+5" ConsumeMouse="1"				 Color="8,34,56,255">			
 			<Image							ID="PanelDropShadow"	Texture="Controls_GradientSmall"				Size="22,parent" AnchorSide="O,I" Anchor="R,T" Color="0,0,0,190" Rotate="270" Offset="-1,0"/>					
 			<Image																		Texture="Controls_Gradient"							Size="parent, 120"								Anchor="C,B" Color="13,57,92,255"/>
@@ -468,7 +469,9 @@
 			<Image Texture="Controls_GradientSmall" Anchor="R,T" Size="parent,20" Color="8,34,56,255" Offset="0,90"/>
 
 		</Box>
-    <Grid				  ID="OverviewHeader"			Style="HeaderBannerLeft" Size="320,65" Anchor="L,T"	Offset="0,0">
+		<!-- GCO <<<<<-->
+    <Grid				  ID="OverviewHeader"			Style="HeaderBannerLeft" Size="520,65" Anchor="L,T"	Offset="0,0">
+		<!-- GCO <<<<<-->
       <Container Size="parent-20,28" Anchor="L,T">
         <Label			ID="OverviewTitle"			Style="BannerHeaderText" Anchor="C,C" String="{LOC_HUD_CITY_DETAILS:upper}"/>
       </Container>
@@ -538,6 +541,7 @@
     </Grid>
   </Instance>
 
+  <!-- GCO <<<<<->
   <Instance			Name="BuildingInstance">
     <Grid				ID="Top"															 Offset="15,0" Size="parent-15,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,0" MinSize="24,24">
       <Container Size="24,24">
@@ -547,6 +551,100 @@
       <Label		ID="BuildingYield"				Anchor="R,C" Offset="2,2"												Style="CityPanelText" String="$BuildingYield$"/>
     </Grid>
   </Instance>
+  <!-- GCO >>>>>-->
+  
+  <!-- GCO <<<<<-->
+  <Instance			Name="BuildingInstance">
+    <Grid				ID="Top"															 Offset="15,0" Size="parent-15,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,0" MinSize="24,24">
+      <Container Size="24,24">
+        <Image    ID="Icon"               Offset="-2,-4" Texture="Buildings32" Size="32,32"/>
+      </Container>
+      <Label		ID="BuildingName"		Anchor="L,T" Offset="30,4" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="280"/>
+      <Label		ID="BuildingYield"		Anchor="R,T" Offset="2,2"	Style="CityPanelText" String="$BuildingYield$"/>
+ 
+<!--
+ <Button		ID="ExpandButton"							Anchor="C,T"								Size="20,16"									Color="30,30,30,255"		Texture="Controls_ButtonExtendSmall"	States="7" StateOffsetIncrement="0,16" />
+
+		<Button				ID="FoodIgnore"			Anchor="R,T"			Style="ArrowButtonRight" />	
+	  <CheckBox ID="TitleExpand" Style="CheckBoxExpand" Anchor="R,T" Offset="24,0"/>
+	  
+	  <Grid					ID="ToggleGrid"			Anchor="R,T"			Style="CityPanelFilterGrid" >
+        <CheckBox			ID="ToggleCheck"						Style="CityPanelCBProduction" String="[ICON_Production]"/>
+      </Grid>
+
+	<GridButton	ID="ToggleDropdownButton"	Anchor="R,T" Offset="1,-2" Size="25,25" Texture="Controls_ButtonControl_Brown" SliceCorner="10,10" SliceSize="1,1" SliceTextureSize="24,24" StateOffsetIncrement="0,24"																									ToolTip="LOC_WORLDTRACKER_ENABLE_TEXT">
+        <Image  Size="20,17" Texture="Controls_MenuIcon" Anchor="C,C" Color="157,132,87"/>
+    </GridButton>
+    <Label	ID="BuildingProd"	Anchor="R,T" Offset="2,2"	Style="CityPanelText" String="[ICON_Production]"/>
+
+		<Button ID="StopAskingButton" Anchor="L,T" Offset ="-4,-4" Texture="Controls_DontAskAgainSmall" Size="16,16" ToolTip="LOC_DIPLO_DEAL_MARK_UNACCEPTABLE" Hidden="0"/>
+
+		<CheckBox ID="TitleExpand" Style="CheckBoxExpand" Anchor="R,T" Offset="24,0"/>
+	
+	  -->	  
+
+		<Button ID="CollapseButton" Anchor="R,T" Offset="5,16"	Size="16,16"	Hidden="0" Texture="Controls_CityExpand" TextureOffset="0,0" ToolTip="Show/Hide building prod" />
+		<Label	ID="BuildingProd"	Anchor="R,T" Offset="2,2"	Style="CityPanelText" String="[ICON_Production]"/>
+		  
+		<Stack    ID="ResProdStack" Offset="0,36" Padding="1"/>
+
+    </Grid>
+  </Instance>
+  
+  <Instance			Name="ResourceProduction">
+    <Grid			ID="Top"								Offset="2,0" Size="parent-15,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,0" MinSize="22,22">
+	
+		<Grid					ID="ResProdGrid"			Anchor="L,C"			Style="CityPanelFilterGrid" >
+			<CheckBox			ID="ResProdCheck"						Style="CityPanelCBProduction"/>
+		</Grid>
+
+		<Label		ID="ResIn"			Anchor="L,C" 	Offset="30,0" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="100"/>
+		<!--<Label		ID="Arrow"			Anchor="L,C" 	Offset="200,-5" Size="16,16"	Style="CityPanelText" String="[ICON_GoingTo]" WrapWidth="10"/>-->
+		<Label		ID="ResOut"			Anchor="L,C" 	Offset="230,0"	Style="CityPanelText" String="$BuildingYield$"/>
+    </Grid>
+  </Instance>
+  
+  <Instance			Name="MultiResourceProduction">
+    <Grid			ID="Top"								Offset="2,0" Size="parent-15,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,0" MinSize="22,22">
+	
+		<Grid					ID="ResProdGrid"			Anchor="L,C"			Style="CityPanelFilterGrid" >
+			<CheckBox			ID="ResProdCheck"						Style="CityPanelCBProduction"/>
+		</Grid>
+
+		<Label		ID="ResIn"			Anchor="L,C" 	Offset="30,0" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="100"/>
+		<Stack    ID="ResOutStack" Offset="220,0" Padding="1"/>
+    </Grid>
+  </Instance>
+ 
+  <Instance	Name="ResourceOutProduction">
+    <Grid		ID="Top"	Offset="0,0" Size="230,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,0" MinSize="22,22">
+		<Label	ID="ResOut"			Anchor="L,C" 	Offset="2,0" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="230"/>
+		<Grid		ID="ResProdGrid"			Anchor="R,C"			Style="CityPanelFilterGrid" >
+			<CheckBox	ID="ResProdCheck"						Style="CityPanelCBProduction"/>
+		</Grid>
+   </Grid>
+  </Instance>
+  
+  
+  <Instance			Name="MultiResRequiredProduction">
+    <Grid			ID="Top"								Offset="2,0" Size="parent-15,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,0" MinSize="22,22">
+	
+		<Grid					ID="ResProdGrid"			Anchor="L,C"			Style="CityPanelFilterGrid" >
+			<CheckBox			ID="ResProdCheck"						Style="CityPanelCBProduction"/>
+		</Grid>
+		<Stack    ID="ResInStack" Offset="30,0" Padding="1"/>
+
+		<Label		ID="ResOut"			Anchor="L,C" 	Offset="230,0" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="220"/>
+    </Grid>
+  </Instance>
+ 
+  <Instance	Name="ResourceInProduction">
+    <Grid		ID="Top"	Offset="0,0" Size="200,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,0" MinSize="22,22">
+		<Label	ID="ResIn"			Anchor="L,C" 	Offset="0,0" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="200"/>
+   </Grid>
+  </Instance>
+  
+   <!-- GCO >>>>>-->
 
   <Instance			Name="DistrictInstance">
     <Grid				ID="Top"																					 Size="parent,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,2" MinSize="24,24">
@@ -622,8 +720,8 @@
   <Instance			Name="ResourcesInstance">
     <Grid				ID="Top"																							Size="parent,16"	Texture="CityPanel_StatPanelLineItem" SliceCorner="7,7" SliceSize="1,1" SliceTextureSize="16,16" AutoSize="V" MinSize="16,16">
 		<Stack																						Offset="8,6"	StackGrowth="Right">
-			<Container																										Size="30,12">
-				<Label		ID="Name"		Anchor="L,C"	Style="CityPanelTextSmall"	String=""   />
+			<Container																										Size="220,12">
+				<Label		ID="Name"		Anchor="L,C"	Style="CityPanelTextSmall"	String=""   Style="FontMono14" FontSize="10"/>
 			</Container>
 			<Container																										Size="48,12">
 				<Label		ID="Stock"		Anchor="R,C"	Style="CityPanelTextSmall"	String=""	 />
@@ -647,8 +745,8 @@
   <Instance			Name="ResourcesSupplyInstance">
     <Grid				ID="Top"																							Size="parent,16"	Texture="CityPanel_StatPanelLineItem" SliceCorner="7,7" SliceSize="1,1" SliceTextureSize="16,16" AutoSize="V" MinSize="16,16">
 		<Stack																						Offset="8,6"	StackGrowth="Right">
-			<Container																										Size="30,12">
-				<Label		ID="Name"		Anchor="L,C"	Style="CityPanelTextSmall"	String=""   />
+			<Container																										Size="220,12">
+				<Label		ID="Name"		Anchor="L,C"	Style="CityPanelTextSmall"	String=""   Style="FontMono14" FontSize="10"/>
 			</Container>
 			<Container																										Size="30,12">
 				<Label		ID="Collect"	Anchor="R,C"	Style="CityPanelTextSmall"	String=""	ToolTip="LOC_HUD_CITY_RESOURCES_COLLECT_TOOLTIP" />
@@ -678,8 +776,8 @@
   <Instance			Name="ResourcesDemandInstance">
     <Grid				ID="Top"																							Size="parent,16"	Texture="CityPanel_StatPanelLineItem" SliceCorner="7,7" SliceSize="1,1" SliceTextureSize="16,16" AutoSize="V" MinSize="16,16">
 		<Stack																						Offset="8,6"	StackGrowth="Right">
-			<Container																										Size="30,12">
-				<Label		ID="Name"			Anchor="L,C"	Style="CityPanelTextSmall"	String=""   />
+			<Container																										Size="220,12">
+				<Label		ID="Name"			Anchor="L,C"	Style="CityPanelTextSmall"	String=""   Style="FontMono14" FontSize="10"/>
 			</Container>
 			<Container																										Size="30,12">
 				<Label		ID="Consume"		Anchor="R,C"	Style="CityPanelTextSmall"	String=""	ToolTip="LOC_HUD_CITY_RESOURCES_CONSUME_TOOLTIP" />

@@ -140,7 +140,8 @@ end
 -----------------------------------------------------------------------------------------
 
 DEBUG_PLOT_SCRIPT			= "PlotScript"
-local debugTable 			= {}	-- table used to output debug data from some functions
+DEBUG_PLOT_TURN				= false			-- when true use pcall for plots turn
+local debugTable 			= {}			-- table used to output debug data from some functions
 
 
 -----------------------------------------------------------------------------------------
@@ -2297,12 +2298,12 @@ function GetPopulation(self)
 		GCO.AttachCityFunctions(city)
 		return city:GetUrbanPopulation()
 	end
-	return self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+	return self:GetLowerClass() --self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
 end
 
 function GetPreviousPopulation(self)
 
-	return self:GetPreviousUpperClass() + self:GetPreviousMiddleClass() + self:GetPreviousLowerClass() + self:GetPreviousSlaveClass()
+	return self:GetPreviousLowerClass() -- self:GetPreviousUpperClass() + self:GetPreviousMiddleClass() + self:GetPreviousLowerClass() + self:GetPreviousSlaveClass()
 end
 
 function ChangeUpperClass(self, value)
@@ -2739,7 +2740,7 @@ end
 
 function DoMigration(self)
 
-	--if self:IsCity() then return end -- cities handle migration differently
+	if self:IsCity() then return end -- cities handle migration differently (but we want to allow migration to adjacent plots not owned by the city if not done in the city turn)
 	
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
@@ -2755,7 +2756,7 @@ function DoMigration(self)
 	
 	local possibleDestination 	= {}
 	local city					= self:GetCity()
-	local migrantClasses		= {UpperClassID, MiddleClassID, LowerClassID}
+	local migrantClasses		= {LowerClassID}--{UpperClassID, MiddleClassID, LowerClassID}
 	--local migrantMotivations	= {"Under threat", "Starvation", "Employment", "Overpopulation"}	
 	local maxMigrants			= math.floor(population * maxMigrantPercent / 100)
 	local minMigrants			= math.floor(population * minMigrantPercent / 100)
@@ -2847,34 +2848,40 @@ function DoMigration(self)
 			local cityMigration = city:GetMigration()
 			if cityMigration then
 				local distance		= Map.GetPlotDistance(self:GetX(), self:GetY(), city:GetX(), city:GetY())
-				local efficiency 	= (1 - math.min(0.9, distance / 10))
-				local cityWeight = 0
-				Dprint( DEBUG_PLOT_SCRIPT, "  - Looking for better conditions in City of ".. Locale.Lookup(city:GetName()) ..", Transport efficiency = ", GCO.ToDecimals(efficiency))
-				for motivation, pushValue in pairs(plotMigration.Push) do
-					local cityPull	= cityMigration.Pull[motivation][LowerClassID] or 0
-					local cityPush	= cityMigration.Push[motivation][LowerClassID] or 0
-					-- to do : effect of owned / foreign / free plots
-					local weightRatio	= efficiency	
-					Dprint( DEBUG_PLOT_SCRIPT, "    -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " cityPush = ", GCO.ToDecimals(cityPush), " cityPull = ", GCO.ToDecimals(cityPull))
-					if cityPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
-						if cityPull > 1 then
-							weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
+				if distance < 3 then
+					local cityPlot 	= GetPlot(city:GetX(), city:GetY())
+					local path 		= self:GetPathToPlot(cityPlot, nil, "Land", nil, 5)
+					if path then
+						local efficiency 	= (1 - math.min(0.9, distance / 10))
+						local cityWeight = 0
+						Dprint( DEBUG_PLOT_SCRIPT, "  - Looking for better conditions in City of ".. Locale.Lookup(city:GetName()) ..", Transport efficiency = ", GCO.ToDecimals(efficiency))
+						for motivation, pushValue in pairs(plotMigration.Push) do
+							local cityPull	= cityMigration.Pull[motivation][LowerClassID] or 0
+							local cityPush	= cityMigration.Push[motivation][LowerClassID] or 0
+							-- to do : effect of owned / foreign / free plots
+							local weightRatio	= efficiency	
+							Dprint( DEBUG_PLOT_SCRIPT, "    -  Motivation : "..Indentation15(motivation) .. " pushValue = ", GCO.ToDecimals(pushValue), " cityPush = ", GCO.ToDecimals(cityPush), " cityPull = ", GCO.ToDecimals(cityPull))
+							if cityPush < pushValue then 			-- situation is better on adjacentPlot than on currentPlot for [motivation]
+								if cityPull > 1 then
+									weightRatio = weightRatio * 2		-- situation is good on adjacentPlot
+								end
+								if pushValue > 1 then
+									weightRatio = weightRatio * 5		-- situation is bad on currentPlot
+								end
+								if motivation == plotMigration.Motivation then
+									weightRatio = weightRatio * 10		-- this is the most important motivation for migration
+								end
+								local motivationWeight = (cityPull + pushValue) * weightRatio
+								cityWeight = cityWeight + motivationWeight
+								Dprint( DEBUG_PLOT_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated cityWeight = ", GCO.ToDecimals(cityWeight))
+							end
 						end
-						if pushValue > 1 then
-							weightRatio = weightRatio * 5		-- situation is bad on currentPlot
+						
+						if cityWeight > 0 then
+							totalWeight = totalWeight + cityWeight
+							table.insert (possibleDestination, {City = city, Weight = cityWeight, MigrationEfficiency = efficiency, Path = path})
 						end
-						if motivation == plotMigration.Motivation then
-							weightRatio = weightRatio * 10		-- this is the most important motivation for migration
-						end
-						local motivationWeight = (cityPull + pushValue) * weightRatio
-						cityWeight = cityWeight + motivationWeight
-						Dprint( DEBUG_PLOT_SCRIPT, "       -  weightRatio = ", GCO.ToDecimals(weightRatio), " motivationWeight = ", GCO.ToDecimals(motivationWeight), " updated cityWeight = ", GCO.ToDecimals(cityWeight))
 					end
-				end
-				
-				if cityWeight > 0 then
-					totalWeight = totalWeight + cityWeight
-					table.insert (possibleDestination, {City = city, Weight = cityWeight, MigrationEfficiency = efficiency})
 				end
 			else
 				GCO.Warning("cityMigration is nil for ".. Locale.Lookup(city:GetName()))
@@ -2898,17 +2905,27 @@ function DoMigration(self)
 					for i, classID in ipairs(migrantClasses) do
 						local classMoving = math.floor(totalPopMoving * classesRatio[classID])
 						if classMoving > 0 then
-							if destination.PlotID then
+							if destination.PlotID then -- plot to plot migration
 								local plot 				= GCO.GetPlotByIndex(destination.PlotID)
 								Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Resources[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
 								self:MigrationTo(plot, classMoving) -- before changing population values to get the correct numbers on each plot
 								self:ChangePopulationClass(classID, -classMoving)
 								plot:ChangePopulationClass(classID, classMoving)
-							else
-								local city 				= destination.City
-								local plot 				= GetPlot(city:GetX(), city:GetY())
+							else -- going to owning city
+								local city 			= destination.City
+								local plot 			= GetPlot(city:GetX(), city:GetY())
+								local currentPlot	= self
+								local path			= destination.Path
 								Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Resources[classID].Name)).. " to city ("..Locale.Lookup(city:GetName())..") with Weight = "..tostring(destination.Weight))
-								self:MigrationTo(plot, classMoving)
+								for num, plotID in ipairs(path) do
+									if num > 1 then -- 1 is the origin plot
+										local pathPlot = Map.GetPlotByIndex(plotID)
+										Dprint( DEBUG_PLOT_SCRIPT, "- path plot #".. tostring(num) .." = ".. pathPlot:GetX() ..",".. pathPlot:GetY())
+										currentPlot:MigrationTo(pathPlot, classMoving)
+										currentPlot = pathPlot
+									end
+								end
+								--self:MigrationTo(plot, classMoving)
 								self:ChangePopulationClass(classID, -classMoving)
 								city:ChangePopulationClass(classID, classMoving)
 							end
@@ -2931,7 +2948,16 @@ function CheckNewTurnFinished()
 	end
 end
 
+
 function OnNewTurn()
+	if DEBUG_PLOT_TURN then
+		GCO.Monitor(DoPlotsTurn, {}, "Plots Turn")
+	else
+		DoPlotsTurn()
+	end
+end
+
+function DoPlotsTurn()
 
 	if Game.GetCurrentGameTurn() == GameConfiguration.GetStartTurn() then -- don't update on first turn (NewTurn is called on the first turn of a later era start)
 		GCO.Warning("Aborting OnNewTurn() for plots, this is the first turn !")
@@ -3296,6 +3322,7 @@ function Initialize()
 	--
 	ExposedMembers.GCO.GetPlotFromKey 			= GetPlotFromKey
 	ExposedMembers.GCO.GetRiverPath				= GetRiverPath
+	ExposedMembers.GCO.GetOppositeDirection		= GetOppositeDirection
 	--
 	ExposedMembers.GCO.GetCultureIDFromPlayerID	= GetCultureIDFromPlayerID
 	--

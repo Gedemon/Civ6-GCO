@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
+
+	<!-- 
+		Use AI list to prevent selection of Unlocker Techs by the AI
+		Technology Types with prefix "TECH_UNLOCK_" are added by PostUpdate.sql to the UnlockerTechs list in <AiFavoredItems> with a negative value
+	-->
+	<AiListTypes>
+		<Row ListType="UnlockerTechs"/>
+	</AiListTypes>
+	<AiLists>
+		<Row ListType="UnlockerTechs" LeaderType="TRAIT_LEADER_MAJOR_CIV" System="Technologies"/>
+		<Row ListType="UnlockerTechs" LeaderType="MINOR_CIV_DEFAULT_TRAIT" System="Technologies"/>
+		<Row ListType="UnlockerTechs" LeaderType="TRAIT_LEADER_BARBARIAN" System="Technologies"/>
+	</AiLists>
+
 	<!--
 		TechnologiesGCO : Temporary table used to set the new Technologies and update the old entries.
 		New Techs require at least those tags: TechnologyType, Cost, EraType
@@ -15,13 +29,13 @@
 		<Row TechnologyType="TECH_TRAPPING" 			Cost="20" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>
 		<!-- Ancient Era Tiers I -->
 		<Row TechnologyType="TECH_CEREMONIAL_BURIAL" 	Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-3"	/>
-		<!--<Row TechnologyType="TECH_UNLOCK_SAILING"		Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-20"	/>	 Unlock when discovering Sea -->
+		<!--<Row TechnologyType="TECH_UNLOCK_SAILING"		Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="3"	/>	 <!-- Unlock when discovering Sea -->
 		<Row TechnologyType="TECH_SAILING" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="-2"	EmbarkUnitType="UNIT_BUILDER"		BarbarianFree="true"/>
 		<Row TechnologyType="TECH_HERBALISM" 			Cost="25" EraType="ERA_ANCIENT"		UITreeRow="-1"	AdvisorType="ADVISOR_TECHNOLOGY"/>
 		<Row TechnologyType="TECH_POTTERY" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="0"	Description="NONE"/>
 		<Row TechnologyType="TECH_PICTOGRAM" 			Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="1"	/>	<!-- ("Writing" = "Alphabet" ?)	-->
 		<Row TechnologyType="TECH_ARCHERY" 				Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="2"	/>
-		<!--<Row TechnologyType="TECH_UNLOCK_WARRIOR_CODE"	Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="30"	/>	 Unlock on first melee attack -->
+		<!--<Row TechnologyType="TECH_UNLOCK_WARRIOR_CODE"	Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="3"	/>	 <!--Unlock on first melee attack -->
 		<Row TechnologyType="TECH_WARRIOR_CODE" 		Cost="25" EraType="ERA_ANCIENT" 	UITreeRow="4"	AdvisorType="ADVISOR_CONQUEST" 		/>
 		<!-- Ancient Era Tiers II -->
 		<Row TechnologyType="TECH_ASTROLOGY" 			Cost="50" EraType="ERA_ANCIENT" 	UITreeRow="-3"	AdvisorType="ADVISOR_RELIGIOUS" 	/>
@@ -247,8 +261,7 @@
 		<!-- Tiers I -->
 		<Row Technology="TECH_ARCHERY"				PrereqTech="TECH_TRAPPING"/>
 		<!-- Tiers II -->
-		<!--<Row Technology="TECH_UNLOCK_SAILING" 		PrereqTech="TECH_MILITARY_ENGINEERING"/>	 Added using Lua -->
-		<!--<Row Technology="TECH_SAILING" 				PrereqTech="TECH_UNLOCK_SAILING"/>	-->
+		<!--<Row Technology="TECH_SAILING" 				PrereqTech="TECH_UNLOCK_SAILING"/>	<!-- TECH_UNLOCK_SAILING Added using Lua -->
 		<Row Technology="TECH_MYSTICISM" 			PrereqTech="TECH_CEREMONIAL_BURIAL"/>
 		<Row Technology="TECH_MYSTICISM" 			PrereqTech="TECH_ASTROLOGY"/>
 		<Row Technology="TECH_IRRIGATION" 			PrereqTech="TECH_AGRICULTURE"/>
@@ -262,8 +275,7 @@
 		<Row Technology="TECH_THE_WHEEL"			PrereqTech="TECH_ANIMAL_HUSBANDRY"/>
 		<Row Technology="TECH_THE_WHEEL"			PrereqTech="TECH_ARCHERY"/>
 		<Row Technology="TECH_MINING"				PrereqTech="TECH_POTTERY"/>
-		<!--<Row Technology="TECH_UNLOCK_WARRIOR_CODE"	PrereqTech="TECH_THEOLOGY"/>				 Added using Lua -->
-		<!--<Row Technology="TECH_WARRIOR_CODE"			PrereqTech="TECH_UNLOCK_WARRIOR_CODE"/>	-->
+		<!--<Row Technology="TECH_WARRIOR_CODE"			PrereqTech="TECH_UNLOCK_WARRIOR_CODE"/>	<!-- TECH_UNLOCK_WARRIOR_CODE Added using Lua -->
 		<!-- Tiers III -->
 		<Row Technology="TECH_MAP_MAKING"			PrereqTech="TECH_ASTROLOGY"/>
 		<Row Technology="TECH_MAP_MAKING"			PrereqTech="TECH_WRITING"/>
@@ -801,7 +813,7 @@
 		<Row 	Technology="TECH_REPLACEABLE_PARTS"		ContributionType="RESEARCH_ECONOMIC"		MaxContributionPercent="100"/>
 		<Row 	Technology="TECH_REPLACEABLE_PARTS"		ContributionType="RESEARCH_CRAFTSMANSHIP"	MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_CIVIL_ENGINEERING"		ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="100"/>
-		<Row 	Technology="TECH_MOBILIZATION"	ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
+		<Row 	Technology="TECH_MOBILIZATION"			ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="100"/>
 		<!-- Tiers II -->
 		<Row 	Technology="TECH_TOTALITARIANISM"		ContributionType="RESEARCH_MILITARY" 		MaxContributionPercent="50"/>
 		<Row 	Technology="TECH_URBANIZATION"			ContributionType="RESEARCH_SOCIAL" 			MaxContributionPercent="50"/>
@@ -921,10 +933,10 @@
 	</TechnologyEventContribution>
 	
 	<TechnologyEventUnlock>
-	<!-- No simple way to lock a tech, as the only possibility is to use another tech (and self-requirement is crashing 07/12/18)
+	<!-- No simple way to lock a tech, as the only possibility is to use another tech (and self-requirement is crashing 07/12/18)  -->
 		<Row 	Technology="TECH_WARRIOR_CODE" 		ContributionType="EVENT_LAND_MELEE_ATTACK" 		/>
 		<Row 	Technology="TECH_SAILING" 			ContributionType="EVENT_DISCOVER_NEW_RESOURCE"	TypeTag="CLASS_BOAT_RES"/>
-	-->
+	<!-- -->
 	</TechnologyEventUnlock>
 	
 	<!--

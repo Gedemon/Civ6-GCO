@@ -9,6 +9,8 @@ include("PortraitSupport");
 include("ToolTipHelper");
 
 -- GCO <<<<<
+include( "GCO_TypeEnum" )
+include( "GCO_SmallUtils" )
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
@@ -608,6 +610,10 @@ function GetCityData( pCity:table )
 	data.YieldFilters[YieldTypes.PRODUCTION]= GetYieldState(YieldTypes.PRODUCTION);
 	data.YieldFilters[YieldTypes.SCIENCE]	= GetYieldState(YieldTypes.SCIENCE);
 	data = UpdateYieldData( pCity, data );
+	
+	-- GCO <<<<<
+	GCO.AttachCityFunctions(pCity)
+	-- GCO >>>>>
 
 	-- Determine builds, districts, and wonders
 	local pCityBuildings	:table = pCity:GetBuildings();
@@ -619,15 +625,27 @@ function GetCityData( pCity:table )
 			for _, type in ipairs(kBuildingTypes) do
 				local building	= GameInfo.Buildings[type];
 				-- GCO <<<<<
-				if not building.NoCityScreen then
+				--[[
 				-- GCO >>>>>
+				table.insert( data.Buildings, { 
+				Name		= building.Name, 
+				Citizens	= kPlot:GetWorkerCount(),
+				isPillaged	= pCityBuildings:IsPillaged(type),
+				Maintenance	= building.Maintenance			--Expense in gold
+				});
+				-- GCO <<<<<
+				--]]
+				-- GCO >>>>>
+
+				-- GCO <<<<<
+				if not building.NoCityScreen then
 					table.insert( data.Buildings, { 
 						Name		= building.Name, 
 						Citizens	= kPlot:GetWorkerCount(),
 						isPillaged	= pCityBuildings:IsPillaged(type),
-						Maintenance	= building.Maintenance			--Expense in gold
+						Maintenance	= building.Maintenance,			--Expense in gold
+
 					});
-				-- GCO <<<<<
 				end
 				-- GCO >>>>>
 			end
@@ -755,10 +773,18 @@ function GetCityData( pCity:table )
 			else			
 				-- GCO <<<<<
 				if not building.NoCityScreen then
+				----
+				local ProductionSettings = {}
+				for _, settingType in pairs(ProductionSettingsType) do
+					-- we copy the table from Gameplay has we don't want to alter them in UI for MP sync
+					-- we compare on screen close and only send the changed settings to Gameplay (and MP)
+					ProductionSettings[settingType] = DeepCopy( pCity:GetBuildingProductionSettings(building.Index, settingType) )
+				end
 				-- GCO >>>>>
 				data.BuildingsNum = data.BuildingsNum + 1;
 				table.insert( districtTable.Buildings, { 
 					-- GCO <<<<<
+					ProductionSettings	= ProductionSettings,
 					Tooltip				= ToolTipHelper.GetBuildingToolTip( building.Hash, owner, pCity ),
 					-- GCO >>>>>
 					Name				= Locale.Lookup(building.Name), 
@@ -796,13 +822,15 @@ function GetCityData( pCity:table )
 	end
 
 	-- GCO <<<<<
-	GCO.AttachCityFunctions(pCity)
 	data.ResourcesStock 	= pCity:GetResourcesStockTable()
 	data.ResourcesSupply 	= pCity:GetResourcesSupplyTable()
 	data.ResourcesDemand 	= pCity:GetResourcesDemandTable()
 	data.ForeignRoutes	 	= pCity:GetExportCitiesTable()
 	data.TransferRoutes	 	= pCity:GetTransferCitiesTable()
-	data.SupplyLines	 	= pCity:GetSupplyLinesTable()		
+	data.SupplyLines	 	= pCity:GetSupplyLinesTable()
+	
+	data.OutputPerYield	 	= pCity:GetOutputPerYield()
+	data.OutputString		= Locale.Lookup("LOC_CITYBANNER_OUTPUT_YIELD_DETAILS", pCity:GetSize(), pCity:GetUrbanActivityFactor()*100, pCity:GetAdministrativeEfficiency(), data.OutputPerYield )
 	
 	local upperClass		= pCity:GetUpperClass()
 	local middleClass		= pCity:GetMiddleClass()
@@ -927,6 +955,8 @@ function GetCityData( pCity:table )
 	
 	data.RealProductionTurnsLeft	= realTurnsLeft
 	data.ProductionToolTip			= productionTip
+	
+	data.RushUnitProductionCost		= pCity:GetRushUnitProductionCost()
 	
 	-- GCO >>>>>
 

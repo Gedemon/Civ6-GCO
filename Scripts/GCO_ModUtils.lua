@@ -584,7 +584,13 @@ function ShowLastLog(n)
 end
 --LuaEvents.ShowLastLog.Add( ShowLastLog )
 
-function Monitor(f, arguments, name) -- GCO.Monitor(self.SetCityRationing, {self}, "SetCityRationing for ".. name) -- 	GCO.Monitor(self.DoMigration, {self}, "DoMigration for ".. name)
+function Monitor(f, arguments, name)
+
+-- Usage examples:
+-- GCO.Monitor(self.SetCityRationing, {self}, "SetCityRationing for ".. self:GetName())   //replace// self:SetCityRationing()
+-- GCO.Monitor(plot.DoMigration, {plot}, "DoMigration for plot#".. plot:GetIndex()) 		 //replace// plot:DoMigration()
+-- GCO.Monitor(UnitsTurn, {playerID}, "Units Turn Player#".. tostring(playerID)) 		//replace// UnitsTurn(playerID)
+-- 
 	local name = name or "Monitoring"
 	StartTimer(name)
 	print("Monitoring", f, name)
@@ -885,7 +891,7 @@ function ShowLoggedCounter()
 	print(GCO.Separator)
 	print("Turn = " .. tostring(Game.GetCurrentGameTurn()))
 	for key, value in pairs(Counter) do
-		local str = tostring(key) .." tested plots count = " .. tostring(value)
+		local str = tostring(key) .." tested count = " .. tostring(value)
 		print(str)
 		Counter[key] = 0
 	end
@@ -920,7 +926,7 @@ function ShowTimer(name) -- bShowInGame, seconds are optionnal
 		return
 	end
 	local diff 		= 0
-	local maxDif	= 0.1 -- 0.5
+	local maxDif	= 0.75 -- 0.5
 	if Timer[name] and Timer[name].Start and Timer[name].Stop then
 		diff = Timer[name].Stop-Timer[name].Start
 	elseif Timer[name] and Timer[name].Start then

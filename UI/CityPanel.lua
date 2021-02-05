@@ -16,6 +16,7 @@ include( "GameCapabilities" );
 include( "MapUtilities" );
 
 -- GCO <<<<<
+include( "PopupDialog" );
 include( "GCO_PlayerConfig" )
 
 -----------------------------------------------------------------------------------------
@@ -450,6 +451,13 @@ function ViewMain( data:table )
 		Controls.ProductionNum:SetColorByName("StatBadCS")
 	else		
 		Controls.ProductionNum:SetColorByName("White")
+	end
+	
+	if data.RushUnitProductionCost then
+		Controls.ProduceWithGoldCheck:SetToolTipString(Locale.Lookup("LOC_HUD_CITY_RUSH_PRODUCTION_COST", data.RushUnitProductionCost))
+		Controls.ProduceWithGoldCheck:SetHide( false )
+	else
+		Controls.ProduceWithGoldCheck:SetHide( true )
 	end
 	
 	-- GCO >>>>>
@@ -1392,4 +1400,35 @@ function Initialize()
 	TruncateStringWithTooltip(Controls.AmenitiesLabel,	MAX_BEFORE_TRUNC_STATIC_LABELS,	Controls.AmenitiesLabel:GetText());
 	TruncateStringWithTooltip(Controls.HousingLabel,	MAX_BEFORE_TRUNC_STATIC_LABELS,	Controls.HousingLabel:GetText());
 end
+-- GCO <<<<<
+-- ===========================================================================
+--	Override OnTogglePurchaseWithGold and use it as Rush production button
+-- ===========================================================================
+function OnConfirmRush()
+
+	local kParameters:table = {}
+	kParameters.value = "Rush"
+	kParameters.objectID = g_pCity:GetID()
+	kParameters.OnStart = "PlayerCityAction" -- Send this GameEvent when processing the operation
+
+	UI.RequestPlayerOperation(Game.GetLocalPlayer(), PlayerOperations.EXECUTE_SCRIPT, kParameters);
+	
+	
+	Controls.ProduceWithGoldCheck:SetCheck( false )
+end
+
+
+function OnTogglePurchaseWithGold()
+	--Request confirmation
+	local pPopupDialog :table = PopupDialogInGame:new("ConfirmRush") -- unique identifier
+	local city 		= GCO.GetCity(g_pCity:GetOwner(), g_pCity:GetID())
+	local goldCost	= m_kData.RushUnitProductionCost
+	local popText	= city:GetRushConfirmationString(goldCost)
+	
+	pPopupDialog:AddText(popText)
+	pPopupDialog:AddConfirmButton(Locale.Lookup("LOC_YES"), OnConfirmRush)
+	pPopupDialog:AddCancelButton(Locale.Lookup("LOC_NO"), function() Controls.ProduceWithGoldCheck:SetCheck( false ); end)
+	pPopupDialog:Open();
+end
+-- GCO >>>>>
 Initialize();
