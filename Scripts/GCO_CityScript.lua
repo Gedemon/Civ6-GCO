@@ -4021,7 +4021,7 @@ function CanTrain(self, unitType)
 		end
 	
 		local reserved 					= self:GetBuildingQueueStock(resourceID, unitType)
-		local needPerTurn 				= math.ceil( Div((value - reserved), turnsLeft))
+		local needPerTurn 				= turnsLeft > 0 and math.ceil( Div((value - reserved), turnsLeft)) or 0 -- (got a Divide by 0 report...)
 		local stock						= self:GetStock(resourceID)
 		local supplied					= math.max(self:GetSupplyAtTurn(resourceID, turn), self:GetSupplyAtTurn(resourceID, previousTurn))
 		local resourceCost				= self:GetResourceCost(resourceID)
@@ -8141,14 +8141,16 @@ local minProductionRatioForRushing	= 0.25
 local RushGoldMultiplier 			= 2 -- can't use the base GOLD_PURCHASE_MULTIPLIER because it's changed to 65534 to prevent the AI using it
 function GetRushUnitProductionCost(self, unitRow) -- unitRow is optionnal
 	local contextCity	= GetCity(self:GetOwner(), self:GetID()) -- we need buildQueue for gameplay context, and this function can be called from UI, with a City object that has this script functions attached, but is still using UI buildQueue...
-	local buildQueue	= contextCity:GetBuildQueue()
-	local unitRow		= unitRow or (buildQueue and GameInfo.Units[buildQueue:CurrentlyBuilding()])
-	if (unitRow and unitRow.FormationClass ~= "FORMATION_CLASS_CIVILIAN") then -- don't allow rushing Civilian units
-		local progress 		= self:GetProductionProgress(ProductionTypes.UNIT, unitRow.Index)
-		local buildCost		= unitRow.Cost
-		local prodLeft		= buildCost - progress
-		local goldCost		= prodLeft * RushGoldMultiplier
-		return (progress >= buildCost * minProductionRatioForRushing and goldCost)
+	if contextCity then
+		local buildQueue	= contextCity:GetBuildQueue()
+		local unitRow		= unitRow or (buildQueue and GameInfo.Units[buildQueue:CurrentlyBuilding()])
+		if (unitRow and unitRow.FormationClass ~= "FORMATION_CLASS_CIVILIAN") then -- don't allow rushing Civilian units
+			local progress 		= self:GetProductionProgress(ProductionTypes.UNIT, unitRow.Index)
+			local buildCost		= unitRow.Cost
+			local prodLeft		= buildCost - progress
+			local goldCost		= prodLeft * RushGoldMultiplier
+			return (progress >= buildCost * minProductionRatioForRushing and goldCost)
+		end
 	end
 end
 
