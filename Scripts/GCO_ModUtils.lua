@@ -958,14 +958,16 @@ end
 --LuaEvents.ShowTimerLog.Add(ShowPlayerLoggedTimers)
 
 function ShowLoggedTimers()
-	print(GCO.Separator)
-	print("Turn = " .. tostring(Game.GetCurrentGameTurn()))
-	for key, value in pairs(TimerLog) do
-		local str = tostring(key) .." timer = " .. tostring(value) .. " seconds"
-		print(str)
-		TimerLog[key] = 0
+	if not IsEmpty(TimerLog) then
+		print(GCO.Separator)
+		print("Turn = " .. tostring(Game.GetCurrentGameTurn()))
+		for key, value in pairs(TimerLog) do
+			local str = tostring(key) .." timer = " .. tostring(value) .. " seconds"
+			print(str)
+			TimerLog[key] = 0
+		end
+		print(GCO.Separator)
 	end
-	print(GCO.Separator)
 end
 GameEvents.OnGameTurnStarted.Add(ShowLoggedTimers)
 

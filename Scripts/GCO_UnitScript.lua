@@ -18,7 +18,7 @@ include( "GCO_SmallUtils" )
 
 DEBUG_UNIT_SCRIPT 	= "UnitScript"
 DEBUG_LOCAL_COMBAT	= false			-- show logs for local player combats
-DEBUG_UNIT_TURN		= false			-- use pcall for units turn (slow down processing speed but returns silent errors)
+DEBUG_UNIT_TURN		= true			-- use pcall for units turn (slow down processing speed but returns silent errors)
 
 function ToggleDebug()
 	DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT == "UnitScript" and "debug" or "UnitScript"

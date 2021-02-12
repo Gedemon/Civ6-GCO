@@ -1186,7 +1186,7 @@ function DoPlayerTurn( playerID )
 		local playerName						= Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 		Dprint( DEBUG_PLAYER_SCRIPT, "---============================================================================================================================================================================---")
 		Dprint( DEBUG_PLAYER_SCRIPT, "--- STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()) .." FOR PLAYER # ".. tostring(playerID) .. " ( ".. tostring(playerName) .." )")
-		Dprint( DEBUG_PLAYER_SCRIPT, "---============================================================================================================================================================================---")
+		Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 		
 		-- Set cost before Cities turn
 		player:SetAdministrativeCost()
