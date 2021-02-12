@@ -20,6 +20,11 @@ local debugFilter = {
 --	["ResearchScript"] 	= true,
 }
 
+local bNoOutput 		= false
+local bErrorToScreen 	= true
+local bWarningToScreen	= false
+local bNoWarningForUI	= true
+
 --=====================================================================================--
 -- Defines
 --=====================================================================================--
@@ -466,9 +471,6 @@ end
 -- Debug
 --=====================================================================================--
 local lastLog			= {}
-local bNoOutput 		= false
-local bErrorToScreen 	= true
-local bWarningToScreen	= false
 
 function ToggleOutput()
 	bNoOutput = not bNoOutput
@@ -515,16 +517,18 @@ end
 function Warning(str, seconds, bTrace)
 	local seconds = seconds or 7
 	local status, err = pcall(function () error("custom error") end)
-	local line = string.match(err, 'Warning.-$')
-	local line = string.match(line, 'GCO_.-$')
-	local line = string.match(line, ':.-\'')
-	local line = string.match(line, '%d+')
-	print("WARNING : ".. str .. " at line "..line )
-	if bTrace then
-		print(string.match(err, 'Warning.-$')) -- for detailled warning
+	if not (bNoWarningForUI and string.find(err, "\\UI\\")) then
+		local line = string.match(err, 'Warning.-$')
+		local line = string.match(line, 'GCO_.-$')
+		local line = string.match(line, ':.-\'')
+		local line = string.match(line, '%d+')
+		print("WARNING : ".. str .. " at line "..line )
+		if bTrace then
+			print(string.match(err, 'Warning.-$')) -- for detailled warning
+		end
+		ExposedMembers.UI.PlaySound("Alert_Neutral")
+		if bWarningToScreen then GCO.StatusMessage("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
 	end
-	ExposedMembers.UI.PlaySound("Alert_Neutral")
-	if bWarningToScreen then GCO.StatusMessage("[COLOR:Red]WARNING :[ENDCOLOR] ".. str, seconds) end
 end
 
 function Dline(...)
