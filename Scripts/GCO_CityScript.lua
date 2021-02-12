@@ -282,7 +282,8 @@ for row in GameInfo.BuildingResourcesConverted() do
 		kIsResourceProd[buildingID] = true
 	else
 		if not kSingleResProd[buildingID] then	kSingleResProd[buildingID] = {[resourceRequiredID] = {}} end
-		kSingleResProd[buildingID][resourceRequiredID] = {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio}
+		if not kSingleResProd[buildingID][resourceRequiredID] then kSingleResProd[buildingID][resourceRequiredID] = {} end
+		table.insert(kSingleResProd[buildingID][resourceRequiredID], {ResourceCreated = resourceCreatedID, MaxConverted = maxConverted, Ratio = ratio})
 		kIsResourceProd[buildingID] = true
 	end
 end
@@ -1174,11 +1175,10 @@ function SetPopulationBirthRate(self, populationID)
 end
 
 function UpdateSize(self)
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	local currentSize 			= math.floor(GCO.GetSizeAtPopulation(self:GetRealPopulation()))
 	local size 					= self:GetSize()
 	local sizeDiff				= currentSize - size
-	local DEBUG_CITY_SCRIPT		= DEBUG_CITY_SCRIPT
-	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "UpdateSize for "..Locale.Lookup(self:GetName()))
 	Dprint( DEBUG_CITY_SCRIPT, "sizeDiff = ", sizeDiff)
@@ -1542,9 +1542,7 @@ end
 
 function UpdateCitiesConnection(self, transferCity, sRouteType, bInternalRoute, tradeRouteLevel)
 
-	--local DEBUG_CITY_SCRIPT = "debug"
-	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	--if Locale.Lookup(self:GetName()) =="Urumqi" or Locale.Lookup(transferCity:GetName()) =="Urumqi" then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 
 	local selfKey 		= self:GetKey()
 	local transferKey 	= transferCity:GetKey()
@@ -1994,8 +1992,7 @@ function UpdateExportCities(self)
 	GCO.StartTimer("UpdateExportCities for ".. name)
 	Dlog("UpdateExportCities ".. name.." /START")
 	
-	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	--if Locale.Lookup(self:GetName()) =="Urumqi" then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	
 	Dprint( DEBUG_CITY_SCRIPT, "Updating Export Routes to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
@@ -2305,8 +2302,7 @@ Events.TradeRouteActivityChanged.Add(OnTradeRouteActivityChanged)
 function ExportToForeignCities(self)
 	Dlog("ExportToForeignCities ".. Locale.Lookup(self:GetName()).." /START")
 	
-	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	--if Locale.Lookup(self:GetName()) =="Urumqi" then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 
 	Dprint( DEBUG_CITY_SCRIPT, "Export to other Civilizations Cities for ".. Locale.Lookup(self:GetName()))
 
@@ -2465,10 +2461,7 @@ function GetRouteEfficiencyTo(self, city)
 end
 
 function GetRequirements(self, fromCity)
-	--local DEBUG_CITY_SCRIPT 	= "debug" --"CityScript"
-	
-	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	--if Locale.Lookup(self:GetName()) =="Luzhou" and Locale.Lookup(fromCity:GetName()) =="Urumqi" then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	
 	local selfKey 				= self:GetKey()
 	local player 				= GCO.GetPlayer(self:GetOwner())
@@ -2628,8 +2621,7 @@ end
 
 function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 
-	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
-	--if Locale.Lookup(self:GetName()) =="Kyoto" and Locale.Lookup(GameInfo.Resources[resourceID].Name) =="Materiel" then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	
 	if not resourceID then
 		GCO.Warning("resourceID is nil or false in ChangeStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
@@ -2903,8 +2895,7 @@ function GetResources(self)
 end
 
 function GetEquipmentList(self)
-	local DEBUG_CITY_SCRIPT		= DEBUG_CITY_SCRIPT
-	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "Get Equipment list for "..Locale.Lookup(self:GetName()))
 	local equipmentList	= {}
@@ -3303,21 +3294,25 @@ end
 --	Check active production in settings
 ----------------------------------------------
 function IsSingleToSingleProductionEnabled(kProdBuilding, reqResourceID, prodResourceID )
-	return (not kProdBuilding[reqResourceID])
+	return (not kProdBuilding)
+		or (not kProdBuilding[reqResourceID])
 		or (not kProdBuilding[reqResourceID][prodResourceID])
 end
 
 function IsSingleToMultiProductionEnabled(kProdBuilding, reqResourceID )
-	return (not kProdBuilding[reqResourceID])
+	return (not kProdBuilding)
+		or (not kProdBuilding[reqResourceID])
 end
 
 function IsSingleProductionFromListEnabled(kProdBuilding, reqResourceID, prodResourceID )
-	return (not kProdBuilding[reqResourceID])
+	return (not kProdBuilding)
+		or (not kProdBuilding[reqResourceID])
 		or (not kProdBuilding[reqResourceID][prodResourceID] )
 end
 
 function IsMultiToSingleProductionEnabled(kProdBuilding, prodResourceID )
-	return (not kProdBuilding[prodResourceID])
+	return (not kProdBuilding)
+		or (not kProdBuilding[prodResourceID])
 end
 
 ----------------------------------------------
@@ -3510,6 +3505,7 @@ function GetResourcesStockTable(self)
 			local costVariation 	= self:GetResourceCostVariation(resourceID)
 			local resRow 			= GameInfo.Resources[resourceID]
 
+			rowTable.ResourceID		= resourceID
 			rowTable.Icon 			= GCO.GetResourceIcon(resourceID)
 			rowTable.Name 			= Locale.Lookup(resRow.Name)
 			local toolTipHeader		= rowTable.Icon .. " " .. rowTable.Name .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR")
@@ -3582,6 +3578,7 @@ function GetResourcesSupplyTable(self)
 		if (TotalIn > 0) then
 			local rowTable 			= {}
 
+			rowTable.ResourceID	= resourceID
 			rowTable.Icon 		= GCO.GetResourceIcon(resourceID)
 			rowTable.Name 		= Locale.Lookup(resRow.Name)
 			local toolTipHeader	= rowTable.Icon .. " " .. rowTable.Name
@@ -3662,6 +3659,7 @@ function GetResourcesDemandTable(self)
 			--local resourceID 		= tonumber(resourceKey)
 			--local resRow 			= GameInfo.Resources[resourceID]
 
+			rowTable.ResourceID	= resourceID
 			rowTable.Icon 		= GCO.GetResourceIcon(resourceID)
 			rowTable.Name 		= Locale.Lookup(resRow.Name)
 
@@ -3948,9 +3946,7 @@ end
 
 function CanTrain(self, unitType)
 
-	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT	
-	--if GameInfo.Units["UNIT_HORSEMAN"].Index == unitID and Game.GetLocalPlayer() == self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
-	--if self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_PALACE"].Index) and Game.GetLocalPlayer() == self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	
 	Dprint( DEBUG_CITY_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_CITY_SCRIPT, "CanTrain for "..Locale.Lookup(GameInfo.Units[unitType].Name).." in "..Locale.Lookup(self:GetName()))
@@ -4406,7 +4402,7 @@ end
 
 function RecruitUnits(self, UnitType, number, personnelType, equipmentList, personnel)
 	
-	--local DEBUG_CITY_SCRIPT = "debug"
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	
 	if not GameInfo.Units[UnitType] then
 		GCO.Error("can't find "..tostring(UnitType).." in GameInfo.Units")
@@ -4796,7 +4792,7 @@ function GetHealthIcon(self)
 	return str
 end
 
-function GetResourcesStockString(self)
+function GetResourcesStockString(self) -- deprecated ?
 	local cityKey 			= self:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
 	local previousTurnKey	= GCO.GetPreviousTurnKey()
@@ -5400,8 +5396,7 @@ end
 -- ======================================================================================
 function SetCityRationing(self)
 	Dlog("SetCityRationing ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
-	--if Locale.Lookup(self:GetName()) =="Nidaros" then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 
 	Dprint( DEBUG_CITY_SCRIPT, "Set Rationing...")
 	local cityKey 				= self:GetKey()
@@ -5685,7 +5680,8 @@ end
 
 function DoReinforceUnits(self)
 	Dlog("DoReinforceUnits ".. Locale.Lookup(self:GetName()).." /START")
-	--local DEBUG_CITY_SCRIPT = "CityScript"
+	
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 
 	Dprint( DEBUG_CITY_SCRIPT, "Reinforcing units...")
 	local cityKey 				= self:GetKey()
@@ -5994,8 +5990,7 @@ end
 function DoIndustries(self)
 
 	Dlog("DoIndustries ".. Locale.Lookup(self:GetName()).." /START")
-	local DEBUG_CITY_SCRIPT = "CityScript"
-	if Game.GetLocalPlayer() == self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 
 	Dprint( DEBUG_CITY_SCRIPT, "Creating resources in Industries...")
 
@@ -6520,8 +6515,7 @@ function DoGrowth(self)
 
 	Dlog("DoGrowth ".. Locale.Lookup(self:GetName()).." /START")
 	
-	local DEBUG_CITY_SCRIPT 	= DEBUG_CITY_SCRIPT
-	--if Game.GetLocalPlayer() 	== self:GetOwner() then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 
 	if Game.GetCurrentGameTurn() < 2 and bUseRealYears then return end -- we need to know the previous year turn to calculate growth rate...
 	Dprint( DEBUG_CITY_SCRIPT, "Calculate city growth for ".. Locale.Lookup(self:GetName()))
@@ -7954,8 +7948,7 @@ function OnCityProductionCompleted(playerID, cityID, productionID, objectID, bCa
 
 	local city = CityManager.GetCity(playerID, cityID)
 	
-	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
-	if (city:GetOwner() == Game.GetLocalPlayer()) then DEBUG_CITY_SCRIPT = "debug" end
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	
 	if productionID == ProductionTypes.BUILDING then
 		if GameInfo.Buildings[objectID] and GameInfo.Buildings[objectID].Unlockers then return end
@@ -8196,15 +8189,6 @@ function OnPlayerCityAction(iPlayer : number, kParameters : table)
 		local resourceList 	= pCity:GetBuildingQueueAllStock(unitRow.UnitType)
 		local goldCost		= pCity:GetRushUnitProductionCost(unitRow)
 		local pPlayer		= GCO.GetPlayer(iPlayer)
-		
-		--[[
-		local strTable 		= {}
-		for k, v in pairs(resourceList) do
-			table.insert(strTable, k..","..v)
-		end
-		local text = kParameters.value .." " .. Locale.Lookup(unitRow.Name) .. " in ".. Locale.Lookup(pCity:GetName()).." for " .. tostring(goldCost) .." [ICON_Gold][NEWLINE]".. table.concat(strTable, "[NEWLINE]")
-		GCO.StatusMessage(text, 8, ReportingStatusTypes.GOSSIP, GossipsSubType.City)
-		--]]
 		
 		Dprint( DEBUG_CITY_SCRIPT, "- Recruiting  ".. Locale.Lookup(unitRow.Name))
 		local sortedEquipmentList 	= GCO.SortEquipmentList(resourceList)

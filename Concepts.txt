@@ -158,7 +158,7 @@ City values
 
 table
 [CivID1]
-	[CivID2] = { Thrust = { [ModifierID] = value, ...}, Relation  = { [ModifierID] = value, ...}}
+	[CivID2] = { Trust = { [ModifierID] = value, ...}, Relation  = { [ModifierID] = value, ...}}
 	[CivID3] = ...
 	
 thrust modifiers
@@ -591,8 +591,13 @@ Military cards policies:
 --[[ PROMOTIONS
 --===============================--
 
-- berserk/totenkopf : +25% chance of causing retreat, more dead, less prisonners, less wounded 
-
++ gain experience from
+	+ combat (combart type / terrain / units tag)
+	+ movement (terrain type / feature type)
+- loss experience from
+	- reinformcement (mitigated based on buildings in linked city)
+	
+Automated promotions based on experience
 --]]
 
 --===============================--

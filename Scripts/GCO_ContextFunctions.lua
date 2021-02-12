@@ -46,16 +46,22 @@ GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 function PostInitialize()
 	-- Migration Routes
-	local lensPanelOffSet	= 50
+	local lensPanelYOffSet	= 50
+	local lensPanelXOffSet	= 55
 	local lensStackCtrl 	= ContextPtr:LookUpControl("/InGame/MinimapPanel/LensToggleStack/")
 	local lensPanelCtrl		= ContextPtr:LookUpControl("/InGame/MinimapPanel/LensPanel/")
 	
-	Controls.MigrationRoutesButton:RegisterCallback( Mouse.eLClick, ToggleMigrationRoutes )
-	Controls.MigrationRoutesButton:SetHide( false )
-	Controls.MigrationRoutesButton:ChangeParent(lensStackCtrl)
+	Controls.HistoricalMigrationRoutesButton:RegisterCallback( Mouse.eLClick, ToggleHistoricalMigrationRoutes )
+	Controls.HistoricalMigrationRoutesButton:SetHide( false )
+	Controls.HistoricalMigrationRoutesButton:ChangeParent(lensStackCtrl)
+	
+	Controls.CurrentMigrationRoutesButton:RegisterCallback( Mouse.eLClick, ToggleCurrentMigrationRoutes )
+	Controls.CurrentMigrationRoutesButton:SetHide( false )
+	Controls.CurrentMigrationRoutesButton:ChangeParent(lensStackCtrl)
 	
 	lensStackCtrl:CalculateSize();
-	lensPanelCtrl:SetSizeY(lensStackCtrl:GetSizeY() + lensPanelOffSet)
+	lensPanelCtrl:SetSizeY(lensStackCtrl:GetSizeY() + lensPanelYOffSet)
+	lensPanelCtrl:SetSizeX(lensStackCtrl:GetSizeX() + lensPanelXOffSet)
 	--
 end
 
@@ -609,13 +615,31 @@ end
 -- ===========================================================================
 
 
-g_TradeRoute 					= UILens.CreateLensLayerHash("TradeRoutes")
-local testedPlot 				= {} -- List plots that have been tested and doesn't have an exit path
-local numPathPlot				= {} -- Store current number of major migration paths found from a plot
-local testedPathDir				= {} -- List all plot/direction already stored in a path
-local maxPathsPerPlot			= 5
-local minMigrationRouteLength 	= 2
-local bShowMigrationRoute		= false
+g_TradeRoute 				= UILens.CreateLensLayerHash("TradeRoutes")
+local testedPlot 			= {} -- List plots that have been tested and doesn't have an exit path
+local numPathPlot			= {} -- Store current number of major migration paths found from a plot
+local testedPathDir			= {} -- List all plot/direction already stored in a path
+kHistoricalMigrationSettings= {
+	Name					= "Historical",
+	MaxPathsPerPlot			= 5,
+	MinMigrationRouteLength = 3,
+	MinMigrationFlux		= 25,
+	MaxAlphaAtInitialFlux	= 1500,
+	MinAlphaRatio			= 0.25, -- ratio is in [0-1]
+	bUseLastTurnValue		= false,
+}
+kCurrentMigrationSettings= {
+	Name					= "Current",
+	MaxPathsPerPlot			= 5,
+	MinMigrationRouteLength = 2,
+	MinMigrationFlux		= 0,
+	MaxAlphaAtInitialFlux	= 250,
+	MinAlphaRatio			= 0.25, -- ratio is in [0-1]
+	bUseLastTurnValue		= true
+}
+kActiveMigrationSettings	= kHistoricalMigrationSettings -- default
+local bShowHistoricalMigrationRoute = false
+local bShowCurrentMigrationRoute	= false
 
 function SetHasPathDirection(plotIndex,direction,nextIndex)
 	numPathPlot[plotIndex] 				= numPathPlot[plotIndex] and numPathPlot[plotIndex] + 1 or 1
@@ -634,19 +658,20 @@ end
 function GetMigrationPathFrom(plotIndex, path)
 	local prevID	= #path > 0 and path[#path]
 	local plot		= GCO.GetPlotByIndex(plotIndex)
-	local Best		= { Value = 0}
+	local Best		= { Value = - kActiveMigrationSettings.MinMigrationFlux}
 	local worst		= 0
+	local prevTurn	= GCO.GetPreviousTurnKey()
 	
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do					
 	
 		adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction)
 		if adjacentPlot and prevID ~= adjacentPlot:GetIndex() and not HasPathInDirection(plotIndex,direction) then
 			local migrationData	= plot:GetMigrationDataWith(adjacentPlot)
-			local total			= migrationData.Total
-			worst 				= total > worst and total or worst
+			local value			= kActiveMigrationSettings.bUseLastTurnValue and migrationData.Migrants or migrationData.Total
+			worst 				= value > worst and value or worst
 			
-			if total < Best.Value then -- looking for negative value here (ie population moving out)
-				Best.Value 	= total
+			if value < Best.Value then -- looking for negative value here (ie population moving out)
+				Best.Value 	= value
 				Best.Plot	= adjacentPlot
 				Best.Dir	= direction
 			end
@@ -688,10 +713,10 @@ function GetMigrationRoutes()
 				local visibilityType = pLocalPlayerVis:GetState(plotIndex);
 				if (visibilityType ~= RevealedState.HIDDEN) then
 					local numPaths = numPathPlot[plotIndex] or 0
-					for n = numPaths, maxPathsPerPlot - 1 do
+					for n = numPaths, kActiveMigrationSettings.MaxPathsPerPlot - 1 do
 						local path = {}
 						GetMigrationPathFrom(plotIndex, path)
-						if #path >= minMigrationRouteLength then
+						if #path >= kActiveMigrationSettings.MinMigrationRouteLength then
 							table.insert(migrationRoutes, path)
 						end
 					end
@@ -707,19 +732,25 @@ function ShowMigrationRoutes(migrationRoutes)
 	UILens.SetActive(g_TradeRoute)
 	UILens.ClearLayerHexes( g_TradeRoute )
 	
+	local prevTurn	= GCO.GetPreviousTurnKey()
+	local kSettings	= kActiveMigrationSettings
+	
 	for _, pathPlots in ipairs(migrationRoutes) do
 		if pathPlots then
-			local kVariations:table = {}				
-			local color = UI.GetColorValue(0.90, 0.90, 0.90, 0.90) --RGBAValuesToABGRHex(1, 1, 1, 1) --RGBAValuesToABGRHex
+			local kVariations:table = {}
 			local startPlot = Map.GetPlotByIndex(pathPlots[1])
+			local nextPlot	= Map.GetPlotByIndex(pathPlots[2])
+			local kData		= startPlot:GetMigrationDataWith(nextPlot)
+			local startFlux	= -(kSettings.bUseLastTurnValue and kData.Migrants or kData.Total) -- we were looking for negative values (population moving out)
+			local alphaRatio= math.min(1,kSettings.MinAlphaRatio + ((1 - kSettings.MinAlphaRatio) * (startFlux/kSettings.MaxAlphaAtInitialFlux))) -- x + (1-x) * ratio
 			local ownerID	= startPlot:GetOwner()
+			local color 	= UI.GetColorValue(0.90, 0.90, 0.90, alphaRatio) --RGBAValuesToABGRHex(1, 1, 1, 1) --RGBAValuesToABGRHex
 			if ownerID ~= -1 then
 				local backColor, frontColor = (GCO.GetPlayerColors and GCO.GetPlayerColors(ownerID)) or UI.GetPlayerColors(ownerID)
-				--UI.DarkenLightenColor(backColor, amt, alpha) -- +amt = lighter -amt = darjer alpha=0-255
-				color = backColor
+				color = UI.DarkenLightenColor(backColor, 0, 255*alphaRatio) -- +amt = lighter -amt = darker alpha=0-255
 			end
 			UILens.SetLayerHexesPath( g_TradeRoute, Game.GetLocalPlayer(), pathPlots, kVariations, color )
-			bShowMigrationRoute = true
+			--bShowMigrationRoute = true
 			--end
 		end
 	end
@@ -727,7 +758,8 @@ end
 	
 function ClearRoutes()
 	if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
-	bShowMigrationRoute = false
+	bShowHistoricalMigrationRoute 	= false
+	bShowCurrentMigrationRoute 		= false
 	UILens.ClearLayerHexes( g_TradeRoute )
 	if UILens.IsLensActive(g_TradeRoute) then
 		-- Make sure to switch back to default lens
@@ -735,11 +767,24 @@ function ClearRoutes()
 	end
 end
 
-function ToggleMigrationRoutes()
-	if bShowMigrationRoute then
+function ToggleHistoricalMigrationRoutes()
+	if bShowHistoricalMigrationRoute then
 		ClearRoutes()
 	else
+		ClearRoutes()
+		kActiveMigrationSettings = kHistoricalMigrationSettings
 		GetMigrationRoutes()
+		bShowHistoricalMigrationRoute 	= true
+	end
+end
+function ToggleCurrentMigrationRoutes()
+	if bShowCurrentMigrationRoute then
+		ClearRoutes()
+	else
+		ClearRoutes()
+		kActiveMigrationSettings = kCurrentMigrationSettings
+		GetMigrationRoutes()
+		bShowCurrentMigrationRoute		= true
 	end
 end
 

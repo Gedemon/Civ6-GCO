@@ -2965,10 +2965,9 @@ function DoPlotsTurn()
 	end
 	
 	-- delayed updates
-	local turnRate 	= 1
+	local turnRate 	= 1 -- update per turn
 	local step		= GCO.LoadValue("PlotsDoTurnCurrentStep") or 0
 	
-print("turnRate = ", turnRate, ", step = ", step )
 	
 	-- initialize and set local debug table
 	debugTable["OnNewTurn"] 		= {} 	
@@ -3081,11 +3080,16 @@ function OnFeatureChanged(x,y)
 	--local DEBUG_PLOT_SCRIPT = "debug"
 	Dprint( DEBUG_PLOT_SCRIPT, "Feature changed at ", x,y)
 	
-	local plot 		= GetPlot(x,y)	
-	local featureID = plot:GetCached("FeatureType")
+	local plot 			= GetPlot(x,y)	
+	local prevFeatureID = plot:GetCached("FeatureType")
+	local newFeatureID	= plot:GetFeatureType()
 
-	Dprint( DEBUG_PLOT_SCRIPT, "  - from FeatureID#", featureID)
-	Dprint( DEBUG_PLOT_SCRIPT, "  - to   FeatureID#", plot:GetFeatureType())
+	Dprint( DEBUG_PLOT_SCRIPT, "  - from FeatureID#", prevFeatureID)
+	Dprint( DEBUG_PLOT_SCRIPT, "  - to   FeatureID#", newFeatureID)
+	
+	if prevFeatureID ~= NO_FEATURE and newFeatureID == NO_FEATURE then
+		GameEvents.FeatureRemoved.Call(prevFeatureID, x,y)
+	end
 	
 	plot:SetCached("FeatureType", plot:GetFeatureType())
 end

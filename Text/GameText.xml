@@ -184,11 +184,17 @@
   </LocalizedText>
   
   <LocalizedText> <!-- HUD -->
-	<Replace Tag="LOC_HUD_MIGRATION_ROUTES_LENS" Language="en_US">
-		<Text>Migration</Text>
+	<Replace Tag="LOC_HUD_HISTORICAL_MIGRATION_ROUTES_LENS" Language="en_US">
+		<Text>Historic Migration</Text>
 	</Replace>
-	<Replace Tag="LOC_HUD_MIGRATION_ROUTES_LENS_TOOLTIP" Language="en_US">
-		<Text>Show major population migration routes</Text>
+	<Replace Tag="LOC_HUD_HISTORICAL_MIGRATION_ROUTES_LENS_TOOLTIP" Language="en_US">
+		<Text>Show routes for cumulated population migration since the beginning.</Text>
+	</Replace>
+	<Replace Tag="LOC_HUD_CURRENT_MIGRATION_ROUTES_LENS" Language="en_US">
+		<Text>Current Migration</Text>
+	</Replace>
+	<Replace Tag="LOC_HUD_CURRENT_MIGRATION_ROUTES_LENS_TOOLTIP" Language="en_US">
+		<Text>Show previous turn population migration routes</Text>
 	</Replace>	
   </LocalizedText>
   
@@ -604,6 +610,22 @@
   </LocalizedText>
     
   <LocalizedText> <!-- CityPanels Texts -->	
+	
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_FILTER_FOOD" Language="en_US">
+      <Text>[ICON_FoodSurplus]Food</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_FILTER_SCIENCE" Language="en_US">
+      <Text>[ICON_Science]Science</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_FILTER_OTHER" Language="en_US">
+      <Text>[ICON_STOCK2]Other</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_FILTER_STRATEGIC" Language="en_US">
+      <Text>[ICON_STOCK3]Strat.</Text>
+    </Replace>
+	<Replace Tag="LOC_HUD_CITY_RESOURCES_FILTER_EQUIPMENT" Language="en_US">
+      <Text>[ICON_STOCK4]Equip.</Text>
+    </Replace>
 	
 	<Replace Tag="LOC_HUD_CITY_OVERVIEW_RESOURCES_TOOLTIP" Language="en_US">
       <Text>Resources Stock, Supply, Transfer, Trade, Consumption, Production</Text>
@@ -1475,6 +1497,15 @@
 	
 	
 
+  </LocalizedText>
+
+  <LocalizedText>	<!-- UnitPanel Texts --> 
+    <Replace Tag="LOC_HUD_UNITPANEL_SHOW_HIDE_SETTINGS" Language="en_US">
+      <Text>Show/Hide Unit's Settings</Text>
+    </Replace>
+    <Replace Tag="LOC_HUD_UNITPANEL_EQUIPMENT_RESTRICTION" Language="en_US">
+      <Text>Equipment Restriction</Text>
+    </Replace>
   </LocalizedText>
   
   <LocalizedText> <!-- Yields -->

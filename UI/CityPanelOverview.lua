@@ -57,6 +57,32 @@ g_kAmenitiesIM			= InstanceManager:new( "AmenityInstance",			"Top", Controls.Ame
 -- ===========================================================================
 
 -- GCO <<<<<
+
+-- Build Filter Table
+local IsEquipment		= {CategoryName = "Equipment"}
+local IsFood			= {CategoryName = "Food"}
+local IsStrategic		= {CategoryName = "Strategic"}
+local IsOther			= {CategoryName = "Other"}
+local IsScience			= {CategoryName = "Science"}
+local m_IgnoreTable		= {}
+local m_FilterTable		= {}
+local foodResourceID 	= GameInfo.Resources["RESOURCE_FOOD"].Index
+for row in GameInfo.Resources() do
+	local resourceID = row.Index
+	if GCO.IsKnowledgeResource(resourceID) then
+		IsScience[resourceID] = true
+	elseif GCO.IsResourceEquipment(resourceID) then
+		IsEquipment[resourceID] = true
+	elseif row.ResourceClassType == "RESOURCECLASS_STRATEGIC" or GCO.IsResourceEquipmentMaker(resourceID) then
+		IsStrategic[resourceID] = true
+	elseif GCO.IsResourceFood(resourceID) or resourceID == foodResourceID then
+		IsFood[resourceID] = true
+	else
+		IsOther[resourceID] = true
+	end
+
+end
+
 local ExpandedProdBuilding		:table	= {}	-- Show/Hide Buildings Production
 --[[
 -- need to move those table to data, get them from gameplay
@@ -114,7 +140,8 @@ function HideAll()
 	Controls.PanelResourcesDemand:SetHide(true);
 	Controls.PanelForeignRoutes:SetHide(true);
 	Controls.PanelTransferRoutes:SetHide(true);
-	Controls.PanelSupplyLines:SetHide(true);
+	Controls.PanelSupplyLines:SetHide(true);	
+	Controls.ResourceFilterButtonContainer:SetHide(true);
 	-- GCO >>>>>
 	Controls.HealthButton:SetSelected(false);
 	Controls.HealthIcon:SetColorByName("White");
@@ -215,8 +242,31 @@ function OnSelectResourcesTab()
 	Controls.PanelForeignRoutes:SetHide(false);
 	Controls.PanelTransferRoutes:SetHide(false);
 	Controls.PanelSupplyLines:SetHide(false);
+	Controls.ResourceFilterButtonContainer:SetHide(false);
 
 	--CalculateSizeAndAccomodate(Controls.PanelScrollPanel, Controls.PanelStack);
+end
+
+
+-- 
+function CanShowResource(resourceID)
+	local bShow			= true
+	if not GCO.IsEmpty(m_FilterTable) then
+		bShow = false
+		for k, kCheck in pairs(m_FilterTable) do
+			if kCheck[resourceID] then
+				bShow = true
+			end
+		end
+	end
+	if not GCO.IsEmpty(m_IgnoreTable) then
+		for k, kCheck in pairs(m_IgnoreTable) do
+			if kCheck[resourceID] then
+				bShow = false
+			end
+		end
+	end
+	return bShow
 end
 
 -- ===========================================================================
@@ -232,19 +282,25 @@ function ViewPanelResources( data:table )
 	kInstance.UnitCost:SetText( Locale.Lookup("LOC_HUD_CITY_RESOURCES_COST_HEADER") )
 	kInstance.CostVar:SetText( "" )
 	
+	local bHasRow		= false
+	
 	for _, row in ipairs(data.ResourcesStock) do
-		kInstance = m_kResourcesIM:GetInstance()
-		kInstance.Name:SetText( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
-		--kInstance.Name:SetToolTipString( row.Name )
-		kInstance.Stock:SetText( row.Stock.."/" )
-		kInstance.Stock:SetToolTipString(row.StockToolTip)
-		kInstance.MaxStock:SetText( row.MaxStock )
-		kInstance.StockVar:SetText( row.StockVar )
-		kInstance.UnitCost:SetText( row.UnitCost )
-		kInstance.CostVar:SetText( row.CostVar )
+		
+		if CanShowResource(row.ResourceID) then
+			kInstance = m_kResourcesIM:GetInstance()
+			kInstance.Name:SetText( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
+			--kInstance.Name:SetToolTipString( row.Name )
+			kInstance.Stock:SetText( row.Stock.."/" )
+			kInstance.Stock:SetToolTipString(row.StockToolTip)
+			kInstance.MaxStock:SetText( row.MaxStock )
+			kInstance.StockVar:SetText( row.StockVar )
+			kInstance.UnitCost:SetText( row.UnitCost )
+			kInstance.CostVar:SetText( row.CostVar )
+			bHasRow = true
+		end
 	end
 	
-	if #data.ResourcesStock == 0 then
+	if not bHasRow then
 		kInstance = m_kResourcesIM:GetInstance()
 		kInstance.Name:SetText( "-" )
 		kInstance.Stock:SetText( "-" )
@@ -272,28 +328,33 @@ function ViewPanelResourcesSupply( data:table )
 	kInstance.OtherIn:SetText( " U." )
 	kInstance.TotalIn:SetText( " T." )
 	
+	local bHasRow		= false
+	
 	---[[
 	for _, row in ipairs(data.ResourcesSupply) do
-		kInstance = m_kResourcesSupplyIM:GetInstance()
-		kInstance.Name:SetText		( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
-		--kInstance.Name:SetToolTipString( row.Name )
-		kInstance.Collect:SetText	( row.Collect )
-		kInstance.Collect:SetToolTipString	( row.CollectToolTip )
-		kInstance.Product:SetText	( row.Product )
-		kInstance.Product:SetToolTipString	( row.ProductToolTip )
-		kInstance.Import:SetText	( row.Import )
-		kInstance.Import:SetToolTipString	( row.ImportToolTip )
-		kInstance.TransferIn:SetText( row.TransferIn )
-		kInstance.TransferIn:SetToolTipString	( row.TransferInToolTip )
-		kInstance.Pillage:SetText	( row.Pillage )
-		kInstance.Pillage:SetToolTipString	( row.PillageToolTip )
-		kInstance.OtherIn:SetText	( row.OtherIn )
-		kInstance.OtherIn:SetToolTipString	( row.OtherInToolTip )
-		kInstance.TotalIn:SetText	( row.TotalIn )
-		kInstance.TotalIn:SetToolTipString	( row.TotalInToolTip )
+		if CanShowResource(row.ResourceID) then
+			kInstance = m_kResourcesSupplyIM:GetInstance()
+			kInstance.Name:SetText		( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
+			--kInstance.Name:SetToolTipString( row.Name )
+			kInstance.Collect:SetText	( row.Collect )
+			kInstance.Collect:SetToolTipString	( row.CollectToolTip )
+			kInstance.Product:SetText	( row.Product )
+			kInstance.Product:SetToolTipString	( row.ProductToolTip )
+			kInstance.Import:SetText	( row.Import )
+			kInstance.Import:SetToolTipString	( row.ImportToolTip )
+			kInstance.TransferIn:SetText( row.TransferIn )
+			kInstance.TransferIn:SetToolTipString	( row.TransferInToolTip )
+			kInstance.Pillage:SetText	( row.Pillage )
+			kInstance.Pillage:SetToolTipString	( row.PillageToolTip )
+			kInstance.OtherIn:SetText	( row.OtherIn )
+			kInstance.OtherIn:SetToolTipString	( row.OtherInToolTip )
+			kInstance.TotalIn:SetText	( row.TotalIn )
+			kInstance.TotalIn:SetToolTipString	( row.TotalInToolTip )
+			bHasRow = true
+		end
 	end
 	
-	if #data.ResourcesSupply == 0 then
+	if not bHasRow then
 		kInstance = m_kResourcesSupplyIM:GetInstance()
 		kInstance.Name:SetText		( "-" )
 		kInstance.Collect:SetText	( "-" )
@@ -324,29 +385,34 @@ function ViewPanelResourcesDemand( data:table )
 	kInstance.OtherOut:SetText	( " U." )
 	kInstance.TotalOut:SetText	( " T." )
 	
+	local bHasRow		= false
+	
 	---[[
 	for _, row in ipairs(data.ResourcesDemand) do
-		kInstance = m_kResourcesDemandIM:GetInstance()
-		kInstance.Name:SetText		( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
-		--kInstance.Name:SetToolTipString( row.Name )
-		kInstance.Consume:SetText	( row.Consume 		)
-		kInstance.Export:SetText	( row.Export 		)
-		kInstance.TransferOut:SetText( row.TransferOut	)
-		kInstance.Supply:SetText	( row.Supply 		)
-		kInstance.Stolen:SetText	( row.Stolen 		)
-		kInstance.OtherOut:SetText	( row.OtherOut 		)
-		kInstance.TotalOut:SetText	( row.TotalOut		)
-		
-		kInstance.Consume:SetToolTipString	( row.ConsumeToolTip 		)
-		kInstance.Export:SetToolTipString	( row.ExportToolTip 		)
-		kInstance.TransferOut:SetToolTipString( row.TransferOutToolTip	)
-		kInstance.Supply:SetToolTipString	( row.SupplyToolTip 		)
-		kInstance.Stolen:SetToolTipString	( row.StolenToolTip 		)
-		kInstance.OtherOut:SetToolTipString	( row.OtherOutToolTip 		)
-		kInstance.TotalOut:SetToolTipString	( row.TotalOutToolTip		)
+		if CanShowResource(row.ResourceID) then
+			kInstance = m_kResourcesDemandIM:GetInstance()
+			kInstance.Name:SetText		( row.Icon .. " " .. Indentation(row.Name,28,false,true) )
+			--kInstance.Name:SetToolTipString( row.Name )
+			kInstance.Consume:SetText	( row.Consume 		)
+			kInstance.Export:SetText	( row.Export 		)
+			kInstance.TransferOut:SetText( row.TransferOut	)
+			kInstance.Supply:SetText	( row.Supply 		)
+			kInstance.Stolen:SetText	( row.Stolen 		)
+			kInstance.OtherOut:SetText	( row.OtherOut 		)
+			kInstance.TotalOut:SetText	( row.TotalOut		)
+			
+			kInstance.Consume:SetToolTipString	( row.ConsumeToolTip 		)
+			kInstance.Export:SetToolTipString	( row.ExportToolTip 		)
+			kInstance.TransferOut:SetToolTipString( row.TransferOutToolTip	)
+			kInstance.Supply:SetToolTipString	( row.SupplyToolTip 		)
+			kInstance.Stolen:SetToolTipString	( row.StolenToolTip 		)
+			kInstance.OtherOut:SetToolTipString	( row.OtherOutToolTip 		)
+			kInstance.TotalOut:SetToolTipString	( row.TotalOutToolTip		)
+			bHasRow = true
+		end
 	end
 	
-	if #data.ResourcesDemand == 0 then
+	if not bHasRow then
 		kInstance = m_kResourcesDemandIM:GetInstance()
 		kInstance.Name:SetText		( "-" )
 		kInstance.Consume:SetText	( "-" )
@@ -553,23 +619,25 @@ function ViewPanelBreakdown( data:table )
 						if ExpandedProdBuilding[building.Type] then
 							local kSettings = building.ProductionSettings
 							-- Single to Single resource production
-							for resourceRequiredID, prodRow in pairs(GCO.GetSingleResProduction(pRow.Index)) do
-								local kInstanceResProd:table	= m_kResProductionIM:GetInstance(kInstanceBuild.ResProdStack);
-								local maxConverted 				= prodRow.MaxConverted * RequiredResourceFactor * data.OutputPerYield
-								local ratio 					= prodRow.Ratio * ProducedResourceFactor
-								local resourceCreatedID			= prodRow.ResourceCreated
-								local resRequiredName 			= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
-								local resCreatedName 			= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
-								if GCO.IsSingleToSingleProductionEnabled(kSettings[ProductionSettingsType.SingleToSingle], resourceRequiredID, resourceCreatedID) then
-									kInstanceResProd.ResProdCheck:SetCheck(true)
-								else
-									kInstanceResProd.ResProdCheck:SetCheck(false)
-									maxConverted = 0
+							for resourceRequiredID, singleProdRows in pairs(GCO.GetSingleResProduction(pRow.Index)) do
+								for _, prodRow in ipairs(singleProdRows) do
+									local kInstanceResProd:table	= m_kResProductionIM:GetInstance(kInstanceBuild.ResProdStack);
+									local maxConverted 				= prodRow.MaxConverted * RequiredResourceFactor * data.OutputPerYield
+									local ratio 					= prodRow.Ratio * ProducedResourceFactor
+									local resourceCreatedID			= prodRow.ResourceCreated
+									local resRequiredName 			= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
+									local resCreatedName 			= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
+									if GCO.IsSingleToSingleProductionEnabled(kSettings[ProductionSettingsType.SingleToSingle], resourceRequiredID, resourceCreatedID) then
+										kInstanceResProd.ResProdCheck:SetCheck(true)
+									else
+										kInstanceResProd.ResProdCheck:SetCheck(false)
+										maxConverted = 0
+									end
+									kInstanceResProd.ResProdCheck:RegisterCallback(Mouse.eLClick, function() OnToggleDisableSingleToSingleResProduction( kSettings[ProductionSettingsType.SingleToSingle], resourceRequiredID, resourceCreatedID ); end)
+									kInstanceResProd.ResIn:SetText(tostring(GCO.Round(maxConverted))..resRequiredName)
+									--kInstanceResProd.ResIn:SetText(tostring(maxConverted)..resRequiredName)
+									kInstanceResProd.ResOut:SetText("[ICON_GoingTo] "..tostring(GCO.Round(maxConverted*ratio)).. resCreatedName)
 								end
-								kInstanceResProd.ResProdCheck:RegisterCallback(Mouse.eLClick, function() OnToggleDisableSingleToSingleResProduction( kSettings[ProductionSettingsType.SingleToSingle], resourceRequiredID, resourceCreatedID ); end)
-								kInstanceResProd.ResIn:SetText(tostring(GCO.Round(maxConverted))..resRequiredName)
-								--kInstanceResProd.ResIn:SetText(tostring(maxConverted)..resRequiredName)
-								kInstanceResProd.ResOut:SetText("[ICON_GoingTo] "..tostring(GCO.Round(maxConverted*ratio)).. resCreatedName)
 							end
 							
 							-- Single to multi
@@ -1261,8 +1329,6 @@ function Close()
 	UILens.SetActive("Default");
 	UI.SetInterfaceMode(InterfaceModeTypes.SELECTION);
 	-- GCO <<<<<
-	print("Closing City Panel")
-	--Deepcompare(t1,t2)
 	if m_kData and m_pCity then
 		local pCity 			= m_pCity
 		local kChangedSettings	= {}
@@ -1275,7 +1341,6 @@ function Close()
 					-- send only the settings that have changed to Gameplay (and MP)
 					if not Deepcompare(kSettings[settingType], pCity:GetBuildingProductionSettings(buildingID, settingType)) then
 						bApplyChange = true
-						print("Changed =", building.Type, key, buildingID)
 						table.insert( kChangedSettings, {BuildingID = buildingID, SettingType = settingType, Settings = kSettings[settingType] })
 					end
 				end
@@ -1603,6 +1668,18 @@ function Initialize()
 	ContextPtr:SetHide(false);
 	ContextPtr:SetShutdown(OnShutdown);
 	LuaEvents.GameDebug_Return.Add(OnGameDebugReturn);	
+	-- GCO <<<<<
+	Controls.FoodCheck:RegisterCheckHandler(					function() OnCheckYield( IsFood,		"Food"); end );	
+	Controls.ScienceCheck:RegisterCheckHandler(					function() OnCheckYield( IsScience,		"Science"); end );
+	Controls.LuxuriesCheck:RegisterCheckHandler(				function() OnCheckYield( IsOther,		"Luxuries"); end );	
+	Controls.StrategicCheck:RegisterCheckHandler(				function() OnCheckYield( IsStrategic,	"Strategic"); end );	
+	Controls.EquipmentCheck:RegisterCheckHandler(				function() OnCheckYield( IsEquipment,	"Equipment"); end );
+	Controls.FoodIgnore:RegisterCallback(		Mouse.eLClick,	function() OnResetYieldToNormal( "Food"); end);
+	Controls.ScienceIgnore:RegisterCallback(	Mouse.eLClick,	function() OnResetYieldToNormal( "Science"); end);
+	Controls.LuxuriesIgnore:RegisterCallback(	Mouse.eLClick,	function() OnResetYieldToNormal( "Luxuries"); end);
+	Controls.StrategicIgnore:RegisterCallback(	Mouse.eLClick,	function() OnResetYieldToNormal( "Strategic"); end);
+	Controls.EquipmentIgnore:RegisterCallback(	Mouse.eLClick,	function() OnResetYieldToNormal( "Equipment"); end);
+	-- GCO >>>>>
 end
 Initialize();
 
@@ -1643,6 +1720,31 @@ end
 -- Toggle single resource production from multiple required resourceq
 function OnToggleDisableMultiToSingleResProduction( kProdBuilding, prodResourceID )
 	kProdBuilding[prodResourceID] = not kProdBuilding[prodResourceID]
+	Refresh()
+end
+
+-- ===========================================================================
+--	Set a filter to one of 3 check states
+-- ===========================================================================
+function OnCheckYield( categoryTable:table, categoryName:string )
+	if Controls[categoryName.."Check"]:IsChecked() then
+		m_FilterTable[categoryName] = categoryTable
+	else
+		m_FilterTable[categoryName] = nil
+		m_IgnoreTable[categoryName] = categoryTable
+		Controls[categoryName.."Ignore"]:SetHide( false )
+		Controls[categoryName.."Check"]:SetDisabled( true )
+	end
+	Refresh()
+end
+
+-- ===========================================================================
+--	Reset a filter to not be must have nor ignored
+-- ===========================================================================
+function OnResetYieldToNormal( categoryName:string )
+	Controls[categoryName.."Ignore"]:SetHide( true )
+	Controls[categoryName.."Check"]:SetDisabled( false )
+	m_IgnoreTable[categoryName] = nil
 	Refresh()
 end
 

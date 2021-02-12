@@ -185,6 +185,12 @@ ProductionSettingsType = { -- ENUM to save/get Buildings resources production se
 	SingleFromList	= "4",
 }
 
+UnitEquipmentSettings = { -- ENUM to save/get Buildings resources production settings 
+	Use			= nil, -- save time by limiting table size for serialization
+	NoSupply	= "2",
+	NoUse		= "3",
+}
+
 -----------------------------------------------------------------------------------------
 -- Equipment - to do : those are helpers, to move to mod utils with related functions ?
 -----------------------------------------------------------------------------------------

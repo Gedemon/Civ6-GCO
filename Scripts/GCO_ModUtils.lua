@@ -11,6 +11,14 @@ local LoadTimer = Automation.GetTime()
 include( "GCO_TypeEnum" )
 include( "GCO_SmallUtils" )
 
+local debugFilter = {
+	["debug"] 			= true,
+--	["CityScript"] 		= true,
+--	["PlayerScript"] 	= true,
+--	["UnitScript"] 		= true,
+--	["PlotScript"] 		= true,
+--	["ResearchScript"] 	= true,
+}
 
 --=====================================================================================--
 -- Defines
@@ -462,15 +470,6 @@ local bNoOutput 		= false
 local bErrorToScreen 	= true
 local bWarningToScreen	= false
 
-local debugFilter = {
-	["debug"] 			= true,
---	["CityScript"] 		= true,
---	["PlayerScript"] 	= true,
---	["UnitScript"] 		= true,
---	["PlotScript"] 		= true,
---	["ResearchScript"] 	= true,
-}
-
 function ToggleOutput()
 	bNoOutput = not bNoOutput
 	print("Spam control = " .. tostring(bNoOutput))
@@ -888,14 +887,16 @@ function ShowCounter(name)
 end
 
 function ShowLoggedCounter()
-	print(GCO.Separator)
-	print("Turn = " .. tostring(Game.GetCurrentGameTurn()))
-	for key, value in pairs(Counter) do
-		local str = tostring(key) .." tested count = " .. tostring(value)
-		print(str)
-		Counter[key] = 0
+	if not IsEmpty(Counter) then
+		print(GCO.Separator)
+		print("Turn = " .. tostring(Game.GetCurrentGameTurn()))
+		for key, value in pairs(Counter) do
+			local str = tostring(key) .." tested count = " .. tostring(value)
+			print(str)
+			Counter[key] = 0
+		end
+		print(GCO.Separator)
 	end
-	print(GCO.Separator)
 end
 GameEvents.OnGameTurnStarted.Add(ShowLoggedCounter)
 
@@ -1380,6 +1381,94 @@ function KillUnit(unitID,playerID)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	UnitManager.Kill(unit)
 end
+
+
+-- Unit Capture Events
+local kRemoved 	= {}
+local kAdded 	= {}
+local numAdded	= 0
+function OnUnitRemovedCheckCapture(playerId, unitID) -- first called
+	kRemoved.playerId 	= playerId
+	kRemoved.unitID 	= unitID
+	numAdded			= 0
+end
+Events.UnitRemovedFromMap.Add(OnUnitRemovedCheckCapture)
+
+function OnUnitAddedCheckCapture(playerId, unitID, iX, iY)
+	if kRemoved.playerId then
+		numAdded		= numAdded + 1
+		kAdded.playerId	= playerId
+		kAdded.unitID	= unitID
+	end
+end
+Events.UnitAddedToMap.Add(OnUnitAddedCheckCapture)
+
+function OnUnitCapturedCheckCapture(playerId, unitID, _, newPlayerID)
+
+	local bUnitCheck	= (kRemoved.playerId == playerId and kRemoved.unitID == unitID)
+	local bIdCheck		= (kAdded.playerId == newPlayerID)
+	local bNumCheck		= (numAdded == 1) -- there should have been only one unit added to map since the captured unit have been removed
+
+	if (bUnitCheck and bIdCheck and bNumCheck) then
+		GameEvents.CapturedUnitChecked.Call(kRemoved.playerId, kRemoved.unitID, kAdded.playerId, kAdded.unitID)
+		-- reset checks
+		kRemoved 	= {}
+		kAdded 		= {}
+		numAdded	= 0
+	else
+		GCO.Warning("Failed to get correct unit in OnUnitCapturedCheckCapture: bUnitCheck, bIdCheck, bNumCheck ="..tostring(bUnitCheck)..","..tostring(bIdCheck)..","..tostring(bNumCheck))
+		print("UnitCaptured parameters = ", playerId, unitID, _, newPlayerID, ", expected old IDs / new IDs = ",kRemoved.playerId, kRemoved.unitID, kAdded.playerId, kAdded.unitID, " num Added Units = ", numAdded)
+		-- reset checks
+		kRemoved 	= {}
+		kAdded	 	= {}
+		numAdded	= 0
+	end
+	
+end
+Events.UnitCaptured.Add(OnUnitCapturedCheckCapture)
+
+-- Settler Founds City Events
+local settlerID	= nil
+local founderID	= nil
+local kFeature	= {}
+
+function OnCheckFeatureRemovedForCity(featureID, iX, iY)
+	kFeature.ID = featureID
+	kFeature.X	= iX
+	kFeature.Y	= iY
+end
+GameEvents.FeatureRemoved.Add(OnCheckFeatureRemovedForCity)
+
+function OnCheckSettlerFoundCityUnitOperation(playerID, unitID, operationType, _ )
+	if operationType == UnitOperationTypes.FOUND_CITY then
+		if settlerID then
+			GCO.Warning("SettlerID already was already set in OnCheckSettlerFoundCity, playerId#"..tostring(founderID)..", settler unitId#"..tostring(settlerID))
+			print("OnCheckSettlerFoundCityUnitOperation:",playerID, unitID, operationType, _ )
+		end
+		settlerID = unitID
+		founderID = playerID
+	end
+end
+Events.UnitOperationStarted.Add(OnCheckSettlerFoundCityUnitOperation)
+
+function OnCheckSettlerFoundCityInitialized(playerID, cityID, iX, iY)
+	if settlerID then
+		if founderID == playerID then
+			local featureID = (kFeature.X == iX and kFeature.Y == iY) and kFeature.ID or -1
+			GameEvents.SettlerFoundedCity.Call(playerID, settlerID, cityID, iX, iY, featureID)
+		else
+			GCO.Warning("FounderID is not PlayerID in OnCheckSettlerFoundCityInitialized, playerId#"..tostring(playerID)..", founderID#"..tostring(founderID))
+			print("OnCheckSettlerFoundCityInitialized:",playerID, cityID, iX, iY)
+		end
+	else
+		GCO.Warning("SettlerID is nil in OnCheckSettlerFoundCityInitialized, playerId#"..tostring(playerID)..", cityId#"..tostring(cityID))
+		print("OnCheckSettlerFoundCityInitialized:",playerID, cityID, iX, iY)
+	end
+	kFeature	= {}
+	settlerID	= nil
+	founderID	= nil
+end
+Events.CityInitialized.Add(OnCheckSettlerFoundCityInitialized) -- called after Events.CityAddedToMap in wich the city data is initialized
 
 --=====================================================================================--
 -- Texts function

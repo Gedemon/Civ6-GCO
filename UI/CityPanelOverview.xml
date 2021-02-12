@@ -307,6 +307,44 @@
           </Grid>
 
 		  <!-- GCO <<<<< -->
+		  <Container ID="ResourceFilterButtonContainer" Anchor="C,B" Size="parent,auto">
+		  <!-- -->
+			  <Grid								ID="YieldsArea"						Anchor="R,T" Offset="2,0"		Size="parent-5,27"	Texture="CityPanel_YieldBacking"	SliceCorner="6,12"	SliceSize="17,1" SliceTextureSize="29,25">
+		  <!-- -->
+			  <Grid																				Anchor="L,B" Offset="-,-3"		Size="parent,5"				Texture="SelectionPanel_TopRim"		SliceCorner="2,3"		SliceSize="10,1" SliceTextureSize="14,5" />
+			  <Stack						ID="YieldStack"						Anchor="C,C" Offset="3,0"			StackGrowth="Right" StackPadding="-5" >
+			  
+			    <!-- -->
+				<Grid						ID="FoodGrid"							Style="CityPanelFilterGrid" >
+				  <CheckBox			ID="FoodCheck"						Style="CityPanelCBFaith" String="LOC_HUD_CITY_RESOURCES_FILTER_FOOD" />
+				  <Button				ID="FoodIgnore"						Style="CityPanelIgnoreYieldButton" />
+				</Grid>
+			    <!-- -->
+				<Grid						ID="ScienceGrid"					Style="CityPanelFilterGrid" >
+				  <CheckBox			ID="ScienceCheck"					Style="CityPanelCBFaith" String="LOC_HUD_CITY_RESOURCES_FILTER_SCIENCE" />
+				  <Button				ID="ScienceIgnore"				Style="CityPanelIgnoreYieldButton" />
+				</Grid>
+			    <!-- -->
+				<Grid						ID="LuxuriesGrid"					Style="CityPanelFilterGrid" >
+				  <CheckBox			ID="LuxuriesCheck"					Style="CityPanelCBFaith" String="LOC_HUD_CITY_RESOURCES_FILTER_OTHER" />
+				  <Button				ID="LuxuriesIgnore"				Style="CityPanelIgnoreYieldButton" />
+				</Grid>
+			    <!-- -->
+				<Grid						ID="StrategicGrid"					Style="CityPanelFilterGrid" >
+				  <CheckBox			ID="StrategicCheck"					Style="CityPanelCBFaith" String="LOC_HUD_CITY_RESOURCES_FILTER_STRATEGIC" />
+				  <Button				ID="StrategicIgnore"				Style="CityPanelIgnoreYieldButton" />
+				</Grid>
+			    <!-- -->
+				<Grid						ID="EquipmentGrid"						Style="CityPanelFilterGrid" >
+				  <CheckBox			ID="EquipmentCheck"						Style="CityPanelCBFaith" String="LOC_HUD_CITY_RESOURCES_FILTER_EQUIPMENT" />
+				  <Button				ID="EquipmentIgnore"					Style="CityPanelIgnoreYieldButton" />
+				</Grid>
+			    <!-- -->
+			  </Stack>
+			</Grid>
+		  </Container>
+		  
+		  
 	      <Grid						ID="PanelResources"							Anchor="L,T" Offset="0,0"			Size="parent,0"				Style="CityPanelStatPanelGrid" ConsumeAllMouse="1">
             <Grid																			Anchor="L,T"									Size="parent,24"		Style="DivHeader">
               <Container Size="parent,24">
@@ -598,7 +636,7 @@
 			<CheckBox			ID="ResProdCheck"						Style="CityPanelCBProduction"/>
 		</Grid>
 
-		<Label		ID="ResIn"			Anchor="L,C" 	Offset="30,0" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="100"/>
+		<Label		ID="ResIn"			Anchor="L,C" 	Offset="30,0" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="200"/>
 		<!--<Label		ID="Arrow"			Anchor="L,C" 	Offset="200,-5" Size="16,16"	Style="CityPanelText" String="[ICON_GoingTo]" WrapWidth="10"/>-->
 		<Label		ID="ResOut"			Anchor="L,C" 	Offset="230,0"	Style="CityPanelText" String="$BuildingYield$"/>
     </Grid>

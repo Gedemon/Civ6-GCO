@@ -5,16 +5,16 @@
 
 print("Loading UnitScript.lua...")
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Includes
------------------------------------------------------------------------------------------
+-- ======================================================================================
 include( "GCO_TypeEnum" )
 include( "GCO_SmallUtils" )
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Debug
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 DEBUG_UNIT_SCRIPT 	= "UnitScript"
 DEBUG_LOCAL_COMBAT	= false			-- show logs for local player combats
@@ -35,9 +35,9 @@ end
 --LuaEvents.SetUnitsDebugLevel.Add(SetDebugLevel)
 --LuaEvents.RestoreUnitsDebugLevel.Add(RestorePreviousDebugLevel)
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Defines
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 local GCO = ExposedMembers.GCO or {}
 
@@ -257,9 +257,9 @@ local FLOATING_TEXT_SHORT 	= 1
 local FLOATING_TEXT_LONG 	= 2
 local floatingTextLevel 	= FLOATING_TEXT_SHORT
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Initialize 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 local CombatTypes = {}
 local pairs = pairs
 local Dprint, Dline, Dlog, Div
@@ -298,9 +298,9 @@ function Initialize() -- Everything that can be initialized immediatly after loa
 	Events.UnitAddedToMap.Add( InitializeUnit ) -- InitializeUnitFunctions must be called before InitializeUnit...
 end
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Unit composition
------------------------------------------------------------------------------------------
+-- ======================================================================================
 local minCompLeftFactor = GameInfo.GlobalParameters["UNIT_MIN_COMPONENT_LEFT_FACTOR"].Value -- Modded global parameters are not in GlobalParameters.NAME like vanilla parameters ?????
 local maxCompLeftFactor = GameInfo.GlobalParameters["UNIT_MAX_COMPONENT_LEFT_FACTOR"].Value
 function GetNumComponentAtHP(maxNumComponent, HPLeft)
@@ -378,9 +378,9 @@ function CreateUnitHitPointsTable()
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Load/Save the tables
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Use Enum for faster serialization
 local unitTableEnum = {
 	-- commented out enum can be reused for new entries
@@ -442,6 +442,7 @@ local unitTableEnum = {
 	UnitLastHealingValue		= 56,
 	Health						= 57,
 	TurnsAtSea					= 58,
+	Settings					= 59,
 	
 	EndOfEnum				= 99
 }                           
@@ -451,10 +452,10 @@ function SaveUnitTable()
 	Dprint( DEBUG_UNIT_SCRIPT, "--------------------------- UnitData: Save w/Enum ---------------------------")
 	GCO.StartTimer("Saving And Checking UnitData")
 	local t = {}
-	for key, data in pairs(UnitData) do
-		t[key] = {}
+	for unitKey, data in pairs(UnitData) do
+		t[unitKey] = {}
 		for name, enum in pairs(unitTableEnum) do
-			t[key][enum] = data[name]
+			t[unitKey][enum] = data[name]
 		end
 	end	
 	GCO.SaveTableToSlot(t, "UnitData")	
@@ -466,10 +467,10 @@ function LoadUnitTable()
 	local unitData = {}
 	local loadedTable = GCO.LoadTableFromSlot("UnitData")
 	if loadedTable then
-		for key, data in pairs(loadedTable) do
-			unitData[key] = {}
+		for unitKey, data in pairs(loadedTable) do
+			unitData[unitKey] = {}
 			for name, enum in pairs(unitTableEnum) do
-				unitData[key][name] = data[enum]
+				unitData[unitKey][name] = data[enum]
 			end			
 		end
 		ExposedMembers.UnitData = unitData
@@ -574,9 +575,9 @@ function CompareData(data1, data2)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Units Initialization
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizationLevel) -- use partialHP to initialize incomplete unit, use personnelReserve to initialize unit with reserve
 
 	--local DEBUG_UNIT_SCRIPT = "UnitScript"
@@ -724,9 +725,9 @@ function InitializeUnit(playerID, unitID)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Equipment Initialization
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function InitializeEquipment(self, equipmentList) -- equipmentList optional, equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
 	Dlog("InitializeEquipment /START")
@@ -894,9 +895,9 @@ end
 Events.PlayerTurnActivated.Add(	ResumeEquipmentInitialization )	-- PlayerTurnActivated is the first general event called after all CityProductionCompleted for a player, it should be safe to resume delayed equipment initialization by then...
 Events.RemotePlayerTurnEnd.Add(	ResumeEquipmentInitialization )
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Barbarian Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 local barbarianUnits = {
 	["ERA_ANCIENT"] 		= 
 		{
@@ -1049,9 +1050,9 @@ function CheckAndReplaceBarbarianUnit(unit)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Base Units functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function IsInitialized(self)
 	local unitKey 	= self:GetKey()
 	if ExposedMembers.UnitData[unitKey] then return true end
@@ -1202,11 +1203,21 @@ function UpdateFrontLineData(self, bForceSynchronization) -- that function will 
 		unitData.PersonnelReserve 	= unitData.PersonnelReserve + personnelSurplus
 		unitData.Personnel 			= unitData.Personnel 		- personnelSurplus
 	end
+	local kSettings 		= self:GetSettings()
+	local bFilterEquipment	= kSettings.Equipment ~= nil and not GCO.IsEmpty(kSettings.Equipment)
 	for classID, surplus in pairs(equipmentSurplus) do
 		if surplus > 0 then
-			local equipmentTypes 	= GetEquipmentTypes(classID)
+			local equipmentTypes 	= DeepCopy(GetEquipmentTypes(classID))
 			local bestNum 			= 0			
-			local equipmentToRemove = {}			
+			local equipmentToRemove = {}
+			if bFilterEquipment then -- we may have to change the desirability of some equipment
+				for i, row in ipairs(equipmentTypes) do
+					if GetUnitEquipmentSupplySetting(kSettings, row.EquipmentID ) == UnitEquipmentSettings.NoUse then
+						equipmentTypes[i].Desirability = -1
+					end
+				end
+				table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+			end
 			for i = #equipmentTypes, 1, -1 do -- iterate from least to most wanted equipment			
 				local equipmentID = equipmentTypes[i].EquipmentID
 				local num = self:GetFrontLineEquipment(equipmentID)				
@@ -1464,9 +1475,9 @@ function Disband(self) -- Send everyone and everything back to the unit's home o
 	end
 end
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Military Organization Level function
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 -- unitType functions
 function GetUnitPromotionClassID(unitType)
@@ -1598,9 +1609,9 @@ function SetOrganizationLevel(self, organizationLevel)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Resources functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 -- unitType functions
 function GetUnitMaxFrontLinePersonnel(unitType, organizationLevel)
@@ -1879,7 +1890,7 @@ end
 
 function GetAllSurplus(self) -- Return all resources that can be transfered back to a city (or a nearby unit/improvement ?)
 
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = self:GetOwner() == 0 and "debug" or DEBUG_UNIT_SCRIPT
 	Dprint( DEBUG_UNIT_SCRIPT, "- check surplus for : ".. Locale.Lookup(self:GetName()))
 	
 	local unitKey 	= self:GetKey()
@@ -1906,14 +1917,25 @@ function GetAllSurplus(self) -- Return all resources that can be transfered back
 		end
 	end
 
+	local kSettings 		= self:GetSettings()
+	local bFilterEquipment	= kSettings.Equipment ~= nil and not GCO.IsEmpty(kSettings.Equipment)
+	
 	-- get excedent from equipment in reserve
 	local equipmentClasses = self:GetEquipmentClasses()
 	for classType, classData in pairs(equipmentClasses) do
 		local classExcedent 	= math.max(0, self:GetEquipmentClassReserve(classType) - self:GetMaxEquipmentReserve(classType))
 		Dprint( DEBUG_UNIT_SCRIPT, "   - check surplus for equipment class : ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[classType].Name)), " = ", classExcedent)
 		if classExcedent > 0 then
-			local equipmentTypes 	= GetEquipmentTypes(classType)
+			local equipmentTypes 	= DeepCopy(GetEquipmentTypes(classType))
 			local bestNum 			= 0
+			if bFilterEquipment then -- we may have to change the desirability of some equipment
+				for i, row in ipairs(equipmentTypes) do
+					if GetUnitEquipmentSupplySetting(kSettings, row.EquipmentID ) == UnitEquipmentSettings.NoUse then
+						equipmentTypes[i].Desirability = -1
+					end
+				end
+				table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+			end
 			for i = #equipmentTypes, 1, -1 do -- iterate from least to most wanted equipment			
 				local equipmentID = equipmentTypes[i].EquipmentID
 				local num = self:GetReserveEquipment(equipmentID)				
@@ -2033,9 +2055,9 @@ function GetComponentVariation(self, component)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Equipment functions 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 -- Types functions
 function GetLinkedEquipmentClass(unitTypeID, equipmentClassID)						-- To get the promotionClass (or unitType) equipmentClass corresponding to the UnitType (or promotionClass) equipmentClass (ie CLASS_SWORDS <-> CLASS_MELEE_WEAPONS)
@@ -2080,13 +2102,17 @@ function GetLowerEquipmentType(equipmentClassID)									-- return the lower equ
 	return equipmentTypes[#equipmentTypes].EquipmentID -- equipmentTypes is already sorted
 end
 
-function GetLowerAvailableEquipmentTypeInList(equipmentClassID, equipmentList)		-- return the lower available equipmentType for that equipmentClass in EquipmentList, with desirability value
-	local lowestDesirability = 99999
+function GetLowerAvailableEquipmentTypeInList(equipmentClassID, equipmentList, kSettings)		-- return the lower available equipmentType for that equipmentClass in EquipmentList, with desirability value
+	local lowestDesirability 	= 99999
+	local bFilterEquipment		= kSettings.Equipment ~= nil and not GCO.IsEmpty(kSettings.Equipment)
 	local lowerEquipmentID
 	for equipmentKey, value in pairs(equipmentList) do
 		local equipmentTypeID = tonumber(equipmentKey) -- equipmentList is usually passed from unitData which is using string key
 		if IsEquipmentClass(equipmentTypeID, equipmentClassID) then
 			local desirability = EquipmentInfo[equipmentTypeID].Desirability
+			if bFilterEquipment and GetUnitEquipmentSupplySetting(kSettings, equipmentTypeID ) == UnitEquipmentSettings.NoUse then
+				desirability = -1
+			end
 			if desirability < lowestDesirability and value > 0 then
 				lowestDesirability 	= desirability
 				lowerEquipmentID	= equipmentTypeID
@@ -2101,13 +2127,17 @@ function GetBestEquipmentType(equipmentClassID)										-- return the best equi
 	return equipmentTypes[1].EquipmentID -- equipmentTypes is already sorted
 end
 
-function GetBestAvailableEquipmentTypeInList(equipmentClassID, equipmentList)		-- return the best available equipmentType for that equipmentClass in EquipmentList, with desirability value
-	local bestDesirability = -1
+function GetBestAvailableEquipmentTypeInList(equipmentClassID, equipmentList, kSettings)		-- return the best available equipmentType for that equipmentClass in EquipmentList, with desirability value
+	local bestDesirability 	= -1
+	local bFilterEquipment	= kSettings.Equipment ~= nil and not GCO.IsEmpty(kSettings.Equipment)
 	local bestEquipmentID
 	for equipmentKey, value in pairs(equipmentList) do
 		local equipmentTypeID = tonumber(equipmentKey) -- equipmentList is usually passed from unitData which is using string key
 		if IsEquipmentClass(equipmentTypeID, equipmentClassID) then
 			local desirability = EquipmentInfo[equipmentTypeID].Desirability
+			if bFilterEquipment and GetUnitEquipmentSupplySetting(kSettings, equipmentTypeID ) == UnitEquipmentSettings.NoUse then
+				desirability = -1
+			end
 			if desirability > bestDesirability and value > 0 then
 				bestDesirability 	= desirability
 				bestEquipmentID		= equipmentTypeID
@@ -2655,10 +2685,12 @@ function GetEquipmentReserveNeed(self)							-- return a table with all equipmen
 		if equipmentTypes then
 			for _, data in ipairs(equipmentTypes) do  -- the equipmentTypes table is already sorted by Desirability
 				local equipmentID = data.EquipmentID
-				local num = self:GetReserveEquipment(equipmentID)
-				-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
-				bestNum = bestNum + num
-				equipmentNeed[equipmentID] = math.max(0, maxReserve - bestNum)
+				if GetUnitEquipmentSupplySetting(self:GetSettings(), equipmentID ) == UnitEquipmentSettings.Use then
+					local num = self:GetReserveEquipment(equipmentID)
+					-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
+					bestNum = bestNum + num
+					equipmentNeed[equipmentID] = math.max(0, maxReserve - bestNum)
+				end
 			end
 		end
 	end
@@ -2666,13 +2698,23 @@ function GetEquipmentReserveNeed(self)							-- return a table with all equipmen
 end
 
 function GetEquipmentFrontLineNeed(self)						-- return a table with all equipment types needed in frontline { [equipmentID] = num }
-	local equipmentNeed = {}
-	local equipmentClasses = self:GetEquipmentClasses()
+	local equipmentNeed 	= {}
+	local equipmentClasses	= self:GetEquipmentClasses()
+	local kSettings 		= self:GetSettings()
+	local bFilterEquipment	= kSettings.Equipment ~= nil and not GCO.IsEmpty(kSettings.Equipment)
 	for classType, classData in pairs(equipmentClasses) do
-		local equipmentTypes 	= GetEquipmentTypes(classType)
+		local equipmentTypes 	= DeepCopy(GetEquipmentTypes(classType))
 		local maxFrontLine		= self:GetMaxEquipmentFrontLine(classType)
 		local bestNum 			= 0
 		if equipmentTypes then
+			if bFilterEquipment then -- we may have to change the desirability of some equipment
+				for i, row in ipairs(equipmentTypes) do
+					if GetUnitEquipmentSupplySetting(kSettings, row.EquipmentID ) == UnitEquipmentSettings.NoUse then
+						equipmentTypes[i].Desirability = -1
+					end
+				end
+				table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+			end
 			for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
 				local equipmentID = data.EquipmentID
 				local num = self:GetFrontLineEquipment(equipmentID)
@@ -2695,10 +2737,12 @@ function GetTotalEquipmentNeed(self)							-- return a table with  the total of 
 		if equipmentTypes then
 			for _, data in ipairs(equipmentTypes) do -- the equipmentTypes table is already sorted by Desirability
 				local equipmentID = data.EquipmentID
-				local num = self:GetFrontLineEquipment(equipmentID) + self:GetReserveEquipment(equipmentID)
-				-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
-				bestNum = bestNum + num
-				equipmentNeed[equipmentID] = math.max(0, maxTotal - bestNum)
+				if GetUnitEquipmentSupplySetting(self:GetSettings(), equipmentID ) == UnitEquipmentSettings.Use then
+					local num = self:GetFrontLineEquipment(equipmentID) + self:GetReserveEquipment(equipmentID)
+					-- we want the best available, and we increment the number of better equipment already in frontline for the next loop...
+					bestNum = bestNum + num
+					equipmentNeed[equipmentID] = math.max(0, maxTotal - bestNum)
+				end
 			end
 		end
 	end
@@ -2714,6 +2758,20 @@ function GetFullEquipmentList(self)								-- return a table with all the curren
 			for _, data in ipairs(equipmentTypes) do
 				local equipmentID = data.EquipmentID
 				equipmentList[equipmentID] = self:GetFrontLineEquipment(equipmentID) + self:GetReserveEquipment(equipmentID)
+			end
+		end
+	end
+	return equipmentList
+end
+
+function GetFullSortedPossibleEquipment(self)						-- return a table {EquipmentID = equipmentTypeID, Desirability = desirability} with all the equipment the unit can use, grouped by ClassType and sorted by Desirability 
+	local equipmentList = {}
+	local equipmentClasses = self:GetEquipmentClasses()
+	for classType, classData in pairs(equipmentClasses) do
+		local equipmentTypes 	= GetEquipmentTypes(classType)
+		if equipmentTypes then -- already sorted by desirability
+			for _, data in ipairs(equipmentTypes) do
+				table.insert(equipmentList, data)
 			end
 		end
 	end
@@ -2755,13 +2813,15 @@ end
 
 function DoInternalEquipmentTransfer(self, bLimitTransfer, aAlreadyUsed)
 
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = self:GetOwner() == 0 and "debug" or DEBUG_UNIT_SCRIPT
 
 	if bLimitTransfer 	== nil then bLimitTransfer 	= true 	end	
 	if aAlreadyUsed		== nil then aAlreadyUsed 	= {} 	end
 	
 	local finalHP 	= self:GetHP()
 	local unitData 	= self:GetData()
+	
+	local kSettings 		= self:GetSettings()
 	
 	-- Transfer equipment
 	Dprint( DEBUG_UNIT_SCRIPT, " - Checking to transfer equipment from reserve...")
@@ -2777,7 +2837,7 @@ function DoInternalEquipmentTransfer(self, bLimitTransfer, aAlreadyUsed)
 			transferMax				= self:GetMaxEquipmentFrontLine(equipmentClassID)
 		end
 
-		local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)
+		--local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)
 		local maxLeftToTranfer 		= math.min(currentMax, transferMax - alreadyUsed)
 		local bTransferDone			= false
 		local bFrontLineFilled		= false
@@ -2785,8 +2845,8 @@ function DoInternalEquipmentTransfer(self, bLimitTransfer, aAlreadyUsed)
 		Dprint( DEBUG_UNIT_SCRIPT, "  - Transfer ".. Indentation20(Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name)) .. " " .. Indentation20("START <<<<<"), " AlreadyUsed = ", alreadyUsed, " Current = ", current, " CurrentMax = ", currentMax, " TransferMax = ", transferMax, " MaxLeftToTranfer = ", maxLeftToTranfer, " IsRequired = ", equipmentClassData.IsRequired)
 
 		while (maxLeftToTranfer > 0) and (not bTransferDone) do
-			local lowerTypeID, lowerDesirability	= GetLowerAvailableEquipmentTypeInList(equipmentClassID, unitData.Equipment)
-			local bestTypeID, bestDesirability 		= GetBestAvailableEquipmentTypeInList(equipmentClassID, unitData.EquipmentReserve)			
+			local lowerTypeID, lowerDesirability	= GetLowerAvailableEquipmentTypeInList(equipmentClassID, unitData.Equipment, kSettings)
+			local bestTypeID, bestDesirability 		= GetBestAvailableEquipmentTypeInList(equipmentClassID, unitData.EquipmentReserve, kSettings)			
 	
 			if bestTypeID then -- Must check in case that equipmentClass is still empty
 				local loopTransfer	= 0
@@ -3665,9 +3725,9 @@ function ShowFuelConsumptionFloatingText(fuelData)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Combat
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 function GetPropertyPercent(self, sPropertyKey)
 	
@@ -4502,9 +4562,9 @@ function CheckCombat()
 end
 Events.Combat.Add( CheckCombat )
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Healing
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 -- Type functions
 function GetUnitHitPointTable(unitType, promotionClassID, organizationLevel )
@@ -4614,7 +4674,7 @@ function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 
 	--if self:GetDamage() == 0 then return end
 
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+	--local DEBUG_UNIT_SCRIPT = self:GetOwner() == 0 and "debug" or DEBUG_UNIT_SCRIPT
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_KNIGHT" then DEBUG_UNIT_SCRIPT = "debug" end
 	--if GameInfo.Units[self:GetType()].UnitType == "UNIT_MEDIEVAL_HORSEMAN" then DEBUG_UNIT_SCRIPT = "debug" end
 	
@@ -4699,10 +4759,23 @@ function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 	
 	Dprint( DEBUG_UNIT_SCRIPT, " - Moved from reserve to FrontLine = ", reqPersonnel, " Personnel")
 	
+	local kSettings 		= self:GetSettings()
+	local bFilterEquipment	= kSettings.Equipment ~= nil and not GCO.IsEmpty(kSettings.Equipment)
+	
 	for equipmentClassID, equipmentClassData in pairs(self:GetEquipmentClasses()) do
 		if equipmentClassData.IsRequired then
 			local required	 			= self:GetEquipmentAtHP(equipmentClassID, finalHP) - self:GetEquipmentAtHP(equipmentClassID, initialHP)
-			local equipmentTypes 		= GetEquipmentTypes(equipmentClassID)
+			local equipmentTypes 		= DeepCopy(GetEquipmentTypes(equipmentClassID))
+			
+			if bFilterEquipment then -- we may have to change the desirability of some equipment
+				for i, row in ipairs(equipmentTypes) do
+					if GetUnitEquipmentSupplySetting(kSettings, row.EquipmentID ) == UnitEquipmentSettings.NoUse then
+						equipmentTypes[i].Desirability = -1
+					end
+				end
+				table.sort(equipmentTypes, function(a, b) return a.Desirability > b.Desirability; end)
+			end
+			
 			local numEquipmentToProvide	= required
 			Dprint( DEBUG_UNIT_SCRIPT, " - Requiring to FrontLine ........ = ", required, " " ..Locale.Lookup(GameInfo.EquipmentClasses[equipmentClassID].Name))
 			for i, data in ipairs(equipmentTypes) do
@@ -5019,9 +5092,9 @@ end
 GameEvents.OnPillage.Add( OnUnitPillage )
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Supply Lines
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- cf Worldinput.lua
 --pathPlots, turnsList, obstacles = UnitManager.GetMoveToPath( kUnit, endPlotId )
 
@@ -5153,9 +5226,9 @@ function GetSupplyLineLengthFactor(self)
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Do Turn for Units
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function UpdateDataOnNewTurn(self) -- called for every player at the beginning of a new turn
 	
 	Dlog("UpdateDataOnNewTurn for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
@@ -5371,7 +5444,7 @@ end
 function DoExchange(self)
 	Dlog("DoExchange for ".. Locale.Lookup(self:GetName()) ..", key = ".. tostring(self:GetKey()) .." /START")
 	
---if self:GetOwner() == 0 then DEBUG_UNIT_SCRIPT = "debug" end
+	--local DEBUG_UNIT_SCRIPT = self:GetOwner() == 0 and "debug" or DEBUG_UNIT_SCRIPT
 
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Looking to exchange equipment for " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()))
@@ -5486,55 +5559,6 @@ function CheckForActiveTurnsLeft(self)
 					Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding ratio = ", disbandingRatio, ", Personnel to disband = ", maxPersonnelToDisband, ", Front Line Personnel = ", frontLinePersonnel, ", Min Personnel Left = ", minPersonnelLeft)
 					if maxPersonnelToDisband >= (frontLinePersonnel - minPersonnelLeft) then
 						self:Disband()
-						--[[
-						Dprint( DEBUG_UNIT_SCRIPT, "     - Removing unit...")
-						local city = GCO.GetCityFromKey( unitData.HomeCityKey )
-						if city then
-							Dprint( DEBUG_UNIT_SCRIPT, "     - Send everyone and everything back to the home city of ".. Locale.Lookup(city:GetName()))
-							-- personnel
-							local totalPersonnel = self:GetTotalPersonnel()
-							city:ChangeStock(personnelResourceID, totalPersonnel)
-							Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20("Total Personnel").." = ", totalPersonnel)
-							
-							-- special resources
-							local listResources		= {foodResourceID, medicineResourceID} 
-							for _, resourceID in ipairs(listResources) do
-								local stock = self:GetStock(resourceID)
-								if stock > 0 then
-									city:ChangeStock(resourceID, stock)
-									Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", stock)
-								end
-							end							
-
-							-- all resource in "stock" (ie not "reserve")
-							for resourceKey, value in pairs(unitData.Stock) do
-								if value > 0 then
-									local resourceID = tonumber(resourceKey)
-									city:ChangeStock(resourceID, value)
-									Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
-								end
-							end
-							
-							-- all equipment
-							for resourceID, value in pairs(self:GetFullEquipmentList()) do
-								if value > 0 then
-									city:ChangeStock(resourceID, value)
-									Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
-								end
-							end
-							
-							-- Send prisoners to city
-							local cityData = city:GetData()
-							for playerKey, number in pairs(unitData.Prisoners) do
-								if number > 0 then
-									Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners").." = ", number)
-									cityData.Prisoners[playerKey] = cityData.Prisoners[playerKey] + number
-								end
-							end
-						else
-							Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home city...")
-						end
-						--]]
 						bRemoveUnit	= true
 					else
 						Dprint( DEBUG_UNIT_SCRIPT, "     - Removing Personnel from front line...")
@@ -5821,9 +5845,49 @@ end
 --]]
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
+-- Unit Management Functions
+-- ======================================================================================
+
+----------------------------------------------
+--	Check allowed supply
+----------------------------------------------
+function GetUnitEquipmentSupplySetting(kSettings, equipmentID )
+	return (kSettings.Equipment and kSettings.Equipment[equipmentID]) or UnitEquipmentSettings.Use -- no settings means default, ie "use equipment"
+end
+
+
+----------------------------------------------
+--	Check allowed supply
+----------------------------------------------
+function GetLockedOrganizationLevel(self)
+	local kSettings	= self:GetValue("Settings") or {}
+	return kSettings.LOL -- "LockedOrganizationLevel", but keep key short for serialization
+end
+function SetLockedOrganizationLevel(self, iLevel)
+	local kSettings	= self:GetValue("Settings") or {}
+	kSettings.LOL = iLevel -- "LockedOrganizationLevel", but keep key short for serialization
+	self:SetValue("Settings", kSettings)
+end
+
+----------------------------------------------
+-- Get/Set settings
+----------------------------------------------
+function GetSettings(self)
+	local kSettings	= self:GetValue("Settings") or {}
+	return kSettings
+end
+
+function SetUnitEquipmentSupplySetting(self, kEquipmentSettings:table)
+	local kSettings		= self:GetValue("Settings") or {}
+	kSettings.Equipment	= kEquipmentSettings
+	self:SetValue("Settings", kSettings)
+end
+
+
+-- ======================================================================================
 -- Events
------------------------------------------------------------------------------------------
+-- ======================================================================================
 local ProductionTypes = {
 		UNIT		= 0,
 		BUILDING	= 1,
@@ -6198,10 +6262,106 @@ function OnUnitMoveComplete(playerID, unitID, iX, iY)
 end
 Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 
+-- Handling Captured Unit
+function OnCapturedUnitChecked(oldPlayerId, oldUnitID, newPlayerId, newUnitID)
 
------------------------------------------------------------------------------------------
+	local DEBUG_UNIT_SCRIPT = "debug"
+	Dprint( DEBUG_UNIT_SCRIPT, "- Calling OnCapturedUnitChecked ", oldPlayerId, oldUnitID, newPlayerId, newUnitID )
+	
+	local oldUnitKey 	= GetUnitKeyFromIDs(oldPlayerId, oldUnitID)
+	local newUnitKey	= GetUnitKeyFromIDs(newPlayerId, newUnitID)
+	local newUnit		= GetUnit(newPlayerId, newUnitID)
+
+	if ExposedMembers.UnitData[newUnitKey] then
+		GCO.Warning("New unit in ChangeUnitTo() has already an entry in UnitData for unitKey = "..tostring(newUnitKey)..", old unitKey = "..tostring(oldUnitKey))
+	end
+	
+	ExposedMembers.UnitData[newUnitKey] = {}
+	local newUnitData = ExposedMembers.UnitData[newUnitKey]
+	for key, value in pairs(ExposedMembers.UnitData[oldUnitKey]) do 
+		newUnitData[key] = value
+	end
+	newUnitData.unitID 		= newUnit:GetID()
+	newUnitData.playerID 	= newPlayerId
+	newUnitData.unitType 	= newUnit:GetType()
+	
+	ExposedMembers.UnitData[oldUnitKey] = nil
+	
+	UnitLastHealingValue[newUnitKey] = UnitLastHealingValue[oldUnitKey]
+	UnitLastHealingValue[oldUnitKey] = nil
+
+end
+GameEvents.CapturedUnitChecked.Add(OnCapturedUnitChecked)
+
+-- Handling Settler Founding City
+function OnSettlerFoundedCity(playerID, settlerID, cityID, iX, iY, featureID)
+
+	local pSettler 	= GCO.GetUnit(playerID, settlerID) 	-- not removed from map at this point
+	local pCity		= GCO.GetCity(playerID, cityID)		-- initialized at this point
+	local pPlayer	= GCO.GetPlayer(playerID)
+	
+	pSettler:SetValue("HomeCityKey", pCity:GetKey())	-- send back personnel/equipment/resources here on disbanding (with no income from selling)
+	pSettler:Disband()
+	
+	if featureID and featureID ~= NO_FEATURE then
+		local featureRow = GameInfo.Features[featureID]
+		if FeatureResources[featureID] then
+			for _, data in pairs(FeatureResources[featureID]) do
+				for resourceID, value in pairs(data) do
+					if value > 0 then
+						if pPlayer:IsResourceVisible(resourceID) then
+							local collected = GCO.Round(value * FeatureRemoveFactor * (pPlayer:GetEra() + 1) * FeatureRemoveEraRatio)
+							if collected > 0 then
+								pCity:ChangeStock(resourceID, collected, ResourceUseType.Collect, pCity:GetKey())
+								
+								local pLocalPlayerVis = PlayersVisibility[Game.GetLocalPlayer()]
+								if (pLocalPlayerVis ~= nil) then
+									if (pLocalPlayerVis:IsVisible(iX, iY)) then
+										local sText = "+" .. tostring(collected).." "..GCO.GetResourceIcon(resourceID)
+										Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, iX, iY, 0)					
+										Dprint( DEBUG_UNIT_SCRIPT, "  - Sending to ".. Locale.Lookup(pCity:GetName()) .." ".. sText, " at position ", iX, iY)
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	LuaEvents.CityCompositionUpdated(playerID, cityID)
+end
+GameEvents.SettlerFoundedCity.Add(OnSettlerFoundedCity)
+
+
+-- ======================================================================================
+-- Handle Player Commands
+-- ======================================================================================
+
+function OnPlayerUnitSettings(iPlayer : number, kParameters : table)
+	local DEBUG_UNIT_SCRIPT = "debug"
+	
+	Dprint( DEBUG_UNIT_SCRIPT, "- OnPlayerUnitSettings for Player#"..tostring(iPlayer))
+
+	local pUnit = GetUnit(iPlayer, kParameters.UnitID)
+	for _, row in ipairs(kParameters.ChangedSettings) do
+		if row.LockedOrganizationLevel then
+			Dprint( DEBUG_UNIT_SCRIPT, "Apply change to Unit: Set LockedOrganizationLevel #".. row.LockedOrganizationLevel ..") for ".. Locale.Lookup(pUnit:GetName()) )
+			pUnit:SetLockedOrganizationLevel( row.LockedOrganizationLevel )
+		end
+		if row.Equipment then
+			Dprint( DEBUG_UNIT_SCRIPT, "Apply change to Unit Supply <Equipment> for ".. Locale.Lookup(pUnit:GetName()) )
+			pUnit:SetUnitEquipmentSupplySetting( row.Equipment )
+		end
+		
+		--SetUnitEquipmentSupplySetting
+	end
+end
+GameEvents.PlayerUnitSettings.Add(OnPlayerUnitSettings)
+
+-- ======================================================================================
 -- General Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 function UpdateUnitsCache() -- called after loading
 	--[[
@@ -6306,16 +6466,16 @@ end
 --GameEvents.OnGameTurnStarted.Add(UpdateUnitsData)
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Functions passed from UI Context
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function SetName(self, name)
 	GCO.SetUnitName(self, name)
 end
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Shared Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function GetUnit(playerID, unitID) -- return an unit with unitScript functions for another context
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	AttachUnitFunctions(unit)
@@ -6323,9 +6483,9 @@ function GetUnit(playerID, unitID) -- return an unit with unitScript functions f
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Initialize Unit Functions
------------------------------------------------------------------------------------------
+-- ======================================================================================
 function InitializeUnitFunctions(playerID, unitID) -- Note that those are limited to this file context
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
@@ -6433,6 +6593,7 @@ function AttachUnitFunctions(unit)
 			u.GetEquipmentFrontLineNeed				= GetEquipmentFrontLineNeed
 			u.GetTotalEquipmentNeed					= GetTotalEquipmentNeed
 			u.GetFullEquipmentList					= GetFullEquipmentList
+			u.GetFullSortedPossibleEquipment		= GetFullSortedPossibleEquipment
 			u.ChangeReserveEquipment				= ChangeReserveEquipment
 			u.ChangeFrontLineEquipment				= ChangeFrontLineEquipment
 			u.IsWaitingForEquipment					= IsWaitingForEquipment
@@ -6449,7 +6610,11 @@ function AttachUnitFunctions(unit)
 			u.CheckForActiveTurnsLeft				= CheckForActiveTurnsLeft
 			u.UpdateHealth							= UpdateHealth
 			u.SetHealthValues						= SetHealthValues
-			--
+			-- settings
+			u.GetLockedOrganizationLevel			= GetLockedOrganizationLevel
+			u.SetLockedOrganizationLevel			= SetLockedOrganizationLevel
+			u.GetSettings							= GetSettings
+			u.SetUnitEquipmentSupplySetting			= SetUnitEquipmentSupplySetting
 			
 			-- flag strings
 			u.GetFoodStockString					= GetFoodStockString
@@ -6500,20 +6665,21 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetEquipmentTypes									= GetEquipmentTypes
 	ExposedMembers.GCO.GetUnitTypeFromEquipmentList							= GetUnitTypeFromEquipmentList
 	ExposedMembers.GCO.GetAvailableEquipmentForUnitPromotionClassFromList	= GetAvailableEquipmentForUnitPromotionClassFromList
+	ExposedMembers.GCO.GetUnitEquipmentSupplySetting						= GetUnitEquipmentSupplySetting
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Initialize after loading the file...
------------------------------------------------------------------------------------------
+-- ======================================================================================
 Initialize()
 
 
------------------------------------------------------------------------------------------
+-- ======================================================================================
 -- Test / Debug
------------------------------------------------------------------------------------------
+-- ======================================================================================
 
 -- temp fix when changing an unit DB entry mid-game to set the new properties (like combat, moves, ...)
 function UnitsUpdateFromDB()

@@ -1245,7 +1245,7 @@ end
 
 
 function CheckPlayerTurn(playerID)
-	local DEBUG_PLAYER_SCRIPT	= "debug"
+	--local DEBUG_PLAYER_SCRIPT	= "debug"
 	local playerConfig	= PlayerConfigurations[playerID]
 	local bNoError		= true
 	if GCO.PlayerTurnsDebugChecks[playerID] then
@@ -1272,7 +1272,7 @@ end
 
 function DoTurnForLocal()
 
-	local DEBUG_PLAYER_SCRIPT	= "debug"
+	--local DEBUG_PLAYER_SCRIPT	= "debug"
 	local playerID = Game.GetLocalPlayer()  -- The Error reported on that line is triggered by something else.
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	Dprint( DEBUG_PLAYER_SCRIPT, "-- Events.LocalPlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
@@ -1297,7 +1297,7 @@ end
 
 function DoTurnForRemote( playerID )
 	if(GameConfiguration.IsNetworkMultiplayer()) then return end
-	local DEBUG_PLAYER_SCRIPT	= "debug"
+	--local DEBUG_PLAYER_SCRIPT	= "debug"
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 	Dprint( DEBUG_PLAYER_SCRIPT, "-- Events.RemotePlayerTurnBegin -> Testing Start Turn for player#"..tostring(playerID))
 	Dprint( DEBUG_PLAYER_SCRIPT, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -1310,7 +1310,7 @@ end
 --
 function DoTurnForNextPlayerFromRemote( playerID )
 	if(GameConfiguration.IsNetworkMultiplayer()) then return end
-	local DEBUG_PLAYER_SCRIPT	= "debug"
+	--local DEBUG_PLAYER_SCRIPT	= "debug"
 
 	repeat
 		playerID = playerID + 1
@@ -1328,7 +1328,7 @@ end
 
 function DoTurnForNextPlayerFromLocal( playerID )
 	if(GameConfiguration.IsNetworkMultiplayer()) then return end
-	local DEBUG_PLAYER_SCRIPT	= "debug"
+	--local DEBUG_PLAYER_SCRIPT	= "debug"
 	if not playerID then playerID = 0 end
 	repeat
 		playerID = playerID + 1

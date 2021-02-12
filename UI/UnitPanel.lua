@@ -18,15 +18,7 @@ include( "GCO_TypeEnum" )
 -- Initialize Functions
 -- ===========================================================================
 
-local GCO = ExposedMembers.GCO
---[[
-local GameEvents	= ExposedMembers.GameEvents
-function InitializeUtilityFunctions()
-	GCO = ExposedMembers.GCO		-- contains functions from other contexts
-	print ("Exposed Functions from other contexts initialized...")
-end
-GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
---]]
+GCO = ExposedMembers.GCO
 -- GCO >>>>>
 
 
@@ -55,7 +47,9 @@ hstructure DisabledByTutorial
 	kLockedHashes	: table;		-- Action hashes that the tutorial says shouldn't be enabled.	
 end
 
-
+-- GCO <<<<<
+local m_SupplyLineStackIM		:table	= InstanceManager:new( "Supply",			"Top",		Controls.SupplyLineStack );
+-- GCO >>>>>
 local m_standardActionsIM		:table	= InstanceManager:new( "UnitActionInstance",			"UnitActionButton",		Controls.StandardActionsStack );
 local m_secondaryActionsIM		:table	= InstanceManager:new( "UnitActionInstance",			"UnitActionButton",		Controls.SecondaryActionsStack );
 local m_groupArtIM				:table	= InstanceManager:new( "GroupArtInstance",				"Top",					Controls.PrimaryArtStack );
@@ -847,7 +841,11 @@ function View(data)
     m_standardActionsIM:ResetInstances();
     m_secondaryActionsIM:ResetInstances();
 	m_groupArtIM:ResetInstances();
-	m_buildActionsIM:ResetInstances();   
+	m_buildActionsIM:ResetInstances();
+	
+	-- GCO <<<<<
+	m_SupplyLineStackIM:ResetInstances()
+	-- GCO >>>>>
 
 	m_subjectData = data;		-- Cache data for future view look ups.
 
@@ -876,7 +874,6 @@ function View(data)
 				EndIconGroup();
 			end
 		end
-	
 
 		-- Next fill in secondardy actions area
 		local numSecondaryItems:number = 0;
@@ -963,7 +960,61 @@ function View(data)
 	else
 		Controls.BuildActionsPanel:SetHide(true);
 	end
+	-- GCO <<<<<
+	-- Settings button and equipment list
+	if data.FullEquipmentList and #data.FullEquipmentList > 0 then
+		StartIconGroup();
+		local instance:table = m_standardActionsIM:GetInstance();
 
+		instance.UnitActionIcon:SetTexture( 0, 0, "CityPanel_ActionTogglePanel" );
+		
+		instance.UnitActionButton:SetToolTipString( Locale.Lookup("LOC_HUD_UNITPANEL_SHOW_HIDE_SETTINGS") );
+		instance.UnitActionButton:RegisterCallback( Mouse.eLClick, 
+			function()
+				UI.PlaySound(UI_CityPanel_ButtonClick);
+				ToggleSettingsView()
+			end
+		);
+		instance.UnitActionButton:RegisterCallback( Mouse.eMouseEnter, function() UI.PlaySound("Main_Menu_Mouse_Over"); end);
+
+		-- Track # of icons added for whatever is the current group
+		m_numIconsInCurrentIconGroup = m_numIconsInCurrentIconGroup + 1;			
+		
+		EndIconGroup();
+		
+		for _, kEquipment in ipairs(data.FullEquipmentList) do
+			local equipmentInstance = m_SupplyLineStackIM:GetInstance();
+			local equipmentID		= kEquipment.EquipmentID
+			local equipmentUsage	= GCO.GetUnitEquipmentSupplySetting(data.Settings, equipmentID )
+			
+			equipmentInstance.SupplyIgnore:SetHide( true )
+			equipmentInstance.SupplyInCheck:SetDisabled( false )
+			
+			if equipmentUsage == UnitEquipmentSettings.Use then
+				equipmentInstance.SupplyInCheck:SetCheck(false)	
+			elseif equipmentUsage == UnitEquipmentSettings.NoSupply then
+				equipmentInstance.SupplyInCheck:SetCheck(true)
+			elseif equipmentUsage == UnitEquipmentSettings.NoUse then
+				equipmentInstance.SupplyIgnore:SetHide( false )
+				equipmentInstance.SupplyInCheck:SetDisabled( true )
+			end
+			
+
+			local equipmentString	= GCO.GetResourceIcon(equipmentID) .. " " ..Locale.Lookup(GameInfo.Resources[equipmentID].Name)
+			
+			equipmentInstance.SupplyType:SetText(equipmentString)
+			
+			equipmentInstance.SupplyInCheck:RegisterCallback(	Mouse.eLClick, function() OnToggleCheckEquipment( equipmentInstance, data.Settings, equipmentID ); end)
+			equipmentInstance.SupplyIgnore:RegisterCallback(	Mouse.eLClick, function() OnResetEquipmentToNormal( equipmentInstance, data.Settings, equipmentID ); end);
+		end
+	end
+	
+	local SUPPLY_LINE_PANEL_PADDING_Y = 60
+	Controls.SupplyLineStack:CalculateSize();
+	local buildStackheight :number = Controls.SupplyLineStack:GetSizeY();
+	Controls.SupplyLinePanel:SetSizeY( buildStackheight + SUPPLY_LINE_PANEL_PADDING_Y);
+	-- GCO >>>>>
+	
 	Controls.StandardActionsStack:CalculateSize();    	
 	Controls.SecondaryActionsStack:CalculateSize();   
 	Controls.ExpandSecondaryActionStack:CalculateSize();
@@ -2291,6 +2342,8 @@ function ReadUnitData( unit:table )
 	-- GCO <<<<<
 	GCO.AttachUnitFunctions(unit)
 	kSubjectData.CompositionToolTip			= unit:GetUnitCompositionToolTip()
+	kSubjectData.FullEquipmentList			= unit:GetFullSortedPossibleEquipment()
+	kSubjectData.Settings					= DeepCopy( unit:GetSettings() ) -- we copy the settings table from Gameplay has we don't want to alter values in UI for MP sync
 	-- GCO >>>>>
 	
 	-- Great person data
@@ -2415,6 +2468,11 @@ end
 -- ===========================================================================
 function OnUnitSelectionChanged(player, unitId, locationX, locationY, locationZ, isSelected, isEditable)
 	--print("UnitPanel::OnUnitSelectionChanged(): ",player,unitId,isSelected);
+	-- GCO <<<<<
+	if m_subjectData then
+		CheckAndSaveSettings(m_subjectData.Settings)
+	end
+	-- GCO >>>>>
 	if (isSelected) then
 		m_selectedPlayerId = player;
 		m_UnitId = unitId;
@@ -4339,8 +4397,83 @@ function Initialize()
 	Controls.SettlementWaterGrid_NoWater:SetColor(NoWaterColor);
 	local SettlementBlockedColor:number = UI.GetColorValue("COLOR_DISGUSTING_APPEAL");
 	Controls.SettlementWaterGrid_SettlementBlocked:SetColor(SettlementBlockedColor);
+	
+	-- GCO <<<<<
+	Controls.SupplyLinePanel:SetHide(true)
+	Controls.YieldStack:SetHide(true)
+	-- GCO >>>>>
 
 end
 
-Initialize();
+-- GCO <<<<<
+-- ===========================================================================
+--	Toggle Settings view
+-- ===========================================================================
+local bShowSettings = false
+function ToggleSettingsView()
+	bShowSettings = not bShowSettings
+	Controls.SupplyLinePanel:SetHide(not bShowSettings)
+end
 
+-- ===========================================================================
+--	Set a filter to one of 3 check states
+-- ===========================================================================
+--UnitEquipmentSettings.NoSupply .NoUse .Use
+function OnToggleCheckEquipment( instance, kSettings, equipmentID )
+
+	kSettings.Equipment = kSettings.Equipment or {}
+	if instance.SupplyInCheck:IsChecked() then
+		
+		kSettings.Equipment[equipmentID] = UnitEquipmentSettings.NoSupply
+	else -- set as ignore
+		instance.SupplyIgnore:SetHide( false );
+		instance.SupplyInCheck:SetDisabled( true );
+		kSettings.Equipment[equipmentID] = UnitEquipmentSettings.NoUse
+	end
+	--Refresh()
+end
+
+-- ===========================================================================
+--	Reset a filter to not be must have nor ignored
+-- ===========================================================================
+function OnResetEquipmentToNormal( instance, kSettings, equipmentID )
+	kSettings.Equipment = kSettings.Equipment or {}
+	kSettings.Equipment[equipmentID] = UnitEquipmentSettings.Use
+	instance.SupplyIgnore:SetHide( true );
+	instance.SupplyInCheck:SetDisabled( false );
+end
+
+-- ===========================================================================
+--	Save settings if changed
+-- ===========================================================================
+function CheckAndSaveSettings(kNewSettings)
+
+	local kChangedSettings	= {}
+	local pUnit 			= GCO.GetUnit(m_selectedPlayerId, m_UnitId)
+	if pUnit then
+		local kUnitSettings		= pUnit:GetSettings()
+		
+		if kNewSettings.LockedOrganizationLevel ~= pUnit:GetLockedOrganizationLevel() then
+			table.insert( kChangedSettings, {LockedOrganizationLevel = kNewSettings.LockedOrganizationLevel })
+		end
+
+		if not Deepcompare(kNewSettings.Equipment, kUnitSettings.Equipment) then
+			table.insert( kChangedSettings, {Equipment = kNewSettings.Equipment })
+		end
+		
+		if #kChangedSettings > 0 then
+			
+			local kParameters:table = {}
+			
+			kParameters.UnitID			= m_UnitId
+			kParameters.ChangedSettings	= kChangedSettings
+			kParameters.OnStart			= "PlayerUnitSettings" -- Send this GameEvent when processing the operation
+
+			UI.RequestPlayerOperation(Game.GetLocalPlayer(), PlayerOperations.EXECUTE_SCRIPT, kParameters);
+		end
+	end
+	
+end
+
+-- GCO >>>>>
+Initialize();

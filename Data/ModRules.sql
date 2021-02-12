@@ -28,9 +28,32 @@ UPDATE GoodyHutSubTypes 	SET Weight = 0 WHERE SubTypeGoodyHut 	<> 'GOODYHUT_SMAL
 /* ************************ */
 DELETE FROM Resource_Harvests;
 DELETE FROM Resources WHERE ResourceType='RESOURCE_NITER';
+DELETE FROM Resources WHERE ResourceType='RESOURCE_MAIZE';
 UPDATE Resources SET PrereqTech ='TECH_GEOLOGY' WHERE ResourceType='RESOURCE_OIL';
 UPDATE Resources SET PrereqTech ='TECH_GEOLOGY' WHERE ResourceType='RESOURCE_COAL';
 UPDATE Resources SET PrereqTech ='TECH_RADIOACTIVITY' WHERE ResourceType='RESOURCE_URANIUM';
+
+/* tweak resource placement */
+DELETE FROM Resource_ValidTerrains WHERE ResourceType='RESOURCE_WHALES' AND TerrainType="TERRAIN_COAST";
+
+INSERT OR REPLACE INTO Resource_ValidTerrains (ResourceType, TerrainType) VALUES ('RESOURCE_ALUMINUM', 'TERRAIN_GRASS_HILLS');
+INSERT OR REPLACE INTO Resource_ValidTerrains (ResourceType, TerrainType) VALUES ('RESOURCE_ALUMINUM', 'TERRAIN_PLAINS_HILLS');
+INSERT OR REPLACE INTO Resource_ValidTerrains (ResourceType, TerrainType) VALUES ('RESOURCE_ALUMINUM', 'TERRAIN_TUNDRA_HILLS');
+INSERT OR REPLACE INTO Resource_ValidTerrains (ResourceType, TerrainType) VALUES ('RESOURCE_ALUMINUM', 'TERRAIN_SNOW_HILLS');
+
+INSERT OR REPLACE INTO Resource_ValidTerrains (ResourceType, TerrainType) VALUES ('RESOURCE_WHALES', 'TERRAIN_OCEAN');
+INSERT OR REPLACE INTO Resource_ValidTerrains (ResourceType, TerrainType) VALUES ('RESOURCE_FISH', 'TERRAIN_OCEAN');
+
+INSERT OR REPLACE INTO Resource_ValidTerrains (ResourceType, TerrainType) VALUES ('RESOURCE_WHEAT', 'TERRAIN_GRASS');
+
+INSERT OR REPLACE INTO Resource_ValidFeatures (ResourceType, FeatureType) VALUES ('RESOURCE_ALUMINUM', 'FEATURE_FOREST');
+INSERT OR REPLACE INTO Resource_ValidFeatures (ResourceType, FeatureType) VALUES ('RESOURCE_ALUMINUM', 'FEATURE_JUNGLE');
+
+INSERT OR REPLACE INTO Resource_ValidFeatures (ResourceType, FeatureType) VALUES ('RESOURCE_COAL', 'FEATURE_FOREST');
+INSERT OR REPLACE INTO Resource_ValidFeatures (ResourceType, FeatureType) VALUES ('RESOURCE_COAL', 'FEATURE_JUNGLE');
+
+INSERT OR REPLACE INTO Resource_ValidFeatures (ResourceType, FeatureType) VALUES ('RESOURCE_IRON', 'FEATURE_FOREST');
+INSERT OR REPLACE INTO Resource_ValidFeatures (ResourceType, FeatureType) VALUES ('RESOURCE_IRON', 'FEATURE_JUNGLE');
 
 /* ************************ */
 /* Deals                    */
@@ -94,6 +117,8 @@ INSERT OR REPLACE INTO Improvement_ValidBuildUnits (ImprovementType, UnitType) V
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_FOREST_DENSE');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_FOREST_SPARSE');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_JUNGLE');
+INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_PLANTATION', 'FEATURE_FLOODPLAINS');
+INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_QUARRY', 'FEATURE_FLOODPLAINS');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_STEPWELL', 'FEATURE_JUNGLE');
 
 INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_QUARRY', 'TERRAIN_PLAINS');
@@ -123,6 +148,8 @@ DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_STEPW
 INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_STEPWELL', 'TERRAIN_PLAINS');
 INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_STEPWELL', 'TERRAIN_GRASS_HILLS');
 
+UPDATE Improvement_ValidResources SET MustRemoveFeature='0' WHERE ResourceType ='RESOURCE_ALUMINUM' OR ResourceType='RESOURCE_COAL' OR ResourceType = 'RESOURCE_IRON';
+
 --DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_ALCAZAR';
 --INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ALCAZAR', 'TERRAIN_GRASS_HILLS');
 --INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ALCAZAR', 'TERRAIN_PLAINS_HILLS');
@@ -134,8 +161,14 @@ INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) 
 /* Features                 */
 /* ************************ */
 DELETE FROM Feature_Removes;
+
 INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_GRASS');
---INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_PLAINS');
+INSERT INTO Feature_ValidTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_PLAINS');
+
+INSERT INTO Feature_AdjacentTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_GRASS_HILLS');
+INSERT INTO Feature_AdjacentTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_PLAINS_HILLS');
+INSERT INTO Feature_AdjacentTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_DESERT_HILLS');
+INSERT INTO Feature_AdjacentTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_DESERT');
 
 
 /* ************************ */
@@ -610,6 +643,10 @@ UPDATE GlobalParameters SET Value = 200 	WHERE Name='WARMONGER_RAZE_PENALTY_PERC
 UPDATE GlobalParameters SET Value = 100 	WHERE Name='WARMONGER_REDUCTION_IF_AT_WAR'; 				-- Default = 40
 UPDATE GlobalParameters SET Value = 85	 	WHERE Name='WARMONGER_REDUCTION_IF_DENOUNCED'; 				-- Default = 20
 
+-- Remove minimal War/Peace Turns
+--UPDATE GlobalParameters SET Value = 10	 	WHERE Name='DIPLOMACY_PEACE_MIN_TURNS'; 			-- Default = 10
+--UPDATE GlobalParameters SET Value = 10	 	WHERE Name='DIPLOMACY_WAR_MIN_TURNS'; 				-- Default = 10
+
 -- allow Joint War when declared friends or allied only...
 DELETE FROM DiplomaticStateActions WHERE StateType='DIPLO_STATE_NEUTRAL' AND DiplomaticActionType='DIPLOACTION_JOINT_WAR';
 DELETE FROM DiplomaticStateActions WHERE StateType='DIPLO_STATE_FRIENDLY' AND DiplomaticActionType='DIPLOACTION_JOINT_WAR';
@@ -634,6 +671,8 @@ DELETE FROM DiplomacyStatements WHERE Type='DECLARE_COLONIAL_WAR';
 DELETE FROM DiplomacyStatements WHERE Type='DECLARE_TERRITORIAL_WAR';
 
 DELETE FROM DiplomaticActions WHERE DiplomaticActionType LIKE '%_WAR' and DiplomaticActionType <> 'DIPLOACTION_DECLARE_SURPRISE_WAR';
+--DELETE FROM DiplomaticActions;
+
 
 -- Remove near border warning when having open border agreement
 INSERT INTO RequirementSetRequirements (RequirementSetId, RequirementId) VALUES ('PLAYER_NEAR_CULTURE_BORDER', 'REQUIRES_PLAYER_NO_OPEN_BORDERS');

@@ -93,6 +93,7 @@
                       </Button>
                     </Stack>
                   </Container>
+                  <!-- GCO <<<<< -->
 				  <Container ID="BuildingFilterButtonContainer" Anchor="C,B" Size="parent,auto">
 				  <!-- -->
 				      <Grid								ID="YieldsArea"						Anchor="R,T" Offset="2,0"		Size="parent-5,27"	Texture="CityPanel_YieldBacking"	SliceCorner="6,12"	SliceSize="17,1" SliceTextureSize="29,25">
@@ -131,6 +132,7 @@
 					  </Stack>
 					</Grid>
 				  </Container>
+                  <!-- GCO <<<<< -->
                 </Stack>
               </Grid>
               

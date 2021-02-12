@@ -5,7 +5,58 @@
     <!--UNIT PANEL MAIN-->
   <AlphaAnim            ID="UnitPanelAlpha"       AlphaBegin="0" AlphaEnd="1" Speed="3"   Function="OutSine" Cycle="Once" Size="parent,parent">
     <SlideAnim          ID="UnitPanelSlide"       Start="200,0" End="0,0"     Speed="3.5" Function="OutSine" Cycle="Once" Size="parent,parent">
-      
+      <!-- GCO <<<<<-->
+      <Grid						ID="SupplyLinePanel"				Anchor="R,B" Offset="174,200"	Size="310,180" Texture="UnitPanel_SpecialActionsFrame" SliceCorner="14,14" >
+		<Stack 					ID="SupplyLineTopStack" StackGrowth="Down" StackPadding="1">
+			<Container ID="BuildingFilterButtonContainer" Anchor="C,B" Size="parent,auto">
+				  <!-- -->
+				      <Grid								ID="YieldsArea"						Anchor="R,T" Offset="6,5"		Size="parent-12,27"	Texture="CityPanel_YieldBacking"	SliceCorner="6,12"	SliceSize="17,1" SliceTextureSize="29,25">
+				  <!-- -->
+					  <Grid																				Anchor="L,B" Offset="-,-3"		Size="parent,5"				Texture="SelectionPanel_TopRim"		SliceCorner="2,3"		SliceSize="10,1" SliceTextureSize="14,5" />
+					  <Stack						ID="YieldStack"						Anchor="C,C" Offset="3,0"			StackGrowth="Right" StackPadding="-5" >
+						<Grid						ID="HousingGrid"					Style="CityPanelFilterGrid" >
+						  <CheckBox			ID="HousingCheck"					Style="CityPanelCBCulture" String="I" />
+						  <Button				ID="HousingIgnore"				Style="CityPanelIgnoreYieldButton" />
+						</Grid>
+						<Grid						ID="CultureGrid"					Style="CityPanelFilterGrid" >
+						  <CheckBox			ID="CultureCheck"					Style="CityPanelCBCulture" String="II" />
+						  <Button				ID="CultureIgnore"				Style="CityPanelIgnoreYieldButton" />
+						</Grid>
+
+						<Grid						ID="FoodGrid"							Style="CityPanelFilterGrid" >
+						  <CheckBox			ID="FoodCheck"						Style="CityPanelCBFood" String="III" />
+						  <Button				ID="FoodIgnore"						Style="CityPanelIgnoreYieldButton" />
+						</Grid>
+						<Grid						ID="ProductionGrid"				Style="CityPanelFilterGrid" >
+						  <CheckBox			ID="ProductionCheck"			Style="CityPanelCBProduction" String="IV" />
+						  <Button				ID="ProductionIgnore"			Style="CityPanelIgnoreYieldButton" />
+						</Grid>
+						<Grid						ID="ScienceGrid"					Style="CityPanelFilterGrid" >
+						  <CheckBox			ID="ScienceCheck"					Style="CityPanelCBScience" String="V" />
+						  <Button				ID="ScienceIgnore"				Style="CityPanelIgnoreYieldButton" />
+						</Grid>
+						<Grid						ID="FaithGrid"						Style="CityPanelFilterGrid" >
+						  <CheckBox			ID="FaithCheck"						Style="CityPanelCBFaith" String="VI" />
+						  <Button				ID="FaithIgnore"					Style="CityPanelIgnoreYieldButton" />
+						</Grid>
+						<Grid						ID="GoldGrid"							Style="CityPanelFilterGrid" >
+						  <CheckBox			ID="GoldCheck"						Style="CityPanelCBGold" String="VII" />
+						  <Button				ID="GoldIgnore"						Style="CityPanelIgnoreYieldButton" />
+						</Grid>
+					  </Stack>
+					</Grid>
+			</Container>
+			<Container ID="SettingsTitle" Anchor="C,C" Size="parent,auto">
+				<Label			Anchor="C,C" 	Offset="10,2" 	Style="CityPanelText" String="LOC_HUD_UNITPANEL_EQUIPMENT_RESTRICTION" />
+				<!--->
+				<Label			Anchor="R,C" 	Offset="10,2" 	Style="CityPanelText" String="[ICON_Movement][ICON_Housing]" />
+				<!---->
+			</Container>
+			<Stack					ID="SupplyLineStack"				Anchor="C,T" Offset="0,4" StackGrowth="Down" Padding="1" />
+		</Stack>
+      </Grid>	  
+	  
+	  <!-- GCO >>>>>-->
       <Grid							ID="BuildActionsPanel"				Anchor="R,B" Offset="501,0"	Size="51,180" Texture="UnitPanel_SpecialActionsFrame" SliceCorner="14,14" >
         <Button					ID="RecommendedActionButton"	Anchor="C,T" Offset="1,-23" Size="44,53" Texture="UnitPanel_ActionButton"		>
           <Image				ID="RecommendedActionIcon"		Anchor="C,C" Offset="-1,-1" Size="38,38"		/>
@@ -546,6 +597,18 @@
       </Stack>
     </Container>
   </Instance>
+  
+  <!-- GCO <<<<<-->
+  <Instance			Name="Supply">
+	<Grid			ID="Top"								Offset="2,0" Size="parent-15,auto"	Style="CityPanelSubPanelContainer" AutoSizePadding="0,0" MinSize="22,22">
+		<Grid			ID="SupplyInGrid"			Anchor="L,C"			Style="CityPanelFilterGrid" >
+			<CheckBox	ID="SupplyInCheck"						Style="CityPanelCBProduction"/>
+			 <Button	ID="SupplyIgnore"						Style="CityPanelIgnoreYieldButton" />
+		</Grid>
+		<Label			ID="SupplyType"			Anchor="L,C" 	Offset="30,0" 	Style="CityPanelText" String="$BuildingName$" WrapWidth="200"/>
+	</Grid>
+  </Instance>
+  <!-- GCO >>>>>-->
 </Context>
 
 
