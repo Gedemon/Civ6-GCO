@@ -99,6 +99,8 @@ INSERT INTO CivilizationConfiguration
 --(	'VENEZUELA',	'StandardPlayers',	NULL,					NULL,					'BLUE',			'SOUTHAM',	'CARACAS',		'Venezuela',		'Venezuelan',	'Bolivarian Republic of Venezuela',     'Venezuelan Government'	),
 (	'VIETNAM',		'StandardPlayers',	NULL,					NULL,					'RED',			'ASIAN',	'HANOI',		'Vietnam',			'Vietnamese',	'Socialist Republic of Vietnam',		'Vietnamese Government'	),
 
+(	'BARB_PEACE',	'StandardPlayers',	'RED',					'BLACK',				'RED',			'EURO',		'GROKVIL',		'Peaceful Barbs',	'Barbarians',	'Barbarian Horde',						'Barbarian WarChiefs'	),
+
 (	'END_OF_INSERT',	NULL,			NULL,					NULL,					NULL,			NULL,		NULL,			NULL,				NULL,			NULL,									NULL						);	
 -----------------------------------------------
 

@@ -144,3 +144,41 @@ function Deepcompare(t1,t2,test_mt)
 	end
 	return true
 end
+
+
+-- ===========================================================================
+--	Split()
+--	Allows splitting a string (tokenizing) into an array based on a delimeter.
+--	Original version from: http://lua-users.org/wiki/SplitJoin
+--	RETURNS: Table of tokenized strings
+-- ===========================================================================
+function Split(str:string, delim:string, maxNb:number)
+	-- Eliminate bad cases...
+    if string.find(str, delim) == nil then
+        return { str }, { [str] = true }
+    end
+    if maxNb == nil or maxNb < 1 then
+        maxNb = 0    -- No limit
+    end
+    local tResult:table = {}; -- to iterate with ipairs
+    local kResult:table = {}; -- kResult[value] = true <- could use directly string.find(str, value) for single check
+    local pat	:string = "(.-)" .. delim .. "()"
+    local nb	:number = 0
+    local lastPos:number
+    for part, pos in string.gmatch(str, pat) do
+        nb = nb + 1
+        tResult[nb] 	= part
+		kResult[part]	= true
+        lastPos = pos
+        if nb == maxNb then 
+			break;
+		end
+    end
+    -- Handle the last field
+    if nb ~= maxNb then
+		local part		= string.sub(str, lastPos)
+        tResult[nb + 1] = part
+		kResult[part]	= true
+    end
+    return tResult, kResult
+end

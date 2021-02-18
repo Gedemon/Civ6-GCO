@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameInfo>	
+	<DiplomaticStatesGCO>
+		
+		<Row StateType="DIPLO_STATE_ALLIED"				/>
+		<Row StateType="DIPLO_STATE_SUZERAIN"			/>
+		<Row StateType="DIPLO_STATE_VASSAL"				/>
+		<Row StateType="DIPLO_STATE_NON_AGRESSION"		/>
+		<Row StateType="DIPLO_STATE_PEACE"				/>
+		<Row StateType="DIPLO_STATE_DENOUNCED"			/>
+		<Row StateType="DIPLO_STATE_TRUCE"				/>
+		<Row StateType="DIPLO_STATE_TERRITORIAL_WAR"	/>
+		<Row StateType="DIPLO_STATE_WAR"				/>
+
+	</DiplomaticStatesGCO>
+	
+	<DiplomaticRelationsGCO>
+		
+		<Row RelationType="DIPLO_RELATION_FRIEND"	/>
+		<Row RelationType="DIPLO_RELATION_CORDIAL"	/>
+		<Row RelationType="DIPLO_RELATION_NEUTRAL" 	/>
+		<Row RelationType="DIPLO_RELATION_TENSE"	/>
+		<Row RelationType="DIPLO_RELATION_ENEMY" 	/>
+
+	</DiplomaticRelationsGCO>
+	
+	<!-- Assuming DIPLO_STATE_WAR/DIPLO_STATE_TERRITORIAL_WAR disable all except when they are listed in <RequiredStateType> -->
+	<DiplomaticDealsGCO>
+		<Row DealType="DIPLO_DEAL_RECRUIT_SINGLE_UNIT"	IsUnit="1" BaseValue="75" Duration="5"/>
+		<Row DealType="DIPLO_DEAL_BRIBE_SINGLE_UNIT"	IsUnit="1" BaseValue="10" Duration="3"/>
+		<Row DealType="DIPLO_DEAL_PAY_UNIT_RANSOM"	 	IsUnit="1" BaseValue="50" IsCivilian="1"/>
+		<Row DealType="DIPLO_DEAL_COASTAL_MAP" 		DisablingCivilizationLevels="CIVILIZATION_LEVEL_TRIBE" RequiredRelationTypes="DIPLO_RELATION_FRIEND,DIPLO_RELATION_CORDIAL"	/>
+		<Row DealType="DIPLO_DEAL_BORDER_MAP" 		DisablingCivilizationLevels="CIVILIZATION_LEVEL_TRIBE"/>
+		<Row DealType="DIPLO_DEAL_CITY_MAP" 		DisablingCivilizationLevels="CIVILIZATION_LEVEL_TRIBE" DisablingStateTypes="DIPLO_STATE_DENOUNCED"	DisablingRelationTypes="DIPLO_RELATION_ENEMY,DIPLO_RELATION_TENSE" />
+	</DiplomaticDealsGCO>
+	
+	<DiplomaticTreatiesGCO>
+		<Row TreatyType="DIPLO_TREATY_TRUCE" RequiredStateTypes="DIPLO_STATE_WAR,DIPLO_STATE_TERRITORIAL_WAR"						TreatyStateType="DIPLO_STATE_TRUCE"/>
+		<Row TreatyType="DIPLO_TREATY_PEACE" RequiredStateTypes="DIPLO_STATE_WAR,DIPLO_STATE_TERRITORIAL_WAR, DIPLO_STATE_TRUCE"	TreatyStateType="DIPLO_STATE_PEACE"/>
+	</DiplomaticTreatiesGCO>
+	
+	<DiplomaticSuzeraintyTypeGCO>
+		
+		<Row SuzeraintyType="SUZERAINTY_SATELLITE_STATE"	/>
+		<Row SuzeraintyType="SUZERAINTY_ASSOCIATED_STATE"	/>
+		<Row SuzeraintyType="SUZERAINTY_COLONY" 			/>
+		<Row SuzeraintyType="SUZERAINTY_PROTECTORATE"		/>
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE"		/>
+		<Row SuzeraintyType="SUZERAINTY_TRIBUTARY_STATE" 	/>
+
+	</DiplomaticSuzeraintyTypeGCO>
+	
+	<DiplomaticSuzeraintyBlockedStatesGCO>
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_VASSAL"	/>
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_SUZERAIN"	/>
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_WAR"		SuzerainRelationLevelTypes="DIPLO_RELATION_FRIEND,DIPLO_RELATION_CORDIAL"/>
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_PEACE"		SuzerainStateTypes="DIPLO_STATE_TERRITORIAL_WAR,DIPLO_STATE_WAR"/>
+	</DiplomaticSuzeraintyBlockedStatesGCO>
+	
+	<DiplomaticSuzeraintyForcedStatesGCO>
+	
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_WAR"	/>
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_PEACE"	/>
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_TERRITORIAL_WAR"	/>
+		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_TRUCE"	/>
+		
+	</DiplomaticSuzeraintyForcedStatesGCO>
+	
+</GameInfo>	

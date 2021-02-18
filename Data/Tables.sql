@@ -914,6 +914,7 @@ CREATE TABLE IF NOT EXISTS SupplyRouteChanges
          RouteLengthEfficiencyChange INT,
          MaxRouteTonnageChange  INT);
 
+-- Modifiers
 CREATE TABLE IF NOT EXISTS ModifiersGCO
      (   ModifierOrigin TEXT NOT NULL,
          OriginType 	TEXT,  -- Buildings, Policies, Technologies, Government <- maybe determine on initialization in ModUtils ?
@@ -929,10 +930,76 @@ CREATE TABLE IF NOT EXISTS EffectsGCO
 		 ValueString	TEXT,
          Application	TEXT,
 		 PRIMARY KEY(EffectType) );
+		 
+-- Diplomacy
+CREATE TABLE DiplomaticStatesGCO
+     (   StateType	 	TEXT NOT NULL,
+         Name 			TEXT,
+		 PRIMARY KEY(StateType)
+	 );
+		 
+CREATE TABLE DiplomaticRelationsGCO
+     (   RelationType 	TEXT NOT NULL,
+         Name 			TEXT,
+		 PRIMARY KEY(RelationType)
+	 );
+
+CREATE TABLE DiplomaticDealsGCO (
+		DealType TEXT NOT NULL,
+		Name TEXT,
+		IsUnit BOOLEAN NOT NULL CHECK (IsUnit IN (0,1)) DEFAULT 0,
+		IsCivilian BOOLEAN NOT NULL CHECK (IsCivilian IN (0,1)) DEFAULT 0,
+		BaseValue INT,
+		Duration INT,
+		RequiredRelationTypes TEXT,
+		DisablingRelationTypes TEXT,
+		RequiredCivilizationLevels TEXT,
+		DisablingCivilizationLevels TEXT,
+		RequiredStateTypes TEXT,
+		DisablingStateTypes TEXT,
+		PRIMARY KEY(DealType)
+	);
+
+CREATE TABLE DiplomaticTreatiesGCO (
+		TreatyType TEXT NOT NULL,
+		Name TEXT,
+		BaseValue INT,
+		Duration INT,
+		TreatyStateType TEXT NOT NULL,	-- The diplomatic state both nation are in while the treaty is in effect
+		RequiredRelationTypes TEXT,
+		DisablingRelationTypes TEXT,
+		RequiredCivilizationLevels TEXT,
+		DisablingCivilizationLevels TEXT,
+		RequiredStateTypes TEXT,
+		DisablingStateTypes TEXT,
+		PRIMARY KEY(TreatyType)
+	);
+	
+CREATE TABLE DiplomaticSuzeraintyTypeGCO
+     (   SuzeraintyType	TEXT NOT NULL,
+         Name 			TEXT,
+		 PRIMARY KEY(SuzeraintyType)
+	 );
+
+CREATE TABLE DiplomaticSuzeraintyBlockedStatesGCO (
+		SuzeraintyType TEXT NOT NULL,
+		StateType TEXT  NOT NULL,
+		SuzerainRelationLevelTypes TEXT,
+		SuzerainStateTypes TEXT,
+		PRIMARY KEY(SuzeraintyType, StateType)
+	);
+
+CREATE TABLE DiplomaticSuzeraintyForcedStatesGCO (
+		SuzeraintyType TEXT NOT NULL,
+		StateType TEXT  NOT NULL,
+		SuzerainRelationLevelTypes TEXT,
+		SuzerainStateTypes TEXT,
+		PRIMARY KEY(SuzeraintyType, StateType)
+	);
 
 		 
--- Create a new Colors table because we need one accessible from gameplay and if we use the old one
--- the game seems to mess up (human player = full white)		 
+-- Create a new Colors table because we need one accessible from gameplay 
+-- and if we use the old one the game seems to mess up (human player = full white)		 
 CREATE TABLE IF NOT EXISTS ColorsLegacy ('Type' text  not null , 'Color' text , 'Red' float , 'Green' float , 'Blue' float , 'Alpha' float , PRIMARY KEY (Type));
 
 -----------------------------------------------

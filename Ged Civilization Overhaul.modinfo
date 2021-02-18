@@ -107,6 +107,7 @@
 			<File>UI/UnitPanel.xml</File>
 			<File>UI/WorldViewIconsManager.lua</File>
 			<File>UI/WorldViewIconsManager.xml</File>
+			<File>UI/AddOn/AdvancedSetup_GCO.lua</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
             <File>Scripts/GCO_PlayerConfig.lua</File>
@@ -140,6 +141,7 @@
 		    </Properties>
             <File>Scripts/GCO_PlayerScript.lua</File>
             <File>Scripts/GCO_CityScript.lua</File>
+			<File>Scripts/GCO_DiplomacyScript.lua</File>
             <File>Scripts/GCO_UnitScript.lua</File>
             <File>Scripts/GCO_PlotScript.lua</File>
             <File>Scripts/GCO_GameScript.lua</File>
@@ -154,10 +156,11 @@
 			<Properties>
 				<Context>InGame</Context>
 			</Properties>
-                <File>Scripts/GCO_SaveLoad.xml</File>
-                <File>Scripts/GCO_ContextFunctions.xml</File>
-                <File>Scripts/GCO_VisualizerScript.xml</File>
+                <File>InGame/GCO_SaveLoad.xml</File>
+                <File>InGame/GCO_ContextFunctions.xml</File>
+                <File>InGame/GCO_VisualizerScript.xml</File>
 				<File>InGame/GCO_ModInGame.xml</File>
+				<File>InGame/GCO_DiploScreen.xml</File>
         </AddUserInterfaces>
 		
 		<UpdateDatabase id="GCO_PRE_COMPONENT">
@@ -173,6 +176,7 @@
 				<File Priority="100">Data/GlobalParameters.sql</File>
 				<File Priority="100">Data/GamePlay.xml</File>
 				<File Priority="100">Data/Buildings.xml</File>
+				<File Priority="100">Data/Diplomacy.xml</File>
 				<File Priority="100">Data/Units.xml</File>
 				<File Priority="100">Data/Equipment.xml</File>
 				<File Priority="100">Data/Resources.xml</File>
@@ -270,6 +274,7 @@
 		</UpdateIcons>
 		<ImportFiles id="GCO_ART_IMPORT">
 			<File>Art/MainLogoGCO.dds</File>
+			<File>UI/AddOn/AdvancedSetup_GCO.lua</File>
 		</ImportFiles>
 		<UpdateColors id="GCO_COLORS">
            	<Properties>
@@ -305,6 +310,7 @@
 		<File>Text/CityNamesText.xml</File>
 		<File>Text/ConfigText.xml</File>
 		<File>Data/Buildings.xml</File>
+		<File>Data/Diplomacy.xml</File>
 		<File>Data/Units.xml</File>
 		<File>Data/Equipment.xml</File>
 		<File>Data/Resources.xml</File>
@@ -325,16 +331,11 @@
 		<File>Scripts/GCO_ModUtils.lua</File>
 		<File>Scripts/GCO_PlayerScript.lua</File>
 		<File>Scripts/GCO_CityScript.lua</File>
+		<File>Scripts/GCO_DiplomacyScript.lua</File>
 		<File>Scripts/GCO_UnitScript.lua</File>
 		<File>Scripts/GCO_PlotScript.lua</File>
 		<File>Scripts/GCO_GameScript.lua</File>
 		<File>Scripts/GCO_ResearchScript.lua</File>
-		<File>Scripts/GCO_SaveLoad.lua</File>
-		<File>Scripts/GCO_SaveLoad.xml</File>
-		<File>Scripts/GCO_ContextFunctions.lua</File>
-		<File>Scripts/GCO_ContextFunctions.xml</File>
-		<File>Scripts/GCO_VisualizerScript.lua</File>
-		<File>Scripts/GCO_VisualizerScript.xml</File>
 		<File>Scripts/GCO_Serialize.lua</File>
 		<File>Scripts/GCO_RouteConnections.lua</File>
 		<File>Scripts/GCO_PlotIterators.lua</File>
@@ -342,8 +343,16 @@
         <File>Scripts/GCO_SmallUtils.lua</File>
         <File>Scripts/GCO_TypeEnum.lua</File>
 		<File>Scripts/GCO_PlayerConfig.lua</File>
+		<File>InGame/GCO_ContextFunctions.lua</File>
+		<File>InGame/GCO_ContextFunctions.xml</File>
+		<File>InGame/GCO_DiploScreen.lua</File>
+		<File>InGame/GCO_DiploScreen.xml</File>
 		<File>InGame/GCO_ModInGame.lua</File>
 		<File>InGame/GCO_ModInGame.xml</File>
+		<File>InGame/GCO_SaveLoad.lua</File>
+		<File>InGame/GCO_SaveLoad.xml</File>
+		<File>InGame/GCO_VisualizerScript.lua</File>
+		<File>InGame/GCO_VisualizerScript.xml</File>
 		<File>UI/CityBannerManager.lua</File>
 		<File>UI/CityBannerManager.xml</File>
 		<File>UI/CityPanel.lua</File>
@@ -381,6 +390,7 @@
 		<File>UI/WorldViewIconsManager.xml</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>UI/Replacements/StatusMessagePanel_GCO.lua</File>
+		<File>UI/AddOn/AdvancedSetup_GCO.lua</File>
 		<File>Art/dom_blank.dds</File>
 		<File>Art/GCO_FontIcons.dds</File>
 		<File>Art/GCO_FontIconsSymbols.dds</File>

@@ -677,7 +677,7 @@ function ViewPanelBreakdown( data:table )
 							for resourceCreatedID, multiReqRows in pairs(GCO.GetMultiResRequiredProduction(pRow.Index)) do
 								local kInstanceMultiResReq:table	= m_kMultiResReqIM:GetInstance(kInstanceBuild.ResProdStack);
 								local resCreatedName 				= GCO.GetResourceIcon(resourceCreatedID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceCreatedID].Name)
-								local totalCreated					= 0
+								local maxCreated					= math.huge
 								local bUsageEnabled					= GCO.IsMultiToSingleProductionEnabled(kSettings[ProductionSettingsType.MultiToSingle], resourceCreatedID)
 								local numTypeRequired				= #multiReqRows > 0 and #multiReqRows or 1
 								local totalWeigth					= 0
@@ -687,18 +687,14 @@ function ViewPanelBreakdown( data:table )
 									local resourceRequiredID		= prodRow.ResourceRequired
 									local resRequiredName 			= GCO.GetResourceIcon(resourceRequiredID) .. " " ..Locale.Lookup(GameInfo.Resources[resourceRequiredID].Name)
 									local maxConverted	 			= prodRow.MaxConverted * RequiredResourceFactor * data.OutputPerYield
-									local ratio 					= prodRow.Ratio * ProducedResourceFactor
-									totalWeigth						= totalWeigth + ratio
-									totalCreated					= totalCreated + maxConverted
+									maxCreated						= math.min(maxCreated, (maxConverted * prodRow.Ratio)) -- simplification
 									if not bUsageEnabled then
 										maxConverted = 0
 									end
-								
 									kInstanceResInProd.ResIn:SetText(tostring(GCO.Round(maxConverted))..resRequiredName)
 								end
 								
-								local prodRatio	= GCO.Divide(totalWeigth, numTypeRequired)
-								local created	= GCO.Round(totalCreated * prodRatio)
+								local created	= maxCreated	
 								
 								if bUsageEnabled then
 									kInstanceMultiResReq.ResProdCheck:SetCheck(true)

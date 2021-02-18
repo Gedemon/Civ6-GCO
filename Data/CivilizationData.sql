@@ -25,6 +25,10 @@ INSERT OR REPLACE INTO Civilizations (CivilizationType, Name, Description, Adjec
 	SELECT	'CIVILIZATION_' || Name, 'LOC_CIVILIZATION_' || Name || '_NAME', 'LOC_CIVILIZATION_' || Name || '_DESCRIPTION', 'LOC_CIVILIZATION_' || Name || '_ADJECTIVE', 'CIVILIZATION_LEVEL_FULL_CIV', 10, 'ETHNICITY_' || Ethnicity
 	FROM CivilizationConfiguration;
 	
+UPDATE Civilizations SET StartingCivilizationLevelType='CIVILIZATION_LEVEL_TRIBE' WHERE CivilizationType='CIVILIZATION_BARB_PEACE';
+UPDATE Leaders SET InheritFrom='LEADER_MINOR_CIV_DEFAULT' WHERE LeaderType='LEADER_BARB_PEACE';
+--LEADER_MINOR_CIV_DEFAULT
+	
 -- <CivilizationLeaders>
 DELETE FROM CivilizationLeaders;
 INSERT OR REPLACE INTO CivilizationLeaders (CivilizationType, LeaderType, CapitalName)

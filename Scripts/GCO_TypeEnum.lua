@@ -6,9 +6,19 @@
 print ("Loading GCO_TypeEnum.lua...")
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
+-- Diplomacy Table Types
+--=====================================================================================--
+DiplomacyTypes	= {	-- ENUM for Diplomacy Table Types (string as it it used as a key for saved table)
+		Deals		= "1",
+		Treaties	= "2",
+		State		= "3",
+}
+
+
+--=====================================================================================--
 -- Gossips SubTypes
------------------------------------------------------------------------------------------
+--=====================================================================================--
 
 GossipsSubType	= {	-- ENUM for StatusMessage Subtypes - to do: loop on the Gossips table and get the first index from GroupType instead of using GossipType that may change in patches/mods
 		Science			= GameInfo.Gossips["GOSSIP_ERA_CHANGED"].Index,
@@ -23,9 +33,9 @@ GossipsSubType	= {	-- ENUM for StatusMessage Subtypes - to do: loop on the Gossi
 		Settlement		= GameInfo.Gossips["GOSSIP_FOUND_CITY"].Index,
 		Victory			= GameInfo.Gossips["GOSSIP_SPACE_RACE_PROJECT_COMPLETED"].Index,
 }
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Treasury
------------------------------------------------------------------------------------------
+--=====================================================================================--
 AccountType	= {	-- ENUM for treasury changes (string as it it used as a key for saved table)
 
 		Production 			= "1",	-- Expense for city Production
@@ -35,6 +45,7 @@ AccountType	= {	-- ENUM for treasury changes (string as it it used as a key for 
 		DistrictMaintenance	= "6",	-- Expense for district Maintenance (vanilla)
 		Repair				= "11",	-- Expense for healing city garrison or walls
 		Repay				= "12",	-- Expense for repaying the debt
+		Recruit				= "15",	-- Expense for recruiting units
 		
 		ImportTaxes			= "7",	-- Income from Import Taxes
 		ExportTaxes			= "8",	-- Income from Export Taxes
@@ -45,9 +56,9 @@ AccountType	= {	-- ENUM for treasury changes (string as it it used as a key for 
 }
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Trade
------------------------------------------------------------------------------------------
+--=====================================================================================--
 TradeLevelType	= {	-- ENUM for trade route level types
 
 		Limited 	= 1,	-- Trade Limited to non-luxury food
@@ -57,9 +68,9 @@ TradeLevelType	= {	-- ENUM for trade route level types
 }
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Units
------------------------------------------------------------------------------------------
+--=====================================================================================--
 UnitPersonnelType	= {	-- ENUM for type of Unit
 
 		StandingArmy 	= 1,	-- Permanent units
@@ -68,9 +79,9 @@ UnitPersonnelType	= {	-- ENUM for type of Unit
 }
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Cities
------------------------------------------------------------------------------------------
+--=====================================================================================--
 
 ProductionTypes = {
 		UNIT		= 0,
@@ -87,9 +98,9 @@ SupplyRouteType	= {	-- ENUM for resource trade/transfer route types
 		Airport	= 6
 }
 	
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Resources - to do : those are helpers, to move to mod utils with related functions
------------------------------------------------------------------------------------------
+--=====================================================================================--
 IsImprovementForResource		= {} -- cached table to check if an improvement is meant for a resource
 ResourceImprovementID			= {} -- cached table with improvementID meant for resourceID
 for row in GameInfo.Improvement_ValidResources() do
@@ -103,12 +114,16 @@ end
 -- Special cases
 local resourceWoodID	= GameInfo.Resources["RESOURCE_WOOD"].Index
 local resourcePlantsID	= GameInfo.Resources["RESOURCE_PLANTS"].Index
+local resourceClayID	= GameInfo.Resources["RESOURCE_CLAY"].Index
 local lumberMillsID		= GameInfo.Improvements["IMPROVEMENT_LUMBER_MILL"].Index
 local plantationID		= GameInfo.Improvements["IMPROVEMENT_PLANTATION"].Index
+local quarryID			= GameInfo.Improvements["IMPROVEMENT_QUARRY"].Index
 IsImprovementForResource[lumberMillsID] 					= {[resourceWoodID] 	= true}
 IsImprovementForResource[plantationID][resourcePlantsID] 	= true
+IsImprovementForResource[quarryID][resourceClayID] 			= true
 ResourceImprovementID[resourceWoodID] 						= lumberMillsID
 ResourceImprovementID[resourcePlantsID] 					= plantationID
+ResourceImprovementID[resourceClayID] 						= quarryID
 
 IsImprovementForFeature			= {} -- cached table to check if an improvement is meant for a feature
 for row in GameInfo.Improvement_ValidFeatures() do
@@ -191,9 +206,9 @@ UnitEquipmentSettings = { -- ENUM to save/get Buildings resources production set
 	NoUse		= "3",
 }
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Equipment - to do : those are helpers, to move to mod utils with related functions ?
------------------------------------------------------------------------------------------
+--=====================================================================================--
 EquipmentInfo = {}	-- Helper to get equipment info from Resource ID
 for row in GameInfo.Equipment() do
 	local equipmentType = row.ResourceType
@@ -238,9 +253,9 @@ for row in GameInfo.MilitaryFormationStructures() do
 end
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Activities & Employment
------------------------------------------------------------------------------------------
+--=====================================================================================--
 CityEmploymentPow 	= {
 	["ERA_ANCIENT"] 		= 2.00 , --1.00 ,
 	["ERA_CLASSICAL"] 		= 2.05 , --1.10 ,
@@ -309,9 +324,9 @@ BaseUrbanPercent 		= {
 }
 
 
------------------------------------------------------------------------------------------
+--=====================================================================================--
 -- Custom Tooltips Tabs & Modes
------------------------------------------------------------------------------------------
+--=====================================================================================--
 resourceTabs			= {"LOC_CITYBANNER_TOOLTIP_STOCK_TAB", "LOC_CITYBANNER_TOOLTIP_PRODUCTION_TAB", "LOC_CITYBANNER_TOOLTIP_TRADE_TAB"}
 resourceModes			= {"LOC_CITYBANNER_TOOLTIP_RESOURCE_SIMPLE_MOD", "LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD", "LOC_CITYBANNER_TOOLTIP_RESOURCE_CONDENSED_MOD"}
 

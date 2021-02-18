@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- ======================================================================================
 
 DEBUG_CITY_SCRIPT 	= "CityScript"
-DEBUG_CITY_TURN		= true			-- use pcall for cities turn (slow down processing speed but returns silent errors)
+DEBUG_CITY_TURN		= false			-- use pcall for cities turn (slow down processing speed but returns silent errors)
 
 function ToggleDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -5775,9 +5775,14 @@ function DoReinforceUnits(self)
 				-- Send excedent back to city
 				local income = 0
 				for resourceID, value in pairs(unitExcedent) do
-					local toTransfert = math.min(self:GetMaxStock(resourceID) - self:GetStock(resourceID), value)
-					if resourceID == personnelResourceID 	then toTransfert = value end -- city can convert surplus in personnel to population
-					if GCO.IsResourceEquipment(resourceID)  then toTransfert = value end -- don't allow units to keep equipment surplus
+					-- Special cases:
+					-- 		+ city can convert surplus in personnel to population
+					-- 		+ we don't allow units to keep equipment surplus
+					--		+ some food resources are not stocked but the city want them
+					local maxStock		= self:GetMaxStock(resourceID)
+					local bIgnoreLimit	= (GCO.IsResourceFood(resourceID) and maxStock == 0) or (resourceID == personnelResourceID) or GCO.IsResourceEquipment(resourceID)
+					local toTransfert 	= bIgnoreLimit and value or math.min(maxStock - self:GetStock(resourceID), value)
+
 					if toTransfert > 0 then
 						local sellPrice = math.max(self:GetMinimumResourceCost(resourceID), self:GetResourceCost(resourceID) / 2)
 						income		= income + (sellPrice * toTransfert)
@@ -8196,7 +8201,7 @@ function OnPlayerCityAction(iPlayer : number, kParameters : table)
 
 		pCity:RecruitUnits( unitRow.UnitType, 1, UnitPersonnelType.StandingArmy, sortedEquipmentList, personnel)
 		
-		pPlayer:ProceedTransaction(AccountType.Production, -goldCost)
+		pPlayer:ProceedTransaction(AccountType.Recruit, -goldCost)
 		
 		Dprint( DEBUG_CITY_SCRIPT, "- Clearing BuildingQueueStock...")
 		pCity:ClearBuildingQueueStock(unitRow.UnitType)
@@ -8208,7 +8213,6 @@ function OnPlayerCityAction(iPlayer : number, kParameters : table)
 		pCity:SetUnlockers()
 	end
 end
-
 GameEvents.PlayerCityAction.Add(OnPlayerCityAction)
 
 function OnPlayerCityProductionSettings(iPlayer : number, kParameters : table)

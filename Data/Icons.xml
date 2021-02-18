@@ -774,6 +774,8 @@
 		<Row Name="MOUSE_RIGHT"					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="199"/>
 		<Row Name="UP_DOWN"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="200"/>
 		<Row Name="LOCKED"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="63"/>
+		<Row Name="PEACE"						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="49"/>
+		<Row Name="WAR"							Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="48"/>
 		
 		<Row Name="HEALTH" 						Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="145"/>
 		<Row Name="HEALTH2" 					Atlas="ICON_GCO_ATLAS_FONT_ICON_BASELINE_6" Index="147"/>

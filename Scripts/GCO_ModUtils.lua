@@ -1379,6 +1379,10 @@ function IsKnowledgeResource(resourceID)
 			)
 end
 
+function IsScholarResource(resourceID)
+	return GameInfo.Resources[resourceID] and GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_KNOWLEDGE"
+end
+
 --=====================================================================================--
 -- Units
 --=====================================================================================--
@@ -1766,6 +1770,7 @@ function Initialize()
 	ExposedMembers.GCO.GetResourceImprovementID			= GetResourceImprovementID
 	ExposedMembers.GCO.IsImprovingResource				= IsImprovingResource
 	ExposedMembers.GCO.IsKnowledgeResource				= IsKnowledgeResource
+	ExposedMembers.GCO.IsScholarResource				= IsScholarResource
 	ExposedMembers.GCO.IsAdministrativeResource			= IsAdministrativeResource
 	ExposedMembers.GCO.GetAdministrativeResourceValue	= GetAdministrativeResourceValue
 	-- texts
@@ -1808,6 +1813,7 @@ function Cleaning()
 	ExposedMembers.PlotIterator_Initialized		= nil
 	ExposedMembers.PlotScript_Initialized 		= nil
 	ExposedMembers.CityScript_Initialized 		= nil
+	ExposedMembers.GameScript_Initialized 		= nil
 	ExposedMembers.UnitScript_Initialized		= nil
 	ExposedMembers.PlayerScript_Initialized 	= nil
 	ExposedMembers.ResearchScript_Initialized	= nil
@@ -1820,6 +1826,8 @@ function Cleaning()
 	ExposedMembers.PlayerData 					= nil
 	ExposedMembers.CultureMap 					= nil
 	ExposedMembers.PreviousCultureMap 			= nil
+	ExposedMembers.PlotData						= nil
+	ExposedMembers.MigrationMap					= nil
 	ExposedMembers.GCO 							= nil
 	ExposedMembers.lastCombat					= nil
 	--

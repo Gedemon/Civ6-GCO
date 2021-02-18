@@ -209,6 +209,7 @@
 	<Replace Tag="LOC_TOP_PANEL_REINFORCEMENT_EXPENSE"	Text="{1_Num : number +#.#;-#.#} from reinforcements to units"	Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_REPAIR_EXPENSE"			Text="{1_Num : number +#.#;-#.#} from city reparations"			Language="en_US" />
 	<Replace Tag="LOC_TOP_PANEL_REPAY_EXPENSE"			Text="{1_Num : number +#.#;-#.#} from repaying the Debt"		Language="en_US" />
+	<Replace Tag="LOC_TOP_PANEL_RECRUIT_EXPENSE"		Text="{1_Num : number +#.#;-#.#} from recruiting units"			Language="en_US" />
 	
 	<Replace Tag="LOC_TOP_PANEL_DEBT_TOOLTIP"			Text="The value of your Debt[NEWLINE][NEWLINE]Repayment is taken from your net income.[NEWLINE]A large debt may lower your Empire stability." Language="en_US" />
 
@@ -836,6 +837,21 @@
 	
   </LocalizedText>	
  
+  <LocalizedText> <!-- Diplomacy Texts -->
+		
+    <Replace Tag="LOC_DIPLOMACY_NO_TREASURY_FOR_DEAL" Language="en_US">
+      <Text>Not enough Treasury.[NEWLINE]Missing {1_Num : number #} [ICON_Gold] for that Deal.</Text>
+    </Replace>
+	<Replace Tag="LOC_DIPLOMACY_NO_DEAL_MULTIPLE_UNITS" Language="en_US">
+      <Text>No independent deal possible when multiple units are at the same location.</Text>
+    </Replace>
+	<Replace Tag="LOC_DIPLOMACY_NO_DEAL_GARRISON_UNIT" Language="en_US">
+      <Text>No contact possible for Deals with units in Forts, Tribal Villages or Camps.</Text>
+    </Replace>
+
+	
+  </LocalizedText>
+ 
   <LocalizedText> <!-- Needs Effects -->
     <Replace Tag="LOC_BIRTHRATE_PER_1000" Language="en_US">
       <Text>[ICON_Birth]{1_Num: number ##.##} Birth per 1000.</Text>
@@ -1039,6 +1055,29 @@
       <Text>[ICON_Science]{1_Name} unlocked.{2_Name}</Text>
     </Replace>
 	
+  </LocalizedText>
+  
+  <LocalizedText> <!-- Modifiers Effects -->
+	
+	<Replace Tag="LOC_ACTIVE_MODIFIERS" Text="Active Modifiers" Language="en_US" />
+	
+	<Replace Tag="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" Text="Territory Cost"								Language="en_US" />
+	<Replace Tag="LOC_RAISE_CITY_SEA_RANGE" 				Text="Sea Exploitation Range"						Language="en_US" />
+	<Replace Tag="LOC_NEW_COPY_TECH_RESOURCE" 				Text="Copy of researched Scrolls, Books, Tablets"	Language="en_US" />
+
+	<Replace Tag="LOC_MODIFIER_ADD_VALUE" Language="en_US">
+	  <Text>+{1_Num} from {2_Name}.</Text>
+	</Replace>
+	<Replace Tag="LOC_MODIFIER_GREEN_ADD_VALUE" Language="en_US">
+	  <Text>[COLOR_Civ6Green]+{1_Num}[ENDCOLOR] from {2_Name}.</Text>
+	</Replace>
+		
+	<Replace Tag="LOC_MODIFIER_GREEN_REMOVE_PERCENT_TO_FROM" Language="en_US">
+	  <Text>[COLOR_Civ6Green]-{1_Num : number #.##}[ENDCOLOR]% to {2_Name} from {3_Name}.</Text>
+	</Replace>
+	<Replace Tag="LOC_MODIFIER_REMOVE_PERCENT_TO_FROM" Language="en_US">
+	  <Text>-{1_Num : number #.##}% to {2_Name} from {3_Name}.</Text>
+	</Replace>
   </LocalizedText>
   
   <LocalizedText> <!-- Plot ToolTip Texts -->
@@ -1488,33 +1527,27 @@
 	<Replace Tag="LOC_UNITFLAG_TURNS_LEFT_BEFORE_DISBANDING" Language="en_US">
       <Text>{1_Num} [ICON_Turn] left before disbanding</Text>
     </Replace>
+	<Replace Tag="LOC_UNITFLAG_TURNS_LEFT_TRUCE" Language="en_US">
+      <Text>{1_Num} [ICON_Turn] of truce left</Text>
+    </Replace>
+	<Replace Tag="LOC_UNITFLAG_TURNS_LEFT_MERCENARY" Language="en_US">
+      <Text>Hired Mercenaries, {1_Num} [ICON_Turn] left</Text>
+    </Replace>
 	<Replace Tag="LOC_UNITFLAG_DISBANDING_LOCKED_BY_WAR" Language="en_US">
       <Text>No disbanding allowed during a war</Text>
     </Replace>
 	<Replace Tag="LOC_UNITFLAG_CURRENTLY_DISBANDING" Language="en_US">
       <Text>Disbanding since [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] [ICON_Turn]</Text>
     </Replace>
-	
-	
-
   </LocalizedText>
 
-  <LocalizedText>	<!-- UnitPanel Texts --> 
+  <LocalizedText> <!-- UnitPanel Texts --> 
     <Replace Tag="LOC_HUD_UNITPANEL_SHOW_HIDE_SETTINGS" Language="en_US">
       <Text>Show/Hide Unit's Settings</Text>
     </Replace>
     <Replace Tag="LOC_HUD_UNITPANEL_EQUIPMENT_RESTRICTION" Language="en_US">
       <Text>Equipment Restriction</Text>
     </Replace>
-  </LocalizedText>
-  
-  <LocalizedText> <!-- Yields -->
-		
-    <Replace Tag="LOC_YIELD_HEALTH_NAME" 			Text="Health"				Language="en_US" />
-    <Replace Tag="LOC_YIELD_UPPER_HOUSING_NAME" 	Text="Upper Class Housing"	Language="en_US" />
-    <Replace Tag="LOC_YIELD_MIDDLE_HOUSING_NAME" 	Text="Middle Class Housing"	Language="en_US" />
-    <Replace Tag="LOC_YIELD_LOWER_HOUSING_NAME" 	Text="Lower Class Housing"	Language="en_US" />
-    <Replace Tag="LOC_YIELD_ADMINISTRATION_NAME" 	Text="Administration"		Language="en_US" />
   </LocalizedText>
   
   <LocalizedText> <!-- Government Naming (generic) -->

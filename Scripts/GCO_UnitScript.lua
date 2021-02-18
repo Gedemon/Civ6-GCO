@@ -18,7 +18,7 @@ include( "GCO_SmallUtils" )
 
 DEBUG_UNIT_SCRIPT 	= "UnitScript"
 DEBUG_LOCAL_COMBAT	= false			-- show logs for local player combats
-DEBUG_UNIT_TURN		= true			-- use pcall for units turn (slow down processing speed but returns silent errors)
+DEBUG_UNIT_TURN		= false			-- use pcall for units turn (slow down processing speed but returns silent errors)
 
 function ToggleDebug()
 	DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT == "UnitScript" and "debug" or "UnitScript"
@@ -443,6 +443,7 @@ local unitTableEnum = {
 	Health						= 57,
 	TurnsAtSea					= 58,
 	Settings					= 59,
+	PreviousOwner				= 60,
 	
 	EndOfEnum				= 99
 }                           
@@ -1290,9 +1291,12 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 	prevPlayerUnits:Destroy(oldUnit)
 	
 	-- Create the new unit
-	if type(newUnitType) == "number" then
+	if type(newUnitType) == "number" then --and newPlayerUnits then
 		newUnit = newPlayerUnits:Create(newUnitType, plotX, plotY) -- type ID
 	else
+		--if type(newUnitType) == "number" then
+		--	newUnitType = GameInfo.Units[newUnitType].unitType
+		--end
 		newUnit = UnitManager.InitUnit(playerID, newUnitType, plotX, plotY) -- type text
 	end
 	
@@ -1905,8 +1909,12 @@ function GetAllSurplus(self) -- Return all resources that can be transfered back
 	-- get excedent from reserve
 	local personnelSurplus	= math.max(0, self:GetStock(personnelResourceKey) - self:GetMaxPersonnelReserve())
 	local foodSurplus		= math.max(0, self:GetStock(foodResourceKey) - self:GetMaxFoodStock())
+	local medicineSurplus	= math.max(0, self:GetStock(medicineResourceKey) - self:GetMaxMedicineStock())
+	
 	if personnelSurplus > 0 then excedent[personnelResourceID]	= personnelSurplus end
-	if foodSurplus 		> 0 then excedent[foodResourceID]	= foodSurplus end
+	if foodSurplus 		> 0 then excedent[foodResourceID]		= foodSurplus end
+	if medicineSurplus 	> 0 then excedent[medicineResourceID]	= medicineSurplus end
+	
 
 	-- all resource in "stock" (ie not "reserve") can be send to city
 	for resourceKey, value in pairs(unitData.Stock) do
@@ -4348,18 +4356,22 @@ function OnCombat( combatResult )
 	-- Plundering (with some bonuses to attack)
 	---==========================================---
 	
-	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
-	--Dprint( DEBUG_UNIT_SCRIPT, "-- Plundering in Combat #"..tostring(combatCount))
-	--Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
+	Dprint( DEBUG_UNIT_SCRIPT, "-- Plundering in Combat #"..tostring(combatCount))
+	Dprint( DEBUG_UNIT_SCRIPT, "--++++++++++++++++++++++--")
 	
 	if defender.IsLandUnit and combatType == CombatTypes.MELEE then -- and attacker.IsLandUnit (allow raiding on coast ?)
 
 		if defender.IsDead and attacker.unit then
-
+			Dprint( DEBUG_UNIT_SCRIPT, "ATTACKER GAINS")
+			Dprint( DEBUG_UNIT_SCRIPT, "Defender is dead...")
 			attacker.Prisoners 			= defender.Captured + defender.unitData.WoundedPersonnel 	-- capture all the wounded (to do : add prisonners from enemy nationality here)
 			attacker.LiberatedPrisoners = GCO.GetTotalPrisoners(defender.unitData) 					-- to do : recruit only some of the enemy prisonners and liberate own prisonners
 			attacker.FoodGained 		= math.floor(defender.unitData.FoodStock * tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_FOOD_KILL_PERCENT"].Value) / 100)
 			attacker.EquipmentGained 	= {}
+			Dprint( DEBUG_UNIT_SCRIPT, Indentation("Prisoners",30),attacker.Prisoners)
+			Dprint( DEBUG_UNIT_SCRIPT, Indentation("Liberated Prisoners",30), attacker.LiberatedPrisoners)
+			Dprint( DEBUG_UNIT_SCRIPT, Indentation("Food Gained",30), attacker.FoodGained)
 			for equipmentKey, value in pairs(defender.EquipmentLost) do
 				local fromCombatRatio	= attackerEquipmentGainPercent
 				local fromKillRatio		= attackerEquipmentKillPercent
@@ -4369,17 +4381,52 @@ function OnCombat( combatResult )
 				end 
 				local fromCombat		= value * fromCombatRatio / 100
 				local equipmentID		= tonumber(equipmentKey)
-				local equipmentClassID	= GetUnitEquipmentTypeClass(defender.unitType, equipmentID)
-				local fromReserve		= defender.unitData.Equipment[equipmentKey] * fromKillRatio / 100
-				local equipmentGained	= math.floor(fromCombat + fromReserve)
+				--local equipmentClassID	= GetUnitEquipmentTypeClass(defender.unitType, equipmentID)
+				--local fromReserve		= defender.unitData.EquipmentReserve[equipmentKey] * fromKillRatio / 100
+				local equipmentGained	= math.floor(fromCombat)-- + fromReserve)
 				
 				attacker.EquipmentGained[equipmentKey] = equipmentGained
+				
+				Dprint( DEBUG_UNIT_SCRIPT, Indentation(Locale.Lookup(GameInfo.Resources[equipmentID].Name),30), Indentation(equipmentGained,5))
 				
 				-- Update composition
 				if attacker.unit:IsEquipment(equipmentID) then -- maybe a bit faster than letting unit:ChangeStock() handle the distribution
 					attacker.unit:ChangeReserveEquipment(equipmentID, equipmentGained)
 				else
 					attacker.unit:ChangeStock(equipmentID, equipmentGained)
+				end
+			end
+			
+			Dprint( DEBUG_UNIT_SCRIPT, "Pillaging Reserve...")
+			for resourceKey, value in pairs(defender.unitData.EquipmentReserve) do
+				local resourceID 	= tonumber(resourceKey)
+				local looted 		= math.floor(value * attackerEquipmentKillPercent * 0.01)
+				Dprint( DEBUG_UNIT_SCRIPT, Indentation(Locale.Lookup(GameInfo.Resources[resourceID].Name),30), looted)
+				-- Update composition
+				if attacker.unit:IsEquipment(resourceID) then -- maybe a bit faster than letting unit:ChangeStock() handle the distribution
+					attacker.unit:ChangeReserveEquipment(resourceID, looted)
+				else
+					attacker.unit:ChangeStock(resourceID, looted)
+				end
+			end
+			
+			-- Medicine is a special case
+			local lootedMedicine = math.floor((defender.unitData.MedicineStock or 0) * attackerEquipmentKillPercent * 0.01)
+			Dprint( DEBUG_UNIT_SCRIPT, Indentation("Medicine",30), lootedMedicine)
+			attacker.unit:ChangeStock(medicineResourceID, lootedMedicine)
+			
+			Dprint( DEBUG_UNIT_SCRIPT, "Looting Camps/Followers...")
+			for resourceKey, value in pairs(defender.unitData.Stock) do
+				local resourceID = tonumber(resourceKey)
+				if not GCO.IsScholarResource(resourceID) then -- don't capture Military Scholars
+					local looted = math.floor(value * attackerEquipmentKillPercent * 0.01)
+					Dprint( DEBUG_UNIT_SCRIPT, Indentation(Locale.Lookup(GameInfo.Resources[resourceID].Name),30), looted)
+					-- Update composition
+					if attacker.unit:IsEquipment(resourceID) then -- maybe a bit faster than letting unit:ChangeStock() handle the distribution
+						attacker.unit:ChangeReserveEquipment(resourceID, looted)
+					else
+						attacker.unit:ChangeStock(resourceID, looted)
+					end
 				end
 			end
 			
@@ -4392,11 +4439,14 @@ function OnCombat( combatResult )
 			attacker.unitData.Prisoners[defender.playerKey]	= attacker.unitData.Prisoners[defender.playerKey] + attacker.Prisoners
 
 		else
+			Dprint( DEBUG_UNIT_SCRIPT, "Defender is alive...")
 			-- attacker
 			if attacker.unit then
 				attacker.Prisoners 			= defender.Captured or 0
-				
 				attacker.EquipmentGained 	= {}
+				
+				Dprint( DEBUG_UNIT_SCRIPT, Indentation("Prisoners",30),attacker.Prisoners)
+				
 				for equipmentKey, value in pairs(defender.EquipmentLost) do
 					local gainRatio			= attackerEquipmentGainPercent
 					if materielResourceKey	== equipmentKey  then gainRatio = attackerMaterielGainPercent	end
@@ -4405,6 +4455,8 @@ function OnCombat( combatResult )
 					local equipmentGained	= math.floor(value * gainRatio / 100)
 					
 					attacker.EquipmentGained[equipmentKey] = equipmentGained
+					
+					Dprint( DEBUG_UNIT_SCRIPT, Indentation(Locale.Lookup(GameInfo.Resources[equipmentID].Name),30), equipmentGained)
 					
 					-- Update composition
 					if attacker.unit:IsEquipment(equipmentID) then -- maybe a bit faster to check here than letting unit:ChangeStock() handle the distribution ?
@@ -4419,9 +4471,13 @@ function OnCombat( combatResult )
 			
 			-- defender
 			if defender.unit then
+				Dprint( DEBUG_UNIT_SCRIPT, "DEFENDERS GAINS")
+
 				defender.Prisoners 			= attacker.Captured or 0
-				
 				defender.EquipmentGained 	= {}
+				
+				Dprint( DEBUG_UNIT_SCRIPT, Indentation("Prisoners",30),defender.Prisoners)
+				
 				if not attacker.EquipmentLost then  -- todo : when attacker.EquipmentLost can be nil ?
 					GCO.Warning("attacker.EquipmentLost is nil, Attacker is " .. tostring(componentString[attacker[CombatResultParameters.ID].type]) ..", Defender is " .. tostring(componentString[defender[CombatResultParameters.ID].type]))
 					attacker.EquipmentLost = {}
@@ -4434,6 +4490,8 @@ function OnCombat( combatResult )
 					local equipmentGained	= math.floor(value * gainRatio / 100)
 					
 					defender.EquipmentGained[equipmentKey] = equipmentGained
+					
+					Dprint( DEBUG_UNIT_SCRIPT, Indentation(Locale.Lookup(GameInfo.Resources[equipmentID].Name),30), equipmentGained)
 					
 					-- Update composition
 					if defender.unit:IsEquipment(equipmentID) then -- maybe a bit faster than letting unit:ChangeStock() handle the distribution ?
@@ -5019,7 +5077,7 @@ end
 -- Handle pillaging
 function OnUnitPillage(playerID, unitID)
 
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"	
+	--local DEBUG_UNIT_SCRIPT = playerID == Game.GetLocalPlayer() and "debug" or DEBUG_UNIT_SCRIPT	
 	
 	local unit 		= GetUnit(playerID, unitID)
 	local unitData 	= unit:GetData()
@@ -5035,6 +5093,10 @@ function OnUnitPillage(playerID, unitID)
 	local plot 	= GCO.GetPlot(unit:GetX(), unit:GetY())
 
 	if plot then
+	
+		local pLocalPlayerVis 	= PlayersVisibility[Game.GetLocalPlayer()]
+		local bShowWorldText	= (pLocalPlayerVis ~= nil) and (pLocalPlayerVis:IsVisible(plot:GetX(), plot:GetY()))
+
 		-- private function
 		function Collect(resourceID, collected, bImprovedForResource)
 			if bImprovedForResource then
@@ -5043,6 +5105,11 @@ function OnUnitPillage(playerID, unitID)
 			collected = collected * BasePillageMultiplier
 			Dprint( DEBUG_UNIT_SCRIPT, "-- Collecting " .. tostring(collected) .. " " ..Locale.Lookup(GameInfo.Resources[resourceID].Name))
 			unit:ChangeStock(resourceID, collected)
+					
+			if bShowWorldText then
+				local sText = "+" .. tostring(collected).." "..GCO.GetResourceIcon(resourceID)
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, sText, plot:GetX(), plot:GetY(), 0)
+			end
 		end
 	
 		local plotOwner 		= GCO.GetPlayer(plot:GetOwner())
@@ -5085,6 +5152,7 @@ function OnUnitPillage(playerID, unitID)
 				end
 			end
 		end
+		if GCO.CanCallFlagUpdate() then LuaEvents.UnitsCompositionUpdated(unit:GetOwner(), unit:GetID()) end
 	else
 		GCO.Error("plot is nil OnUnitPillage for unitKey ", unitKey, playerID, unitID)
 	end
@@ -5576,6 +5644,8 @@ function CheckForActiveTurnsLeft(self)
 				else
 					GCO.Error("unitData is nil for " .. self:GetName(), self:GetKey())
 				end
+			elseif personnelType == UnitPersonnelType.Mercenary then
+				-- handled in GCO_DiplomacyScript.lua
 			end
 		end		
 	end

@@ -301,6 +301,17 @@ function OnUnitFlagClick( playerID : number, unitID : number )
 
 	if Game.GetLocalPlayer() ~= pUnit:GetOwner() then
 
+		-- GCO <<<<<
+		-- We may want to use diplomacy
+		do
+			local kParameters = {}
+			kParameters.PlayerID 	= pUnit:GetOwner()
+			kParameters.UnitID 		= unitID
+			kParameters.Begin 		= true
+			LuaEvents.ShowDiploScreenGCO(kParameters)
+			return
+		end
+		-- GCO >>>>>
 		-- Enemy unit; this may start an attack...
 		-- Does player have a selected unit?
 		local pSelectedUnit = UI.GetHeadSelectedUnit();
@@ -884,6 +895,15 @@ function UnitFlag.UpdateName( self )
 					self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Disbanding]")
 					--self.m_Instance.ActiveTurnsLeftString:SetToolTipString("Disbanding since [COLOR_Civ6DarkRed]"..tostring(-activeTurnsLeft).."[ENDCOLOR][ICON_Turn] turns")
 					toolTipString = Locale.Lookup("LOC_UNITFLAG_CURRENTLY_DISBANDING", -activeTurnsLeft)
+				end
+			else -- Mercenaries
+				local iPeaceBarbarian = 62
+				if pUnit:GetOwner() == iPeaceBarbarian then
+					self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_PEACE]")
+					toolTipString = Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_TRUCE", activeTurnsLeft)
+				elseif pUnit:GetValue("UnitPersonnelType") == UnitPersonnelType.Mercenary then
+					--self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_RESOURCE_SCROLLS]")
+					toolTipString = Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_MERCENARY", activeTurnsLeft)
 				end
 			end
 			self.m_Instance.ActiveTurnsLeftString:SetToolTipString(toolTipString)

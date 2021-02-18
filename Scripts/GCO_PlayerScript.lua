@@ -1211,6 +1211,9 @@ function DoPlayerTurn( playerID )
 		--
 		player:SetPersonnelInCities()
 		
+		--
+		LuaEvents.DoDiplomacyTurn( playerID )
+		
 		-- update flags after resources transfers
 		player:Define()
 		--player:UpdateUnitsFlags()

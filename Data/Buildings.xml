@@ -409,8 +409,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT"		ResourceType="RESOURCE_BANANAS" 	MaxConverted="1" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT"		ResourceType="RESOURCE_FISH" 		MaxConverted="1" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT"		ResourceType="RESOURCE_CRABS" 		MaxConverted="1" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT"		ResourceType="RESOURCE_MEAT" 		MaxConverted="1" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT" 	ResourceType="RESOURCE_WOOD"		MaxConverted="1" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT"		ResourceType="RESOURCE_MEAT" 		MaxConverted="10" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT" 	ResourceType="RESOURCE_WOOD"		MaxConverted="1" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT"		ResourceType="RESOURCE_CLAY" 		MaxConverted="3" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT"		ResourceType="RESOURCE_STONE" 		MaxConverted="1" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ANCIENT"		ResourceType="RESOURCE_WOOD" 		MaxConverted="1" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -424,8 +424,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="1" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL"	ResourceType="RESOURCE_FISH" 		MaxConverted="1" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL"	ResourceType="RESOURCE_CRABS" 		MaxConverted="1" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL"	ResourceType="RESOURCE_MEAT" 		MaxConverted="1" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	ResourceType="RESOURCE_WOOD"		MaxConverted="1" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL"	ResourceType="RESOURCE_MEAT" 		MaxConverted="10" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL" 	ResourceType="RESOURCE_WOOD"		MaxConverted="1" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL"	ResourceType="RESOURCE_CLAY" 		MaxConverted="3" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL"	ResourceType="RESOURCE_STONE" 		MaxConverted="1" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_CLASSICAL"	ResourceType="RESOURCE_WOOD" 		MaxConverted="1" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -439,8 +439,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="2" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL"	ResourceType="RESOURCE_FISH" 		MaxConverted="2" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL"	ResourceType="RESOURCE_CRABS" 		MaxConverted="2" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL"	ResourceType="RESOURCE_MEAT" 		MaxConverted="2" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	ResourceType="RESOURCE_WOOD"		MaxConverted="2" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL"	ResourceType="RESOURCE_MEAT" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL" 	ResourceType="RESOURCE_WOOD"		MaxConverted="2" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL"	ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL"	ResourceType="RESOURCE_STONE" 		MaxConverted="2" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MEDIEVAL"	ResourceType="RESOURCE_WOOD" 		MaxConverted="2" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -454,8 +454,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="2" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE"	ResourceType="RESOURCE_FISH" 		MaxConverted="2" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE"	ResourceType="RESOURCE_CRABS" 		MaxConverted="2" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE"	ResourceType="RESOURCE_MEAT" 		MaxConverted="2" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" ResourceType="RESOURCE_WOOD"		MaxConverted="2" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE"	ResourceType="RESOURCE_MEAT" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE" ResourceType="RESOURCE_WOOD"		MaxConverted="2" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 	 MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE"	ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE"	ResourceType="RESOURCE_STONE" 		MaxConverted="2" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_RENAISSANCE"	ResourceType="RESOURCE_WOOD" 		MaxConverted="2" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -469,8 +469,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="3" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL"	ResourceType="RESOURCE_FISH" 		MaxConverted="3" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL"	ResourceType="RESOURCE_CRABS" 		MaxConverted="3" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL"	ResourceType="RESOURCE_MEAT" 		MaxConverted="3" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	ResourceType="RESOURCE_WOOD"		MaxConverted="3" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL"	ResourceType="RESOURCE_MEAT" 		MaxConverted="30" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL" 	ResourceType="RESOURCE_WOOD"		MaxConverted="3" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL"	ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL"	ResourceType="RESOURCE_STONE" 		MaxConverted="3" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INDUSTRIAL"	ResourceType="RESOURCE_WOOD" 		MaxConverted="3" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -484,8 +484,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN"		ResourceType="RESOURCE_BANANAS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN"		ResourceType="RESOURCE_FISH" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN"		ResourceType="RESOURCE_CRABS" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN"		ResourceType="RESOURCE_MEAT" 		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN"		ResourceType="RESOURCE_MEAT" 		MaxConverted="50" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN" 		ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN"		ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN"		ResourceType="RESOURCE_STONE" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_MODERN"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -499,8 +499,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE"	ResourceType="RESOURCE_FISH" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE"	ResourceType="RESOURCE_CRABS" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE"	ResourceType="RESOURCE_MEAT" 		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE"	ResourceType="RESOURCE_MEAT" 		MaxConverted="50" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE" 	ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE"	ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE"	ResourceType="RESOURCE_STONE" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ARMS_RACE"	ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -514,8 +514,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC"		ResourceType="RESOURCE_BANANAS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC"		ResourceType="RESOURCE_FISH" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC"		ResourceType="RESOURCE_CRABS" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC"		ResourceType="RESOURCE_MEAT" 		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC"		ResourceType="RESOURCE_MEAT" 		MaxConverted="50" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC" 		ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC"		ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC"		ResourceType="RESOURCE_STONE" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_ATOMIC"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -529,8 +529,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION"	ResourceType="RESOURCE_FISH" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION"	ResourceType="RESOURCE_CRABS" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION"	ResourceType="RESOURCE_MEAT" 		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION"	ResourceType="RESOURCE_MEAT" 		MaxConverted="50" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION" ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION"	ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION"	ResourceType="RESOURCE_STONE" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_INFORMATION"	ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -544,8 +544,8 @@
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE"		ResourceType="RESOURCE_BANANAS" 	MaxConverted="5" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE"		ResourceType="RESOURCE_FISH" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE"		ResourceType="RESOURCE_CRABS" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MEAT" 			Ratio="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE"		ResourceType="RESOURCE_MEAT" 		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.5" 	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE"		ResourceType="RESOURCE_MEAT" 		MaxConverted="50" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE" 		ResourceType="RESOURCE_WOOD"		MaxConverted="5" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE"		ResourceType="RESOURCE_CLAY" 		MaxConverted="5" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="1" />
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE"		ResourceType="RESOURCE_STONE" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="10"/>
 		<Row BuildingType="BUILDING_CENTRAL_SQUARE_FUTURE"		ResourceType="RESOURCE_WOOD" 		MaxConverted="5" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="15"/>
@@ -758,7 +758,9 @@
 		<Row BuildingType="BUILDING_MARKET"			ResourceType="RESOURCE_FISH" 		MaxConverted="40" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1.00"/>
 		<Row BuildingType="BUILDING_MARKET"			ResourceType="RESOURCE_CRABS" 		MaxConverted="40" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1.00"/>
 		<Row BuildingType="BUILDING_MARKET"			ResourceType="RESOURCE_MEAT" 		MaxConverted="40" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_MARKET" 		ResourceType="RESOURCE_SALT"		MaxConverted="4" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="0.1" 	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_MARKET" 		ResourceType="RESOURCE_SALT"		MaxConverted="4" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_MARKET"			ResourceType="RESOURCE_MEAT" 		MaxConverted="40" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_MARKET" 		ResourceType="RESOURCE_WOOD"		MaxConverted="4" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		
 		<Row BuildingType="BUILDING_MARKET_EXTENSION" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="80" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="80" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
@@ -775,7 +777,9 @@
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_WINE" 	MaxConverted="8" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="1.5" CostFactor="1.2"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_SUGAR" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2" 	CostFactor="1.5"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_MEAT" 	MaxConverted="80" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_MARKET_EXTENSION" 	ResourceType="RESOURCE_SALT"	MaxConverted="8" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="0.1" 	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_MARKET_EXTENSION" 	ResourceType="RESOURCE_SALT"	MaxConverted="8" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_MEAT" 	MaxConverted="80" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_MARKET_EXTENSION" 	ResourceType="RESOURCE_WOOD"	MaxConverted="8" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="120" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET" 	ResourceType="RESOURCE_CATTLE" 	MaxConverted="120" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
@@ -792,7 +796,9 @@
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_WINE" 	MaxConverted="12" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="1.5" CostFactor="1.2"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_SUGAR" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2" 	CostFactor="1.5"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_MEAT" 	MaxConverted="120" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET" 	ResourceType="RESOURCE_SALT"	MaxConverted="12" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="0.1" 	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET" 	ResourceType="RESOURCE_SALT"	MaxConverted="12" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_MEAT" 	MaxConverted="120" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET" 	ResourceType="RESOURCE_WOOD"	MaxConverted="12" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		
 		<Row BuildingType="BUILDING_HYPERMARKET" 		ResourceType="RESOURCE_CATTLE" 	MaxConverted="180" 	ResourceCreated="RESOURCE_MEAT" 	Ratio="1"	MultiResCreated="1"/>
 		<Row BuildingType="BUILDING_HYPERMARKET" 		ResourceType="RESOURCE_CATTLE" 	MaxConverted="180" 	ResourceCreated="RESOURCE_LEATHER" 	Ratio="1"	MultiResCreated="1"/>
@@ -809,7 +815,9 @@
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_WINE" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="1.5" CostFactor="1.2"/>
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_SUGAR" 	MaxConverted="25" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2" 	CostFactor="1.5"/>
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_MEAT" 	MaxConverted="180" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
-		<Row BuildingType="BUILDING_HYPERMARKET" 		ResourceType="RESOURCE_SALT"	MaxConverted="18" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="0.1" 	MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_HYPERMARKET" 		ResourceType="RESOURCE_SALT"	MaxConverted="18" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_MEAT" 	MaxConverted="180" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
+		<Row BuildingType="BUILDING_HYPERMARKET" 		ResourceType="RESOURCE_WOOD"	MaxConverted="18" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		
 		
 		<Row BuildingType="BUILDING_FACTORY" 			ResourceType="RESOURCE_COAL" 		MaxConverted="100" 	ResourceCreated="RESOURCE_STEEL" 	Ratio="2"	MultiResRequired="1"/>

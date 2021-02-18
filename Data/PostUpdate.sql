@@ -13,6 +13,11 @@ UPDATE EquipmentClasses 			SET Name = 'LOC_' || EquipmentClasses.EquipmentClass 
 UPDATE MilitaryOrganisationLevels	SET Name = 'LOC_' || MilitaryOrganisationLevels.OrganisationLevelType || '_NAME';
 UPDATE MilitaryFormations			SET Name = 'LOC_' || MilitaryFormations.MilitaryFormationType || '_NAME';
 UPDATE TechnologyContributionTypes	SET Name = 'LOC_' || TechnologyContributionTypes.ContributionType || '_NAME';
+UPDATE DiplomaticStatesGCO			SET Name = 'LOC_' || DiplomaticStatesGCO.StateType || '_NAME';
+UPDATE DiplomaticRelationsGCO		SET Name = 'LOC_' || DiplomaticRelationsGCO.RelationType || '_NAME';
+UPDATE DiplomaticDealsGCO			SET Name = 'LOC_' || DiplomaticDealsGCO.DealType || '_NAME';
+UPDATE DiplomaticTreatiesGCO		SET Name = 'LOC_' || DiplomaticTreatiesGCO.TreatyType || '_NAME';
+UPDATE DiplomaticSuzeraintyTypeGCO	SET Name = 'LOC_' || DiplomaticSuzeraintyTypeGCO.SuzeraintyType || '_NAME';
 
 
 -----------------------------------------------

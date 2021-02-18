@@ -272,8 +272,23 @@ raise
 --[[ DIPLOMACY
 --===============================--
 
+diplomacy level
+	units : discuss with the commander of one unit (barbarian or civ/tribe unit with low loyalty)
+		- recruit as mercenary (limited time, became barbarian with x turn of truce at the end of contract)
+		- bribe for individual truce for x turn
+	tribe
+	civilization
+	
+diplomacy currency
+	gold
+	resources (if trade route/supply route)
+	slave (if trade route/supply route)
+	
 diplomacy action require envoys
-	need X envoys for a meeting with X civs (but the envoys are removed only if a decision is made)
+	each active deal requires x available envoys
+	can't do new deal if not enough available envoy left
+	ending a deal give back the envoys
+	multiple-civ deals require x envoys per civ
 
 deal/treaty
 	can be public or secret
@@ -282,25 +297,24 @@ deal/treaty
 	can be delayed (x turns) or immediate
 	in case of public and delayed deal, civ concerned (for example civA had territorial integrity treaty with civB but ask for territory, civC has also integrity treaty with civA and is now concerned that A may not respect it) can warn about it
 	
-type of deal (things that will be exchanged immediatly)
+type of deal (immediate effect on validation)
 	territory: ask for territory in which a civ has a majority of culture
 	joint declaration of war (can prepare coalition with delayed deal, civA ask civB for joint war and B accept under reserve that x civs join the coalition)
 	information from spy
 	send delegation (with or without spy)
 	introduce to another civ
 	borders map
-	
-type of demand
-	ask to denounce
-	ask to give territory in which a civ has a majority of culture
-	ask to remove embargo
-	ask to stop declaration of friendship
-	ask to stop defensive pact
-	ask to stop open borders
-	ask to stop open market
-	ask for gold
+	denounce
+	give territory in which a civ has a majority of culture
+	remove embargo
+	stop declaration of friendship
+	stop defensive pact
+	stop open borders
+	stop open market
 	
 type of treaty (things that will take effects for a specified duration)
+	cease-fire
+	peace
 	fixed borders: no tile flipping from culture without trading them between those civilizations
 	territorial integrity: recognize borders, engagement to not make demand of territory based on culture %
 	defensive pact
@@ -1341,5 +1355,23 @@ popup to allow choice (pay for reinforcements or pillage or no action for exampl
 
 + Components
 	- allow excedents, but decay each turn
+
+--]]
+
+
+--===============================--
+--[[ VICTORIES
+--===============================--
+
++ Victory Points
+	- Choice of medium-term objective with possible multi-goal path
+	- Accomplish all goals to get max points
+	- Spy can reveal other players objective/intermediate goals
+	
++ Objectives can be announced to gain more points
+	- First man on the Moon
+	- First circumnavigation
+	- ...
+
 
 --]]

@@ -96,6 +96,16 @@
 		
 	
 	</LocalizedText>
+
+
+	<LocalizedText> <!-- Diplomacy -->
+	
+		<Replace Tag="LOC_DIPLO_DEAL_RECRUIT_SINGLE_UNIT_NAME" 		Text="Recruit as mercenary"			Language="en_US" />
+		<Replace Tag="LOC_DIPLO_DEAL_BRIBE_SINGLE_UNIT_NAME" 		Text="Bribe for Safe Passage"		Language="en_US" />
+		<Replace Tag="LOC_DIPLO_DEAL_PAY_UNIT_RANSOM_NAME" 			Text="Pay Ransom"					Language="en_US" />
+		
+	</LocalizedText>
+
 	
 	<LocalizedText> <!-- Buildings Descriptions -->
 		
@@ -573,28 +583,13 @@
 		</Replace>
 	</LocalizedText>
 	
-	<LocalizedText> <!-- Modifiers Effects -->
 	
-		<Replace Tag="LOC_ACTIVE_MODIFIERS" Text="Active Modifiers" Language="en_US" />
-	
-		<Replace Tag="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" Text="Territory Cost"								Language="en_US" />
-		<Replace Tag="LOC_RAISE_CITY_SEA_RANGE" 				Text="Sea Exploitation Range"						Language="en_US" />
-		<Replace Tag="LOC_NEW_COPY_TECH_RESOURCE" 				Text="Copy of researched Scrolls, Books, Tablets"	Language="en_US" />
-
-		<Replace Tag="LOC_MODIFIER_ADD_VALUE" Language="en_US">
-		  <Text>+{1_Num} from {2_Name}.</Text>
-		</Replace>
-		<Replace Tag="LOC_MODIFIER_GREEN_ADD_VALUE" Language="en_US">
-		  <Text>[COLOR_Civ6Green]+{1_Num}[ENDCOLOR] from {2_Name}.</Text>
-		</Replace>
+	<LocalizedText> <!-- Yields -->
 		
-		<Replace Tag="LOC_MODIFIER_GREEN_REMOVE_PERCENT_TO_FROM" Language="en_US">
-		  <Text>[COLOR_Civ6Green]-{1_Num : number #.##}[ENDCOLOR]% to {2_Name} from {3_Name}.</Text>
-		</Replace>
-		<Replace Tag="LOC_MODIFIER_REMOVE_PERCENT_TO_FROM" Language="en_US">
-		  <Text>-{1_Num : number #.##}% to {2_Name} from {3_Name}.</Text>
-		</Replace>
+		<Replace Tag="LOC_YIELD_HEALTH_NAME" 			Text="Health"				Language="en_US" />
+		<Replace Tag="LOC_YIELD_UPPER_HOUSING_NAME" 	Text="Upper Class Housing"	Language="en_US" />
+		<Replace Tag="LOC_YIELD_MIDDLE_HOUSING_NAME" 	Text="Middle Class Housing"	Language="en_US" />
+		<Replace Tag="LOC_YIELD_LOWER_HOUSING_NAME" 	Text="Lower Class Housing"	Language="en_US" />
+		<Replace Tag="LOC_YIELD_ADMINISTRATION_NAME" 	Text="Administration"		Language="en_US" />
 	</LocalizedText>
-	
- 
 </GameData>

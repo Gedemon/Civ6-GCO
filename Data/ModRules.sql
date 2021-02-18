@@ -70,6 +70,7 @@ UPDATE Improvements SET Buildable = 0 WHERE TraitType IS NOT NULL;
 UPDATE Improvements SET CanBuildOutsideTerritory = 1 WHERE Buildable = 1 AND TraitType ISNULL AND OnePerCity = 0;	-- After setting "OnePerCity", before removing "TraitType"
 UPDATE Improvements SET TraitType = NULL WHERE Buildable = 1;														-- After updating "CanBuildOutsideTerritory"
 UPDATE Improvements SET Housing = 0;
+UPDATE Improvements SET PlunderType = 'PLUNDER_GOLD' WHERE PlunderType <> 'NO_PLUNDER';
 
 UPDATE Improvements SET PrereqTech ='TECH_DEFENSIVE_TACTICS',	DefenseModifier = 4, GrantFortification = 2, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_FORT';
 --UPDATE Improvements SET PrereqTech ='TECH_MASONRY', 			DefenseModifier = 2, GrantFortification = 1, SameAdjacentValid = 0 WHERE ImprovementType ='IMPROVEMENT_ROMAN_FORT';
@@ -118,6 +119,7 @@ INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) 
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_FOREST_SPARSE');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_JUNGLE');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_PLANTATION', 'FEATURE_FLOODPLAINS');
+INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_PLANTATION', 'FEATURE_JUNGLE');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_QUARRY', 'FEATURE_FLOODPLAINS');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_STEPWELL', 'FEATURE_JUNGLE');
 

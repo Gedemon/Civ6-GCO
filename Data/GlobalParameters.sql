@@ -39,6 +39,10 @@ UPDATE GlobalParameters SET Value = 25		WHERE Name = 'DIPLOMACY_RESEARCH_AGREEME
  
 /* Defines */
 
+-- diplomacy
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('DIPLO_RANSOM_OTHER_OWNER_FACTOR', 		1.5);	-- 
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('DIPLO_MERCENARY_TRUCE_BASE_TURN', 		3);		-- How many turn a Mercenary unit remains peaceful after a contract
+
 -- city
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_MAX_PER_TURN', 		25);	-- default = 20
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_BASE_MATERIEL',		1);
