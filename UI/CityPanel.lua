@@ -1413,7 +1413,6 @@ function OnConfirmRush()
 
 	UI.RequestPlayerOperation(Game.GetLocalPlayer(), PlayerOperations.EXECUTE_SCRIPT, kParameters);
 	
-	
 	Controls.ProduceWithGoldCheck:SetCheck( false )
 end
 

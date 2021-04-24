@@ -26,9 +26,10 @@
 	
 	<!-- Assuming DIPLO_STATE_WAR/DIPLO_STATE_TERRITORIAL_WAR disable all except when they are listed in <RequiredStateType> -->
 	<DiplomaticDealsGCO>
-		<Row DealType="DIPLO_DEAL_RECRUIT_SINGLE_UNIT"	IsUnit="1" BaseValue="75" Duration="5"/>
-		<Row DealType="DIPLO_DEAL_BRIBE_SINGLE_UNIT"	IsUnit="1" BaseValue="10" Duration="3"/>
-		<Row DealType="DIPLO_DEAL_PAY_UNIT_RANSOM"	 	IsUnit="1" BaseValue="50" IsCivilian="1"/>
+		<Row DealType="DIPLO_DEAL_RECRUIT_SINGLE_UNIT"	IsValueRelative="1" IsUnit="1" BaseValue="75" Duration="5"/>
+		<Row DealType="DIPLO_DEAL_RENEW_SINGLE_UNIT"	IsValueRelative="0" IsUnit="1" BaseValue="25" Duration="10"/>
+		<Row DealType="DIPLO_DEAL_BRIBE_SINGLE_UNIT"	IsValueRelative="1" IsUnit="1" BaseValue="10" Duration="3"/>
+		<Row DealType="DIPLO_DEAL_PAY_UNIT_RANSOM"	 	IsValueRelative="1" IsUnit="1" BaseValue="50" IsCivilian="1"/>
 		<Row DealType="DIPLO_DEAL_COASTAL_MAP" 		DisablingCivilizationLevels="CIVILIZATION_LEVEL_TRIBE" RequiredRelationTypes="DIPLO_RELATION_FRIEND,DIPLO_RELATION_CORDIAL"	/>
 		<Row DealType="DIPLO_DEAL_BORDER_MAP" 		DisablingCivilizationLevels="CIVILIZATION_LEVEL_TRIBE"/>
 		<Row DealType="DIPLO_DEAL_CITY_MAP" 		DisablingCivilizationLevels="CIVILIZATION_LEVEL_TRIBE" DisablingStateTypes="DIPLO_STATE_DENOUNCED"	DisablingRelationTypes="DIPLO_RELATION_ENEMY,DIPLO_RELATION_TENSE" />
@@ -65,5 +66,105 @@
 		<Row SuzeraintyType="SUZERAINTY_VASSAL_STATE" StateType="DIPLO_STATE_TRUCE"	/>
 		
 	</DiplomaticSuzeraintyForcedStatesGCO>
+	
+	<DiplomacyPowerModifiers>
+		<Row PowerType="POWER_ARMY_SIZE_TOTAL"/>
+		<Row PowerType="POWER_ARMY_SIZE_LOCAL"/>
+		<Row PowerType="POWER_NUMBER_CITY"/>
+		<Row PowerType="POWER_TERRITORY"/>
+		<Row PowerType="POWER_POPULATION"/>
+		<Row PowerType="POWER_TRIBUTE_GIVEN"/>
+		<Row PowerType="POWER_VASSAL_TRIBES"/>
+		<Row PowerType="POWER_VASSAL_CIVS"/>
+		<Row PowerType="POWER_DECLARE_WAR"/>
+		<Row PowerType="POWER_KILL_RATIO"/>
+		<Row PowerType="POWER_TECH"/>
+	</DiplomacyPowerModifiers>
+	
+	<DiplomacyInterestModifiers>
+		<Row InterestType="INTEREST_TRADE_ROUTE"/>
+		<Row InterestType="INTEREST_TRIBUTE"/>
+		<Row InterestType="INTEREST_SEND_DELEGATION"				BaseValue="5"	/>
+		<Row InterestType="INTEREST_AMBASSY"						BaseValue="10"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_OPEN_BORDER"					BaseValue="5"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_OPEN_MARKET"					BaseValue="15"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_DEFENSIVE_PACT"					BaseValue="25"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_NON_AGRESSION_PACT"				BaseValue="10"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_COMMON_FRIEND"					BaseValue="5"	/>	<!-- per friend (RelatrionType) -->
+		<Row InterestType="INTEREST_COMMON_ENEMY"					BaseValue="10"	/>	<!-- per enemy (RelationType or Denounced) -->
+		<Row InterestType="INTEREST_FRIEND_OF_ENEMY"				BaseValue="-15"	/>	<!-- per friend -->
+		<Row InterestType="INTEREST_ALLY_OF_ENEMY"					BaseValue="-25"	/>	<!-- per ally -->
+		<Row InterestType="INTEREST_TERRITORY_GIVE"					BaseValue="5"	/>	<!-- per tile (decay -1/turn) } when it's part of a demand or peace treaty, it won't count when part of a deal. -->
+		<Row InterestType="INTEREST_TERRITORY_TAKEN"				BaseValue="-5"	/>	<!-- per tile (decay +1/turn) }  -->
+		<Row InterestType="INTEREST_OCCUPY_TERRITORY" 				BaseValue="-2"	/>	<!-- per tile (occupied territory = tile captured with still a majority of the previous owner culture) -->
+		<Row InterestType="INTEREST_OCCUPY_TERRITORY_FRIEND"		BaseValue="-1"	/>	<!-- per tile -->
+		<Row InterestType="INTEREST_OCCUPY_CITY" 					BaseValue="-20"	/>	<!-- per city (occupied city = city captured with still a majority of the previous owner culture) -->
+		<Row InterestType="INTEREST_OCCUPY_CITY__FRIEND	"			BaseValue="-10"	/>	<!-- per city -->
+		<Row InterestType="INTEREST_TERRITORIAL_INTEGRITY"			BaseValue="10"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_RESEARCH_AGREEMENT"				BaseValue="10"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_SAME_SIDE_IN_WAR"				BaseValue="50"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_DECLARATION_OF_FRIENDSHIP"		BaseValue="50"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_INFORMATION_FROM_SPY"			BaseValue="25"		Decay="1" />
+		<Row InterestType="INTEREST_INFORMATION_SHARING"			BaseValue="10"	/>	<!-- when active -->
+		<Row InterestType="INTEREST_RESOURCE_ACCESS_BONUS"			BaseValue="1"	/>	<!-- per resource type when active -->
+		<Row InterestType="INTEREST_RESOURCE_ACCESS_STRATEGIC"		BaseValue="3"	/>	<!-- per resource type when active -->
+		<Row InterestType="INTEREST_RESOURCE_ACCESS_LUXURY"			BaseValue="3"	/>	<!-- per resource type when active -->
+		<Row InterestType="INTEREST_RESOURCE_ACCESS_EQUIPMENT"		BaseValue="5"	/>	<!-- per resource type when active (or use % of equipment desirability instead ?) -->
+		<Row InterestType="INTEREST_EMBARGO_BONUS"					BaseValue="-2"	/>	<!-- per resource type when active -->
+		<Row InterestType="INTEREST_EMBARGO_STRATEGIC"				BaseValue="-5"	/>	<!-- per resource type when active -->
+		<Row InterestType="INTEREST_EMBARGO_LUXURY"					BaseValue="-10" />	<!-- per resource type when active -->
+		<Row InterestType="INTEREST_DENOUNCIATION"					BaseValue="-100" />	<!-- when active -->
+		<Row InterestType="INTEREST_AT_WAR"							BaseValue="-200" />	<!-- when active -->
+		<Row InterestType="INTEREST_BREAK_DELAYED_DEAL"				BaseValue="-25"		Decay="1" />
+		<Row InterestType="INTEREST_BREAK_TERRITORIAL_INTEGRITY" 	BaseValue="-20"		Decay="1" />
+		<Row InterestType="INTEREST_BREAK_DEFENSIVE_PACT"			BaseValue="-100"	Decay="2" />
+		<Row InterestType="INTEREST_BREAK_NON AGRESSION_PACT"		BaseValue="-200"	Decay="3" />
+		<Row InterestType="INTEREST_BREAK_EMBARGO"					BaseValue="-20"		Decay="1" />
+		<Row InterestType="INTEREST_BREAK_OPEN_BORDER"				BaseValue="-20"		Decay="1" />
+		<Row InterestType="INTEREST_BREAK_DOF"						BaseValue="-50"		Decay="2" />
+		<Row InterestType="INTEREST_REFUSE_TO_DENOUNCE"				BaseValue="-10"		Decay="1" />
+		<Row InterestType="INTEREST_REFUSE_TO_REMOVE_EMBARGO"		BaseValue="-25"		Decay="1" />
+		<Row InterestType="INTEREST_REFUSE_TO_STOP_DOF"				BaseValue="-15"		Decay="1" />
+		<Row InterestType="INTEREST_REFUSE_TO_STOP_DEF_PACT"		BaseValue="-10"		Decay="1" />
+		<Row InterestType="INTEREST_REFUSE_TO_STOP_OPEN_BORDERS"	BaseValue="-10"		Decay="1" />
+		<Row InterestType="INTEREST_REFUSE_TO_STOP_OPEN_MARKET"		BaseValue="-10"		Decay="1" />
+		<Row InterestType="INTEREST_REFUSE_TO_GIVE_GOLD"			BaseValue="-10"		Decay="1" />
+		<!-- spy actions (Caught) --> 
+		<!-- opposing governments  --> 
+	</DiplomacyInterestModifiers>
+	
+	<DiplomacyTrustModifiers>
+		<Row TrustType="TRUST_BREAK_TREATY_ENEMY" 			BaseValue="-10"		Decay="1" /> <!-- (maybe use % rate of decay instead of fixed value) -->
+		<Row TrustType="TRUST_BREAK_TREATY_NEUTRAL" 		BaseValue="-25"		Decay="1" />
+		<Row TrustType="TRUST_BREAK_TREATY_FRIEND"			BaseValue="-50"		Decay="1" />
+		<Row TrustType="TRUST_BREAK_TREATY_US" 				BaseValue="-100"	Decay="2" />
+		<Row TrustType="TRUST_DECLARE_SURPRISE_WAR_ENEMY" 	BaseValue="-5"		Decay="1" />
+		<Row TrustType="TRUST_DECLARE_SURPRISE_WAR_NEUTRAL" BaseValue="-25"		Decay="1" />
+		<Row TrustType="TRUST_DECLARE_SURPRISE_WAR_FRIEND" 	BaseValue="-100"	Decay="2" />
+		<Row TrustType="TRUST_DECLARE_SURPRISE_WAR_US" 		BaseValue="-200"	Decay="3" />
+		<Row TrustType="TRUST_RESPECTED_DEAL"				BaseValue="1"	/>	
+		<Row TrustType="TRUST_RESPECT_TREATY" 				BaseValue="1"	/>	<!--/turn with treaty (reset to 0 when breaking a treaty with us)-->
+		<Row TrustType="TRUST_RESPECT_DELAYED_DEAL" 		BaseValue="2"	/>	<!--/deal (reset to 0 when breaking a delayed deal with us)-->
+		<Row TrustType="TRUST_RESPECT_DELAYED_DEAL_OTHER"	BaseValue="1"	/>  <!-- /deal(reset to 0 when breaking a delayed deal with another civ)-->
+		<!-- Spy Action (Caught) --> 
+	</DiplomacyTrustModifiers>
+	
+	
+	<!-- DIPLOACTION: useless without DLL access ?
+	<Types>
+		<Row Type="DIPLOACTION_TEST" Kind="KIND_DIPLOMATIC_ACTION"/>
+	</Types>	
+	<DiplomaticActions>
+		<Row DiplomaticActionType="DIPLOACTION_TEST" Name="LOC_DIPLOACTION_TEST_NAME" Description="LOC_DIPLOACTION_TEST_DESCRIPTION" Agreement="true" Duration="15" />
+	
+	</DiplomaticActions>
+	
+	<DiplomaticStateActions>
+		<Row StateType="DIPLO_STATE_ALLIED" 			DiplomaticActionType="DIPLOACTION_TEST" Worth="100" Cost="0"/>
+		<Row StateType="DIPLO_STATE_DECLARED_FRIEND"	DiplomaticActionType="DIPLOACTION_TEST" Worth="0" Cost="200"/>
+		<Row StateType="DIPLO_STATE_FRIENDLY"			DiplomaticActionType="DIPLOACTION_TEST" Worth="0" Cost="200"/>
+		<Row StateType="DIPLO_STATE_NEUTRAL"			DiplomaticActionType="DIPLOACTION_TEST" Worth="-200" Cost="200"/>
+	</DiplomaticStateActions>
+	-->
 	
 </GameInfo>	

@@ -76,8 +76,10 @@
 		<Row FeatureType="FEATURE_FOREST_SPARSE"	ResourceType="RESOURCE_PLANTS" 	NumPerFeature="3"/>
 		<Row FeatureType="FEATURE_FOREST"			ResourceType="RESOURCE_WOOD" 	NumPerFeature="9"/>
 		<Row FeatureType="FEATURE_FOREST"			ResourceType="RESOURCE_PLANTS" 	NumPerFeature="3"/>
+		<Row FeatureType="FEATURE_FOREST"			ResourceType="RESOURCE_DEER" 	NumPerFeature="1"/>
 		<Row FeatureType="FEATURE_FOREST_DENSE"		ResourceType="RESOURCE_WOOD" 	NumPerFeature="18"/>
 		<Row FeatureType="FEATURE_FOREST_DENSE"		ResourceType="RESOURCE_PLANTS" 	NumPerFeature="3"/>
+		<Row FeatureType="FEATURE_FOREST_DENSE"		ResourceType="RESOURCE_DEER" 	NumPerFeature="3"/>
 		<Row FeatureType="FEATURE_MARSH" 			ResourceType="RESOURCE_PLANTS" 	NumPerFeature="8"/>
 		<Row FeatureType="FEATURE_MARSH" 			ResourceType="RESOURCE_CLAY" 	NumPerFeature="4"/>
 		<Row FeatureType="FEATURE_FLOODPLAINS"		ResourceType="RESOURCE_CLAY" 	NumPerFeature="6"/>

@@ -38,6 +38,11 @@ local forestID		= GameInfo.Features["FEATURE_FOREST"].Index
 local denseID		= GameInfo.Features["FEATURE_FOREST_DENSE"].Index
 local sparseID		= GameInfo.Features["FEATURE_FOREST_SPARSE"].Index
 	
+local GameEraByChronologyIndex = {}
+for row in GameInfo.Eras() do
+	GameEraByChronologyIndex[row.ChronologyIndex] = row.Index
+end	
+
 -----------------------------------------------------------------------------------------
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
@@ -46,7 +51,7 @@ local GCO 	= {}
 local pairs = pairs
 local Dprint, Dline, Dlog, Div
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
-	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts 
+	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts
 	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
 	Dline		= GCO.Dline					-- output current code line number to firetuner/log
 	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
@@ -191,26 +196,30 @@ end
 -----------------------------------------------------------------------------------------
 local gameEra = 0
 function UpdateGameEra()
+	local DEBUG_GAME_SCRIPT = "debug"
 	Dprint( DEBUG_GAME_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_GAME_SCRIPT, "Setting Game Era...")
-	local averageEra 	= 0
+	local averageEra 	= 1 -- ChronologyIndex
 	local totalEra		= 0
 	local count 		= 0
 	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
 		local player = Players[playerID]
 		if player and player:IsAlive() and (not player:IsBarbarian()) and player:GetCities():GetCapitalCity() then
-			totalEra 	= totalEra + player:GetEra()
+		Dprint( DEBUG_GAME_SCRIPT, " - Player#"..tostring(playerID).." Adding = ", GameInfo.Eras[player:GetEra()].ChronologyIndex)
+			totalEra 	= totalEra + GameInfo.Eras[player:GetEra()].ChronologyIndex
 			count		= count + 1
 		end	
 	end
 	if count > 0 then 
-		averageEra = math.floor(totalEra / count)
+		averageEra = math.max(1,math.floor(totalEra / count))
 	else 
-		averageEra = 0
+		averageEra = 1
 	end
 	Dprint( DEBUG_GAME_SCRIPT, "- averageEra = ", averageEra)
-	if averageEra ~= gameEra then
-		gameEra = averageEra
+	
+	local currentEra = GameEraByChronologyIndex[averageEra]
+	if currentEra ~= gameEra then
+		gameEra = currentEra
 		GCO.StatusMessage("[COLOR:Blue]Global Era is [ENDCOLOR] ".. Locale.Lookup(GameInfo.Eras[gameEra].Name), 6, ReportingStatusTypes.GOSSIP)
 	end
 end
@@ -224,15 +233,17 @@ end
 -- Initializing new turn
 -----------------------------------------------------------------------------------------
 function EndingTurn()
+	--local DEBUG_GAME_SCRIPT = "debug"
 	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
-	Dprint( DEBUG_GAME_SCRIPT, "---+                                                                     ENDING TURN # ".. tostring(Game.GetCurrentGameTurn()))
+	Dprint( DEBUG_GAME_SCRIPT, "---+                                                                     ENDING TURN # ".. Indentation(Game.GetCurrentGameTurn(),3,true) .. "                                                                                    +---")
 	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
 end
-Events.PreTurnBegin.Add(EndingTurn)
+--Events.PreTurnBegin.Add(EndingTurn)
 
 function InitializeNewTurn()
+	local DEBUG_GAME_SCRIPT = "debug"
 	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
-	Dprint( DEBUG_GAME_SCRIPT, "---+                                                                    STARTING TURN # ".. tostring(Game.GetCurrentGameTurn()))
+	Dprint( DEBUG_GAME_SCRIPT, "---+                                                                    STARTING TURN # ".. Indentation(Game.GetCurrentGameTurn(),3,true) .. "                                                                                   +---")
 	Dprint( DEBUG_GAME_SCRIPT, "---+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+==+---")
 	
 	GCO.StartTimer("UpdateDataOnNewTurn")

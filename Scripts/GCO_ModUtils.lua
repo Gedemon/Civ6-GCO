@@ -18,12 +18,13 @@ local debugFilter = {
 --	["UnitScript"] 		= true,
 --	["PlotScript"] 		= true,
 --	["ResearchScript"] 	= true,
+--	["AltHistScript"] 	= true,
 }
 
-local bNoOutput 		= false
-local bErrorToScreen 	= true
-local bWarningToScreen	= false
-local bNoWarningForUI	= true
+bNoOutput 			= false
+bErrorToScreen 		= true
+bWarningToScreen	= false
+bNoWarningForUI		= true
 
 --=====================================================================================--
 -- Defines
@@ -48,6 +49,8 @@ ExposedMembers.GCO_Initialized 				= nil
 ExposedMembers.GameEvents					= GameEvents
 --ExposedMembers.LuaEvents					= LuaEvents
 
+if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
+
 local ResourceValue = {			-- cached table with value of resources type
 		["RESOURCECLASS_LUXURY"] 	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_LUXURY"].Value),
 		["RESOURCECLASS_STRATEGIC"]	= tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME_RESOURCE_STRATEGIC"].Value),
@@ -64,11 +67,17 @@ local equipmentCostRatio = tonumber(GameInfo.GlobalParameters["CITY_TRADE_INCOME
 local IsEquipment		= {}		-- cached table to check if ResourceID is an Equipment
 local IsFood			= {}
 local IsEdibleFood		= {}
+local tProduceFood		= {}		-- table with all resources producing edible food
+local IsGranaryResource	= {}
 local EdibleFoodList	= {}
 local IsEquipmentMaker 	= {}
 local IsLuxury		 	= {}
+local IsNoTechRequired	= {}
 for resourceRow in GameInfo.Resources() do
 
+	if resourceRow.PrereqTech == nil then
+		IsNoTechRequired[resourceRow.Index] = true
+	end
 	if resourceRow.ResourceClassType == "RESOURCECLASS_LUXURY" then
 		IsLuxury[resourceRow.Index] = true
 	end
@@ -88,13 +97,29 @@ for resourceRow in GameInfo.Resources() do
 		if resourceType == productionRow.ResourceType then
 			if productionRow.ResourceCreated and GameInfo.Resources[productionRow.ResourceCreated].ResourceClassType == "RESOURCECLASS_FOOD" then
 				IsFood[resourceRow.Index] = true
+				table.insert(tProduceFood, resourceRow.Index)
 			end
 			if GameInfo.Equipment[productionRow.ResourceCreated] then
 				IsEquipmentMaker[resourceRow.Index] = true
 			end
 		end
+		if productionRow.BuildingType == "BUILDING_GRANARY" and resourceType == productionRow.ResourceType then
+			IsGranaryResource[resourceRow.Index] = true
+		end		
 	end
 end
+
+local IsForest			= {
+	[GameInfo.Features["FEATURE_FOREST"].Index]			= true,
+	[GameInfo.Features["FEATURE_FOREST_DENSE"].Index]   = true,
+	[GameInfo.Features["FEATURE_FOREST_SPARSE"].Index]  = true,
+}
+
+local IsSnow			= {
+	[GameInfo.Terrains["TERRAIN_SNOW"].Index] 			= true,
+	[GameInfo.Terrains["TERRAIN_SNOW_HILLS"].Index] 	= true,
+	[GameInfo.Terrains["TERRAIN_SNOW_MOUNTAIN"].Index]	= true,
+}
 
 
 local ResourceTempIcons = {		-- Table to store temporary icons for resources until new FontIcons could be added...
@@ -109,6 +134,12 @@ local ResourceTempIcons = {		-- Table to store temporary icons for resources unt
 		[GameInfo.Resources["RESOURCE_GRAIN"].Index] 						= "[ICON_Food]",
 		[GameInfo.Resources["RESOURCE_PERSONNEL"].Index]					= "[ICON_Position]",
 		[GameInfo.Resources["RESOURCE_WOOD_PLANKS"].Index]					= "[ICON_RESOURCE_WOOD_PLANKS]",
+
+		[GameInfo.Resources["POPULATION_UPPER"].Index]						= "[ICON_GreatPerson]",
+		[GameInfo.Resources["POPULATION_MIDDLE"].Index]						= "[ICON_Citizen]",
+		[GameInfo.Resources["POPULATION_LOWER"].Index]						= "[ICON_LowerClass]",
+		[GameInfo.Resources["POPULATION_SLAVE"].Index]						= "[ICON_SlaveClass]",
+		[GameInfo.Resources["POPULATION_PRISONERS"].Index]					= "[ICON_SlaveClass]",
 		
 		[GameInfo.Resources["RESOURCE_WOODEN_HULL_PART"].Index]				= "[ICON_RESOURCE_WOODEN_HULL_PART]",
 		[GameInfo.Resources["RESOURCE_STEEL_HULL_PART"].Index]				= "[ICON_EQUIPMENT_DESTROYER]",
@@ -320,8 +351,7 @@ function IsInitializedGCO() -- we can't use something like GameEvents.ExposedFun
 end
 
 local GCO = {}
-local OptionGet
-local OptionSet
+local OptionGet, OptionSet, OptionSet
 function InitializeUtilityFunctions() 	-- Get functions from other contexts
 	if IsInitializedGCO() then 	
 		print ("All GCO script files loaded...")
@@ -497,6 +527,7 @@ function Error(...)
 	local str = string.match(err, '\'Error.-$')
 	print(str)
 	LuaEvents.StopAuToPlay()
+	if not ExposedMembers.GCO_Initialized then return str end
 	ExposedMembers.UI.PlaySound("Alert_Negative")
 	if bErrorToScreen then GCO.StatusMessage("[COLOR:Red]ERROR detected :[ENDCOLOR] ".. table.concat({ ... }, " "), 20) end
 	return str
@@ -534,7 +565,7 @@ end
 function Dline(...)
 	local status, err = pcall(function () error("custom error") end)
 	local str = string.match(err, 'Dline.-$')
-	local str = string.match(str, 'GCO_.-$')
+	local str = string.match(str, 'GCO_.-$') or string.match(str, 'lua.-$')
 	local str = string.match(str, ':.-\'')
 	local str = string.match(str, '%d+')
 	Dprint("debug", "at line "..str, select(1,...))	
@@ -543,8 +574,10 @@ end
 
 function DlineFull(...)
 	local status, err = pcall(function () error("custom error") end)
-	local str = string.match(err, 'DlineFull.-$')
-	Dprint(str)
+	if not (bNoWarningForUI and string.find(err, "\\UI\\")) then
+		local str = string.match(err, 'DlineFull.-$')
+		Dprint("debug", str)
+	end
 end
 
 function LogFullLine(...)
@@ -597,11 +630,12 @@ function Monitor(f, arguments, name)
 	local name = name or "Monitoring"
 	StartTimer(name)
 	print("Monitoring", f, name)
-	local status, err = pcall(f,unpack(arguments))
+	local status, res = pcall(f,unpack(arguments))
 	if not status then
-		Error(err)
+		Error(res)
 	end
 	ShowTimer(name)
+	return status and res
 end
 
 -- Compare tables
@@ -931,7 +965,7 @@ function ShowTimer(name) -- bShowInGame, seconds are optionnal
 		return
 	end
 	local diff 		= 0
-	local maxDif	= 0.75 -- 0.5
+	local maxDif	= 0.25 -- 0.5
 	if Timer[name] and Timer[name].Start and Timer[name].Stop then
 		diff = Timer[name].Stop-Timer[name].Start
 	elseif Timer[name] and Timer[name].Start then
@@ -1030,6 +1064,36 @@ function FindNearestPlayerCity( eTargetPlayer, iX, iY )
     return pCity, iShortestDistance;
 end
 
+function FindNearestPlayerVillage( eTargetPlayer, iX, iY, bIgnorePillaged )
+
+	local villagePlotID 	= nil
+    local iShortestDistance = math.huge
+	local pPlayer = Players[eTargetPlayer]
+	if pPlayer then
+		local kVillages = GCO.GetPlayerTribalVillages(eTargetPlayer)
+		for _, plotKey in ipairs(kVillages) do
+			local plotID 	= tonumber(plotKey)
+			local pPlot		= GCO.GetPlotByIndex(plotID)
+			local village	= GCO.GetTribalVillageAt(plotID)
+			if village and village.IsCentral and (bIgnorePillaged or not pPlot:IsImprovementPillaged()) then
+				local iDistance = Map.GetPlotDistance(iX, iY, pPlot:GetX(), pPlot:GetY())
+				if (iDistance < iShortestDistance) then
+					villagePlotID = plotID
+					iShortestDistance = iDistance
+				end
+			end
+		end
+	else
+		print ("WARNING : Player is nil in FindNearestPlayerVillage for ID = ".. tostring(eTargetPlayer) .. "at" .. tostring(iX) ..","..tostring(iY))
+	end
+
+	if (not villagePlotID) then
+		--print ("No city found of player " .. tostring(eTargetPlayer) .. " in range of " .. tostring(iX) .. ", " .. tostring(iY));
+	end
+   
+    return villagePlotID, iShortestDistance;
+end
+
 function GetRouteEfficiency(length)
 	return GCO.Round( 100 - math.pow(length,2) )
 end
@@ -1090,12 +1154,37 @@ function GetAdjacentPlots(plot)
 	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		local adjacentPlot 	= Map.GetAdjacentPlot(iX, iY, direction)
 		if adjacentPlot then
-			table.insert(list, adjacentPlot)
+			table.insert(list, adjacentPlot:GetIndex())
 		end		
 	end
 	return list
 end
 
+function GetPlotsInRange(pPlot, iRange)
+
+	local tPlots 	= {}
+	local plotX 	= pPlot:GetX();
+	local plotY 	= pPlot:GetY();
+	for dx = -iRange, iRange - 1, 1 do
+		for dy = -iRange, iRange - 1, 1 do
+			local pOtherPlot = Map.GetPlotXYWithRangeCheck(plotX, plotY, dx, dy, iRange)
+			if(pOtherPlot) then
+				table.insert(tPlots, pOtherPlot:GetIndex())
+			end
+		end
+	end
+	return tPlots
+end
+
+function NoAdjacentImprovement(pPlot)
+	for i, adjacentPlotID in ipairs(GetAdjacentPlots(pPlot)) do
+		local adjacentPlot = GCO.GetPlotByIndex(adjacentPlotID)
+		if adjacentPlot:GetImprovementType() ~= NO_IMPROVEMENT then
+			return false
+		end
+	end
+	return true
+end
 
 --=====================================================================================--
 -- Modifiers
@@ -1216,35 +1305,43 @@ Events.CityInitialized.Add(CityCaptureCityInitialized)
 --=====================================================================================--
 -- Colors
 --=====================================================================================--
+function ColorStringToNumber(colorStr)
+	--print("ColorStringToNumber ", colorStr )
+	hexString = ""
+	for numStr in string.gmatch(colorStr, '([^,]+)') do
+		local num = tonumber(numStr)
+		local hex = ""
+		if (num < 0 or num == 0) then
+			hex = "00";
+		elseif (num > 255 or num == 255) then
+			hex = "ff";
+		else
+			hex = string.format("%x",num);
+			if (string.len(hex)==1) then
+				hex = "0"..hex;
+			end
+		end
+	
+		hexString = hex .. hexString
+		--print(hexString)
+	end
+	local returnDec = (tonumber(hexString,16) + 2^31) % 2^32 - 2^31 -- see https://stackoverflow.com/questions/37411564/hex-to-int32-value
+	--print("Return : ", returnDec )
+	return returnDec
+end
+	
 function GetPlayerColors(playerID)
 
 	--print("---------------------------------------")
 	--print(pPlayerConfig:GetLeaderTypeName())
 	local pPlayerConfig = GCO.GetPlayerConfig(playerID)
 	
-	local function ColorStringToNumber(colorStr)
-		--print("ColorStringToNumber ", colorStr )
-		hexString = ""
-		for numStr in string.gmatch(colorStr, '([^,]+)') do
-			local num = tonumber(numStr)
-			local hex = ""
-			if (num < 0 or num == 0) then
-				hex = "00";
-			elseif (num > 255 or num == 255) then
-				hex = "ff";
-			else
-				hex = string.format("%x",num);
-				if (string.len(hex)==1) then
-					hex = "0"..hex;
-				end
-			end
-		
-			hexString = hex .. hexString
-			--print(hexString)
-		end
-		local returnDec = (tonumber(hexString,16) + 2^31) % 2^32 - 2^31 -- see https://stackoverflow.com/questions/37411564/hex-to-int32-value
-		--print("Return : ", returnDec )
-		return returnDec
+	-- first test for config colors
+	local PrimaryColor, SecondaryColor = pPlayerConfig:GetValue("PrimaryColor"), pPlayerConfig:GetValue("SecondaryColor")
+	if PrimaryColor and SecondaryColor then
+		local frontColor	= ColorStringToNumber(GameInfo.ColorsLegacy[PrimaryColor].Color)
+		local backColor		= ColorStringToNumber(GameInfo.ColorsLegacy[SecondaryColor].Color)
+		return frontColor, backColor
 	end
 	
 	local colorRow 		= GameInfo.PlayerColors[pPlayerConfig:GetLeaderTypeName()]
@@ -1299,6 +1396,9 @@ end
 function GetSizeAtPopulation(population)
 	return math.max(1,GCO.Round(math.pow(population / 1000, 1 / populationPerSizepower)))
 end
+function GetRealSizeAtPopulation(population)
+	return math.pow(population / 1000, 1 / populationPerSizepower)
+end
 
 --=====================================================================================--
 -- Resources
@@ -1332,6 +1432,14 @@ end
 
 function IsResourceEdibleFood(resourceID)
 	return (IsEdibleFood[resourceID] == true)
+end
+
+function GetProduceFoodResources()
+	return tProduceFood
+end
+
+function IsResourceGranaryProduced(resourceID)
+	return IsGranaryResource[resourceID]
 end
 
 function GetEdibleFoodList()
@@ -1383,6 +1491,27 @@ function IsScholarResource(resourceID)
 	return GameInfo.Resources[resourceID] and GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_KNOWLEDGE"
 end
 
+function IsNoTechRequiredResource(resourceID)
+	return IsNoTechRequired[resourceID]
+end
+
+
+--=====================================================================================--
+-- Features
+--=====================================================================================--
+function IsFeatureForest(FeatureID)
+	return IsForest[FeatureID]
+end
+
+
+--=====================================================================================--
+-- Terrains
+--=====================================================================================--
+function IsTerrainSnow(terrainID)
+	return IsSnow[terrainID]
+end
+
+
 --=====================================================================================--
 -- Units
 --=====================================================================================--
@@ -1390,6 +1519,72 @@ end
 function KillUnit(unitID,playerID)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	UnitManager.Kill(unit)
+end
+
+
+function CreateUnitWithEquipmentList(UnitType, playerID, iX, iY, personnel, equipmentList, organizationLevel, personnelType)
+	
+	local DEBUG = "debug"
+	
+	if not GameInfo.Units[UnitType] then
+		GCO.Error("can't find "..tostring(UnitType).." in GameInfo.Units for CreateUnitWithEquipmentList")
+		return
+	end
+	
+	local player		= GCO.GetPlayer(playerID)
+	local personnelType	= personnelType or UnitPersonnelType.Conscripts
+	local sUnitType		= GameInfo.Units[UnitType].UnitType
+	local unit 			= UnitManager.InitUnit(playerID, sUnitType, iX, iY)
+		
+	-- initialize at 0 HP...
+	Dprint( DEBUG, "Initializing unit...")
+	unit:SetDamage(100)
+	
+	local initialHP 				= 0
+	local organizationLevel			= organizationLevel or player:GetConscriptOrganizationLevel()
+	local turnsActive				= tonumber(GameInfo.GlobalParameters["ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS"].Value)
+	
+	local policies	= player:GetActivePolicies()
+	for _, policyID in ipairs(policies) do
+		turnsActive = turnsActive + GameInfo.Policies[policyID].ActiveTurnsLeftBoost
+	end
+
+	GCO.AttachUnitFunctions(unit)
+	GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
+	
+	if personnel then
+		--unit:ChangeStock(personnelResourceID, personnel)
+		unit:ChangeComponent("PersonnelReserve", personnel)
+	end
+	
+	-- Initialize Equipment before healing to use only equipmentList (else the function add default equipment for units spawned outside the mod direct control) 
+	unit:InitializeEquipment(equipmentList)
+	
+	if personnelType ~= UnitPersonnelType.StandingArmy then
+		unit:SetValue("CanChangeOrganization", nil)
+		unit:SetValue("ActiveTurnsLeft", turnsActive)
+	end
+	
+	unit:SetValue("UnitPersonnelType", personnelType)
+	
+	-- heal completly...			
+	Dprint( DEBUG, "Healing...")
+	local bNoLimit 	= true
+	local maxHP		= 100
+	unit:Heal(maxHP, maxHP, bNoLimit)
+	
+	-- try to upgrade...
+	Dprint( DEBUG, "Upgrading...")
+	local newUnitType 	= unit:GetTypesFromEquipmentList()			
+	if newUnitType and newUnitType ~= unit:GetType() then
+		local newUnit = GCO.ChangeUnitTo(unit, newUnitType)
+		if newUnit then
+			newUnit:Heal(maxHP, maxHP, bNoLimit)
+			return newUnit
+		end
+	end
+	
+	return unit
 end
 
 
@@ -1438,8 +1633,8 @@ end
 Events.UnitCaptured.Add(OnUnitCapturedCheckCapture)
 
 -- Settler Founds City Events
-local settlerID	= nil
-local founderID	= nil
+ExposedMembers.GCO.settlerID	= nil
+ExposedMembers.GCO.founderID	= nil
 local kFeature	= {}
 
 function OnCheckFeatureRemovedForCity(featureID, iX, iY)
@@ -1451,23 +1646,23 @@ GameEvents.FeatureRemoved.Add(OnCheckFeatureRemovedForCity)
 
 function OnCheckSettlerFoundCityUnitOperation(playerID, unitID, operationType, _ )
 	if operationType == UnitOperationTypes.FOUND_CITY then
-		if settlerID then
-			GCO.Warning("SettlerID already was already set in OnCheckSettlerFoundCity, playerId#"..tostring(founderID)..", settler unitId#"..tostring(settlerID))
+		if ExposedMembers.GCO.settlerID then
+			GCO.Warning("SettlerID already was already set in OnCheckSettlerFoundCity, playerId#"..tostring(ExposedMembers.GCO.founderID)..", settler unitId#"..tostring(ExposedMembers.GCO.settlerID))
 			print("OnCheckSettlerFoundCityUnitOperation:",playerID, unitID, operationType, _ )
 		end
-		settlerID = unitID
-		founderID = playerID
+		ExposedMembers.GCO.settlerID = unitID
+		ExposedMembers.GCO.founderID = playerID
 	end
 end
 Events.UnitOperationStarted.Add(OnCheckSettlerFoundCityUnitOperation)
 
 function OnCheckSettlerFoundCityInitialized(playerID, cityID, iX, iY)
-	if settlerID then
-		if founderID == playerID then
+	if ExposedMembers.GCO.settlerID then
+		if ExposedMembers.GCO.founderID == playerID then
 			local featureID = (kFeature.X == iX and kFeature.Y == iY) and kFeature.ID or -1
-			GameEvents.SettlerFoundedCity.Call(playerID, settlerID, cityID, iX, iY, featureID)
+			GameEvents.SettlerFoundedCity.Call(playerID, ExposedMembers.GCO.settlerID, cityID, iX, iY, featureID)
 		else
-			GCO.Warning("FounderID is not PlayerID in OnCheckSettlerFoundCityInitialized, playerId#"..tostring(playerID)..", founderID#"..tostring(founderID))
+			GCO.Warning("FounderID is not PlayerID in OnCheckSettlerFoundCityInitialized, playerId#"..tostring(playerID)..", founderID#"..tostring(ExposedMembers.GCO.founderID))
 			print("OnCheckSettlerFoundCityInitialized:",playerID, cityID, iX, iY)
 		end
 	else
@@ -1475,8 +1670,8 @@ function OnCheckSettlerFoundCityInitialized(playerID, cityID, iX, iY)
 		print("OnCheckSettlerFoundCityInitialized:",playerID, cityID, iX, iY)
 	end
 	kFeature	= {}
-	settlerID	= nil
-	founderID	= nil
+	ExposedMembers.GCO.settlerID	= nil
+	ExposedMembers.GCO.founderID	= nil
 end
 Events.CityInitialized.Add(OnCheckSettlerFoundCityInitialized) -- called after Events.CityAddedToMap in wich the city data is initialized
 
@@ -1587,7 +1782,7 @@ function GetEquipmentPropertyString(equipmentID)
 	end
 	local IgnorePersonnelArmor = EquipmentInfo[equipmentID].IgnorePersonnelArmor
 	if IgnorePersonnelArmor and IgnorePersonnelArmor > 0 then
-		str = str .. StartStr() .. tostring(IgnorePersonnelArmor) .."[ICON_IgnorArmor]"
+		str = str .. StartStr() .. tostring(IgnorePersonnelArmor) .."[ICON_IgnoreArmor]"
 	end
 	return str
 end
@@ -1648,7 +1843,7 @@ end
 -- GCO Options
 --=====================================================================================--
 local OptionSection			= "Interface"					-- "Interface" if OptionGet = Options.GetUserOption, "UI" if OptionGet = Options.GetAppOption
-local OptionTypeOverride 	= "PlayHistoricMomentAnimation" -- even if R&F is disabled by GCO, we can't use this else it would mess with people using R&F (maybe check if R&F use "value = 0" or "value = 1" to use the option, and overwrite when this is set to the one not used ?)
+local OptionTypeOverride 	= "SeenCrossPlayMultiplayer" 	-- this should be reused as displayed once first time launching the game after the EGS release, values different than nil or 0 are considered "true"
 local OptionsGCO			= {"Test1", "Test2"} 			-- to do : XML table 
 local OptionsBit			= {}
 
@@ -1686,7 +1881,6 @@ end
 --=====================================================================================--
 
 function Initialize()
-	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	-- utils
 	ExposedMembers.GCO.OrderedPairs 	= orderedPairs
 	-- maths
@@ -1732,17 +1926,21 @@ function Initialize()
 	ExposedMembers.GCO.GetBuildingYieldValueFromType		= GetBuildingYieldValueFromType
 	-- color
 	ExposedMembers.GCO.GetPlayerColors				= GetPlayerColors
+	ExposedMembers.GCO.ColorStringToNumber			= ColorStringToNumber
 	-- common
 	ExposedMembers.GCO.GetTotalPrisoners 			= GetTotalPrisoners
 	ExposedMembers.GCO.GetTurnKey 					= GetTurnKey
 	ExposedMembers.GCO.GetPreviousTurnKey			= GetPreviousTurnKey
 	-- map
 	ExposedMembers.GCO.FindNearestPlayerCity 		= FindNearestPlayerCity
+	ExposedMembers.GCO.FindNearestPlayerVillage		= FindNearestPlayerVillage
 	ExposedMembers.GCO.GetRouteEfficiency 			= GetRouteEfficiency
 	ExposedMembers.GCO.CalculateMaxRouteLength		= CalculateMaxRouteLength
 	ExposedMembers.GCO.SupplyPathBlocked 			= SupplyPathBlocked
 	ExposedMembers.GCO.TradePathBlocked 			= TradePathBlocked
 	ExposedMembers.GCO.GetAdjacentPlots				= GetAdjacentPlots
+	ExposedMembers.GCO.GetPlotsInRange				= GetPlotsInRange
+	ExposedMembers.GCO.NoAdjacentImprovement				= NoAdjacentImprovement
 	-- Modifiers
 	ExposedMembers.GCO.GetEffectModifiers			= GetEffectModifiers
 	ExposedMembers.GCO.GetModifierEffects			= GetModifierEffects
@@ -1757,6 +1955,7 @@ function Initialize()
 	-- population
 	ExposedMembers.GCO.GetPopulationAtSize			= GetPopulationAtSize
 	ExposedMembers.GCO.GetSizeAtPopulation			= GetSizeAtPopulation
+	ExposedMembers.GCO.GetRealSizeAtPopulation		= GetRealSizeAtPopulation
 	-- Resources
 	ExposedMembers.GCO.GetBaseResourceCost 			= GetBaseResourceCost
 	ExposedMembers.GCO.IsResourceEquipment			= IsResourceEquipment
@@ -1765,7 +1964,9 @@ function Initialize()
 	ExposedMembers.GCO.IsResourceLuxury 				= IsResourceLuxury
 	ExposedMembers.GCO.IsResourceEquipmentMaker			= IsResourceEquipmentMaker
 	ExposedMembers.GCO.IsResourceEdibleFood 			= IsResourceEdibleFood
+	ExposedMembers.GCO.GetProduceFoodResources			= GetProduceFoodResources
 	ExposedMembers.GCO.GetEdibleFoodList 				= GetEdibleFoodList
+	ExposedMembers.GCO.IsResourceGranaryProduced		= IsResourceGranaryProduced
 	ExposedMembers.GCO.GetResourceIcon					= GetResourceIcon
 	ExposedMembers.GCO.GetResourceImprovementID			= GetResourceImprovementID
 	ExposedMembers.GCO.IsImprovingResource				= IsImprovingResource
@@ -1773,6 +1974,11 @@ function Initialize()
 	ExposedMembers.GCO.IsScholarResource				= IsScholarResource
 	ExposedMembers.GCO.IsAdministrativeResource			= IsAdministrativeResource
 	ExposedMembers.GCO.GetAdministrativeResourceValue	= GetAdministrativeResourceValue
+	ExposedMembers.GCO.IsNoTechRequiredResource			= IsNoTechRequiredResource
+	-- Features
+	ExposedMembers.GCO.IsFeatureForest					= IsFeatureForest
+	-- Terrains	
+	ExposedMembers.GCO.IsTerrainSnow					= IsTerrainSnow
 	-- texts
 	ExposedMembers.GCO.GetPrisonersStringByCiv 			= GetPrisonersStringByCiv
 	ExposedMembers.GCO.GetVariationString 				= GetVariationString
@@ -1784,6 +1990,8 @@ function Initialize()
 	ExposedMembers.GCO.GetEquipmentPropertyString		= GetEquipmentPropertyString
 	ExposedMembers.GCO.GetPercentBarString				= GetPercentBarString
 	ExposedMembers.GCO.GetEvaluationStringFromValue		= GetEvaluationStringFromValue
+	-- Units
+	ExposedMembers.GCO.CreateUnitWithEquipmentList		= CreateUnitWithEquipmentList
 	-- Coroutines
 	ExposedMembers.GCO.CheckCoroutinePause				= CheckCoroutinePause
 	ExposedMembers.GCO.AddCoToList						= AddCoToList

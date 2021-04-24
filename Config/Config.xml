@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameInfo>
 	<Logos>
-		<Row LogoTexture="MainLogoGCO.dds" LogoMovie="TitleBG.bk2" Priority="100" />
+		<Row LogoTexture="MainLogoGCO.dds" LogoMovie="TitleBG_GCO.bik" Priority="100" />
 	</Logos>
 	<Parameters>
 		<!--	Add specific resources around TSL (see CivilizationRequestedResource table and PostConfig.sql)
@@ -12,4 +12,34 @@
 		-->
 		<Replace ParameterId="UseLocalTechStorage" Name="LOC_GAME_LOCAL_TECH_STORAGE" Description="LOC_GAME_LOCAL_TECH_STORAGE_DESCRIPTION" Domain="bool" DefaultValue="1" ConfigurationGroup="Game" ConfigurationId="UseLocalTechStorage" GroupId="AdvancedOptions" SortIndex="5000"/>
 	</Parameters>
+	
+	<ReservedPlayerSlots>
+		<Row LeaderType="LEADER_BARB_PEACE" />
+		<Row LeaderType="LEADER_TRIBE_EURO_1" />
+		<Row LeaderType="LEADER_TRIBE_ASIAN_1" />
+		<Row LeaderType="LEADER_TRIBE_SOUTHAM_1" />
+		<Row LeaderType="LEADER_TRIBE_MEDIT_1" />
+		<Row LeaderType="LEADER_TRIBE_AFRICAN_1" />
+		<Row LeaderType="LEADER_TRIBE_EURO_2" />
+		<Row LeaderType="LEADER_TRIBE_ASIAN_2" />
+		<Row LeaderType="LEADER_TRIBE_SOUTHAM_2" />
+		<Row LeaderType="LEADER_TRIBE_MEDIT_2" />
+		<Row LeaderType="LEADER_TRIBE_AFRICAN_2" />
+		<Row LeaderType="LEADER_TRIBE_EURO_3" />
+		<Row LeaderType="LEADER_TRIBE_ASIAN_3" />
+		<Row LeaderType="LEADER_TRIBE_SOUTHAM_3" />
+		<Row LeaderType="LEADER_TRIBE_MEDIT_3" />
+		<Row LeaderType="LEADER_TRIBE_AFRICAN_3" />
+		<Row LeaderType="LEADER_TRIBE_EURO_4" />
+		<Row LeaderType="LEADER_TRIBE_ASIAN_4" />
+		<Row LeaderType="LEADER_TRIBE_SOUTHAM_4" />
+		<Row LeaderType="LEADER_TRIBE_MEDIT_4" />
+		<Row LeaderType="LEADER_TRIBE_AFRICAN_4" />
+		<Row LeaderType="LEADER_TRIBE_EURO_5" />
+		<Row LeaderType="LEADER_TRIBE_ASIAN_5" />
+		<Row LeaderType="LEADER_TRIBE_SOUTHAM_5" />
+		<Row LeaderType="LEADER_TRIBE_MEDIT_5" />
+		<Row LeaderType="LEADER_TRIBE_AFRICAN_5" />
+	</ReservedPlayerSlots>
+	
 </GameInfo>

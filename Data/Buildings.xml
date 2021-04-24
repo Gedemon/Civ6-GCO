@@ -29,7 +29,8 @@
 		<Row BuildingType="BUILDING_SMALL_STABLE"				Cost="40" 	MaterielPerProduction="4" PrereqTech="TECH_ANIMAL_HUSBANDRY" 	EmploymentSize="1.00"	EquipmentStock="250" />
 		<Row BuildingType="BUILDING_BLACKSMITH"					Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_BRONZE_WORKING"		EmploymentSize="1.00"	EquipmentStock="250" 	ObsoleteEra="ERA_INDUSTRIAL"/>
 		<Row BuildingType="BUILDING_SMALL_BARRACKS"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_WARRIOR_CODE"		EmploymentSize="0.50"	EquipmentStock="300"/>
-		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="60" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="2.00"	Coast = "1"  			ObsoleteEra="ERA_INDUSTRIAL"/>
+		<Row BuildingType="BUILDING_CITY_HARBOR"				Cost="30" 	MaterielPerProduction="4" PrereqTech="TECH_SAILING" 			EmploymentSize="1.00"	Coast = "1"  			ObsoleteEra="ERA_INDUSTRIAL"/>
+		<Row BuildingType="BUILDING_CITY_SHIPYARD"				Cost="120" 	MaterielPerProduction="5" PrereqTech="TECH_SHIPBUILDING"		EmploymentSize="1.00"	Coast = "1"  			ObsoleteEra="ERA_INDUSTRIAL"/>
 		
 		<Row BuildingType="BUILDING_SCRIBE_HOUSE" 				Cost="40" 	MaterielPerProduction="2" PrereqTech="TECH_PICTOGRAM" 			EmploymentSize="0.15"	ObsoleteEra="ERA_MEDIEVAL"/>
 		
@@ -93,7 +94,7 @@
 		<Row BuildingType="BUILDING_ATOMIC_MIDDLE_HOUSING_2" 	Cost="580" 	MaterielPerProduction="4" PrereqTech="TECH_PLASTICS"	NoPedia="1" />
 		<Row BuildingType="BUILDING_ATOMIC_UPPER_HOUSING_2" 	Cost="740" 	MaterielPerProduction="6" PrereqTech="TECH_PLASTICS"	NoPedia="1" />
 		
-		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" 			Cost="240" 	MaterielPerProduction="40"  PrereqTech="TECH_ARMORED_WARFARE"	PrereqDistrict="DISTRICT_HARBOR" />
+		<Row BuildingType="BUILDING_LARGE_DRY_DOCK" 			Cost="240" 	MaterielPerProduction="40"  PrereqTech="TECH_ARMORED_WARFARE" />
 		
 		<Row BuildingType="BUILDING_SMALL_AIRCRAFT_FACTORY" 	Cost="240" 	MaterielPerProduction="15"  PrereqTech="TECH_FLIGHT"				PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
 		<Row BuildingType="BUILDING_LARGE_AIRCRAFT_FACTORY" 	Cost="260" 	MaterielPerProduction="25"  PrereqTech="TECH_ADVANCED_FLIGHT"		PrereqDistrict="DISTRICT_INDUSTRIAL_ZONE"  	/>
@@ -154,6 +155,8 @@
 		<Replace BuildingType="BUILDING_MARKET_EXTENSION"	UpgradeType="BUILDING_INDUSTRIAL_MARKET"	ProductionBonus="100" />
 		<Replace BuildingType="BUILDING_INDUSTRIAL_MARKET"	UpgradeType="BUILDING_HYPERMARKET"			ProductionBonus="100" />
 		
+		<Replace BuildingType="BUILDING_CITY_HARBOR"		UpgradeType="BUILDING_CITY_SHIPYARD"		ProductionBonus="100" />
+		<Replace BuildingType="BUILDING_CITY_SHIPYARD"		UpgradeType="BUILDING_SHIPYARD"				ProductionBonus="100" />
 		
 		<Replace BuildingType="BUILDING_ANCIENT_LOWER_HOUSING_1" 		UpgradeType="BUILDING_MEDIEVAL_LOWER_HOUSING_1" 	ProductionBonus="100" />
 		<Replace BuildingType="BUILDING_ANCIENT_MIDDLE_HOUSING_1" 		UpgradeType="BUILDING_MEDIEVAL_MIDDLE_HOUSING_1" 	ProductionBonus="100" />
@@ -355,7 +358,9 @@
 	
 	<BuildingPrereqs>
 	<!---->
-		<Row Building="BUILDING_LIGHTHOUSE" 				PrereqBuilding="BUILDING_CITY_SHIPYARD" 	/>
+		<Row Building="BUILDING_LIGHTHOUSE" 				PrereqBuilding="BUILDING_CITY_HARBOR" 	/>
+		<Row Building="BUILDING_LIGHTHOUSE" 				PrereqBuilding="BUILDING_CITY_SHIPYARD" />
+		<Row Building="BUILDING_LIGHTHOUSE" 				PrereqBuilding="BUILDING_SHIPYARD" 		/>
 		
 		<!-- Should be handled with upgrade path now ->
 		<Row Building="BUILDING_ANCIENT_LOWER_HOUSING_2" 	PrereqBuilding="BUILDING_ANCIENT_LOWER_HOUSING_1" 	/>
@@ -677,6 +682,9 @@
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD_PLANKS" MaxConverted="20" 	ResourceCreated="EQUIPMENT_CATAPULTS" 		Ratio="0.1"	MultiResCreated="1" />
 		<Row BuildingType="BUILDING_ARTILLATOR"		ResourceType="RESOURCE_WOOD_PLANKS" MaxConverted="20" 	ResourceCreated="EQUIPMENT_TREBUCHETS" 		Ratio="0.1"	MultiResCreated="1" />
 		
+		<Row BuildingType="BUILDING_CITY_HARBOR" 	ResourceType="RESOURCE_WOOD_PLANKS"			MaxConverted="10" 	ResourceCreated="RESOURCE_WOODEN_HULL_PART" Ratio="0.10" />
+		<Row BuildingType="BUILDING_CITY_HARBOR" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="1" 	ResourceCreated="EQUIPMENT_GALLEY" 			Ratio="0.50" />
+		
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOOD_PLANKS"			MaxConverted="10" 	ResourceCreated="RESOURCE_WOODEN_HULL_PART" Ratio="0.10" />
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="1" 	ResourceCreated="EQUIPMENT_GALLEY" 			Ratio="0.50" />
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="4" 	ResourceCreated="EQUIPMENT_QUADRIREME" 		Ratio="0.25" />
@@ -687,6 +695,7 @@
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_BOMBARDS"			MaxConverted="20" 	ResourceCreated="EQUIPMENT_PRIVATEER" 		Ratio="0.05" 	MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="8" 	ResourceCreated="EQUIPMENT_FRIGATE" 		Ratio="0.125" 	MultiResRequired="1"  />
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_BOMBARDS"			MaxConverted="25" 	ResourceCreated="EQUIPMENT_FRIGATE" 		Ratio="0.04" 	MultiResRequired="1"  />
+		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_WOODEN_HULL_PART"	MaxConverted="4" 	ResourceCreated="EQUIPMENT_CARAVEL" 		Ratio="0.25" />
 		
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_STEEL"				MaxConverted="50" 	ResourceCreated="RESOURCE_STEEL_HULL_PART" 	Ratio="0.02" />
 		
@@ -1129,6 +1138,11 @@
 		<Row BuildingType="BUILDING_STABLE" 		ResourceType="EQUIPMENT_UNIFORM"		Stock="1000" />
 		-->
 		
+		<Row BuildingType="BUILDING_CITY_HARBOR" 	ResourceType="RESOURCE_WOOD"			Stock="500"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_CITY_HARBOR" 	ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="20"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_CITY_HARBOR" 	ResourceType="EQUIPMENT_GALLEY"			Stock="6"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_CITY_HARBOR" 	ResourceType="RESOURCE_PERSONNEL" 		Stock="25"/>
+		
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOOD"			Stock="500"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="RESOURCE_WOODEN_HULL_PART"Stock="20"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD" 	ResourceType="EQUIPMENT_GALLEY"			Stock="6"	FixedValue="1"/>
@@ -1140,6 +1154,7 @@
 		<Row BuildingType="BUILDING_SHIPYARD"		ResourceType="RESOURCE_WOOD_PLANKS" 	Stock="60"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_PRIVATEER"		Stock="4"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_FRIGATE"		Stock="4"	FixedValue="1"/>
+		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="EQUIPMENT_CARAVEL"		Stock="6"	FixedValue="1"/>
 		<Row BuildingType="BUILDING_SHIPYARD" 		ResourceType="RESOURCE_PERSONNEL" 		Stock="50"/>		
 		
 		<Row BuildingType="BUILDING_SEAPORT" 		ResourceType="RESOURCE_STEEL_HULL_PART"	Stock="20"	FixedValue="1"/>
@@ -1322,6 +1337,7 @@
 		<Row BuildingType="BUILDING_STABLE"				YieldType="YIELD_RESEARCH_MILITARY" YieldChange="3"/>
 		<Row BuildingType="BUILDING_MILITARY_ACADEMY"	YieldType="YIELD_RESEARCH_MILITARY" YieldChange="6"/>
 		
+		<Row BuildingType="BUILDING_CITY_HARBOR"		YieldType="YIELD_RESEARCH_NAVAL" YieldChange="1"/>
 		<Row BuildingType="BUILDING_CITY_SHIPYARD"		YieldType="YIELD_RESEARCH_NAVAL" YieldChange="2"/>
 		<Row BuildingType="BUILDING_SHIPYARD"			YieldType="YIELD_RESEARCH_NAVAL" YieldChange="4"/>
 				
@@ -1488,7 +1504,6 @@
 		<Replace Era="ERA_MODERN" Building="BUILDING_UNIVERSITY" District="DISTRICT_CITY_CENTER"/>
 		<Replace Era="ERA_ATOMIC" Building="BUILDING_STAR_FORT" District="DISTRICT_CITY_CENTER"/>
 		<Replace Era="ERA_ATOMIC" Building="BUILDING_BANK" District="DISTRICT_CITY_CENTER"/>
-		<Replace Era="ERA_ATOMIC" Building="BUILDING_SHIPYARD" District="DISTRICT_HARBOR"/>
 		<Replace Era="ERA_INFORMATION" Building="BUILDING_FACTORY" District="DISTRICT_INDUSTRIAL_ZONE"/>
 		<Replace Era="ERA_INFORMATION" Building="BUILDING_STOCK_EXCHANGE" District="DISTRICT_COMMERCIAL_HUB"/>
 		<Replace Era="ERA_INFORMATION" Building="BUILDING_SEWER" District="DISTRICT_CITY_CENTER"/>

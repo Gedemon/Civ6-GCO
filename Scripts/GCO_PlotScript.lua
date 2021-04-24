@@ -20,6 +20,9 @@ local _cached			= {}	-- cached table to reduce calculations
 
 local mapName			= MapConfiguration.GetValue("MapName")
 
+local RiverMap 			= {}	-- we could save and reference YnAMP.RiverMap, but it doesn't exist for non-TSL maps, and we want to keep saved data as low as possible, so we're caching the River Map on load instead
+local PlotRivers		= {}	-- list of RiverIDs for each plot PlotRivers = { (plotID] = { [riverID] = true, ...}, ...}
+
 local DirectionString 	= {
 	[DirectionTypes.DIRECTION_NORTHEAST] 	= "NORTHEAST",
 	[DirectionTypes.DIRECTION_EAST] 		= "EAST",
@@ -29,12 +32,6 @@ local DirectionString 	= {
 	[DirectionTypes.DIRECTION_NORTHWEST] 	= "NORTHWEST"
 	}
 	
-local SEPARATIST_CULTURE 			= tostring(GameInfo.CultureGroups["CULTURE_SEPARATIST"].Index)	-- must use string for table keys for correct serialisation/deserialisation
-local INDEPENDENT_CULTURE 			= tostring(GameInfo.CultureGroups["CULTURE_INDEPENDENT"].Index)
-local NO_IMPROVEMENT 				= -1
-local NO_FEATURE	 				= -1
-local NO_OWNER 						= -1
-local NO_RESOURCE					= -1
 local iDiffusionRatePer1000 		= 1
 
 local iRoadMax		 				= tonumber(GameInfo.GlobalParameters["CULTURE_FOLLOW_ROAD_MAX"].Value)
@@ -55,6 +52,8 @@ local bAllowCultureFlipping			= tonumber(GameInfo.GlobalParameters["CULTURE_ALLO
 local FEATURE_ICE 					= GameInfo.Features["FEATURE_ICE"].Index
 local TERRAIN_COAST 				= GameInfo.Terrains["TERRAIN_COAST"].Index
 
+local GoodyHutID 					= GameInfo.Improvements["IMPROVEMENT_GOODY_HUT"].Index
+
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
 local steelResourceID 			= GameInfo.Resources["RESOURCE_STEEL"].Index
@@ -74,7 +73,7 @@ local ResourceStockPerSize 		= tonumber(GameInfo.GlobalParameters["CITY_STOCK_PE
 local FoodStockPerSize 			= tonumber(GameInfo.GlobalParameters["CITY_FOOD_STOCK_PER_SIZE"].Value)
 local LuxuryStockRatio 			= tonumber(GameInfo.GlobalParameters["CITY_LUXURY_STOCK_RATIO"].Value)
 local PersonnelPerSize	 		= tonumber(GameInfo.GlobalParameters["CITY_PERSONNEL_PER_SIZE"].Value)
-local EquipmentBaseStock 		= tonumber(GameInfo.GlobalParameters["CITY_STOCK_EQUIPMENT"].Value)
+local EquipmentBaseStock 		= tonumber(GameInfo.GlobalParameters["PLOT_MAX_STOCK_EQUIPMENT"].Value)
 
 local MaxBaseEmployement 		= tonumber(GameInfo.GlobalParameters["PLOT_MAX_BASE_EMPLOYMENT"].Value)
 local MaxImprovedEmployement	= tonumber(GameInfo.GlobalParameters["PLOT_MAX_IMPROVED_EMPLOYMENT"].Value)
@@ -88,7 +87,7 @@ local UpperClassID 				= GameInfo.Resources["POPULATION_UPPER"].Index
 local MiddleClassID 			= GameInfo.Resources["POPULATION_MIDDLE"].Index
 local LowerClassID 				= GameInfo.Resources["POPULATION_LOWER"].Index
 local SlaveClassID 				= GameInfo.Resources["POPULATION_SLAVE"].Index
-local PersonnelClassID			= GameInfo.Resources["POPULATION_PERSONNEL"].Index
+local PersonnelClassID			= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local PrisonersClassID			= GameInfo.Resources["POPULATION_PRISONERS"].Index
 
 local BaseBirthRate 				= tonumber(GameInfo.GlobalParameters["CITY_BASE_BIRTH_RATE"].Value)
@@ -127,6 +126,7 @@ end
 
 local CultureRegions	= {}
 local RegionCultures	= {}
+--[[
 for row in GameInfo.CultureGroupsStartingRegions() do
 	CultureRegions[row.CultureType]		= CultureRegions[row.CultureType] or {}
 	RegionCultures[row.StartingRegion]	= RegionCultures[row.StartingRegion] or {}
@@ -134,13 +134,15 @@ for row in GameInfo.CultureGroupsStartingRegions() do
 	CultureRegions[row.CultureType][row.StartingRegion] = true
 	RegionCultures[row.StartingRegion][row.CultureType]	= true
 end
+--]]
+	
 	
 -----------------------------------------------------------------------------------------
 -- Debug
 -----------------------------------------------------------------------------------------
 
 DEBUG_PLOT_SCRIPT			= "PlotScript"
-DEBUG_PLOT_TURN				= false			-- when true use pcall for plots turn
+DEBUG_PLOT_TURN				= true			-- when true use pcall for plots turn
 local debugTable 			= {}			-- table used to output debug data from some functions
 
 
@@ -175,9 +177,9 @@ function SaveTables()
 	GCO.SaveTableToSlot(ExposedMembers.PlotData, "PlotData")
 	
 	-- debug
-	for plotKey, values in pairs(ExposedMembers.MigrationMap) do
-		GCO.SaveTableToSlot(values, "debug_"..plotKey) -- if the MigrationMap fail to save, this will also return an error, but for specific plots
-	end
+	--for plotKey, values in pairs(ExposedMembers.MigrationMap) do
+	--	GCO.SaveTableToSlot(values, "debug_"..plotKey) -- if the MigrationMap fail to save, this will also return an error, but for specific plots
+	--end
 end
 GameEvents.SaveTables.Add(SaveTables)
 
@@ -215,6 +217,7 @@ function PostInitialize() -- everything that may require other context to be loa
 	ExposedMembers.PlotData 			= GCO.LoadTableFromSlot("PlotData") 			or CreatePlotData()
 	
 	SetGlobals() -- initialize YnAMP Common
+	SetRiverIDs()
 	InitializePlotFunctions()
 	SetCultureDiffusionRatePer1000()
 	SetInitialMapPopulation()
@@ -429,6 +432,49 @@ function SetOwner(self, ownerID, cityID)
 	end
 end
 
+
+function GetDirectionStringTo(self, otherPlot, iDistance)
+
+	local gridWidth, gridHeight = Map.GetGridSize()
+	
+	local iX, iY	= self:GetX(), self:GetY()
+	local oX, oY	= otherPlot:GetX(), otherPlot:GetY()
+	
+	local iDistance = iDistance or 5
+	
+	local yDiff = self:GetY() - otherPlot:GetY()
+	local xDiff = self:GetX() - otherPlot:GetX()
+	
+	if Map:IsWrapX() and math.abs(xDiff) > Map.GetPlotDistance(iX, iY, oX, oY) then
+		xDiff = xDiff > 0 and xDiff - gridWidth or xDiff + gridWidth
+	end
+	
+	local ratioXY = yDiff ~= 0 and math.abs(xDiff) / math.abs(yDiff) or gridWidth
+	
+	if ratioXY > iDistance then --East/West only
+	
+		return xDiff > 0 and "LOC_DIRECTION_WEST" or "LOC_DIRECTION_EAST"
+
+	elseif ratioXY > 1/iDistance then
+
+		if xDiff > 0 then
+		
+			return yDiff > 0 and "LOC_DIRECTION_SOUTH_WEST" or "LOC_DIRECTION_NORTH_WEST"
+		
+		else
+		
+			return yDiff > 0 and "LOC_DIRECTION_SOUTH_EAST" or "LOC_DIRECTION_NORTH_EAST"
+			
+		end
+	
+	else -- North/South only
+	
+		return yDiff > 0 and "LOC_DIRECTION_SOUTH" or "LOC_DIRECTION_NORTH"
+
+	end
+
+end
+
 function GetPlotDiffusionValuesTo(self, iDirection)
 	local plotKey = self:GetKey()
 	if not _cached[plotKey] then
@@ -636,19 +682,19 @@ function GetCulturePercent( self, cultureID )
 	return 0
 end
 
-function GetHighestCulturePlayer( self )
+function GetHighestCultureID( self )
 	local topPlayer
 	local topValue = 0
 	local plotCulture = self:GetCultureTable()
 	if  plotCulture then
-		for cultureID, value in pairs (plotCulture) do
+		for cultureKey, value in pairs (plotCulture) do
 			if value > topValue then
 				topValue = value
-				topPlayer = cultureID
+				topPlayer = cultureKey
 			end
 		end
 	end
-	return topPlayer -- can be nil
+	return tonumber(topPlayer) -- can be nil
 end
 
 function GetTotalPreviousCulture( self )
@@ -777,7 +823,7 @@ function GetTerritorialWaterOwner( self )
 	return territorialWaterOwner
 end
 
-function MatchCultureToPopulation( self )
+function MatchCultureToPopulation( self, population)
 
 	if debugTable["MatchCultureToPopulation"] ~= nil then
 		GCO.Error("previous call to MatchCultureToPopulation has failed for ".. self:GetX()..","..self:GetY())
@@ -792,54 +838,61 @@ function MatchCultureToPopulation( self )
 
 	-- Adapt Culture to Population
 	local totalCulture		= self:GetTotalCulture()
-	local totalPopulation	= self:GetPopulation()
-	local removeRatio		= 0
-	local addRatio			= 0
-
-	if totalPopulation < totalCulture then
-		local toRemove	= totalCulture - totalPopulation
-		removeRatio		= Div(toRemove, totalCulture)
-	elseif totalCulture < totalPopulation then
-		local toAdd		= totalPopulation - totalCulture
-		addRatio		= Div(toAdd, totalPopulation)	
-	end
+	local totalPopulation	= population or self:GetPopulation()
+	if totalCulture ~= totalPopulation then
 	
-	local plotCulture = self:GetCultureTable()
-	if plotCulture then
-		table.insert(textTable, "----- Culture and Population matching -----")
-		for cultureID, value in pairs (plotCulture) do
-			
-			-- Match Culture to Population
-			if value > 0 then
-				local change = 0
-				if removeRatio > 0 then
-					change	= - math.ceil(removeRatio * value) --
+		if not self:IsCity() and population == nil then
+			GCO.Error("totalCulture ~= totalPopulation on a non-city plot at ".. self:GetX()..","..self:GetY())
+		end
+	
+		local removeRatio		= 0
+		local addRatio			= 0
+
+		if totalPopulation < totalCulture then
+			local toRemove	= totalCulture - totalPopulation
+			removeRatio		= Div(toRemove, totalCulture)
+		elseif totalCulture < totalPopulation then
+			local toAdd		= totalPopulation - totalCulture
+			addRatio		= Div(toAdd, totalPopulation)	
+		end
+		
+		local plotCulture = self:GetCultureTable()
+		if plotCulture then
+			table.insert(textTable, "----- Culture and Population matching -----")
+			for cultureID, value in pairs (plotCulture) do
 				
-				elseif addRatio > 0 then
-					change	= math.floor(addRatio * value) --
-				end
-				if change ~= 0 then
-					if (value + change) <= 0 then
-						self:SetCulture(cultureID, 0)
-						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] + change [".. tostring(change) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", ".. tostring(0)..")")
-					else
-						self:ChangeCulture(cultureID, change)
-						table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - change [".. tostring(change) .."]) = ".. tostring(value - change).."  -> ChangeCulture("..tostring(cultureID) ..", ".. tostring(- change)..")")	
+				-- Match Culture to Population
+				if value > 0 then
+					local change = 0
+					if removeRatio > 0 then
+						change	= - math.ceil(removeRatio * value) --
+					
+					elseif addRatio > 0 then
+						change	= math.floor(addRatio * value) --
 					end
+					if change ~= 0 then
+						if (value + change) <= 0 then
+							self:SetCulture(cultureID, 0)
+							table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] + change [".. tostring(change) .."]) <= 0 -> SetCulture("..tostring(cultureID) ..", ".. tostring(0)..")")
+						else
+							self:ChangeCulture(cultureID, change)
+							table.insert(textTable, "Player #"..tostring(cultureID) .." (value ["..tostring(value).."] - change [".. tostring(change) .."]) = ".. tostring(value - change).."  -> ChangeCulture("..tostring(cultureID) ..", ".. tostring(- change)..")")	
+						end
+					end
+				else -- remove dead culture
+					ExposedMembers.CultureMap[self:GetKey()][tostring(cultureID)] = nil
+					table.insert(textTable, "Player #"..tostring(cultureID) .." value ["..tostring(value).."] <= 0 before change, removing entry...")	
 				end
-			else -- remove dead culture
-				ExposedMembers.CultureMap[self:GetKey()][tostring(cultureID)] = nil
-				table.insert(textTable, "Player #"..tostring(cultureID) .." value ["..tostring(value).."] <= 0 before change, removing entry...")	
 			end
+			
+			-- Handle rounding values
+			local totalCulture	= self:GetTotalCulture()
+			if totalPopulation > totalCulture then
+				self:ChangeCulture(INDEPENDENT_CULTURE, totalPopulation - totalCulture )
+			end
+			
+			table.insert(textTable, "----- ----- -----")
 		end
-		
-		-- Handle rounding values
-		local totalCulture	= self:GetTotalCulture()
-		if totalPopulation > totalCulture then
-			self:ChangeCulture(INDEPENDENT_CULTURE, totalPopulation - totalCulture )
-		end
-		
-		table.insert(textTable, "----- ----- -----")
 	end
 	--if self:GetOwner() == Game.GetLocalPlayer() then ShowDebug() end
 	debugTable["MatchCultureToPopulation"] = nil
@@ -906,43 +959,7 @@ function UpdateCulture( self )
 		Dprint( DEBUG_PLOT_SCRIPT, "Update culture in ".. city:GetName() .. ", Total Culture = " .. tostring(totalCulture))
 		
 		-- Culture creation in cities
-		--[[
-		local baseCulture = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_BASE_PRODUCTION"].Value)
-		local maxCulture = city:GetRealPopulation() --(city:GetPopulation() + GCO.GetCityCultureYield(self)) * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value)
-		table.insert(textTable, "baseCulture = " .. tostring(baseCulture) ..", maxCulture ["..tostring(maxCulture).."] = (city:GetPopulation() ["..tostring(city:GetPopulation()) .." + GCO.GetCityCultureYield(self)[".. tostring(GCO.GetCityCultureYield(self)).."]) * CULTURE_CITY_CAPED_FACTOR["..tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value).."]")
-		if self:GetTotalCulture() < maxCulture then -- don't add culture if above max, the excedent will decay each turn
-			if plotCulture then
-				-- First add culture for city owner				
-				local cultureAdded = 0
-				local value = self:GetCulture( city:GetOwner() )
-				if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
-					cultureAdded = GCO.Round((city:GetSize() + GCO.GetCityCultureYield(self)) * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
-				else
-					cultureAdded = GCO.Round((city:GetSize() + GCO.GetCityCultureYield(self)) * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
-				end	
-				cultureAdded = cultureAdded + baseCulture
-				table.insert(textTable, "- Player#".. tostring(cultureID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
-				self:ChangeCulture(cityCultureID, cultureAdded)	
-				
-				-- Then update all other Culture
-				for cultureID, value in pairs (plotCulture) do
-					if value > 0 then
-						local cultureAdded = 0
-						if GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() then
-							if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
-								cultureAdded = GCO.Round(city:GetSize() * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
-							else
-								cultureAdded = GCO.Round(city:GetSize() * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
-							end
-							self:ChangeCulture(cultureID, cultureAdded)
-						end					
-					end				
-				end
-			elseif self:GetOwner() == city:GetOwner() then -- initialize culture in city
-				self:ChangeCulture(cityCultureID, baseCulture)
-			end
-		end
-		--]]
+		-- (commented out at end of file)
 		
 		-- Culture Conversion in cities
 		local cultureConversionRatePer10000 = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CONVERSION_RATE"].Value)
@@ -1215,6 +1232,62 @@ function DiffuseCulture( self )
 	debugTable["DiffuseCulture"] = nil
 end
 
+function GetCultureString(self)
+	local cultureHeader 	= ""
+	local tCultureString	= {}
+	local totalCulture		= self:GetTotalCulture()
+	if totalCulture > 0 then
+		local sortedCulture = {}
+		for cultureKey, value in pairs (self:GetCultureTable()) do -- GetCulturePercentTable
+			table.insert(sortedCulture, {cultureID = tonumber(cultureKey), value = value})
+		end	
+		table.sort(sortedCulture, function(a,b) return a.value>b.value end)
+		local totalPrevCulture	= self:GetTotalPreviousCulture()
+		local numLines 			= 5
+		local other 			= 0
+		local iter 				= 1
+		local iSlaves			= self:GetStock(SlaveClassID)
+		local maxCultureLen		= math.max(string.len(totalCulture), string.len(iSlaves))
+		local maxVarLen			= string.len(totalCulture - totalPrevCulture) + 1
+		local bAlignRight		= true
+		
+		-- 
+		--table.insert(popDetails, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ).. GCO.GetVariationStringNoColorHigh(totalCulture - totalPrevCulture))
+		
+		cultureHeader = Indentation("", 13) .. Indentation("", maxCultureLen, bAlignRight) .. "[ICON_Position]" .. Indentation("", 5 + maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%"
+		--table.insert(tCultureString, Indentation("", 15) .. Indentation("", math.max(1,maxCultureLen-2), bAlignRight) .. "[ICON_Position]" .. Indentation("", 4, bAlignRight) .. Indentation("", maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%" )
+		--table.insert(tCultureString, "[ICON_Culture]" .. Indentation(Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_GROUPS"), 13) .. Indentation("", math.max(1,maxCultureLen-2), bAlignRight) .. "[ICON_Position]" .. Indentation("", 4, bAlignRight) .. Indentation("", maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%" )
+		for i, t in ipairs(sortedCulture) do
+			if (iter <= numLines) or (#sortedCulture == numLines + 1) then
+				--local playerConfig 		= PlayerConfigurations[t.playerID]
+				local percentVariation 	= (self:GetCulturePer10000(t.cultureID) - self:GetPreviousCulturePer10000(t.cultureID)) / 100
+				local variation 		= (self:GetCulture(t.cultureID) - self:GetPreviousCulture(t.cultureID))
+				local cultureAdjective 	= GameInfo.CultureGroups[t.cultureID].Adjective	--playerConfig and Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective) or "Independant"
+				if t.value > 0 then
+					--table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, cultureAdjective, t.value / totalCulture * 100) .. GCO.GetVariationString(variation))	-- GetVariationStringNoColorPercent
+					local percentStr 	= Locale.Lookup("LOC_PERCENT_1", t.value / totalCulture * 100)
+					local percentVarStr	= Locale.Lookup("LOC_VAR_NUMBER_2",percentVariation)
+					table.insert(tCultureString, Indentation(Locale.Lookup(cultureAdjective), 15) .. "|" .. Indentation(t.value, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation(variation, maxVarLen, bAlignRight) .. "|" .. Indentation(percentVarStr, 6, bAlignRight) )	--
+				end
+			else
+				other = other + t.value
+			end
+			iter = iter + 1
+		end
+		if other > 0 then
+			--table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER", other))
+			local percentStr 	= Locale.Lookup("LOC_PERCENT_1", other / totalCulture * 100)
+			table.insert(tCultureString, Indentation(Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER"), 15) .. "|" .. Indentation(other, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation("-", maxVarLen, bAlignRight) .. "|" .. Indentation("-", 6, bAlignRight) )	--
+		end
+		
+		if iSlaves > 0 then
+			table.insert(tCultureString, Indentation(Locale.Lookup("LOC_POPULATION_SLAVE_NAME"), 15) .. "|" .. Indentation(iSlaves, maxCultureLen, bAlignRight) .. "|")
+		end
+	end
+	return tCultureString, cultureHeader
+end
+
+
 
 -----------------------------------------------------------------------------------------
 -- Other Functions
@@ -1230,7 +1303,6 @@ function GetCultureIDFromPlayerID(playerID)
 	local CivilizationType	= playerConfig:GetCivilizationTypeName()
 	return GameInfo.CultureGroups[CivilizationType].Index
 end
-
 
 function GetOppositeDirection(dir)
 	local numTypes = DirectionTypes.NUM_DIRECTION_TYPES;
@@ -1493,25 +1565,55 @@ function nodeToPlotEdge(node)
 	local pos  = string.find(node, ",")
 	local plotIndex = tonumber(string.sub(node, 1 , pos -1))
 	local edge = tonumber(string.sub(node, pos +1))
-	return Map.GetPlotByIndex(plotIndex), edge
+	return GCO.GetPlotByIndex(plotIndex), edge
 end
 
-function GetRiverPath(self, destPlot)
-	local bFound = false
-	local newPath
-	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
-		if not bFound and self:IsEdgeRiver(direction) then
-			newPath = self:GetRiverPathFromEdge(direction, destPlot)
-			if newPath then bFound = true end
+function GetRiverIdForNode(plot, edge)
+	local node = plotToNode(plot, edge)
+	if not RiverMap[node] then GCO.Error("River Map entry is nil for node#"..tostring(node).." in direction ".. tostring(DirectionString[edge]) .." for plot"..string.format("(%i, %i)", plot:GetX(), plot:GetY())) end
+	return RiverMap[node]
+end
+
+function IsPlotSameRiver(iPlot, iOtherPlot)
+	if PlotRivers[iPlot] and PlotRivers[iOtherPlot] then
+		local OtherRivers = PlotRivers[iOtherPlot]
+		for riverID, _ in pairs(PlotRivers[iPlot]) do
+			if OtherRivers[riverID] then
+				return true
+			end
 		end
 	end
-	return newPath
+	return false
+end 
+
+function GetRiverPath(self, destPlot, iPlayer)
+	--local bFound 	= false
+	local bestPath	= nil
+	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+		--if not bFound and self:IsEdgeRiver(direction) then
+		if self:IsEdgeRiver(direction) then
+			local newPath = self:GetRiverPathFromEdge(direction, destPlot, iPlayer)
+			if newPath then 
+				--bFound = true
+				if bestPath then
+					if #newPath < #bestPath then
+						bestPath = newPath
+					end
+				else
+					bestPath = newPath
+				end
+			end
+		end
+	end
+	return bestPath
 end
 
-function GetRiverPathFromEdge(self, edge, destPlot)
-	local DEBUG_PLOT_SCRIPT			= false
+function GetRiverPathFromEdge(self, edge, destPlot, iPlayer) -- Will check visibility if iPlayer is not nil
+	local DEBUG_PLOT_SCRIPT	= false
 
 	if not self:IsRiver() or not destPlot:IsRiver() then return end	
+	
+	local pPlayerVis	= iPlayer and PlayersVisibility[iPlayer] or nil
 	
 	local startPlot	= self
 	local closedSet = {}
@@ -1524,7 +1626,7 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 	
 	Dprint( DEBUG_PLOT_SCRIPT, "CHECK FOR RIVER PATH BETWEEN : ", startPlot:GetX(), startPlot:GetY(), " edge direction = ", DirectionString[edge] ," and ", destPlot:GetX(), destPlot:GetY(), " distance = ", Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY()) )
 	
-	function GetPath(currentNode)
+	local function GetPath(currentNode)
 		local path 		= {}
 		local seen 		= {}
 		local current 	= currentNode
@@ -1565,21 +1667,13 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 			return GetPath(currentNode)
 		end
 		
-		local neighbors = GetRiverNeighbors(currentNode)
+		local neighbors = GetRiverNeighbors(currentNode, pPlayerVis)
 		for i, data in ipairs(neighbors) do
 			local node = plotToNode(data.Plot, data.Edge)
 			if not closedSet[node] then
 				if gScore[node] == nil then
 					local nodeDistance 		= Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), currentPlot:GetX(), currentPlot:GetY())
 					
-					--[[
-					for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
-						if Map.GetAdjacentPlot(data.Plot:GetX(), data.Plot:GetY(), direction) then							
-							local oppositeEdge		= (data.Edge + 3) % 6
-							if data.Plot:IsEdgeRiver(data.Edge) and currentPlot:IsEdgeRiver(oppositeEdge) then nodeDistance = nodeDistance + 10; break end
-						end
-					end
-					--]]
 					if data.Plot:IsRiverCrossingToPlot(currentPlot) then nodeDistance = nodeDistance + 0.15 end
 					local destDistance		= Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), destPlot:GetX(), destPlot:GetY())
 					local tentative_gscore 	= (gScore[currentNode] or math.huge) + nodeDistance
@@ -1609,8 +1703,12 @@ function GetRiverPathFromEdge(self, edge, destPlot)
 	Dprint( DEBUG_PLOT_SCRIPT, "failed to find a path")
 end
 
-function GetRiverNeighbors(node)
-	local DEBUG_PLOT_SCRIPT			= false
+function GetRiverNeighbors(node, pPlayerVis)
+
+	local function IsVisible(plot)
+		return pPlayerVis == nil or pPlayerVis:IsRevealed(plot:GetX(), plot:GetY())
+	end
+	
 	Dprint( DEBUG_PLOT_SCRIPT, "Get neighbors :")
 	local neighbors 				= {}
 	local plot, edge 				= nodeToPlotEdge(node)
@@ -1623,7 +1721,7 @@ function GetRiverNeighbors(node)
 	Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", plot:GetX(), plot:GetY(), " river edge  = ", DirectionString[nextEdge])
 	if plot:IsEdgeRiver(nextEdge) then
 		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", plot:GetX(), plot:GetY(), " river edge  = ", DirectionString[nextEdge])
- 		table.insert( neighbors, { Plot = plot, Edge = nextEdge } ) 
+		table.insert( neighbors, { Plot = plot, Edge = nextEdge } ) 
 	end
 
 	-- Check previous edge, same plot
@@ -1636,21 +1734,21 @@ function GetRiverNeighbors(node)
 	-- Add Opposite plot, same edge
 	--Dprint( DEBUG_PLOT_SCRIPT, "- Testing : ", oppositePlot:GetX(), oppositePlot:GetY(), " river edge  = ", DirectionString[oppositeEdge])
 	--if oppositePlot:IsEdgeRiver(oppositeEdge) then
-	if oppositePlot then
+	if oppositePlot and (IsVisible(oppositePlot) or IsVisible(plot)) then
 		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", oppositePlot:GetX(), oppositePlot:GetY(), " river edge  = ", DirectionString[oppositeEdge])
 		table.insert( neighbors, { Plot = oppositePlot, 	Edge = oppositeEdge } )
 	end
 	
 	-- Test diverging edge on next plot (clock direction)
 	local clockPlot, clockEdge		= plot:GetNextClockRiverPlot(nextEdge)
-	if clockPlot then
+	if clockPlot and (IsVisible(clockPlot) or IsVisible(plot)) then
 		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", clockPlot:GetX(), clockPlot:GetY(), " river edge  = ", DirectionString[clockEdge])
 		table.insert(neighbors, { Plot = clockPlot, Edge = clockEdge }	)
 	end
 	
 	-- Test diverging edge on previous plot (counter-clock direction)
 	local counterPlot, counterEdge	= plot:GetNextCounterClockRiverPlot(prevEdge)
-	if counterPlot then 
+	if counterPlot and (IsVisible(counterPlot) or IsVisible(plot)) then 
 		Dprint( DEBUG_PLOT_SCRIPT, "- Adding : ", counterPlot:GetX(), counterPlot:GetY(), " river edge  = ", DirectionString[counterEdge])
 		table.insert(neighbors, { Plot = counterPlot, 	Edge = counterEdge }) 
 	end
@@ -1658,15 +1756,356 @@ function GetRiverNeighbors(node)
 	return neighbors
 end
 
+function SetRiverIDs()
+
+	local DEBUG_PLOT_SCRIPT = "debug"
+	
+	Dprint( DEBUG_PLOT_SCRIPT, "Set River IDS...")
+
+	local riverID 	= 0
+
+	function MarkRiver(node)
+		local plot, edge 	= nodeToPlotEdge(node)
+		local plotID		= plot:GetIndex()
+		RiverMap[node] 		= riverID
+		PlotRivers[plotID]	= PlotRivers[plotID] or {}
+		
+		PlotRivers[plotID][riverID] = true
+		
+		for _, row in ipairs(GetRiverNeighbors(node)) do
+			local nextNode	= plotToNode(row.Plot, row.Edge)
+			if not RiverMap[nextNode] then MarkRiver(nextNode) end
+		end
+	end
+	
+	-- mark all rivers
+	local iW, iH = Map.GetGridSize()
+	for x = 0, iW - 1, 1 do
+		for y = 0, iH - 1, 1 do
+			local pPlot = Map.GetPlot(x,y)
+			if pPlot:IsWOfRiver() then
+				local node = plotToNode(pPlot, DirectionTypes.DIRECTION_EAST)
+				if not RiverMap[node] then
+					MarkRiver(node)
+					riverID = riverID  + 1
+				end
+			end
+			if pPlot:IsNWOfRiver() then
+				local node = plotToNode(pPlot, DirectionTypes.DIRECTION_SOUTHEAST)
+				if not RiverMap[node] then
+					MarkRiver(node)
+					riverID = riverID  + 1
+				end
+			end
+			if pPlot:IsNEOfRiver() then
+				local node = plotToNode(pPlot, DirectionTypes.DIRECTION_SOUTHWEST)
+				if not RiverMap[node] then
+					MarkRiver(node)
+					riverID = riverID  + 1
+				end
+			end
+		end
+	end
+	
+	Dprint( DEBUG_PLOT_SCRIPT, "- Added ID to "..tostring(riverID).." rivers")
+end 
 
 -----------------------------------------------------------------------------------------
 -- Pathfinder Functions
 -----------------------------------------------------------------------------------------
 
+function GetRoadPath(plot, destPlot, sRoute, maxRange, iPlayer, bAllowHiddenRoute)
+
+	local routes = {"Land", "Road", "Railroad", "Coastal", "Ocean", "Submarine", "AnyLand"}
+
+	-- Is the plot passable for this route type ...
+	local function isPassable(pPlot, sRoute)
+	  bPassable = true
+
+		-- ... due to terrain, eg those covered in ice
+		if (pPlot:GetFeatureType() == g_FEATURE_ICE) then
+			if sRoute ~= routes[6] then
+				bPassable = false
+			end
+		elseif pPlot:IsImpassable() then
+			bPassable = false
+		end
+
+	  return bPassable
+	end
+	
+	local function GetNeighbors(node, iPlayer, sRoute, startPlot, destPlot, maxRange, bAllowHiddenRoute)
+
+		local neighbors 				= {}
+		local plot 						= node
+		
+		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+			local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction);
+			
+			if (adjacentPlot ~= nil) then
+				
+				local distanceFromStart = Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), startPlot:GetX(), startPlot:GetY())
+				if maxRange == nil or distanceFromStart <= maxRange then
+				
+					local distanceFromDest	= Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), destPlot:GetX(), destPlot:GetY())				
+					if maxRange == nil or distanceFromDest <= maxRange then
+				
+						local IsPlotRevealed 	= bAllowHiddenRoute
+						local pPlayer 			= Players[iPlayer]
+						if pPlayer then
+							local pPlayerVis = PlayersVisibility[pPlayer:GetID()]
+							if (pPlayerVis ~= nil) then
+								if (pPlayerVis:IsRevealed(adjacentPlot:GetX(), adjacentPlot:GetY())) then -- IsVisible
+								  IsPlotRevealed = true
+								end
+							end
+						end
+					
+						if (pPlayer == nil or IsPlotRevealed) then
+							local bAdd = false
+
+							-- Be careful of order, must check for road before rail, and coastal before ocean
+							if (sRoute == routes[7] and not(adjacentPlot:IsWater())) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is any land")
+							  bAdd = true
+							elseif (sRoute == routes[1] and not( adjacentPlot:IsImpassable() or adjacentPlot:IsWater())) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is passable land")
+							  bAdd = true
+							elseif (sRoute == routes[2] and adjacentPlot:GetRouteType() ~= RouteTypes.NONE) then	
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is road")	
+							  bAdd = true
+							elseif (sRoute == routes[3] and adjacentPlot:GetRouteType() >= 1) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is railroad")
+							  bAdd = true
+							elseif (sRoute == routes[4] and adjacentPlot:GetTerrainType() == TERRAIN_COAST) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Coast")
+							  bAdd = true
+							elseif (sRoute == routes[5] and adjacentPlot:IsWater()) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Water")
+							  bAdd = true
+							elseif (sRoute == routes[6] and adjacentPlot:IsWater()) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Water")
+							  bAdd = true
+							end
+
+							-- Special case for water, a city on the coast counts as water
+							if (not bAdd and (sRoute == routes[4] or sRoute == routes[5] or sRoute == routes[6])) then
+							  bAdd = adjacentPlot:IsCity()
+							end
+
+							-- Check for impassable and blockaded tiles
+							bAdd = bAdd and isPassable(adjacentPlot, sRoute) --and not isBlockaded(adjacentPlot, pPlayer, fBlockaded, pPlot)
+
+							if (bAdd) then
+								table.insert( neighbors, { Plot = adjacentPlot } )
+							end
+						end
+					end
+				end
+			end
+		end
+		
+		return neighbors
+	end
+
+	local startPlot	= plot
+	local closedSet = {}
+	local openSet	= {}
+	local comeFrom 	= {}
+	local gScore	= {}
+	local fScore	= {}
+	
+	local startNode	= startPlot
+	local bestCost	= 0.10
+	
+	local adjancentRouteFactor	= 5
+	
+	local function GetPath(currentNode)
+		local path 		= {}
+		local seen 		= {}
+		local current 	= currentNode
+		local count 	= 0
+		while true do
+			local prev = comeFrom[current]
+			if prev == nil then break end
+			local plot 		= current
+			local plotIndex = plot:GetIndex()
+			table.insert(path, 1, plotIndex)
+			current = prev
+		 end
+		table.insert(path, 1, startPlot:GetIndex())
+		return path
+	end
+	
+	gScore[startNode]	= 0
+	fScore[startNode]	= Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY())
+	
+	local currentNode = startNode
+	while currentNode do
+	
+		local currentPlot 		= currentNode
+		closedSet[currentNode] 	= true
+		
+		if currentPlot == destPlot then
+			return GetPath(currentNode)
+		end
+		
+		local neighbors = GetNeighbors(currentNode, iPlayer, sRoute, startPlot, destPlot, maxRange, bAllowHiddenRoute)
+		for i, data in ipairs(neighbors) do
+			local node = data.Plot
+			if not closedSet[node] then
+				if gScore[node] == nil then
+					local nodeDistance = node:GetMovementCost() --1 --Map.GetPlotDistance(data.Plot:GetX(), data.Plot:GetY(), currentPlot:GetX(), currentPlot:GetY())
+
+					if node:IsRiverCrossingToPlot(currentPlot) then nodeDistance = nodeDistance + 1 end
+					if node:GetRouteType() ~= -1 then
+						nodeDistance = nodeDistance * bestCost  -- to do : real cost
+					else
+						-- try to prevent spaghetti routes by avoiding adjacency for new routes
+						local numAdjacentRoutes		= 0
+						for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+							local adjacentPlot = Map.GetAdjacentPlot(node:GetX(), node:GetY(), direction);
+							if adjacentPlot and adjacentPlot ~= currentPlot and adjacentPlot:GetRouteType() ~= -1 then
+								numAdjacentRoutes = numAdjacentRoutes + 1
+							end
+						end
+						nodeDistance = nodeDistance + (numAdjacentRoutes * adjancentRouteFactor)
+					end
+					
+					local destDistance		= Map.GetPlotDistance(node:GetX(), node:GetY(), destPlot:GetX(), destPlot:GetY()) * bestCost
+					local tentative_gscore 	= (gScore[currentNode] or math.huge) + nodeDistance
+				
+					table.insert (openSet, {Node = node, Score = tentative_gscore + destDistance})
+
+					if tentative_gscore < (gScore[node] or math.huge) then
+						local plot = node
+						comeFrom[node] = currentNode
+						gScore[node] = tentative_gscore
+						fScore[node] = tentative_gscore + destDistance
+					end
+				end				
+			end		
+		end
+		table.sort(openSet, function(a, b) return a.Score > b.Score; end)
+		local data = table.remove(openSet)
+		if data then
+			local plot = data.Node
+			currentNode = data.Node 
+		else
+			currentNode = nil
+		end
+	end
+	
+end
+
+
 function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded, maxRange)
 	local DEBUG_PLOT_SCRIPT			= false	
 	--if sRoute == "Coastal" then DEBUG_PLOT_SCRIPT	= "debug" end
 	
+	local routes = {"Land", "Road", "Railroad", "Coastal", "Ocean", "Submarine"}
+
+	-- Is the plot passable for this route type ...
+	local function isPassable(pPlot, sRoute)
+	  bPassable = true
+
+	  -- ... due to terrain, eg those covered in ice
+	  if (pPlot:GetFeatureType() == FEATURE_ICE and sRoute ~= routes[6]) then
+		bPassable = false
+	  end
+
+	  return bPassable
+	end
+
+	-- Is the plot blockaded for this player ...
+	local function isBlockaded(pDestPlot, pPlayer, fBlockaded, pOriginPlot)
+	  bBlockaded = false
+
+	  if (fBlockaded ~= nil) then
+		bBlockaded = fBlockaded(pDestPlot, pPlayer, pOriginPlot)
+	  end
+
+	  return bBlockaded
+	end
+	
+	local function GetNeighbors(node, pPlayer, sRoute, fBlockaded, startPlot, destPlot, maxRange)
+		local DEBUG_PLOT_SCRIPT			= false
+		--if sRoute == "Coastal" then DEBUG_PLOT_SCRIPT	= "debug" end
+		--Dprint( DEBUG_PLOT_SCRIPT, "Get neighbors :")
+		local neighbors 				= {}
+		local plot 						= node
+		
+		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+			local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction);		
+			
+			--GCO.Incremente("GetPathToPlot"..sRoute)
+			
+			if (adjacentPlot ~= nil) then
+				--Dprint( DEBUG_PLOT_SCRIPT, "- test plot at ", adjacentPlot:GetX(), adjacentPlot:GetY() ,DirectionString[direction])
+				
+				local distanceFromStart = Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), startPlot:GetX(), startPlot:GetY())
+				if maxRange == nil or distanceFromStart <= maxRange then
+				
+					local distanceFromDest	= Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), destPlot:GetX(), destPlot:GetY())				
+					if maxRange == nil or distanceFromDest <= maxRange then
+				
+						local IsPlotRevealed = false
+						if pPlayer then
+							local pPlayerVis = PlayersVisibility[pPlayer:GetID()]
+							if (pPlayerVis ~= nil) then
+								if (pPlayerVis:IsRevealed(adjacentPlot:GetX(), adjacentPlot:GetY())) then -- IsVisible
+								  IsPlotRevealed = true
+								end
+							end
+						end
+						--Dprint( DEBUG_PLOT_SCRIPT, "-  IsPlotRevealed = ", IsPlotRevealed)
+					
+						if (pPlayer == nil or IsPlotRevealed) then
+							local bAdd = false
+
+							-- Be careful of order, must check for road before rail, and coastal before ocean
+							if (sRoute == routes[1] and not( adjacentPlot:IsImpassable() or adjacentPlot:IsWater())) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is passable land")
+							  bAdd = true
+							elseif (sRoute == routes[2] and adjacentPlot:GetRouteType() ~= RouteTypes.NONE) then	
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is road")	
+							  bAdd = true
+							elseif (sRoute == routes[3] and adjacentPlot:GetRouteType() >= 1) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is railroad")
+							  bAdd = true
+							elseif (sRoute == routes[4] and adjacentPlot:GetTerrainType() == TERRAIN_COAST) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Coast")
+							  bAdd = true
+							elseif (sRoute == routes[5] and adjacentPlot:IsWater()) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Water")
+							  bAdd = true
+							elseif (sRoute == routes[6] and adjacentPlot:IsWater()) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Water")
+							  bAdd = true
+							end
+
+							-- Special case for water, a city on the coast counts as water
+							if (not bAdd and (sRoute == routes[4] or sRoute == routes[5] or sRoute == routes[6])) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  check city for water route : adjacentPlot:IsCity() = ", adjacentPlot:IsCity())
+							  bAdd = adjacentPlot:IsCity()
+							end
+
+							-- Check for impassable and blockaded tiles
+							bAdd = bAdd and isPassable(adjacentPlot, sRoute) and not isBlockaded(adjacentPlot, pPlayer, fBlockaded, plot)
+
+							--Dprint( DEBUG_PLOT_SCRIPT, "-  bAdd = ", bAdd)
+							if (bAdd) then
+								table.insert( neighbors, { Plot = adjacentPlot } )
+							end
+						end
+					end
+				end
+			end
+		end
+		
+		return neighbors
+	end
+
 	local startPlot	= self
 	local closedSet = {}
 	local openSet	= {}
@@ -1678,7 +2117,7 @@ function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded, maxRange)
 	
 	--Dprint( DEBUG_PLOT_SCRIPT, "CHECK FOR PATH BETWEEN : ", startPlot:GetX(), startPlot:GetY(), " and ", destPlot:GetX(), destPlot:GetY(), " distance = ", Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY()) )
 	
-	function GetPath(currentNode)
+	local function GetPath(currentNode)
 		local path 		= {}
 		local seen 		= {}
 		local current 	= currentNode
@@ -1747,123 +2186,199 @@ function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded, maxRange)
 	--Dprint( DEBUG_PLOT_SCRIPT, "failed to find a path")
 end
 
-local routes = {"Land", "Road", "Railroad", "Coastal", "Ocean", "Submarine"}
-function GetNeighbors(node, pPlayer, sRoute, fBlockaded, startPlot, destPlot, maxRange)
-	local DEBUG_PLOT_SCRIPT			= false
-	--if sRoute == "Coastal" then DEBUG_PLOT_SCRIPT	= "debug" end
-	--Dprint( DEBUG_PLOT_SCRIPT, "Get neighbors :")
-	local neighbors 				= {}
-	local plot 						= node
+
+function GetSupplyPath(plot, destPlot, iPlayer, maxRange, fBlockaded, bAllowCoast, bAllowOcean, bAllowHiddenRoute)
+
+	local pPlayer		= iPlayer and Players[iPlayer] or nil
+	local pPlayerVis	= iPlayer and PlayersVisibility[iPlayer] or nil
+
+	local startPlot	= plot
+	local closedSet = {}
+	local openSet	= {}
+	local comeFrom 	= {}
+	local gScore	= {}
+	local fScore	= {}
+	local rivers	= {}
 	
-	for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
-		local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction);		
+	local startNode	= startPlot
+	local roadCost	= 0.30 -- try to keep it so (roadCost * riverCrossing < 1)
+	local riverCost	= 0.15
+	local waterCost	= 0.10
+	local bestCost	= math.min(roadCost, riverCost, waterCost)
+
+	local function isPassable(pPlot)
+		return not pPlot:IsImpassable()
+	end
+	
+	-- Is the plot blockaded for this player ...
+	local function isBlockaded(pDestPlot, pOriginPlot)
+		bBlockaded = false
+
+		if (fBlockaded ~= nil and pPlayer ~= nil) then
+			bBlockaded = fBlockaded(pDestPlot, pPlayer, pOriginPlot)
+		end
+
+		return bBlockaded
+	end
+	
+	local function GetNeighbors(node)
+
+		local neighbors = {}
+		local plot 		= node
 		
-		--GCO.Incremente("GetPathToPlot"..sRoute)
-		
-		if (adjacentPlot ~= nil) then
-			--Dprint( DEBUG_PLOT_SCRIPT, "- test plot at ", adjacentPlot:GetX(), adjacentPlot:GetY() ,DirectionString[direction])
+		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+			local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), direction);
 			
-			local distanceFromStart = Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), startPlot:GetX(), startPlot:GetY())
-			if maxRange == nil or distanceFromStart <= maxRange then
-			
-				local distanceFromDest	= Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), destPlot:GetX(), destPlot:GetY())				
-				if maxRange == nil or distanceFromDest <= maxRange then
-			
-					local IsPlotRevealed = false
-					if pPlayer then
-						local pPlayerVis = PlayersVisibility[pPlayer:GetID()]
+			if (adjacentPlot ~= nil) then
+				
+				local distanceFromStart = Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), startPlot:GetX(), startPlot:GetY())
+				if maxRange == nil or distanceFromStart <= maxRange then
+				
+					local distanceFromDest	= Map.GetPlotDistance(adjacentPlot:GetX(), adjacentPlot:GetY(), destPlot:GetX(), destPlot:GetY())				
+					if maxRange == nil or distanceFromDest <= maxRange then
+				
+						local IsPlotRevealed 	= bAllowHiddenRoute
 						if (pPlayerVis ~= nil) then
 							if (pPlayerVis:IsRevealed(adjacentPlot:GetX(), adjacentPlot:GetY())) then -- IsVisible
-							  IsPlotRevealed = true
+								IsPlotRevealed = true
 							end
 						end
-					end
-					--Dprint( DEBUG_PLOT_SCRIPT, "-  IsPlotRevealed = ", IsPlotRevealed)
-				
-					if (pPlayer == nil or IsPlotRevealed) then
-						local bAdd = false
+					
+						if (pPlayer == nil or IsPlotRevealed) then
+							local bAdd = false
 
-						-- Be careful of order, must check for road before rail, and coastal before ocean
-						if (sRoute == routes[1] and not( adjacentPlot:IsImpassable() or adjacentPlot:IsWater())) then
-						  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is passable land")
-						  bAdd = true
-						elseif (sRoute == routes[2] and adjacentPlot:GetRouteType() ~= RouteTypes.NONE) then	
-						  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is road")	
-						  bAdd = true
-						elseif (sRoute == routes[3] and adjacentPlot:GetRouteType() >= 1) then
-						  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is railroad")
-						  bAdd = true
-						elseif (sRoute == routes[4] and adjacentPlot:GetTerrainType() == TERRAIN_COAST) then
-						  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Coast")
-						  bAdd = true
-						elseif (sRoute == routes[5] and adjacentPlot:IsWater()) then
-						  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Water")
-						  bAdd = true
-						elseif (sRoute == routes[6] and adjacentPlot:IsWater()) then
-						  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Water")
-						  bAdd = true
-						end
+							-- Be careful of order, must check for coastal before ocean
+							if not( adjacentPlot:IsImpassable() or adjacentPlot:IsWater()) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is passable land")
+							  bAdd = true
+							elseif (bAllowCoast and adjacentPlot:GetTerrainType() == TERRAIN_COAST) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Coast")
+							  bAdd = true
+							elseif (bAllowOcean and adjacentPlot:IsWater()) then
+							  --Dprint( DEBUG_PLOT_SCRIPT, "-  plot is Water")
+							  bAdd = true
+							end
 
-						-- Special case for water, a city on the coast counts as water
-						if (not bAdd and (sRoute == routes[4] or sRoute == routes[5] or sRoute == routes[6])) then
-						  --Dprint( DEBUG_PLOT_SCRIPT, "-  check city for water route : adjacentPlot:IsCity() = ", adjacentPlot:IsCity())
-						  bAdd = adjacentPlot:IsCity()
-						end
+							-- Check for impassable and blockaded tiles
+							bAdd = bAdd and isPassable(adjacentPlot) and not isBlockaded(adjacentPlot, plot)
 
-						-- Check for impassable and blockaded tiles
-						bAdd = bAdd and isPassable(adjacentPlot, sRoute) and not isBlockaded(adjacentPlot, pPlayer, fBlockaded, pPlot)
-
-						--Dprint( DEBUG_PLOT_SCRIPT, "-  bAdd = ", bAdd)
-						if (bAdd) then
-							table.insert( neighbors, { Plot = adjacentPlot } )
+							if (bAdd) then
+								table.insert( neighbors, { Plot = adjacentPlot } )
+							end
 						end
 					end
 				end
 			end
 		end
+		
+		return neighbors
 	end
 	
-	return neighbors
-end
+	local function GetPath(currentNode)
+		local path 		= {}
+		local seen 		= {}
+		local current 	= currentNode
+		local score 	= gScore[current] --that's the total score of the path
+		while true do
+			local prev = comeFrom[current]
+			if prev == nil then break end
+			local plot 		= current
+			local plotIndex = plot:GetIndex()
+			table.insert(path, 1, plotIndex)
+			current = prev
+		 end
+		table.insert(path, 1, startPlot:GetIndex())
+		return path, score
+	end
+	
+	gScore[startNode]	= 0
+	fScore[startNode]	= Map.GetPlotDistance(startPlot:GetX(), startPlot:GetY(), destPlot:GetX(), destPlot:GetY())
+	
+	local currentNode = startNode
+	while currentNode do
+	
+		local currentPlot 		= currentNode
+		closedSet[currentNode] 	= true
+		
+		if currentPlot == destPlot then
+			return GetPath(currentNode)
+		end
+		
+		local neighbors = GetNeighbors(currentNode)
+		for i, data in ipairs(neighbors) do
+			local node = data.Plot
+			if not closedSet[node] then
+				if gScore[node] == nil then
+				
+					local nodeDistance 		= 0
+					local bFollowingRiver	= false
+					
+					rivers[node] = rivers[node] or node:GetRiverPath(destPlot, iPlayer)
+					if rivers[node] then
+						rivers[currentPlot]	= rivers[currentPlot] or currentPlot:GetRiverPath(destPlot, iPlayer)
+						if rivers[currentPlot] then
+							local riverPath	= node:GetRiverPath(currentPlot, iPlayer)
+							if riverPath and #riverPath <= 2 then -- U-turn count a same plot twice
+								bFollowingRiver	= true
+							end
+						end
+					end
+					
+					-- Order is important
+					
+					if node:IsRiverCrossingToPlot(currentPlot) then
+						nodeDistance = nodeDistance + 3
+					end
+						
+					if bFollowingRiver then
+						nodeDistance = nodeDistance > 0 and nodeDistance * riverCost or riverCost
+						
+					else
+						nodeDistance = nodeDistance + node:GetMovementCost()
+						
+						if node:GetRouteType() ~= -1 then
+							nodeDistance = nodeDistance * roadCost  -- to do : separate route type cost
+						end
+					end
+					
+					local destDistance		= Map.GetPlotDistance(node:GetX(), node:GetY(), destPlot:GetX(), destPlot:GetY()) * bestCost
+					local tentative_gscore 	= (gScore[currentNode] or math.huge) + nodeDistance
+				
+					table.insert (openSet, {Node = node, Score = tentative_gscore + destDistance})
 
--- Is the plot passable for this route type ...
-function isPassable(pPlot, sRoute)
-  bPassable = true
-
-  -- ... due to terrain, eg those covered in ice
-  if (pPlot:GetFeatureType() == FEATURE_ICE and sRoute ~= routes[6]) then
-    bPassable = false
-  end
-
-  return bPassable
-end
-
--- Is the plot blockaded for this player ...
-function isBlockaded(pDestPlot, pPlayer, fBlockaded, pOriginPlot)
-  bBlockaded = false
-
-  if (fBlockaded ~= nil) then
-    bBlockaded = fBlockaded(pDestPlot, pPlayer, pOriginPlot)
-  end
-
-  return bBlockaded
+					if tentative_gscore < (gScore[node] or math.huge) then
+						local plot = node
+						comeFrom[node] = currentNode
+						gScore[node] = tentative_gscore
+						fScore[node] = tentative_gscore + destDistance
+					end
+				end				
+			end		
+		end
+		table.sort(openSet, function(a, b) return a.Score > b.Score; end)
+		local data = table.remove(openSet)
+		if data then
+			local plot = data.Node
+			currentNode = data.Node 
+		else
+			currentNode = nil
+		end
+	end
+	
 end
 
 
 -----------------------------------------------------------------------------------------
--- Goody Huts
+-- Goody Huts (Deprecated)
 -----------------------------------------------------------------------------------------
 
-local GoodyHutID 	= GameInfo.Improvements["IMPROVEMENT_GOODY_HUT"].Index
 local minRange 		= 4
 local lastGoodyPlot	= nil
 
 function CanPlaceGoodyAt(plot)
 
 	local improvementID = GoodyHutID
-	local NO_TEAM = -1;
-	local NO_RESOURCE = -1;
-	local NO_IMPROVEMENT = -1;
+	local NO_TEAM = -1
 
 	if (plot:IsWater()) then
 		return false;
@@ -1929,7 +2444,7 @@ function AddGoody()
 	for x = 0, iW - 1 do
 		for y = 0, iH - 1 do
 			local i = y * iW + x;
-			local pPlot = Map.GetPlotByIndex(i);
+			local pPlot = GetPlotByIndex(i);
 			local bGoody = CanPlaceGoodyAt(pPlot);
 			if (bGoody) then			
 				table.insert(plotList, pPlot)
@@ -1941,6 +2456,7 @@ function AddGoody()
 	if randomPlot then
 		ImprovementBuilder.SetImprovementType(randomPlot, GoodyHutID, NO_PLAYER);
 		Dprint( DEBUG_PLOT_SCRIPT, "-- found new position at ", randomPlot:GetX(), randomPlot:GetY());
+		--randomPlot:AddPopulationForTribalVillage()
 	else
 		Dprint( DEBUG_PLOT_SCRIPT, "-- can't found new position for goody");
 	end
@@ -1958,6 +2474,13 @@ function OnImprovementActivated(locationX, locationY, unitOwner, unitID, improve
 end
 Events.ImprovementActivated.Add( OnImprovementActivated )
 
+function OnImprovementAddedToMap(locX, locY, eImprovementType, eOwner)
+	if GCO.IsTribeImprovement(eImprovementType) then --if( GameInfo.Improvements[eImprovementType].BarbarianCamp ) then
+		local pPlot = GetPlot(locX, locY)
+		--pPlot:AddPopulationForTribalVillage()
+	end
+end
+Events.ImprovementAddedToMap.Add(			OnImprovementAddedToMap );
 
 -----------------------------------------------------------------------------------------
 -- Plot Activities
@@ -2036,6 +2559,11 @@ function GetAvailableEmployment(self)
 	local bWorked 				= (self:GetWorkerCount() > 0)
 	local bImproved				= (self:GetImprovementType() ~= NO_IMPROVEMENT)
 	local bSeaResource 			= (self:IsWater() or self:IsLake())
+	local village 				= GCO.GetTribalVillageAt(self:GetIndex())
+
+	if village then
+		availableEmployment = 5000 -- to do: remove magic number
+	end
 	
 	local player = Players[self:GetOwner()] or Players[Game.GetLocalPlayer()] -- 
 	if player then
@@ -2177,9 +2705,286 @@ end
 -- Plot Population
 -----------------------------------------------------------------------------------------
 
+--[[
+	ExposedMembers.GCO.IsCultureGroupAvailableForPlot		= IsCultureGroupAvailableForPlot
+	ExposedMembers.GCO.IsCultureGroupAvailableForContinent	= IsCultureGroupAvailableForContinent
+	ExposedMembers.GCO.IsCultureGroupAvailableForEthnicity	= IsCultureGroupAvailableForEthnicity
+--]]
+
+function GetPlotFertility(self, kParameters)
+	-- Calculate the fertility of the plot
+	local kParameters				= kParameters or {}
+	local iRange 					= kParameters.Range or 3
+	local pPlot 					= self
+	local plotX 					= pPlot:GetX()
+	local plotY 					= pPlot:GetY()
+	local iProductionYieldWeight	= kParameters.ProductionYieldWeight or 3
+	local iFoodYieldWeight 			= kParameters.FoodYieldWeight or 5
+	local iStrategicYieldWeight		= kParameters.StrategicYieldWeight or 2
+	local iLuxuriesYieldWeight		= kParameters.LuxuriesYieldWeight or 2
+	local iRiverFertility			= kParameters.RiverFertility or 50
+	local iFreshWaterFertility		= kParameters.FreshWaterFertility or 50
+	local iCoastalLandertility		= kParameters.CoastalLandFertility or 100
+
+	local gridWidth, gridHeight = Map.GetGridSize()
+	local gridHeightMinus1 = gridHeight - 1
+
+	local iFertility 	= 0
+	local terrainType 	= pPlot:GetTerrainType()
+	
+	local function GetFertilityFromResource(resourceID, count)
+		local iValue = 0
+		if GCO.IsResourceFood(resourceID) then
+			iValue = iValue + (count*iFoodYieldWeight)
+		end
+		if (GCO.IsNoTechRequiredResource(resourceID) or GameInfo.Resources[resourceID].ResourceType == "RESOURCE_IRON") -- Assuming knowledge of Iron
+			and (GCO.IsResourceEquipmentMaker(resourceID) or GameInfo.Resources[resourceID].ResourceClassType == "RESOURCECLASS_STRATEGIC") then
+			iValue = iValue + (count*iStrategicYieldWeight)
+		end
+		if GCO.IsNoTechRequiredResource(resourceID) and GCO.IsResourceLuxury(resourceID) then
+			iValue = iValue + (count*iLuxuriesYieldWeight)
+		end
+		return iValue
+	end
+	
+	if(GCO.IsTerrainSnow(terrainType) ~= true and pPlot:IsImpassable() ~= true) then
+		if pPlot:IsFreshWater() == true then
+			iFertility = iFertility + iFreshWaterFertility
+			if pPlot:IsRiver() == true then
+				iFertility = iFertility + iRiverFertility
+			end
+		end
+		if pPlot:IsCoastalLand() then
+			iFertility = iFertility + iCoastalLandertility
+		end
+	end	
+	
+	for i, iPlotID in ipairs(GCO.GetPlotsInRange(pPlot, iRange)) do
+		local otherPlot = GCO.GetPlotByIndex(iPlotID)
+
+		-- Valid plot?  Also, skip plots along the top and bottom edge
+		if(otherPlot) then
+			local otherPlotY = otherPlot:GetY();
+			if(otherPlotY > 0 and otherPlotY < gridHeightMinus1) then
+
+				local terrainType = otherPlot:GetTerrainType();
+				local featureType = otherPlot:GetFeatureType();
+
+				-- Subtract one if there is snow and no resource. Do not count water plots unless there is a resource
+				if(GCO.IsTerrainSnow(terrainType) and otherPlot:GetResourceCount() == 0) then
+					iFertility = iFertility - 10
+				elseif(featureType == GameInfo.Features["FEATURE_ICE"].Index) then
+					iFertility = iFertility - 20
+				elseif((otherPlot:IsWater() == false) or otherPlot:GetResourceCount() > 0) then
+					iFertility = iFertility + (otherPlot:GetYield(GameInfo.Yields["YIELD_PRODUCTION"].Index)*iProductionYieldWeight)
+					iFertility = iFertility + (otherPlot:GetYield(GameInfo.Yields["YIELD_FOOD"].Index)*iFoodYieldWeight)
+				end
+				
+				-- Resource
+				if otherPlot:GetResourceCount() > 0 then
+					local resourceID = otherPlot:GetResourceType()
+					iFertility = iFertility + GetFertilityFromResource(resourceID, otherPlot:GetResourceCount())
+				end
+				
+				-- Terrain Resources
+				if TerrainResources[terrainID] then
+					for _, data in pairs(TerrainResources[terrainID]) do
+						for resourceID, value in pairs(data) do
+							iFertility = iFertility + GetFertilityFromResource(resourceID, value)
+						end
+					end
+				end
+				
+				-- Feature Resources
+				if FeatureResources[featureID] then
+					for _, data in pairs(FeatureResources[featureID]) do
+						for resourceID, value in pairs(data) do
+							iFertility = iFertility + GetFertilityFromResource(resourceID, value)
+						end
+					end
+				end
+			
+				-- Lower the Fertility if the plot is impassable
+				if(iFertility > 5 and otherPlot:IsImpassable() == true) then
+					iFertility = iFertility - 5
+				end
+
+				-- Lower the Fertility if the plot has Features
+				if(featureType ~= NO_FEATURE) then
+					iFertility = iFertility - 2
+				end	
+
+			else
+				iFertility = iFertility - 5
+			end
+		else
+			iFertility = iFertility - 10
+		end
+	end 
+
+	return iFertility
+end
+
+function GetpossibleCultureGroups(self, bAnyEra, bNoDuplicate)
+
+	local DEBUG_PLOT_SCRIPT = "debug"
+		
+	local tPossibleCulture 	= {}
+	local eraType 			= GameInfo.Eras[GCO.GetGameEra()].EraType
+	local sEthnicity 		= self:GetEthnicityByNearestMajor()
+
+	Dprint( DEBUG_PLOT_SCRIPT, "Calling GetpossibleCultureGroups with X, Y, Era, Ethnicity, bAnyEra, bNoDuplicate = ", self:GetX(), self:GetY(), eraType, sEthnicity, bAnyEra, bNoDuplicate)
+		
+	for row in GameInfo.CultureGroups() do
+	
+		local sCultureType 	= row.CultureType
+		local iCultureID	= row.Index
+		local bHasSpawned	= GCO.HasCultureGroupSpawned(iCultureID)
+		local bAllowed 		= not (bHasSpawned and bNoDuplicate) 
+		if bAllowed and (bAnyEra or (row.EraTypes and string.find(row.EraTypes, eraType))) then
+		
+			local iPriority = bHasSpawned and 20 or 10
+			
+			if GCO.IsCultureGroupAvailableForPlot(sCultureType, self) then
+				table.insert(tPossibleCulture, {CultureID = iCultureID, Priority = iPriority-10}) -- lower is better
+				
+			end
+			if GCO.IsCultureGroupAvailableForContinent(sCultureType, self:GetContinentType()) then
+				table.insert(tPossibleCulture, {CultureID = iCultureID, Priority = iPriority-1})
+				
+			end
+			if GCO.IsCultureGroupAvailableForEthnicity(sCultureType, sEthnicity) then
+				table.insert(tPossibleCulture, {CultureID = iCultureID, Priority = iPriority-2})
+			end
+		end
+	end
+	
+	if #tPossibleCulture == 0 and not bAnyEra then
+		Dprint( DEBUG_PLOT_SCRIPT, " - Can't find Culture group, trying again with any eras...")
+		bAnyEra = true
+		return self:GetpossibleCultureGroups(bAnyEra, bNoDuplicate), bAnyEra
+	else
+		return tPossibleCulture
+	end
+end
+
+function GetBestCultureGroup(self, bNoDuplicate)
+
+	local DEBUG_PLOT_SCRIPT = "debug"
+	
+	local tPossibleCulture = self:GetpossibleCultureGroups(bAnyEra, bNoDuplicate) -- can call with bAnyEra = nil
+	
+	if #tPossibleCulture > 0 then
+		--local randomIndex = TerrainBuilder.GetRandomNumber(#tPossibleCulture, "GetRandomCultureForPlot")
+		table.sort(tPossibleCulture, function(a, b) return a.Priority < b.Priority; end)
+		local iBestCultureID = tPossibleCulture[1].CultureID
+		
+		Dprint( DEBUG_PLOT_SCRIPT, " - GetBestCultureGroup returns with priority ", tPossibleCulture[1].Priority, GameInfo.CultureGroups[iBestCultureID].CultureType, self:GetX(), self:GetY(), #tPossibleCulture )
+		return iBestCultureID
+	end
+end
+
+function GetEthnicityByNearestMajor(self)
+
+	--local DEBUG_PLOT_SCRIPT = "debug"
+	
+	local bestDistance 	= math.huge
+	local ethnicity		= nil
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
+		Dprint( DEBUG_PLOT_SCRIPT, "   - GetEthnicityByNearestMajor, check player#", playerID)
+		local pPlayer 		= Players[playerID]
+		local startingPlot 	= pPlayer:GetStartingPlot()
+		if startingPlot then
+			local distance = Map.GetPlotDistance(self:GetX(), self:GetY(), startingPlot:GetX(), startingPlot:GetY())
+			Dprint( DEBUG_PLOT_SCRIPT, "     - Distances", distance, bestDistance)
+			if distance < bestDistance then
+				local CivType	= PlayerConfigurations[playerID]:GetCivilizationTypeName()
+				bestDistance 	= distance
+				ethnicity		= GameInfo.Civilizations[CivType].Ethnicity
+				Dprint( DEBUG_PLOT_SCRIPT, "     - New Ethnicity = ", ethnicity, GameInfo.Civilizations[CivType].CivilizationType)
+			end
+		end
+	end
+	return ethnicity
+end
+
+function GetRandomCultureForEthnicity(ethnicity)
+
+	local DEBUG_PLOT_SCRIPT = "debug"
+
+	local tPossibleCulture 	= {}
+	local eraType 			= GameInfo.Eras[GCO.GetGameEra()].EraType
+	local currentYear		= GCO.GetTurnYear(currentTurn)
+	for row in GameInfo.CultureGroups() do
+		if row.Ethnicity == ethnicity and not GCO.HasCultureGroupSpawned(row.Index) then --CultureRegions[row.CultureType] then
+			if (row.EraTypes and string.find(row.EraTypes, eraType)) or (row.StartDate and row.StartDate <= currentYear and (row.EndDate == nil or row.EndDate >= currentYear)) then
+				Dprint( DEBUG_PLOT_SCRIPT, "Add Random Culture For Ethnicity ", ethnicity, row.CultureType, row.StartDate, currentYear, row.EndDate, eraType, row.EraTypes)
+				table.insert(tPossibleCulture, row.Index)
+			else
+				Dprint( DEBUG_PLOT_SCRIPT, "Discard Random Culture For Ethnicity ", ethnicity, row.CultureType, row.StartDate, currentYear, row.EndDate, eraType, row.EraTypes )
+			end
+		end
+	end
+	if #tPossibleCulture > 0 then
+		local randomIndex = TerrainBuilder.GetRandomNumber(#tPossibleCulture, "GetRandomCultureForEthnicity")
+		return tPossibleCulture[randomIndex]
+	end
+end
+
+function AddPopulationForTribalVillage(self, cultureID, bNoDuplicate)
+
+	local DEBUG_PLOT_SCRIPT = "debug"
+	
+	local population 	= self:GetPopulation()
+	local popAdded		= 1000 + (population * 4) -- to do: no magic number
+	
+	Dprint( DEBUG_PLOT_SCRIPT, " - Add population for Tribal Village at ", self:GetX(), self:GetY(), ", initial pop. = ", population, "cultureID = ", cultureID)
+	local bestCultureID		= self:GetHighestCultureID()
+	local bestCultureKey 	= tostring(bestCultureID)
+	local bUpdated			= false
+	if bestCultureKey == INDEPENDENT_CULTURE then
+
+		local cultureID = cultureID or self:GetBestCultureGroup(bNoDuplicate)
+		if cultureID then
+			local cultIndep	= self:GetCulture(INDEPENDENT_CULTURE)
+			self:ChangeCulture(INDEPENDENT_CULTURE, -cultIndep)
+			self:ChangeCulture(cultureID, cultIndep+popAdded)
+			--self:ChangeLowerClass(popAdded)
+			GCO.SetCultureGroupSpawned(cultureID)
+			Dprint( DEBUG_PLOT_SCRIPT, "   - Added ", popAdded, ", Culture Type = ", GameInfo.CultureGroups[cultureID].CultureType)
+			bUpdated = true
+		end
+		--[[
+		local ethnicity = self:GetEthnicityByNearestMajor()
+		if ethnicity then
+			local cultureID = GetRandomCultureForEthnicity(ethnicity)
+			if cultureID then
+				local cultIndep	= self:GetCulture(INDEPENDENT_CULTURE)
+				self:ChangeCulture(INDEPENDENT_CULTURE, -cultIndep)
+				self:ChangeCulture(cultureID, cultIndep+popAdded)
+				self:ChangeLowerClass(popAdded)
+				GCO.SetCultureGroupSpawned(cultureID)
+				Dprint( DEBUG_PLOT_SCRIPT, "   - Added ", popAdded, ", Culture Type = ", GameInfo.CultureGroups[cultureID].CultureType)
+				bUpdated = true
+			end
+		end
+		--]]
+	end
+	if (not bUpdated) and GameInfo.CultureGroups[bestCultureID] then
+		self:ChangeCulture(bestCultureID, popAdded)
+		--self:ChangeLowerClass(popAdded)
+		Dprint( DEBUG_PLOT_SCRIPT, "   - Added ", popAdded, ", Culture Type = ", GameInfo.CultureGroups[bestCultureID].CultureType)
+		bUpdated = true
+	end
+	if not bUpdated then
+		GCO.Warning("Can't find Culture Type for Goody Hut at ", self:GetX(), self:GetY(), bestCultureID)
+	end
+end
+
+
 function SetInitialMapPopulation()
 
-	if Game.GetCurrentGameTurn() > GameConfiguration.GetStartTurn() then -- only called on first turn
+	if Game:GetProperty("InitialMapPopulationAdded") == 1 then -- only called once per game
 		return
 	end
 	
@@ -2206,20 +3011,18 @@ function SetInitialMapPopulation()
 			
 			Dprint( DEBUG_PLOT_SCRIPT, " - Set " .. Indentation20("population = ".. tostring(population)) .. " at ", plot:GetX(), plot:GetY(), " maxSize = ", maxSize)
 			
-			plot:ChangeLowerClass(population)
+			--plot:ChangeLowerClass(population)
 			
 			local plotRegions 	= plot:GetRegions()
 			local plotCultures	= {}
 			local totalStrength	= 0
-			
-local DEBUG_PLOT_SCRIPT = "debug"
 
 			for r, region in pairs(plotRegions) do
 				local cultures	= RegionCultures[region]
 				if cultures then
 					for cultureType, c in pairs(cultures) do
 						local cultureRow	= GameInfo.CultureGroups[cultureType]
-						if cultureRow and cultureRow.StartDate <= currentYear and (cultureRow.EndDate == nil or cultureRow.EndDate >= currentYear) then
+						if cultureRow and cultureRow.StartDate <= currentYear and (cultureRow.EndDate == nil or cultureRow.EndDate >= currentYear) then -- add Era row here ?
 							local strength 	= 10 -- to do : actual calculation based on PeakDate / PeakStrength or StartDate / EndDate
 							totalStrength	= totalStrength + strength
 							table.insert(plotCultures, { CultureType = cultureType, CultureID = cultureRow.Index, Strength = strength})
@@ -2229,6 +3032,7 @@ local DEBUG_PLOT_SCRIPT = "debug"
 				end
 				--RegionCultures[row.StartingRegion][row.CultureType]
 			end
+			
 			local numCulture = #plotCultures
 			if numCulture > 0 then
 				local cultureLeft 	= population
@@ -2238,6 +3042,7 @@ local DEBUG_PLOT_SCRIPT = "debug"
 					Dprint( DEBUG_PLOT_SCRIPT, "       - Set culture = " .. tostring(value).."/"..tostring(population))
 					plot:SetCulture(row.CultureID, value )
 					cultureLeft = GCO.Round(cultureLeft - value)
+					GCO.SetCultureGroupSpawned(row.CultureID)
 				end
 				if cultureLeft > 0 then
 					Dprint( DEBUG_PLOT_SCRIPT, "       - Set culture = " .. tostring(cultureLeft).."/"..tostring(population))
@@ -2248,8 +3053,17 @@ local DEBUG_PLOT_SCRIPT = "debug"
 			end
 		end
 	end
+		
+	for i = 0, iPlotCount - 1 do
+		local plot = GetPlotByIndex(i)
+		if plot:GetImprovementType() == GoodyHutID then
+			--plot:AddPopulationForTribalVillage(plot)
+		end	
+	end
 	
 	-- Simulate a few turns of migration
+	-- (moved to InitializeTribesOnMap() in GCO_AltHistScript.lua)
+	--[[
 	for i = 0, iPlotCount - 1 do
 		local plot = GetPlotByIndex(i)
 		plot:SetMigrationValues()
@@ -2260,6 +3074,9 @@ local DEBUG_PLOT_SCRIPT = "debug"
 			plot:DoMigration()
 		end
 	end
+	--]]
+	
+	Game:SetProperty("InitialMapPopulationAdded", 1);
 end
 
 function GetSize(self)
@@ -2273,6 +3090,12 @@ function GetMaxSize(self)
 		local bonus			= 0
 		local appeal		= self:GetPlotAppeal()
 		local numResource	= self:GetResourceCount()
+		local village 		= GCO.GetTribalVillageAt(self:GetIndex())
+		
+		if village then
+			maxSize = maxSize + 1
+		end
+		
 		if numResource > 0 then
 			local resourceID 	= self:GetResourceType()
 			if GCO.IsResourceFood(resourceID) then
@@ -2286,6 +3109,7 @@ function GetMaxSize(self)
 			end
 		end
 		maxSize = maxSize + food + bonus
+		
 	end
 	return math.max(1,maxSize)
 end
@@ -2298,14 +3122,18 @@ function GetPopulation(self)
 		GCO.AttachCityFunctions(city)
 		return city:GetUrbanPopulation()
 	end
-	return self:GetLowerClass() --self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+	return self:GetTotalCulture() --return self:GetLowerClass() --self:GetUpperClass() + self:GetMiddleClass() + self:GetLowerClass() + self:GetSlaveClass()
+end
+
+function ChangePopulation(self, value)
+	self:MatchCultureToPopulation(self:GetPopulation() + value)
 end
 
 function GetPreviousPopulation(self)
 
-	return self:GetPreviousLowerClass() -- self:GetPreviousUpperClass() + self:GetPreviousMiddleClass() + self:GetPreviousLowerClass() + self:GetPreviousSlaveClass()
+	return self:GetTotalPreviousCulture() --self:GetPreviousLowerClass() -- self:GetPreviousUpperClass() + self:GetPreviousMiddleClass() + self:GetPreviousLowerClass() + self:GetPreviousSlaveClass()
 end
-
+--[[
 function ChangeUpperClass(self, value)
 	self:ChangePopulationClass(UpperClassID, value)
 end
@@ -2365,6 +3193,7 @@ end
 function GetPreviousSlaveClass(self)
 	return self:GetPreviousStock(SlaveClassID)
 end
+--]]
 -- Legacy methods >>>>>
 
 function GetBirthRate(self)
@@ -2432,13 +3261,13 @@ end
 function MigrationTo(self, plot, migrants)
 
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
-	--if self:GetOwner() == Game.GetLocalPlayer() and self:IsCity() then DEBUG_PLOT_SCRIPT = "debug" end	
+	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	-- and self:IsCity()
 	
 	local cultureTable	 	= self:GetCultureTable() or {}
 	local leaveRatio		= math.min(1, Div(migrants, math.max(1, self:GetPopulation())))
-	local destinationRatio 	= math.min(1, Div(migrants, math.max(1, plot:GetPopulation())))
+	--local destinationRatio 	= math.min(1, Div(migrants, math.max(1, plot:GetPopulation())))
 	--local changeRatio		= migrantRatio * populationRatio
-	Dprint( DEBUG_PLOT_SCRIPT, "Diffuse Culture Migration from plot (".. self:GetX()..","..self:GetY() ..") to plot (".. plot:GetX()..","..plot:GetY() .."), Migrants =  "..tostring(migrants))
+	Dprint( DEBUG_PLOT_SCRIPT, "Do Migration from plot (".. self:GetX()..","..self:GetY() ..") to plot (".. plot:GetX()..","..plot:GetY() .."), Migrants =  "..tostring(migrants))
 
 	
 	for cultureKey, value in pairs(cultureTable) do
@@ -2448,6 +3277,9 @@ function MigrationTo(self, plot, migrants)
 		Dprint( DEBUG_PLOT_SCRIPT, "  - "..Indentation20("cultureID#"..tostring(cultureKey)).. Indentation20(" remove = ".. tostring(cultureRemove)).. Indentation20(" leaveRatio = ".. tostring(GCO.ToDecimals(leaveRatio))).. Indentation20(" add = ".. tostring(cultureAdd)).. " origine Culture Value = " .. tostring(value))
 		plot:ChangeCulture(cultureKey, cultureRemove) -- cultureAdd
 		self:ChangeCulture(cultureKey, -cultureRemove)
+		if plot:IsCity() then
+			-- todo
+		end
 	end
 	
 
@@ -2466,18 +3298,25 @@ end
 -- Plot Stock
 -----------------------------------------------------------------------------------------
 function GetMaxStock(self, resourceID)
-	local maxStock 	= 0
-	if not GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
-		maxStock = ResourceStockPerSize
+	local maxStock 			= 0
+	local improvementType	= self:GetImprovementType()
+	if improvementType == GameInfo.Improvements["IMPROVEMENT_BARBARIAN_CAMP_GCO"].Index then
+		if resourceID == SlaveClassID 		then return 5000 end
+		if resourceID == materielResourceID then return 1000 end
+	end
+	--if not GameInfo.Resources[resourceID].SpecialStock then -- Some resources are stocked in specific buildings only
+		maxStock = GameInfo.Improvements[improvementType] and GameInfo.Improvements[improvementType].MaxStock or ResourceStockPerSize
 		if resourceID == personnelResourceID 	then maxStock = PersonnelPerSize end
 		if resourceID == foodResourceID 		then maxStock = FoodStockPerSize + baseFoodStock end
 		if GCO.IsResourceEquipment(resourceID) 	then		
-			local equipmentType = GameInfo.Resources[equipmentID].ResourceType
+			local equipmentType = GameInfo.Resources[resourceID].ResourceType
 			local equipmentSize = GameInfo.Equipment[equipmentType].Size
 			maxStock = math.floor(Div(EquipmentBaseStock, equipmentSize))
 		end
 		if GCO.IsResourceLuxury(resourceID) 	then maxStock = GCO.Round(maxStock * LuxuryStockRatio) end
-	end
+	--else
+		-- handle improvement stocking specific resources here ?
+	--end
 	return maxStock
 end
 
@@ -2492,11 +3331,18 @@ end
 function ChangeStock(self, resourceID, value, useType, reference)
 
 	if not resourceID then
-		GCO.Warning("resourceID is nil or false in ChangeStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
+		GCO.Warning("resourceID is nil or false in ChangeStock at ", self:GetX(), self:GetY(), " resourceID = ", resourceID," value= ", value)
 		return
 	end
 
 	if value == 0 then return end
+	
+	if resourceID == LowerClassID then -- should not call ChangeStock with population directly, but this will correctly change the population value on plot, with an error correction on culture.
+		self:ChangePopulation(value)
+		GCO.Warning("Called pPlot:ChangeStock for LowerClassID at ", self:GetX(), self:GetY())
+		GCO.DlineFull()
+		return
+	end
 
 	value = GCO.ToDecimals(value)
 
@@ -2673,9 +3519,14 @@ function SetMigrationValues(self)
 	local population				= self:GetPopulation()
 	local employment				= self:GetMaxEmployment()
 	local maxPlotPopulation			= GCO.GetPopulationAtSize(self:GetMaxSize())
-	local maxHousedPopulation		= math.max(employment, maxPlotPopulation) -- employment provides housing
+	local maxHousedPopulation		= math.floor((employment*0.25) + maxPlotPopulation) -- employment provides housing
 	local employed					= self:GetEmployed()
 	local unEmployed				= math.max(0, population - employment)
+	local village 					= GCO.GetTribalVillageAt(self:GetIndex())
+	
+	if village then
+		maxHousedPopulation = maxHousedPopulation + 5000 -- to do: remove magic number
+	end
 	
 	if population > 0 then
 		-- check Migration motivations, from lowest to most important :	
@@ -2692,7 +3543,7 @@ function SetMigrationValues(self)
 			plotMigration.Pull.Employment	= 0
 			plotMigration.Push.Employment	= 0		
 		end
-		Dprint( DEBUG_PLOT_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " population = ", population)
+		Dprint( DEBUG_PLOT_SCRIPT, "  - UnEmployed = ", unEmployed," employment : ", employment, " population = ", population, " maxPlotPopulation = ", maxPlotPopulation)
 		
 		-- Population
 		plotMigration.Pull.Housing	= Div(maxHousedPopulation, population)
@@ -2702,7 +3553,7 @@ function SetMigrationValues(self)
 			local overPopulation			= population - maxHousedPopulation
 			plotMigration.Migrants.Housing	= overPopulation
 		end
-		Dprint( DEBUG_PLOT_SCRIPT, "  - Overpopulation = ", overPopulation," maxHousedPopulation : ", maxHousedPopulation, " population = ", population)
+		Dprint( DEBUG_PLOT_SCRIPT, "  - Overpopulation = ", plotMigration.Migrants.Housing," maxHousedPopulation : ", maxHousedPopulation, " population = ", population)
 		
 		-- Starvation
 		if city then
@@ -2720,7 +3571,19 @@ function SetMigrationValues(self)
 				local starving				= population - Div(population, plotMigration.Push.Food)
 				plotMigration.Migrants.Food	= starving
 			end
-			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", starving," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
+			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", plotMigration.Migrants.Food," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
+			
+		elseif village and village.Pull and village.Push then
+			plotMigration.Pull.Food	= village.Pull.Food or Div(maxPlotPopulation, population)
+			plotMigration.Push.Food	= village.Push.Food or Div(population, maxPlotPopulation)
+			
+			if plotMigration.Push.Food > 1 then 
+				plotMigration.Motivation 	= "Food"
+				local starving				= population - Div(population, plotMigration.Push.Food)
+				plotMigration.Migrants.Food	= starving
+			end
+			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", plotMigration.Migrants.Food," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
+		
 		else
 			plotMigration.Pull.Food	= Div(maxPlotPopulation, population) -- free plots use the population support value for Food when "pulling" migrants that are pushed out of a city influence by starvation 
 			plotMigration.Push.Food	= Div(population, maxPlotPopulation)
@@ -2764,9 +3627,9 @@ function DoMigration(self)
 	local totalWeight			= 0
 	
 	local classesRatio			= {}
-	for i, classID in ipairs(migrantClasses) do
-		classesRatio[classID] = Div(self:GetPopulationClass(classID), population)
-	end
+	--for i, classID in ipairs(migrantClasses) do
+	--	classesRatio[classID] = Div(self:GetPopulationClass(classID), population)
+	--end
 	-- Get the number of migrants from this plot
 	for motivation, value in pairs(plotMigration.Migrants) do
 		migrants = math.max(value, migrants) -- motivations can overlap, so just use the biggest value from all motivations 
@@ -2890,6 +3753,7 @@ function DoMigration(self)
 		
 		table.sort(possibleDestination, function(a, b) return a.Weight > b.Weight; end)
 		local numPlotDest = #possibleDestination
+		Dprint( DEBUG_PLOT_SCRIPT, "- Num Destinations = ", numPlotDest)
 		for i, destination in ipairs(possibleDestination) do
 			if migrants > 0 and destination.Weight > 0 then
 				-- MigrationEfficiency already affect destination.Weight, but when there is not many possible destination 
@@ -2902,15 +3766,15 @@ function DoMigration(self)
 				totalWeight				= math.max(1, totalWeight) -- do not divide by 0 !!!
 				local totalPopMoving 	= math.floor(migrants * Div(destination.Weight, totalWeight) * destination.MigrationEfficiency)
 				if totalPopMoving > 0 then
-					for i, classID in ipairs(migrantClasses) do
-						local classMoving = math.floor(totalPopMoving * classesRatio[classID])
+					for ii, classID in ipairs(migrantClasses) do
+						local classMoving = totalPopMoving --math.floor(totalPopMoving * classesRatio[classID])
 						if classMoving > 0 then
 							if destination.PlotID then -- plot to plot migration
 								local plot 				= GCO.GetPlotByIndex(destination.PlotID)
 								Dprint( DEBUG_PLOT_SCRIPT, "- Moving " .. Indentation20(tostring(classMoving) .. " " ..Locale.Lookup(GameInfo.Resources[classID].Name)).. " to plot ("..tostring(plot:GetX())..","..tostring(plot:GetY())..") with Weight = "..tostring(destination.Weight))
 								self:MigrationTo(plot, classMoving) -- before changing population values to get the correct numbers on each plot
-								self:ChangePopulationClass(classID, -classMoving)
-								plot:ChangePopulationClass(classID, classMoving)
+								--self:ChangePopulationClass(classID, -classMoving)
+								--plot:ChangePopulationClass(classID, classMoving)
 							else -- going to owning city
 								local city 			= destination.City
 								local plot 			= GetPlot(city:GetX(), city:GetY())
@@ -2926,7 +3790,7 @@ function DoMigration(self)
 									end
 								end
 								--self:MigrationTo(plot, classMoving)
-								self:ChangePopulationClass(classID, -classMoving)
+								--self:ChangePopulationClass(classID, -classMoving)
 								city:ChangePopulationClass(classID, classMoving)
 							end
 						end
@@ -2983,7 +3847,7 @@ function DoPlotsTurn()
 	table.insert(textTable, "First Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot 	= Map.GetPlotByIndex(i)
-		posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		--posTable[1] = Indentation8("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		-- set previous culture first
 		local plotCulture = plot:GetCultureTable()
 		if  plotCulture then
@@ -2999,7 +3863,7 @@ function DoPlotsTurn()
 	table.insert(textTable, "Second Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
-		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		--posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:UpdateDataOnNewTurn()	
 		plot:UpdateCulture()
 		plot:SetMaxEmployment()
@@ -3011,7 +3875,7 @@ function DoPlotsTurn()
 	table.insert(textTable, "Third Pass")
 	for i = 0, iPlotCount - 1 do
 		local plot = Map.GetPlotByIndex(i)
-		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		--posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:SetMigrationValues()
 	end	
 	GCO.ShowTimer("Plots DoTurn Third Pass")
@@ -3021,7 +3885,7 @@ function DoPlotsTurn()
 	table.insert(textTable, "Fourth Pass")
 	for i = step, iPlotCount - 1, turnRate do
 		local plot = Map.GetPlotByIndex(i)
-		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		--posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:DoMigration()
 	end
 	GCO.ShowTimer("Plots DoTurn Fourth Pass")
@@ -3031,7 +3895,7 @@ function DoPlotsTurn()
 	table.insert(textTable, "Fifth Pass")
 	for i = step, iPlotCount - 1, turnRate do
 		local plot = Map.GetPlotByIndex(i)
-		posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
+		--posTable[1] = Indentation20("Managing plot #"..tostring(i)).." at ".. tostring(plot:GetX())..",".. tostring(plot:GetY())
 		plot:MatchCultureToPopulation()
 	end	
 	GCO.ShowTimer("Plots DoTurn Fifth Pass")
@@ -3064,12 +3928,14 @@ end
 Events.CityTileOwnershipChanged.Add(OnCityTileOwnershipChanged)
 
 function DiffusionValueUpdate(x,y)
+	if not ExposedMembers.GCO_Initialized then return end
 	local plot = GetPlot(x,y)
 	if plot then
 		plot:UpdatePlotDiffusionValues()
 	end
 end
 function EmploymentValueUpdate(x,y)
+	if not ExposedMembers.GCO_Initialized then return end
 	local plot = GetPlot(x,y)
 	if plot then
 		plot:SetMaxEmployment()
@@ -3077,6 +3943,7 @@ function EmploymentValueUpdate(x,y)
 end
 
 function OnFeatureChanged(x,y)
+	if not ExposedMembers.GCO_Initialized then return end
 	--local DEBUG_PLOT_SCRIPT = "debug"
 	Dprint( DEBUG_PLOT_SCRIPT, "Feature changed at ", x,y)
 	
@@ -3131,8 +3998,10 @@ end
 -----------------------------------------------------------------------------------------
 function GetPlotByIndex(index) -- return a plot with PlotScript functions for another context
 	local plot = Map.GetPlotByIndex(index)
-	InitializePlotFunctions(plot)
-	return plot
+	if plot then
+		InitializePlotFunctions(plot)
+		return plot
+	end
 end
 
 function GetPlot(x, y) -- return a plot with PlotScript functions for another context
@@ -3198,7 +4067,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 		p.OldSetOwner					= p.SetOwner
 		p.SetOwner						= SetOwner
 	
-		p.IsPlotImprovementPillaged		= IsPlotImprovementPillaged -- not working ?
+		p.IsPlotImprovementPillaged		= IsPlotImprovementPillaged
 		p.GetPlotAppeal					= GetPlotAppeal
 		p.GetPlotActualYield			= GetPlotActualYield
 		
@@ -3221,6 +4090,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 		p.GetTotalCulture 				= GetTotalCulture
 		p.GetCulturePercent				= GetCulturePercent
 		p.GetCulturePercentTable		= GetCulturePercentTable
+		p.GetCultureString				= GetCultureString
 		p.DoConquestCountDown 			= DoConquestCountDown
 		p.GetConquestCountDown 			= GetConquestCountDown
 		p.SetConquestCountDown 			= SetConquestCountDown
@@ -3230,7 +4100,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 		p.ChangeCulture 				= ChangeCulture
 		p.GetPreviousCulture 			= GetPreviousCulture
 		p.SetPreviousCulture 			= SetPreviousCulture
-		p.GetHighestCulturePlayer 		= GetHighestCulturePlayer
+		p.GetHighestCultureID 			= GetHighestCultureID
 		p.GetTotalPreviousCulture		= GetTotalPreviousCulture	
 		p.GetCulturePer10000			= GetCulturePer10000
 		p.GetPreviousCulturePer10000	= GetPreviousCulturePer10000
@@ -3245,6 +4115,7 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 		p.UpdateOwnership				= UpdateOwnership
 		p.DiffuseCulture				= DiffuseCulture
 		p.MigrationTo					= MigrationTo
+		p.GetDirectionStringTo			= GetDirectionStringTo
 		--
 		p.GetAvailableEmployment		= GetAvailableEmployment
 		p.GetEmploymentValue			= GetEmploymentValue
@@ -3257,8 +4128,14 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 		p.GetEmployed					= GetEmployed
 		p.GetActivityFactor				= GetActivityFactor
 		--
+		p.GetPlotFertility				= GetPlotFertility
+		p.GetEthnicityByNearestMajor	= GetEthnicityByNearestMajor
+		p.GetBestCultureGroup			= GetBestCultureGroup
+		p.GetpossibleCultureGroups		= GetpossibleCultureGroups
+		p.AddPopulationForTribalVillage	= AddPopulationForTribalVillage
 		p.GetSize						= GetSize
 		p.GetPopulation					= GetPopulation
+		p.ChangePopulation				= ChangePopulation
 		p.GetMaxSize					= GetMaxSize
 		p.GetPreviousPopulation			= GetPreviousPopulation
 		p.ChangeUpperClass				= ChangeUpperClass
@@ -3304,6 +4181,8 @@ function InitializePlotFunctions(plot) -- Note that those functions are limited 
 		p.GetRiverPathFromEdge			= GetRiverPathFromEdge
 		--
 		p.GetPathToPlot					= GetPathToPlot
+		p.GetRoadPath					= GetRoadPath
+		p.GetSupplyPath					= GetSupplyPath
 		--
 		p.UpdateDataOnNewTurn			= UpdateDataOnNewTurn
 		p.SetMigrationValues			= SetMigrationValues
@@ -3335,3 +4214,42 @@ function Initialize()
 	ExposedMembers.PlotScript_Initialized 		= true
 end
 Initialize()
+
+-- Culture Creation in Cities
+		--[[
+		local baseCulture = tonumber(GameInfo.GlobalParameters["CULTURE_CITY_BASE_PRODUCTION"].Value)
+		local maxCulture = city:GetRealPopulation() --(city:GetPopulation() + GCO.GetCityCultureYield(self)) * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value)
+		table.insert(textTable, "baseCulture = " .. tostring(baseCulture) ..", maxCulture ["..tostring(maxCulture).."] = (city:GetPopulation() ["..tostring(city:GetPopulation()) .." + GCO.GetCityCultureYield(self)[".. tostring(GCO.GetCityCultureYield(self)).."]) * CULTURE_CITY_CAPED_FACTOR["..tonumber(GameInfo.GlobalParameters["CULTURE_CITY_CAPED_FACTOR"].Value).."]")
+		if self:GetTotalCulture() < maxCulture then -- don't add culture if above max, the excedent will decay each turn
+			if plotCulture then
+				-- First add culture for city owner				
+				local cultureAdded = 0
+				local value = self:GetCulture( city:GetOwner() )
+				if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
+					cultureAdded = GCO.Round((city:GetSize() + GCO.GetCityCultureYield(self)) * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
+				else
+					cultureAdded = GCO.Round((city:GetSize() + GCO.GetCityCultureYield(self)) * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
+				end	
+				cultureAdded = cultureAdded + baseCulture
+				table.insert(textTable, "- Player#".. tostring(cultureID)..", population= ".. tostring(city:GetPopulation())..", GCO.GetCityCultureYield(self) =".. tostring(GCO.GetCityCultureYield(self)) ..", math.log( value[".. tostring(value).."] * CULTURE_CITY_FACTOR["..tostring(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value).."], 10) = " .. tostring(math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10)) ..", math.sqrt( value[".. tostring(value).."] * CULTURE_CITY_RATIO[".. tostring (GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value).."]" .. tostring(math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value))) .. ", baseCulture =" .. tostring(baseCulture) ..", cultureAdded = " ..tostring(cultureAdded))
+				self:ChangeCulture(cityCultureID, cultureAdded)	
+				
+				-- Then update all other Culture
+				for cultureID, value in pairs (plotCulture) do
+					if value > 0 then
+						local cultureAdded = 0
+						if GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() then
+							if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
+								cultureAdded = GCO.Round(city:GetSize() * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
+							else
+								cultureAdded = GCO.Round(city:GetSize() * math.sqrt( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_RATIO"].Value)))
+							end
+							self:ChangeCulture(cultureID, cultureAdded)
+						end					
+					end				
+				end
+			elseif self:GetOwner() == city:GetOwner() then -- initialize culture in city
+				self:ChangeCulture(cityCultureID, baseCulture)
+			end
+		end
+		--]]

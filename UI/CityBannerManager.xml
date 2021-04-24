@@ -390,6 +390,29 @@
       </Container>
     </ZoomAnchor>
   </Instance>
+  
+  
+  <!--GCO	<<<<<-->
+  <!-- Tribal Village -->
+  <Instance	Name="TribeBanner">
+    <ZoomAnchor ID="Anchor" ZoomOffsetNear="0,0,0" ZoomOffsetFar="0,0,-20">
+      <Container ID="TribeBannerContainer" Anchor="C,C" Size="120,34" Offset="10,0">
+        <!-- Banner Background -->
+        <Grid ID="Banner_Base"    Size="Parent,Parent" Texture="BannerMini_Base_Combo" SliceCorner="18,9" SliceSize="44,16" SliceTextureSize="80,34" Alpha="0.5"/>
+		<Button ID="TribeBannerButton" Size="parent,parent" Color="0,0,0,0" />
+        <!--  -->
+        <Container ID="TribeNameContainer" Anchor="L,C" Offset="12,0">
+          <Stack ID="TribeNameStack" Offset="0,-1" Anchor="C,C" StackGrowth="Right" StackPadding="2,0">
+            <Label ID="TribeStateLabel" Style="FontNormal16" String="[ICON_Peace]"/>
+            <Label ID="TribeNameLabel" Offset="0,2" Style="FontNormal16" String="0"/>
+            <Label ID="TribeSuzeraintyLabel" Style="FontNormal16" String="[ICON_Puppet]"/>
+          </Stack>
+        </Container>
+
+      </Container>
+    </ZoomAnchor>
+  </Instance>
+  <!--GCO	>>>>>-->
 
   <!-- Encampment Minibanner -->
   <Instance	Name="EncampmentBanner">

@@ -9,8 +9,10 @@
 	-->
 	
 	<UnitsGCO> <!-- Civilian -->
-		<Row UnitType="UNIT_SETTLER" 			/>
-		<Row UnitType="UNIT_BUILDER" 			/>
+		<Row UnitType="UNIT_SETTLER" 	NoReinforcement="1"		/>
+		<Row UnitType="UNIT_BUILDER" 	NoReinforcement="1"		/>
+		<Row UnitType="UNIT_WORKER" 	NoReinforcement="1"		Cost="0"	CanTrain="false" FormationClass="FORMATION_CLASS_CIVILIAN" Domain="DOMAIN_LAND" />
+		<Row UnitType="UNIT_CARAVAN" 	NoReinforcement="1"		Cost="0"	CanTrain="false" FormationClass="FORMATION_CLASS_CIVILIAN" Domain="DOMAIN_LAND" />
 	</UnitsGCO>
 	<UnitsGCO> <!-- Melee -->
 	<!---- >
@@ -83,5 +85,13 @@
 	<UnitsGCO>
 		<Row UnitType="UNIT_FIELD_CANNON" 		Combat="53" RangedCombat="0"	Bombard="65"	PromotionClass="PROMOTION_CLASS_SIEGE" />
 	</UnitsGCO>	
+	
+	
+	<TypeTags>
+		<!-- To move on own layer but not capturable then ->
+		<Row Type="UNIT_BUILDER" Tag="CLASS_RELIGIOUS_ALL"/>
+		<!---->
+		
+	</TypeTags>
 	
 </GameInfo>

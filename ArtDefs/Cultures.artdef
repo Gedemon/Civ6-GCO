@@ -115,6 +115,46 @@
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations010"/>
 								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
 						</Element>
@@ -146,6 +186,46 @@
 									<m_CollectionIsLocked>true</m_CollectionIsLocked>
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations002"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
 								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
@@ -355,6 +435,46 @@
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations010"/>
 								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
 						</Element>
@@ -418,6 +538,46 @@
 									<m_CollectionIsLocked>true</m_CollectionIsLocked>
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations006"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations008"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations009"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations010"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
 								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
@@ -530,6 +690,46 @@
 									<m_CollectionIsLocked>true</m_CollectionIsLocked>
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations010"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
 								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
@@ -659,6 +859,46 @@
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations010"/>
 								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
 						</Element>
@@ -755,6 +995,46 @@
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations010"/>
 								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
 						</Element>
@@ -818,6 +1098,46 @@
 									<m_CollectionIsLocked>true</m_CollectionIsLocked>
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations006"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
 								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
@@ -935,6 +1255,46 @@
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations010"/>
 								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_ASIAN_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
 						</Element>
@@ -966,6 +1326,46 @@
 									<m_CollectionIsLocked>true</m_CollectionIsLocked>
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations002"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_MEDIT_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations003"/>
 								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
@@ -1175,6 +1575,46 @@
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations010"/>
 								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_AFRICAN_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations011"/>
+								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>
 						</Element>
@@ -1238,6 +1678,46 @@
 									<m_CollectionIsLocked>true</m_CollectionIsLocked>
 									<m_TemplateName text="Civilizations"/>
 									<m_ParamName text="Civilizations006"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_1"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_2"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_3"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_4"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
+								</Element>
+								<Element class="AssetObjects::ArtDefReferenceValue">
+									<m_ElementName text="CIVILIZATION_TRIBE_SOUTHAM_5"/>
+									<m_RootCollectionName text="Civilization"/>
+									<m_ArtDefPath text="Civilizations.artdef"/>
+									<m_CollectionIsLocked>true</m_CollectionIsLocked>
+									<m_TemplateName text="Civilizations"/>
+									<m_ParamName text="Civilizations007"/>
 								</Element>
 							</m_Values>
 							<m_ParamName text="Civilizations"/>

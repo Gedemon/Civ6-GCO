@@ -17,6 +17,9 @@
 	<Replace Tag="LOC_UNIT_SETTLER_DESCRIPTION"	Language="en_US">
 		<Text>May create new cities.</Text>
 	</Replace>
+	<Replace Tag="LOC_UNIT_BUILDER_DESCRIPTION"	Language="en_US">
+		<Text>May create tile improvements or remove features like Woods or Rainforest to harvest their resources. Builders can be used 3 times, when used to place an improvement, a part of the civilian population of the Builder is transferred to on the improvement's tile population. They passively collect resources on the tile they are at the end of their turn and will sell them to their linked city.</Text>
+	</Replace>
 	
 	<Replace Tag="LOC_IMPROVEMENT_ROMAN_FORT_NAME"	Language="en_US">
 		<Text>Wodden Fort</Text>
@@ -91,6 +94,20 @@
 	<Replace Tag="LOC_CIVIC_RAPID_DEPLOYMENT_DESCRIPTION"	Language="en_US">
 		<Text>Allows for the transport of land units between Aerodrome districts that contain Airports.[NEWLINE]Unlock Military Organization Level 8</Text>
 	</Replace>
+	
+	<Replace Tag="LOC_TECH_SAILING_DESCRIPTION"	Language="en_US">
+		<Text>Allows Builders to embark.[NEWLINE]+1 [ICON_Range] Sea Exploitation Range</Text>
+	</Replace>
+	<Replace Tag="LOC_TECH_CARTOGRAPHY_DESCRIPTION"	Language="en_US">
+		<Text>All naval and embarked units can navigate Ocean tiles.[NEWLINE]+1 [ICON_Range] Sea Exploitation Range</Text>
+	</Replace>
+	<Replace Tag="LOC_TECH_TECH_SQUARE_RIGGING_DESCRIPTION"	Language="en_US">
+		<Text>+1 [ICON_Movement] Movement for embarked units.[NEWLINE]+1 [ICON_Range] Sea Exploitation Range</Text>
+	</Replace>
+	<Replace Tag="LOC_TECH_CELESTIAL_NAVIGATION_DESCRIPTION"	Language="en_US">
+		<Text>Allows Traders to embark.[NEWLINE]+1 [ICON_Range] Sea Exploitation Range</Text>
+	</Replace>
+
 
   </LocalizedText>
 
@@ -142,6 +159,7 @@
 	
     <Replace Tag="LOC_TOOLTIP_SEPARATOR"			Text="[NEWLINE][COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR][NEWLINE]" 	Language="en_US" />
     <Replace Tag="LOC_TOOLTIP_SEPARATOR_NO_LB"		Text="[COLOR_Grey]------------------------------------------------------------------------------------[ENDCOLOR]" 	Language="en_US" />
+    <Replace Tag="LOC_TOOLTIP_SEPARATOR_SMALL"		Text="[COLOR_Grey]-------------------------------------------[ENDCOLOR]" 	Language="en_US" />
 	
 	<Replace Tag="LOC_EVALUATION_STRING_WITH_NAME"	Text="({1_Name} {2_Name})" 			Language="en_US" />
 	<Replace Tag="LOC_EVALUATION_STRING"			Text="({1_Name})" 					Language="en_US" />
@@ -267,6 +285,9 @@
     <Replace Tag="LOC_CITYBANNER_POPULATION_TITLE" Language="en_US">
       <Text>[COLOR_Grey]--------------------- Population --------------------[ENDCOLOR]</Text>
     </Replace>
+    <Replace Tag="LOC_CITYBANNER_SMALL_POPULATION_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]---------- Population ----------[ENDCOLOR]</Text>
+    </Replace>
     <Replace Tag="LOC_CITYBANNER_PERSONNEL_TITLE" Language="en_US">
       <Text>[COLOR_Grey]---------------------- Personnel ---------------------[ENDCOLOR]</Text>
     </Replace>
@@ -275,6 +296,9 @@
     </Replace>
     <Replace Tag="LOC_CITYBANNER_STOCK_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------------- Stock -------------------------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_CITYBANNER_SMALL_STOCK_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------ Stock ------------[ENDCOLOR]</Text>
     </Replace>
     <Replace Tag="LOC_CITYBANNER_EQUIPMENT_STOCK_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------------ Equipment Stock ------------------[ENDCOLOR]</Text>
@@ -848,7 +872,25 @@
 	<Replace Tag="LOC_DIPLOMACY_NO_DEAL_GARRISON_UNIT" Language="en_US">
       <Text>No contact possible for Deals with units in Forts, Tribal Villages or Camps.</Text>
     </Replace>
+	<Replace Tag="LOC_DIPLOMACY_NO_DEAL_CLOSED_BORDER_UNIT" Language="en_US">
+      <Text>Can't contact units in territory without Open Borders.</Text>
+    </Replace>
+	<Replace Tag="LOC_DIPLOMACY_NO_DEAL_NOT_LAST_EMPLOYER_UNIT" Language="en_US">
+      <Text>Only the last Employer can renew a Mercenary Contract.</Text>
+    </Replace>
+	<Replace Tag="LOC_DIPLOMACY_NO_DEAL_EXPIRED_CONTRACT_UNIT" Language="en_US">
+      <Text>Can't renew Contract.[NEWLINE]Expired {1_Num : number #} [ICON_Turn] ago.</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_DIPLOMACY_DIPLOMATIC_MEETING" Language="en_US">
+      <Text>DIPLOMATIC MEETING</Text>
+    </Replace>
+	
+	
 
+	<Replace Tag="LOC_DIPLOMACY_UNDER_RULE" Language="en_US">
+      <Text>Under rule of {1_Name}</Text>
+    </Replace>
 	
   </LocalizedText>
  
@@ -912,6 +954,21 @@
 	<Replace Tag="LOC_FEATURE_FOREST_SPARSE_NAME"			Text="Sparse Forest"			Language="en_US" />
   </LocalizedText>
   
+   <LocalizedText> <!-- Improvements -->	
+	<Replace Tag="LOC_IMPROVEMENT_FORTIFIED_VILLAGE_NAME"	Text="Fortified Village"	Language="en_US" />
+	<Replace Tag="LOC_IMPROVEMENT_VILLAGE_NAME"				Text="Village"				Language="en_US" />
+	<Replace Tag="LOC_IMPROVEMENT_HUNTERS_NAME"				Text="Hunters Village"		Language="en_US" />
+	<Replace Tag="LOC_IMPROVEMENT_FARMERS_NAME"				Text="Farmers Village"		Language="en_US" />
+	
+	<Replace Tag="LOC_IMPROVEMENT_FARM_DESCRIPTION"	Language="en_US" >
+		<Text>Unlocks the Builder ability to construct Farms.[NEWLINE]Can only be built on Grassland or Plains.[NEWLINE]Constructing farms adjacent to other Farms provides bonuses to Housing.</Text>
+	</Replace>
+	
+	<Replace Tag="LOC_IMPROVEMENT_FISHING_BOATS_DESCRIPTION" Language="en_US">
+		<Text>Fishing Boats are automatically exploiting Sea Resources in the City range (require a Harbor).</Text>
+	</Replace>
+  </LocalizedText>
+  	
   <LocalizedText> <!-- Floating Texts -->
   
 	<!-- Casualties -->
@@ -1080,6 +1137,15 @@
 	</Replace>
   </LocalizedText>
   
+  <LocalizedText> <!-- PlotInfo -->
+	<Replace Tag="LOC_PLOTINFO_PLACE_VILLAGE" Language="en_US">
+		<Text>Select Plot ({1_Num : number #},{2_Num : number #})</Text>
+	</Replace>
+	<Replace Tag="LOC_PLOTINFO_PLACE_VILLAGE_TOOLTIP" Language="en_US">
+		<Text>Available Resources</Text>
+	</Replace>
+  </LocalizedText>  
+  
   <LocalizedText> <!-- Plot ToolTip Texts -->
 	
     <Replace Tag="LOC_PLOT_TOOLTIP_CULTURE_TOTAL" Language="en_US">
@@ -1143,7 +1209,7 @@
     <Replace Tag="LOC_POPULATION_UPPER_NAME" 		Text="Upper Class" 		Language="en_US" /> 
     <Replace Tag="LOC_POPULATION_MIDDLE_NAME" 		Text="Middle Class" 	Language="en_US" /> 
     <Replace Tag="LOC_POPULATION_LOWER_NAME" 		Text="Lower Class"		Language="en_US" /> 
-    <Replace Tag="LOC_POPULATION_SLAVE_NAME" 		Text="Slave Class" 		Language="en_US" /> 
+    <Replace Tag="LOC_POPULATION_SLAVE_NAME" 		Text="Slaves"	 		Language="en_US" /> 
     <Replace Tag="LOC_POPULATION_PERSONNEL_NAME" 	Text="Personnel" 		Language="en_US" />
     <Replace Tag="LOC_POPULATION_PRISONERS_NAME" 	Text="Prisoners" 		Language="en_US" />
   </LocalizedText>
@@ -1199,6 +1265,151 @@
 	
   </LocalizedText>
  
+  <LocalizedText> <!-- Settlements / Tribes / Actions Texts -->
+		
+	<Replace Tag="LOC_HUD_BACK" Language="en_US">
+      <Text>BACK</Text>
+    </Replace>
+	<Replace Tag="LOC_SETTLEMENT_MANAGEMENT" Language="en_US">
+      <Text>SETTLEMENT MANAGEMENT</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_TRIBE_MATERIEL_STOCK_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]--------------------- Materiel Stock --------------------[ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_TRIBE_NO_ENOUGH_POPULATION" Language="en_US">
+      <Text>[COLOR_Civ6Red]Not enough Population, missing {1_Num : number #} [ICON_Position][ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_TRIBE_NO_ENOUGH_ETHNIC_POPULATION" Language="en_US">
+      <Text>[COLOR_Civ6Red]Not enough {2_Name} Population, missing {1_Num : number #} [ICON_Position][ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_TRIBE_NO_ENOUGH_PERCENT_OF_ETHNIC_POPULATION" Language="en_US">
+      <Text>[COLOR_Civ6Red]Not enough percentage of {2_Name} Population, missing {1_Num : number #.##} %[ICON_Position][ENDCOLOR]</Text>
+    </Replace>	
+    <Replace Tag="LOC_TRIBE_NO_ENOUGH_GOLD" Language="en_US">
+      <Text>[COLOR_Civ6Red]Not enough Gold, missing {1_Num : number #} [ICON_Gold][ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_TRIBE_NO_ENOUGH_MATERIEL" Language="en_US">
+      <Text>[COLOR_Civ6Red]Not enough Materiel, missing {1_Num : number #} [ICON_RESOURCE_MATERIEL][ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_TRIBE_NO_ENOUGH_SLAVES" Language="en_US">
+      <Text>[COLOR_Civ6Red]Not enough Slaves, missing {1_Num : number #} [ICON_SlaveClass][ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_NO_LUXURIES" Language="en_US">
+      <Text>[COLOR_Civ6Red]No Luxuries in Stock to trade for Gold[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_VILLAGE_MAX_GOLD_FROM_LUXURIES" Language="en_US">
+      <Text>Can trade Luxuries to generate up to {1_Num : number #}[ICON_Gold] Gold per turn.</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_NO_OTHER_VILLAGE" Language="en_US">
+      <Text>[COLOR_Civ6Red]There are no other Villages.[ENDCOLOR]</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_TRIBE_ACTION_RESOURCE_NEEDED_TOTAL" Language="en_US">
+      <Text>[ICON_Bullet] {3_Num} / {4_Num} {1_Name} {2_Name}</Text>
+    </Replace>
+	<Replace Tag="LOC_TRIBE_NO_EQUIPMENT_RECRUIT" Language="en_US">
+		<Text>Not enough equipment to Recruit {1_Name}:</Text>
+    </Replace>
+	<Replace Tag="LOC_TRIBE_ENOUGH_EQUIPMENT_RECRUIT" Language="en_US">
+		<Text>Available equipment to Recruit {1_Name}:</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_TRIBE_POPULATION_REQUIRED_FOR_UNIT_BELOW" Language="en_US">
+      <Text>[COLOR_OperationChance_Orange]Available: {1_Num : number #} / {2_Num : number #}[ICON_Position] Conscripts[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_TRIBE_POPULATION_REQUIRED_FOR_UNIT_MAX" Language="en_US">
+      <Text>Available: {1_Num : number #} / {2_Num : number #}[ICON_Position] Conscripts</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_TO_FAR_FOR_REBUILD" Language="en_US">
+      <Text>[COLOR_Civ6Red]Village is {1_NumDistance : number #} {1_NumDistance : plural 1?tile; other?tiles;} too far from the nearest Center[ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_NO_ACTION_VILLAGE_PILLAGED" Language="en_US">
+      <Text>[COLOR_Civ6Red]Village is pillaged[ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_PRODUCTION_ALREADY_SELECTED" Language="en_US">
+      <Text>[COLOR_Civ6Red]Already the current Production Type[ENDCOLOR]</Text>
+    </Replace>
+	
+	
+    <Replace Tag="LOC_MIGRATION_CANT_SETTLE_HERE" Language="en_US">
+      <Text>[COLOR_Civ6Red]Can't settle on Natural Wonders or directly on an Oasis[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_MIGRATION_CANT_SETTLE_CLOSE_CITY" Language="en_US">
+      <Text>[COLOR_Civ6Red]Can't settle near another city[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_MIGRATION_CANT_SETTLE_CLOSE_TERRITORY" Language="en_US">
+      <Text>[COLOR_Civ6Red]Can't settle near another Civilization territory[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_MIGRATION_CANT_SETTLE_CLOSE_SETTLEMENT" Language="en_US">
+      <Text>[COLOR_Civ6Red]Can't settle near another Tribe[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_MIGRATION_CANT_SETTLE_VISIBLE_RESOURCE" Language="en_US">
+      <Text>[COLOR_Civ6Red]There is an abundance of {1_Name} here, you can't settle on it[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_MIGRATION_CANT_SETTLE_INVISIBLE_RESOURCE" Language="en_US">
+      <Text>[COLOR_Civ6Red]There is an abundance of an unknown Resource here, you can't settle on it.[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_MIGRATION_CANT_REPLACE_IMPROVEMENT" Language="en_US">
+      <Text>[COLOR_Civ6Red]Can't settle over an existing improvement[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_MIGRATION_CANT_SETTLE_ADJACENT_SETTLEMENT" Language="en_US">
+      <Text>[COLOR_Civ6Red]Can't settle here, there is an adjacent Village[ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_CURRENT_TASK" Language="en_US">
+      <Text>Current Task : {1_Name}</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_SELECT_VILLAGE_POSITION" Language="en_US">
+      <Text>Select Position</Text>
+    </Replace>	
+	<Replace Tag="LOC_VILLAGE_PRODUCTION_LOCKED" Language="en_US">
+      <Text>[COLOR_Civ6Red]Can't change current production[ENDCOLOR]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_CONFIRM_PLACEMENT" Language="en_US">
+      <Text>Confirm Placement at {1_Num : number #}, {2_Num : number #}</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_SETTLE_HERE" Language="en_US">
+      <Text>Create New Settlement Here</Text>
+    </Replace>
+
+    <Replace Tag="LOC_VILLAGE_FOOD_REQUIRED" Language="en_US">
+      <Text>{1_Num}[ICON_Food] Required / {3_Num}[ICON_Food] Produced / {2_Num}[ICON_Food] In Stock</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_TRIBE_MATERIEL_STOCK_TEXT" Language="en_US">
+      <Text>{1_Num}[ICON_RESOURCE_MATERIEL] Produced / {2_Num}[ICON_RESOURCE_MATERIEL] In Stock</Text>
+    </Replace>
+	
+	<Replace Tag="LOC_VILLAGE_PRODUCTION_HEADER" Language="en_US">
+      <Text>[ICON_INDENT]                  [Icon_STOCK2]   [ICON_UP_DOWN]</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_PRODUCTION_OUTPUT" Language="en_US">
+      <Text>(x{1_Num : number #.##} from pop./slaves)</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_VILLAGE_POPULATION_MIGRATION_PER_TURN" Language="en_US">
+      <Text>Up to {1_Num : number #} [ICON_Position] Population will migrate each Turn [ICON_Turn]</Text>
+    </Replace>
+	
+	
+	<Replace Tag="LOC_VILLAGE_UNDER_CONTROL" Language="en_US">
+      <Text>Under control of Settlement in the {1_Name}</Text>
+    </Replace>
+	
+  </LocalizedText>
+
   <LocalizedText> <!-- Production Panel Texts -->	
 
 	<Replace Tag="LOC_PRODUCTION_RESOURCE_NO_STOCK" Language="en_US">
@@ -1451,6 +1662,12 @@
     <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONERS" Language="en_US">
       <Text>[ICON_FoodPerTurn] {1_Num} food by {2_Num} [ICON_Prisoners] Prisoners</Text>
     </Replace>
+    <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_POPULATION" Language="en_US">
+      <Text>[ICON_FoodPerTurn] {1_Num} food by {2_Num} [ICON_Position] Civilians</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_FOOD_CONSUMPTION_SLAVES" Language="en_US">
+      <Text>[ICON_FoodPerTurn] {1_Num} food by {2_Num} [ICON_SlaveClass] Slaves</Text>
+    </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_FUEL_STOCK" Language="en_US">
       <Text>[ICON_RESOURCE_OIL] {1_Num} / {2_Num} Fuel</Text>
@@ -1539,6 +1756,10 @@
 	<Replace Tag="LOC_UNITFLAG_CURRENTLY_DISBANDING" Language="en_US">
       <Text>Disbanding since [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] [ICON_Turn]</Text>
     </Replace>
+	<Replace Tag="LOC_UNITFLAG_DISBANDING_LOCKED_BY_MIGRATING" Language="en_US">
+      <Text>No disbanding during a migration</Text>
+    </Replace>
+	
   </LocalizedText>
 
   <LocalizedText> <!-- UnitPanel Texts --> 
@@ -2431,142 +2652,6 @@
 	<Replace Tag="LOC_CIVILIZATION_VIETNAM_FEMALE_GOVERNMENT_FASCISM_NAME"     Text="Empress {1_Name}"     Language="en_US" />     
   </LocalizedText> 
   
-  <LocalizedText> <!-- Culture Groups -->
-  
-    <Replace Tag="LOC_CULTURE_INDEPENDENT_NAME" 			Text="Independent"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_INDEPENDENT_ADJECTIVE" 		Text="Independent"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SEPARATIST_NAME" 				Text="Separatist"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SEPARATIST_ADJECTIVE" 		Text="Separatist"			Language="en_US" />
-	
-    <Replace Tag="LOC_CULTURE_HAFIT_NAME" 					Text="Hafit" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_UMM_AN_NAR_NAME" 				Text="Umm An-Nar" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_MAGAN_NAME" 					Text="Magan" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_WADI_SUQ_NAME" 				Text="Wadi Suq" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SAYHADIC_NAME" 				Text="Sayhadic" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ARABIC_NAME" 					Text="Arabic" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KISH_NAME" 		 			Text="Kish" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_EBLAITE_NAME" 		 		Text="Eblaite" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AMORITE_NAME" 		 		Text="Amorite" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_CANAANITE_NAME" 	 			Text="Canaanite" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ARAMAIC_NAME" 		 		Text="Aramaic" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_UBAID_NAME"					Text="Ubaid"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_URUK_NAME"					Text="Uruk"					Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SUMERIAN_NAME" 				Text="Sumerian" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ELAMITE_NAME"					Text="Elamite"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AKKADIAN_NAME"				Text="Akkadian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_HURRIAN_NAME"					Text="Hurrian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ASSYRIAN_NAME"				Text="Assyrian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_BABYLONIAN_NAME"				Text="Babylonian"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_GALZU_NAME"					Text="Galzu"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KURDISH_NAME"					Text="Kurdish"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SHULAVERI_SHOMU_NAME"			Text="Shulaveri-Shomu"		Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KURA_ARAXES_NAME"				Text="Kura-Araxes"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_YAMNA_NAME"					Text="Yamna"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_POLTAVKA_NAME"				Text="Poltavka"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_JIROFT_NAME"					Text="Jiroft"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SINTASHTA_NAME"				Text="Sintashta"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ANDRONOVO_NAME"				Text="Andronovo"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AVESTAN_NAME"					Text="Avestan"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_PERSIAN_NAME"					Text="Persian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_MEDIAN_NAME"					Text="Median"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AZERI_NAME"					Text="Azeri"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_HATTIC_NAME"					Text="Hattic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_PALAIC_NAME"					Text="Palaic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_HITTITE_NAME"					Text="Hittite"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_LUWIC_NAME"					Text="Luwic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KASKIAN_NAME"					Text="Kaskian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_LYDIAN_NAME"					Text="Lydian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ARMENIAN_NAME" 				Text="Armenian" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_LYCIAN_NAME"					Text="Lycian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_MILYAN_NAME"					Text="Milyan"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ANATOLIAN_TURKIC_NAME"		Text="Anatolian Turkic"		Language="en_US" />
-    <Replace Tag="LOC_CULTURE_COLCHIAN_NAME"				Text="Colchian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KARTVELIAN_NAME"				Text="Kartvelian"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_GEORGIAN_NAME"				Text="Georgian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_EL_OMARI_NAME"				Text="El Omari"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_MAADI_NAME"					Text="Maadi"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AMRATIAN_NAME"				Text="Amratian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_GERZEAN_NAME"					Text="Gerzean"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_EGYPTIAN_NAME"				Text="Egyptian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_COPTIC_NAME"					Text="Coptic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KENZI_NAME"					Text="Kenzi"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_CUSHITIC_NAME"				Text="Cushitic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KERMA_NAME"					Text="Kerma"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_GE_EZ_NAME"					Text="Ge'ez"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_TIGRAYA_NAME"					Text="Tigraya"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_BEJA_NAME"					Text="Beja"					Language="en_US" />
-    <Replace Tag="LOC_CULTURE_NOBA_NAME"					Text="Noba"					Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AMHARIC_NAME"					Text="Amharic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_TIGRINYA_NAME"				Text="Tigrinya"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_NOBIIN_NAME"					Text="Nobiin"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_DONGOLAWI_NAME"				Text="Dongolawi"			Language="en_US" />
-	
-	
-    <Replace Tag="LOC_CULTURE_HAFIT_ADJECTIVE" 					Text="Hafit" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_UMM_AN_NAR_ADJECTIVE" 			Text="Umm An-Nar" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_MAGAN_ADJECTIVE" 					Text="Magan" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_WADI_SUQ_ADJECTIVE" 				Text="Wadi Suq" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SAYHADIC_ADJECTIVE" 				Text="Sayhadic" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ARABIC_ADJECTIVE" 				Text="Arabic" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KISH_ADJECTIVE" 		 			Text="Kish" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_EBLAITE_ADJECTIVE" 		 		Text="Eblaite" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AMORITE_ADJECTIVE" 		 		Text="Amorite" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_CANAANITE_ADJECTIVE" 	 			Text="Canaanite" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ARAMAIC_ADJECTIVE" 		 		Text="Aramaic" 				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_UBAID_ADJECTIVE"					Text="Ubaid"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_URUK_ADJECTIVE"					Text="Uruk"					Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SUMERIAN_ADJECTIVE" 				Text="Sumerian" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ELAMITE_ADJECTIVE"				Text="Elamite"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AKKADIAN_ADJECTIVE"				Text="Akkadian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_HURRIAN_ADJECTIVE"				Text="Hurrian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ASSYRIAN_ADJECTIVE"				Text="Assyrian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_BABYLONIAN_ADJECTIVE"				Text="Babylonian"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_GALZU_ADJECTIVE"					Text="Galzu"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KURDISH_ADJECTIVE"				Text="Kurdish"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SHULAVERI_SHOMU_ADJECTIVE"		Text="Shulaveri-Shomu"		Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KURA_ARAXES_ADJECTIVE"			Text="Kura-Araxes"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_YAMNA_ADJECTIVE"					Text="Yamna"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_POLTAVKA_ADJECTIVE"				Text="Poltavka"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_JIROFT_ADJECTIVE"					Text="Jiroft"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_SINTASHTA_ADJECTIVE"				Text="Sintashta"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ANDRONOVO_ADJECTIVE"				Text="Andronovo"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AVESTAN_ADJECTIVE"				Text="Avestan"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_PERSIAN_ADJECTIVE"				Text="Persian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_MEDIAN_ADJECTIVE"					Text="Median"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AZERI_ADJECTIVE"					Text="Azeri"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_HATTIC_ADJECTIVE"					Text="Hattic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_PALAIC_ADJECTIVE"					Text="Palaic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_HITTITE_ADJECTIVE"				Text="Hittite"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_LUWIC_ADJECTIVE"					Text="Luwic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KASKIAN_ADJECTIVE"				Text="Kaskian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_LYDIAN_ADJECTIVE"					Text="Lydian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ARMENIAN_ADJECTIVE" 				Text="Armenian" 			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_LYCIAN_ADJECTIVE"					Text="Lycian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_MILYAN_ADJECTIVE"					Text="Milyan"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_ANATOLIAN_TURKIC_ADJECTIVE"		Text="Anatolian Turkic"		Language="en_US" />
-    <Replace Tag="LOC_CULTURE_COLCHIAN_ADJECTIVE"				Text="Colchian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KARTVELIAN_ADJECTIVE"				Text="Kartvelian"			Language="en_US" />
-    <Replace Tag="LOC_CULTURE_GEORGIAN_ADJECTIVE"				Text="Georgian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_EL_OMARI_ADJECTIVE"				Text="El Omari"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_MAADI_ADJECTIVE"					Text="Maadi"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AMRATIAN_ADJECTIVE"				Text="Amratian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_GERZEAN_ADJECTIVE"				Text="Gerzean"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_EGYPTIAN_ADJECTIVE"				Text="Egyptian"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_COPTIC_ADJECTIVE"					Text="Coptic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KENZI_ADJECTIVE"					Text="Kenzi"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_CUSHITIC_ADJECTIVE"				Text="Cushitic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_KERMA_ADJECTIVE"					Text="Kerma"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_GE_EZ_ADJECTIVE"					Text="Ge'ez"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_TIGRAYA_ADJECTIVE"				Text="Tigraya"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_BEJA_ADJECTIVE"					Text="Beja"					Language="en_US" />
-    <Replace Tag="LOC_CULTURE_NOBA_ADJECTIVE"					Text="Noba"					Language="en_US" />
-    <Replace Tag="LOC_CULTURE_AMHARIC_ADJECTIVE"				Text="Amharic"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_TIGRINYA_ADJECTIVE"				Text="Tigrinya"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_NOBIIN_ADJECTIVE"					Text="Nobiin"				Language="en_US" />
-    <Replace Tag="LOC_CULTURE_DONGOLAWI_ADJECTIVE"				Text="Dongolawi"			Language="en_US" />
-	
-  </LocalizedText> 
-
   <LocalizedText> <!-- Technologies -->
 	
 	<Replace Tag="LOC_RESEARCH_LOCKED_BY_UNLOCKER"	Language="en_US">

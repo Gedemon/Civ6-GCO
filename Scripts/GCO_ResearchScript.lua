@@ -878,7 +878,9 @@ end
 function Research:UnlockGovernement(govID)
 	local pCulture	= Players[self.PlayerID]:GetCulture()
 	if pCulture then
-		pCulture:UnlockGovernment(govID)
+		--pCulture:UnlockGovernment(govID)
+		local CivicTypeName = GameInfo.Governments[govID].PrereqCivic
+		pCulture:SetCivic(GameInfo.Civics[CivicTypeName].Index, true)
 	end
 end
 

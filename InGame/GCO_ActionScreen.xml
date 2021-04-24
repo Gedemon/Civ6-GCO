@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Context Name="GCO_ActionScreen">
+	<Include File="PopupDialog"/>
+	
+	<Container ID="CenterPanel" Anchor="C,B" Size="514,300" >
+		<Button ID="ClickRegion" Size="parent,parent" Color="0,0,0,0" />
+		<Image Texture="Controls_GradientSmall" Size="22,parent" AnchorSide="O,I" Anchor="R,T" Color="0,0,0,255" Rotate="270" Offset="-2,0"/>
+		<Image Texture="Controls_GradientSmall" Size="22,parent" AnchorSide="O,I" Anchor="L,T" Color="0,0,0,255" Rotate="90" Offset="-2,0"/>
+		<Image Texture="Controls_Gradient" Size="parent,150" Anchor="L,T" Color="0,0,0,255" Offset="0,-20"/>
+		<Image Texture="Controls_Gradient" Size="parent,100" Anchor="L,B" Color="0,0,0,255" Offset="0,0" FlipY="1"/>
+		<Image ID="PlayerPanelWindow" Size="parent,parent" Offset="0,0" Texture="Controls_BannerWide" StretchMode="TileY">
+			<!-- The leader icon and title -->
+			<Container Anchor="C,T" Size="auto,48">
+				<Label ID="TitleText" Anchor="C,C" Offset="0,0" Align="C" Style="DiplomacyCivHeader" String="TitleText"/>
+			</Container>
+			<!-- The container for all the content below the header -->
+			<Container ID="ContentContainer" Size="parent, parent-108" Offset="0,48">
+
+				<Container ID="IntelContainer" Size="parent,100"/>
+				<Stack ID="RootOptionStack" Anchor="C,B" StackGrowth="Bottom">
+					<Stack		ID="InfoStack"		StackGrowth="Bottom" Anchor="C,C" Offset="0,30" StackPadding="5">
+						<Label	ID="Title1"			WrapWidth="430"	Style="TTText" 		Color0="208,212,217,255"	Color1="0,0,0,200" Anchor="C,C"/>
+						<Label	ID="Text1"			WrapWidth="430"	Style="FontFlair16" Color0="208,212,217,255"	Color1="0,0,0,200"/>
+						<Label	ID="Header1"		WrapWidth="430"	Style="FontMono14"	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="14"/>
+						<Label	ID="List1"			WrapWidth="430"	Style="FontMono14"	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="14"/>
+						<Label	ID="Title2"			WrapWidth="430"	Style="TTText" 		Color0="208,212,217,255"	Color1="0,0,0,200" Anchor="C,C"/>
+						<Label	ID="Text2"			WrapWidth="430"	Style="FontFlair16" Color0="208,212,217,255"	Color1="0,0,0,200"/>
+						<Label	ID="Header2"		WrapWidth="430"	Style="FontMono14" 	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="14"/>
+						<Label	ID="List2"			WrapWidth="430"	Style="FontMono14" 	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="14"/>
+						<Label	ID="Title3"			WrapWidth="430"	Style="TTText" 		Color0="208,212,217,255"	Color1="0,0,0,200" Anchor="C,C"/>
+						<Label	ID="Text3"			WrapWidth="430"	Style="FontFlair16" Color0="208,212,217,255"	Color1="0,0,0,200"/>
+						<Label	ID="Header3"		WrapWidth="430"	Style="FontMono14" 	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="14"/>
+						<Label	ID="List3"			WrapWidth="430"	Style="FontMono14" 	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="14"/>
+						<Label	ID="Title4"			WrapWidth="430"	Style="TTText" 		Color0="208,212,217,255"	Color1="0,0,0,200" Anchor="C,C"/>
+						<Label	ID="Text4"			WrapWidth="430"	Style="FontFlair16" Color0="208,212,217,255"	Color1="0,0,0,200" />
+						<Label	ID="Header4"		WrapWidth="430"	Style="FontMono14" 	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="14"/>
+						<Label	ID="List4"			WrapWidth="430"	Style="FontMono14" 	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="14"/>
+						<Label	ID="ListSmall"		WrapWidth="430"	Style="FontMono14" 	Color0="208,212,217,255"	Color1="0,0,0,200" FontStyle="Shadow" FontSize="10"/>
+						<Label	ID="DebugTxt"		WrapWidth="430"	Style="TTText" />
+					</Stack>
+					<Stack ID="OptionStack" StackGrowth="Bottom"/>
+					<Stack ID="SubOptionStack" StackGrowth="Bottom"/>
+					
+					<!---->
+					<GridButton ID="BackButton" Size="450, 38" Style="ButtonLightWeightGrid" Anchor="C,B" Offset="0,18">
+					  <Label ID="BackButtonText" Anchor="C,C" Style="ButtonFont16" LeadingOffset="-4" String="LOC_HUD_BACK"/>
+					</GridButton>
+					<!---->
+				</Stack>
+			</Container>
+			<Grid Texture="Controls_BannerBottom" Anchor="L,B" Offset="0,-4" Size="514,32" SliceSize="1,30" SliceCorner="18,2" SliceTextureSize="37,32"/>
+			<Grid Size="parent+40,80" Offset="-20,-50" Texture="Controls_BannerHeaderBlue3" SliceCorner="101,0" SliceSize="65,64" TextureSliceSize="267,64">
+				<Label ID="HeaderLabel" Anchor="C,T" Offset="0,22" Color="White" Style="FontFlair22" SmallCaps="28" SmallCapsType="EveryWord" FontStyle="Shadow" String="LOC_SETTLEMENT_MANAGEMENT"/>
+			</Grid>
+		</Image>
+		
+		<Image Texture="Controls_Glow2" Size="50,50" Color="0,0,0,255" Anchor="R,T"	Offset="-15,-10" >
+		  <Button ID="Close" Style="CloseButtonAlt" Anchor="C,C"/>
+		</Image>
+	</Container>
+	
+	<!-- Instance container for an action button. -->
+	<Instance	Name="ActionButton">
+		<GridButton ID="Button" Size="450, 38" Style="ButtonLightWeightGrid" Anchor="C,T">
+		  <Label ID="ButtonText" Anchor="C,C" Style="ButtonFont16" LeadingOffset="-4"/>
+		</GridButton>
+	</Instance>
+
+	<!-- Instance container for a list of action buttons. -->
+	<Instance	Name="ActionList">
+		<Stack ID="List" Offset="6,0">
+		  <Stack ID="ListStack" StackGrowth="Bottom">
+		  </Stack>
+		  <Box Size="6,6" Color="0,0,0,0"/>
+		</Stack>
+	</Instance>
+	
+	<MakeInstance Name="PopupDialog" />
+</Context>

@@ -251,14 +251,14 @@ function Define(self)
 	--local DEBUG_PLAYER_SCRIPT = "debug"
 	
 	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
-	Dprint( DEBUG_PLAYER_SCRIPT, "Defining properties for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))
+	Dprint( DEBUG_PLAYER_SCRIPT, "Defining properties for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()), self:GetID())
 	
 	local playerConfig		= self:GetConfig()
 	local civTypeName		= playerConfig:GetCivilizationTypeName()
 	--local leaderTypeName	= playerConfig:GetLeaderTypeName()
 	local governement		= self:GetCurrentGovernment()
-	local civAdjective 		= GameInfo.Civilizations[civTypeName].Adjective
-	local civName			= GameInfo.Civilizations[civTypeName].Name
+	local civAdjective 		= playerConfig:GetValue("CivilizationAdjective") or GameInfo.Civilizations[civTypeName].Adjective
+	local civName			= playerConfig:GetValue("CivilizationName") or GameInfo.Civilizations[civTypeName].Name
 	local currentTurn		= Game.GetCurrentGameTurn()
 	local currentYear		= GCO.GetTurnYear(currentTurn)
 	local maxTurnsDiff 		= tonumber(GameInfo.GlobalParameters["LEADERS_REIGN_MAX_TURNS_DIFFERENCE"].Value)
@@ -267,6 +267,15 @@ function Define(self)
 	local bestDiff			= maxYearsDiff + 1
 	local rootName			= nil
 	local leaderRow			= nil
+	
+	-- Check to update the player data for Tribe Culture
+	-- GetTribePlayerCulture is not the same as GetCultureIDFromPlayerID, which return any cultureID, including majors, based on what's defined here for "CivilizationTypeName" while GetTribePlayerCulture returns only a TribeCultureID based on what's defined in GCO_AltHistScript.lua
+	local cultureGroupID	= GCO.GetTribePlayerCulture(self:GetID()) 
+	if cultureGroupID then
+		civAdjective 		= GameInfo.CultureGroups[cultureGroupID].Adjective
+		civName				= GameInfo.CultureGroups[cultureGroupID].Name
+		civTypeName			= GameInfo.CultureGroups[cultureGroupID].CultureType
+	end
 	
 	-- Get Governement RootName (= TypeName)
 	if GameInfo.Governments[governement] and self:GetCities() and self:GetCities():GetCount() > 0 then
@@ -334,14 +343,33 @@ function Define(self)
 		Description		= Locale.Lookup(LOC_LONG, civName)
 	end
 	
-	playerConfig:SetKeyValue("LeaderName", 						LeaderName)
-	playerConfig:SetKeyValue("CivilizationShortDescription", 	ShortDescription)
-	playerConfig:SetKeyValue("CivilizationDescription", 		Description)
+	playerConfig:SetValue("LeaderName", 					LeaderName)
+	playerConfig:SetValue("CivilizationShortDescription", 	ShortDescription)
+	playerConfig:SetValue("CivilizationDescription", 		Description)
+	playerConfig:SetValue("CivilizationName", 				civName)
+	playerConfig:SetValue("CivilizationAdjective", 			civAdjective)
+	playerConfig:SetValue("CivilizationTypeName",			civTypeName)
+	
+	PlayerFromCivilizationType[civTypeName]	= self:GetID()
+	
+	Dprint( DEBUG_PLAYER_SCRIPT, "- Setting Names : ", LeaderName, ShortDescription, Description)
 	
 	-- tests
 	--[[
-	playerConfig:SetKeyValue("LeaderTypeName", 					"LEADER_FRANCE")
-	playerConfig:SetKeyValue("CivilizationTypeName", 			"CIVILIZATION_FRANCE")
+	playerConfig:SetValue("LeaderTypeName", 					"LEADER_FRANCE")
+	playerConfig:SetValue("CivilizationTypeName", 			"CIVILIZATION_FRANCE")
+	
+	
+	local PrimaryColor		= "COLOR_BLACK"
+	local SecondaryColor	= "COLOR_WHITE"
+	pPlayerConfig:SetValue("PrimaryColor", PrimaryColor)
+	pPlayerConfig:SetValue("SecondaryColor", SecondaryColor)
+	
+	frontColor	= ColorStringToNumber(GameInfo.ColorsLegacy[PrimaryColor].Color)
+	backColor	= ColorStringToNumber(GameInfo.ColorsLegacy[SecondaryColor].Color)
+	
+	borderOverlay:object = UILens.GetOverlay("CultureBorders")
+	borderOverlay:SetBorderColors(playerID, backColor, frontColor)
 	--]]
 	
 	self:UpdateUnitsFlags()
@@ -1174,14 +1202,22 @@ function HasStartedTurn(self)
 end
 
 local startTurnAutoSaveNum = 0
-function DoPlayerTurn( playerID )
+
+function DoPlayerTurn(playerID)
+	local player = Players[playerID]
+	if player and not player:HasStartedTurn() then
+		GCO.Monitor(DoPlayerTurnP, {playerID}, "DoPlayerTurn")
+	end
+end
+
+function DoPlayerTurnP( playerID )
 	local DEBUG_PLAYER_SCRIPT	= "debug"
-	if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
+	--if (playerID == -1) then playerID = 0 end -- this is necessary when starting in AutoPlay
 	
 	local player = Players[playerID]
 	if player and not player:HasStartedTurn() then
 		GameEvents.PlayerTurnStartGCO.Call(playerID)
-		local playerConfig						= PlayerConfigurations[playerID]
+		local playerConfig						= GCO.GetPlayerConfig(playerID)
 		GCO.PlayerTurnsDebugChecks[playerID]	= {}
 		local playerName						= Locale.ToUpper(Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
 		Dprint( DEBUG_PLAYER_SCRIPT, "---============================================================================================================================================================================---")
@@ -1201,10 +1237,14 @@ function DoPlayerTurn( playerID )
 		GCO.StartTimer("DoUnitsTurn for ".. tostring(playerName))
 		LuaEvents.DoUnitsTurn( playerID )
 		GCO.ShowTimer("DoUnitsTurn for ".. tostring(playerName))
+				
+		GCO.StartTimer("DoTribesTurn for ".. tostring(playerName))
+		LuaEvents.DoTribesTurn( playerID )
+		GCO.ShowTimer("DoTribesTurn for ".. tostring(playerName))
 		
-		--GCO.StartTimer("DoCitiesTurn for ".. tostring(playerName))
+		GCO.StartTimer("DoCitiesTurn for ".. tostring(playerName))
 		LuaEvents.DoCitiesTurn( playerID )
-		--GCO.ShowTimer("DoCitiesTurn for ".. tostring(playerName))
+		GCO.ShowTimer("DoCitiesTurn for ".. tostring(playerName))
 		
 		-- Set support after Cities turn	
 		player:SetAdministrativeSupport()
@@ -1213,6 +1253,20 @@ function DoPlayerTurn( playerID )
 		
 		--
 		LuaEvents.DoDiplomacyTurn( playerID )
+		
+		-- Call custom AI
+		if not player:IsHuman() then
+			if player:IsMajor() then
+				GameEvents.InitializePlayerAI.Call(playerID, playerConfig:GetValue("TypeAI") or "DefaultAI")
+			else
+				GameEvents.InitializePlayerAI.Call(playerID, playerConfig:GetValue("TypeAI") or "TribeAI")
+			end
+			local AI = player:GetCached("AI")
+			if AI and AI.DoTurn then
+				AI:DoTurn()
+				--GCO.Monitor(AI.DoTurn, {AI}, "Do AI Turn for ".. Locale.Lookup(playerConfig:GetCivilizationShortDescription()))
+			end
+		end
 		
 		-- update flags after resources transfers
 		player:Define()
@@ -1390,7 +1444,13 @@ function CanDeclareWarOn(self, playerID)
 	return GCO.CanPlayerDeclareWarOn(self, playerID)
 end
 
+function HasOpenBordersFrom(self, playerID)
+	return GCO.HasPlayerOpenBordersFrom(self, playerID)
+end
 
+function GetInfluenceMap(self)
+	return GCO.GetPlayerInfluenceMap(self)
+end
 
 -----------------------------------------------------------------------------------------
 -- Shared Functions
@@ -1473,6 +1533,8 @@ function InitializePlayerFunctions(player) -- Note that those functions are limi
 		--
 		p.IsAtWar									= IsAtWar
 		p.CanDeclareWarOn							= CanDeclareWarOn
+		p.HasOpenBordersFrom						= HasOpenBordersFrom
+		p.GetInfluenceMap							= GetInfluenceMap
 		--
 		p.GetTotalPopulation						= GetTotalPopulation
 		p.GetTerritorySize							= GetTerritorySize

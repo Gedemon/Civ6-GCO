@@ -7,223 +7,383 @@
 		<Row CultureType="CULTURE_INDEPENDENT" 	/>
 		<Row CultureType="CULTURE_SEPARATIST" 	/>
 		
-		<!-- Arabia etc-->
+				<!-- Russian Tribes (north of the edge of the forest belt, west of the Ural Mountains) -->
+		
+		<Row CultureType="CULTURE_DREGOVICHS"	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		<Row CultureType="CULTURE_DREVLYANS"    EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		<Row CultureType="CULTURE_KRIVICHS"     EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		<Row CultureType="CULTURE_POLANS"       EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		<Row CultureType="CULTURE_RADIMICHS"    EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		<Row CultureType="CULTURE_SEVERIANS"    EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		<Row CultureType="CULTURE_TIVERTSI"     EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		<Row CultureType="CULTURE_ULICHS"       EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		<Row CultureType="CULTURE_VYATIHS"      EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" 	StartingRegions="EUROPE" />
+		
+				<!-- Baltic Tribes: (1500 BCE* - 1000 CE*) -->
+				
+				<!-- area of Later Lithuania: -->
 
-		<Row CultureType="CULTURE_HAFIT" 		StartDate="-3200"	EndDate="-2600"	Ethnicity="ETHNICITY_MEDIT"	/>
-		<Row CultureType="CULTURE_UMM_AN_NAR" 	StartDate="-2600"	EndDate="-2000"	Ethnicity="ETHNICITY_MEDIT"	/>
-		<Row CultureType="CULTURE_MAGAN" 		StartDate="-2300"	EndDate="-550"	Ethnicity="ETHNICITY_MEDIT"	/>
-		<Row CultureType="CULTURE_WADI_SUQ" 	StartDate="-1900"	EndDate="-1300"	Ethnicity="ETHNICITY_MEDIT"	/>
-		<Row CultureType="CULTURE_SAYHADIC" 	StartDate="-1200"	EndDate="550"	Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_ARABIC" 		StartDate="-900"	EndDate="600"	Ethnicity="ETHNICITY_MEDIT"	 SpawnCivilization="CIVILIZATION_ARABIA"/>
+		<Row CultureType="CULTURE_AESTI"			EraTypes="ERA_ANCIENT,ERA_CLASSICAL" 				Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
+		<Row CultureType="CULTURE_CURONIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
+		<Row CultureType="CULTURE_GALINIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
+		<Row CultureType="CULTURE_PRUSSIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
+		<Row CultureType="CULTURE_SAMBIANS"		    EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
+		<Row CultureType="CULTURE_SAMOGITIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
+		<Row CultureType="CULTURE_SELONIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" /> 		<!-- (overlaps with Latvia) -->
+		<Row CultureType="CULTURE_SKALVIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
+		<Row CultureType="CULTURE_SEMIGALLIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" /> 		<!-- (overlaps with Latvia) -->
+		<Row CultureType="CULTURE_YOTVINGIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
 
-		<!-- Levant etc-->
+				<!-- Baltic Tribes (400* - 800 CE*) area of Latvia: -->
 
-		<Row CultureType="CULTURE_KISH" 		StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_EBLAITE" 		StartDate="-3000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AMORITE" 		StartDate="-2100" EndDate="-1190" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_CANAANITE" 	StartDate="-1050" EndDate="-400" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ARAMAIC" 		StartDate="-900" EndDate="-700" Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_LATGALIANS"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" />
 
-		<!-- Mesopotamia, Sumeria etc-->
+				<!-- Baltic Tribes (500 BCE - 1000 CE*) area of Estonia: -->
 
-		<Row CultureType="CULTURE_UBAID"		StartDate="-6500"	EndDate="-3800" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_URUK"			StartDate="-4000"	EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_SUMERIAN" 	StartDate="-3100"	EndDate="-2500" Ethnicity="ETHNICITY_MEDIT" 	SpawnCivilization="CIVILIZATION_SUMERIA"/>
-		<Row CultureType="CULTURE_ELAMITE"		StartDate="-2700"	EndDate="-330"	Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AKKADIAN"		StartDate="-2600"	Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_HURRIAN"		StartDate="-2300"	EndDate="-1000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ASSYRIAN"		StartDate="-1950"	EndDate="-1530" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_BABYLONIAN"	StartDate="-1950"	EndDate="-1530" Ethnicity="ETHNICITY_MEDIT"		SpawnCivilization="CIVILIZATION_BABYLON"/>
-		<Row CultureType="CULTURE_GALZU"		StartDate="-1531"	EndDate="-1155" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KURDISH"		StartDate="-400"	Ethnicity="ETHNICITY_MEDIT"/>
+		<Row CultureType="CULTURE_AESTII"		 	EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" /> 	<!-- (overlaps with Lithuania) -->
+		<Row CultureType="CULTURE_OSILIANS"		 	EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" /> 	<!-- (Oesilians) -->
+		<Row CultureType="CULTURE_CHUDES"		 	EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_POLAND" StartingRegions="BALTICA" /> 	<!-- (Finns or Lapps) -->
 
-		<!-- Persia etc-->
+				<!-- Ancient British Tribes (800* BCE - 100 CE*) -->
+				<!-- NOTE: virtually all names are Greek or Roman transliterations/translations) -->
 
-		<Row CultureType="CULTURE_SHULAVERI_SHOMU"	StartDate="-6000" EndDate="-4000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KURA_ARAXES"		StartDate="-4000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_YAMNA"			StartDate="-3300" EndDate="-2600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_POLTAVKA"			StartDate="-2700" EndDate="-2100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_JIROFT"			StartDate="-2500" EndDate="-2200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_SINTASHTA"		StartDate="-2100" EndDate="-1800" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ANDRONOVO"		StartDate="-2000" EndDate="-900" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AVESTAN"			StartDate="-2000" EndDate="0" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PERSIAN"			StartDate="-1500" EndDate="-525" Ethnicity="ETHNICITY_MEDIT"	SpawnCivilization="CIVILIZATION_PERSIA"/>
-		<Row CultureType="CULTURE_MEDIAN"			StartDate="-1100" EndDate="500" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AZERI"			StartDate="1067" Ethnicity="ETHNICITY_MEDIT"/>
+				<!-- Area of later England: -->
 
-		<!-- Anatolia etc-->
+		<Row CultureType="CULTURE_ATREBATES"		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" /> 	<!-- (Celtic immigrants from the continent) -->
+		<Row CultureType="CULTURE_BELGAE"		 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />	<!-- (Celtic immigrants from the continent) -->
+		<Row CultureType="CULTURE_CANTIACI"		    EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_CARVETII"		    EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_CATUVELAUNI"		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_CORIELTAUVI"		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_DOBUNNI"		    EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_DUMNONII"		 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />	<!-- (Cornwall) -->
+		<Row CultureType="CULTURE_DUROTRIGES"		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_ICENI"		    EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_REGNENSES"		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_TRINOVANTES"		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
 
-		<Row CultureType="CULTURE_HATTIC"			StartDate="-3000" EndDate="-2000" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_PALAIC"			StartDate="-2000" EndDate="-1300" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_HITTITE"			StartDate="-2000" EndDate="-1300" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_LUWIC"			StartDate="-2000" EndDate="-600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KASKIAN"			StartDate="-1450" EndDate="-1076" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_LYDIAN"			StartDate="-700" EndDate="-200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ARMENIAN" 		StartDate="-600" EndDate="400" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_LYCIAN"			StartDate="-500" EndDate="-200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MILYAN"			StartDate="-400" EndDate="-300" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_ANATOLIAN_TURKIC"	StartDate="1072" Ethnicity="ETHNICITY_MEDIT"/>
+				<!-- German Tribes in England (400 CE - 700 CE) -->
 
-		<!-- Georgia etc -->
+		<Row CultureType="CULTURE_GYRE"		 		EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />	<!-- (Anglian) -->
+		<Row CultureType="CULTURE_HAESTINGAS"		EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" /> <!-- (Saxon) -->
+		<Row CultureType="CULTURE_HWICCE"		 	EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />	<!-- (Saxon) -->
+		<Row CultureType="CULTURE_MAGONSAETE"		EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" /> <!-- (Anglian) -->
+		<Row CultureType="CULTURE_SUTHREGE"		 	EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />	<!-- (Saxon) -->
+		<Row CultureType="CULTURE_WITWARE"		 	EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />	<!-- (Jutes) -->
+		<Row CultureType="CULTURE_WREOCONSAETE"		EraTypes="ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" /> <!-- (Anglian) -->
 
-		<Row CultureType="CULTURE_COLCHIAN"			StartDate="-3000" EndDate="-600" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KARTVELIAN"		StartDate="-1300" EndDate="400" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_GEORGIAN"			StartDate="400" EndDate="1100" Ethnicity="ETHNICITY_MEDIT"	SpawnCivilization="CIVILIZATION_GEORGIA"/>
+				<!-- Tribes in area of later Scotland: -->
 
-		<!-- Egypt & Nubia -->
+		<Row CultureType="CULTURE_BRIGANTES"		 EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_CALEDONII"		 EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_CAERENI"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_CARNONACAE"		 EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_CORIONOTOTAE"		 EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_CREONES"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_DAMNONII"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_DECANTAE"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_NOVANTAE"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_SELGOVAE"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_SMERTAE"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_SETANTII"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_VENICONES"		 EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_VOTADENI"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SCOTLAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
 
-		<Row CultureType="CULTURE_EL_OMARI"		StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_MAADI"		StartDate="-4000" EndDate="-3100" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_AMRATIAN"		StartDate="-4000" EndDate="-3500" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_GERZEAN"		StartDate="-3500" EndDate="-3200" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_EGYPTIAN"		StartDate="-3300" EndDate="-2600" Ethnicity="ETHNICITY_MEDIT"	 SpawnCivilization="CIVILIZATION_EGYPT"/>
-		<Row CultureType="CULTURE_COPTIC"		StartDate="200" EndDate="1700" Ethnicity="ETHNICITY_MEDIT"/>
-		<Row CultureType="CULTURE_KENZI"		StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_CUSHITIC"		StartDate="-4000" EndDate="-2000" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_KERMA"		StartDate="-3500" EndDate="-2500" Ethnicity="ETHNICITY_AFRICAN" SpawnCivilization="CIVILIZATION_NUBIA" />
-		<Row CultureType="CULTURE_GE_EZ"		StartDate="-2000" EndDate="900" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_TIGRAYA"		StartDate="400" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_BEJA"			StartDate="200" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_NOBA"			StartDate="300" EndDate="700" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_AMHARIC"		StartDate="1314" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_TIGRINYA"		StartDate="1314" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_NOBIIN"		StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
-		<Row CultureType="CULTURE_DONGOLAWI"	StartDate="1500" Ethnicity="ETHNICITY_AFRICAN"/>
+				<!-- Tribes in area of later Wales: -->
+
+		<Row CultureType="CULTURE_DECEANGLI"		 EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_DEMETAE"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_GANGANI"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_ORDOVICES"		 EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_SILURES"		     EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+
+				<!-- Tribes/Minor "Kingdoms" of Ireland (500 BCE* - 800 CE) -->
+
+		<Row CultureType="CULTURE_AIDHNE"			EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_AILEACH"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_AIRGIALLA"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_BREIFNE"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_DAL_FIATACH"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_DAL_NARAIDI"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_FIR_MANACH"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_LAIGHIN"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_MEATH"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_MIDE"		        EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_MOYLURG"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_OSRAIGHE"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_THORMOND"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_UI_FAILGHE"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_UI_MAINE"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+		<Row CultureType="CULTURE_ULAID"		    EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_IRELAND,CIVILIZATION_ENGLAND" StartingRegions="BRITTANIA" />
+
+				<!-- Tribal Spain (3200* - 850 BCE*) -->
+
+		<Row CultureType="CULTURE_IBERIANS"			EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_SPAIN" StartingRegions="IBERIA" />
+		<Row CultureType="CULTURE_CELTIBERIANS"		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_SPAIN" StartingRegions="IBERIA" />
+		<Row CultureType="CULTURE_VASCONES"		    EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_SPAIN" StartingRegions="IBERIA" />
+
+				<!-- Tribal Portugal (3200* - 500 BCE*) -->
+
+		<Row CultureType="CULTURE_CELTICI"		 	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_PORTUGAL,CIVILIZATION_SPAIN" StartingRegions="IBERIA" />	<!-- (overlaps with Spain) -->
+		<Row CultureType="CULTURE_CORNII"		    EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_PORTUGAL,CIVILIZATION_SPAIN" StartingRegions="IBERIA" />
+		<Row CultureType="CULTURE_LUSITANIANS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_PORTUGAL,CIVILIZATION_SPAIN" StartingRegions="IBERIA" /> 	<!-- (overlaps with Spain) -->
+		<Row CultureType="CULTURE_TURDULI"		    EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_PORTUGAL,CIVILIZATION_SPAIN" StartingRegions="IBERIA" />
+		<Row CultureType="CULTURE_OESTRIMINIS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_PORTUGAL,CIVILIZATION_SPAIN" StartingRegions="IBERIA" />
+
+				<!-- Tribal Denmark (1500 BCE* - 700 CE*) -->
+
+		<Row CultureType="CULTURE_DANI"			EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_DENMARK,CIVILIZATION_SWEDEN,CIVILIZATION_NORWAY" StartingRegions="SCANDINAVIA" />
+		<Row CultureType="CULTURE_GEATS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_DENMARK,CIVILIZATION_SWEDEN,CIVILIZATION_NORWAY" StartingRegions="SCANDINAVIA" />
+		<Row CultureType="CULTURE_HERULI"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_DENMARK,CIVILIZATION_SWEDEN,CIVILIZATION_NORWAY" StartingRegions="SCANDINAVIA" />
+
+				<!-- Tribal Sweden (1700 BCE* - 550 CE*) -->
+
+		<Row CultureType="CULTURE_SAMI"			EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SWEDEN,CIVILIZATION_NORWAY" StartingRegions="SCANDINAVIA" />
+		<Row CultureType="CULTURE_GOTHS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO" MajorCivilizations="CIVILIZATION_SWEDEN,CIVILIZATION_NORWAY" StartingRegions="SCANDINAVIA" />
+
+				<!-- Tribal Georgia (6000* - 653 BCE) -->
+
+		<Row CultureType="CULTURE_ABKHAZI"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_KARTVELIANS"	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" />	
+		<Row CultureType="CULTURE_SVANETI"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" />
+
+				<!-- Tribal Armenia (2300* - 800 BCE*) -->
+
+		<Row CultureType="CULTURE_ARMANI"		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_HAYASTAN"		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_IBLA"		    EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_URARTU"		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" /> 		<!-- (Van) -->
+
+				<!-- Tribal Azerbaijan -->
+				<!-- Also known as (Caucasian) Albania (Aghuank, Agvank) (2600* - 800* BCE) -->
+
+		<Row CultureType="CULTURE_CASPIANS"		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" /> 
+		<Row CultureType="CULTURE_GARGARIANS"	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" /> 	
+		<Row CultureType="CULTURE_UTIANS"		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_OTTOMAN,CIVILIZATION_PERSIA" StartingRegions="CAUCASIA" /> 
+		
+				<!-- Greek Dark Age Tribes (Ancient Era) -->
+
+		<Row CultureType="CULTURE_AETOLIANS" 	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_ARCARNIANS" 	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_ARGIVES" 		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_ATINTANES" 	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_CHAONIANS" 	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_ELEANS" 		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_LOCRIANS" 	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_LYNCESTAI" 	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_MALIANS" 		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_MINYANS" 		EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_MOLOSSIANS" 	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_PHOCEANS" 	EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_THESPROTIANS" EraTypes="ERA_ANCIENT" Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GREECE" StartingRegions="BALKANIA" />
+
+				<!-- Illyrian/Thracian Tribes (Ancient-Classical Eras) -->
+
+		<Row CultureType="CULTURE_ALBANOI" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_AMANTINI" 	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_ARDIAEI" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_DAORS" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE"						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_IAPYGES" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_ROME,CIVILIZATION_GREECE" 	StartingRegions="ITALIA" />
+		<Row CultureType="CULTURE_TAULANTII" 	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_AGRIANES" 	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_BITHYNI" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_GREECE" 	StartingRegions="ANATOLIA" />
+		<Row CultureType="CULTURE_EDONES" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_KIKONES" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_GETAE" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_ODYSAE" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_SAPAEI" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_SITHONES" 	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+		<Row CultureType="CULTURE_TRIBALLI" 	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" Ethnicity="ETHNICITY_MEDIT"	 MajorCivilizations="CIVILIZATION_GREECE" 						StartingRegions="BALKANIA" />
+
+				<!-- German Tribes (Classical Era) -->
+
+		<Row CultureType="CULTURE_ALEMANNI" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_AMBRONES" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_BATAVI" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_BRUCTERI" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_BURGUNDI" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_CHERUSCI" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_CIMBRI" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_FRISII" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_INGAVONES" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_JUTES" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_NERVII" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_SUEVI" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" /> <!-- (or Suebi) -->
+		<Row CultureType="CULTURE_TEUTONI" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" StartingRegions="GERMANIA" />
+
+				<!-- German Tribes of the Migration Period (late Classical Era) -->
+
+		<Row CultureType="CULTURE_ANGLES" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY,CIVILIZATION_ENGLAND"	StartingRegions="GERMANIA,BRITTANIA" />
+		<Row CultureType="CULTURE_FRANKS" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY,CIVILIZATION_FRANCE"	StartingRegions="GERMANIA,FRANCIA" />
+		<Row CultureType="CULTURE_GEPIDS" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" 						StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_LOMBARDII" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" 						StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_OSTROGOTHS" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" 						StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_RUGIANS" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY"						StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_SAXONES" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY,CIVILIZATION_ENGLAND"	StartingRegions="GERMANIA,BRITTANIA" />
+		<Row CultureType="CULTURE_SCIRIANS" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" 						StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_TERVINGI" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" 						StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_THURINGI" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" 						StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_VANDALI" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" 						StartingRegions="GERMANIA" />
+		<Row CultureType="CULTURE_VISIGOTHS" 	EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_GERMANY" 						StartingRegions="GERMANIA" />
+		
+		<Row CultureType="CULTURE_GAULS" 		EraTypes="ERA_CLASSICAL" Ethnicity="ETHNICITY_EURO"	MajorCivilizations="CIVILIZATION_FRANCE"						StartingRegions="FRANCIA" />
+		
+				<!-- Central Asian Tribes (Classical - Medieval Era) -->
+
+		<Row CultureType="CULTURE_ALKHAN" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_INDIA" 											StartingRegions="INDIA" />
+		<Row CultureType="CULTURE_AORSI" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_PERSIA" 					 						StartingRegions="PERSIAN_PLATEAU"/>
+		<Row CultureType="CULTURE_ASLI" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_INDONESIA" 										StartingRegions="INDIA" />
+		<Row CultureType="CULTURE_BASHKIRI" 	EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_RUSSIA,CIVILIZATION_MONGOL" 	StartingRegions="KAZAKHSTANIA" />
+		<Row CultureType="CULTURE_CIMMERIANS" 	EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_RUSSIA,CIVILIZATION_MONGOL" 	StartingRegions="KAZAKHSTANIA" />
+		<Row CultureType="CULTURE_CUMANS" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_RUSSIA,CIVILIZATION_MONGOL" 	StartingRegions="KAZAKHSTANIA" />
+		<Row CultureType="CULTURE_GHORIDS" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_PERSIA,CIVILIZATION_INDIA" 						StartingRegions="PERSIAN_PLATEAU" />
+		<Row CultureType="CULTURE_GOKTURKS" 	EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_MONGOL,CIVILIZATION_CHINA"							StartingRegions="CENTRAL_ASIA" />
+		<Row CultureType="CULTURE_GUISHUANG" 	EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_PERSIA,CIVILIZATION_INDIA" 						StartingRegions="PERSIAN_PLATEAU" /> <!-- (Kushanas) -->
+		<Row CultureType="CULTURE_IAZYGES" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_RUSSIA,CIVILIZATION_POLAND"	StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_KARLUKS" 		EraTypes="ERA_MEDIEVAL" 				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_RUSSIA,CIVILIZATION_MONGOL" 	StartingRegions="KAZAKHSTANIA" />
+		<Row CultureType="CULTURE_KIMAKS" 		EraTypes="ERA_MEDIEVAL" 				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_CHINA,CIVILIZATION_MONGOL" 	StartingRegions="KAZAKHSTANIA" />
+		<Row CultureType="CULTURE_KIPCHAKS" 	EraTypes="ERA_MEDIEVAL" 				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_CHINA,CIVILIZATION_MONGOL" 	StartingRegions="KAZAKHSTANIA" />
+		<Row CultureType="CULTURE_KUCHA" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_MONGOL" 						StartingRegions="CENTRAL_ASIA" />
+		<Row CultureType="CULTURE_KYRGYZ" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_RUSSIA,CIVILIZATION_MONGOL" 	StartingRegions="KAZAKHSTANIA" />
+		<Row CultureType="CULTURE_PARNI" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_PERSIA,CIVILIZATION_RUSSIA"	StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_PATZINAKS" 	EraTypes="ERA_MEDIEVAL" 				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_PERSIA,CIVILIZATION_RUSSIA"	StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_PECHENEGS" 	EraTypes="ERA_MEDIEVAL" 				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_PERSIA,CIVILIZATION_RUSSIA"	StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_ROXOLANI" 	EraTypes="ERA_CLASSICAL" 				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_RUSSIA,CIVILIZATION_POLAND"	StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_SIRACES" 		EraTypes="ERA_CLASSICAL" 				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_OTTOMAN,CIVILIZATION_RUSSIA,CIVILIZATION_POLAND"	StartingRegions="CAUCASIA" />
+		<Row CultureType="CULTURE_TOKHAROI" 	EraTypes="ERA_ANCIENT,ERA_CLASSICAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_INDIA,CIVILIZATION_OTTOMAN"		StartingRegions="CENTRAL_ASIA" />
+		<Row CultureType="CULTURE_XIANBEI" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_MONGOL" 						StartingRegions="CENTRAL_ASIA" />
+		<Row CultureType="CULTURE_XIONITES" 	EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_MONGOL,CIVILIZATION_OTTOMAN" 	StartingRegions="KAZAKHSTANIA" />
+		<Row CultureType="CULTURE_YARKAND" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL" 	Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_PERSIA" 						StartingRegions="CENTRAL_ASIA" />
+
+
+				<!-- Siberian Tribes (East of the Ural Mountains) -->
+		
+		<Row CultureType="CULTURE_ALEUT"       	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_CANADA" 					StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_ALUTOR"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_CANADA" 					StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_CHUKCHI"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_CANADA" 					StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_CHUVANS"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_DAGUR"     	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_MONGOL,CIVILIZATION_CHINA" 						StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_EVEN"    		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_HEZHE"      	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_KOREA,CIVILIZATION_JAPAN" 	StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_ITELMENS"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_KAMCHADALS"   EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_KEREK"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_CANADA" 					StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_KORYAK"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_NANAY"       	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_KOREA"						StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_NEGIDAL"      EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_CHINA" 						StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_NIVKH"      	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_JAPAN,CIVILIZATION_RUSSIA,CIVILIZATION_CHINA" 	StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_OROK"       	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_JAPAN,CIVILIZATION_RUSSIA,CIVILIZATION_CHINA" 	StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_UDIHE"      	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_KOREA,CIVILIZATION_JAPAN" 	StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_ULCA"       	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_CHINA,CIVILIZATION_KOREA,CIVILIZATION_JAPAN" 	StartingRegions="SIBERIA" />
+		<Row CultureType="CULTURE_YUKAGHIR"     EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="SIBERIA" />
+		
+		<Row CultureType="CULTURE_ALTAI"      	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_MONGOL" 										StartingRegions="CENTRAL_SIBERIA" />
+		<Row CultureType="CULTURE_BURYAT"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_MONGOL,CIVILIZATION_CHINA" 						StartingRegions="CENTRAL_SIBERIA" />
+		<Row CultureType="CULTURE_CHULYM"      	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_MONGOL" 										StartingRegions="CENTRAL_SIBERIA" />
+		<Row CultureType="CULTURE_EVENKI"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA,CIVILIZATION_CHINA"						StartingRegions="CENTRAL_SIBERIA" />
+		<Row CultureType="CULTURE_KHAKAS"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_MONGOL" 										StartingRegions="CENTRAL_SIBERIA" />
+		<Row CultureType="CULTURE_SAKHA"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="CENTRAL_SIBERIA" />
+		<Row CultureType="CULTURE_SHORS"     	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_MONGOL" 										StartingRegions="CENTRAL_SIBERIA" />
+		<Row CultureType="CULTURE_TOFALARS"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_MONGOL" 										StartingRegions="CENTRAL_SIBERIA" />
+		<Row CultureType="CULTURE_TUVAN"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_MONGOL" 										StartingRegions="CENTRAL_SIBERIA" />
+		
+		<Row CultureType="CULTURE_DOLGAN"     	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="WEST_SIBERIA" />
+		<Row CultureType="CULTURE_ENETS"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="WEST_SIBERIA" />
+		<Row CultureType="CULTURE_KETS"    		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="WEST_SIBERIA" />
+		<Row CultureType="CULTURE_KHANTY"    	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="WEST_SIBERIA" />
+		<Row CultureType="CULTURE_MANSI"     	EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="WEST_SIBERIA" />
+		<Row CultureType="CULTURE_NENETS"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="WEST_SIBERIA" />
+		<Row CultureType="CULTURE_NGANASANS"    EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="WEST_SIBERIA" />
+		<Row CultureType="CULTURE_SELKUPS"      EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"  Ethnicity="ETHNICITY_ASIAN" MajorCivilizations="CIVILIZATION_RUSSIA" 										StartingRegions="WEST_SIBERIA" />
+
+				<!-- Japan Tribes  -->
+		
+		<Row CultureType="CULTURE_AINU" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_JAPAN" 										StartingRegions="EAST_ASIA" />
+		<Row CultureType="CULTURE_EMISHI" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_JAPAN" 										StartingRegions="EAST_ASIA" />
+		<Row CultureType="CULTURE_JOMON" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL"				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_JAPAN" 										StartingRegions="EAST_ASIA" />
+		<Row CultureType="CULTURE_OKHOTSK" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL"				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_JAPAN" 										StartingRegions="EAST_ASIA" />
+		<Row CultureType="CULTURE_RYUKYU" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_JAPAN" 										StartingRegions="EAST_ASIA" />
+		<Row CultureType="CULTURE_YAMATO" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_JAPAN" 										StartingRegions="EAST_ASIA" />
+		<Row CultureType="CULTURE_YAYOI" 		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"				Ethnicity="ETHNICITY_ASIAN"	MajorCivilizations="CIVILIZATION_JAPAN" 										StartingRegions="EAST_ASIA" />		
+		
+		
+				<!-- Arabia etc-->
+
+		<Row CultureType="CULTURE_HAFIT" 		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+		<Row CultureType="CULTURE_UMM_AN_NAR" 	EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+		<Row CultureType="CULTURE_MAGAN" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL"	Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+		<Row CultureType="CULTURE_WADI_SUQ" 	EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+		<Row CultureType="CULTURE_SAYHADIC" 	EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+
+				<!-- Levant etc-->
+
+		<Row CultureType="CULTURE_KISH" 		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_EGYPT,CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+		<Row CultureType="CULTURE_EBLAITE" 		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_EGYPT,CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+		<Row CultureType="CULTURE_AMORITE" 		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_EGYPT,CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+		<Row CultureType="CULTURE_CANAANITE" 	EraTypes="ERA_ANCIENT,ERA_CLASSICAL"	Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_EGYPT,CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+		<Row CultureType="CULTURE_ARAMAIC" 		EraTypes="ERA_ANCIENT,ERA_CLASSICAL"	Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_EGYPT,CIVILIZATION_ARABIA" StartingRegions="ARABIAN_PENINSULA" />
+
+				<!-- Mesopotamia, Sumeria etc-->
+
+		<Row CultureType="CULTURE_UBAID"		EraTypes="ERA_ANCIENT" 								Ethnicity="ETHNICITY_MEDIT" 	MajorCivilizations="CIVILIZATION_SUMERIA,CIVILIZATION_BABYLON"/>
+		<Row CultureType="CULTURE_URUK"			EraTypes="ERA_ANCIENT" 								Ethnicity="ETHNICITY_MEDIT" 	MajorCivilizations="CIVILIZATION_SUMERIA,CIVILIZATION_BABYLON"/>
+		<Row CultureType="CULTURE_SUMERIAN" 	EraTypes="ERA_ANCIENT" 								Ethnicity="ETHNICITY_MEDIT" 	MajorCivilizations="CIVILIZATION_SUMERIA,CIVILIZATION_BABYLON"/>
+		<Row CultureType="CULTURE_ELAMITE"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL"				Ethnicity="ETHNICITY_MEDIT" 	MajorCivilizations="CIVILIZATION_SUMERIA,CIVILIZATION_BABYLON"/>
+		<Row CultureType="CULTURE_AKKADIAN"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_MEDIT" 	MajorCivilizations="CIVILIZATION_SUMERIA,CIVILIZATION_BABYLON"/>
+		<Row CultureType="CULTURE_HURRIAN"		EraTypes="ERA_ANCIENT" 								Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_BABYLON"/>/>
+		<Row CultureType="CULTURE_ASSYRIAN"		EraTypes="ERA_ANCIENT" 								Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_BABYLON"/>/>
+		<Row CultureType="CULTURE_GALZU"		EraTypes="ERA_ANCIENT" 								Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_BABYLON"/>/>
+		<Row CultureType="CULTURE_KURDISH"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"				Ethnicity="ETHNICITY_MEDIT"		MajorCivilizations="CIVILIZATION_BABYLON"/>/>
+
+				<!-- Persia etc-->
+
+		<Row CultureType="CULTURE_SHULAVERI_SHOMU"	EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_KURA_ARAXES"		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_YAMNA"			EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_POLTAVKA"			EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_JIROFT"			EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_SINTASHTA"		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_ANDRONOVO"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL"	Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_AVESTAN"			EraTypes="ERA_ANCIENT,ERA_CLASSICAL"	Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_MEDIAN"			EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+		<Row CultureType="CULTURE_AZERI"			EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_PERSIA"/>
+
+				<!-- Anatolia etc-->
+
+		<Row CultureType="CULTURE_HATTIC"			EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+		<Row CultureType="CULTURE_PALAIC"			EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+		<Row CultureType="CULTURE_HITTITE"			EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+		<Row CultureType="CULTURE_LUWIC"			EraTypes="ERA_ANCIENT,ERA_CLASSICAL"	Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+		<Row CultureType="CULTURE_KASKIAN"			EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+		<Row CultureType="CULTURE_LYDIAN"			EraTypes="ERA_CLASSICAL" 				Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+		<Row CultureType="CULTURE_ARMENIAN" 		EraTypes="ERA_CLASSICAL" 				Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+		<Row CultureType="CULTURE_LYCIAN"			EraTypes="ERA_CLASSICAL" 				Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+		<Row CultureType="CULTURE_MILYAN"			EraTypes="ERA_CLASSICAL" 				Ethnicity="ETHNICITY_MEDIT" MajorCivilizations="CIVILIZATION_OTTOMAN"	/>
+
+				<!-- Georgia etc -->
+
+		<Row CultureType="CULTURE_COLCHIAN"			EraTypes="ERA_ANCIENT,ERA_CLASSICAL"	Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_PERSIA,CIVILIZATION_OTTOMAN"/>
+		<Row CultureType="CULTURE_KARTVELIAN"		EraTypes="ERA_ANCIENT,ERA_CLASSICAL"	Ethnicity="ETHNICITY_MEDIT"	MajorCivilizations="CIVILIZATION_GEORGIA,CIVILIZATION_PERSIA,CIVILIZATION_OTTOMAN"/>
+
+				<!-- Egypt & Nubia -->
+
+		<Row CultureType="CULTURE_EL_OMARI"		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	 	MajorCivilizations="CIVILIZATION_EGYPT"	/>
+		<Row CultureType="CULTURE_MAADI"		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	 	MajorCivilizations="CIVILIZATION_EGYPT"	/>
+		<Row CultureType="CULTURE_AMRATIAN"		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	 	MajorCivilizations="CIVILIZATION_EGYPT"	/>
+		<Row CultureType="CULTURE_GERZEAN"		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_MEDIT"	 	MajorCivilizations="CIVILIZATION_EGYPT"	/>
+		<Row CultureType="CULTURE_COPTIC"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_MEDIT"	 	MajorCivilizations="CIVILIZATION_EGYPT"	/>
+		<Row CultureType="CULTURE_KENZI"		EraTypes="ERA_MEDIEVAL"					Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_CUSHITIC"		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_KERMA"		EraTypes="ERA_ANCIENT" 					Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_GE_EZ"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_TIGRAYA"		EraTypes="ERA_CLASSICAL" 				Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_BEJA"			EraTypes="ERA_CLASSICAL" 				Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_NOBA"			EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_AMHARIC"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_TIGRINYA"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_NOBIIN"		EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
+		<Row CultureType="CULTURE_DONGOLAWI"	EraTypes="ERA_CLASSICAL,ERA_MEDIEVAL"	Ethnicity="ETHNICITY_AFRICAN"	MajorCivilizations="CIVILIZATION_NUBIA" />
 
 	</CultureGroups>
-
-	<!-- GIANT EARTH REGIONS -->
-
-	<CultureGroupsStartingRegions>
-
-		<!-- Arabia etc-->
-
-		<Row CultureType="CULTURE_HAFIT" StartingRegion="SE_ARABIA"/>
-		<Row CultureType="CULTURE_UMM_AN_NAR" StartingRegion="SE_ARABIA"/>
-		<Row CultureType="CULTURE_MAGAN" StartingRegion="SE_ARABIA"/>
-		<Row CultureType="CULTURE_WADI_SUQ" StartingRegion="SE_ARABIA"/>
-		<Row CultureType="CULTURE_SAYHADIC" StartingRegion="YEMEN"/>
-		<Row CultureType="CULTURE_ARABIC" StartingRegion="NW_ARABIA"/>
-
-		<!-- Levant etc-->
-
-		<Row CultureType="CULTURE_KISH" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_EBLAITE" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_EBLAITE" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_HURRIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_HURRIAN" StartingRegion="KURDISH_REGION"/>
-		<Row CultureType="CULTURE_HURRIAN" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_AMORITE" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_AMORITE" StartingRegion="CANAAN"/>
-		<Row CultureType="CULTURE_CANAANITE" StartingRegion="CANAAN"/>
-		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="CANAAN"/>
-		<Row CultureType="CULTURE_ARAMAIC" StartingRegion="ARMENIAN_HIGHLANDS"/>
-		<Row CultureType="CULTURE_KURDISH" StartingRegion="KURDISH_REGION"/>
-		<Row CultureType="CULTURE_SYRIAN_TURKMEN" StartingRegion="N_SYRIA"/>
-
-		<!-- Mesopotamia, Sumeria etc-->
-
-		<Row CultureType="CULTURE_UBAID" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_UBAID" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_URUK" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_ELAMITE" StartingRegion="ELAM"/>
-		<Row CultureType="CULTURE_SUMERIAN" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_AKKADIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_ASSYRIAN" StartingRegion="UPPER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_BABYLONIAN" StartingRegion="LOWER_MESOPOTAMIA"/>
-		<Row CultureType="CULTURE_GALZU" StartingRegion="LORESTAN"/>
-
-		<!-- Persia etc-->
-
-		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="ARMENIAN_HIGHLANDS"/>
-		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="NE_CAUCASUS"/>
-		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="AZERBAIJAN"/>
-		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="NW_IRAN"/>
-		<Row CultureType="CULTURE_KURA_ARAXES" StartingRegion="N_SYRIA"/>
-		<Row CultureType="CULTURE_YAMNA" StartingRegion="YAMNA"/>
-		<Row CultureType="CULTURE_PROTO-INDO-EUROPEAN" StartingRegion="IRANIAN_PLATEAU"/>
-		<Row CultureType="CULTURE_PROTO-INDO-EUROPEAN" StartingRegion="NW_IRAN"/>
-		<Row CultureType="CULTURE_JIROFT" StartingRegion="JIROFT"/>
-		<Row CultureType="CULTURE_SINTASHTA" StartingRegion="SINTASHTA"/>
-		<Row CultureType="CULTURE_PROTO-INDO-IRANIAN" StartingRegion="NW_IRAN"/>
-		<Row CultureType="CULTURE_PROTO-INDO-IRANIAN" StartingRegion="IRANIAN_PLATEAU"/>
-		<Row CultureType="CULTURE_ANDRONOVO" StartingRegion="ANDRONOVO"/>
-		<Row CultureType="CULTURE_AVESTAN" StartingRegion="AVESTAN"/>
-		<Row CultureType="CULTURE_PERSIAN" StartingRegion="NW_IRAN"/>
-		<Row CultureType="CULTURE_PERSIAN" StartingRegion="IRANIAN_PLATEAU"/>
-		<Row CultureType="CULTURE_PERSIAN" StartingRegion="FARS_PROVINCE"/>
-		<Row CultureType="CULTURE_PERSIAN" StartingRegion="LORESTAN"/>
-		<Row CultureType="CULTURE_MEDIAN" StartingRegion="NW_IRAN"/>
-		<Row CultureType="CULTURE_MEDIAN" StartingRegion="LORESTAN"/>
-		<Row CultureType="CULTURE_AZERI" StartingRegion="AZERBAIJAN"/>
-		<Row CultureType="CULTURE_AZERI" StartingRegion="NW_IRAN"/>
-
-		<!-- Anatolia etc-->
-
-		<Row CultureType="CULTURE_HATTIC" StartingRegion="LUWIYA"/>
-		<Row CultureType="CULTURE_PALAIC" StartingRegion="PALA"/>
-		<Row CultureType="CULTURE_HITTITE" StartingRegion="HATTUSA"/>
-		<Row CultureType="CULTURE_LUWIC" StartingRegion="LUWIYA"/>
-		<Row CultureType="CULTURE_KASKIAN" StartingRegion="PONTUS"/>
-		<Row CultureType="CULTURE_KASKIAN" StartingRegion="PALA"/>
-		<Row CultureType="CULTURE_LYDIAN" StartingRegion="LYDIA"/>
-		<Row CultureType="CULTURE_ARMENIAN" StartingRegion="ARMENIAN_HIGHLANDS"/>
-		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="LYDIA"/>
-		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="PALA"/>
-		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="HATTUSA"/>
-		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="LUWIYA"/>
-		<Row CultureType="CULTURE_ANATOLIAN_TURKIC" StartingRegion="PONTUS"/>
-
-		<!-- Georgia etc-->
-
-		<Row CultureType="CULTURE_COLCHIAN" StartingRegion="GEORGIA"/>
-		<Row CultureType="CULTURE_KARTVELIAN" StartingRegion="GEORGIA"/>
-		<Row CultureType="CULTURE_GEORGIAN" StartingRegion="GEORGIA"/>
-
-		<!-- Egypt & Nubia -->
-
-		<Row CultureType="CULTURE_EL_OMARI" StartingRegion="LOWER_EGYPT"/>
-		<Row CultureType="CULTURE_MAADI" StartingRegion="LOWER_EGYPT"/>
-		<Row CultureType="CULTURE_AMRATIAN" StartingRegion="UPPER_EGYPT"/>
-		<Row CultureType="CULTURE_GERZEAN" StartingRegion="UPPER_EGYPT"/>
-		<Row CultureType="CULTURE_EGYPTIAN" StartingRegion="LOWER_EGYPT"/>
-		<Row CultureType="CULTURE_EGYPTIAN" StartingRegion="UPPER_EGYPT"/>
-		<Row CultureType="CULTURE_COPTIC" StartingRegion="LOWER_EGYPT"/>
-		<Row CultureType="CULTURE_COPTIC" StartingRegion="UPPER_EGYPT"/>
-		<Row CultureType="CULTURE_KENZI" StartingRegion="FIRST_CATARACT"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="FIRST_CATARACT"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="SECOND_CATARACT"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="THIRD_CATARACT"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="FOURTH_CATARACT"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="FIFTH_CATARACT"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="SIXTH_CATARACT"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="ALODIA_KINGDOM"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="EASTERN_DESERT_NUBIA"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="ERITREA"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="TIGRAY_REGION"/>
-		<Row CultureType="CULTURE_CUSHITIC" StartingRegion="AFAR_REGION"/>
-		<Row CultureType="CULTURE_KERMA" StartingRegion="FIRST_CATARACT"/>
-		<Row CultureType="CULTURE_KERMA" StartingRegion="SECOND_CATARACT"/>
-		<Row CultureType="CULTURE_KERMA" StartingRegion="THIRD_CATARACT"/>
-		<Row CultureType="CULTURE_KERMA" StartingRegion="FOURTH_CATARACT"/>
-		<Row CultureType="CULTURE_GE_EZ" StartingRegion="ERITREA"/>
-		<Row CultureType="CULTURE_TIGRAYA" StartingRegion="TIGRAY_REGION"/>
-		<Row CultureType="CULTURE_BEJA" StartingRegion="EASTERN_DESERT_NUBIA"/>
-		<Row CultureType="CULTURE_BEJA" StartingRegion="ERITREA"/>
-		<Row CultureType="CULTURE_NOBA" StartingRegion="ERITREA"/>
-		<Row CultureType="CULTURE_AMHARIC" StartingRegion="ERITREA"/>
-		<Row CultureType="CULTURE_TIGRINYA" StartingRegion="TIGRAY_REGION"/>
-		<Row CultureType="CULTURE_NOBIIN" StartingRegion="FIRST_CATARACT"/>
-		<Row CultureType="CULTURE_NOBIIN" StartingRegion="SECOND_CATARACT"/>
-		<Row CultureType="CULTURE_DONGOLAWI" StartingRegion="SECOND_CATARACT"/>
-		<Row CultureType="CULTURE_DONGOLAWI" StartingRegion="THIRD_CATARACT"/>
-		<Row CultureType="CULTURE_SAHO" StartingRegion="ERITREA"/>
-		<Row CultureType="CULTURE_SAHO" StartingRegion="TIGRAY_REGION"/>
-		<Row CultureType="CULTURE_AFAR" StartingRegion="AFAR_REGION"/>
-
-	</CultureGroupsStartingRegions>
 
 </GameInfo>	

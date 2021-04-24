@@ -43,6 +43,14 @@
 			<LoadsLibraries>false</LoadsLibraries>
 		</Element>
 		<Element>
+			<ConsumerName text="Improvements"/>
+			<ArtDefDependencyPaths>
+				<Element text="Improvements.artdef"/>
+			</ArtDefDependencyPaths>
+			<LibraryDependencies/>
+			<LoadsLibraries>false</LoadsLibraries>
+		</Element>
+		<Element>
 			<ConsumerName text="LeaderFallback"/>
 			<ArtDefDependencyPaths>
 				<Element text="GCO_FallbackLeaders.artdef"/>
@@ -61,6 +69,7 @@
 			<LibraryDependencies>
 				<Element text="CityBuildings"/>
 				<Element text="TileBase"/>
+				<Element text="RouteDecalMaterial"/>
 			</LibraryDependencies>
 			<LoadsLibraries>true</LoadsLibraries>
 		</Element>
@@ -82,4 +91,17 @@
 			<LoadsLibraries>true</LoadsLibraries>
 		</Element>
     </SystemDependencies>
+	
+	<LibraryDependencies>
+		<Element>
+			<LibraryName text="Landmark"/>
+			<PackageDependencies>
+				<Element text="landmarks/tilebases.blp"/>
+			</PackageDependencies>
+		</Element>
+		<Element>
+			<LibraryName text="TileBase"/>
+			<PackageDependencies/>
+		</Element>
+	</LibraryDependencies>
 </AssetObjects::GameDependencyData>

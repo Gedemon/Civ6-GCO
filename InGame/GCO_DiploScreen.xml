@@ -37,7 +37,7 @@
 			</Container>
 			<Grid Texture="Controls_BannerBottom" Anchor="L,B" Offset="0,-4" Size="514,32" SliceSize="1,30" SliceCorner="18,2" SliceTextureSize="37,32"/>
 			<Grid Size="parent+40,80" Offset="-20,-50" Texture="Controls_BannerHeaderBlue3" SliceCorner="101,0" SliceSize="65,64" TextureSliceSize="267,64">
-				<Label ID="HeaderLabel" Anchor="C,T" Offset="0,22" Color="White" Style="FontFlair22" SmallCaps="28" SmallCapsType="EveryWord" FontStyle="Shadow" String="DIPLOMATIC MEETING"/>
+				<Label ID="HeaderLabel" Anchor="C,T" Offset="0,22" Color="White" Style="FontFlair22" SmallCaps="28" SmallCapsType="EveryWord" FontStyle="Shadow" String="LOC_DIPLOMACY_DIPLOMATIC_MEETING"/>
 			</Grid>
 		</Image>
 		

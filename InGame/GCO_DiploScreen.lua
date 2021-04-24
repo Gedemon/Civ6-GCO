@@ -37,7 +37,8 @@ g_SubActionListIM	= InstanceManager:new( "ActionButton",  "Button" );
 
 local DIPLO_PANEL_OFFSET = 100 -- 180 with close button at bottom
 
-
+local g_unitID 		= nil
+local g_playerID	= nil
 
 -- =========================================================================== --
 -- Handle Player Action
@@ -75,6 +76,10 @@ function CreateDiploPanelP(kParameters)
 	stackControl = Controls.OptionStack;
 	buttonIM:ResetInstances();
 	
+	
+	g_playerID		= kParameters.PlayerID
+	g_unitID		= kParameters.UnitID
+	
 	local iPlayer	= kParameters.PlayerID
 	local iUnit		= kParameters.UnitID
 	local pPlayer	= Players[iPlayer]
@@ -105,7 +110,7 @@ function CreateDiploPanelP(kParameters)
 			local value 			= GCO.GetDealValue(kParameters, row)
 			local valueStr			= value > 0 and " ("..tostring(value).."[ICON_Gold])" or ""
 			local duration			= row.Duration or 0
-			local durationStr		= duration > 0 and " ("..tostring(duration).."[ICON_Turn])" or ""
+			local durationStr		= duration > 0 and " (+"..tostring(duration).."[ICON_Turn])" or ""
 			local text 				= Locale.Lookup(row.Name) .. valueStr .. durationStr
 			row.Cost				= value -- no need to calculate the cost again in GamePlay
 			local bEnable, sReason	= GCO.IsDealEnabled(kParameters, row)
@@ -145,6 +150,14 @@ function Close()
 end
 
 
+function OnUnitSelectionChanged(playerID, unitID, x, y, i5, bSelect, b2)
+	if not Controls.CenterPanel:IsHidden() and not bSelect then
+		Close()
+	elseif Controls.CenterPanel:IsHidden() and bSelect and playerID == g_playerID and unitID == g_unitID then
+		Controls.CenterPanel:SetHide(false)
+	end
+end
+
 -- =========================================================================== --
 --	initialize
 -- =========================================================================== --
@@ -158,5 +171,7 @@ function Initialize()
 	Controls.GCO_DiploScreen:SetHide(false)
 	Controls.CenterPanel:SetHide(true)
 	LuaEvents.ShowDiploScreenGCO.Add( CreateDiploPanel )
+	LuaEvents.ShowActionScreenGCO.Add( Close )
+	Events.UnitSelectionChanged.Add(OnUnitSelectionChanged)
 end
 Initialize()

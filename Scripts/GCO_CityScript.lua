@@ -16,7 +16,7 @@ include( "GCO_SmallUtils" )
 -- ======================================================================================
 
 DEBUG_CITY_SCRIPT 	= "CityScript"
-DEBUG_CITY_TURN		= false			-- use pcall for cities turn (slow down processing speed but returns silent errors)
+DEBUG_CITY_TURN		= true			-- use pcall for cities turn (slow down processing speed but returns silent errors)
 
 function ToggleDebug()
 	DEBUG_CITY_SCRIPT = not DEBUG_CITY_SCRIPT
@@ -36,10 +36,6 @@ end
 -- ======================================================================================
 -- ENUMS
 -- ======================================================================================
-
-local NO_IMPROVEMENT 	= -1
-local NO_FEATURE 		= -1
-local NO_PLAYER			= -1
 
 local YieldHealthID			= GameInfo.CustomYields["YIELD_HEALTH"].Index
 local YieldUpperHousingID	= GameInfo.CustomYields["YIELD_UPPER_HOUSING"].Index
@@ -418,8 +414,53 @@ local UpperClassID 				= GameInfo.Resources["POPULATION_UPPER"].Index
 local MiddleClassID 			= GameInfo.Resources["POPULATION_MIDDLE"].Index
 local LowerClassID 				= GameInfo.Resources["POPULATION_LOWER"].Index
 local SlaveClassID 				= GameInfo.Resources["POPULATION_SLAVE"].Index
-local PersonnelClassID			= GameInfo.Resources["POPULATION_PERSONNEL"].Index
+local PersonnelClassID			= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local PrisonersClassID			= GameInfo.Resources["POPULATION_PRISONERS"].Index
+
+local UpperClassKey 			= tostring(UpperClassID)
+local MiddleClassKey 			= tostring(MiddleClassID)
+local LowerClassKey 			= tostring(LowerClassID)
+local SlaveClassKey 			= tostring(SlaveClassID)
+local PersonnelClassKey			= tostring(PersonnelClassID)
+local PrisonersClassKey			= tostring(PrisonersClassID)
+
+local IsIgnoredInStockList		= {
+
+	[UpperClassID] 			= true,
+	[MiddleClassID] 		= true,
+	[LowerClassID] 			= true,
+	[SlaveClassID]			= true,
+	[PersonnelClassID]		= true,
+	[PrisonersClassID]		= true,
+	[personnelResourceID]	= true,
+	
+	[UpperClassKey] 	= true,
+	[MiddleClassKey] 	= true,
+	[LowerClassKey] 	= true,
+	[SlaveClassKey] 	= true,
+	[PersonnelClassKey]	= true,
+	[PrisonersClassKey]	= true,
+
+}
+
+local IsIgnoreStockLimit	= {
+
+	[UpperClassID] 			= true,
+	[MiddleClassID] 		= true,
+	[LowerClassID] 			= true,
+	[SlaveClassID]			= true,
+	[PersonnelClassID]		= true,
+	[PrisonersClassID]		= true,
+	[personnelResourceID]	= true,
+	
+	[UpperClassKey] 	= true,
+	[MiddleClassKey] 	= true,
+	[LowerClassKey] 	= true,
+	[SlaveClassKey] 	= true,
+	[PersonnelClassKey]	= true,
+	[PrisonersClassKey]	= true,
+
+}
 
 local PopulationRefFromID = {
 	[UpperClassID] 				= RefPopulationUpper,
@@ -455,6 +496,17 @@ local DeathRateFactor = {
     [LowerClassID] 	= LowerClassDeathRateFactor,
     [SlaveClassID] 	= SlaveClassDeathRateFactor,
 	}
+
+-- Helper to get resource that doesn't change cost when changing stock
+local NoCostChangeResource = {
+	[personnelResourceID]	= true,
+	[UpperClassID]			= true,
+	[MiddleClassID]			= true,
+	[LowerClassID]			= true,
+	[SlaveClassID]			= true,
+	[PersonnelClassID]		= true,
+	[PrisonersClassID]		= true,
+}
 
 -- Floating Texts LOD
 local FLOATING_TEXT_NONE 	= 0
@@ -601,25 +653,48 @@ end
 -- ======================================================================================
 function RegisterNewCity(playerID, city)
 
+	local DEBUG_CITY_SCRIPT = DEBUG_CITY_SCRIPT
+	DEBUG_CITY_SCRIPT = "debug"
+
+	local plot				= GCO.GetPlot(city:GetX(), city:GetY())
+	-- Get Settler if any
+	local tUnits 			= Units.GetUnitsInPlot(plot)
+	local pSettler			= nil
+	local numSettlers		= 0
+	if ExposedMembers.GCO.settlerID then -- if events order doesn't change, this should be the settlerID for this city (from OnCheckSettlerFoundCityUnitOperation in GCO_ModUtils.lua)
+		pSettler = GCO.GetUnit(playerID, ExposedMembers.GCO.settlerID)
+		if pSettler then
+			numSettlers	= pSettler:GetFrontLineEquipment(LowerClassID) -- Population is Settler/Builder "Equipment", not "stock"
+			Dprint( DEBUG_CITY_SCRIPT, "- Found Settlers for ".. Locale.Lookup(city:GetName()), numSettlers)
+			pSettler:GivePopulationToPlot(plot, numSettlers)
+		end
+	end
+
 	local cityKey 			= city:GetKey()
 	local personnel 		= city:GetMaxPersonnel()
 	local initialSize		= city:GetSize()
-	local totalPopulation 	= GCO.Round(GetPopulationPerSize(initialSize) + StartingPopulationBonus)
+	local plotPopulation	= plot:GetPopulation()
+	local basePopulation	= initialSize < 2 and plotPopulation > 0 and 0 or GCO.Round(GetPopulationPerSize(initialSize)) + StartingPopulationBonus
+	local totalPopulation 	= numSettlers > 0 and plotPopulation or basePopulation + plotPopulation -- when there are settlers, they have been moved to the plot population already
 	local upperClass		= GCO.Round(totalPopulation * GCO.GetPlayerUpperClassPercent(playerID) / 100) -- can't use city:GetMaxUpperClass() before filling ExposedMembers.CityData[cityKey]
 	local middleClass		= GCO.Round(totalPopulation * GCO.GetPlayerMiddleClassPercent(playerID) / 100)
-	local lowerClass		= totalPopulation - (upperClass + middleClass)
+	local lowerClass		= (totalPopulation - (upperClass + middleClass))
 	local slaveClass		= 0
 	local startingFood		= 0 -- (re)initialized at the end of this function --GCO.Round(baseFoodStock / 2)
 	local startingMateriel	= GCO.Round(ResourceStockPerSize * city:GetSize() / 2)
 	local baseFoodCost 		= GCO.GetBaseResourceCost(foodResourceID)
 	local turnKey 			= GCO.GetTurnKey()
-	local plot				= GCO.GetPlot(city:GetX(), city:GetY())
 	local ownerCultureID	= GCO.GetCultureIDFromPlayerID(playerID)
 	
-	-- add City owner culture on plot
-	plot:ChangeCulture(ownerCultureID, totalPopulation)
+	Dprint( DEBUG_CITY_SCRIPT, " - Initial values (initialSize, totalPopulation, upperClass, middleClass, lowerClass, personnel, startingMateriel) = ", initialSize, totalPopulation, upperClass, middleClass, lowerClass, personnel, startingMateriel)
 	
-	-- add/remove plot's population (plot:GetPopulation() returns its city population, not the plot data)
+	-- add City owner culture on plot (when there are settlers, plot culture has already been updated)
+	if numSettlers == 0 then 
+		plot:ChangeCulture(ownerCultureID, totalPopulation - plot:GetTotalCulture())
+	end
+	
+	-- add/remove plot's population (plot:GetPopulation() returns its city population, not the plot data) <- not needed, now the culture is the population, and culture is updated each turn after population class changes in cities
+	--[[
 	upperClass		= upperClass	+ plot:GetUpperClass()
 	middleClass		= middleClass	+ plot:GetMiddleClass()
 	lowerClass		= lowerClass	+ plot:GetLowerClass()
@@ -629,6 +704,7 @@ function RegisterNewCity(playerID, city)
 	for i, populationID in ipairs(toRemove) do
 		plot:ChangePopulationClass(populationID, - plot:GetPopulationClass(populationID))
 	end
+	--]]
 
 	ExposedMembers.CityData[cityKey] = {
 		TurnCreated				= Game.GetCurrentGameTurn(),
@@ -636,10 +712,10 @@ function RegisterNewCity(playerID, city)
 		playerID 				= playerID,
 		WoundedPersonnel 		= 0,
 		Prisoners				= GCO.CreateEverAliveTableWithDefaultValue(0),
-		Stock					= { [turnKey] = {[foodResourceKey] = startingFood, [personnelResourceKey] = personnel, [materielResourceKey] = startingMateriel} },
+		Stock					= { [turnKey] = {[foodResourceKey] = startingFood, [personnelResourceKey] = personnel, [materielResourceKey] = startingMateriel, [UpperClassKey] = upperClass, [MiddleClassKey] = middleClass, [LowerClassKey] = lowerClass, [SlaveClassKey] = slaveClass} },
 		ResourceCost			= { [turnKey] = {[foodResourceKey] = baseFoodCost, } },
 		ResourceUse				= { [turnKey] = { } }, -- [ResourceKey] = { ResourceUseType.Collected = { [plotKey] = 0, }, ResourceUseType.Consummed = { [buildingKey] = 0, [PopulationType] = 0, }, ...)
-		Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = slaveClass} },
+		--Population				= { [turnKey] = { UpperClass = upperClass, MiddleClass	= middleClass, LowerClass = lowerClass,	Slaves = slaveClass} },
 		Account					= { [turnKey] = {} }, -- [TransactionType] = { [refKey] = value }
 		FoodRatio				= 1,
 		FoodRatioTurn			= Game.GetCurrentGameTurn(),
@@ -656,7 +732,17 @@ function RegisterNewCity(playerID, city)
 	end
 	city:ChangeStock(foodResourceID, city:GetMaxStock(foodResourceID), ResourceUseType.Product, cityKey)--GCO.Round(city:GetMaxStock(foodResourceID)/2))
 	
-	--plot:MatchCultureToPopulation()
+	-- Get resources from existing plot stock
+	for resourceKey, value in pairs(plot:GetResources()) do
+		local resourceID = tonumber(resourceKey)
+		city:ChangeStock(resourceID,value)
+		plot:ChangeStock(resourceID,-value)
+		Dprint( DEBUG_CITY_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
+	end
+	
+	
+	-- To fix possible rounding error
+	plot:MatchCultureToPopulation()
 	
 	LuaEvents.NewCityCreated(playerID, city)
 	GameEvents.NewCityCreated.Call(playerID, city, true)
@@ -699,6 +785,10 @@ function InitializeCity(playerID, cityID) -- added to Events.CityAddedToMap in i
 		Dprint( DEBUG_CITY_SCRIPT, "- WARNING : tried to initialize nil city for player #".. tostring(playerID))
 	end
 
+end
+
+function SetVisualCulture(self, civID) -- need to update on reload, add new district, capture, creation
+	AssetPreview.SpoofCityCivAt( self:GetX(), self:GetY(), civID )
 end
 
 function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCityID, iX, iY)
@@ -777,13 +867,13 @@ function UpdateCapturedCity(originalOwnerID, originalCityID, newOwnerID, newCity
 				end
 			end
 			
-			for turnKey, data in pairs(originalData.Population) do
-				newData.Population[turnKey] = {}
-				for PopulationKey, value in pairs(data) do
-					Dprint( DEBUG_CITY_SCRIPT, Indentation15("Population"), turnKey, PopulationKey, value)
-					newData.Population[turnKey][PopulationKey] = value
-				end
-			end
+			--for turnKey, data in pairs(originalData.Population) do
+			--	newData.Population[turnKey] = {}
+			--	for PopulationKey, value in pairs(data) do
+			--		Dprint( DEBUG_CITY_SCRIPT, Indentation15("Population"), turnKey, PopulationKey, value)
+			--		newData.Population[turnKey][PopulationKey] = value
+			--	end
+			--end
 
 			-- remove unlocker buildings that may now be pillaged and unrepairable...
 			--[[
@@ -951,7 +1041,8 @@ function GetCityFromKey ( cityKey )
 			Dprint( DEBUG_CITY_SCRIPT, "--- CityId = " .. ExposedMembers.CityData[cityKey].cityID ..", playerID = " .. ExposedMembers.CityData[cityKey].playerID)
 		end
 	else
-		GCO.Warning("ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")") --, nil, true
+		-- removed this warning as this can now be caused by units checking a plotKey for Home 
+		--GCO.Warning("ExposedMembers.CityData[cityKey] is nil for GetCityFromKey(".. tostring(cityKey)..")") --, nil, true
 	end
 end
 
@@ -1313,113 +1404,59 @@ function GetMinLowerClass(self)
 end
 
 function ChangeUpperClass(self, value)
-	local cityKey 	= self:GetKey()
-	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass
-	ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass = math.max(0 , previous + value)
+	self:ChangeStock(UpperClassID, value)
 end
 
 function ChangeMiddleClass(self, value)
-	local cityKey = self:GetKey()
-	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass
-	ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass = math.max(0 , previous + value)
+	self:ChangeStock(MiddleClassID, value)
 end
 
 function ChangeLowerClass(self, value)
-	local cityKey = self:GetKey()
-	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass
-	ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass = math.max(0 , previous + value)
+	self:ChangeStock(LowerClassID, value)
 end
 
 function ChangeSlaveClass(self, value)
-	local cityKey = self:GetKey()
-	local turnKey 	= GCO.GetTurnKey()
-	local previous 	= ExposedMembers.CityData[cityKey].Population[turnKey].Slaves
-	ExposedMembers.CityData[cityKey].Population[turnKey].Slaves = math.max(0 , previous + value)
+	self:ChangeStock(SlaveClassID, value)
 end
 
 function GetUpperClass(self)
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetTurnKey()
-	return ExposedMembers.CityData[cityKey] and ExposedMembers.CityData[cityKey].Population[turnKey].UpperClass or 0
+	return self:GetStock(UpperClassID)
 end
 
 function GetMiddleClass(self)
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetTurnKey()
-	return ExposedMembers.CityData[cityKey] and ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass or 0
+	return self:GetStock(MiddleClassID)
 end
 
 function GetLowerClass(self)
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetTurnKey()
-	return ExposedMembers.CityData[cityKey] and ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass or 0
+	return self:GetStock(LowerClassID)
 end
 
 function GetSlaveClass(self)
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetTurnKey()
-	return ExposedMembers.CityData[cityKey] and ExposedMembers.CityData[cityKey].Population[turnKey].Slaves or 0
+	return self:GetStock(SlaveClassID)
 end
 
 function GetPopulationClass(self, populationID)
-	if populationID == UpperClassID 	then return self:GetUpperClass() end
-	if populationID == MiddleClassID 	then return self:GetMiddleClass() end
-	if populationID == LowerClassID 	then return self:GetLowerClass() end
-	if populationID == SlaveClassID 	then return self:GetSlaveClass() end
-	GCO.Error("can't find population class for ID = ", populationID)
-	return 0
+	return self:GetStock(populationID)
 end
 
 function ChangePopulationClass(self, populationID, value)
-	if populationID == UpperClassID 	then return self:ChangeUpperClass(value) end
-	if populationID == MiddleClassID 	then return self:ChangeMiddleClass(value) end
-	if populationID == LowerClassID 	then return self:ChangeLowerClass(value) end
-	if populationID == SlaveClassID 	then return self:ChangeSlaveClass(value) end
-	GCO.Error("can't find population class for ID = ", populationID)
+	self:ChangeStock(populationID, value)
 end
 
 function GetPreviousUpperClass(self)
-	local kData 	= self:GetData()
-	local turnKey 	= GCO.GetPreviousTurnKey()
-	if not kData then GCO.Warning("cityData is nil for ".. Locale.Lookup(self:GetName())); GCO.DlineFull(); end
-	if kData.Population[turnKey] then -- for new city this will be nil
-		return kData.Population[turnKey].UpperClass or 0
-	else
-		return self:GetUpperClass()
-	end
+	return self:GetPreviousStock(UpperClassID)
 end
 
 function GetPreviousMiddleClass(self )
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetPreviousTurnKey()
-	if ExposedMembers.CityData[cityKey].Population[turnKey] then -- for new city this will be nil
-		return ExposedMembers.CityData[cityKey].Population[turnKey].MiddleClass or 0
-	else
-		return self:GetMiddleClass()
-	end
+	return self:GetPreviousStock(MiddleClassID)
 end
 
 function GetPreviousLowerClass(self)
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetPreviousTurnKey()
-	if ExposedMembers.CityData[cityKey].Population[turnKey] then -- for new city this will be nil
-		return ExposedMembers.CityData[cityKey].Population[turnKey].LowerClass or 0
-	else
-		return self:GetLowerClass()
-	end
+	return self:GetPreviousStock(LowerClassID)
 end
 
 function GetPreviousSlaveClass(self)
-	local cityKey 		= self:GetKey()
-	local turnKey 		= GCO.GetPreviousTurnKey()
-	if ExposedMembers.CityData[cityKey].Population[turnKey] then -- for new city this will be nil
-		return ExposedMembers.CityData[cityKey].Population[turnKey].Slaves or 0
-	else
-		return self:GetSlaveClass()
-	end
+	return self:GetPreviousStock(SlaveClassID)
 end
 
 function GetMigration(self)
@@ -1516,15 +1553,21 @@ function UpdateLinkedUnits(self)
 			local unit = GCO.GetUnit(data.playerID, data.unitID)
 			if unit then
 				LinkedUnits[selfKey][unitKey] = {NeedResources = {}}
-				if not unit:IsDisbanding() then
+				if unit:CanGetReinforcement() then
 					local bTotal		= unit:CanGetFullReinforcement()
 					local requirements 	= unit:GetRequirements(bTotal)
 					for resourceID, value in pairs(requirements.Resources) do
 						if value > 0 then
-							UnitsSupplyDemand[selfKey].Resources[resourceID] 		= ( UnitsSupplyDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(requirements.Resources[resourceID]*efficiency/100)
+							UnitsSupplyDemand[selfKey].Resources[resourceID] 		= ( UnitsSupplyDemand[selfKey].Resources[resourceID] 		or 0 ) + GCO.Round(value*efficiency/100)
 							UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	= ( UnitsSupplyDemand[selfKey].NeedResources[resourceID] 	or 0 ) + 1
 							LinkedUnits[selfKey][unitKey].NeedResources[resourceID] = true
 						end
+					end
+				else -- Food is always a requirement
+					local foodRequired = unit:GetNumResourceNeeded(foodResourceID)
+					if foodRequired > 0 then
+						UnitsSupplyDemand[selfKey].Resources[foodResourceID] 		= ( UnitsSupplyDemand[selfKey].Resources[foodResourceID] 		or 0 ) + GCO.Round(foodRequired*efficiency/100)
+						LinkedUnits[selfKey][unitKey].NeedResources[foodResourceID] = true
 					end
 				end
 			end
@@ -2621,7 +2664,9 @@ end
 
 function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 
-	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() == self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
+	
+--if IsIgnoredInStockList[resourceID] then Dline(Locale.Lookup(GameInfo.Resources[resourceID].Name), value); GCO.DlineFull(); end
 	
 	if not resourceID then
 		GCO.Warning("resourceID is nil or false in ChangeStock for "..Locale.Lookup(self:GetName()), " resourceID = ", resourceID," value= ", value)
@@ -2641,7 +2686,7 @@ function ChangeStock(self, resourceID, value, useType, reference, unitCost)
 	if not reference then reference = NO_REFERENCE_KEY end
 	reference = tostring(reference) -- will be a key in table
 
-	if value > 0 and resourceKey ~= personnelResourceKey then
+	if value > 0 and not NoCostChangeResource[resourceID] then
 		if not useType then useType = ResourceUseType.OtherIn end
 		if not unitCost then unitCost = GCO.GetBaseResourceCost(resourceID) end
 		local maxStock		= self:GetMaxStock(resourceID)
@@ -3487,6 +3532,13 @@ function GetSeaRange(self)
 	return self:GetModifiersForEffect("RAISE_CITY_SEA_RANGE")
 end
 
+function HasBoat(self)
+	local pBuildings	= self:GetBuildings()
+	return pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_HARBOR"].Index)
+		or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index)
+		or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_SHIPYARD"].Index)
+end
+
 -- ======================================================================================
 -- City Panel Stats
 -- ======================================================================================
@@ -3498,7 +3550,7 @@ function GetResourcesStockTable(self)
 	if not data.Stock[turnKey] then return {} end
 	for resourceKey, value in pairs(data.Stock[turnKey]) do
 		local resourceID 		= tonumber(resourceKey)
-		if (value + self:GetSupplyAtTurn(resourceID, turnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0) then
+		if (not IsIgnoredInStockList[resourceID]) and (value + self:GetSupplyAtTurn(resourceID, turnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0) then
 			local rowTable 			= {}
 			local stockVariation 	= self:GetStockVariation(resourceID)
 			local resourceCost 		= self:GetResourceCost(resourceID)
@@ -3563,70 +3615,71 @@ function GetResourcesSupplyTable(self)
 	for resRow in GameInfo.Resources() do
 		local resourceID 	= resRow.Index
 	--for resourceKey, useData in pairs(data.ResourceUse[turnKey]) do
+		if (not IsIgnoredInStockList[resourceID]) then 
+			local Collect 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
+			local Product 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
+			local Import 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
+			local TransferIn 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
+			local Pillage 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey))
+			local OtherIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey))
 
-		local Collect 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Collect, turnKey))
-		local Product 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Product, turnKey))
-		local Import 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Import, previousTurnKey)) -- all other players cities have not exported their resource at the beginning of the player turn, so get previous turn value
-		local TransferIn 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferIn, turnKey))
-		local Pillage 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Pillage, turnKey))
-		local OtherIn 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherIn, turnKey))
+			if resourceID == personnelResourceID then Product = GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Recruit, turnKey)) end
 
-		if resourceID == personnelResourceID then Product = GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Recruit, turnKey)) end
+			local TotalIn		= Collect + Product + Import + TransferIn + Pillage + OtherIn
 
-		local TotalIn		= Collect + Product + Import + TransferIn + Pillage + OtherIn
+			if (TotalIn > 0) then
+				local rowTable 			= {}
 
-		if (TotalIn > 0) then
-			local rowTable 			= {}
+				rowTable.ResourceID	= resourceID
+				rowTable.Icon 		= GCO.GetResourceIcon(resourceID)
+				rowTable.Name 		= Locale.Lookup(resRow.Name)
+				local toolTipHeader	= rowTable.Icon .. " " .. rowTable.Name
+				local separator		= Locale.Lookup("LOC_TOOLTIP_SEPARATOR")
 
-			rowTable.ResourceID	= resourceID
-			rowTable.Icon 		= GCO.GetResourceIcon(resourceID)
-			rowTable.Name 		= Locale.Lookup(resRow.Name)
-			local toolTipHeader	= rowTable.Icon .. " " .. rowTable.Name
-			local separator		= Locale.Lookup("LOC_TOOLTIP_SEPARATOR")
+				if Collect 		== 0 then
+					rowTable.Collect		= "-"
+				else
+					rowTable.Collect 		= Collect
+					rowTable.CollectToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_COLLECT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Collect, turnKey)
+				end
+				if Product 		== 0 then
+					rowTable.Product		= "-"
+				else
+					rowTable.Product 		= Product
+					rowTable.ProductToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_PRODUCT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Product, turnKey)
+					if resourceID == personnelResourceID then rowTable.ProductToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_PRODUCT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Recruit, turnKey) end
+				end
+				if Import 		== 0 then
+					rowTable.Import			= "-"
+				else
+					rowTable.Import 		= Import
+					rowTable.ImportToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_IMPORT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Import, previousTurnKey)
+				end
+				if TransferIn 	== 0 then
+					rowTable.TransferIn		= "-"
+				else
+					rowTable.TransferIn 		= TransferIn
+					rowTable.TransferInToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_TRANSFER_IN_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.TransferIn, turnKey)
+				end
+				if Pillage 		== 0 then
+					rowTable.Pillage		= "-"
+				else
+					rowTable.Pillage 		= Pillage
+					rowTable.PillageToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_PILLAGE_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Pillage, turnKey)
+				end
+				if OtherIn 		== 0 then
+					rowTable.OtherIn		= "-"
+				else
+					rowTable.OtherIn 		= OtherIn
+					rowTable.OtherInToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_OTHER_IN_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.OtherIn, turnKey)
+				end
 
-			if Collect 		== 0 then
-				rowTable.Collect		= "-"
-			else
-				rowTable.Collect 		= Collect
-				rowTable.CollectToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_COLLECT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Collect, turnKey)
+				rowTable.TotalIn		= TotalIn
+				rowTable.TotalInToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_TOTAL_IN_DETAILS_TOOLTIP", toolTipHeader)
+				rowTable.ResourceType 	= resRow.ResourceType
+
+				table.insert(supplyTable, rowTable)
 			end
-			if Product 		== 0 then
-				rowTable.Product		= "-"
-			else
-				rowTable.Product 		= Product
-				rowTable.ProductToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_PRODUCT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Product, turnKey)
-				if resourceID == personnelResourceID then rowTable.ProductToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_PRODUCT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Recruit, turnKey) end
-			end
-			if Import 		== 0 then
-				rowTable.Import			= "-"
-			else
-				rowTable.Import 		= Import
-				rowTable.ImportToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_IMPORT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Import, previousTurnKey)
-			end
-			if TransferIn 	== 0 then
-				rowTable.TransferIn		= "-"
-			else
-				rowTable.TransferIn 		= TransferIn
-				rowTable.TransferInToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_TRANSFER_IN_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.TransferIn, turnKey)
-			end
-			if Pillage 		== 0 then
-				rowTable.Pillage		= "-"
-			else
-				rowTable.Pillage 		= Pillage
-				rowTable.PillageToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_PILLAGE_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Pillage, turnKey)
-			end
-			if OtherIn 		== 0 then
-				rowTable.OtherIn		= "-"
-			else
-				rowTable.OtherIn 		= OtherIn
-				rowTable.OtherInToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_OTHER_IN_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.OtherIn, turnKey)
-			end
-
-			rowTable.TotalIn		= TotalIn
-			rowTable.TotalInToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_TOTAL_IN_DETAILS_TOOLTIP", toolTipHeader)
-			rowTable.ResourceType 	= resRow.ResourceType
-
-			table.insert(supplyTable, rowTable)
 		end
 	end
 
@@ -3645,70 +3698,71 @@ function GetResourcesDemandTable(self)
 
 	for resRow in GameInfo.Resources() do
 		local resourceID 	= resRow.Index
+			if (not IsIgnoredInStockList[resourceID]) then
+			local Consume 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, turnKey))
+			local Export 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Export, turnKey))
+			local TransferOut 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferOut, turnKey))
+			local Supply 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Supply, turnKey))
+			local Stolen 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)) -- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
+			local OtherOut 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherOut, turnKey))
+			local TotalOut		= Consume + Export + TransferOut + Supply + Stolen + OtherOut
 
-		local Consume 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Consume, turnKey))
-		local Export 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Export, turnKey))
-		local TransferOut 	= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.TransferOut, turnKey))
-		local Supply 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Supply, turnKey))
-		local Stolen 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)) -- all other players units have not attacked yet at the beginning of the player turn, so get previous turn value
-		local OtherOut 		= GCO.Round(self:GetUseTypeAtTurn(resourceID, ResourceUseType.OtherOut, turnKey))
-		local TotalOut		= Consume + Export + TransferOut + Supply + Stolen + OtherOut
+			if (TotalOut > 0) then
+				local rowTable 			= {}
+				--local resourceID 		= tonumber(resourceKey)
+				--local resRow 			= GameInfo.Resources[resourceID]
 
-		if (TotalOut > 0) then
-			local rowTable 			= {}
-			--local resourceID 		= tonumber(resourceKey)
-			--local resRow 			= GameInfo.Resources[resourceID]
+				rowTable.ResourceID	= resourceID
+				rowTable.Icon 		= GCO.GetResourceIcon(resourceID)
+				rowTable.Name 		= Locale.Lookup(resRow.Name)
 
-			rowTable.ResourceID	= resourceID
-			rowTable.Icon 		= GCO.GetResourceIcon(resourceID)
-			rowTable.Name 		= Locale.Lookup(resRow.Name)
+				local toolTipHeader	= rowTable.Icon .. " " .. rowTable.Name
+				local separator		= Locale.Lookup("LOC_TOOLTIP_SEPARATOR")
 
-			local toolTipHeader	= rowTable.Icon .. " " .. rowTable.Name
-			local separator		= Locale.Lookup("LOC_TOOLTIP_SEPARATOR")
+				if Consume 		== 0 then
+					rowTable.Consume		= "-"
+				else
+					rowTable.Consume 		= Consume
+					rowTable.ConsumeToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_CONSUME_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Consume, turnKey)
+				end
+				if Export 		== 0 then
+					rowTable.Export		= "-"
+				else
+					rowTable.Export 		= Export
+					rowTable.ExportToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_EXPORT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Export, turnKey)
+				end
+				if TransferOut 		== 0 then
+					rowTable.TransferOut			= "-"
+				else
+					rowTable.TransferOut 		= TransferOut
+					rowTable.TransferOutToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_TRANSFER_OUT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.TransferOut, turnKey)
+				end
+				if Supply 	== 0 then
+					rowTable.Supply		= "-"
+				else
+					rowTable.Supply 		= Supply
+					rowTable.SupplyToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_UNIT_SUPPLY_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Supply, turnKey)
+				end
+				if Stolen 		== 0 then
+					rowTable.Stolen		= "-"
+				else
+					rowTable.Stolen 		= Stolen
+					rowTable.StolenToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_STOLEN_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)
+				end
+				if OtherOut 		== 0 then
+					rowTable.OtherOut		= "-"
+				else
+					rowTable.OtherOut 		= OtherOut
+					rowTable.OtherOutToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_OTHER_OUT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.OtherOut, turnKey)
+				end
 
-			if Consume 		== 0 then
-				rowTable.Consume		= "-"
-			else
-				rowTable.Consume 		= Consume
-				rowTable.ConsumeToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_CONSUME_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Consume, turnKey)
+				rowTable.TotalOut			= TotalOut
+				rowTable.TotalOutToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_TOTAL_OUT_DETAILS_TOOLTIP", toolTipHeader)
+
+				rowTable.ResourceType 	= resRow.ResourceType
+
+				table.insert(demandTable, rowTable)
 			end
-			if Export 		== 0 then
-				rowTable.Export		= "-"
-			else
-				rowTable.Export 		= Export
-				rowTable.ExportToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_EXPORT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Export, turnKey)
-			end
-			if TransferOut 		== 0 then
-				rowTable.TransferOut			= "-"
-			else
-				rowTable.TransferOut 		= TransferOut
-				rowTable.TransferOutToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_TRANSFER_OUT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.TransferOut, turnKey)
-			end
-			if Supply 	== 0 then
-				rowTable.Supply		= "-"
-			else
-				rowTable.Supply 		= Supply
-				rowTable.SupplyToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_UNIT_SUPPLY_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Supply, turnKey)
-			end
-			if Stolen 		== 0 then
-				rowTable.Stolen		= "-"
-			else
-				rowTable.Stolen 		= Stolen
-				rowTable.StolenToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_STOLEN_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.Stolen, previousTurnKey)
-			end
-			if OtherOut 		== 0 then
-				rowTable.OtherOut		= "-"
-			else
-				rowTable.OtherOut 		= OtherOut
-				rowTable.OtherOutToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_OTHER_OUT_DETAILS_TOOLTIP", toolTipHeader) .. separator .. self:GetResourceUseToolTipStringForTurn(resourceID, ResourceUseType.OtherOut, turnKey)
-			end
-
-			rowTable.TotalOut			= TotalOut
-			rowTable.TotalOutToolTip	= Locale.Lookup("LOC_HUD_CITY_RESOURCES_TOTAL_OUT_DETAILS_TOOLTIP", toolTipHeader)
-
-			rowTable.ResourceType 	= resRow.ResourceType
-
-			table.insert(demandTable, rowTable)
 		end
 	end
 
@@ -4379,10 +4433,7 @@ function CanConstruct(self, buildingType)
 			
 			-- Get type
 			local equipmentList	=  GCO.GetAvailableEquipmentForUnitPromotionClassFromList(unitType, promotionClassID, maxPersonnel, self:GetEquipmentList(), organizationLevel)
-			local recruitType	= nil
-			if promotionClassID then 
-				recruitType = GCO.GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, unitType, 75, organizationLevel)
-			end
+			local recruitType	=  GCO.GetUnitTypeFromEquipmentList(promotionClassID, equipmentList, unitType, 75, organizationLevel)
 			if recruitType then
 				table.insert(requirementStr, "[NEWLINE]" .. Locale.Lookup("LOC_PRODUCTION_RECRUIT_TYPE", GameInfo.Units[recruitType].Name))
 			else
@@ -4433,7 +4484,8 @@ function RecruitUnits(self, UnitType, number, personnelType, equipmentList, pers
 		GCO.AttachUnitFunctions(unit)
 		GCO.RegisterNewUnit(playerID, unit, initialHP, nil, organizationLevel)
 		if personnel then
-			unit:ChangeStock(personnelResourceID, personnel)
+			--unit:ChangeStock(personnelResourceID, personnel)
+			unit:ChangeComponent("PersonnelReserve", personnel) -- So that the call to healing is not confused by having already Personnel in frontline with HP at 0
 		end
 		unit:InitializeEquipment(equipmentList)
 		if personnelType ~= UnitPersonnelType.StandingArmy then
@@ -4557,12 +4609,16 @@ end
 
 function GetRuralPopulationClass(self, populationID)
 	--return self:GetRealPopulation() - self:GetUrbanPopulation()
+	if populationID ~= LowerClassID then -- only one type of population (Lower Class) is logged outside city for performance
+		return 0
+	end
+	
 	local ruralPopulation 	= 0
 	local cityPlots			= GCO.GetCityPlots(self)
 	for _, plotID in ipairs(cityPlots) do
 		local plot = GCO.GetPlotByIndex(plotID)
 		if plot and (not plot:IsCity()) then
-			ruralPopulation = ruralPopulation + plot:GetPopulationClass(populationID)
+			ruralPopulation = ruralPopulation + plot:GetPopulation()
 		end
 	end
 	return ruralPopulation
@@ -4583,16 +4639,15 @@ end
 
 function GetRuralPopulationVariation(self)
 	--return self:GetRealPopulation() - self:GetUrbanPopulation()
-	local ruralPopulation 	= 0
-	local cityPlots			= GCO.GetCityPlots(self)
+	local variation 	= 0
+	local cityPlots		= GCO.GetCityPlots(self)
 	for _, plotID in ipairs(cityPlots) do
 		local plot = GCO.GetPlotByIndex(plotID)
 		if plot and (not plot:IsCity()) then
-			local previousPop = plot:GetPreviousUpperClass() + plot:GetPreviousMiddleClass() + plot:GetPreviousLowerClass() + plot:GetPreviousSlaveClass()			
-			ruralPopulation = ruralPopulation + (plot:GetPopulation() - previousPop)
+			variation = variation + (plot:GetPopulation() - plot:GetPreviousPopulation())
 		end
 	end
-	return ruralPopulation
+	return variation
 end
 
 function GetUrbanEmploymentSize(self)
@@ -4986,7 +5041,7 @@ count = count + 1
 if type(value) == "table" then for k, v in pairs(value) do print(k,v) end
 else 
 --]]
-		if (value + self:GetAverageSupplyAtTurn(resourceID) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0 and resourceKey ~= personnelResourceKey) then -- and resourceKey ~= foodResourceKey
+		if (not IsIgnoredInStockList[resourceID]) and (value + self:GetAverageSupplyAtTurn(resourceID) + self:GetDemandAtTurn(resourceID, previousTurnKey) + self:GetDemandAtTurn(resourceID, turnKey) > 0) then -- and resourceKey ~= foodResourceKey
 
 			local stockVariation 	= self:GetStockVariation(resourceID)
 			local resourceCost 		= self:GetResourceCost(resourceID)
@@ -5379,7 +5434,8 @@ function GetSeaRangeToolTip(self)
 	local value, list 		= self:GetModifiersForEffect(eEffectType)
 	local applicationText	= GCO.GetEffectApplicationText(eEffectType)
 	local strTable			= {Locale.Lookup(GCO.GetEffectName(eEffectType)) .. " = ".. tostring(value)}
-	if not self:GetBuildings():HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index) then
+	local pBuildings		= self:GetBuildings()
+	if not self:HasBoat() then
 		table.insert(strTable, Locale.Lookup("LOC_CITYBANNER_HARBOR_REQUIRED"))
 	end
 	-- for a small text separation
@@ -5549,18 +5605,18 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 		-- get previous turn data
 		local stockData = data.Stock[previousTurnKey]
 		local costData 	= data.ResourceCost[previousTurnKey]
-		local popData 	= data.Population[previousTurnKey]
+		--local popData 	= data.Population[previousTurnKey]
 		
 		-- when using the "enforce TSL option" from YnAMP, the entry may have already been set (and theere is no previous entries) no need to update in that case
 		-- if there is neither previous turn and current turn data, output an Error message before aborting
 		if stockData 	== nil then if not data.Stock[turnKey] 			then GCO.Error("stockData[previousTurnKey] = nil"); return	else return end end
 		if costData 	== nil then if not data.ResourceCost[turnKey]	then GCO.Error("costData[previousTurnKey] = nil"); return	else return end end
-		if popData 		== nil then if not data.Population[turnKey]		then GCO.Error("popData[previousTurnKey] = nil"); return	else return end end
+		--if popData 		== nil then if not data.Population[turnKey]		then GCO.Error("popData[previousTurnKey] = nil"); return	else return end end
 
 		-- initialize empty tables for the new turn data
 		data.Stock[turnKey] 		= {}
 		data.ResourceCost[turnKey]	= {}
-		data.Population[turnKey]	= {}
+		--data.Population[turnKey]	= {}
 		data.ResourceUse[turnKey]	= {}
 		
 		-- fill the new table with previous turn data
@@ -5572,9 +5628,9 @@ function UpdateDataOnNewTurn(self) -- called for every player at the beginning o
 			ExposedMembers.CityData[cityKey].ResourceCost[turnKey][resourceKey] = value
 		end
 
-		for key, value in pairs(popData) do
-			ExposedMembers.CityData[cityKey].Population[turnKey][key] = value
-		end
+		--for key, value in pairs(popData) do
+		--	ExposedMembers.CityData[cityKey].Population[turnKey][key] = value
+		--end
 
 		self:UpdateCosts()
 	end
@@ -5706,8 +5762,8 @@ function DoReinforceUnits(self)
 		local loop = 0
 		while (resLeft > 0 and loop < maxLoop) do
 			for unitKey, data in pairs(LinkedUnits[cityKey]) do
-				local unit = GCO.GetUnitFromKey ( unitKey )
-				if unit and not unit:IsDisbanding() then
+				local unit 			= GCO.GetUnitFromKey ( unitKey )
+				if unit and (unit:CanGetReinforcement() or resourceID == foodResourceID) then -- we need to check again here, as we're iterating the full required resources table not a specific unit requirement
 					if not reqValue[unit] then reqValue[unit] = {} end
 					
 					if reqValue[unit].FullReinforcement == nil then reqValue[unit].FullReinforcement = unit:CanGetFullReinforcement() end
@@ -5865,14 +5921,7 @@ function DoCollectResources(self)
 			end
 			local cityPlot 		= GCO.GetPlot(self:GetX(), self:GetY())
 			local pBuildings	= self:GetBuildings()
-			local bHasBoat		= pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index)
-			--local pDistricts	= self:GetDistricts()
-			--local harbor		= pDistricts:GetDistrict(GameInfo.Districts["DISTRICT_HARBOR"].Index)
-			--local bHasBoat		= harbor or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_LIGHTHOUSE"].Index) or pBuildings:HasBuilding(GameInfo.Buildings["BUILDING_CITY_SHIPYARD"].Index)
-			
-			--if harbor then
-			--	cityPlot 		= GCO.GetPlot(harbor:GetX(), harbor:GetY())
-			--end
+			local bHasBoat		= self:HasBoat()
 			
 			for ring = 1, seaRange do
 				for pEdgePlot in GCO.PlotRingIterator(cityPlot, ring) do
@@ -6422,6 +6471,7 @@ end
 function DoStockDecay(self)
 
 	Dlog("DoStockDecay ".. Locale.Lookup(self:GetName()).." /START")
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() == self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 	Dprint( DEBUG_CITY_SCRIPT, "Resource decay...")
 
 	-- 
@@ -6433,6 +6483,7 @@ function DoStockDecay(self)
 		--
 		if stock > 0 and row.DecayRate then
 			local decay = GCO.ToDecimals(math.max(0, stock - self:GetDemand(resourceID)) * row.DecayRate / 100)
+			Dprint( DEBUG_CITY_SCRIPT, "  - Change stock: ", Locale.Lookup(GameInfo.Resources[resourceID].Name), -decay)
 			self:ChangeStock(resourceID, -decay, ResourceUseType.Waste)
 		end
 	end
@@ -6474,42 +6525,45 @@ function DoStockUpdate(self)
 
 	-- Check resources stock, remove surplus
 	for resourceKey, value in pairs(cityData.Stock[turnKey]) do
-		local resourceID	= tonumber(resourceKey)
-		local excedent		= 0
-		local stock			= self:GetStock(resourceID)
-		local row			= GameInfo.Resources[resourceID]
-		
-		-- Studying resource
-		if stock > 0 then
-			local plot	= self:GetPlot()
-			LuaEvents.ResearchGCO("EVENT_RESOURCE_IN_STOCK", self:GetOwner(), plot:GetX(), plot:GetY(), row.ResourceType, self)
-		end
-		
-		-- Some resource decay
-		--[[
-		if row.DecayRate then
-			local decay = GCO.ToDecimals(math.max(0, stock - self:GetDemand(resourceID)) * row.DecayRate / 100)
-			stock 		= stock - decay
-			self:ChangeStock(resourceID, -decay, ResourceUseType.Waste)
-		end
-		--]]
-		
-		-- Obsolete equipment is removed at a faster rate
-		if player:IsObsoleteResource(resourceID) then
-			if self:GetNumRequiredInQueue(resourceID) == 0 then
-				excedent = math.ceil(stock * SurplusWasteFastPercent / 100)
-			end		
-		-- Used resources are removed at a slower rate	
-		elseif self:GetDemand(resourceID) > 0 or self:GetNumRequiredInQueue(resourceID) > 0 then
-			excedent = math.ceil((stock - self:GetMaxStock(resourceID)) * SurplusWasteSlowPercent / 100)
-		-- Non used resources are removed at normal rate
-		else
-			excedent = math.ceil((stock - self:GetMaxStock(resourceID)) * SurplusWastePercent / 100)
-		end
-		
-		if excedent > 0 then
-			Dprint( DEBUG_CITY_SCRIPT, " - Surplus destroyed = ".. tostring(excedent).." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
-			self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
+	
+		if not IsIgnoreStockLimit[resourceKey] then
+			local resourceID	= tonumber(resourceKey)
+			local excedent		= 0
+			local stock			= self:GetStock(resourceID)
+			local row			= GameInfo.Resources[resourceID]
+			
+			-- Studying resource
+			if stock > 0 then
+				local plot	= self:GetPlot()
+				LuaEvents.ResearchGCO("EVENT_RESOURCE_IN_STOCK", self:GetOwner(), plot:GetX(), plot:GetY(), row.ResourceType, self)
+			end
+			
+			-- Some resource decay
+			--[[
+			if row.DecayRate then
+				local decay = GCO.ToDecimals(math.max(0, stock - self:GetDemand(resourceID)) * row.DecayRate / 100)
+				stock 		= stock - decay
+				self:ChangeStock(resourceID, -decay, ResourceUseType.Waste)
+			end
+			--]]
+			
+			-- Obsolete equipment is removed at a faster rate
+			if player:IsObsoleteResource(resourceID) then
+				if self:GetNumRequiredInQueue(resourceID) == 0 then
+					excedent = math.ceil(stock * SurplusWasteFastPercent / 100)
+				end		
+			-- Used resources are removed at a slower rate	
+			elseif self:GetDemand(resourceID) > 0 or self:GetNumRequiredInQueue(resourceID) > 0 then
+				excedent = math.ceil((stock - self:GetMaxStock(resourceID)) * SurplusWasteSlowPercent / 100)
+			-- Non used resources are removed at normal rate
+			else
+				excedent = math.ceil((stock - self:GetMaxStock(resourceID)) * SurplusWastePercent / 100)
+			end
+			
+			if excedent > 0 then
+				Dprint( DEBUG_CITY_SCRIPT, " - Surplus destroyed = ".. tostring(excedent).." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name))
+				self:ChangeStock(resourceID, -excedent, ResourceUseType.Waste)
+			end
 		end
 	end
 
@@ -6520,7 +6574,7 @@ function DoGrowth(self)
 
 	Dlog("DoGrowth ".. Locale.Lookup(self:GetName()).." /START")
 	
-	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() 	== self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
+	--local DEBUG_CITY_SCRIPT = Game.GetLocalPlayer() == self:GetOwner() and "debug" or DEBUG_CITY_SCRIPT
 
 	if Game.GetCurrentGameTurn() < 2 and bUseRealYears then return end -- we need to know the previous year turn to calculate growth rate...
 	Dprint( DEBUG_CITY_SCRIPT, "Calculate city growth for ".. Locale.Lookup(self:GetName()))
@@ -7487,7 +7541,7 @@ function DoMigration(self)
 									end
 									--originePlot:MigrationTo(plot, popMoving)  -- before changing population values to get the correct numbers on each plot
 									self:ChangePopulationClass(populationID, -popMoving)
-									plot:ChangePopulationClass(populationID, popMoving)
+									--plot:ChangePopulationClass(populationID, popMoving)
 									totalMigration = totalMigration + popMoving
 								else
 									local city 				= destination.City
@@ -7495,8 +7549,8 @@ function DoMigration(self)
 									plotsToUpdate[plot]		= true
 									Dprint( DEBUG_CITY_SCRIPT, "- Moving " .. Indentation20(tostring(popMoving) .. " " ..Locale.Lookup(GameInfo.Resources[populationID].Name)).. " to city ("..Locale.Lookup(city:GetName())..") with Weight = "..tostring(destination.Weight))
 									originePlot:MigrationTo(plot, popMoving)
-									self:ChangePopulationClass(populationID, -popMoving)
-									city:ChangePopulationClass(populationID, popMoving)
+									--self:ChangePopulationClass(populationID, -popMoving)
+									--city:ChangePopulationClass(populationID, popMoving)
 									totalMigration = totalMigration + popMoving
 								end
 							end
@@ -7510,9 +7564,9 @@ function DoMigration(self)
 	
 	Dprint( DEBUG_CITY_SCRIPT, "=== total migrants : ".. tostring(totalMigration) .." for ".. Locale.Lookup(self:GetName()))
 	
-	for plot, _ in oldpairs(plotsToUpdate) do -- orderedpairs crash here, but call order should not cause desync in that loop
-		plot:MatchCultureToPopulation()
-	end
+	--for plot, _ in oldpairs(plotsToUpdate) do -- orderedpairs crash here, but call order should not cause desync in that loop
+	--	plot:MatchCultureToPopulation()
+	--end
 	
 	Dlog("DoMigration ".. Locale.Lookup(self:GetName()).." /END")
 end
@@ -8269,7 +8323,7 @@ function CleanCitiesData() -- called in GCO_GameScript.lua
 	Dprint( DEBUG_CITY_SCRIPT, "Cleaning CityData...")
 	
 	for cityKey, data1 in pairs(ExposedMembers.CityData) do
-		local toClean 	= {"Stock","ResourceCost","ResourceUse","Population"}
+		local toClean 	= {"Stock","ResourceCost","ResourceUse"}--,"Population"}
 		local maxTurn	= 3
 		local player 	= Players[data1.playerID]
 		if player and player:IsHuman() then
@@ -8537,6 +8591,7 @@ function AttachCityFunctions(city)
 		--
 		if not c.IsCoastal							then c.IsCoastal							= IsCoastal                        		end
 		if not c.GetSeaRange						then c.GetSeaRange							= GetSeaRange                       	end
+		if not c.HasBoat							then c.HasBoat								= HasBoat                      		 	end
 		if not c.GetSeaRangeToolTip					then c.GetSeaRangeToolTip					= GetSeaRangeToolTip					end
 		-- UI context
 		if not c.GetCityYield						then c.GetCityYield							= GetCityYield                      	end
@@ -8592,6 +8647,7 @@ function ShareFunctions()
 	ExposedMembers.GCO.AttachCityFunctions 				= AttachCityFunctions
 	ExposedMembers.GCO.GetPopulationPerSize 			= GetPopulationPerSize
 	ExposedMembers.GCO.CleanCitiesData 					= CleanCitiesData
+	ExposedMembers.GCO.RegisterNewCity					= RegisterNewCity
 	--
 	ExposedMembers.GCO.GetCityFromKey 					= GetCityFromKey
 	--

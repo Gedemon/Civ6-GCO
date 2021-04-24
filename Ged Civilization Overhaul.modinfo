@@ -88,6 +88,10 @@
 			<File>UI/EspionageOverview.xml</File>
 			<File>UI/LeaderIcon.lua</File>
 			<File>UI/LeaderIcon.xml</File>
+			<File>UI/LoadScreen.lua</File>
+			<File>UI/LoadScreen.xml</File>
+			<File>UI/PlotInfo.lua</File>
+			<File>UI/PlotInfo.xml</File>
 			<File>UI/PlotToolTip.lua</File>
 			<File>UI/PlotToolTip.xml</File>
 			<File>UI/ProductionPanel.lua</File>
@@ -97,6 +101,7 @@
 			<File>UI/TechCivicCompletedPopup.xml</File>
 			<File>UI/TechTree.lua</File>
 			<File>UI/TechTree.xml</File>
+			<File>UI/ToolTips.xml</File>
 			<File>UI/ToolTipHelper.lua</File>
 			<File>UI/ToolTipHelper_PlayerYields.lua</File>
 			<File>UI/TopPanel.lua</File>
@@ -107,7 +112,6 @@
 			<File>UI/UnitPanel.xml</File>
 			<File>UI/WorldViewIconsManager.lua</File>
 			<File>UI/WorldViewIconsManager.xml</File>
-			<File>UI/AddOn/AdvancedSetup_GCO.lua</File>
             <File>Scripts/GCO_SmallUtils.lua</File>
             <File>Scripts/GCO_TypeEnum.lua</File>
             <File>Scripts/GCO_PlayerConfig.lua</File>
@@ -140,6 +144,7 @@
 				<LoadOrder>-50</LoadOrder>
 		    </Properties>
             <File>Scripts/GCO_PlayerScript.lua</File>
+            <File>Scripts/GCO_AltHistScript.lua</File>
             <File>Scripts/GCO_CityScript.lua</File>
 			<File>Scripts/GCO_DiplomacyScript.lua</File>
             <File>Scripts/GCO_UnitScript.lua</File>
@@ -150,6 +155,9 @@
             <File>Scripts/GCO_RouteConnections.lua</File>
             <File>Scripts/GCO_PlotIterators.lua</File>
             <File>Scripts/GCO_AIUnitScript.lua</File>
+            <File>Scripts/GCO_DefaultAI.lua</File>
+			<File>Scripts/GCO_TribeAI.lua</File>
+			<File>Scripts/GCO_TestAI.lua</File>
         </AddGameplayScripts>
 		
         <AddUserInterfaces>
@@ -161,6 +169,7 @@
                 <File>InGame/GCO_VisualizerScript.xml</File>
 				<File>InGame/GCO_ModInGame.xml</File>
 				<File>InGame/GCO_DiploScreen.xml</File>
+				<File>InGame/GCO_ActionScreen.xml</File>
         </AddUserInterfaces>
 		
 		<UpdateDatabase id="GCO_PRE_COMPONENT">
@@ -175,6 +184,7 @@
            	</Properties>
 				<File Priority="100">Data/GlobalParameters.sql</File>
 				<File Priority="100">Data/GamePlay.xml</File>
+				<File Priority="100">Data/Modifiers.sql</File>
 				<File Priority="100">Data/Buildings.xml</File>
 				<File Priority="100">Data/Diplomacy.xml</File>
 				<File Priority="100">Data/Units.xml</File>
@@ -188,10 +198,15 @@
 				<File Priority="90">Data/CombatRules.sql</File>
 				<File Priority="90">Data/Units.sql</File>
 				<File Priority="90">Data/ModRules.sql</File>
-				<File Priority="10">Data/CivilizationData.sql</File>
-				<File Priority="8">Data/CityNames.xml</File> <!-- Because we delete Civilization entries in CivilizationData and the CASCADE delete all city names -->
+				<File Priority="10">Data/CivilizationGameplay.sql</File>
+				<File Priority="8">Data/CityNames.xml</File> <!-- Because we delete Civilization entries in CivilizationGameplay.sql and the CASCADE delete all city names -->
 				<File Priority="5">custom.sql</File>
 				<File Priority="5">custom.xml</File>
+		</UpdateDatabase>
+		<UpdateDatabase id="GCO_DEFAULT_COMPONENT">
+           	<Properties>
+				<LoadOrder>1000000</LoadOrder>
+           	</Properties>
 				<File Priority="2">Data/PostUpdate.sql</File>
 				<File Priority="1">Data/Unlockers.sql</File>
 				<File Priority="1">Data/BaseGameFix.xml</File>
@@ -274,7 +289,6 @@
 		</UpdateIcons>
 		<ImportFiles id="GCO_ART_IMPORT">
 			<File>Art/MainLogoGCO.dds</File>
-			<File>UI/AddOn/AdvancedSetup_GCO.lua</File>
 		</ImportFiles>
 		<UpdateColors id="GCO_COLORS">
            	<Properties>
@@ -284,10 +298,20 @@
 			<File Priority="75">Data/PreColors.sql</File>
 			<File Priority="25">Data/CivilizationColors.sql</File>
 		</UpdateColors>
+		<ImportFiles id="GCO_SETUP_IMPORT">
+           	<Properties>
+				<!-- High load order to make sure that file is loaded after the version of other mods --> 
+				<LoadOrder>1000003</LoadOrder>
+           	</Properties>
+			<File>UI/LoadScreen.lua</File>
+			<File>UI/LoadScreen.xml</File>
+			<File>UI/StagingRoom.lua</File>
+			<File>UI/ToolTips.xml</File>
+			<File>Platforms/Windows/Movies/TitleBG_GCO.bik</File>
+		</ImportFiles>
 	</FrontEndActions>
 
 	<Files>
-		
 		<File>custom.sql</File>
 		<File>custom.xml</File>
 		<File>customText.xml</File>
@@ -300,6 +324,7 @@
 		<File>Data/Technologies.xml</File>
 		<File>Data/CultureDiffusionParameters.sql</File>
 		<File>Data/CombatRules.sql</File>
+		<File>Data/Modifiers.sql</File>
 		<File>Data/ModRules.sql</File>
 		<File>Data/Units.sql</File>
 		<File>Data/Unlockers.sql</File>
@@ -316,7 +341,7 @@
 		<File>Data/Resources.xml</File>
 		<File>Data/CultureGroups.xml</File>
 		<File>Data/CivilizationTable.sql</File>
-		<File>Data/CivilizationData.sql</File>
+		<File>Data/CivilizationGameplay.sql</File>
 		<File>Data/BaseGameFix.xml</File>	
 		<File>Data/Colors.xml</File>
 		<File>Data/TSL.xml</File>
@@ -329,6 +354,7 @@
 		<File>Config/CivilizationsConfig.sql</File>
 		<File>Config/PostConfig.sql</File>
 		<File>Scripts/GCO_ModUtils.lua</File>
+		<File>Scripts/GCO_AltHistScript.lua</File>
 		<File>Scripts/GCO_PlayerScript.lua</File>
 		<File>Scripts/GCO_CityScript.lua</File>
 		<File>Scripts/GCO_DiplomacyScript.lua</File>
@@ -340,9 +366,14 @@
 		<File>Scripts/GCO_RouteConnections.lua</File>
 		<File>Scripts/GCO_PlotIterators.lua</File>
 		<File>Scripts/GCO_AIUnitScript.lua</File>
+		<File>Scripts/GCO_DefaultAI.lua</File>
+		<File>Scripts/GCO_TribeAI.lua</File>
+		<File>Scripts/GCO_TestAI.lua</File>
         <File>Scripts/GCO_SmallUtils.lua</File>
         <File>Scripts/GCO_TypeEnum.lua</File>
 		<File>Scripts/GCO_PlayerConfig.lua</File>
+		<File>InGame/GCO_ActionScreen.lua</File>
+		<File>InGame/GCO_ActionScreen.xml</File>
 		<File>InGame/GCO_ContextFunctions.lua</File>
 		<File>InGame/GCO_ContextFunctions.xml</File>
 		<File>InGame/GCO_DiploScreen.lua</File>
@@ -369,15 +400,21 @@
 		<File>UI/EspionageOverview.xml</File>
 		<File>UI/LeaderIcon.lua</File>
 		<File>UI/LeaderIcon.xml</File>
+		<File>UI/LoadScreen.lua</File>
+		<File>UI/LoadScreen.xml</File>
+		<File>UI/PlotInfo.lua</File>
+		<File>UI/PlotInfo.xml</File>
 		<File>UI/PlotToolTip.lua</File>
 		<File>UI/PlotToolTip.xml</File>
 		<File>UI/ProductionPanel.lua</File>
 		<File>UI/ProductionPanel.xml</File>
 		<File>UI/ResearchChooser.lua</File>
+		<File>UI/StagingRoom.lua</File>
 		<File>UI/TechAndCivicUnlockables.lua</File>
 		<File>UI/TechCivicCompletedPopup.xml</File>
 		<File>UI/TechTree.lua</File>
 		<File>UI/TechTree.xml</File>
+		<File>UI/ToolTips.xml</File>
 		<File>UI/ToolTipHelper.lua</File>
 		<File>UI/ToolTipHelper_PlayerYields.lua</File>
 		<File>UI/TopPanel.lua</File>
@@ -390,7 +427,6 @@
 		<File>UI/WorldViewIconsManager.xml</File>
 		<File>UI/Replacements/ActionPanel_GCO.lua</File>
 		<File>UI/Replacements/StatusMessagePanel_GCO.lua</File>
-		<File>UI/AddOn/AdvancedSetup_GCO.lua</File>
 		<File>Art/dom_blank.dds</File>
 		<File>Art/GCO_FontIcons.dds</File>
 		<File>Art/GCO_FontIconsSymbols.dds</File>
@@ -408,5 +444,6 @@
 		<File>Art/BuildingsGCO_80.dds</File>
 		<File>Art/BuildingsGCO_128.dds</File>
 		<File>Art/BuildingsGCO_256.dds</File>
+		<File>Platforms/Windows/Movies/TitleBG_GCO.bik</File>
 	</Files>
 </Mod>

@@ -4,7 +4,6 @@
 	<Kinds>
 		<Row Kind="KIND_CUSTOM_YIELD"/>
 	</Kinds>
-	
 	<Types> <!-- Yields -->
 		<!--
 		<Row Type="YIELD_HEALTH" 			Kind="KIND_YIELD"/>
@@ -13,7 +12,6 @@
 		<Row Type="YIELD_LOWER_HOUSING"		Kind="KIND_YIELD"/>
 		<!---->
 	</Types>
-	
 	<Types> <!-- Custom Yields -->
 		<!---->
 		<Row Type="YIELD_HEALTH" 			Kind="KIND_CUSTOM_YIELD"/>
@@ -22,13 +20,11 @@
 		<Row Type="YIELD_LOWER_HOUSING"		Kind="KIND_CUSTOM_YIELD"/>
 		<!---->
 	</Types>	
-	
 	<CivilopediaPageQueries> <!-- previous entry deleted in Table.sql -->
 		<Row SectionId="BUILDINGS" PageGroupIdColumn="PageGroupId" TooltipColumn="Tooltip" SortIndex="10">
 			<SQL>SELECT BuildingType as PageId, PreReqDistrict as PageGroupId, "Building" as PageLayoutId, Name, null as Tooltip FROM Buildings Where IsWonder = 0 AND InternalOnly = 0 AND NoPedia = 0</SQL>
 		</Row>
 	</CivilopediaPageQueries>
-	
 	<Populations>
 		<Row PopulationType="POPULATION_UPPER" 		Name="LOC_POPULATION_UPPER_NAME" 		Description="LOC_POPULATION_UPPER_DESCRIPTION"/>
 		<Row PopulationType="POPULATION_MIDDLE"		Name="LOC_POPULATION_MIDDLE_NAME" 		Description="LOC_POPULATION_MIDDLE_DESCRIPTION"/>
@@ -37,14 +33,12 @@
 		<Row PopulationType="POPULATION_PERSONNEL" 	Name="LOC_POPULATION_PERSONNEL_NAME" 	Description="LOC_POPULATION_PERSONNEL_DESCRIPTION"/>
 		<Row PopulationType="POPULATION_PRISONERS" 	Name="LOC_POPULATION_PRISONERS_NAME" 	Description="LOC_POPULATION_PRISONERS_DESCRIPTION"/>
 	</Populations>
-	
 	<PopulationNeeds> <!-- to do : add Pow, Factor as in (math.pow(pop, pow)*factor)) for Needed calcul function -->
 		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_UPPER" 	AffectedType="DEATH_RATE"	Ratio="1.25"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
 		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_MIDDLE" 	AffectedType="DEATH_RATE"	Ratio="0.75"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
 		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_LOWER" 	AffectedType="DEATH_RATE"	Ratio="0.65"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
 		<Row ResourceType="RESOURCE_FOOD" 	PopulationType="POPULATION_SLAVE" 	AffectedType="DEATH_RATE"	Ratio="0.50"	MaxEffectValue="5"	OnlyPenalty="1"	NeededCalculFunction="local pop, ratio = ...; return(math.min(pop*ratio*0.001,math.sqrt(pop*ratio)*0.25));"	EffectCalculFunction="local needed, stock, MaxEffectValue = ...; return(MaxEffectValue*(100-(stock/needed*100)));"	/>
 	</PopulationNeeds>
-
 	<Yields>
 	<!--
 		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_Damaged]" OccupiedCityChange="0"/>
@@ -53,7 +47,6 @@
 		<Row YieldType="YIELD_LOWER_HOUSING"	Name="LOC_YIELD_LOWER_HOUSING_NAME" 	IconString="[ICON_Housing]"	OccupiedCityChange="0"/>
 	<!---->
 	</Yields>
-	
 	<CustomYields>
 		<Row YieldType="YIELD_HEALTH"			Name="LOC_YIELD_HEALTH_NAME" 			IconString="[ICON_HEALTH2]"		OccupiedCityChange="0"/>
 		<Row YieldType="YIELD_UPPER_HOUSING"	Name="LOC_YIELD_UPPER_HOUSING_NAME" 	IconString="[ICON_Housing]"		OccupiedCityChange="0"/>
@@ -63,7 +56,8 @@
 		
 	</CustomYields>
 
-	<!-- 		ERAS
+
+	<!-- 		ERAS					***********************************************************************************************************************************************
 		
 	-->
 	
@@ -73,7 +67,6 @@
 		<Replace Type="ERA_FUTURE"		Kind="KIND_ERA"/>
 		<!---->
 	</Types>
-	
 	<Eras>
 		<Update>
 			<Where EraType="ERA_INFORMATION" />
@@ -87,7 +80,8 @@
 		<Replace EraType="ERA_FUTURE" 		Name="LOC_ERA_FUTURE_NAME" 		Description="LOC_ERA_FUTURE_DESCRIPTION" 	ChronologyIndex="10"	WarmongerPoints="24" GreatPersonBaseCost="1400"	EraTechBackgroundTexture="TechTree_BGInformation" 	EraCivicBackgroundTexture="TechTree_BGInformation" 	WarmongerLevelDescription="LOC_WARMONGER_LEVEL_EGREGIOUS" EmbarkedUnitStrength="58"/>
 	</Eras>
 	
-	<!-- 		FEATURES
+
+	<!-- 		FEATURES				***********************************************************************************************************************************************
 		
 	-->
 	
@@ -97,13 +91,11 @@
 		<Row Type="FEATURE_FOREST_DENSE" Kind="KIND_FEATURE"/>
 		<!---->
 	</Types>
-	
 	<Features>
 		<Row FeatureType="FEATURE_FOREST_DENSE"		Name="LOC_FEATURE_FOREST_DENSE_NAME"	RemoveTech="TECH_MINING" Removable="true" Forest="true" AddCivic="CIVIC_CONSERVATION" SightThroughModifier="1" DefenseModifier="4" MovementChange="2" Appeal="+1" AntiquityPriority="2"/>
 		<Row FeatureType="FEATURE_FOREST_SPARSE"	Name="LOC_FEATURE_FOREST_SPARSE_NAME"	RemoveTech="TECH_MINING" Removable="true" Forest="true" AddCivic="CIVIC_CONSERVATION" SightThroughModifier="1" DefenseModifier="1" MovementChange="0" Appeal="+1" AntiquityPriority="2"/>
 
 	</Features>
-	
 	<Feature_ValidTerrains>
 		<Row FeatureType="FEATURE_FOREST_DENSE"		TerrainType="TERRAIN_GRASS"/>
 		<Row FeatureType="FEATURE_FOREST_DENSE"		TerrainType="TERRAIN_PLAINS"/>
@@ -123,8 +115,117 @@
 		<Row FeatureType="FEATURE_FOREST_DENSE"		YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 		<Row FeatureType="FEATURE_FOREST_SPARSE"	YieldType="YIELD_PRODUCTION" YieldChange="1"/>
 	</Feature_YieldChanges>
+	<Types>
+		<Row Type="IMPROVEMENT_BARBARIAN_CAMP_GCO"	Kind="KIND_IMPROVEMENT"/>
+		<Row Type="IMPROVEMENT_GOODY_HUT_GCO"		Kind="KIND_IMPROVEMENT"/>
+		<Row Type="IMPROVEMENT_GOODY_HUT_HUNT"		Kind="KIND_IMPROVEMENT"/>
+		<Row Type="IMPROVEMENT_GOODY_HUT_FARM"		Kind="KIND_IMPROVEMENT"/>
+		<Row Type="IMPROVEMENT_FORT_GCO"			Kind="KIND_IMPROVEMENT"/>
+		<Row Type="IMPROVEMENT_MED_VIL_FORT"		Kind="KIND_IMPROVEMENT"/>
+		
+	</Types>
+	<Improvements>
+
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" 	Name="LOC_IMPROVEMENT_FORTIFIED_VILLAGE_NAME" 	Description="LOC_IMPROVEMENT_BARBARIAN_CAMP_DESCRIPTION" Icon="ICON_IMPROVEMENT_BARBARIAN_CAMP" PlunderType="NO_PLUNDER" MaxStock="500" DefenseModifier="2" GrantFortification="1" Removable="0" Capturable="0"/>
+
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		Name="LOC_IMPROVEMENT_VILLAGE_NAME" 			Description="LOC_IMPROVEMENT_GOODY_HUT_DESCRIPTION" 	Icon="ICON_IMPROVEMENT_GOODY_HUT"		PlunderType="NO_PLUNDER" MaxStock="100" Removable="0" Capturable="0"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		Name="LOC_IMPROVEMENT_HUNTERS_NAME" 			Description="LOC_IMPROVEMENT_GOODY_HUT_DESCRIPTION" 	Icon="ICON_IMPROVEMENT_GOODY_HUT" 		PlunderType="NO_PLUNDER" MaxStock="100" Removable="0" Capturable="0"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		Name="LOC_IMPROVEMENT_FARMERS_NAME" 			Description="LOC_IMPROVEMENT_GOODY_HUT_DESCRIPTION" 	Icon="ICON_IMPROVEMENT_GOODY_HUT" 		PlunderType="NO_PLUNDER" MaxStock="100" Removable="0" Capturable="0"/>
+
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" 		Name="LOC_IMPROVEMENT_FORT_NAME" 				Description="LOC_IMPROVEMENT_FORT_DESCRIPTION" 			Icon="ICON_IMPROVEMENT_FORT" 			PlunderType="NO_PLUNDER" Removable="0" Capturable="0"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" 			Name="LOC_IMPROVEMENT_FORT_NAME" 				Description="LOC_IMPROVEMENT_FORT_DESCRIPTION" 			Icon="ICON_IMPROVEMENT_FORT" 			PlunderType="NO_PLUNDER" Buildable="true" CanBuildOutsideTerritory="true" DefenseModifier="4" GrantFortification="2" Removable="0" Capturable="0"/>
+
+	</Improvements>
+	<Improvement_ValidFeatures>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" FeatureType="FEATURE_FOREST"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" FeatureType="FEATURE_JUNGLE"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" FeatureType="FEATURE_MARSH"/>
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" FeatureType="FEATURE_FOREST"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" FeatureType="FEATURE_JUNGLE"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" FeatureType="FEATURE_MARSH"/>
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" FeatureType="FEATURE_FOREST"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" FeatureType="FEATURE_JUNGLE"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" FeatureType="FEATURE_MARSH"/>
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" FeatureType="FEATURE_FOREST"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" FeatureType="FEATURE_JUNGLE"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" FeatureType="FEATURE_MARSH"/>
+		
+	</Improvement_ValidFeatures>
+	<Improvement_ValidTerrains>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_DESERT"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_TUNDRA"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_PLAINS"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_GRASS"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_SNOW"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_DESERT_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_TUNDRA_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_PLAINS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_GRASS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO" TerrainType="TERRAIN_SNOW_HILLS"/>
+
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_DESERT"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_TUNDRA"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_PLAINS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_GRASS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_SNOW"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_DESERT_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_TUNDRA_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_PLAINS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_GRASS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO" TerrainType="TERRAIN_SNOW_HILLS"/>
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_DESERT"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_TUNDRA"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_PLAINS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_GRASS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_SNOW"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_DESERT_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_TUNDRA_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_PLAINS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_GRASS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT" TerrainType="TERRAIN_SNOW_HILLS"/>
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_DESERT"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_TUNDRA"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_PLAINS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_GRASS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_SNOW"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_DESERT_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_TUNDRA_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_PLAINS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_GRASS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM" TerrainType="TERRAIN_SNOW_HILLS"/>
+		
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_DESERT"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_TUNDRA"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_PLAINS"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_GRASS"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_SNOW"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_DESERT_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_TUNDRA_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_PLAINS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_GRASS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_FORT_GCO" TerrainType="TERRAIN_SNOW_HILLS"/>
+		
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_DESERT"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_TUNDRA"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_PLAINS"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_GRASS"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_SNOW"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_DESERT_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_TUNDRA_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_PLAINS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_GRASS_HILLS"/>
+		<Row ImprovementType="IMPROVEMENT_MED_VIL_FORT" TerrainType="TERRAIN_SNOW_HILLS"/>
+		
+	</Improvement_ValidTerrains>
 	
-	<!-- 		GAME SPEEDS
+	
+	<!-- 		GAME SPEEDS				***********************************************************************************************************************************************
 		
 	-->
 	
@@ -327,7 +428,8 @@
 		</Row>
 	</GameSpeed_Turns>
 
-	<!-- 		MILITARY ORGANIZATION
+
+	<!-- 		MILITARY ORGANIZATION	***********************************************************************************************************************************************
 		
 	-->
 	
@@ -352,7 +454,6 @@
 		<Row OrganisationLevelType="LEVEL7B" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_7"	SupplyLineLengthFactor="0.30" MaxPersonnelPercentFromReserve="30" MaxmaterielPercentFromReserve="35" MaxHealingPerTurn="30" /> <!-- Atomic  		SupplyLine = 33 Cold War -->
 		<Row OrganisationLevelType="LEVEL8B" 	PromotionType="PROMOTION_ORGANIZATION_LEVEL_8"	SupplyLineLengthFactor="0.25" MaxPersonnelPercentFromReserve="35" MaxmaterielPercentFromReserve="40" MaxHealingPerTurn="35" /> <!-- Information 	SupplyLine = 39 Rapid Deployment -->
 	</MilitaryOrganisationLevels>
-	
 	<MilitaryFormations>
 		<Row MilitaryFormationType="FORMATION_BAND" 	/>
 		<Row MilitaryFormationType="FORMATION_COHORTE" 	/>
@@ -363,7 +464,6 @@
 		<Row MilitaryFormationType="FORMATION_REGIMENT" />
 		<Row MilitaryFormationType="FORMATION_DIVISION"	/>
 	</MilitaryFormations>
-	
 	<MilitaryFormationStructures> <!-- PROMOTION_CLASS_MELEE -->
 		<Row OrganisationLevelType="LEVEL0" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_BAND" 														SizeString="I"		FrontLinePersonnel="300" 	ReservePersonnel="30" />
 		<Row OrganisationLevelType="LEVEL1" 	PromotionClassType="PROMOTION_CLASS_MELEE" 		MilitaryFormationType="FORMATION_COHORTE" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	SizeString="II"		FrontLinePersonnel="600" 	ReservePersonnel="60" />
@@ -500,15 +600,17 @@
 		<Row OrganisationLevelType="LEVEL7B" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="III"	FrontLinePersonnel="400" 	ReservePersonnel="400" 	/>
 		<Row OrganisationLevelType="LEVEL8B" 	PromotionClassType="PROMOTION_CLASS_SIEGE" 		MilitaryFormationType="FORMATION_REGIMENT" 	PromotionType="PROMOTION_STRENGTH_IN_NUMBERS_4"	SizeString="III"	FrontLinePersonnel="400" 	ReservePersonnel="400" 	/>
 	</MilitaryFormationStructures>	
-	
-	
+
+
+	<!-- 		PROMOTIONS & ABILITIES	***********************************************************************************************************************************************
+		
+	-->	
 	<Types> <!-- New Promotion Classes -->
 		<Replace Type="PROMOTION_CLASS_SKIRMISHER" 	Kind="KIND_PROMOTION_CLASS"/>
 		<Replace Type="PROMOTION_CLASS_CONSCRIPT" 	Kind="KIND_PROMOTION_CLASS"/>
 		<Replace Type="PROMOTION_CLASS_CAVALRY" 	Kind="KIND_PROMOTION_CLASS"/>
 		<Replace Type="PROMOTION_CLASS_GCO" 		Kind="KIND_PROMOTION_CLASS"/> <!-- Lua handled promotions -->
 	</Types>
-	
 	<Types> <!-- New Promotions -->
 		<Row Type="PROMOTION_STRENGTH_IN_NUMBERS_1" 	Kind="KIND_PROMOTION"/>
 		<Row Type="PROMOTION_STRENGTH_IN_NUMBERS_2" 	Kind="KIND_PROMOTION"/>
@@ -528,14 +630,18 @@
 		
 		<Row Type="PROMOTION_REMOVE_RANGED_ATTACK" 		Kind="KIND_PROMOTION"/>
 	</Types>
-	
+	<Types> <!-- New Abilities -->
+		<Row Type="ABILITY_NO_MOVEMENT" Kind="KIND_ABILITY"/>> <!-- Lua handled promotions -->
+	</Types>
+	<TypeTags>
+		<Row Type="ABILITY_NO_MOVEMENT" Tag="CLASS_ALL_UNITS"/>	
+	</TypeTags>
 	<UnitPromotionClasses>
 		<Replace PromotionClassType="PROMOTION_CLASS_SKIRMISHER" 	Name="LOC_PROMOTION_CLASS_SKIRMISHER_NAME" />
 		<Replace PromotionClassType="PROMOTION_CLASS_CONSCRIPT" 	Name="LOC_PROMOTION_CLASS_CONSCRIPT_NAME" />
 		<Replace PromotionClassType="PROMOTION_CLASS_CAVALRY" 		Name="LOC_PROMOTION_CLASS_CAVALRY_NAME" />
 		<Replace PromotionClassType="PROMOTION_CLASS_GCO" 			Name="LOC_PROMOTION_CLASS_GCO_NAME" />
 	</UnitPromotionClasses>	
-	
 	<UnitPromotions>
 		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1" 	Name="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 	Description="LOC_PROMOTION_STRENGTH_IN_NUMBERS_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
 		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2" 	Name="LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME" 	Description="LOC_PROMOTION_STRENGTH_IN_NUMBERS_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
@@ -555,7 +661,6 @@
 		
 		<Row UnitPromotionType="PROMOTION_REMOVE_RANGED_ATTACK" 	Name="LOC_PROMOTION_REMOVE_RANGED_ATTACK_NAME" 	Description="LOC_PROMOTION_REMOVE_RANGED_ATTACK_DESCRIPTION" 	Level="1" Column="0" Specialization="" PromotionClass="PROMOTION_CLASS_GCO"/>
 	</UnitPromotions>
-
 	<UnitPromotionModifiers>
 		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_1"	ModifierId="STRENGTH_IN_NUMBERS_1"	/>
 		<Row UnitPromotionType="PROMOTION_STRENGTH_IN_NUMBERS_2"	ModifierId="STRENGTH_IN_NUMBERS_2"	/>
@@ -575,7 +680,21 @@
 		
 		<Row UnitPromotionType="PROMOTION_REMOVE_RANGED_ATTACK"		ModifierId="REMOVE_RANGED_ATTACK"	/>
 	</UnitPromotionModifiers>
-	
+	<UnitAbilities>
+		<Row UnitAbilityType="ABILITY_NO_MOVEMENT" Name="LOC_ABILITY_NO_MOVEMENT_NAME" Description="LOC_ABILITY_NO_MOVEMENT_DESCRIPTION" Inactive="true"/>
+	</UnitAbilities>
+	<UnitAbilityModifiers>
+		<!-- 
+		Dynamically Set for restriction on all Terrains in Modifiers SQL
+		instead or removing movement points (which are in fact action points)
+		that way Ranged units can still fire
+		->
+		<Row UnitAbilityType="ABILITY_NO_MOVEMENT"			ModifierId="REMOVE_MOVEMENT"	/>
+		<!-- -->
+	</UnitAbilityModifiers>
+	<Types>
+		<Replace Type="MODIFIER_PLAYER_UNIT_ADJUST_VALID_TERRAIN" Kind="KIND_MODIFIER"/>
+	</Types>
 	<DynamicModifiers>
 	<!-- 
 		<Row>
@@ -589,9 +708,13 @@
 			<EffectType>EFFECT_ADJUST_UNIT_ATTACK_RANGE</EffectType>
 		</Row>
 	-->	
+		<Row>
+			<ModifierType>MODIFIER_PLAYER_UNIT_ADJUST_VALID_TERRAIN</ModifierType>
+			<CollectionType>COLLECTION_OWNER</CollectionType>
+			<EffectType>EFFECT_ADJUST_UNIT_VALID_TERRAIN</EffectType>
+		</Row>
 	
 	</DynamicModifiers>
-
 	<Modifiers>
 		<!-- UNIT		
 		MODIFIER_UNIT_ADJUST_ATTACK_RANGE
@@ -711,9 +834,9 @@
 		<Row ModifierId="ORGANIZATION_LEVEL_8" 		ModifierType="MODIFIER_UNIT_ADJUST_COMBAT_STRENGTH" />
 		
 		<Row ModifierId="REMOVE_RANGED_ATTACK" 		ModifierType="MODIFIER_UNIT_ADJUST_ATTACK_RANGE" />
+		<Row ModifierId="REMOVE_MOVEMENT"	 		ModifierType="MODIFIER_PLAYER_UNIT_ADJUST_MOVEMENT" />
 
 	</Modifiers>
-	
 	<ModifierArguments>
 		<Row ModifierId="STRENGTH_IN_NUMBERS_1"	Name="Amount" Value="4"	/>
 		<Row ModifierId="STRENGTH_IN_NUMBERS_2"	Name="Amount" Value="6"	/>
@@ -732,8 +855,8 @@
 		<Row ModifierId="ORGANIZATION_LEVEL_8"	Name="Amount" Value="8" />
 		
 		<Row ModifierId="REMOVE_RANGED_ATTACK"	Name="Amount" Value="-999" />
+		<Row ModifierId="REMOVE_MOVEMENT"		Name="Amount" Value="-999" />
 	</ModifierArguments>
-	
 	<ModifierStrings>
 		<Row ModifierId="STRENGTH_IN_NUMBERS_1" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME}"/>
 		<Row ModifierId="STRENGTH_IN_NUMBERS_2" 	Context="Preview" Text="+{1_Amount} {LOC_PROMOTION_STRENGTH_IN_NUMBERS_NAME}"/>
@@ -754,14 +877,14 @@
 		<Row ModifierId="REMOVE_RANGED_ATTACK" 		Context="Preview" Text="{LOC_REMOVE_RANGED_ATTACK_NAME} {LOC_PROMOTION_DESCRIPTOR_PREVIEW_TEXT}"/>
 	</ModifierStrings>
 	
-	<!-- 		POLICIES
+
+	<!-- 		POLICIES				***********************************************************************************************************************************************
 		
 		Marian reforms 	-> allows more units in standing army
 		Si Vis Pacem	-> +25% equipment production, +33% equipment cost
 		Latifundia		-> farms and plantation produce +x% resources depending of y% of slaves in city
 		
 	-->
-		
 	<Types>
 	<!-- 
 		<Row Type="POLICY_SI_VIS_PACEM" 	Kind="KIND_POLICY"/>
@@ -782,7 +905,8 @@
 		<Row PolicyType="POLICY_MIDDLE_TAX" 	Name="LOC_POLICY_MIDDLE_TAX_NAME" 		Description="LOC_POLICY_MIDDLE_TAX_DESCRIPTION" 		PrereqTech="TECH_CURRENCY" 			GovernmentSlotType="SLOT_ECONOMIC"/>
 	</Policies>
 	
-	<!-- 		PROJECTS
+
+	<!-- 		PROJECTS				***********************************************************************************************************************************************
 		
 	-->
 	<Types>
@@ -795,11 +919,11 @@
 		<Row ProjectType="PROJECT_TAXES" YieldType="YIELD_GOLD" PercentOfProductionRate="15"/>
 	</Project_YieldConversions>
 	
-	<!--		LEADERS TIMELINE
+
+	<!--		LEADERS TIMELINE		***********************************************************************************************************************************************
 	
 	
 	-->
-
 	<LeadersTimeLine>
 		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Narmer"			Gender="Male"	StartDate="-3200"	EndDate="-3100"	/>
 		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Djoser"			Gender="Male"	StartDate="-2686"	EndDate="-2649"	/>
@@ -822,23 +946,11 @@
 		<Row CivilizationType="CIVILIZATION_EGYPT"        LeaderName="Cleopatra"		Gender="Female"	StartDate="-51"		EndDate="-30"	/>
 	</LeadersTimeLine>
 	
-	<!-- DIPLOACTION: useless without DLL access ?
-	<Types>
-		<Row Type="DIPLOACTION_TEST" Kind="KIND_DIPLOMATIC_ACTION"/>
-	</Types>	
-	<DiplomaticActions>
-		<Row DiplomaticActionType="DIPLOACTION_TEST" Name="LOC_DIPLOACTION_TEST_NAME" Description="LOC_DIPLOACTION_TEST_DESCRIPTION" Agreement="true" Duration="15" />
+
+	<!--		SUPPLY ROUTES			***********************************************************************************************************************************************
 	
-	</DiplomaticActions>
 	
-	<DiplomaticStateActions>
-		<Row StateType="DIPLO_STATE_ALLIED" 			DiplomaticActionType="DIPLOACTION_TEST" Worth="100" Cost="0"/>
-		<Row StateType="DIPLO_STATE_DECLARED_FRIEND"	DiplomaticActionType="DIPLOACTION_TEST" Worth="0" Cost="200"/>
-		<Row StateType="DIPLO_STATE_FRIENDLY"			DiplomaticActionType="DIPLOACTION_TEST" Worth="0" Cost="200"/>
-		<Row StateType="DIPLO_STATE_NEUTRAL"			DiplomaticActionType="DIPLOACTION_TEST" Worth="-200" Cost="200"/>
-	</DiplomaticStateActions>
 	-->
-	
 	<SupplyRoutes>
 		<Row SupplyRouteType="Sea"		BaseRouteLengthEfficiency="70"	BaseMaxRouteTonnage="350"	/>
 		<Row SupplyRouteType="River"	BaseRouteLengthEfficiency="55"	BaseMaxRouteTonnage="150"	BaseMaintainedRoute="1" BaseIncomingRoute="2"/>
@@ -848,19 +960,26 @@
 		<Row SupplyRouteType="Air"		BaseRouteLengthEfficiency="95"	BaseMaxRouteTonnage="20"	BaseMaintainedRoute="1" BaseIncomingRoute="1"/>
 	</SupplyRoutes> 
 	
+
+	<!--		GCO MODIFIERS			***********************************************************************************************************************************************
 	
+	
+	-->	
 	<ModifiersGCO>	<!-- ModifierOrigin can be Technology, Government, Policy or Building -->
 		<Row ModifierOrigin="POLICY_LAND_SURVEYORS"		EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	EffectValue="50"/>
 		
 		<Row ModifierOrigin="TECH_SAILING"				EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
 		<Row ModifierOrigin="TECH_CELESTIAL_NAVIGATION"	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<!--->
 		<Row ModifierOrigin="TECH_SHIPBUILDING"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<!---->
 		<Row ModifierOrigin="TECH_CARTOGRAPHY"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
 		<Row ModifierOrigin="TECH_SQUARE_RIGGING"		EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
 		
-		<Row ModifierOrigin="BUILDING_CITY_SHIPYARD"	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="BUILDING_CITY_HARBOR"		EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="BUILDING_CITY_SHIPYARD"	EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="2"/>
 		<Row ModifierOrigin="BUILDING_LIGHTHOUSE"		EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
-		<Row ModifierOrigin="BUILDING_SHIPYARD"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="1"/>
+		<Row ModifierOrigin="BUILDING_SHIPYARD"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="3"/>
 		<Row ModifierOrigin="BUILDING_SEAPORT"			EffectType="RAISE_CITY_SEA_RANGE" 					EffectValue="3"/>
 		
 		<Row ModifierOrigin="BUILDING_SCRIBE_HOUSE"		EffectType="NEW_COPY_TECH_RESOURCE" 				EffectValue="1"/>
@@ -868,28 +987,443 @@
 		<Row ModifierOrigin="BUILDING_UNIVERSITY"		EffectType="NEW_COPY_TECH_RESOURCE" 				EffectValue="4"/>
 		
 	</ModifiersGCO>
-	
 	<EffectsGCO> <!-- To build strings for UI, see "Modifiers" in ModUtils -->
 		<Row EffectType="REDUCE_ADMINISTRATIVE_TERRITORY_COST" 	Name="LOC_REDUCE_ADMINISTRATIVE_TERRITORY_COST" ValueString="LOC_VAR_PERCENT_0" Application = "LOC_MODIFIER_REMOVE_PERCENT_TO_FROM" />
 		<Row EffectType="RAISE_CITY_SEA_RANGE" 					Name="LOC_RAISE_CITY_SEA_RANGE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" 		IconString="[ICON_Range]"/>
 		<Row EffectType="NEW_COPY_TECH_RESOURCE" 				Name="LOC_NEW_COPY_TECH_RESOURCE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" />
 	</EffectsGCO>
-	<!--
-		
-		<Replace Tag="LOC_VAR_NUMBER_0"					Text="{1_Num : number +#;-#}" 		Language="en_US" />
-		<Replace Tag="LOC_VAR_NUMBER_1"					Text="{1_Num : number +#.#;-#.#}" 	Language="en_US" />
-		<Replace Tag="LOC_VAR_NUMBER_2"					Text="{1_Num : number +#.##;-#.##}" Language="en_US" />
-		
-		<Replace Tag="LOC_MULT_NUMBER_0"				Text="x{1_Num : number #}" 			Language="en_US" />
-		<Replace Tag="LOC_MULT_NUMBER_1"				Text="x{1_Num : number #.#}" 		Language="en_US" />
-		<Replace Tag="LOC_MULT_NUMBER_2"				Text="x{1_Num : number #.##}" 		Language="en_US" />
-		
-		<Replace Tag="LOC_PERCENT_0"					Text="{1_Num : number #}%" 			Language="en_US" />
-		<Replace Tag="LOC_PERCENT_1"					Text="{1_Num : number #.#}%" 		Language="en_US" />
-		<Replace Tag="LOC_PERCENT_2"					Text="{1_Num : number #.##}%"		Language="en_US" />	
-		
-		<Replace Tag="LOC_VAR_PERCENT_0"				Text="{1_Num : number +#;-#}%" 		Language="en_US" />
-		<Replace Tag="LOC_VAR_PERCENT_1"				Text="{1_Num : number +#.#;#.#}%" 	Language="en_US" />
-		<Replace Tag="LOC_VAR_PERCENT_2"				Text="{1_Num : number +#.##;#.##}%"	Language="en_US" />	
+
+
+
+	<!--		CULTURE RELATION		***********************************************************************************************************************************************
+	
+	
 	-->
+	<CultureRelationModifiers>
+		<Row RelationModifierType="RELATION_MODIFIER_SEPARATIST"			BaseValue="-15"	/>
+		<Row RelationModifierType="RELATION_MODIFIER_NATIONALIST"			BaseValue="5"	/>	<!-- own Culture Group -->
+		<Row RelationModifierType="RELATION_MODIFIER_BALANCE"				/>					<!-- percentage of total removed/added to tend toward 0 -->
+		<Row RelationModifierType="RELATION_MODIFIER_FOREIGN"				BaseValue="-5"	/>
+		<Row RelationModifierType="RELATION_MODIFIER_GLOBAL_HAPPINESS"		/>					<!-- should we have this ? -->
+		<Row RelationModifierType="RELATION_MODIFIER_HAPPINESS_DIFFERENCE"	/>					<!-- difference between own and another civ global value -->
+		<Row RelationModifierType="RELATION_MODIFIER_WAR"					BaseValue="-15"	/>
+		<Row RelationModifierType="RELATION_MODIFIER_ENEMY"					BaseValue="-10"	/>
+		<Row RelationModifierType="RELATION_MODIFIER_DENOUNCED"				BaseValue="-5"	/>
+		<Row RelationModifierType="RELATION_MODIFIER_FRIEND"				BaseValue="5"	/>
+		<!-- modifiers from policies: use ModifierGCO ? -->
+	</CultureRelationModifiers> 
+	
+	
+	<!--		TRIBAL VILLAGES			***********************************************************************************************************************************************
+	
+	
+	-->
+	<TribalVillageProductions>
+		<Row ProductionType="VILLAGE_CREATE"		BaseTurns="5"	IsCentral="1"	PopulationCost="300" /> 				<!-- Create new village -->
+		<Row ProductionType="VILLAGE_REBUILD"		BaseTurns="3"	GoldCost="25"	PopulationCost="300"/> 					<!-- Repair pillaged village -->
+		<Row ProductionType="CENTER_CAPTURE"		BaseTurns="10"	IsCentral="1" 	GoldCost="100"	PopulationCost="800"/>	<!-- Repair and capture Central Village -->
+		<Row ProductionType="SPECIALIZE_HUNTER"		BaseTurns="2"	IsSatellite="1"	/>										<!-- Change Village to Hunters -->
+		<Row ProductionType="SPECIALIZE_FARMER"		BaseTurns="2"	IsSatellite="1"	/>										<!-- Change Village to Farmers -->
+		<Row ProductionType="UNSPECIALIZE"			BaseTurns="2"	IsSatellite="1"	/>										<!-- Change Village to Farmers -->
+		<Row ProductionType="PRODUCTION_MATERIEL"					IsCentral="1"	/>										<!-- Create Materiel -->
+		<Row ProductionType="PRODUCTION_EQUIPMENT"					IsCentral="1"	/>										<!-- Create Equipment -->
+		<Row ProductionType="PRODUCTION_GOLD"						IsCentral="1"	/>										<!-- Create Gold from Luxuries (-1 means apply each turn) -->
+		<Row ProductionType="POPULATION_ASSIMILATION"				IsCentral="1"	NoBarbarian="1"/>						<!-- Faster assimilation of population using luxury reources and assimilation of slaves  (-1 means apply each turn) -->
+		<Row ProductionType="POPULATION_EMIGRATION"					IsCentral="1"	NoBarbarian="1"/>						<!-- Population Transfer : Force other Culture Groups to migrate to Satellite villages -->
+		<Row ProductionType="POPULATION_IMMIGRATION"				IsCentral="1"	NoBarbarian="1"/>						<!-- Population Transfer : Force any Culture Groups from all satellite villages to migrate into central village -->
+		<!-- ->
+		<Row ProductionType="RESEARCH_SAILING"						IsCentral="1"	NoBarbarian="1"/>						<!-- Specialize in Maritime tech (unique units ? free harbors ?) ->
+		<Row ProductionType="RESEARCH_BRONZE_WORKING"				IsCentral="1"	NoBarbarian="1"/>						<!-- Specialize in Military (free Blacksmith ?) ->
+		<Row ProductionType="RESEARCH_HORSEBACK_RIDING"				IsCentral="1"	NoBarbarian="1"/>						<!-- Specialize in mounted warfare (unique unit ?) ->
+		<Row ProductionType="RESEARCH_POTTERS_WHEEL"				IsCentral="1"	NoBarbarian="1"/>						<!-- Specialize in trade (unique resource decorated pottery ?) ->
+		<Row ProductionType="RESEARCH_ORGANIZED_AGRICULTURE"		IsCentral="1"	NoBarbarian="1"/>						<!-- Specialize in farming (free farms on resources ?) ->
+		<!-- -->
+		
+	</TribalVillageProductions>
+	
+	<TribalVillageActions>
+		<Row ActionType="START_MIGRATION"	IsCentral="1"	/> 														<!-- Abandon all settlements and migrate (create military units and a special settler carrying a % of population and all reseources that can only create a new central village) -->
+		<Row ActionType="CREATE_SETTLER"	IsCentral="1"	MaterielCost="750" /> 			<!-- Create new Settler -->
+		<Row ActionType="CREATE_CITY"		IsCentral="1"	MaterielCost="750" /> 			<!-- Convert to City -->
+		<Row ActionType="CREATE_SKIRMISHER"	IsCentral="1"	/> 														<!-- Create a Skirmisher unit -->
+		<Row ActionType="CREATE_MELEE"		IsCentral="1"	/> 														<!-- Create a Melee unit -->
+		<Row ActionType="CREATE_RANGED"		IsCentral="1"	/> 														<!-- Create a Ranged unit -->
+		<Row ActionType="CREATE_WORKER"		IsCentral="1"	/>						 								<!-- Create a Worker unit (from Slaves) -->
+		<Row ActionType="ABANDON_VILLAGE"	IsSatellite="1"	/> 														<!-- Abandon village (% of population will join the nearest central village if exists)  -->
+	</TribalVillageActions>
+	
+	<TribalVillageResourcesConverted>
+		
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_RICE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_GRAIN" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_WHEAT" 		MaxConverted="20" 	ResourceCreated="RESOURCE_GRAIN" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_CATTLE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_DEER" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_SHEEP" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_FISH" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_CRABS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_CLAY" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="0.5" 						ProductionType="PRODUCTION_MATERIEL"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_STONE" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_STONE_AXES" 		Ratio="4"	Era="ERA_ANCIENT"		ProductionType="PRODUCTION_EQUIPMENT"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_STONE" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_STONE_SPEARS" 	Ratio="4" 	Era="ERA_CLASSICAL"		ProductionType="PRODUCTION_EQUIPMENT"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_STONE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="0.5"							ProductionType="PRODUCTION_MATERIEL"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_WOOD" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="0.5"							ProductionType="PRODUCTION_MATERIEL"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_WOOD" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_WOODEN_CLUB" 	Ratio="4"	Era="ERA_ANCIENT"		ProductionType="PRODUCTION_EQUIPMENT"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_WOOD" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_WOODEN_SPEARS" 	Ratio="4" 	Era="ERA_CLASSICAL"		ProductionType="PRODUCTION_EQUIPMENT"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_WOOD" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_WOODEN_BOWS" 	Ratio="2" 	Era="ERA_CLASSICAL"		ProductionType="PRODUCTION_EQUIPMENT"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_COPPER" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_BRONZE_SPEARS" 	Ratio="4" 	RequiredTech="TECH_BRONZE_WORKING"	ProductionType="PRODUCTION_EQUIPMENT"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_COPPER" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_BRONZE_SWORDS" 	Ratio="4" 	RequiredTech="TECH_BRONZE_WORKING"	ProductionType="PRODUCTION_EQUIPMENT"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_COPPER" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_BRONZE_SPEARS" 	Ratio="4" 	Era="ERA_ANCIENT"		ProductionType="PRODUCTION_EQUIPMENT"	IsBarbarian="1"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_COPPER" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_BRONZE_SWORDS" 	Ratio="4" 	Era="ERA_ANCIENT"		ProductionType="PRODUCTION_EQUIPMENT"	IsBarbarian="1"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_COPPER" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="0.5"							ProductionType="PRODUCTION_MATERIEL"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_IRON_SPEARS" 	Ratio="4" 	Era="ERA_CLASSICAL"		ProductionType="PRODUCTION_EQUIPMENT"	/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="EQUIPMENT_IRON_SWORDS" 	Ratio="4" 	Era="ERA_CLASSICAL"		ProductionType="PRODUCTION_EQUIPMENT"	IsBarbarian="1"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_IRON" 		MaxConverted="20" 	ResourceCreated="RESOURCE_MATERIEL" 		Ratio="0.5" Era="ERA_CLASSICAL"		ProductionType="PRODUCTION_MATERIEL"/>
+		<Row ImprovementType="IMPROVEMENT_BARBARIAN_CAMP_GCO"	ResourceType="RESOURCE_MATERIEL" 	MaxConverted="5" 	ResourceCreated="EQUIPMENT_SLINGS" 			Ratio="10"							ProductionType="PRODUCTION_EQUIPMENT"/>
+		
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		ResourceType="RESOURCE_RICE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_GRAIN" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		ResourceType="RESOURCE_WHEAT" 		MaxConverted="20" 	ResourceCreated="RESOURCE_GRAIN" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		ResourceType="RESOURCE_CATTLE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		ResourceType="RESOURCE_DEER" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		ResourceType="RESOURCE_SHEEP" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		ResourceType="RESOURCE_BANANAS" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		ResourceType="RESOURCE_FISH" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_GCO"		ResourceType="RESOURCE_CRABS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		ResourceType="RESOURCE_RICE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_GRAIN" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		ResourceType="RESOURCE_WHEAT" 		MaxConverted="20" 	ResourceCreated="RESOURCE_GRAIN" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		ResourceType="RESOURCE_CATTLE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		ResourceType="RESOURCE_DEER" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.75"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		ResourceType="RESOURCE_SHEEP" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		ResourceType="RESOURCE_BANANAS" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		ResourceType="RESOURCE_FISH" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_HUNT"		ResourceType="RESOURCE_CRABS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		ResourceType="RESOURCE_RICE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_GRAIN" 			Ratio="0.75"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		ResourceType="RESOURCE_WHEAT" 		MaxConverted="20" 	ResourceCreated="RESOURCE_GRAIN" 			Ratio="0.75"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		ResourceType="RESOURCE_CATTLE" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.75"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		ResourceType="RESOURCE_DEER" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		ResourceType="RESOURCE_SHEEP" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.75"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		ResourceType="RESOURCE_BANANAS" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FRUITS" 			Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		ResourceType="RESOURCE_FISH" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		<Row ImprovementType="IMPROVEMENT_GOODY_HUT_FARM"		ResourceType="RESOURCE_CRABS" 		MaxConverted="20" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="0.25"	/>
+		
+	</TribalVillageResourcesConverted>
+	
+	
+	<!--		AI OPERATIONS			***********************************************************************************************************************************************
+	
+		Lua-activated operations for the AI
+		Rally/Target plots must be visable to trigger movement
+		
+		"TargetLuaScript" pass an empty table that can be used to update the target or distance
+		but no other OP parameters (like which Operation is calling the Events when multiple of the same type are running)
+		which make it useful only for an Operation type that has an unique target for all instances (like Red Death Safe Zone)
+		
+		"LUA Script Condition" also pass an empty table AFAIK while definition says it passes the player.
+		
+		the scripts must return true for the Operation to continue running
+		
+		For Node definitions, cross-reference:
+			<NodeDefinitions>		for <BehaviorTreeNodes>
+			<NodeDataDefinitions>	for <TreeData>
+			<ShapeDefinitions>		for <NodeDefinitions>
+			<DataTypes>
+	
+	
+		<ShapeDefinitions>
+						ShapeId			MaxChildren	
+		ShapeName		|	MinChildren	|		Description
+		|				|		|		|		|
+		Selector Nodes	0		1		0		Selector nodes have one or more children and run through them until meeting some condition or completing them all
+		Action Nodes	1		0		0		Action nodes can take an action that has an effect on the game logic
+		Decision Nodes	2		0		0		Decision nodes can never return running, and can output data to be used by other behavior tree nodes
+		Decorator Nodes	3		1		1		Decorator nodes have a single child and effects when/how it runs
+		Sub-tree Nodes	4		0		1		Sub-trees are references to other trees defined elsewhere in the behavior tree list
+
+		
+	-->
+	<AiTeams>
+		<Row TeamName="GCO Team"/>
+	</AiTeams>
+	<OpTeamRequirements>
+		<Row TeamName="GCO Team"	AiType="UNITAI_COMBAT"		MinNumber="0" />
+		<Row TeamName="GCO Team"	AiType="UNITTYPE_CIVILIAN"	MinNumber="0" />
+	</OpTeamRequirements>
+	
+	<!-- 	OPERATION "GCO Move Op"
+			Move with attack and defend
+			(Move to Rally plot)
+	-->
+	<AllowedOperations>
+		<Row ListType="Default_List"	OperationDef="GCO Move Op"/>
+		<Row ListType="Barbarian Ops"	OperationDef="GCO Move Op"/>
+	</AllowedOperations>
+	<AiOperationDefs>
+		<Row OperationName="GCO Move Op"	TargetType="TARGET_SCRIPT_SUPPLIED" EnemyType="NONE" 	BehaviorTree="GCO Move Behavior" 	Priority="3" SelfStart="false"  MaxTargetDistInRegion="-1" MaxTargetDistInArea="-1" TargetLuaScript="GCO_Test_Goal"/>
+	</AiOperationDefs>
+	<AiOperationTeams>
+		<Row TeamName="GCO Team" OperationName="GCO Move Op"	InitialStrengthAdvantage="50" OngoingStrengthAdvantage="50" />
+	</AiOperationTeams>
+	<BehaviorTrees>
+		<Row TreeName="GCO Move Behavior" />
+	</BehaviorTrees>
+	<BehaviorTreeNodes>
+		<!-- "Selector" -->
+		<Row NodeType="Concurrent" 						NodeId="0" TreeName="GCO Move Behavior" JumpTo="5" /> 	<!-- Logical And node. Runs all children until it reaches a FAILURE (can allow multiple failures if desired.) -->
+		<!-- "Action" -->
+		<Row NodeType="Operation Defend Units" 			NodeId="1" TreeName="GCO Move Behavior" />				<!-- As part of an operation, protect your units that might otherwise be destroyed. -->
+		<!-- "Action" -->
+		<Row NodeType="Operation Attack Units" 			NodeId="2" TreeName="GCO Move Behavior" />				<!-- As part of an operation, attack enemy units during a move. -->
+		<!-- "Action" -->
+		<Row NodeType="Operation Move" 					NodeId="3" TreeName="GCO Move Behavior" />				<!-- Moves operation to the rally point. -->
+		<!-- "Decorator" -->
+		<Row NodeType="Turn Limiter" 					NodeId="4" TreeName="GCO Move Behavior" />				<!-- Only lets a child node run for a limited number of turns before failing. -->
+		<!-- ->
+		<Row NodeType="LUA Script Condition" 			NodeId="4" TreeName="GCO Move Behavior" />
+		<!-- -->
+	</BehaviorTreeNodes>
+	<TreeData>
+		<!-- Operation Attack Units -->
+		<Row DefnId="0" NodeId="2" TreeName="GCO Move Behavior" DefaultData="true" />	<!-- Attack Nearby Units	-->
+		<Row DefnId="1" NodeId="2" TreeName="GCO Move Behavior" DefaultData="false" />	<!-- Attack Along March		-->
+		<Row DefnId="2" NodeId="2" TreeName="GCO Move Behavior" DefaultData="false" />	<!-- Allow Unequal Attacks	-->
+		<!-- Operation Move -->
+		<Row DefnId="0" NodeId="3" TreeName="GCO Move Behavior" DefaultData="5" />		<!-- Move To (enum) --> <!-- nb of units to reach rally point ?	-->
+		<Row DefnId="1" NodeId="3" TreeName="GCO Move Behavior" DefaultData="0" />		<!-- Range to goal	-->
+		<Row DefnId="3" NodeId="3" TreeName="GCO Move Behavior" DefaultData="1" />		<!-- Unit distance	-->	<!-- from each others ? from goal ?	-->
+		<!-- Turn Limiter -->
+		<Row DefnId="0" NodeId="4" TreeName="GCO Move Behavior" DefaultData="10" />		<!-- Turns to Run	--> <!-- To prevent the Operation to continue running even if no units are left -->
+		<Row DefnId="1" NodeId="4" TreeName="GCO Move Behavior" DefaultData="true" />	<!-- Fail at Limit	-->
+		<!-- ->
+		<Row DefnId="0" NodeId="4" TreeName="GCO Move Behavior" DefaultData="GCO_Test_Event" />	<!-- function attached to GameplayEvent.GCO_Test_Event must return "true" for the Operation to continue	-->
+		<!-- -->
+	</TreeData>
+
+	<!-- 	OPERATION "GCO Run Op"
+			Move without attack and defend
+			(Move to Rally plot)
+	-->
+	<AllowedOperations>
+		<Row ListType="Default_List"	OperationDef="GCO Run Op"/>
+		<Row ListType="Barbarian Ops"	OperationDef="GCO Run Op"/>
+	</AllowedOperations>
+	<AiOperationDefs>
+		<Row OperationName="GCO Run Op"		TargetType="TARGET_SCRIPT_SUPPLIED" EnemyType="NONE" 	BehaviorTree="GCO Run Behavior" 	Priority="3" SelfStart="false"  MaxTargetDistInRegion="-1" MaxTargetDistInArea="-1" TargetLuaScript="GCO_Test_Goal"/>
+	</AiOperationDefs>
+	<AiOperationTeams>
+		<Row TeamName="GCO Team" OperationName="GCO Run Op"	InitialStrengthAdvantage="50" OngoingStrengthAdvantage="50" />
+	</AiOperationTeams>
+	<BehaviorTrees>
+		<Row TreeName="GCO Run Behavior" />
+	</BehaviorTrees>
+	<BehaviorTreeNodes>
+		<Row NodeType="Concurrent" 						NodeId="0" TreeName="GCO Run Behavior" JumpTo="3" />
+		<Row NodeType="Operation Move" 					NodeId="1" TreeName="GCO Run Behavior" />
+		<Row NodeType="Turn Limiter" 					NodeId="2" TreeName="GCO Run Behavior" />
+		<!-- ->
+		<Row NodeType="LUA Script Condition" 			NodeId="2" TreeName="GCO Run Behavior" />
+		<!-- -->
+	</BehaviorTreeNodes>
+	<TreeData>
+		<Row DefnId="0" NodeId="1" TreeName="GCO Run Behavior" DefaultData="5" />	<!-- Move To (enum) -->
+		<Row DefnId="1" NodeId="1" TreeName="GCO Run Behavior" DefaultData="0" />	<!-- Range to goal	-->
+		<Row DefnId="3" NodeId="1" TreeName="GCO Run Behavior" DefaultData="1" />	<!-- Unit distance	-->
+		<!-- Turn Limiter -->
+		<Row DefnId="0" NodeId="2" TreeName="GCO Run Behavior" DefaultData="10" />		<!-- Turns to Run	--> <!-- To prevent the Operation to continue running even if no units are left -->
+		<Row DefnId="1" NodeId="2" TreeName="GCO Run Behavior" DefaultData="true" />	<!-- Fail at Limit	-->
+		<!-- ->
+		<Row DefnId="0" NodeId="2" TreeName="GCO Run Behavior" DefaultData="GCO_Run_Event" />
+		<!-- -->
+	</TreeData>
+
+	<!-- 	OPERATION "GCO Attack Adjacent City Op"
+			Attack adjacent city or other Combat District
+	-->
+	<AllowedOperations>
+		<Row ListType="Default_List"	OperationDef="GCO Attack Adjacent City Op"/>
+		<Row ListType="Barbarian Ops"	OperationDef="GCO Attack Adjacent City Op"/>
+	</AllowedOperations>
+	<AiOperationDefs>
+	<!--  TargetType="TARGET_SCRIPT_SUPPLIED"  TargetLuaScript="GCO_Test_Goal" -->
+		<Row OperationName="GCO Attack Adjacent City Op"	TargetType="TARGET_ENEMY_COMBAT_DISTRICT" 	BehaviorTree="GCO Attack Adjacent City Behavior" 	Priority="3" SelfStart="false"	MaxTargetDistInRegion="-1" MaxTargetDistInArea="-1" />
+	</AiOperationDefs>
+	<AiOperationTeams>
+		<Row TeamName="GCO Team" OperationName="GCO Attack Adjacent City Op"	InitialStrengthAdvantage="50" OngoingStrengthAdvantage="50" />
+	</AiOperationTeams>
+	<BehaviorTrees>
+		<Row TreeName="GCO Attack Adjacent City Behavior" />
+	</BehaviorTrees>
+	<BehaviorTreeNodes>
+		<Row NodeType="Concurrent"				NodeId="0"	TreeName="GCO Attack Adjacent City Behavior" JumpTo="5" />
+		<Row NodeType="Operation Siege City"	NodeId="1"	TreeName="GCO Attack Adjacent City Behavior" />
+		<Row NodeType="Operation Attack City"	NodeId="2"	TreeName="GCO Attack Adjacent City Behavior" />
+		<Row NodeType="Operation Pillage"		NodeId="3"	TreeName="GCO Attack Adjacent City Behavior" />
+		<Row NodeType="Turn Limiter" 			NodeId="4"	TreeName="GCO Attack Adjacent City Behavior" />
+		<!-- ->
+		<Row NodeType="LUA Script Condition" 	NodeId="4"	TreeName="GCO Attack Adjacent City Behavior" />
+		<!-- -->
+	</BehaviorTreeNodes>
+	<TreeData>
+		<!-- Turn Limiter -->
+		<Row DefnId="0" NodeId="4" TreeName="GCO Attack Adjacent City Behavior" DefaultData="10" />		<!-- Turns to Run	--> <!-- To prevent the Operation to continue running even if no units are left -->
+		<Row DefnId="1" NodeId="4" TreeName="GCO Attack Adjacent City Behavior" DefaultData="true" />	<!-- Fail at Limit	-->
+		<!-- ->
+		<Row DefnId="0" NodeId="4"	TreeName="GCO Attack Adjacent City Behavior" DefaultData="GCO_Test_Event" />
+		<!-- -->
+	</TreeData>
+	
+	<!-- 	OPERATION "GCO Attack City Op" (edited copy of "Free Cities Assault")
+			Move and Attack city or other Combat District
+			(Move to Rally plot then attack city/district)
+	-->
+	<AllowedOperations>
+		<Row ListType="Default_List"	OperationDef="GCO Attack City Op"/>
+		<Row ListType="Barbarian Ops"	OperationDef="GCO Attack City Op"/>
+	</AllowedOperations>
+	<AiOperationDefs>
+		<Row OperationName="GCO Attack City Op"	TargetType="TARGET_ENEMY_COMBAT_DISTRICT" 	BehaviorTree="GCO Attack City Behavior" 	Priority="3" SelfStart="false"	MaxTargetDistInRegion="-1" MaxTargetDistInArea="-1" />
+	</AiOperationDefs>
+	<AiOperationTeams>
+		<Row TeamName="GCO Team" OperationName="GCO Attack City Op"	InitialStrengthAdvantage="50" OngoingStrengthAdvantage="50" />
+	</AiOperationTeams>
+	<BehaviorTrees>
+		<Row TreeName="GCO Attack City Behavior" />
+	</BehaviorTrees>
+	<BehaviorTreeNodes>
+		<!-- "Selector" ****************************************************************************************	-->
+		<Row NodeType="Sequence"				NodeId="0"	TreeName="GCO Attack City Behavior" JumpTo="17" />	<!-- Special logical And node. Stops on FAILURE, but also stops on RUNNING. Resumes next turn on RUNNING node. -->
+			<!-- "Decision" -->
+			<Row NodeType="Recruit Units"			NodeId="1"	TreeName="GCO Attack City Behavior" />              <!-- Recruit units for a defined operation. OPERATION USE ONLY. -->
+			<!-- "Selector" -->
+			<Row NodeType="Priority"				NodeId="2"	TreeName="GCO Attack City Behavior" JumpTo="6" />   <!-- Logical Or node. Runs all children until it reaches a SUCCESS or RUNNING -->
+				<!-- "Decorator" -->
+				<Row NodeType="Not"						NodeId="3"	TreeName="GCO Attack City Behavior" JumpTo="5" />   <!-- Decorator that turns SUCCESS and RUNNING to FAILURE and vice versa. Does not reverse ERROR. -->
+				<!-- "Decision" -->
+				<Row NodeType="Is City Threatened"		NodeId="4"	TreeName="GCO Attack City Behavior" />              <!-- Tell if city that is operation target is still threatened -->
+				<!-- "Action" -->
+				<Row NodeType="Operation Attack Units"	NodeId="5"	TreeName="GCO Attack City Behavior" />              <!-- As part of an operation, attack enemy units during a move. -->
+
+			<!-- "Selector" ****************************************************************************************	-->
+			<Row NodeType="Concurrent"				NodeId="6"	TreeName="GCO Attack City Behavior" JumpTo="9" />   <!-- Logical And node. Runs all children until it reaches a FAILURE (can allow multiple failures if desired.) -->
+				<!-- "Action" -->
+				<Row NodeType="Operation Attack Units"	NodeId="7"	TreeName="GCO Attack City Behavior" />              <!-- As part of an operation, attack enemy units during a move.-->
+				<!-- "Action" -->
+				<Row NodeType="Operation Move"			NodeId="8"	TreeName="GCO Attack City Behavior" />              <!-- Moves operation to the rally point. -->
+
+			<!-- "Selector" ****************************************************************************************	-->
+			<Row NodeType="Concurrent"				NodeId="9"	TreeName="GCO Attack City Behavior" JumpTo="17" />  <!-- Logical And node. Runs all children until it reaches a FAILURE (can allow multiple failures if desired.) -->
+				<!-- "Action" -->
+				<Row NodeType="Operation Pillage"		NodeId="10"	TreeName="GCO Attack City Behavior" />              <!-- Pillage nearby improvements and districts -->
+				<!-- "Action" -->
+				<Row NodeType="Operation Attack Units"	NodeId="11"	TreeName="GCO Attack City Behavior" />              <!-- As part of an operation, attack enemy units during a move. -->
+				<!-- "Action" -->
+				<Row NodeType="Operation Siege City"	NodeId="12"	TreeName="GCO Attack City Behavior" />              <!-- Pillage nearby improvements and districts -->
+				<!-- "Action" -->
+				<Row NodeType="Operation Attack City"	NodeId="13"	TreeName="GCO Attack City Behavior" />              <!-- As part of an operation, attack a city -->
+				<!-- "Action" -->
+				<Row NodeType="Operation Pillage"		NodeId="14"	TreeName="GCO Attack City Behavior" />              <!-- Pillage nearby improvements and districts -->
+				<!-- "Action" -->
+				<Row NodeType="Operation Move"			NodeId="15"	TreeName="GCO Attack City Behavior" />              <!-- Moves operation to the rally point. -->
+				<!-- "Decorator" -->
+				<Row NodeType="Turn Limiter" 			NodeId="16" TreeName="GCO Attack City Behavior" />              <!-- Only lets a child node run for a limited number of turns before failing. -->
+		
+	</BehaviorTreeNodes>
+	<TreeData>
+		<!-- Operation Attack Units -->
+		<Row DefnId="0" NodeId="5"	TreeName="GCO Attack City Behavior" DefaultData="true" />	<!-- Attack Nearby Units -->
+		<Row DefnId="1" NodeId="5"	TreeName="GCO Attack City Behavior" DefaultData="false" />	<!-- Attack Along March -->
+		<!-- Operation Attack Units -->
+		<Row DefnId="0" NodeId="7"	TreeName="GCO Attack City Behavior" DefaultData="true" />	<!-- Attack Nearby Units -->
+		<Row DefnId="1" NodeId="7"	TreeName="GCO Attack City Behavior" DefaultData="false" />	<!-- Attack Along March -->
+		<!-- Operation Move -->
+		<Row DefnId="1" NodeId="8"	TreeName="GCO Attack City Behavior" DefaultData="2" />		<!-- Range to goal -->
+		<Row DefnId="3" NodeId="8"	TreeName="GCO Attack City Behavior" DefaultData="2" />		<!-- Unit distance -->
+		<!-- Operation Pillage -->
+		<Row DefnId="0" NodeId="10"	TreeName="GCO Attack City Behavior" DefaultData="true" />	<!-- Pillage Districts -->
+		<Row DefnId="1" NodeId="10"	TreeName="GCO Attack City Behavior" DefaultData="false" />	<!-- Pillage Improvements -->
+		<!-- Operation Attack Units -->
+		<Row DefnId="0" NodeId="11"	TreeName="GCO Attack City Behavior" DefaultData="true" />	<!-- Attack Nearby Units -->
+		<Row DefnId="1" NodeId="11"	TreeName="GCO Attack City Behavior" DefaultData="true" />	<!-- Attack Along March -->
+		<!-- Operation Pillage -->
+		<Row DefnId="0" NodeId="14"	TreeName="GCO Attack City Behavior" DefaultData="false" />	<!-- Pillage Districts -->
+		<Row DefnId="1" NodeId="14"	TreeName="GCO Attack City Behavior" DefaultData="true" />	<!-- Pillage Improvements -->
+		<!-- Operation Move -->
+		<Row DefnId="1" NodeId="15"	TreeName="GCO Attack City Behavior" DefaultData="2" />		<!-- Range to goal -->
+		<!-- Turn Limiter -->
+		<Row DefnId="0" NodeId="16"	TreeName="GCO Attack City Behavior" DefaultData="10" />		<!-- Turns to Run	--> <!-- To prevent the Operation to continue running even if no units are left -->
+		<Row DefnId="1" NodeId="16"	TreeName="GCO Attack City Behavior" DefaultData="true" />	<!-- Fail at Limit	-->
+
+	</TreeData>
+
+	<!-- 	OPERATION "GCO Pillage Op" 
+			(Move to Rally plot then Pillage)
+			(don't work but only tested outside bordes)
+	-->
+	<AllowedOperations>
+		<Row ListType="Default_List"	OperationDef="GCO Pillage Op"/>
+		<Row ListType="Barbarian Ops"	OperationDef="GCO Pillage Op"/>
+	</AllowedOperations>
+	<AiOperationDefs>
+		<Row OperationName="GCO Pillage Op"	TargetType="TARGET_ENEMY_IMPROVEMENT" 	BehaviorTree="GCO Pillage Behavior" 	Priority="3" SelfStart="false"	MaxTargetDistInRegion="-1" MaxTargetDistInArea="-1" />
+	</AiOperationDefs>
+	<AiOperationTeams>
+		<Row TeamName="GCO Team" OperationName="GCO Pillage Op"	InitialStrengthAdvantage="50" OngoingStrengthAdvantage="50" />
+	</AiOperationTeams>
+	<BehaviorTrees>
+		<Row TreeName="GCO Pillage Behavior" />
+	</BehaviorTrees>
+	<BehaviorTreeNodes>
+
+		<Row NodeType="Sequence"				NodeId="0"	TreeName="GCO Pillage Behavior" JumpTo="11" />
+		<Row NodeType="Make Formation" 			NodeId="1"	TreeName="GCO Pillage Behavior" />
+		<Row NodeType="Concurrent"				NodeId="2"	TreeName="GCO Pillage Behavior" JumpTo="5" />
+		<Row NodeType="Operation Attack Units"	NodeId="3"	TreeName="GCO Pillage Behavior" />
+		<Row NodeType="Operation Move"			NodeId="4"	TreeName="GCO Pillage Behavior" />
+		<Row NodeType="Concurrent"				NodeId="5"	TreeName="GCO Pillage Behavior" JumpTo="11" />
+		<Row NodeType="Operation Pillage"		NodeId="6"	TreeName="GCO Pillage Behavior" />
+		<Row NodeType="Operation Attack Units"	NodeId="7"	TreeName="GCO Pillage Behavior" />
+		<Row NodeType="Operation Pillage"		NodeId="8"	TreeName="GCO Pillage Behavior" />
+		<Row NodeType="Operation Move"			NodeId="9"	TreeName="GCO Pillage Behavior" />
+		<Row NodeType="Turn Limiter" 			NodeId="10" TreeName="GCO Pillage Behavior" />
+		<!-- ->
+		<Row NodeType="LUA Script Condition" 	NodeId="10"	TreeName="GCO Pillage Behavior" />
+		<!-- -->
+		
+	</BehaviorTreeNodes>
+	<TreeData>
+		<!-- -->
+		<Row DefnId="1" NodeId="1"	TreeName="GCO Pillage Behavior" DefaultData="UNITTYPE_MELEE" />		<!-- Combat Unit -->
+		<Row DefnId="2" NodeId="1"	TreeName="GCO Pillage Behavior" />									<!-- Civilian Unit -->
+		<Row DefnId="3" NodeId="1"	TreeName="GCO Pillage Behavior" DefaultData="UNITTYPE_RANGED" />	<!-- Support Unit -->
+		<Row DefnId="4" NodeId="1"	TreeName="GCO Pillage Behavior" />									<!-- Naval Unit -->
+		<!-- Operation Attack Units -->
+		<Row DefnId="0" NodeId="3"	TreeName="GCO Pillage Behavior" DefaultData="true" />
+		<Row DefnId="1" NodeId="3"	TreeName="GCO Pillage Behavior" DefaultData="false" />
+		<!-- Operation Move -->
+		<Row DefnId="1" NodeId="4"	TreeName="GCO Pillage Behavior" DefaultData="2" />
+		<Row DefnId="3" NodeId="4"	TreeName="GCO Pillage Behavior" DefaultData="2" />
+		<!-- Operation Pillage -->
+		<Row DefnId="0" NodeId="6"	TreeName="GCO Pillage Behavior" DefaultData="true" />
+		<Row DefnId="1" NodeId="6"	TreeName="GCO Pillage Behavior" DefaultData="false" />
+		<!-- Operation Attack Units-->
+		<Row DefnId="0" NodeId="7"	TreeName="GCO Pillage Behavior" DefaultData="true" />
+		<Row DefnId="1" NodeId="7"	TreeName="GCO Pillage Behavior" DefaultData="true" />
+		<!-- Operation Pillage -->
+		<Row DefnId="0" NodeId="8"	TreeName="GCO Pillage Behavior" DefaultData="false" />
+		<Row DefnId="1" NodeId="8"	TreeName="GCO Pillage Behavior" DefaultData="true" />
+		<!-- Operation Move -->
+		<Row DefnId="0" NodeId="9"	TreeName="GCO Pillage Behavior" DefaultData="1" /> <!-- DefaultData = distance from plot -->
+		<Row DefnId="1" NodeId="9"	TreeName="GCO Pillage Behavior" DefaultData="0" />
+		<Row DefnId="3" NodeId="9"	TreeName="GCO Pillage Behavior" DefaultData="1" />
+		<!-- Turn Limiter -->
+		<Row DefnId="0" NodeId="10" TreeName="GCO Pillage Behavior" DefaultData="10" />		<!-- Turns to Run	--> <!-- To prevent the Operation to continue running even if no units are left -->
+		<Row DefnId="1" NodeId="10" TreeName="GCO Pillage Behavior" DefaultData="true" />	<!-- Fail at Limit	-->
+		<!-- ->
+		<Row DefnId="0" NodeId="10"	TreeName="GCO Pillage Behavior" DefaultData="GCO_Test_Event" />
+		<!-- -->
+
+	</TreeData>
+
+	
 </GameInfo>

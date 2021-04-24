@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Name="ToolTips" >
+
+	<AlphaAnim		ID="ToolTipRoot"	Cycle="Once" Speed="5" AlphaStart="0" AlphaEnd="1" Hidden="1" TutorialActive="1">
+		<SlideAnim	ID="ToolTipStore"	Start="20,0" End="0,0" Cycle="once" Speed="7" Anchor="L,T" >
+			<Grid			ID="ToolTipGrid"	Offset="30,5" Size="auto,auto" SizePadding="10,10" Style="TTGrid" Color="White,240" Anchor="L,T"  >
+				<Label	ID="ToolTipText"	Offset="-3,-3" Anchor="c,c" String="Words" Style="TTText" WrapWidth="450" />
+			</Grid>
+		</SlideAnim>
+	</AlphaAnim>
+
+	<!-- GCO <<<<< -->
+	<ToolTipType Name="ToolTipMono" >
+			<Grid		ID="ToolTipGrid"	Offset="30,5" Size="auto,auto" SizePadding="10,10" Style="TTGrid" Color="White,240" Anchor="L,T"  >
+				<Label	ID="ToolTipText"	Offset="-3,-3" Anchor="c,c" String="Words" Style="FontMono14" WrapWidth="450" />
+			</Grid>
+	</ToolTipType>
+	<!-- GCO >>>>> -->
+	<ToolTipType Name="CivTooltip" >
+		<Grid ID="BG" Size="auto,auto" SliceCorner="10,10" SliceTextureSize="33,32" Texture="Controls_Tooltip" InnerPadding="25,25" InnerOffset="10,10" >
+			<Image ID="LeaderIcon" Offset="0,0" Size="55,55" Texture="Leaders55"/>
+			<Image ID="YouIndicator" Offset="0,0" Hidden="1" Size="55,55" Texture="Diplomacy_YouIndicatorSmall"/>
+			<Label ID="LeaderName" Anchor="L,C" Offset="65,0" Style="FontNormal16" Color="0,0,0,255"/>
+		</Grid>
+	</ToolTipType>
+
+	<ToolTipType	Name="SettlerRecommendationTooltip" >
+		<Grid				ID="BG" Size="auto,auto" SliceCorner="10,10" SliceTextureSize="33,32" Texture="Controls_Tooltip" InnerPadding="25,25" InnerOffset="10,10" >
+			<Image		ID="LeaderIcon"						Offset="0,0" Size="64,64" Texture="Advisors64"/>
+			<Label															Offset="60,24" Color="0,0,0,255" Style="FontNormal16" String="LOC_HUD_ADVISOR_SAYS" />
+			<Stack		ID="RecommendationStack"	Offset="0,60" StackGrowth="Bottom" StackPadding="-4" />
+		</Grid>
+	</ToolTipType>
+
+	<ToolTipType Name="TeamTooltip" >
+		<Grid ID="BG" Size="220,75" SliceCorner="10,10" SliceTextureSize="33,32" Texture="Controls_Tooltip" AutoSize="1" InnerPadding="25,25" InnerOffset="10,10" >
+			<Stack ID="CivStack" StackGrowth="Down"/>
+		</Grid>
+	</ToolTipType>
+
+	<ToolTipType Name="TooltipTypeTopPanel" >
+		<Grid Size="530,90" Offset="8.0" Padding="8,8" Style="TTGrid"  ID="TopPanelMouseover" NoClip="1" >
+			<Label Offset="12,12" Style="FontNormal16" ID="TooltipLabel" String="LOC_TOP_PANEL_TOOLTIP_DESCRIPTION" LeadingOffset="-5" WrapWidth="512" />
+		</Grid>
+	</ToolTipType>
+	
+</Context>

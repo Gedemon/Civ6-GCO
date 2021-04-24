@@ -71,7 +71,7 @@ function GetData(self)
 	return ExposedMembers.GCO.PlayerConfigData[self:OldGetCivilizationTypeName()]
 end
 
-function SetKeyValue(self, key, value)
+function SetValue(self, key, value)
 	local configData = self:GetData()
 	if not configData then
 		ExposedMembers.GCO.PlayerConfigData[self:OldGetCivilizationTypeName()] = {}
@@ -79,7 +79,7 @@ function SetKeyValue(self, key, value)
 	end	
 	configData[key] = value
 end
-function GetKeyValue(self, key)
+function GetValue(self, key)
 	local configData = self:GetData()
 	if configData then
 		return configData[key]
@@ -149,8 +149,8 @@ function InitializePlayerConfigFunctions(pPlayerConfig) -- Note that those funct
 	
 	if not p.GetData then -- initialize only once !
 		p.GetData								= GetData
-		p.SetKeyValue							= SetKeyValue
-		p.GetKeyValue							= GetKeyValue
+		p.SetValue								= SetValue
+		p.GetValue								= GetValue
 		-- Old functions
 		p.OldGetCivilizationTypeName			= p.GetCivilizationTypeName
 		p.OldGetCivilizationShortDescription	= p.GetCivilizationShortDescription

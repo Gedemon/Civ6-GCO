@@ -82,7 +82,7 @@ function SaveTableToSlot(t, sSlotName)
 	GCO.ShowTimer("Serialize and Save "..sSlotName)
 
 	-- test saved value
-	---[[
+	--[[
 	do
 		--GCO.StartTimer("deserialize")
 		local s2 = GameConfiguration.GetValue(sSlotName)
@@ -105,7 +105,7 @@ function SaveTableToSlot(t, sSlotName)
 			print(s)
 		end
 	end
-	
+	--]]
 end
 
 -- load

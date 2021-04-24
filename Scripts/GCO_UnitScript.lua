@@ -16,9 +16,9 @@ include( "GCO_SmallUtils" )
 -- Debug
 -- ======================================================================================
 
-DEBUG_UNIT_SCRIPT 	= "UnitScript"
+DEBUG_UNIT_SCRIPT 	= "UnitScript"	-- toogle in debugFilter / GCO_ModUtils.lua
 DEBUG_LOCAL_COMBAT	= false			-- show logs for local player combats
-DEBUG_UNIT_TURN		= false			-- use pcall for units turn (slow down processing speed but returns silent errors)
+DEBUG_UNIT_TURN		= true			-- use pcall for units turn (slow down processing speed but returns silent errors)
 
 function ToggleDebug()
 	DEBUG_UNIT_SCRIPT = DEBUG_UNIT_SCRIPT == "UnitScript" and "debug" or "UnitScript"
@@ -39,6 +39,8 @@ end
 -- Defines
 -- ======================================================================================
 
+FORCE_PLACE_BARBARIAN_UNIT	= true	-- We don't allow Barbarian unit to be placed away from camp to prevent overplacement, switch this to true to allow placement anywhere
+
 local GCO = ExposedMembers.GCO or {}
 
 local _cached				= {} -- cached table to reduce calculations and functions call
@@ -56,6 +58,8 @@ local maxHP = GlobalParameters.COMBAT_MAX_HIT_POINTS -- 100
 
 local NO_FEATURE 				= -1
 
+local iBarbarianPlayer 			= 63 --
+
 local FeatureRemoveFactor		= tonumber(GameInfo.GlobalParameters["RESOURCE_FROM_FEATURE_REMOVE_FACTOR"].Value)
 local FeatureRemoveEraRatio		= tonumber(GameInfo.GlobalParameters["RESOURCE_FROM_FEATURE_REMOVE_ERA_RATIO"].Value)
 
@@ -63,7 +67,9 @@ local lightRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_LIG
 local mediumRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_MEDIUM_RATIO"].Value)
 local heavyRationing 			= tonumber(GameInfo.GlobalParameters["FOOD_RATIONING_HEAVY_RATIO"].Value)
 
-local BasePillageMultiplier		= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_PILLAGE_MULTIPLIER"].Value)
+local BasePillageMultiplier		= tonumber(GameInfo.GlobalParameters["RESOURCE_BASE_PILLAGE_MULTIPLIER"].Value)--
+
+local iMaxDamageBeforeDisband	= tonumber(GameInfo.GlobalParameters["UNIT_MAX_DAMAGE_BEFORE_DISBAND"].Value)--
 
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
 local materielResourceID		= GameInfo.Resources["RESOURCE_MATERIEL"].Index
@@ -74,6 +80,15 @@ local personnelResourceID		= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
 local medicineResourceID		= GameInfo.Resources["RESOURCE_MEDICINE"].Index
 local materielEquipmentClassID	= GameInfo.EquipmentClasses["EQUIPMENTCLASS_MATERIEL"].Index
 local horsesEquipmentClassID	= GameInfo.EquipmentClasses["EQUIPMENTCLASS_WAR_HORSES"].Index
+local populationClassID			= GameInfo.EquipmentClasses["EQUIPMENTCLASS_CIVILIAN"].Index
+local slaveEquipmentClassID		= GameInfo.EquipmentClasses["EQUIPMENTCLASS_SLAVE"].Index
+
+local UpperClassID 				= GameInfo.Resources["POPULATION_UPPER"].Index
+local MiddleClassID 			= GameInfo.Resources["POPULATION_MIDDLE"].Index
+local LowerClassID 				= GameInfo.Resources["POPULATION_LOWER"].Index
+local SlaveClassID 				= GameInfo.Resources["POPULATION_SLAVE"].Index
+local PersonnelClassID			= GameInfo.Resources["RESOURCE_PERSONNEL"].Index
+local PrisonersClassID			= GameInfo.Resources["POPULATION_PRISONERS"].Index
 
 local foodResourceKey			= tostring(foodResourceID)
 local materielResourceKey		= tostring(materielResourceID)
@@ -82,6 +97,8 @@ local personnelResourceKey		= tostring(personnelResourceID)
 local medicineResourceKey		= tostring(medicineResourceID)
 local materielEquipmentClassKey = tostring(materielEquipmentClassID)
 local horsesEquipmentClassKey 	= tostring(horsesEquipmentClassID)
+local populationClassKey 		= tostring(populationClassID)
+local slaveEquipmentClassKey	= tostring(slaveEquipmentClassID)
 
 local attackerMaterielGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_GAIN_PERCENT"].Value)
 local attackerMaterielKillPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_MATERIEL_KILL_PERCENT"].Value)
@@ -90,6 +107,8 @@ local defenderMaterielGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_D
 local attackerEquipmentGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_EQUIPMENT_GAIN_PERCENT"].Value)
 local attackerEquipmentKillPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_ATTACKER_EQUIPMENT_KILL_PERCENT"].Value)
 local defenderEquipmentGainPercent	= tonumber(GameInfo.GlobalParameters["COMBAT_DEFENDER_EQUIPMENT_GAIN_PERCENT"].Value)
+
+local militaryOrganization			= militaryOrganization -- localize Global from GCO_TypeEnum.lua
 
 -- Helper to get the resource list required by an unit for its construction (but not for reinforcement)
 local unitConstructionResources = {}
@@ -104,9 +123,11 @@ end
 
 local promotionClassUnits 	= {} -- Helper to get all units for a PromotionClassID
 local unitPromotionClass	= {} -- Helper to get the PromotionClassID of an UnitType
+local noReinforcement		= {} -- Helper to get units that can't be reinforced
 for row in GameInfo.Units() do
-	local unitType			= row.Index
-	local promotionClass 	= row.PromotionClass
+	local unitType				= row.Index
+	local promotionClass 		= row.PromotionClass
+	noReinforcement[unitType]	= row.NoReinforcement
 	if promotionClass then
 		promotionID = GameInfo.UnitPromotionClasses[promotionClass].Index
 		if not promotionClassUnits[promotionID] then promotionClassUnits[promotionID] = {} end
@@ -123,7 +144,7 @@ for row in GameInfo.UnitEquipmentClasses() do
 	if GameInfo.EquipmentClasses[equipmentClass] then
 		local equipmentClassID 	= GameInfo.EquipmentClasses[equipmentClass].Index
 		if not unitEquipmentClasses[unitType] then unitEquipmentClasses[unitType] = {} end
-		unitEquipmentClasses[unitType][equipmentClassID] = {PercentageOfPersonnel = row.PercentageOfPersonnel, IsRequired = row.IsRequired}
+		unitEquipmentClasses[unitType][equipmentClassID] = {PercentageOfPersonnel = row.PercentageOfPersonnel, IsRequired = row.IsRequired, Quantity = row.Quantity}
 		-- This is to handle index, as pUnit:GetUnitType() returns an index...
 		if not unitEquipmentClasses[unitID] then unitEquipmentClasses[unitID] = {} end
 		unitEquipmentClasses[unitID][equipmentClassID] = unitEquipmentClasses[unitType][equipmentClassID]
@@ -444,6 +465,9 @@ local unitTableEnum = {
 	TurnsAtSea					= 58,
 	Settings					= 59,
 	PreviousOwner				= 60,
+	LastEmployer				= 61,
+	LastEmploymentEndTurn		= 62,
+	CulturePercents				= 63,
 	
 	EndOfEnum				= 99
 }                           
@@ -600,6 +624,7 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizati
 	local unitKey 			= unit:GetKey()
 	local turnKey 			= GCO.GetTurnKey()
 	local player 			= GCO.GetPlayer(unit:GetOwner())
+	local cultureID			= GCO.GetCultureIDFromPlayerID(playerID)
 	local organizationLevel	= organizationLevel or player:GetMilitaryOrganizationLevel()
 	local food 				= GetUnitTypeBaseFoodStock(unitType, organizationLevel)	
 	
@@ -674,6 +699,7 @@ function RegisterNewUnit(playerID, unit, partialHP, personnelReserve, organizati
 		HomeCityKey				= nil,
 		Health					= 0,	-- not the HitPoints, but the Health value for diseases
 		TurnsAtSea				= 0,
+		CulturePercents			= { [tostring(cultureID)] = 100 }, -- percentage, will be set to City Culture in Events.CityProductionCompleted.Add(OnUnitProductionCompleted)
 	}
 
 	-- Mark the unit for delayed equipment initialization so we can get the equipment list from a city build queue as OnCityProductionCompleted is called after UnitAddedToMap
@@ -711,9 +737,9 @@ function InitializeUnit(playerID, unitID)
 		end
 		
 		-- check replacement for barbarian
-		if Players[playerID]:IsBarbarian() then
-			unit = CheckAndReplaceBarbarianUnit(unit)
-		end
+		--if playerID == iBarbarianPlayer then --Players[playerID]:IsBarbarian() then
+		--	unit = CheckAndReplaceBarbarianUnit(unit)
+		--end
 		
 		if unit then
 			Dprint( DEBUG_UNIT_SCRIPT, "Initializing new unit (".. Locale.Lookup(unit:GetName()) ..") for player #".. tostring(playerID).. " id#" .. tostring(unit:GetKey()))
@@ -732,7 +758,7 @@ end
 function InitializeEquipment(self, equipmentList) -- equipmentList optional, equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
 	Dlog("InitializeEquipment /START")
-	--local DEBUG_UNIT_SCRIPT = "debug"	
+	local DEBUG_UNIT_SCRIPT = "debug"	
 	Dprint( DEBUG_UNIT_SCRIPT, "Initializing equipment for unit (".. Locale.Lookup(self:GetName()) ..") for player #".. tostring(self:GetOwner()).. " id#" .. tostring(self:GetKey()))
 	
 	local unitKey 	= self:GetKey()
@@ -758,6 +784,10 @@ function InitializeEquipment(self, equipmentList) -- equipmentList optional, equ
 					Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", in frontline = ", data.Value)
 					self:ChangeFrontLineEquipment( equipmentID, data.Value )
 				end
+			else
+				Dprint( DEBUG_UNIT_SCRIPT, "   - add non-specific equipment to stock/reserve...")
+				Dprint( DEBUG_UNIT_SCRIPT, "   - equipment = ".. Locale.Lookup(GameInfo.Resources[equipmentID].Name), ", equipmentID = ", equipmentID, ", number = ", data.Value)
+				self:ChangeStock( equipmentID, data.Value )
 			end
 		end	
 	end
@@ -897,19 +927,19 @@ Events.PlayerTurnActivated.Add(	ResumeEquipmentInitialization )	-- PlayerTurnAct
 Events.RemotePlayerTurnEnd.Add(	ResumeEquipmentInitialization )
 
 -- ======================================================================================
--- Barbarian Functions
+-- Barbarian Functions - DEPRECATED - handled in AltHistory script
 -- ======================================================================================
 local barbarianUnits = {
 	["ERA_ANCIENT"] 		= 
 		{
 			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_HEAVY_CHARIOT", 	},
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_WARRIOR", },
-			["PROMOTION_CLASS_CONSCRIPT"] 		= { Type = "UNIT_SPEARMAN",			AltType = "UNIT_LIGHT_SPEARMAN", AltProbability = 60 },
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_WARRIOR", 			AltType = "UNIT_LIGHT_SPEARMAN", AltProbability = 60 },
+			--["PROMOTION_CLASS_CONSCRIPT"] 		= { Type = "UNIT_SPEARMAN",			AltType = "UNIT_LIGHT_SPEARMAN", AltProbability = 60 },
 			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_SKIRMISHER"]		= { Type = "UNIT_SLINGER_SCOUT",	AltType = "UNIT_PELTAST", AltProbability = 50 },
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_SLINGER",			AltType = "UNIT_SLINGER_SCOUT", AltProbability = 75  },
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_SLINGER",			AltType = "UNIT_ARCHER", AltProbability = 25  },
 			--["PROMOTION_CLASS_SIEGE"] 			= { },
 			--["PROMOTION_CLASS_SUPPORT"] 		= { },
 	
@@ -917,12 +947,12 @@ local barbarianUnits = {
 	["ERA_CLASSICAL"] 		=
 		{
 			["PROMOTION_CLASS_CAVALRY"] 		= { Type = "UNIT_HORSEMAN", 		AltType = "UNIT_BARBARIAN_HORSE_ARCHER", AltProbability = 35 },
-			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_SWORDSMAN",		AltType = "UNIT_SPEARMAN", AltProbability = 35 },
+			["PROMOTION_CLASS_MELEE"] 			= { Type = "UNIT_LIGHT_SWORDSMAN",	AltType = "UNIT_SPEARMAN", AltProbability = 35 },
 			["PROMOTION_CLASS_NAVAL_MELEE"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RAIDER"] 	= { Type = "UNIT_GALLEY", 			},
 			["PROMOTION_CLASS_NAVAL_RANGED"] 	= { Type = "UNIT_GALLEY", 			},
-			["PROMOTION_CLASS_SKIRMISHER"]		= { Type = "UNIT_ARCHER_SCOUT",		},
-			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_ARCHER",			AltType = "UNIT_ARCHER_SCOUT", AltProbability = 75  },
+			["PROMOTION_CLASS_SKIRMISHER"]		= { Type = "UNIT_ARCHER_SCOUT",		AltType = "UNIT_PELTAST", AltProbability = 50 },
+			["PROMOTION_CLASS_RANGED"] 			= { Type = "UNIT_ARCHER",			AltType = "UNIT_SLINGER", AltProbability = 25  },
 			["PROMOTION_CLASS_SIEGE"] 			= { Type = "UNIT_CATAPULT", 		},
 			["PROMOTION_CLASS_SUPPORT"] 		= { Type = "UNIT_BATTERING_RAM", 	},	
 		} ,
@@ -1001,8 +1031,38 @@ local barbarianUnits = {
 }
 
 function CheckAndReplaceBarbarianUnit(unit)
-	--local DEBUG_UNIT_SCRIPT = "UnitScript"
+
+	--local DEBUG_UNIT_SCRIPT = "debug"
 	Dprint( DEBUG_UNIT_SCRIPT, "Check And Replace Barbarian Unit type...")
+	
+	if FORCE_PLACE_BARBARIAN_UNIT then
+		Dprint( DEBUG_UNIT_SCRIPT, " - Forced Placement, skipping check...")
+		return unit
+	end
+
+	-- Check for Camp
+	---[[
+	local pPlot		= Map.GetPlot(unit:GetX(), unit:GetY())
+	local row		= pPlot and GameInfo.Improvements[pPlot:GetImprovementType()]
+	local bCheck 	= row and row.BarbarianCamp
+	if not bCheck then
+		for direction = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+			adjacentPlot = Map.GetAdjacentPlot(unit:GetX(), unit:GetY(), direction)
+			if adjacentPlot then
+				local row = GameInfo.Improvements[adjacentPlot:GetImprovementType()]
+				if ( row and row.BarbarianCamp ) then
+					bCheck = true
+					break
+				end
+			end
+		end
+	end
+	if not bCheck then
+		Dprint( DEBUG_UNIT_SCRIPT, " - No Barbarian Camp, kill the unit...")
+		UnitManager.Kill(unit)
+		return false
+	end
+	--]]
 	
 	local eraType			= GameInfo.Eras[GCO.GetGameEra()].EraType
 	local unitTypeID		= unit:GetType()
@@ -1094,13 +1154,13 @@ function GetData(self)
 	else
 		local currentTurn = Game.GetCurrentGameTurn()
 		if toRegister[unitKey] and toRegister[unitKey] ~= currentTurn then
-			Dprint( DEBUG_UNIT_SCRIPT, "WARNING : is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()).."[NEWLINE]Warning already triggered at turn#"..tostring(toRegister[unitKey]).."[NEWLINE]Forcing registration now", 5)
+			GCO.Warning("GetData() is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(self:GetID()).." player#"..tostring(self:GetOwner()).."[NEWLINE]Warning already triggered at turn#"..tostring(toRegister[unitKey]).."[NEWLINE]Forcing registration now", 5)
 			--GCO.DlineFull()
 			RegisterNewUnit(self:GetOwner(), self)
 			toRegister[unitKey] = nil
-		else
-			Dprint( DEBUG_UNIT_SCRIPT, "WARNING : GetData() is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(unitKey).." player#"..tostring(self:GetOwner()).."[NEWLINE]First turn triggering the warning[NEWLINE]unit's marked for registration next turn", 5)
-			--GCO.DlineFull()
+		elseif not toRegister[unitKey] then
+			GCO.Warning("GetData() is returning nil for :[NEWLINE]"..Locale.Lookup(GameInfo.Units[self:GetType()].Name).." id#".. tostring(self:GetID()).." player#"..tostring(self:GetOwner()).."[NEWLINE]First turn triggering the warning[NEWLINE]unit's marked for registration next turn", 5)
+			GCO.DlineFull()
 			toRegister[unitKey] = currentTurn		
 		end
 	end
@@ -1127,7 +1187,7 @@ end
 function GetValue(self, key)
 	local Data = self:GetData()
 	if not Data then
-		GCO.Warning("unitData is nil for " .. self:GetName(), self:GetKey())
+		GCO.Warning("Can't return Unit:GetValue("..tostring(key).."), unitData is nil for " .. self:GetName() .. " at " .. self:GetX() ..",".. self:GetY()..  " key = " .. self:GetKey() )
 		return
 	end
 	return Data[key]
@@ -1257,6 +1317,8 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 	if not excludedPromotions then excludedPromotions = {} end
 	if not playerID then playerID = oldUnit:GetOwner() end
 	
+	local DEBUG_UNIT_SCRIPT = "debug"
+	
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Replacing Unit "..Locale.Lookup(oldUnit:GetName()).." (type = ".. tostring(oldUnit:GetType()) ..") by new type = "..tostring(newUnitType).." player ID#"..tostring(playerID))
 	
@@ -1277,6 +1339,8 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 	local prevFortifyTurns		= oldUnit:GetFortifyTurns()
 	local prevName				= oldUnit:GetName()
 	local prevType				= oldUnit:GetType()
+	local changeMoves			= oldUnit:GetMaxMoves() - oldUnit:GetMovesRemaining()
+	local tAbilities 			= oldUnit:GetAbility():GetAbilities()
 	
 	-- Get previous promotions
 	for row in GameInfo.UnitPromotions() do
@@ -1328,6 +1392,8 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 		newUnit:SetFortifyTurns(prevFortifyTurns)
 		newUnit:SetName(prevName)
 		
+		UnitManager.ChangeMovesRemaining(newUnit, - changeMoves )
+		
 		local newUnitExperience = newUnit:GetExperience()
 		
 		--newUnitExperience:ChangeExperience(-newUnitExperience:GetExperiencePoints() + prevExperiencePoints)
@@ -1335,6 +1401,15 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 		-- add promotions
 		for _, promotionID in ipairs(newUnitPromotions) do
 			newUnitExperience:SetPromotion(promotionID)
+		end
+		
+		-- add abilities
+		local pUnitAbility = newUnit:GetAbility()
+		for _, row in ipairs(tAbilities) do
+			if not pUnitAbility:HasAbility(row.Ability) then
+				Dprint( DEBUG_UNIT_SCRIPT, "Adding ability to new unit: "..Locale.Lookup(GameInfo.UnitAbilities[row.Ability].UnitAbilityType), row.Count)
+				pUnitAbility:ChangeAbilityCount(row.Ability,row.Count)
+			end
 		end
 		
 		-- set specific organization level if provided
@@ -1410,12 +1485,16 @@ function GetLogisticCost(self)
 	return GCO.Round(logisticCost)
 end
 
+function CanGetReinforcement(self)
+	return not (noReinforcement[self:GetType()] or self:IsDisbanding())
+end
+
 function IsDisbanding(self)
 	local activeTurnsLeft = self:GetValue("ActiveTurnsLeft")
 	if activeTurnsLeft and activeTurnsLeft <= 1 then
 		if self:GetValue("UnitPersonnelType") == UnitPersonnelType.Conscripts then
 			local player = GCO.GetPlayer(self:GetOwner())
-			if player:IsAtWar() then
+			if player:IsAtWar() and not player:IsBarbarian() then
 				return false
 			else
 				return true
@@ -1427,17 +1506,42 @@ end
 
 function Disband(self) -- Send everyone and everything back to the unit's home or supply city
 
-	--local DEBUG_UNIT_SCRIPT = "debug"
+	local DEBUG_UNIT_SCRIPT = "debug"
 	Dprint( DEBUG_UNIT_SCRIPT, "     - Full disbanding of "..Locale.Lookup(self:GetName()))
 	
 	local unitData 	= self:GetData()	
 	local city = GCO.GetCityFromKey( unitData.HomeCityKey ) or GCO.GetCityFromKey( unitData.SupplyLineCityKey )
 	if city then
 		Dprint( DEBUG_UNIT_SCRIPT, "     - Send everyone and everything back to the home city of ".. Locale.Lookup(city:GetName()))
+		
+		local cityPlot, unitPlot	= GCO.GetPlot(city:GetX(), city:GetY()), GCO.GetPlot(self:GetX(), self:GetY())
+		
+		if not unitPlot then 
+			unitPlot = GCO.GetPlot(self:GetValue("LastX"), self:GetValue("LastY"))
+		end
+		
+		local supplyPath, cost 		= unitPlot:GetSupplyPath( cityPlot, self:GetOwner())--, maxRange, GCO.SupplyPathBlocked, bAllowCoast, bAllowOcean, bAllowHiddenRoute)
+		
+		Dprint( DEBUG_UNIT_SCRIPT, "     - SupplyPath, cost = ", supplyPath, cost)
+		
 		-- personnel
+		-- your soldiers always come back, with their shields, or on it.
 		local totalPersonnel = self:GetTotalPersonnel()
-		city:ChangeStock(personnelResourceID, totalPersonnel)
+		city:ChangeStock(personnelResourceID, totalPersonnel) -- to do: Culture influence
 		Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20("Total Personnel").." = ", totalPersonnel)
+		
+		-- population
+		local totalpopulation = self:GetPopulation()
+		city:ChangeStock(LowerClassID, totalpopulation) -- to do: Culture influence
+		Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20("Total Population to Population ").." = ", totalpopulation)
+		
+		-- all equipment
+		for resourceID, value in pairs(self:GetFullEquipmentList()) do
+			if value > 0 then
+				city:ChangeStock(resourceID, value)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
+			end
+		end
 		
 		-- special resources
 		local listResources		= {foodResourceID, medicineResourceID} 
@@ -1449,35 +1553,133 @@ function Disband(self) -- Send everyone and everything back to the unit's home o
 			end
 		end							
 
+		-- Normal resources and prisonners transport are dependant of path and cost
+		local transportCost = 1				
+		if not supplyPath then
+			transportCost = 10
+		else
+			transportCost = math.max(1,math.min(10, cost*0.5))
+		end
+		local transportRatio = Div(1, transportCost)
+		Dprint( DEBUG_UNIT_SCRIPT, "     - Transport Cost (ratio) = ", transportRatio)
+		
 		-- all resource in "stock" (ie not "reserve")
 		for resourceKey, value in pairs(unitData.Stock) do
 			if value > 0 then
-				local resourceID = tonumber(resourceKey)
-				city:ChangeStock(resourceID, value)
-				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
+				local resourceID 	= tonumber(resourceKey)
+				local transported	= math.floor(value*transportRatio)
+				city:ChangeStock(resourceID, transported)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", transported, " / ", value)
 			end
 		end
 		
-		-- all equipment
-		for resourceID, value in pairs(self:GetFullEquipmentList()) do
-			if value > 0 then
-				city:ChangeStock(resourceID, value)
-				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
-			end
-		end
-		
-		-- Send prisoners to city
+		-- Send prisoners to city (lets hope the Geneva Conventions will never look at this part of the code and wonder what happens to the prisoners not reaching the city...)
 		local cityData = city:GetData()
 		for playerKey, number in pairs(unitData.Prisoners) do
 			if number > 0 then
-				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners").." = ", number)
-				cityData.Prisoners[playerKey] = cityData.Prisoners[playerKey] + number
+				local transported	= math.floor(number*transportRatio)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " prisoners").." = ", transported, " / ", number)
+				cityData.Prisoners[playerKey] = cityData.Prisoners[playerKey] + transported
 			end
 		end
+		
 	else
-		Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home/supply city...")
+		Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home/supply City, try to find Improvement...")
+		local plotID 	= unitData.SupplyLineCityKey and tonumber(unitData.SupplyLineCityKey) or GCO.FindNearestPlayerVillage( self:GetOwner(), self:GetX(), self:GetY() )-- The supply source can be an improvement
+		local village 	= GCO.GetTribalVillageAt(plotID)
+		if village then
+			if village.Owner == self:GetOwner() then
+			
+				local pPlot				= GCO.GetPlotByIndex(plotID)
+				local unitPlot 			= GCO.GetPlot(self:GetX(), self:GetY()) or GCO.GetPlot(self:GetValue("LastX"), self:GetValue("LastY"))
+				local supplyPath, cost 	= unitPlot:GetSupplyPath( pPlot, self:GetOwner())--, maxRange, GCO.SupplyPathBlocked, bAllowCoast, bAllowOcean, bAllowHiddenRoute)
+				
+				Dprint( DEBUG_UNIT_SCRIPT, "     - Send everyone back to Village at ", pPlot:GetX(), pPlot:GetY())
+				
+				-- personnel
+				local totalPersonnel = self:GetTotalPersonnel()
+				self:GivePersonnelToPlot(pPlot, totalPersonnel)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20("Total Personnel to Population ").." = ", totalPersonnel)
+				--]]
+				
+				-- population
+				local totalpopulation = self:GetPopulation()
+				self:GivePopulationToPlot(pPlot, totalpopulation)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20("Total Population to Population ").." = ", totalpopulation)
+				
+				-- special resources
+				local listResources		= {foodResourceID, medicineResourceID} 
+				for _, resourceID in ipairs(listResources) do
+					local stock = self:GetStock(resourceID)
+					if stock > 0 then
+						pPlot:ChangeStock(resourceID, stock)
+						Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", stock)
+					end
+				end
+				
+				-- all equipment
+				for resourceID, value in pairs(self:GetFullEquipmentList()) do
+					if value > 0 then
+						pPlot:ChangeStock(resourceID, value)
+						Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", value)
+					end
+				end
+				
+				local transportCost = 1				
+				if not supplyPath then
+					transportCost = 10
+				else
+					transportCost = math.max(1,math.min(10, cost*0.5))
+				end
+
+				local transportRatio = Div(1, transportCost)
+				Dprint( DEBUG_UNIT_SCRIPT, "     - Transport Cost (ratio) = ", transportRatio)
+		
+				-- all resource in "stock" (ie not "reserve")
+				for resourceKey, value in pairs(unitData.Stock) do
+					if value > 0 then
+						local transported	= math.floor(value*transportRatio)
+						local resourceID 	= tonumber(resourceKey)
+						pPlot:ChangeStock(resourceID, transported)
+						Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).." = ", transported, " / ", value)
+					end
+				end
+				
+				-- Send prisoners to improvement as slaves
+				for playerKey, number in pairs(unitData.Prisoners) do
+					if number > 0 then
+						local transported	= math.floor(number*transportRatio)
+						Dprint( DEBUG_UNIT_SCRIPT, "     - "..Indentation20(Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " Prisoners to Slave ").." = ", transported,"/",number)
+						pPlot:ChangeStock(SlaveClassID, transported)
+					end
+				end
+				
+				LuaEvents.TribeImprovementUpdated(village.Owner, plotID)
+			end
+		else
+			Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home/supply City/Improvement...")
+		end
 	end
+	
 end
+
+function InitializeCultureFromPlot(self, plot)
+
+	local culturePercents 	= plot:GetCulturePercentTable()
+	local unitCultures 		= {}
+	local totalPercent		= 0
+	for cultureID, percent in pairs(culturePercents) do
+		local percent = math.floor(percent)
+		unitCultures[tostring(cultureID)] = percent
+		totalPercent = totalPercent + percent
+	end
+	local independent = 100 - totalPercent
+	if independent > 0 then
+		unitCultures[INDEPENDENT_CULTURE] = independent
+	end
+	self:SetValue("CulturePercents", unitCultures)
+end
+
 
 -- ======================================================================================
 -- Military Organization Level function
@@ -1756,13 +1958,23 @@ function GetFoodConsumption(self)
 	end
 	if unitData.Prisoners then	
 		foodConsumption1000 = foodConsumption1000 + (GCO.GetTotalPrisoners(unitData) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) * ratio )
-	end	
+	end
+	
+	-- units can also have population/slaves
+	local population 	= self:GetPopulation()
+	local slaves		= self:GetSlavePersonnel() + self:GetStock(SlaveClassID)
+	
+	foodConsumption1000 = foodConsumption1000 + (population * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) * ratio )
+	foodConsumption1000 = foodConsumption1000 + (slaves * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) * ratio )
+	
 	return math.max(0.1, GCO.ToDecimals( foodConsumption1000 / 1000 ))
 end
 
 function GetUnitTypeFoodConsumption(unitData) -- local
 	local foodConsumption1000 = 0
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Personnel + unitData.PersonnelReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value))
+	foodConsumption1000 = foodConsumption1000 + ((unitData.Population) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value))
+	foodConsumption1000 = foodConsumption1000 + ((unitData.Slave) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value))
 	foodConsumption1000 = foodConsumption1000 + ((unitData.Horses + unitData.HorsesReserve) * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value))
 	local foodConsumption = math.max(0.1, GCO.ToDecimals( foodConsumption1000 / 1000 ))
 	return foodConsumption
@@ -1775,6 +1987,8 @@ function GetUnitTypeBaseFoodStock(unitType, organizationLevel) -- local, organiz
 	unitData.Horses 			= GetUnitEquipmentClassBaseAmount(unitType, horsesEquipmentClassID, organizationLevel)
 	unitData.PersonnelReserve	= GetBasePersonnelReserve(unitType, organizationLevel)
 	unitData.HorsesReserve 		= GetBaseEquipmentClassReserve(unitType, horsesEquipmentClassID, organizationLevel)
+	unitData.Population			= GetUnitEquipmentClassBaseAmount(unitType, populationClassID, organizationLevel)
+	unitData.Slave				= GetUnitEquipmentClassBaseAmount(unitType, slaveEquipmentClassID, organizationLevel)
 	local baseFoodStock 		= math.ceil(GetUnitTypeFoodConsumption(unitData) * 5) -- set enough stock for 5 turns
 	return baseFoodStock
 end
@@ -2232,6 +2446,9 @@ function GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID, promotionID) 	
 end
 
 function GetUnitEquipmentClassNumberForPersonnel(unitTypeID, personnel, equipmentClassID, promotionID) -- to do : cached table with values per equipment/unit updated on organization/type change
+	if unitEquipmentClasses[unitTypeID] and unitEquipmentClasses[unitTypeID][equipmentClassID] then
+		personnel = unitEquipmentClasses[unitTypeID][equipmentClassID].Quantity or personnel -- hack to get the fixed quantity used for units without personnel (civilians)
+	end
 	return math.ceil(personnel * GetUnitEquipmentClassRatio(unitTypeID, equipmentClassID, promotionID)) -- math.ceil or GCO.Round ?
 end
 
@@ -2261,7 +2478,7 @@ function GetUnitConstructionEquipment(unitTypeID, organizationLevelID, sConditio
 			if bAll or (bRequiredOnly and classData.IsRequired) or (bOptionalOnly and not classData.IsRequired) then
 				resTable[classType]				= {}
 				resTable[classType].Resources	= {}
-				resTable[classType].Value 		= GCO.Round(personnel * classData.PercentageOfPersonnel / 100)
+				resTable[classType].Value 		= classData.Quantity or GCO.Round(personnel * classData.PercentageOfPersonnel / 100)
 				local equipmentTypes 			= GetEquipmentTypes(classType)
 				
 				for _, data in ipairs(equipmentTypes) do
@@ -2522,7 +2739,13 @@ function GetAvailableEquipmentForUnitPromotionClassFromList(unitTypeID, promotio
 			end
 		end
 	end
-	return availableEquipment
+	local returnTable	= {}
+	for equipmentID, value in pairs(availableEquipment) do
+		if value > 0 then
+			returnTable[equipmentID] = value
+		end
+	end
+	return returnTable--availableEquipment
 end
 
 function SortEquipmentList(equipmentList) -- Sort equipment list by desirability
@@ -2925,9 +3148,189 @@ function DoInternalEquipmentTransfer(self, bLimitTransfer, aAlreadyUsed)
 end
 
 
-----------------------------------------------
+-- ======================================================================================
+-- Population/Culture functions 
+-- ======================================================================================
+
+function GetPopulation(self) -- only use for units with population as "equipment" instead of personnel, else us GetStock(LowerClassID)
+	return self:GetFrontLineEquipment(LowerClassID) + self:GetReserveEquipment(LowerClassID)
+end
+
+function ChangePopulation(self, value) -- only use for units with population as "equipment" instead of personnel, else us ChangeStock(LowerClassID)
+	
+	if value < 0 then
+		local toRemove 	= -value
+		local reserve 	= self:GetReserveEquipment(LowerClassID)
+		if toRemove < reserve then
+			self:ChangeReserveEquipment(LowerClassID, -toRemove)
+		else
+			self:ChangeReserveEquipment(LowerClassID, -reserve)
+			self:ChangeFrontLineEquipment(LowerClassID, -(toRemove-reserve))
+		end
+	elseif value > 0 then
+		local maxFrontLine = self:GetEquipmentClassFrontLineNeed(populationClassID)
+		if value > maxFrontLine then
+			self:ChangeFrontLineEquipment(LowerClassID, maxFrontLine)
+			self:ChangeReserveEquipment(LowerClassID, value-maxFrontLine)
+		else
+			self:ChangeFrontLineEquipment(LowerClassID, value)
+		end	
+	end
+end
+
+function GetMaxPopulation(self)
+	return self:GetMaxEquipmentFrontLine(populationClassID)
+end
+
+function GetSlavePersonnel(self)
+	return self:GetFrontLineEquipment(SlaveClassID)
+end
+
+function RecruitPersonnelFromPlot(self, plot, numPersonnel)
+--[[
+	local culturePercents 	= plot:GetCulturePercentTable()
+	local unitCultures 		= {}
+	local totalPercent		= 0
+	for cultureID, percent in pairs(culturePercents) do
+		local percent = math.floor(percent)
+		unitCultures[tostring(cultureID)] = percent
+		totalPercent = totalPercent + percent
+	end
+	local independent = 100 - totalPercent
+	if independent > 0 then
+		unitCultures[INDEPENDENT_CULTURE] = independent
+	end
+	unit:SetValue("CulturePercents", unitCultures)
+--]]
+end
+
+function GetPopulationFromPlot(self, plot, numPopulation)
+
+	-- ConvertPercent to pop.
+	
+	local kCultures		= self:GetValue("CulturePercents")
+	local population	= self:GetPopulation()
+	local totalPop		= population + numPopulation
+	local kPopulation	= {}
+	local hasCultNum	= 0
+	for cultureKey, percent in pairs(kCultures) do
+		local culturePop 		= math.floor(population * percent * 0.01)
+		kPopulation[cultureKey] = culturePop
+		hasCultNum				= hasCultNum + culturePop
+		Dprint( DEBUG_UNIT_SCRIPT, " - Get pop = ".. Locale.Lookup(GameInfo.CultureGroups[tonumber(cultureKey)].Name), culturePop, " from ", tostring(percent).." percents of unit's population")
+	end
+	local independent = population - hasCultNum
+	if independent > 0 then
+		Dprint( DEBUG_UNIT_SCRIPT, " - Get pop = ".. Locale.Lookup(GameInfo.CultureGroups[tonumber(INDEPENDENT_CULTURE)].Name), independent, " (rounding correction)")
+		kPopulation[INDEPENDENT_CULTURE] = independent
+	end
+	
+	for cultureKey, percent in pairs(plot:GetCulturePercentTable()) do
+		kPopulation[cultureKey] = (kPopulation[cultureKey] or 0) + math.floor(numPopulation * percent * 0.01)
+	end
+	
+	local newPercents 	= {}
+	local totalPercent	= 0
+	local kBest			= { Key = nil, Value = 0 }
+	for cultureKey, value in pairs(kPopulation) do
+		percent 				= GCO.ToDecimals(Div(value,totalPop)*100)
+		newPercents[cultureKey]	= percent
+		totalPercent			= totalPercent + percent
+		if percent > kBest.Value then
+			kBest.Value = percent
+			kBest.Key	= cultureKey
+		end
+	end
+	
+	local difference = totalPercent - 100
+	if difference ~= 0 then
+		newPercents[kBest.Key] = GCO.ToDecimals(newPercents[kBest.Key] + difference)
+	end	
+	
+	self:ChangePopulation(numPopulation)
+	plot:ChangePopulation(-numPopulation)
+end
+
+function GivePersonnelToPlot(self, plot, numPersonnel)
+
+	local DEBUG_UNIT_SCRIPT = self:GetOwner() == 0 and "debug" or DEBUG_UNIT_SCRIPT
+	
+	local personnel = self:GetComponent("Personnel")
+	local reserve	= self:GetComponent("PersonnelReserve")
+	local wounded	= self:GetComponent("WoundedPersonnel")
+	
+	Dprint( DEBUG_UNIT_SCRIPT, "- Give Personnel To Plot for ".. Locale.Lookup(self:GetName()), numPopulation)
+	
+	if numPersonnel > personnel + reserve + wounded then -- Population is Settler/Builder "Equipment", not "stock"
+		GCO.Error("- Trying to Give more Personnel to plot than available in Unit : ", numPersonnel, personnel + reserve)
+		numPersonnel = personnel + reserve + wounded
+	end
+	
+	if numPersonnel > reserve then
+	
+		Dprint( DEBUG_UNIT_SCRIPT, "- Giving more Personnel to plot than available in Unit's reserve (this is normal when disbanding)")
+		self:ChangeComponent("PersonnelReserve", -reserve)
+		local left = numPersonnel-reserve
+		if left > personnel then -- we're disbanding the unit
+			self:ChangeComponent("Personnel", -personnel)
+			self:ChangeComponent("WoundedPersonnel", -wounded)
+		else
+			self:ChangeComponent("Personnel", -left)
+		end
+	else
+		self:ChangeComponent("PersonnelReserve", -numPersonnel)
+	end
+	
+	local cultures	= self:GetValue("CulturePercents")
+	local settled	= 0
+	
+	for cultureKey, percent in pairs(cultures) do
+		local value = math.floor(numPersonnel * percent * 0.01)
+		settled		= settled + value
+		plot:ChangeCulture(cultureKey, value)
+		Dprint( DEBUG_UNIT_SCRIPT, " - Change culture on plot : ".. Locale.Lookup(GameInfo.CultureGroups[tonumber(cultureKey)].Name), value, tostring(percent).." percents of unit's personnel")
+	end
+	
+	local independent = numPersonnel - settled
+	if independent > 0 then
+		Dprint( DEBUG_UNIT_SCRIPT, " - Change culture on plot : ".. Locale.Lookup(GameInfo.CultureGroups[tonumber(INDEPENDENT_CULTURE)].Name), value, " (rounding correction)")
+		plot:ChangeCulture(INDEPENDENT_CULTURE, independent)
+	end
+end
+
+function GivePopulationToPlot(self, plot, numPopulation)
+
+	local DEBUG_UNIT_SCRIPT = self:GetOwner() == 0 and "debug" or DEBUG_UNIT_SCRIPT
+
+	Dprint( DEBUG_UNIT_SCRIPT, "- Give Population to plot for ".. Locale.Lookup(self:GetName()), numPopulation)
+	
+	if numPopulation > self:GetPopulation() then -- Population is Settler/Builder "Equipment", not "stock"
+		GCO.Error("- Try to Give more Population to plot than available in Unit : ", numPopulation, self:GetPopulation())
+		numPopulation = self:GetPopulation()
+	end
+	
+	local cultures	= self:GetValue("CulturePercents")
+	local settled	= 0
+	self:ChangePopulation(- numPopulation)
+	
+	for cultureKey, percent in pairs(cultures) do
+		local value = math.floor(numPopulation * percent * 0.01)
+		settled		= settled + value
+		plot:ChangeCulture(cultureKey, value)
+		Dprint( DEBUG_UNIT_SCRIPT, " - Change culture on plot : ".. Locale.Lookup(GameInfo.CultureGroups[tonumber(cultureKey)].Name), value, tostring(percent).." percents of unit's population")
+	end
+	
+	local independent = numPopulation - settled
+	if independent > 0 then
+		Dprint( DEBUG_UNIT_SCRIPT, " - Change culture on plot : ".. Locale.Lookup(GameInfo.CultureGroups[tonumber(INDEPENDENT_CULTURE)].Name), independent, " (rounding correction)")
+		plot:ChangeCulture(INDEPENDENT_CULTURE, independent)
+	end
+end
+
+
+-- ======================================================================================
 -- Morale function
-----------------------------------------------
+-- ======================================================================================
 
 function GetMoraleFromFood(self)
 	local unitKey 			= self:GetKey()
@@ -3025,9 +3428,9 @@ function GetMoraleFromHome(self)
 end
 
 
-----------------------------------------------
+-- ======================================================================================
 -- Texts function
-----------------------------------------------
+-- ======================================================================================
 -- Flag
 function GetFoodConsumptionString(self)
 	local unitKey 			= self:GetKey()
@@ -3056,7 +3459,21 @@ function GetFoodConsumptionString(self)
 			local prisonnersFood = ( totalPrisoners * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) )/1000
 			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONERS", GCO.ToDecimals(prisonnersFood * ratio), totalPrisoners )
 		end
-	end	
+	end
+	
+	-- units can also have population/slaves
+	local population 	= self:GetPopulation() + self:GetStock(LowerClassID)
+	local slaves		= self:GetFrontLineEquipment(SlaveClassID) + self:GetStock(SlaveClassID)
+			
+	if population > 0 then 
+		local populationFood = (population * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )/1000
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_POPULATION", GCO.ToDecimals(populationFood * ratio), population )
+	end
+	if slaves > 0 then 
+		local slavesFood = ( slaves * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) )/1000
+		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_SLAVES", GCO.ToDecimals(slavesFood * ratio), slaves )
+	end
+	
 	return str
 end
 
@@ -3307,7 +3724,7 @@ function GetUnitCompositionToolTip(self)
 		-- Condition
 		nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE")
 		nameString = nameString .. "[NEWLINE]" .. self:GetMoraleString()
-		nameString = nameString .. "[NEWLINE][ICON_AntiPersonnel]" .. GCO.Round(self:GetPropertyPercent("AntiPersonnel")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_PersonnelArmor]" .. GCO.Round(self:GetPropertyPercent("PersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_AntiArmor]" .. GCO.Round(self:GetPropertyPercent("AntiPersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_IgnorArmor]" .. GCO.Round(self:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
+		nameString = nameString .. "[NEWLINE][ICON_AntiPersonnel]" .. GCO.Round(self:GetPropertyPercent("AntiPersonnel")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_PersonnelArmor]" .. GCO.Round(self:GetPropertyPercent("PersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_AntiArmor]" .. GCO.Round(self:GetPropertyPercent("AntiPersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_IgnoreArmor]" .. GCO.Round(self:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
 		if self:GetLogisticCost() > 0 then
 			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_LOGISTIC_COST", self:GetLogisticCost())
 		end
@@ -3396,6 +3813,16 @@ function GetUnitCompositionToolTip(self)
 						nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", city:GetName(), unitData.SupplyLineEfficiency)
 					else
 						nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR", city:GetName())
+					end
+				else
+					-- Can be an Improvement
+					local village 	= GCO.GetTribalVillageAt(tonumber(unitData.SupplyLineCityKey))
+					if village and village.Owner == self:GetOwner() then
+						if unitData.SupplyLineEfficiency > 0 then
+							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", GameInfo.Improvements[village.Type].Name, unitData.SupplyLineEfficiency)
+						else
+							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR", GameInfo.Improvements[village.Type].Name)
+						end
 					end
 				end
 			else
@@ -4739,6 +5166,10 @@ function Heal(self, maxHealedHP, maxUnitHP, bNoLimit)
 	Dprint( DEBUG_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_UNIT_SCRIPT, "Healing " .. Locale.Lookup(self:GetName()).." id#".. tostring(self:GetKey()).." player#"..tostring(self:GetOwner()), maxHealedHP, maxUnitHP, bNoLimit)
 	
+	if self:IsDisbanding() then
+		return
+	end
+	
 	local unitKey 	= self:GetKey()	
 	local unitData 	= self:GetData()
 	if not unitData then
@@ -5200,8 +5631,9 @@ function GetSupplyPathPlots(self)
 			
 			GCO.StartTimer("GetPathToPlotLand")
 			local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()
-			local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)
-			local path = GCO.GetPlot(self:GetX(), self:GetY()):GetPathToPlot(cityPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked)
+			--local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)
+			--local path = GCO.GetPlot(self:GetX(), self:GetY()):GetPathToPlot(cityPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked)
+			local path = GCO.GetPlot(self:GetX(), self:GetY()):GetSupplyPath(cityPlot, self:GetOwner(), maxDistance, GCO.SupplyPathBlocked)
 			GCO.ShowTimer("GetPathToPlotLand")
 			
 			if path then
@@ -5210,67 +5642,109 @@ function GetSupplyPathPlots(self)
 			--if bIsPlotConnected then
 			--	return GCO.GetRoutePlots()
 			--end
+		else
+			-- Can be an Improvement
+			local plotID	= tonumber(unitData.SupplyLineCityKey)
+			local village 	= GCO.GetTribalVillageAt(plotID)
+			if village and village.Owner == self:GetOwner() then
+				local pPlot = Map.GetPlotByIndex(plotID)
+				GCO.StartTimer("GetPathToPlotLand")
+				local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()
+				--local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)
+				--local path = GCO.GetPlot(self:GetX(), self:GetY()):GetPathToPlot(pPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked)
+				local path = GCO.GetPlot(self:GetX(), self:GetY()):GetSupplyPath(pPlot, self:GetOwner(), maxDistance, GCO.SupplyPathBlocked)
+				GCO.ShowTimer("GetPathToPlotLand")
+				
+				if path then
+					return path
+				end
+			end
 		end
 	end
 end 
 
 function SetSupplyLine(self)
 	Dlog("SetSupplyLine /START")
+	
+	--[[
+	local pathPlots, turnsList, obstacles = GCO.GetMoveToPath( unit, cityPlot:GetIndex() ) -- can't be used as it takes unit stacking in account and return false if there is an unit in the city.
+	if table.count(pathPlots) > 1 then
+		local numTurns = turnsList[table.count( turnsList )]
+		local efficiency = GCO.Round( 100 - math.pow(numTurns,2) )
+		if efficiency > 50 then -- to do : allow players to change this value
+			unitData.SupplyLineCityKey = GCO.GetCityKey(closestCity)
+			unitData.SupplyLineCityOwner = closestCity:GetOwner()
+			unitData.SupplyLineEfficiency = efficiency
+			NoLinkToCity = false
+		end
+	--]]
+	--local bShortestRoute 			= true
+	--GCO.StartTimer("IsPlotConnectedLand")
+	--local bIsPlotConnected 			= GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
+	--GCO.ShowTimer("IsPlotConnectedLand")
+	
 	local key 			= self:GetKey()
 	local NoLinkToCity 	= true
 	local unitData 		= ExposedMembers.UnitData[key]
+	local supplyPlot	= nil
+	local supplyKey		= nil
+	local bNotCity		= false
 	local closestCity, distance = GCO.FindNearestPlayerCity( self:GetOwner(), self:GetX(), self:GetY() )
 	if closestCity then
 		GCO.AttachCityFunctions(closestCity)
-		local cityPlot = Map.GetPlot(closestCity:GetX(), closestCity:GetY())
-		--[[
-		local pathPlots, turnsList, obstacles = GCO.GetMoveToPath( unit, cityPlot:GetIndex() ) -- can't be used as it takes unit stacking in account and return false if there is an unit in the city.
-		if table.count(pathPlots) > 1 then
-			local numTurns = turnsList[table.count( turnsList )]
-			local efficiency = GCO.Round( 100 - math.pow(numTurns,2) )
-			if efficiency > 50 then -- to do : allow players to change this value
-				unitData.SupplyLineCityKey = GCO.GetCityKey(closestCity)
-				unitData.SupplyLineCityOwner = closestCity:GetOwner()
-				unitData.SupplyLineEfficiency = efficiency
-				NoLinkToCity = false
-			end
-		--]]
-		--local bShortestRoute 			= true
-		--GCO.StartTimer("IsPlotConnectedLand")
-		--local bIsPlotConnected 			= GCO.IsPlotConnected(Players[self:GetOwner()], Map.GetPlot(self:GetX(), self:GetY()), cityPlot, "Land", bShortestRoute, nil, GCO.SupplyPathBlocked)
-		--GCO.ShowTimer("IsPlotConnectedLand")
+		supplyPlot 	= Map.GetPlot(closestCity:GetX(), closestCity:GetY())
+		supplyKey	= closestCity:GetKey()
+	else
+	
+		local plotID, distance	= GCO.FindNearestPlayerVillage( self:GetOwner(), self:GetX(), self:GetY())
+		
+		local village 	= GCO.GetTribalVillageAt(plotID)
+		if village and village.Owner == self:GetOwner() then
+			supplyPlot 	= Map.GetPlotByIndex(plotID)
+			supplyKey	= plotID
+			bNotCity	= true
+		end
+	end
+	
+	
+	if supplyPlot and supplyKey then
 		
 		local bIsPlotConnected 	= false
 		local routeLength		= 0
 		local unitPlot			= GCO.GetPlot(self:GetX(), self:GetY())
-		if (not unitPlot:IsWater()) or (unitPlot:GetDistrictType() ~= -1) then
+		if unitPlot and ((not unitPlot:IsWater()) or (unitPlot:GetDistrictType() ~= -1)) then
 			GCO.StartTimer("GetPathToPlotLand")
 			local SupplyLineLengthFactor 	= self:GetSupplyLineLengthFactor()
-			local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)
-			local path 						= unitPlot:GetPathToPlot(cityPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked, maxDistance)
+			local maxDistance 				= GCO.CalculateMaxRouteLength(SupplyLineLengthFactor)*2
+			--local path 						= unitPlot:GetPathToPlot(supplyPlot, Players[self:GetOwner()], "Land", GCO.SupplyPathBlocked, maxDistance)
+			local path, score					= unitPlot:GetSupplyPath(supplyPlot, self:GetOwner(), maxDistance, GCO.SupplyPathBlocked)
 			GCO.ShowTimer("GetPathToPlotLand")
 			
 			if path then
 				bIsPlotConnected 	= true
-				routeLength 		= #path
+				routeLength 		= score or #path
 			end
 				
 			--local routeLength 				= GCO.GetRouteLength()
 			if bIsPlotConnected then
-				local efficiency 				= GCO.GetRouteEfficiency(routeLength*SupplyLineLengthFactor)
+			
+				if bNotCity then -- Village supply line is less efficient
+					routeLength = routeLength * 1.5
+				end
+				local efficiency = GCO.GetRouteEfficiency(routeLength*SupplyLineLengthFactor)
 				
 				if efficiency > 0 then
-					unitData.SupplyLineCityKey = closestCity:GetKey()
+					unitData.SupplyLineCityKey = supplyKey
 					unitData.SupplyLineEfficiency = efficiency
 					NoLinkToCity = false
 				else
-					unitData.SupplyLineCityKey = closestCity:GetKey()
+					unitData.SupplyLineCityKey = supplyKey
 					unitData.SupplyLineEfficiency = 0
 					NoLinkToCity = false
 				end
 			
-			elseif distance == 0 then -- unit is on the city's plot...
-				unitData.SupplyLineCityKey = closestCity:GetKey()
+			elseif distance == 0 then -- unit is on the supply's plot...
+				unitData.SupplyLineCityKey = supplyKey
 				unitData.SupplyLineEfficiency = 100
 				NoLinkToCity = false
 			end
@@ -5285,8 +5759,8 @@ function SetSupplyLine(self)
 end
 
 function GetSupplyLineEfficiency(self)
-	local unitKey = self:GetKey()
-	return ExposedMembers.UnitData[unitKey].SupplyLineEfficiency or 0
+	local unitData = self:GetData()
+	return unitData.SupplyLineEfficiency or 0
 end
 
 function GetSupplyLineLengthFactor(self)
@@ -5392,12 +5866,20 @@ end
 
 function DoCollect(self)
 	Dlog("DoCollect /START")
-	if GameInfo.Units[self:GetType()].UnitType == "UNIT_BUILDER" then
-		local plot	= GCO.GetPlot(self:GetX(), self:GetY())
+	if GameInfo.Units[self:GetType()].UnitType == "UNIT_BUILDER" or GameInfo.Units[self:GetType()].UnitType == "UNIT_WORKER" then
+		local iX, iY	= self:GetX(), self:GetY()
+		local plot		= GCO.GetPlot(iX, iY)
 		if plot then 
-			local list 	= plot:GetBaseVisibleResources(self:GetOwner())
+			local list 				= plot:GetBaseVisibleResources(self:GetOwner())
+			local pLocalPlayerVis 	= PlayersVisibility[Game.GetLocalPlayer()]
+			local bIsVisible		= (pLocalPlayerVis ~= nil) and (pLocalPlayerVis:IsVisible(iX, iY))
+			local tCollectedString	= {}
 			for resourceID, value in pairs(list) do
 				self:ChangeStock(resourceID, value)
+				table.insert(tCollectedString, "+" .. tostring(value).." "..GCO.GetResourceIcon(resourceID))
+			end
+			if bIsVisible and #tCollectedString > 0 then
+				Game.AddWorldViewText(EventSubTypes.DAMAGE, table.concat(tCollectedString, ","), iX, iY, 0)
 			end
 		end
 	end	
@@ -5604,8 +6086,13 @@ function CheckForActiveTurnsLeft(self)
 		local bLocked		= false
 		if personnelType == UnitPersonnelType.Conscripts then
 			local player = GCO.GetPlayer(self:GetOwner())
-			if player:IsAtWar() then
+			if player:IsAtWar() and not player:IsBarbarian() then
 				Dprint( DEBUG_UNIT_SCRIPT, " - Locked by current war...")
+				bLocked = true
+			end
+			local bIsMigrating	= player:GetValue("MigrationTurn") ~= nil
+			if bIsMigrating then
+				Dprint( DEBUG_UNIT_SCRIPT, " - Locked by Migration...")
 				bLocked = true
 			end
 		end
@@ -5617,33 +6104,56 @@ function CheckForActiveTurnsLeft(self)
 		-- start disbanding if no turns left
 		if activeTurnsLeft < 0 and not bLocked then
 			Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding unit...")
+			
 			if personnelType == UnitPersonnelType.Conscripts then
-				local unitData = self:GetData()
-				if unitData then
-					local disbandingRatio 		= 0.10 -- to do : lower if under threat
-					local maxPersonnelToDisband = math.min(self:GetMaxPersonnel() * disbandingRatio, self:GetTotalPersonnel())
-					local frontLinePersonnel	= self:GetFrontLinePersonnel()
-					local minPersonnelLeft		= self:GetPersonnelAtHP(1) 		-- Min personnel left in frontline at HP = 1, to prevent the UpdateFrontLineData function to try to kill the unit.
-					Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding ratio = ", disbandingRatio, ", Personnel to disband = ", maxPersonnelToDisband, ", Front Line Personnel = ", frontLinePersonnel, ", Min Personnel Left = ", minPersonnelLeft)
-					if maxPersonnelToDisband >= (frontLinePersonnel - minPersonnelLeft) then
-						self:Disband()
-						bRemoveUnit	= true
-					else
-						Dprint( DEBUG_UNIT_SCRIPT, "     - Removing Personnel from front line...")
-						unitData.Personnel 	= unitData.Personnel - maxPersonnelToDisband
-						local city = GCO.GetCityFromKey( unitData.HomeCityKey )
-						if city then
-							Dprint( DEBUG_UNIT_SCRIPT, "     - Send them back to the home city of ".. Locale.Lookup(city:GetName()))
-							city:ChangeStock(personnelResourceID, maxPersonnelToDisband)
-						else
-							Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home city...")
-						end
-						Dprint( DEBUG_UNIT_SCRIPT, "     - Updating Front Line Data...")
-						self:UpdateFrontLineData()
-					end
+			
+				if self:GetDamage() > iMaxDamageBeforeDisband then
+					self:Disband()
+					bRemoveUnit	= true
 				else
-					GCO.Error("unitData is nil for " .. self:GetName(), self:GetKey())
+					local unitData = self:GetData()
+					if unitData then
+						local disbandingRatio 		= 0.20 -- to do : lower if under threat
+						local maxPersonnelToDisband = math.min(self:GetMaxPersonnel() * disbandingRatio, self:GetTotalPersonnel())
+						local frontLinePersonnel	= self:GetFrontLinePersonnel()
+						local minPersonnelLeft		= self:GetPersonnelAtHP(1) 		-- Min personnel left in frontline at HP = 1, to prevent the UpdateFrontLineData function to try to kill the unit.
+						Dprint( DEBUG_UNIT_SCRIPT, " - Disbanding ratio = ", disbandingRatio, ", Personnel to disband = ", maxPersonnelToDisband, ", Front Line Personnel = ", frontLinePersonnel, ", Min Personnel Left = ", minPersonnelLeft)
+						if maxPersonnelToDisband >= (frontLinePersonnel - minPersonnelLeft) then
+							self:Disband()
+							bRemoveUnit	= true
+						else
+							Dprint( DEBUG_UNIT_SCRIPT, "     - Removing Personnel from front line...")
+							local city = GCO.GetCityFromKey( unitData.HomeCityKey ) or GCO.GetCityFromKey( unitData.SupplyLineCityKey )
+							if city then
+								Dprint( DEBUG_UNIT_SCRIPT, "     - Send them back to the home city of ".. Locale.Lookup(city:GetName()))
+								unitData.Personnel 	= unitData.Personnel - maxPersonnelToDisband
+								city:ChangeStock(personnelResourceID, maxPersonnelToDisband)
+							else
+								Dprint( DEBUG_UNIT_SCRIPT, "     - Cant find home city...")
+								local bUseReserve	= true 
+								local plotID 		= unitData.HomeCityKey and tonumber(unitData.HomeCityKey) or unitData.SupplyLineCityKey and tonumber(unitData.SupplyLineCityKey) or GCO.FindNearestPlayerVillage( self:GetOwner(), self:GetX(), self:GetY() )-- The supply source can be an improvement
+								local village 		= GCO.GetTribalVillageAt(plotID)
+								if village then
+									if village.Owner == self:GetOwner() then
+										local villagePlot	= GCO.GetPlotByIndex(plotID)
+										bUseReserve 		= false
+										self:GivePersonnelToPlot( villagePlot, maxPersonnelToDisband) -- this function handle both adding to plot / removing from unit
+									end
+								end
+								if bUseReserve then
+									unitData.Personnel 			= unitData.Personnel - maxPersonnelToDisband
+									unitData.PersonnelReserve 	= unitData.PersonnelReserve + maxPersonnelToDisband
+								end
+								--self:ChangeStock(LowerClassID, maxPersonnelToDisband)
+							end
+							Dprint( DEBUG_UNIT_SCRIPT, "     - Updating Front Line Data...")
+							self:UpdateFrontLineData()
+						end
+					else
+						GCO.Error("unitData is nil for " .. self:GetName(), self:GetKey())
+					end
 				end
+				
 			elseif personnelType == UnitPersonnelType.Mercenary then
 				-- handled in GCO_DiplomacyScript.lua
 			end
@@ -5897,6 +6407,7 @@ function UnitsTurn( playerID ) -- DoUnitsTurn
 			unit:DoTurn()
 			if unit:CheckForActiveTurnsLeft() then
 				playerUnits:Destroy(unit)
+				ExposedMembers.UnitData[unit:GetKey()] = nil
 			end
 		end
 	end	
@@ -6001,12 +6512,28 @@ function OnUnitProductionCompleted(playerID, cityID, productionID, objectID, bCa
 	local cityPlots	= GCO.GetCityPlots(city)
 	Dprint( DEBUG_UNIT_SCRIPT, "- Scanning city plots for any unit waiting for equipment...")
 	for i, plotID in ipairs(cityPlots) do
-		local plot 		= Map.GetPlotByIndex(plotID)
+		local plot 		= GCO.GetPlotByIndex(plotID)
 		local aUnits 	= Units.GetUnitsInPlot(plot)
 		for j, unit in ipairs(aUnits) do
 			if unit:IsWaitingForEquipment() and unit:GetType() == objectID then
 				Dprint( DEBUG_UNIT_SCRIPT, "- Calling immediate equipment initialization for ".. Locale.Lookup(unit:GetName()) .." of player #".. tostring(playerID).. " id#" .. tostring(unit:GetKey()))
 				unit:InitializeEquipment(sortedEquipmentList) 
+				unit:InitializeCultureFromPlot(plot)
+				--[[
+				local culturePercents 	= plot:GetCulturePercentTable()
+				local unitCultures 		= {}
+				local totalPercent		= 0
+				for cultureID, percent in pairs(culturePercents) do
+					local percent = math.floor(percent)
+					unitCultures[tostring(cultureID)] = percent
+					totalPercent = totalPercent + percent
+				end
+				local independent = 100 - totalPercent
+				if independent > 0 then
+					unitCultures[INDEPENDENT_CULTURE] = independent
+				end
+				unit:SetValue("CulturePercents", unitCultures)
+				--]]
 			end			
 		end
 	end
@@ -6305,6 +6832,15 @@ function OnUnitOperationStarted(ownerID, unitID, operationID)
 				end
 			end
 		end
+	elseif operationID == UnitOperationTypes.BUILD_IMPROVEMENT then
+		local unit = GetUnit(ownerID, unitID)
+		if unit then
+			local population = math.min(unit:GetPopulation(),math.floor(unit:GetMaxPopulation()/3)) -- Assuming 3 charges max, todo: get max charge from modifiers somehow
+			if population > 0 then
+				local plot = GCO.GetPlot(unit:GetValue("LastX"), unit:GetValue("LastY"))
+				unit:GivePopulationToPlot(plot, population)
+			end
+		end
 	end
 end
 Events.UnitOperationStarted.Add( OnUnitOperationStarted )
@@ -6319,15 +6855,50 @@ function OnUnitChargesChanged( playerID: number, unitID : number, newCharges : n
 end
 Events.UnitChargesChanged.Add( OnUnitOperationStarted )
 
--- Events functions
+function OnUnitCommandStarted(playerID, unitID, hCommand, iData1)
+	local DEBUG_UNIT_SCRIPT = "debug"
+	Dprint( DEBUG_UNIT_SCRIPT, "- Calling OnUnitCommandStarted ", ownerID, playerID, hCommand )
+	if hCommand == UnitCommandTypes.DELETE then
+		local unit = UnitManager.GetUnit(playerID, unitID)
+		unit:Disband()
+	end
+end
+Events.UnitCommandStarted.Add( OnUnitCommandStarted );
+
+local lastPath = {} -- table used to get the last movement path of an unit
+
+-- Get path while moving, but don't do stuff here, may cause desyncs in MP
+function OnUnitMoved (playerID,	unitID,	iX, iY)
+	local unit = UnitManager.GetUnit(playerID, unitID)
+	local plot = Map.GetPlot(iX, iY)
+	if unit then
+		table.insert(lastPath, plot:GetIndex())
+	end
+end
+Events.UnitMoved.Add(OnUnitMoved)	
+
+-- After move update
 function OnUnitMoveComplete(playerID, unitID, iX, iY)
 	local unit = UnitManager.GetUnit(playerID, unitID)
 	if unit then
 		unit:SetSupplyLine()
 		LuaEvents.UnitsCompositionUpdated(playerID, unitID)
-		local unitData = unit:GetData()
-		unitData.LastX = iX
-		unitData.LastY = iY
+		-- Update position and get last initial position
+		local unitData 	= unit:GetData()
+		local startPlot	= Map.GetPlot(unitData.LastX, unitData.LastY)
+		unitData.LastX 	= iX
+		unitData.LastY 	= iY
+		-- Getting the full path, starting by the initial plot...
+		local pathPlots = { startPlot:GetIndex() }
+		-- ... then adding the plots gotten from Events.UnitMoved
+		for _, plotID in ipairs(lastPath) do
+			local pPlot = Map.GetPlotByIndex(plotID)
+			table.insert(pathPlots , pPlot:GetIndex())
+		end
+		-- Send the unit path for other functions
+		LuaEvents.UnitMovementPathComplete(playerID, unitID, pathPlots)
+		-- Reinitialize the temporary path table for next unit...
+		lastPath = {}
 	end
 end
 Events.UnitMoveComplete.Add(OnUnitMoveComplete)
@@ -6343,7 +6914,11 @@ function OnCapturedUnitChecked(oldPlayerId, oldUnitID, newPlayerId, newUnitID)
 	local newUnit		= GetUnit(newPlayerId, newUnitID)
 
 	if ExposedMembers.UnitData[newUnitKey] then
-		GCO.Warning("New unit in ChangeUnitTo() has already an entry in UnitData for unitKey = "..tostring(newUnitKey)..", old unitKey = "..tostring(oldUnitKey))
+		GCO.Warning("New unit in OnCapturedUnitChecked has already an entry in UnitData for unitKey = "..tostring(newUnitKey)..", old unitKey = "..tostring(oldUnitKey))
+	end
+
+	if newUnit == nil then
+		GCO.Warning("New unit is nil in OnCapturedUnitChecked for unitKey = "..tostring(newUnitKey)..", old unitKey = "..tostring(oldUnitKey))
 	end
 	
 	ExposedMembers.UnitData[newUnitKey] = {}
@@ -6581,8 +7156,10 @@ function AttachUnitFunctions(unit)
 			u.IsCombat								= IsCombat
 			u.CanGetFullReinforcement				= CanGetFullReinforcement
 			u.GetLogisticCost						= GetLogisticCost
+			u.CanGetReinforcement					= CanGetReinforcement
 			u.IsDisbanding							= IsDisbanding
 			u.Disband								= Disband
+			u.InitializeCultureFromPlot				= InitializeCultureFromPlot
 			--
 			u.RecordTransaction						= RecordTransaction
 			u.GetTransactionValue					= GetTransactionValue
@@ -6616,6 +7193,15 @@ function AttachUnitFunctions(unit)
 			u.GetFrontLinePersonnel					= GetFrontLinePersonnel
 			u.GetMaxPersonnel						= GetMaxPersonnel
 			u.GetTotalPersonnel						= GetTotalPersonnel
+			u.GetSlavePersonnel						= GetSlavePersonnel
+			--
+			u.GetPopulation							= GetPopulation
+			u.GetMaxPopulation						= GetMaxPopulation
+			u.ChangePopulation						= ChangePopulation
+			u.RecruitPersonnelFromPlot				= RecruitPersonnelFromPlot
+			u.GivePersonnelToPlot					= GivePersonnelToPlot
+			u.GivePopulationToPlot					= GivePopulationToPlot
+			u.GetPopulationFromPlot					= GetPopulationFromPlot
 			--
 			u.GetMoraleFromFood						= GetMoraleFromFood
 			u.GetMoraleFromLastCombat				= GetMoraleFromLastCombat
@@ -6735,7 +7321,9 @@ function ShareFunctions()
 	ExposedMembers.GCO.GetEquipmentTypes									= GetEquipmentTypes
 	ExposedMembers.GCO.GetUnitTypeFromEquipmentList							= GetUnitTypeFromEquipmentList
 	ExposedMembers.GCO.GetAvailableEquipmentForUnitPromotionClassFromList	= GetAvailableEquipmentForUnitPromotionClassFromList
+	ExposedMembers.GCO.GetNumEquipmentOfClassInList							= GetNumEquipmentOfClassInList
 	ExposedMembers.GCO.GetUnitEquipmentSupplySetting						= GetUnitEquipmentSupplySetting
+	ExposedMembers.GCO.GetUnitEquipmentClasses								= GetUnitEquipmentClasses
 	--
 	ExposedMembers.UnitScript_Initialized 	= true
 end
@@ -6791,4 +7379,17 @@ function TestDamage()
 end
 --Events.GameCoreEventPublishComplete.Add( TestDamage )
 
-
+function NoMoveTest(bImmobile)
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveIDs()) do
+		local pPlayer		= Players[playerID]
+		local pPlayerUnits 	= pPlayer and pPlayer:GetUnits()
+		print("Player#", playerID)
+		for i, pUnit in pPlayerUnits:Members() do
+			local pUnitAbility 	= pUnit:GetAbility();
+			local iCurrentCount = pUnitAbility:GetAbilityCount("ABILITY_NO_MOVEMENT");
+			print("give ABILITY_NO_MOVEMENT to ", pUnit:GetName())
+			local bResult = pUnitAbility:ChangeAbilityCount("ABILITY_NO_MOVEMENT", bImmobile and 1 or -iCurrentCount)
+			print("  - ", bResult)
+		end
+	end
+end

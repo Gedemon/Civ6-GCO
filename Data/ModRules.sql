@@ -120,6 +120,7 @@ INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) 
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_LUMBER_MILL', 'FEATURE_JUNGLE');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_PLANTATION', 'FEATURE_FLOODPLAINS');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_PLANTATION', 'FEATURE_JUNGLE');
+INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_PLANTATION', 'FEATURE_FOREST');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_QUARRY', 'FEATURE_FLOODPLAINS');
 INSERT OR REPLACE INTO Improvement_ValidFeatures (ImprovementType, FeatureType) VALUES ('IMPROVEMENT_STEPWELL', 'FEATURE_JUNGLE');
 
@@ -127,6 +128,9 @@ INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) 
 INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_QUARRY', 'TERRAIN_DESERT');
 INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_QUARRY', 'TERRAIN_PLAINS_HILLS');
 INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_QUARRY', 'TERRAIN_DESERT_HILLS');
+
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_MINE', 'TERRAIN_PLAINS');
+INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_MINE', 'TERRAIN_DESERT');
 
 --DELETE FROM Improvement_ValidTerrains WHERE ImprovementType = 'IMPROVEMENT_ROMAN_FORT';
 --INSERT OR REPLACE INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_ROMAN_FORT', 'TERRAIN_GRASS_HILLS');
@@ -172,6 +176,8 @@ INSERT INTO Feature_AdjacentTerrains (FeatureType, TerrainType) VALUES ('FEATURE
 INSERT INTO Feature_AdjacentTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_DESERT_HILLS');
 INSERT INTO Feature_AdjacentTerrains (FeatureType, TerrainType) VALUES ('FEATURE_FLOODPLAINS', 'TERRAIN_DESERT');
 
+DELETE FROM Feature_YieldChanges WHERE FeatureType ='FEATURE_JUNGLE'	AND YieldType ='YIELD_FOOD';
+DELETE FROM Feature_YieldChanges WHERE FeatureType ='FEATURE_MARSH'		AND YieldType ='YIELD_FOOD';
 
 /* ************************ */
 /* Technologies & Civics    */
@@ -328,18 +334,46 @@ UPDATE Policies SET PrereqCivic = NULL, PrereqTech = 'TECH_LIBERALISM' 			WHERE 
 /* ************************ */
 /* Government               */
 /* ************************ */
+
+/* Create new Civics entries for unlocking Governments */
+--/*
+
+INSERT INTO Types (Type, Kind)
+	SELECT 'CIVIC_' || Governments.GovernmentType, 'KIND_CIVIC'
+	FROM Governments;
+	
+INSERT INTO Civics (CivicType, Name, Cost, Repeatable, EmbarkUnitType, EmbarkAll, EraType, AdvisorType, BarbarianFree, UITreeRow)
+	SELECT 
+		'CIVIC_' || Governments.GovernmentType,
+		'LOC_' || Governments.GovernmentType || '_NAME',
+		999,
+		0,
+		NULL,
+		0,
+		'ERA_ANCIENT',
+		'ADVISOR_GENERIC',
+		0,
+		0
+	FROM Governments;
+	
+
+INSERT INTO CivicPrereqs (Civic, PrereqCivic)
+	SELECT 'CIVIC_' || Governments.GovernmentType, Governments.PrereqCivic FROM Governments WHERE Governments.PrereqCivic NOT NULL;
+--*/
+
+
 DELETE FROM Government_SlotCounts WHERE GovernmentType ='GOVERNMENT_CHIEFDOM';
 INSERT INTO Government_SlotCounts (GovernmentType, GovernmentSlotType, NumSlots) VALUES ('GOVERNMENT_CHIEFDOM', 'SLOT_WILDCARD', '2');
 
-UPDATE Governments SET PrereqTech = 'TECH_EARLY_EMPIRE' 		WHERE GovernmentType ='GOVERNMENT_AUTOCRACY';
-UPDATE Governments SET PrereqTech = 'TECH_MILITARY_TRAINING' 	WHERE GovernmentType ='GOVERNMENT_OLIGARCHY';
-UPDATE Governments SET PrereqTech = 'TECH_POLITICAL_PHILOSOPHY' WHERE GovernmentType ='GOVERNMENT_CLASSICAL_REPUBLIC';
-UPDATE Governments SET PrereqTech = 'TECH_DIVINE_RIGHT'			WHERE GovernmentType ='GOVERNMENT_MONARCHY';
-UPDATE Governments SET PrereqTech = 'TECH_REFORMED_CHURCH'		WHERE GovernmentType ='GOVERNMENT_THEOCRACY';
-UPDATE Governments SET PrereqTech = 'TECH_BANKING' 				WHERE GovernmentType ='GOVERNMENT_MERCHANT_REPUBLIC';
-UPDATE Governments SET PrereqTech = 'TECH_TOTALITARIANISM' 		WHERE GovernmentType ='GOVERNMENT_FASCISM';
-UPDATE Governments SET PrereqTech = 'TECH_CLASS_STRUGGLE'		WHERE GovernmentType ='GOVERNMENT_COMMUNISM';
-UPDATE Governments SET PrereqTech = 'TECH_SUFFRAGE' 			WHERE GovernmentType ='GOVERNMENT_DEMOCRACY';
+UPDATE Governments SET PrereqTech = 'TECH_EARLY_EMPIRE' 		, PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_AUTOCRACY';
+UPDATE Governments SET PrereqTech = 'TECH_MILITARY_TRAINING' 	, PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_OLIGARCHY';
+UPDATE Governments SET PrereqTech = 'TECH_POLITICAL_PHILOSOPHY' , PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_CLASSICAL_REPUBLIC';
+UPDATE Governments SET PrereqTech = 'TECH_DIVINE_RIGHT'			, PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_MONARCHY';
+UPDATE Governments SET PrereqTech = 'TECH_REFORMED_CHURCH'		, PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_THEOCRACY';
+UPDATE Governments SET PrereqTech = 'TECH_BANKING' 				, PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_MERCHANT_REPUBLIC';
+UPDATE Governments SET PrereqTech = 'TECH_TOTALITARIANISM' 		, PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_FASCISM';
+UPDATE Governments SET PrereqTech = 'TECH_CLASS_STRUGGLE'		, PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_COMMUNISM';
+UPDATE Governments SET PrereqTech = 'TECH_SUFFRAGE' 			, PrereqCivic = 'CIVIC_' || GovernmentType WHERE GovernmentType = 'GOVERNMENT_DEMOCRACY';
 
 
 /* ************************ */
@@ -501,7 +535,29 @@ UPDATE Improvements SET Housing = 0;
 /* ************************ */
 /* Start                    */
 /* ************************ */
-UPDATE StartEras SET Tiles = '0', Gold = Gold * 25;
+
+UPDATE StartEras SET 
+	Gold 							='250',
+	Faith							='0',
+	FirstTurnCivicChange			='0',
+	StartingPopulationCapital		='1',
+	StartingPopulationOtherCities	='1',
+	GrowthRate						='0',
+	ProductionRate					='0',
+	DistrictProductionRate			='0',
+	StartingMeleeStrengthMajor		='20',
+	StartingMeleeStrengthMinor		='25',
+	ObsoleteReligion				='0',
+	Tiles							='0',
+	IgnoreGoodyHutTurn				='0',
+	StartingRangedStrengthMajor		='0',
+	StartingRangedStrengthMinor		='0',
+	StartingAmenitiesCapital		='0',
+	StartingHousingCapital			='0',
+	StartingAmenitiesOtherCities	='0',
+	StartingHousingOtherCities		='0';
+	
+DELETE FROM MajorStartingUnits;-- WHERE Unit='UNIT_SETTLER';
 
 /* ************************ */
 /* Remove Faith             */
@@ -587,7 +643,7 @@ DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_CIVICS_TREE";
 DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_RELIGION";
 DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_PANTHEONS";
 DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_FOUND_RELIGIONS";
---DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY";
+DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY";
 --DELETE FROM GameCapabilities WHERE GameCapability = "CAPABILITY_DIPLOMACY_DEALS";
 
 

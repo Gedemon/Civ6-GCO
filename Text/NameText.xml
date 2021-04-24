@@ -15,7 +15,8 @@
 		<Replace Tag="LOC_BUILDING_HERBALIST_NAME" 					Text="Herbalist" 				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_SMALL_STABLE_NAME" 				Text="City Stable"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_SMALL_BARRACKS_NAME" 			Text="City Barracks"			Language="en_US" />
-		<Replace Tag="LOC_BUILDING_CITY_SHIPYARD_NAME" 				Text="Harbor"					Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CITY_HARBOR_NAME" 				Text="Harbor"					Language="en_US" />
+		<Replace Tag="LOC_BUILDING_CITY_SHIPYARD_NAME" 				Text="Small Shipyard"			Language="en_US" />
 		<Replace Tag="LOC_BUILDING_BLACKSMITH_NAME" 				Text="Blacksmith"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FISH_MARKET_NAME" 				Text="Fish Market"				Language="en_US" />
 		<Replace Tag="LOC_BUILDING_FRUIT_MARKET_NAME" 				Text="Fruit Market"				Language="en_US" />
@@ -101,12 +102,13 @@
 	<LocalizedText> <!-- Diplomacy -->
 	
 		<Replace Tag="LOC_DIPLO_DEAL_RECRUIT_SINGLE_UNIT_NAME" 		Text="Recruit as mercenary"			Language="en_US" />
+		<Replace Tag="LOC_DIPLO_DEAL_RENEW_SINGLE_UNIT_NAME" 		Text="Renew mercenary contract"		Language="en_US" />
 		<Replace Tag="LOC_DIPLO_DEAL_BRIBE_SINGLE_UNIT_NAME" 		Text="Bribe for Safe Passage"		Language="en_US" />
 		<Replace Tag="LOC_DIPLO_DEAL_PAY_UNIT_RANSOM_NAME" 			Text="Pay Ransom"					Language="en_US" />
 		
 	</LocalizedText>
 
-	
+
 	<LocalizedText> <!-- Buildings Descriptions -->
 		
 		<Replace Tag="LOC_BUILDING_RECRUITS_DESCRIPTION" Language="en_US">
@@ -116,7 +118,7 @@
 			<Text>More storage for eqipment and housing for personnel, allowing better availability for the emergency Recruitment Centre.</Text>
 		</Replace>
 		
-		<Replace Tag="LOC_BUILDING_CITY_SHIPYARD_DESCRIPTION" Language="en_US">
+		<Replace Tag="LOC_BUILDING_CITY_HARBOR_DESCRIPTION" Language="en_US">
 			<Text>Allows fishing boats to be send on Sea Resources in the City exploitation range.</Text>
 		</Replace>
 		
@@ -137,7 +139,693 @@
 		</Replace>
 	
 	</LocalizedText>
+
+	
+	<LocalizedText> <!-- Culture Groups -->
   
+		<Replace Tag="LOC_CULTURE_INDEPENDENT_NAME" 			Text="Independent"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_INDEPENDENT_ADJECTIVE" 		Text="Independent"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SEPARATIST_NAME" 				Text="Separatist"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SEPARATIST_ADJECTIVE" 		Text="Separatist"			Language="en_US" />
+		
+		
+				<!-- Russian Tribes (north of the edge of the forest belt, west of the Ural Mountains) -->
+		
+		<Replace Tag="LOC_CULTURE_DREGOVICHS_NAME"	Text="Dregovichs"	Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DREVLYANS_NAME"	Text="Drevlyans"    Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KRIVICHS_NAME"	Text="Krivichs"     Language="en_US" />
+		<Replace Tag="LOC_CULTURE_POLANS_NAME"		Text="Polans"       Language="en_US" />
+		<Replace Tag="LOC_CULTURE_RADIMICHS_NAME"	Text="Radimichs"    Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SEVERIANS_NAME"	Text="Severians"    Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TIVERTSI_NAME"	Text="Tivertsi"     Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ULICHS_NAME"		Text="Ulichs"       Language="en_US" />
+		<Replace Tag="LOC_CULTURE_VYATIHS_NAME"		Text="Vyatihs"      Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_DREGOVICHS_ADJECTIVE"		Text="Dregovichs"	Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DREVLYANS_ADJECTIVE"		Text="Drevlyans"    Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KRIVICHS_ADJECTIVE"		Text="Krivichs"     Language="en_US" />
+		<Replace Tag="LOC_CULTURE_POLANS_ADJECTIVE"			Text="Polans"       Language="en_US" />
+		<Replace Tag="LOC_CULTURE_RADIMICHS_ADJECTIVE"		Text="Radimichs"    Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SEVERIANS_ADJECTIVE"		Text="Severians"    Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TIVERTSI_ADJECTIVE"		Text="Tivertsi"     Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ULICHS_ADJECTIVE"			Text="Ulichs"       Language="en_US" />
+		<Replace Tag="LOC_CULTURE_VYATIHS_ADJECTIVE"		Text="Vyatihs"      Language="en_US" />
+		
+				<!-- Baltic Tribes: (1500 BCE* - 1000 CE*) -->
+				
+				<!-- area of Later Lithuania: -->
+
+		<Replace Tag="LOC_CULTURE_AESTI_NAME" 			Text="Aesti"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_CURONIANS_NAME" 		Text="Curonians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GALINIANS_NAME" 		Text="Galinians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PRUSSIANS_NAME" 		Text="Prussians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SAMBIANS_NAME" 		Text="Sambians"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_SAMOGITIANS_NAME" 	Text="Samogitians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SELONIANS_NAME" 		Text="Selonians"		Language="en_US" /> 		<!-- (overlaps with Latvia) -->
+		<Replace Tag="LOC_CULTURE_SKALVIANS_NAME" 		Text="Skalvians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SEMIGALLIANS_NAME" 	Text="Semigallians"		Language="en_US" /> 		<!-- (overlaps with Latvia) -->
+		<Replace Tag="LOC_CULTURE_YOTVINGIANS_NAME" 	Text="Yotvingians"		Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_AESTI_ADJECTIVE"	 			Text="Aesti"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_CURONIANS_ADJECTIVE"	 		Text="Curonians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GALINIANS_ADJECTIVE"	 		Text="Galinians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PRUSSIANS_ADJECTIVE"	 		Text="Prussians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SAMBIANS_ADJECTIVE"	 		Text="Sambians"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_SAMOGITIANS_ADJECTIVE"	 	Text="Samogitians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SELONIANS_ADJECTIVE"	 		Text="Selonians"		Language="en_US" /> 		<!-- (overlaps with Latvia) -->
+		<Replace Tag="LOC_CULTURE_SKALVIANS_ADJECTIVE"	 		Text="Skalvians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SEMIGALLIANS_ADJECTIVE"	 	Text="Semigallians"		Language="en_US" /> 		<!-- (overlaps with Latvia) -->
+		<Replace Tag="LOC_CULTURE_YOTVINGIANS_ADJECTIVE"	 	Text="Yotvingians"		Language="en_US" />
+
+				<!-- Baltic Tribes (400* - 800 CE*) area of Latvia: -->
+
+		<Replace Tag="LOC_CULTURE_CURONIANS_NAME" 		Text="Curonians"		Language="en_US" /> 		<!-- (Korsi, Kurir) -->
+		<Replace Tag="LOC_CULTURE_LATGALIANS_NAME" 		Text="Latgalians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SELONIANS_NAME" 		Text="Selonians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SEMIGALLIANS_NAME" 	Text="Semigallians"		Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_CURONIANS_ADJECTIVE"	 		Text="Curonians"		Language="en_US" /> 		<!-- (Korsi, Kurir) -->
+		<Replace Tag="LOC_CULTURE_LATGALIANS_ADJECTIVE"	 		Text="Latgalians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SELONIANS_ADJECTIVE"	 		Text="Selonians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SEMIGALLIANS_ADJECTIVE"	 	Text="Semigallians"		Language="en_US" />
+
+				<!-- Baltic Tribes (500 BCE - 1000 CE*) area of Estonia: -->
+
+		<Replace Tag="LOC_CULTURE_AESTII_NAME" 		Text="Aestii"		 	Language="en_US" /> 	 	<!-- (overlaps with Lithuania) -->
+		<Replace Tag="LOC_CULTURE_OSILIANS_NAME" 	Text="Osilians"		 	Language="en_US" /> 	 	<!-- (Oesilians) -->
+		<Replace Tag="LOC_CULTURE_CHUDES_NAME" 		Text="Chudes"		 	Language="en_US" /> 	 	<!-- (Finns or Lapps) -->
+
+		<Replace Tag="LOC_CULTURE_AESTII_ADJECTIVE"	 		Text="Aestii"		 	Language="en_US" /> 	 	<!-- (overlaps with Lithuania) -->
+		<Replace Tag="LOC_CULTURE_OSILIANS_ADJECTIVE"	 	Text="Osilians"		 	Language="en_US" /> 	 	<!-- (Oesilians) -->
+		<Replace Tag="LOC_CULTURE_CHUDES_ADJECTIVE"	 		Text="Chudes"		 	Language="en_US" /> 	 	<!-- (Finns or Lapps) -->
+
+				<!-- Ancient British Tribes (800* BCE - 100 CE*) -->
+				<!-- NOTE: virtually all names are Greek or Roman transliterations/translations) -->
+
+				<!-- Area of later England: -->
+
+		<Replace Tag="LOC_CULTURE_ATREBATES_NAME" 		Text="Atrebates"		Language="en_US" /> 	<!-- (Celtic immigrants from the continent) -->
+		<Replace Tag="LOC_CULTURE_BELGAE_NAME" 			Text="Belgae"		 	Language="en_US" /> 	<!-- (Celtic immigrants from the continent) -->
+		<Replace Tag="LOC_CULTURE_CANTIACI_NAME" 		Text="Cantiaci"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_CARVETII_NAME" 		Text="Carvetii"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_CATUVELAUNI_NAME" 	Text="Catuvelauni"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CORIELTAUVI_NAME" 	Text="Corieltauvi"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DOBUNNI_NAME" 		Text="Dobunni"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_DUMNONII_NAME" 		Text="Dumnonii"		 	Language="en_US" /> 		<!-- (Cornwall) -->
+		<Replace Tag="LOC_CULTURE_DUROTRIGES_NAME" 		Text="Durotriges"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ICENI_NAME" 			Text="Iceni"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_REGNENSES_NAME" 		Text="Regnenses"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TRINOVANTES_NAME" 	Text="Trinovantes"		Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_ATREBATES_ADJECTIVE"	 		Text="Atrebates"		Language="en_US" /> 	<!-- (Celtic immigrants from the continent) -->
+		<Replace Tag="LOC_CULTURE_BELGAE_ADJECTIVE"	 			Text="Belgae"		 	Language="en_US" /> 	<!-- (Celtic immigrants from the continent) -->
+		<Replace Tag="LOC_CULTURE_CANTIACI_ADJECTIVE"	 		Text="Cantiaci"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_CARVETII_ADJECTIVE"	 		Text="Carvetii"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_CATUVELAUNI_ADJECTIVE"	 	Text="Catuvelauni"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CORIELTAUVI_ADJECTIVE"	 	Text="Corieltauvi"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DOBUNNI_ADJECTIVE"	 		Text="Dobunni"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_DUMNONII_ADJECTIVE"	 		Text="Dumnonii"		 	Language="en_US" /> 		<!-- (Cornwall) -->
+		<Replace Tag="LOC_CULTURE_DUROTRIGES_ADJECTIVE"	 		Text="Durotriges"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ICENI_ADJECTIVE"	 			Text="Iceni"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_REGNENSES_ADJECTIVE"	 		Text="Regnenses"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TRINOVANTES_ADJECTIVE"	 	Text="Trinovantes"		Language="en_US" />
+
+				<!-- German Tribes in England (400 CE - 700 CE) -->
+
+		<Replace Tag="LOC_CULTURE_GYRE_NAME" 			Text="Gyre"		 		Language="en_US" /> <!-- (Anglian) -->
+		<Replace Tag="LOC_CULTURE_HAESTINGAS_NAME" 		Text="Haestingas"		Language="en_US" /> <!-- (Saxon) -->
+		<Replace Tag="LOC_CULTURE_HWICCE_NAME" 			Text="Hwicce"		 	Language="en_US" /> <!-- (Saxon) -->
+		<Replace Tag="LOC_CULTURE_MAGONSAETE_NAME" 		Text="Magonsaete"		Language="en_US" /> <!-- (Anglian) -->
+		<Replace Tag="LOC_CULTURE_SUTHREGE_NAME" 		Text="Suthrege"		 	Language="en_US" /> <!-- (Saxon) -->
+		<Replace Tag="LOC_CULTURE_WITWARE_NAME" 		Text="Witware"		 	Language="en_US" /> <!-- (Jutes) -->
+		<Replace Tag="LOC_CULTURE_WREOCONSAETE_NAME" 	Text="Wreoconsaete"		Language="en_US" /> <!-- (Anglian) -->
+
+		<Replace Tag="LOC_CULTURE_GYRE_ADJECTIVE"	 			Text="Gyre"		 		Language="en_US" /> <!-- (Anglian) -->
+		<Replace Tag="LOC_CULTURE_HAESTINGAS_ADJECTIVE"	 		Text="Haestingas"		Language="en_US" /> <!-- (Saxon) -->
+		<Replace Tag="LOC_CULTURE_HWICCE_ADJECTIVE"	 			Text="Hwicce"		 	Language="en_US" /> <!-- (Saxon) -->
+		<Replace Tag="LOC_CULTURE_MAGONSAETE_ADJECTIVE"	 		Text="Magonsaete"		Language="en_US" /> <!-- (Anglian) -->
+		<Replace Tag="LOC_CULTURE_SUTHREGE_ADJECTIVE"	 		Text="Suthrege"		 	Language="en_US" /> <!-- (Saxon) -->
+		<Replace Tag="LOC_CULTURE_WITWARE_ADJECTIVE"	 		Text="Witware"		 	Language="en_US" /> <!-- (Jutes) -->
+		<Replace Tag="LOC_CULTURE_WREOCONSAETE_ADJECTIVE"	 	Text="Wreoconsaete"		Language="en_US" /> <!-- (Anglian) -->
+
+				<!-- Tribes in area of later Scotland: -->
+
+		<Replace Tag="LOC_CULTURE_BRIGANTES_NAME" 		Text="Brigantes"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_CALEDONII_NAME" 		Text="Caledonii"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_CAERENI_NAME" 		Text="Caereni"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_CARNONACAE_NAME" 		Text="Carnonacae"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_CORIONOTOTAE_NAME" 	Text="Corionototae"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_CREONES_NAME" 		Text="Creones"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_DAMNONII_NAME" 		Text="Damnonii"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_DECANTAE_NAME" 		Text="Decantae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_NOVANTAE_NAME" 		Text="Novantae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_SELGOVAE_NAME" 		Text="Selgovae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_SMERTAE_NAME" 		Text="Smertae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_SETANTII_NAME" 		Text="Setantii"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_VENICONES_NAME" 		Text="Venicones"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_VOTADENI_NAME" 		Text="Votadeni"		     Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_BRIGANTES_ADJECTIVE"	 		Text="Brigantes"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_CALEDONII_ADJECTIVE"	 		Text="Caledonii"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_CAERENI_ADJECTIVE"	 		Text="Caereni"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_CARNONACAE_ADJECTIVE"	 		Text="Carnonacae"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_CORIONOTOTAE_ADJECTIVE"	 	Text="Corionototae"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_CREONES_ADJECTIVE"	 		Text="Creones"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_DAMNONII_ADJECTIVE"	 		Text="Damnonii"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_DECANTAE_ADJECTIVE"	 		Text="Decantae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_NOVANTAE_ADJECTIVE"	 		Text="Novantae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_SELGOVAE_ADJECTIVE"	 		Text="Selgovae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_SMERTAE_ADJECTIVE"	 		Text="Smertae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_SETANTII_ADJECTIVE"	 		Text="Setantii"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_VENICONES_ADJECTIVE"	 		Text="Venicones"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_VOTADENI_ADJECTIVE"	 		Text="Votadeni"		     Language="en_US" />  
+
+				<!-- Tribes in area of later Wales: -->
+
+		<Replace Tag="LOC_CULTURE_DECEANGLI_NAME" 		Text="Deceangli"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_DEMETAE_NAME" 		Text="Demetae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_GANGANI_NAME" 		Text="Gangani"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_ORDOVICES_NAME" 		Text="Ordovices"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_SILURES_NAME" 		Text="Silures"		     Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_DECEANGLI_ADJECTIVE"	 		Text="Deceangli"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_DEMETAE_ADJECTIVE"	 		Text="Demetae"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_GANGANI_ADJECTIVE"	 		Text="Gangani"		     Language="en_US" />     
+		<Replace Tag="LOC_CULTURE_ORDOVICES_ADJECTIVE"	 		Text="Ordovices"		 Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_SILURES_ADJECTIVE"	 		Text="Silures"		     Language="en_US" />  
+
+				<!-- Tribes/Minor "Kingdoms" of Ireland (500 BCE* - 800 CE) -->
+
+		<Replace Tag="LOC_CULTURE_AIDHNE_NAME" 			Text="Aidhne"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_AILEACH_NAME" 		Text="Aileach"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_AIRGIALLA_NAME" 		Text="Airgialla"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BREIFNE_NAME" 		Text="Breifne"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_DAL_FIATACH_NAME" 	Text="Dal Fiatach"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DAL_NARAIDI_NAME" 	Text="Dal Naraidi"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_FIR_MANACH_NAME" 		Text="Fir Manach"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LAIGHIN_NAME" 		Text="Laighin"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_MEATH_NAME" 			Text="Meath"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_MIDE_NAME" 			Text="Mide"		        Language="en_US" />        
+		<Replace Tag="LOC_CULTURE_MOYLURG_NAME" 		Text="Moylurg"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_OSRAIGHE_NAME" 		Text="Osraighe"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_THORMOND_NAME" 		Text="Thormond"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_UI_FAILGHE_NAME" 		Text="Ui Failghe"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_UI_MAINE_NAME" 		Text="Ui Maine"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_ULAID_NAME" 			Text="Ulaid"		    Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_AIDHNE_ADJECTIVE"	 			Text="Aidhne"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_AILEACH_ADJECTIVE"	 		Text="Aileach"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_AIRGIALLA_ADJECTIVE"	 		Text="Airgialla"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BREIFNE_ADJECTIVE"	 		Text="Breifne"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_DAL_FIATACH_ADJECTIVE"	 	Text="Dal Fiatach"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DAL_NARAIDI_ADJECTIVE"	 	Text="Dal Naraidi"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_FIR_MANACH_ADJECTIVE"	 		Text="Fir Manach"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LAIGHIN_ADJECTIVE"	 		Text="Laighin"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_MEATH_ADJECTIVE"	 			Text="Meath"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_MIDE_ADJECTIVE"	 			Text="Mide"		        Language="en_US" />        
+		<Replace Tag="LOC_CULTURE_MOYLURG_ADJECTIVE"	 		Text="Moylurg"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_OSRAIGHE_ADJECTIVE"	 		Text="Osraighe"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_THORMOND_ADJECTIVE"	 		Text="Thormond"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_UI_FAILGHE_ADJECTIVE"	 		Text="Ui Failghe"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_UI_MAINE_ADJECTIVE"	 		Text="Ui Maine"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_ULAID_ADJECTIVE"	 			Text="Ulaid"		    Language="en_US" />    
+
+				<!-- Tribal Spain (3200* - 850 BCE*) -->
+
+		<Replace Tag="LOC_CULTURE_IBERIANS_NAME" 		Text="Iberians"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_CELTIBERIANS_NAME" 	Text="Celtiberians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CELTICI_NAME" 		Text="Celtici"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_LUSITANIANS_NAME" 	Text="Lusitanians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_VASCONES_NAME" 		Text="Vascones"		    Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_IBERIANS_ADJECTIVE"	 		Text="Iberians"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_CELTIBERIANS_ADJECTIVE"	 	Text="Celtiberians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CELTICI_ADJECTIVE"	 		Text="Celtici"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_LUSITANIANS_ADJECTIVE"	 	Text="Lusitanians"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_VASCONES_ADJECTIVE"	 		Text="Vascones"		    Language="en_US" />    
+
+				<!-- Tribal Portugal (3200* - 500 BCE*) -->
+
+		<Replace Tag="LOC_CULTURE_CORNII_NAME" 			Text="Cornii"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_TURDULI_NAME" 		Text="Turduli"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_OESTRIMINIS_NAME" 	Text="Oestriminis"		Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_CORNII_ADJECTIVE"	 			Text="Cornii"		    Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TURDULI_ADJECTIVE"	 		Text="Turduli"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_OESTRIMINIS_ADJECTIVE"	 	Text="Oestriminis"		Language="en_US" />
+
+				<!-- Tribal Denmark (1500 BCE* - 700 CE*) -->
+
+		<Replace Tag="LOC_CULTURE_DANI_NAME" 		Text="Dani"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_GEATS_NAME" 		Text="Geats"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HERULI_NAME" 		Text="Heruli"		Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_DANI_ADJECTIVE"	 		Text="Dani"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_GEATS_ADJECTIVE"	 		Text="Geats"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HERULI_ADJECTIVE"	 		Text="Heruli"		Language="en_US" />
+
+				<!-- Tribal Sweden (1700 BCE* - 550 CE*) -->
+
+		<Replace Tag="LOC_CULTURE_SAMI_NAME" 		Text="Sami"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_GOTHS_NAME" 		Text="Goths"		Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_SAMI_ADJECTIVE"	 		Text="Sami"			Language="en_US" />	
+		<Replace Tag="LOC_CULTURE_GOTHS_ADJECTIVE"	 		Text="Goths"		Language="en_US" />
+
+				<!-- Tribal Georgia (6000* - 653 BCE) -->
+
+		<Replace Tag="LOC_CULTURE_ABKHAZI_NAME" 		Text="Abkhazi"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KARTVELIANS_NAME" 	Text="Kartvelians"	Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SVANETI_NAME" 		Text="Svaneti"		Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_ABKHAZI_ADJECTIVE"	 		Text="Abkhazi"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KARTVELIANS_ADJECTIVE"	 	Text="Kartvelians"	Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SVANETI_ADJECTIVE"	 		Text="Svaneti"		Language="en_US" />
+
+				<!-- Tribal Armenia (2300* - 800 BCE*) -->
+
+		<Replace Tag="LOC_CULTURE_ARMANI_NAME" 		Text="Armani"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HAYASTAN_NAME" 	Text="Hayastan"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_IBLA_NAME" 		Text="Ibla"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_URARTU_NAME" 		Text="Urartu"		Language="en_US" /> 		<!-- (Van) -->
+
+		<Replace Tag="LOC_CULTURE_ARMANI_ADJECTIVE"	 		Text="Armani"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HAYASTAN_ADJECTIVE"	 	Text="Hayastan"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_IBLA_ADJECTIVE"	 		Text="Ibla"		    Language="en_US" />    
+		<Replace Tag="LOC_CULTURE_URARTU_ADJECTIVE"	 		Text="Urartu"		Language="en_US" /> 		<!-- (Van) -->
+
+				<!-- Tribal Azerbaijan -->
+				<!-- Also known as (Caucasian) Albania (Aghuank, Agvank) (2600* - 800* BCE) -->
+
+		<Replace Tag="LOC_CULTURE_CASPIANS_NAME" 	Text="Caspians"		Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_GARGARIANS_NAME"	Text="Gargarians"	Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_UTIANS_NAME" 		Text="Utians"		Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_CASPIANS_ADJECTIVE"	 	Text="Caspians"		Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_GARGARIANS_ADJECTIVE"	 	Text="Gargarians"	Language="en_US" /> 
+		<Replace Tag="LOC_CULTURE_UTIANS_ADJECTIVE"	 		Text="Utians"		Language="en_US" /> 
+		
+		<!-- Greek Dark Age Tribes (Ancient Era) -->
+		<Replace Tag="LOC_CULTURE_AETOLIANS_NAME" 		Text="Aetolians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARCARNIANS_NAME" 		Text="Arcarnians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARGIVES_NAME" 		Text="Argives" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ATINTANES_NAME" 		Text="Atintanes" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CHAONIANS_NAME" 		Text="Chaonians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ELEANS_NAME" 			Text="Eleans" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LOCRIANS_NAME" 		Text="Locrians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LYNCESTAI_NAME" 		Text="Lyncestai" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MALIANS_NAME" 		Text="Malians" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MINYANS_NAME" 		Text="Minyans" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MOLOSSIANS_NAME" 		Text="Molossians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PHOCEANS_NAME" 		Text="Phoceans" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_THESPROTIANS_NAME" 	Text="Thesprotians" 	Language="en_US" />
+
+		<!-- Illyrian/Thracian Tribes (Ancient-Classical Eras) -->
+		<Replace Tag="LOC_CULTURE_ALBANOI_NAME" 		Text="Albanoi" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMANTINI_NAME" 		Text="Amantini" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARDIAEI_NAME" 		Text="Ardiaei" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DAORS_NAME" 			Text="Daors" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_IAPYGES_NAME" 		Text="Iapyges" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TAULANTII_NAME" 		Text="Taulantii" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AGRIANES_NAME" 		Text="Agrianes" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BITHYNI_NAME" 		Text="Bithyni" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EDONES_NAME" 			Text="Edones" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KIKONES_NAME" 		Text="Kikones" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GETAE_NAME" 			Text="Getae" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ODYSAE_NAME" 			Text="Odysae" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SAPAEI_NAME" 			Text="Sapaei" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SITHONES_NAME" 		Text="Sithones" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TRIBALLI_NAME" 		Text="Triballi" 		Language="en_US" />
+
+		<!-- German Tribes (Classical Era) -->
+		<Replace Tag="LOC_CULTURE_ALEMANNI_NAME" 		Text="Alemanni" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMBRONES_NAME" 		Text="Ambrones" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BATAVI_NAME" 			Text="Batavi" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BRUCTERI_NAME" 		Text="Bructeri" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BURGUNDI_NAME" 		Text="Burgundi" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CHERUSCI_NAME" 		Text="Cherusci" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CIMBRI_NAME" 			Text="Cimbri" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_FRISII_NAME" 			Text="Frisii" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GEATS_NAME" 			Text="Geats" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_INGAVONES_NAME" 		Text="Ingavones" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_JUTES_NAME" 			Text="Jutes" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NERVII_NAME" 			Text="Nervii" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SUEVI_NAME" 			Text="Suevi" 			Language="en_US" /> <!-- (or Suebi) -->
+		<Replace Tag="LOC_CULTURE_TEUTONI_NAME" 		Text="Teutoni" 			Language="en_US" />
+
+		<!-- German Tribes of the Migration Period (late Classical Era) -->
+		<Replace Tag="LOC_CULTURE_ANGLES_NAME" 			Text="Angles" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_FRANKS_NAME" 			Text="Franks" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GEPIDS_NAME" 			Text="Gepids" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LOMBARDII_NAME" 		Text="Lombardii" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_OSTROGOTHS_NAME" 		Text="Ostrogoths" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_RUGIANS_NAME" 		Text="Rugians" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SAXONES_NAME" 		Text="Saxones" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SCIRIANS_NAME" 		Text="Scirians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TERVINGI_NAME" 		Text="Tervingi" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_THURINGI_NAME" 		Text="Thuringi" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_VANDALI_NAME" 		Text="Vandali" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_VISIGOTHS_NAME" 		Text="Visigoths" 		Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_GAULS_NAME" 			Text="Gauls"	 		Language="en_US" />
+
+		<!-- Central Asian Tribes (Classical - Medieval Era) -->
+		<Replace Tag="LOC_CULTURE_ALKHAN_NAME" 			Text="Alkhan" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AORSI_NAME" 			Text="Aorsi" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ASLI_NAME" 			Text="Asli" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BASHKIRI_NAME" 		Text="Bashkiri" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CIMMERIANS_NAME" 		Text="Cimmerians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CUMANS_NAME" 			Text="Cumans" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GHORIDS_NAME" 		Text="Ghorids" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GOKTURKS_NAME" 		Text="Gokturks" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GUISHUANG_NAME" 		Text="Guishuang" 		Language="en_US" /> <!-- (Kushanas) -->
+		<Replace Tag="LOC_CULTURE_IAZYGES_NAME" 		Text="Iazyges" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KARLUKS_NAME" 		Text="Karluks" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KIMAKS_NAME" 			Text="Kimaks" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KIPCHAKS_NAME" 		Text="Kipchaks" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KUCHA_NAME" 			Text="Kucha" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KYRGYZ_NAME" 			Text="Kyrgyz" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PARNI_NAME" 			Text="Parni" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PATZINAKS_NAME" 		Text="Patzinaks" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PECHENEGS_NAME" 		Text="Pechenegs" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ROXOLANI_NAME" 		Text="Roxolani" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SIRACES_NAME" 		Text="Siraces" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TOKHAROI_NAME" 		Text="Tokharoi" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_XIANBEI_NAME" 		Text="Xianbei" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_XIONITES_NAME" 		Text="Xionites" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YARKAND_NAME" 		Text="Yarkand" 			Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_AETOLIANS_ADJECTIVE" 		Text="Aetolians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARCARNIANS_ADJECTIVE" 	Text="Arcarnians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARGIVES_ADJECTIVE" 		Text="Argives" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ATINTANES_ADJECTIVE" 		Text="Atintanes" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CHAONIANS_ADJECTIVE" 		Text="Chaonians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ELEANS_ADJECTIVE" 		Text="Eleans" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LOCRIANS_ADJECTIVE" 		Text="Locrians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LYNCESTAI_ADJECTIVE" 		Text="Lyncestai" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MALIANS_ADJECTIVE" 		Text="Malians" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MINYANS_ADJECTIVE" 		Text="Minyans" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MOLOSSIANS_ADJECTIVE" 	Text="Molossians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PHOCEANS_ADJECTIVE" 		Text="Phoceans" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_THESPROTIANS_ADJECTIVE" 	Text="Thesprotians" 	Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_ALBANOI_ADJECTIVE" 		Text="Albanoi" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMANTINI_ADJECTIVE" 		Text="Amantini" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARDIAEI_ADJECTIVE" 		Text="Ardiaei" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DAORS_ADJECTIVE" 			Text="Daors" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_IAPYGES_ADJECTIVE" 		Text="Iapyges" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TAULANTII_ADJECTIVE" 		Text="Taulantii" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AGRIANES_ADJECTIVE" 		Text="Agrianes" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BITHYNI_ADJECTIVE" 		Text="Bithyni" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EDONES_ADJECTIVE" 		Text="Edones" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KIKONES_ADJECTIVE" 		Text="Kikones" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GETAE_ADJECTIVE" 			Text="Getae" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ODYSAE_ADJECTIVE" 		Text="Odysae" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SAPAEI_ADJECTIVE" 		Text="Sapaei" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SITHONES_ADJECTIVE" 		Text="Sithones" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TRIBALLI_ADJECTIVE" 		Text="Triballi" 		Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_ALEMANNI_ADJECTIVE" 		Text="Alemanni" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMBRONES_ADJECTIVE" 		Text="Ambrones" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BATAVI_ADJECTIVE" 		Text="Batavi" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BRUCTERI_ADJECTIVE" 		Text="Bructeri" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BURGUNDI_ADJECTIVE" 		Text="Burgundi" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CHERUSCI_ADJECTIVE" 		Text="Cherusci" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CIMBRI_ADJECTIVE" 		Text="Cimbri" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_FRISII_ADJECTIVE" 		Text="Frisii" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GEATS_ADJECTIVE" 			Text="Geats" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_INGAVONES_ADJECTIVE" 		Text="Ingavones" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_JUTES_ADJECTIVE" 			Text="Jutes" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NERVII_ADJECTIVE" 		Text="Nervii" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SUEVI_ADJECTIVE" 			Text="Suevi" 			Language="en_US" /> <!-- (or Suebi) -->
+		<Replace Tag="LOC_CULTURE_TEUTONI_ADJECTIVE" 		Text="Teutoni" 			Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_ANGLES_ADJECTIVE" 		Text="Angles" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_FRANKS_ADJECTIVE" 		Text="Franks" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GEPIDS_ADJECTIVE" 		Text="Gepids" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LOMBARDII_ADJECTIVE" 		Text="Lombardii" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_OSTROGOTHS_ADJECTIVE" 	Text="Ostrogoths" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_RUGIANS_ADJECTIVE" 		Text="Rugians" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SAXONES_ADJECTIVE" 		Text="Saxones" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SCIRIANS_ADJECTIVE" 		Text="Scirians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TERVINGI_ADJECTIVE" 		Text="Tervingi" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_THURINGI_ADJECTIVE" 		Text="Thuringi" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_VANDALI_ADJECTIVE" 		Text="Vandali" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_VISIGOTHS_ADJECTIVE" 		Text="Visigoths" 		Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_GAULS_ADJECTIVE" 			Text="Gauls"	 		Language="en_US" />
+
+		<Replace Tag="LOC_CULTURE_ALKHAN_ADJECTIVE" 		Text="Alkhan" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AORSI_ADJECTIVE" 			Text="Aorsi" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ASLI_ADJECTIVE" 			Text="Asli" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BASHKIRI_ADJECTIVE" 		Text="Bashkiri" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CIMMERIANS_ADJECTIVE" 	Text="Cimmerians" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CUMANS_ADJECTIVE" 		Text="Cumans" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GHORIDS_ADJECTIVE" 		Text="Ghorids" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GOKTURKS_ADJECTIVE" 		Text="Gokturks" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GUISHUANG_ADJECTIVE" 		Text="Guishuang" 		Language="en_US" /> <!-- (Kushanas) -->
+		<Replace Tag="LOC_CULTURE_IAZYGES_ADJECTIVE" 		Text="Iazyges" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KARLUKS_ADJECTIVE" 		Text="Karluks" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KIMAKS_ADJECTIVE" 		Text="Kimaks" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KIPCHAKS_ADJECTIVE" 		Text="Kipchaks" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KUCHA_ADJECTIVE" 			Text="Kucha" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KYRGYZ_ADJECTIVE" 		Text="Kyrgyz" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PARNI_ADJECTIVE" 			Text="Parni" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PATZINAKS_ADJECTIVE" 		Text="Patzinaks" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PECHENEGS_ADJECTIVE" 		Text="Pechenegs" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ROXOLANI_ADJECTIVE" 		Text="Roxolani" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SIRACES_ADJECTIVE" 		Text="Siraces" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TOKHAROI_ADJECTIVE" 		Text="Tokharoi" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_XIANBEI_ADJECTIVE" 		Text="Xianbei" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_XIONITES_ADJECTIVE" 		Text="Xionites" 		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YARKAND_ADJECTIVE" 		Text="Yarkand" 			Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_HAFIT_NAME" 					Text="Hafit" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_UMM_AN_NAR_NAME" 				Text="Umm An-Nar" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MAGAN_NAME" 					Text="Magan" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_WADI_SUQ_NAME" 				Text="Wadi Suq" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SAYHADIC_NAME" 				Text="Sayhadic" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARABIC_NAME" 					Text="Arabic" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KISH_NAME" 		 			Text="Kish" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EBLAITE_NAME" 		 		Text="Eblaite" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMORITE_NAME" 		 		Text="Amorite" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CANAANITE_NAME" 	 			Text="Canaanite" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARAMAIC_NAME" 		 		Text="Aramaic" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_UBAID_NAME"					Text="Ubaid"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_URUK_NAME"					Text="Uruk"					Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SUMERIAN_NAME" 				Text="Sumerian" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ELAMITE_NAME"					Text="Elamite"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AKKADIAN_NAME"				Text="Akkadian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HURRIAN_NAME"					Text="Hurrian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ASSYRIAN_NAME"				Text="Assyrian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BABYLONIAN_NAME"				Text="Babylonian"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GALZU_NAME"					Text="Galzu"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KURDISH_NAME"					Text="Kurdish"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SHULAVERI_SHOMU_NAME"			Text="Shulaveri-Shomu"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KURA_ARAXES_NAME"				Text="Kura-Araxes"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YAMNA_NAME"					Text="Yamna"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_POLTAVKA_NAME"				Text="Poltavka"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_JIROFT_NAME"					Text="Jiroft"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SINTASHTA_NAME"				Text="Sintashta"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ANDRONOVO_NAME"				Text="Andronovo"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AVESTAN_NAME"					Text="Avestan"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PERSIAN_NAME"					Text="Persian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MEDIAN_NAME"					Text="Median"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AZERI_NAME"					Text="Azeri"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HATTIC_NAME"					Text="Hattic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PALAIC_NAME"					Text="Palaic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HITTITE_NAME"					Text="Hittite"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LUWIC_NAME"					Text="Luwic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KASKIAN_NAME"					Text="Kaskian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LYDIAN_NAME"					Text="Lydian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARMENIAN_NAME" 				Text="Armenian" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LYCIAN_NAME"					Text="Lycian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MILYAN_NAME"					Text="Milyan"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ANATOLIAN_TURKIC_NAME"		Text="Anatolian Turkic"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_COLCHIAN_NAME"				Text="Colchian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KARTVELIAN_NAME"				Text="Kartvelian"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GEORGIAN_NAME"				Text="Georgian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EL_OMARI_NAME"				Text="El Omari"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MAADI_NAME"					Text="Maadi"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMRATIAN_NAME"				Text="Amratian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GERZEAN_NAME"					Text="Gerzean"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EGYPTIAN_NAME"				Text="Egyptian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_COPTIC_NAME"					Text="Coptic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KENZI_NAME"					Text="Kenzi"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CUSHITIC_NAME"				Text="Cushitic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KERMA_NAME"					Text="Kerma"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GE_EZ_NAME"					Text="Ge'ez"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TIGRAYA_NAME"					Text="Tigraya"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BEJA_NAME"					Text="Beja"					Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NOBA_NAME"					Text="Noba"					Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMHARIC_NAME"					Text="Amharic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TIGRINYA_NAME"				Text="Tigrinya"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NOBIIN_NAME"					Text="Nobiin"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DONGOLAWI_NAME"				Text="Dongolawi"			Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_HAFIT_ADJECTIVE" 					Text="Hafit" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_UMM_AN_NAR_ADJECTIVE" 			Text="Umm An-Nar" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MAGAN_ADJECTIVE" 					Text="Magan" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_WADI_SUQ_ADJECTIVE" 				Text="Wadi Suq" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SAYHADIC_ADJECTIVE" 				Text="Sayhadic" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARABIC_ADJECTIVE" 				Text="Arabic" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KISH_ADJECTIVE" 		 			Text="Kish" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EBLAITE_ADJECTIVE" 		 		Text="Eblaite" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMORITE_ADJECTIVE" 		 		Text="Amorite" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CANAANITE_ADJECTIVE" 	 			Text="Canaanite" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARAMAIC_ADJECTIVE" 		 		Text="Aramaic" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_UBAID_ADJECTIVE"					Text="Ubaid"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_URUK_ADJECTIVE"					Text="Uruk"					Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SUMERIAN_ADJECTIVE" 				Text="Sumerian" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ELAMITE_ADJECTIVE"				Text="Elamite"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AKKADIAN_ADJECTIVE"				Text="Akkadian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HURRIAN_ADJECTIVE"				Text="Hurrian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ASSYRIAN_ADJECTIVE"				Text="Assyrian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BABYLONIAN_ADJECTIVE"				Text="Babylonian"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GALZU_ADJECTIVE"					Text="Galzu"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KURDISH_ADJECTIVE"				Text="Kurdish"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SHULAVERI_SHOMU_ADJECTIVE"		Text="Shulaveri-Shomu"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KURA_ARAXES_ADJECTIVE"			Text="Kura-Araxes"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YAMNA_ADJECTIVE"					Text="Yamna"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_POLTAVKA_ADJECTIVE"				Text="Poltavka"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_JIROFT_ADJECTIVE"					Text="Jiroft"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SINTASHTA_ADJECTIVE"				Text="Sintashta"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ANDRONOVO_ADJECTIVE"				Text="Andronovo"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AVESTAN_ADJECTIVE"				Text="Avestan"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PERSIAN_ADJECTIVE"				Text="Persian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MEDIAN_ADJECTIVE"					Text="Median"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AZERI_ADJECTIVE"					Text="Azeri"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HATTIC_ADJECTIVE"					Text="Hattic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_PALAIC_ADJECTIVE"					Text="Palaic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HITTITE_ADJECTIVE"				Text="Hittite"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LUWIC_ADJECTIVE"					Text="Luwic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KASKIAN_ADJECTIVE"				Text="Kaskian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LYDIAN_ADJECTIVE"					Text="Lydian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ARMENIAN_ADJECTIVE" 				Text="Armenian" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_LYCIAN_ADJECTIVE"					Text="Lycian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MILYAN_ADJECTIVE"					Text="Milyan"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ANATOLIAN_TURKIC_ADJECTIVE"		Text="Anatolian Turkic"		Language="en_US" />
+		<Replace Tag="LOC_CULTURE_COLCHIAN_ADJECTIVE"				Text="Colchian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KARTVELIAN_ADJECTIVE"				Text="Kartvelian"			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GEORGIAN_ADJECTIVE"				Text="Georgian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EL_OMARI_ADJECTIVE"				Text="El Omari"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MAADI_ADJECTIVE"					Text="Maadi"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMRATIAN_ADJECTIVE"				Text="Amratian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GERZEAN_ADJECTIVE"				Text="Gerzean"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EGYPTIAN_ADJECTIVE"				Text="Egyptian"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_COPTIC_ADJECTIVE"					Text="Coptic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KENZI_ADJECTIVE"					Text="Kenzi"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CUSHITIC_ADJECTIVE"				Text="Cushitic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KERMA_ADJECTIVE"					Text="Kerma"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_GE_EZ_ADJECTIVE"					Text="Ge'ez"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TIGRAYA_ADJECTIVE"				Text="Tigraya"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BEJA_ADJECTIVE"					Text="Beja"					Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NOBA_ADJECTIVE"					Text="Noba"					Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AMHARIC_ADJECTIVE"				Text="Amharic"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TIGRINYA_ADJECTIVE"				Text="Tigrinya"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NOBIIN_ADJECTIVE"					Text="Nobiin"				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DONGOLAWI_ADJECTIVE"				Text="Dongolawi"			Language="en_US" />
+		
+				<!-- Siberian Tribes (East of the Ural Mountains) -->
+		
+		<Replace Tag="LOC_CULTURE_CHUKCHI_NAME" 				Text="Chukchi" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KEREK_NAME" 					Text="Kerek" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ALUTOR_NAME" 					Text="Alutor" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ALEUT_NAME" 					Text="Aleut" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KORYAK_NAME" 					Text="Koryak" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ITELMENS_NAME" 				Text="Itelmens" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KAMCHADALS_NAME" 				Text="Kamchadals" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CHUVANS_NAME" 				Text="Chuvans" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EVEN_NAME" 					Text="Even" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YUKAGHIR_NAME" 				Text="Yukaghir" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NEGIDAL_NAME" 				Text="Negidal" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NIVKH_NAME" 					Text="Nivkh" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_OROK_NAME" 					Text="Orok" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DAGUR_NAME" 					Text="Dagur" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NANAY_NAME" 					Text="Nanay" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_UDIHE_NAME" 					Text="Udihe" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ULCA_NAME" 					Text="Ulca" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HEZHE_NAME" 					Text="Hezhe" 				Language="en_US" />
+		                                                              
+		<Replace Tag="LOC_CULTURE_SAKHA_NAME" 					Text="Sakha" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EVENKI_NAME" 					Text="Evenki" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BURYAT_NAME" 					Text="Buryat" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TOFALARS_NAME" 				Text="Tofalars" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TUVAN_NAME" 					Text="Tuvan" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KHAKAS_NAME" 					Text="Khakas" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SHORS_NAME" 					Text="Shors" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ALTAI_NAME" 					Text="Altai" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CHULYM_NAME" 					Text="Chulym" 				Language="en_US" />
+		                                                              
+		<Replace Tag="LOC_CULTURE_NENETS_NAME" 					Text="Nenets" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KHANTY_NAME" 					Text="Khanty" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MANSI_NAME" 					Text="Mansi" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SELKUPS_NAME" 				Text="Selkups" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KETS_NAME" 					Text="Kets" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ENETS_NAME" 					Text="Enets" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NGANASANS_NAME" 				Text="Nganasans" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DOLGAN_NAME" 					Text="Dolgan" 				Language="en_US" />
+		
+		
+		<Replace Tag="LOC_CULTURE_CHUKCHI_ADJECTIVE" 			Text="Chukchi" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KEREK_ADJECTIVE" 				Text="Kerek" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ALUTOR_ADJECTIVE" 			Text="Alutor" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ALEUT_ADJECTIVE" 				Text="Aleut" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KORYAK_ADJECTIVE" 			Text="Koryak" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ITELMENS_ADJECTIVE" 			Text="Itelmens" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KAMCHADALS_ADJECTIVE" 		Text="Kamchadals" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CHUVANS_ADJECTIVE" 			Text="Chuvans" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EVEN_ADJECTIVE" 				Text="Even" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YUKAGHIR_ADJECTIVE" 			Text="Yukaghir" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NEGIDAL_ADJECTIVE" 			Text="Negidal" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NIVKH_ADJECTIVE" 				Text="Nivkh" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_OROK_ADJECTIVE" 				Text="Orok" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DAGUR_ADJECTIVE" 				Text="Dagur" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NANAY_ADJECTIVE" 				Text="Nanay" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_UDIHE_ADJECTIVE" 				Text="Udihe" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ULCA_ADJECTIVE" 				Text="Ulca" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_HEZHE_ADJECTIVE" 				Text="Hezhe" 				Language="en_US" />
+		                                                             
+		<Replace Tag="LOC_CULTURE_SAKHA_ADJECTIVE" 				Text="Sakha" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EVENKI_ADJECTIVE" 			Text="Evenki" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_BURYAT_ADJECTIVE" 			Text="Buryat" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TOFALARS_ADJECTIVE" 			Text="Tofalars" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_TUVAN_ADJECTIVE" 				Text="Tuvan" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KHAKAS_ADJECTIVE" 			Text="Khakas" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SHORS_ADJECTIVE" 				Text="Shors" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ALTAI_ADJECTIVE" 				Text="Altai" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_CHULYM_ADJECTIVE" 			Text="Chulym" 				Language="en_US" />
+		                                                             
+		<Replace Tag="LOC_CULTURE_NENETS_ADJECTIVE" 			Text="Nenets" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KHANTY_ADJECTIVE" 			Text="Khanty" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_MANSI_ADJECTIVE" 				Text="Mansi" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_SELKUPS_ADJECTIVE" 			Text="Selkups" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_KETS_ADJECTIVE" 				Text="Kets" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_ENETS_ADJECTIVE" 				Text="Enets" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_NGANASANS_ADJECTIVE" 			Text="Nganasans" 			Language="en_US" />
+		<Replace Tag="LOC_CULTURE_DOLGAN_ADJECTIVE" 			Text="Dolgan" 				Language="en_US" />
+		
+				<!-- Japan Tribes  -->
+
+		<Replace Tag="LOC_CULTURE_JOMON_NAME" 					Text="Jomon" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_OKHOTSK_NAME" 				Text="Okhotsk" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EMISHI_NAME" 					Text="Emishi" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AINU_NAME" 					Text="Ainu" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_RYUKYU_NAME" 					Text="Ryukyu" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YAMATO_NAME" 					Text="Yamato" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YAYOI_NAME" 					Text="Yayoi" 				Language="en_US" />
+		
+		<Replace Tag="LOC_CULTURE_JOMON_ADJECTIVE" 				Text="Jomon" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_OKHOTSK_ADJECTIVE" 			Text="Okhotsk" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_EMISHI_ADJECTIVE" 			Text="Emishi" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_AINU_ADJECTIVE" 				Text="Ainu" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_RYUKYU_ADJECTIVE" 			Text="Ryukyu" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YAMATO_ADJECTIVE" 			Text="Yamato" 				Language="en_US" />
+		<Replace Tag="LOC_CULTURE_YAYOI_ADJECTIVE" 				Text="Yayoi" 				Language="en_US" />
+	
+	</LocalizedText> 
+
+	
 	<LocalizedText> <!-- Equipment -->
 		
 		<Replace Tag="LOC_EQUIPMENT_CHARIOT_NAME" 					Text="Chariot" 				Language="en_US" />
@@ -206,6 +894,9 @@
 		<Replace Tag="LOC_EQUIPMENT_JET_BOMBER_NAME" 				Text="Jet Bomber"			Language="en_US" /> 
 		
 		<Replace Tag="LOC_EQUIPMENTCLASS_MATERIEL_NAME" 			Text="Materiel" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_SLAVE_NAME" 				Text="Slaves" 				Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_CIVILIAN_NAME" 			Text="Civilians" 			Language="en_US" />
+		<Replace Tag="LOC_EQUIPMENTCLASS_CIVILIAN_SETTLER_NAME" 	Text="Civilians" 			Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BLUNT_WEAPONS_NAME" 		Text="Blunt Weapons" 		Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_SLINGS_NAME" 				Text="Slings"				Language="en_US" />
 		<Replace Tag="LOC_EQUIPMENTCLASS_BOWS_NAME" 				Text="Bows"					Language="en_US" />
@@ -286,7 +977,8 @@
 		
 	
 	</LocalizedText>
-    
+
+	
 	<LocalizedText> <!-- Resources -->	
 		<Replace Tag="LOC_RESOURCE_WINE_NAME" 							Text="Grapes" 						Language="en_US" />
 		<Replace Tag="LOC_RESOURCE_FOOD_NAME" 							Text="Food" 						Language="en_US" />
@@ -343,8 +1035,12 @@
 		<Replace Tag="LOC_RESOURCECLASS_DIGITAL"			Text="Digital"	 			Language="en_US" />
 	</LocalizedText>
 
+
 	<LocalizedText> <!-- Units -->
 	
+		<Replace Tag="LOC_UNIT_CARAVAN_NAME" 			Text="Caravan"				Language="en_US" />
+		<Replace Tag="LOC_UNIT_WORKER_NAME" 			Text="Worker"				Language="en_US" />
+		
 		<Replace Tag="LOC_UNIT_CONSCRIPT_WARRIOR_NAME" 	Text="Hunters"				Language="en_US" />
 		
 		<Replace Tag="LOC_UNIT_LIGHT_PHALANX_NAME" 		Text="Light Phalanx" 		Language="en_US" />
@@ -370,6 +1066,7 @@
 		<Replace Tag="LOC_UNIT_MODERN_INFANTRY_NAME" 	Text="Infantry" 			Language="en_US" />
 	</LocalizedText>
 	
+
 	<LocalizedText> <!-- Promotions -->	
 		<Replace Tag="LOC_PROMOTION_CLASS_CONSCRIPT_NAME" 			Text="Conscript"		 		Language="en_US" />
 		<Replace Tag="LOC_PROMOTION_CLASS_SKIRMISHER_NAME" 			Text="Skirmisher"		 		Language="en_US" />
@@ -380,6 +1077,7 @@
 		<Replace Tag="LOC_PROMOTION_REMOVE_RANGED_ATTACK_NAME" 		Text="Can't fire" 				Language="en_US" /> 		
 	</LocalizedText>	
 	
+
 	<LocalizedText> <!-- Formations -->	
 		<Replace Tag="LOC_FORMATION_BAND_NAME"        	Text="Band" 		Language="en_US" />
 		<Replace Tag="LOC_FORMATION_COHORTE_NAME"		Text="Cohorte" 		Language="en_US" />
@@ -391,6 +1089,7 @@
 		<Replace Tag="LOC_FORMATION_DIVISION_NAME"		Text="Division" 	Language="en_US" />		
 	</LocalizedText>
 	
+
 	<LocalizedText> <!-- Technologies (Events, Research, TypeTags) -->
 	
 		<Replace Tag="LOC_EVENT_DISCOVER_NEW_RESOURCE_NAME" 	Text="Discovering New Resource Types"	Language="en_US" />
@@ -445,6 +1144,7 @@
 		<Replace Tag="LOC_CLASS_CULTIVATION_IMPROVEMENT_NAME"	Text="Cultivations"				Language="en_US" />
 		
 	</LocalizedText>
+
 
 	<LocalizedText> <!-- Technologies -->
 		
@@ -564,6 +1264,7 @@
 		
 	</LocalizedText>
 	
+
 	<LocalizedText> <!-- Projects -->	
 		<Replace Tag="LOC_PROJECT_TAXES_NAME" 			Text="Local Taxes"	Language="en_US" />
 		<Replace Tag="LOC_PROJECT_TAXES_SHORT_NAME" 	Text="Local Taxes"	Language="en_US" />
@@ -572,17 +1273,64 @@
 		</Replace>
 	</LocalizedText>
 	
-	<LocalizedText> <!-- Improvements -->	
+	<LocalizedText> <!-- Tribes -->	
 
-		<Replace Tag="LOC_IMPROVEMENT_FARM_DESCRIPTION"	Language="en_US" >
-			<Text>Unlocks the Builder ability to construct Farms.[NEWLINE]Can only be built on Grassland or Plains.[NEWLINE]Constructing farms adjacent to other Farms provides bonuses to Housing.</Text>
+		<Replace Tag="LOC_START_MIGRATION_NAME"		Text="Start a Migration"	Language="en_US" />
+		<Replace Tag="LOC_CREATE_SETTLER_NAME"		Text="Create Settler"		Language="en_US" />
+		<Replace Tag="LOC_CREATE_CITY_NAME"			Text="Create City"			Language="en_US" />
+		<Replace Tag="LOC_CREATE_SKIRMISHER_NAME"	Text="Conscript Skirmisher"	Language="en_US" />
+		<Replace Tag="LOC_CREATE_MELEE_NAME"		Text="Conscript Melee"		Language="en_US" />
+		<Replace Tag="LOC_CREATE_RANGED_NAME"		Text="Conscript Ranged"		Language="en_US" />
+		<Replace Tag="LOC_CREATE_WORKER_NAME"		Text="Create Worker"		Language="en_US" />
+		<Replace Tag="LOC_ABANDON_VILLAGE_NAME"		Text="Abandon Village"		Language="en_US" />
+		
+		<Replace Tag="LOC_VILLAGE_CREATE_NAME"				Text="Create New Village"		Language="en_US" />
+		<Replace Tag="LOC_VILLAGE_REBUILD_NAME"				Text="Rebuild Village"			Language="en_US" />
+		<Replace Tag="LOC_CENTER_CAPTURE_NAME"				Text="Capture Settlements"		Language="en_US" />
+		<Replace Tag="LOC_SPECIALIZE_HUNTER_NAME"			Text="Hunting Specialization"	Language="en_US" />
+		<Replace Tag="LOC_SPECIALIZE_FARMER_NAME"			Text="Farming Specialization"	Language="en_US" />
+		<Replace Tag="LOC_UNSPECIALIZE_NAME"				Text="Unspecialize"				Language="en_US" />
+		<Replace Tag="LOC_PRODUCTION_MATERIEL_NAME"			Text="Materiel Production"		Language="en_US" />
+		<Replace Tag="LOC_PRODUCTION_EQUIPMENT_NAME"		Text="Equipment Production"		Language="en_US" />
+		<Replace Tag="LOC_PRODUCTION_GOLD_NAME"				Text="Add Gold to Treasury"		Language="en_US" />
+		<Replace Tag="LOC_POPULATION_ASSIMILATION_NAME"		Text="Assimilate Population"	Language="en_US" />
+		<Replace Tag="LOC_POPULATION_EMIGRATION_NAME"		Text="Forced Emigration"		Language="en_US" />
+		<Replace Tag="LOC_POPULATION_IMMIGRATION_NAME"		Text="Forced Immigration"		Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_SAILING_NAME"			Text="Learn Sailing"			Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_BRONZE_WORKING_NAME"		Text="Learn Bronze Working"		Language="en_US" />
+		<Replace Tag="LOC_RESEARCH_HORSEBACK_RIDING_NAME"	Text="Learn Horseback Riding"	Language="en_US" />
+		
+		
+		<Replace Tag="LOC_START_MIGRATION_DESCRIPTION"	Language="en_US">
+			<Text>Gather 75% of the total population of all your settlements and abandon your position to start a Migration.[NEWLINE]Conscripted units will not disband until you've settled again.</Text>
+		</Replace>
+		<Replace Tag="LOC_CREATE_WORKER_DESCRIPTION"	Language="en_US">
+			<Text>Conscript Slaves into a Worker unit.[NEWLINE]The worker unit does not create new improvements, but passively gather Resources at its position.[NEWLINE]You can disband it to get back the Slaves in your Village.</Text>
 		</Replace>
 		
-		<Replace Tag="LOC_IMPROVEMENT_FISHING_BOATS_DESCRIPTION" Language="en_US">
-			<Text>Fishing Boats are automatically exploiting Sea Resources in the City range (require a Harbor).</Text>
+		<Replace Tag="LOC_VILLAGE_CREATE_DESCRIPTION"	Language="en_US">
+			<Text>Create a new Village to collect resources on a tile and all adjacent tiles.[NEWLINE]A road will be constructed between your Central Village and the new village.[NEWLINE]This will also create a migration movement to the new Village from your Central Village.[NEWLINE]Villages can't be adjacent to each other.</Text>
 		</Replace>
+		<Replace Tag="LOC_PRODUCTION_MATERIEL_DESCRIPTION"	Language="en_US">
+			<Text>Prioritize [ICON_RESOURCE_MATERIEL] Materiel production.[NEWLINE]Materiel is produced at a lower rate when this is not the Village current task.</Text>
+		</Replace>
+		<Replace Tag="LOC_PRODUCTION_EQUIPMENT_DESCRIPTION"	Language="en_US">
+			<Text>Prioritize Equipment production.[NEWLINE]Equipment is produced at a lower rate when this is not the Village current task.[NEWLINE]Materiel stock reserve is lower when this task is prioritized.</Text>
+		</Replace>
+		<Replace Tag="LOC_VILLAGE_REBUILD_DESCRIPTION"	Language="en_US">
+			<Text>Rebuild this Village to collect resources on its tile and all adjacent tiles.[NEWLINE]A road will be constructed between your Central Village and this Village.[NEWLINE]This will also create a migration movement to the rebuild Village from your Central Village.</Text>
+		</Replace>
+		<Replace Tag="LOC_POPULATION_ASSIMILATION_DESCRIPTION"	Language="en_US">
+			<Text>Using various methods, raise the assimilation rate of other Ethnicities Population into yours.[NEWLINE]Luxuries resources will be used as gifts to gain influence and raise even more the assimilation rate.[NEWLINE]Slaves are assimilated faster than Free Population, but are only assimilated when this is the Village current task.</Text>
+		</Replace>
+		<Replace Tag="LOC_POPULATION_EMIGRATION_DESCRIPTION"	Language="en_US">
+			<Text>Using various methods, force other Ethnicities Population to migrate from your Central Village to other Villages to raise your Ethnicity influence over the Central Village.</Text>
+		</Replace>
+		<Replace Tag="LOC_POPULATION_IMMIGRATION_DESCRIPTION"	Language="en_US">
+			<Text>Using various methods, force Population from your other Villages to immigrate into your Central Village to raise its Population.</Text>
+		</Replace>
+		
 	</LocalizedText>
-	
 	
 	<LocalizedText> <!-- Yields -->
 		
@@ -592,4 +1340,6 @@
 		<Replace Tag="LOC_YIELD_LOWER_HOUSING_NAME" 	Text="Lower Class Housing"	Language="en_US" />
 		<Replace Tag="LOC_YIELD_ADMINISTRATION_NAME" 	Text="Administration"		Language="en_US" />
 	</LocalizedText>
+
+	
 </GameData>

@@ -20,20 +20,24 @@ include( "GCO_PlayerConfig" )
 -- Initialize Functions
 -----------------------------------------------------------------------------------------
 
-GCO 				= {}
+GCO 				= ExposedMembers.GCO
 local GameEvents	= ExposedMembers.GameEvents
 ----local LuaEvents		= ExposedMembers.LuaEvents
 function InitializeUtilityFunctions()
 	GCO = ExposedMembers.GCO		-- contains functions from other contexts
 	print ("Exposed Functions from other contexts initialized...")
 end
-GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+--GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 
 local bShownSupplyLine 			= false
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
 local sCurrentResourceTooltip	= nil
 local currentBannerCity			= nil
 local m_TradeRoute 				= UILens.CreateLensLayerHash("TradeRoutes")
+local IsCentralSettlement		= {
+	[GameInfo.Improvements["IMPROVEMENT_BARBARIAN_CAMP_GCO"].Index] = true,
+	
+}
 
 local resourceToolTipTab	= 1 --"LOC_CITYBANNER_TOOLTIP_STOCK_TAB"
 local resourceToolTipMode	= 2 --"LOC_CITYBANNER_TOOLTIP_RESOURCE_DETAILED_MOD"
@@ -145,6 +149,10 @@ hstructure CityBannerMeta
 	UpdateAerodromeBanner			: ifunction;
 	CreateWMDBanner					: ifunction;
 	UpdateWMDBanner					: ifunction;
+	-- GCO <<<<<
+	CreateTribeBanner				: ifunction;
+	UpdateTribeBanner				: ifunction;
+	-- GCO >>>>>
 	CreateEncampmentBanner			: ifunction;
 	UpdateEncampmentBanner			: ifunction;
 	CreateDistrictBanner			: ifunction;
@@ -193,6 +201,10 @@ local m_WMDBannerIM			:table	= InstanceManager:new( "WMDBanner",			"Anchor", Con
 local m_EncampmentBannerIM	:table	= InstanceManager:new( "EncampmentBanner",	"Anchor", Controls.CityBanners );
 local m_DistrictBannerIM	:table	= InstanceManager:new( "DistrictBanner",	"Anchor", Controls.CityBanners );
 
+-- GCO <<<<<
+local m_TribeBannerIM		:table	= InstanceManager:new( "TribeBanner",			"Anchor", Controls.CityBanners );
+-- GCO >>>>>
+
 -- Create one instance of the meta object as a global variable with the same name as the data structure portion.  
 -- This allows us to do a CityBanner:new, so the naming looks consistent.
 CityBanner = hmake CityBannerMeta {};
@@ -208,6 +220,9 @@ local BANNERTYPE_ENCAMPMENT		= 1;
 local BANNERTYPE_AERODROME		= 2;
 local BANNERTYPE_MISSILE_SILO	= 3;
 local BANNERTYPE_OTHER_DISTRICT	= 4;
+-- GCO <<<<<
+local BANNERTYPE_TRIBE			= 5;
+-- GCO >>>>>
 
 local BANNERSTYLE_LOCAL_TEAM	= 0;
 local BANNERSTYLE_OTHER_TEAM	= 1;
@@ -252,7 +267,6 @@ function CityBanner.new( self : CityBannerMeta, playerID: number, cityID : numbe
     setmetatable( o, self );
 
 	if bannerStyle == nil then UI.DataError("Missing bannerStyle: "..tostring(playerID)..", "..tostring(cityID)..", "..tostring(districtID)..", "..tostring(bannerType) ); end
-
 	o:Initialize(playerID, cityID, districtID, bannerType, bannerStyle);
 
 	if (bannerType == BANNERTYPE_CITY_CENTER) then
@@ -288,7 +302,6 @@ function CityBanner.Initialize( self : CityBanner, playerID: number, cityID : nu
 	self.m_Player = Players[playerID];
 	self.m_CityID = cityID;
 	self.m_DistrictID = districtID;
-
 	self.m_Type = bannerType;
 	self.m_Style = bannerStyle;
 	self.m_IsSelected = false;
@@ -341,6 +354,12 @@ function CityBanner.Initialize( self : CityBanner, playerID: number, cityID : nu
 	elseif (bannerType == BANNERTYPE_OTHER_DISTRICT) then
 		self:CreateDistrictBanner();
 		self:UpdateDistrictBanner();
+	-- GCO <<<<<
+	elseif (bannerType == BANNERTYPE_TRIBE) then
+	--GCO.Dline("BANNERTYPE_TRIBE")
+		self:CreateTribeBanner();
+		self:UpdateTribeBanner();
+	-- GCO >>>>>
 	end
 
 	self:UpdateName();
@@ -620,6 +639,133 @@ function CityBanner.UpdateWMDBanner( self : CityBanner )
 	end
 end
 
+-- GCO <<<<<
+-- ===========================================================================
+function CityBanner.CreateTribeBanner( self : CityBanner )
+	-- Set the appropriate instance factory (mini banner one) for this flag...
+	self.m_InstanceManager = m_TribeBannerIM;
+	self.m_Instance = self.m_InstanceManager:GetInstance()
+	
+	if self.m_Player then
+		self.m_Instance.TribeBannerButton:RegisterCallback( Mouse.eLClick, OnMiniBannerClick );
+		self.m_Instance.TribeBannerButton:SetVoid1(self.m_Player:GetID());
+		self.m_Instance.TribeBannerButton:SetVoid2(self.m_DistrictID);
+	end
+
+	-- it's an banner not associated with a district, so the districtID should be a plot index
+	self.m_PlotX, self.m_PlotY = Map.GetPlotLocation(self.m_DistrictID);
+	self.m_IsImprovementBanner = true;
+
+
+	-- Setup button callbacks
+	--local plotID = Map.GetPlotIndex(self.m_PlotX, self.m_PlotY);
+	--self.m_Instance.TribeButton:RegisterCallback( Mouse.eLClick, OnICBMStrikeButtonClick );
+	--self.m_Instance.TribeButton:SetVoid1(plotID);
+	--self.m_Instance.TribeButton:SetVoid2(eNuclearDevice);
+
+end
+
+-- ===========================================================================
+function CityBanner.UpdateTribeBanner( self : CityBanner )
+	
+	self.m_Instance.TribeBannerContainer:SetHide(false);
+
+	local pPlot 		= GCO.GetPlotByIndex(self.m_DistrictID) -- districtID is plotID for Tribe Banners
+	local cultureID		= pPlot:GetHighestCultureID()
+	local row			= GameInfo.CultureGroups[cultureID]
+	local pPlayerConfig	= self.m_Player and GCO.GetPlayerConfig(self.m_Player:GetID())
+	local pLocalPlayer	= Players[Game.GetLocalPlayer()]
+	local pDiplo		= pLocalPlayer and pLocalPlayer:GetDiplomacy()	
+	local bIsAtWar		= self.m_Player and pDiplo and pDiplo:IsAtWarWith(self.m_Player:GetID())
+	local village		= GCO.GetTribalVillageAt(self.m_DistrictID)
+	local iDistance		= tonumber(GameInfo.GlobalParameters["TRIBES_MAX_SETTLEMENT_DISTANCE_BARBARIAN"].Value)*0.5
+	local sName			= "Tribe" 	-- no locale, but this shouldn't be used
+	local suzerainty	= {} 		-- to do : get vassal/suzerain relation here
+	if row then
+		sName = row.Name
+	else
+		GCO.Warning("Can't find culture group for TribeBanner at plot#", self.m_DistrictID)
+	end
+	
+	if pPlayerConfig then
+		local cultureGroup	= GCO.GetTribePlayerCulture(self.m_Player:GetID())
+		if cultureGroup then
+			sName = GameInfo.CultureGroups[cultureGroup].Name
+		else
+			suzerainty.Type		= "CultureGroup" 
+			suzerainty.Ruler	= pPlayerConfig:GetLeaderName()
+			--sName = pPlayerConfig:GetValue("CivilizationName") or GameInfo.Civilizations[pPlayerConfig:GetCivilizationType()].Name
+		end
+
+	end
+	
+	if village.IsCentral then
+		if self.m_Player:GetID() == Game.GetLocalPlayer() then
+			self.m_Instance.TribeStateLabel:SetText("[ICON_Star]")
+		elseif bIsAtWar then
+			self.m_Instance.TribeStateLabel:SetText("[ICON_War]")
+		else
+			self.m_Instance.TribeStateLabel:SetText("[ICON_Peace]")
+		end
+		self.m_Instance.TribeStateLabel:SetHide(false)
+		if suzerainty.Type then
+			self.m_Instance.TribeSuzeraintyLabel:SetHide(false)
+			if suzerainty.Type	== "CultureGroup" then
+				self.m_Instance.TribeSuzeraintyLabel:SetText("[ICON_Chain]")
+				self.m_Instance.TribeSuzeraintyLabel:SetToolTipString(Locale.Lookup("LOC_DIPLOMACY_UNDER_RULE", suzerainty.Ruler))
+			end
+		else
+			self.m_Instance.TribeSuzeraintyLabel:SetHide(true)
+		end
+	else
+		if pPlot:IsImprovementPillaged() then
+			self.m_Instance.TribeStateLabel:SetText("[ICON_Pillaged]")
+			self.m_Instance.TribeStateLabel:SetHide(false)
+		else
+			self.m_Instance.TribeStateLabel:SetHide(true)
+		end
+		
+		if village.CentralPlot then
+			local centralPlot 	= Map.GetPlotByIndex(village.CentralPlot)
+			local directionStr 	= pPlot:GetDirectionStringTo(centralPlot, iDistance)
+			self.m_Instance.TribeSuzeraintyLabel:SetToolTipString(Locale.Lookup("LOC_VILLAGE_UNDER_CONTROL", directionStr))
+			self.m_Instance.TribeSuzeraintyLabel:SetHide(false)
+		else
+			self.m_Instance.TribeSuzeraintyLabel:SetHide(true)
+		end
+		
+		
+	end
+	
+	
+	self.m_Instance.TribeNameLabel:SetText(Locale.Lookup(sName));
+	
+	self:Resize();
+	
+	local population	= pPlot:GetPopulation()
+	local popVariation 	= population - pPlot:GetPreviousPopulation() 
+	local kParameters 	= {}
+	kParameters.Title1	= Locale.Lookup("LOC_CITYBANNER_SMALL_POPULATION_TITLE")
+	kParameters.Text1	= Locale.Lookup("LOC_CITYBANNER_TOTAL_POPULATION", population) .. GCO.GetVariationString(popVariation)
+	
+	local tStrTooltip = {}
+	for resourceKey, value in pairs(pPlot:GetResources()) do
+		local resourceID = tonumber(resourceKey)
+		table.insert(tStrTooltip,  GCO.GetResourceIcon(resourceID).. " " .. Indentation(Locale.Lookup(GameInfo.Resources[resourceID].Name), 10, false, true) .. Indentation(value, 4, true) .."/" .. Indentation(pPlot:GetMaxStock(resourceID), 4, true))
+	end
+	
+	if #tStrTooltip > 0 then
+		kParameters.Title2	= Locale.Lookup("LOC_CITYBANNER_SMALL_STOCK_TITLE")
+		kParameters.ListSmall	= table.concat(tStrTooltip, "[NEWLINE]")
+	else
+		kParameters.Title2		= ""
+		kParameters.ListSmall	= ""
+	end
+	GCO.AttachCustomToolTip(self.m_Instance.TribeNameLabel, kParameters)
+end
+
+-- GCO >>>>>
+
 -- ===========================================================================
 function CityBanner.CreateDistrictBanner( self : CityBanner )
 	-- Set the appropriate instance factory (mini banner one) for this flag...
@@ -812,6 +958,19 @@ function CityBanner.Resize( self : CityBanner )
 			--	self.m_Instance.DefenseNumber:SetOffsetX(-2);
 			--end
 		end
+	-- GCO <<<<<
+	elseif (self.m_Type == BANNERTYPE_TRIBE) then
+		--GCO.Dline("BANNERTYPE_TRIBE")
+		self.m_Instance.TribeNameStack:CalculateSize();
+		self.m_Instance.TribeNameStack:ReprocessAnchoring();
+		local nameContainerSize = self.m_Instance.TribeNameStack:GetSizeX();
+		self.m_Instance.TribeNameContainer:SetSizeX(nameContainerSize);
+		self.m_Instance.Banner_Base:SetSizeX(nameContainerSize + 25);
+		
+		--self.m_Instance.TribeNameStack:CalculateSize();
+		--self.m_Instance.TribeNameStack:ReprocessAnchoring();
+		--TribeNameContainer
+	-- GCO >>>>>
 	end
 end
 
@@ -821,7 +980,14 @@ function CityBanner.SetColor( self : CityBanner )
 
 	-- GCO <<<<<
 	--local backColor, frontColor  = UI.GetPlayerColors( self.m_Player:GetID() );
-	local backColor, frontColor = GCO.GetPlayerColors( self.m_Player:GetID() );
+	--
+	local backColor, frontColor
+	if self.m_Player then
+		backColor, frontColor = GCO.GetPlayerColors( self.m_Player:GetID() );
+	else
+		backColor	= GCO.ColorStringToNumber(GameInfo.ColorsLegacy["COLOR_WHITE2"].Color)
+		frontColor	= GCO.ColorStringToNumber(GameInfo.ColorsLegacy["COLOR_BLACK"].Color)
+	end
 	-- GCO >>>>>
 	local darkerBackColor = UI.DarkenLightenColor(backColor,(-85),238);
 
@@ -853,6 +1019,14 @@ function CityBanner.SetColor( self : CityBanner )
 		if self.m_Instance.Banner_Base ~= nil then
 			self.m_Instance.Banner_Base:SetColor( backColor );
 		end
+	-- GCO <<<<<
+	elseif (self.m_Type == BANNERTYPE_TRIBE) then
+		--GCO.Dline("BANNERTYPE_TRIBE")
+		if self.m_Instance.Banner_Base ~= nil then
+			self.m_Instance.Banner_Base:SetColor( backColor );
+			self.m_Instance.TribeNameLabel:SetColor( frontColor );
+		end	
+	-- GCO >>>>>
 	else
 		self.m_Instance.MiniBannerBackground:SetColor( backColor );
 	end
@@ -1768,6 +1942,11 @@ function CityBanner.UpdateStats( self : CityBanner)
 				self:UpdateAerodromeBanner();
 			elseif (self.m_Type == BANNERTYPE_OTHER_DISTRICT) then
 				self:UpdateDistrictBanner();
+			-- GCO <<<<<
+			elseif (self.m_Type == BANNERTYPE_TRIBE) then
+				GCO.Dline("CityBanner.UpdateStats call UpdateTribeBanner (shouldn't be here !)")
+				self:UpdateTribeBanner()
+			-- GCO >>>>>
 			end
 			
 		end
@@ -1780,6 +1959,11 @@ function CityBanner.UpdateStats( self : CityBanner)
 					self:UpdateAerodromeBanner();
 				elseif (self.m_Type == BANNERTYPE_MISSILE_SILO) then
 					self:UpdateWMDBanner();
+				-- GCO <<<<<
+				elseif (self.m_Type == BANNERTYPE_TRIBE) then
+					--GCO.Dline("BANNERTYPE_TRIBE")
+					self:UpdateTribeBanner();
+				-- GCO >>>>>
 				end
 			end
 		end
@@ -1847,6 +2031,27 @@ end
 
 -- ===========================================================================
 function OnMiniBannerClick( playerID, districtID )
+
+	-- GCO <<<<<
+	local miniBanner = GetMiniBanner( playerID, districtID )
+	if miniBanner.m_IsImprovementBanner then
+		local iPlot = districtID -- yep, that's how Firaxis coded it, not me.
+		local pPlot = GCO.GetPlotByIndex(iPlot) 
+print("OnMiniBannerClick", pPlot:GetX(), pPlot:GetY())
+		if GCO.IsTribeImprovement(pPlot:GetImprovementType()) then
+			local kParameters		= {}
+			kParameters.PlayerID 	= playerID
+			kParameters.PlotID 		= iPlot
+			if (playerID == Game.GetLocalPlayer()) then
+				LuaEvents.ShowActionScreenGCO(kParameters, "Main")
+			else
+				LuaEvents.ShowDiploScreenGCO(kParameters)
+			end
+			return
+		end
+	end
+	-- GCO >>>>>
+
 	local pPlayer = Players[playerID];
 	if (pPlayer == nil) then
 		return;
@@ -1886,12 +2091,18 @@ end
 
 -- ===========================================================================
 function CityBanner.GetCity( self : CityBanner )
+	-- GCO <<<<<
+	if not self.m_Player then return nil end
+	-- GCO >>>>>
 	local pCity : table = self.m_Player:GetCities():FindID(self.m_CityID);
 	return pCity;
 end
 
 -- ===========================================================================
 function CityBanner.GetDistrict( self : CityBanner )
+	-- GCO <<<<<
+	if self.m_Player == nil then return end
+	-- GCO >>>>>
 	local pDistrict : table = self.m_Player:GetDistricts():FindID(self.m_DistrictID);
 	return pDistrict;
 end
@@ -2806,7 +3017,6 @@ end
 function AddMiniBannerToMap( playerID: number, cityID: number, districtID: number, styleEnum:number )
 	local idLocalPlayer	:number = Game.GetLocalPlayer();
 	local pPlayer		:table  = Players[playerID];
-
 	if (idLocalPlayer == playerID) then		
 		return CityBanner:new( playerID, cityID, districtID, styleEnum, BANNERSTYLE_LOCAL_TEAM );		
 	else
@@ -2875,7 +3085,6 @@ end
 
 -- ===========================================================================
 function OnImprovementAddedToMap(locX, locY, eImprovementType, eOwner)
-
 	if eImprovementType == -1 then
 		UI.DataError("Received -1 eImprovementType for ("..tostring(locX)..","..tostring(locY)..") and owner "..tostring(eOwner));
 		return;
@@ -2888,10 +3097,12 @@ function OnImprovementAddedToMap(locX, locY, eImprovementType, eOwner)
 	end
 	
 	-- Early out if the improvement isn't one that requires a banner
-	if ( improvementData.AirSlots == 0 and improvementData.WeaponSlots == 0 ) then
+	-- GCO <<<<<
+	--if ( improvementData.AirSlots == 0 and improvementData.WeaponSlots == 0 ) then
+	if ( improvementData.AirSlots == 0 and improvementData.WeaponSlots == 0 and not GCO.IsTribeImprovement(improvementData.ImprovementType) ) then
+	-- GCO >>>>>
 		return;
 	end
-
 	local pPlayer:table = Players[eOwner];
 	local localPlayerID:number = Game.GetLocalPlayer();
 	if (pPlayer ~= nil) then
@@ -2914,6 +3125,14 @@ function OnImprovementAddedToMap(locX, locY, eImprovementType, eOwner)
 			end
 		end
 	end
+	-- GCO <<<<<
+	if ( GCO.IsTribeImprovement(improvementData.ImprovementType) ) then
+		local plotID 	= Map.GetPlotIndex(locX, locY);
+		--local owner		= improvementData.ImprovementType == "IMPROVEMENT_BARBARIAN_CAMP" and 63 or -1 -- to do : tribe specific ID
+		--GCO.Dline("BANNERTYPE_TRIBE")
+		AddMiniBannerToMap( eOwner, -1, plotID, BANNERTYPE_TRIBE ); -- to do: track tribe player#
+	end
+	-- GCO >>>>>
 end
 
 -- ===========================================================================
@@ -2988,7 +3207,12 @@ function OnImprovementVisibilityChanged( locX :number, locY :number, eImprovemen
 		return;
 	end
 	-- We're only interested in the Airstrip or Missile Silo improvements
-	if ( GameInfo.Improvements[eImprovementType].AirSlots > 0 or GameInfo.Improvements[eImprovementType].WeaponSlots > 0) then
+	-- GCO <<<<<
+	--if ( GameInfo.Improvements[eImprovementType].AirSlots > 0 or GameInfo.Improvements[eImprovementType].WeaponSlots > 0) then
+	local improvementRow = GameInfo.Improvements[eImprovementType]
+	if ( improvementRow.AirSlots > 0 or improvementRow.WeaponSlots > 0 or GCO.IsTribeImprovement(improvementRow.ImprovementType)) then
+	--GCO.Dline("BANNERTYPE_TRIBE")
+	-- GCO >>>>>
 		local plotID = Map.GetPlotIndex(locX, locY);
 		if (plotID > 0) then
 			local plot = Map.GetPlotByIndex(plotID);
@@ -3944,6 +4168,12 @@ end
 Initialize();
 
 -- GCO <<<<<
+
+function OnTribeImprovementUpdated(playerID, plotID)
+	RefreshMiniBanner(playerID, plotID)
+end
+LuaEvents.TribeImprovementUpdated.Add(OnTribeImprovementUpdated)
+
 function OnCityCompositionUpdated(playerID, cityID)
 	RefreshBanner (playerID, cityID)
 end

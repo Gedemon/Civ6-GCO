@@ -18,6 +18,12 @@ UPDATE DiplomaticRelationsGCO		SET Name = 'LOC_' || DiplomaticRelationsGCO.Relat
 UPDATE DiplomaticDealsGCO			SET Name = 'LOC_' || DiplomaticDealsGCO.DealType || '_NAME';
 UPDATE DiplomaticTreatiesGCO		SET Name = 'LOC_' || DiplomaticTreatiesGCO.TreatyType || '_NAME';
 UPDATE DiplomaticSuzeraintyTypeGCO	SET Name = 'LOC_' || DiplomaticSuzeraintyTypeGCO.SuzeraintyType || '_NAME';
+UPDATE DiplomacyPowerModifiers		SET Name = 'LOC_' || DiplomacyPowerModifiers.PowerType || '_NAME';
+UPDATE DiplomacyInterestModifiers	SET Name = 'LOC_' || DiplomacyInterestModifiers.InterestType || '_NAME';
+UPDATE DiplomacyTrustModifiers		SET Name = 'LOC_' || DiplomacyTrustModifiers.TrustType || '_NAME';
+UPDATE CultureRelationModifiers		SET Name = 'LOC_' || CultureRelationModifiers.RelationModifierType || '_NAME';
+UPDATE TribalVillageProductions		SET Name = 'LOC_' || TribalVillageProductions.ProductionType || '_NAME';
+UPDATE TribalVillageActions			SET Name = 'LOC_' || TribalVillageActions.ActionType || '_NAME';
 
 
 -----------------------------------------------
@@ -86,7 +92,7 @@ INSERT INTO BuildingModifiers (BuildingType, ModifierId)
 -- City Names
 -----------------------------------------------
 
-/* Clean table */
+/* Clean table to prevent invalid reference */
 DELETE FROM CityNames WHERE CivilizationType NOT IN (SELECT Civilizations.CivilizationType from Civilizations);
 
 -----------------------------------------------
@@ -148,7 +154,7 @@ INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequen
 /* Create new Resources entries from the Equipment table */
 INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequency, PrereqTech, FixedPrice, MaxPriceVariationPercent, NoExport, NoTransfer, SpecialStock, NotLoot, ObsoleteTech)
 	SELECT Equipment.ResourceType, 'LOC_' || Equipment.ResourceType || '_NAME', Equipment.ResourceClassType, 0, Equipment.PrereqTech, Equipment.FixedPrice, Equipment.MaxPriceVariationPercent, Equipment.NoExport, Equipment.NoTransfer, Equipment.SpecialStock, Equipment.NotLoot, Equipment.ObsoleteTech
-	FROM Equipment;
+	FROM Equipment WHERE NOT EXISTS (SELECT * FROM Resources WHERE Resources.ResourceType = Equipment.ResourceType);
 	
 /* update UnitsPerTonnage entries from the Size entries in Equipment table */
 UPDATE Resources SET UnitsPerTonnage = 100 / (SELECT Equipment.Size	FROM Equipment WHERE Equipment.ResourceType = Resources.ResourceType AND Equipment.Size < 100);
@@ -162,6 +168,8 @@ INSERT OR REPLACE INTO Resources (ResourceType, Name, ResourceClassType, Frequen
 --UPDATE Resources SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Resources.ResourceType || '_DESCRIPTION' = Tag AND Language='en_US')
 --				WHERE EXISTS			(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Resources.ResourceType || '_DESCRIPTION' = Tag AND Language='en_US');
 
+
+	
 -----------------------------------------------
 -- Technologies
 -----------------------------------------------
@@ -356,6 +364,19 @@ UPDATE Civics SET Cost = Cost*3.80 WHERE EraType ='ERA_INFORMATION';
 
 UPDATE Civics SET Cost = 999999;
 
+
+-----------------------------------------------
+-- Tribal Villages
+-----------------------------------------------
+
+/* Link existing description entries to Buildings */
+UPDATE TribalVillageProductions SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' || TribalVillageProductions.ProductionType || '_DESCRIPTION' = Tag AND Language='en_US')
+			WHERE EXISTS							(SELECT Tag FROM LocalizedText WHERE 'LOC_' || TribalVillageProductions.ProductionType || '_DESCRIPTION' = Tag AND Language='en_US');
+			
+UPDATE TribalVillageActions 	SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' || TribalVillageActions.ActionType || '_DESCRIPTION' = Tag AND Language='en_US')
+			WHERE EXISTS							(SELECT Tag FROM LocalizedText WHERE 'LOC_' || TribalVillageActions.ActionType || '_DESCRIPTION' = Tag AND Language='en_US');
+		
+		
 -----------------------------------------------
 -- Units
 -----------------------------------------------
@@ -397,12 +418,13 @@ UPDATE Units SET RangedCombat	= ifnull((SELECT UnitsGCO.RangedCombat		FROM Units
 UPDATE Units SET Range 			= ifnull((SELECT UnitsGCO.Range 			FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.Range 			IS NOT NULL) , Units.Range 			);
 UPDATE Units SET PromotionClass = ifnull((SELECT UnitsGCO.PromotionClass 	FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.PromotionClass	IS NOT NULL) , Units.PromotionClass	);
 UPDATE Units SET PseudoYieldType= ifnull((SELECT UnitsGCO.PseudoYieldType 	FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.PseudoYieldType	IS NOT NULL) , Units.PseudoYieldType);
+UPDATE Units SET NoReinforcement= ifnull((SELECT UnitsGCO.NoReinforcement 	FROM UnitsGCO WHERE UnitsGCO.UnitType = Units.UnitType AND UnitsGCO.NoReinforcement	IS NOT NULL) , Units.NoReinforcement);
 
 --*/
 
 /* Create new Units entries from the temporary UnitsGCO table (after UPDATE)*/
 --/*
-INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, Bombard, RangedCombat, Range, FormationClass, PromotionClass, AdvisorType, PseudoYieldType, Personnel)
+INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseSightRange, ZoneOfControl, Domain, Combat, Bombard, RangedCombat, Range, FormationClass, PromotionClass, AdvisorType, PseudoYieldType, NoReinforcement)
 
 	SELECT 
 		UnitsGCO.UnitType,
@@ -422,7 +444,7 @@ INSERT INTO Units (UnitType, Name, Cost, CanTrain, Maintenance, BaseMoves, BaseS
 		UnitsGCO.PromotionClass,
 		ifnull(UnitsGCO.AdvisorType,'ADVISOR_GENERIC'),
 		UnitsGCO.PseudoYieldType,
-		ifnull(UnitsGCO.Personnel,0)
+		ifnull(UnitsGCO.NoReinforcement,0)
 		
 	FROM UnitsGCO WHERE NOT EXISTS (SELECT * FROM Units WHERE Units.UnitType = UnitsGCO.UnitType);
 --*/
@@ -441,6 +463,7 @@ UPDATE Units SET AdvisorType	=	NULL
 /* Link existing description entries to Units */
 UPDATE Units SET Description	=	(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Units.UnitType || '_DESCRIPTION' = Tag AND Language='en_US')
 			WHERE EXISTS			(SELECT Tag FROM LocalizedText WHERE 'LOC_' || Units.UnitType || '_DESCRIPTION' = Tag AND Language='en_US');
+
 	
 /* temporary for testing before removing completely those columns from the Units table */
 --UPDATE Units SET Materiel = 0, Horses = 0;
@@ -572,7 +595,115 @@ INSERT OR REPLACE INTO UnitsTokeep (UnitType)
 
 DELETE FROM Units WHERE UnitType NOT IN (SELECT UnitsTokeep.UnitType from UnitsTokeep UNION SELECT UnitsGCO.UnitType from UnitsGCO);
 
+/* Create AI infos */
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITAI_EXPLORE'
+	FROM Units WHERE FormationClass='FORMATION_CLASS_RECON';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_RANGED'
+	FROM Units WHERE FormationClass='FORMATION_CLASS_RECON';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_LAND_COMBAT'
+	FROM Units WHERE FormationClass='FORMATION_CLASS_RECON';
 
+
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITAI_COMBAT'
+	FROM Units WHERE FormationClass='FORMATION_CLASS_LAND_COMBAT';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_MELEE'
+	FROM Units WHERE FormationClass='FORMATION_CLASS_LAND_COMBAT';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_LAND_COMBAT'
+	FROM Units WHERE FormationClass='FORMATION_CLASS_LAND_COMBAT';
+	
+
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITAI_COMBAT'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_RANGED';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_RANGED'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_RANGED';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_LAND_COMBAT'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_RANGED';
+	
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITAI_COMBAT'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_SIEGE';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_RANGED'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_SIEGE';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_SIEGE'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_SIEGE';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_SIEGE_ALL'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_SIEGE';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_LAND_COMBAT'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_SIEGE';
+	
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITAI_COMBAT'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_CAVALRY';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITAI_EXPLORE'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_LIGHT_CAVALRY';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_MELEE'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_CAVALRY' or PromotionClass='PROMOTION_CLASS_LIGHT_CAVALRY';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_CAVALRY'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_CAVALRY' or PromotionClass='PROMOTION_CLASS_LIGHT_CAVALRY';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_LAND_COMBAT'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_CAVALRY' or PromotionClass='PROMOTION_CLASS_LIGHT_CAVALRY';
+	
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITAI_EXPLORE'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_NAVAL_RAIDER' or PromotionClass='PROMOTION_CLASS_NAVAL_MELEE';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITAI_COMBAT'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_NAVAL_RAIDER' or PromotionClass='PROMOTION_CLASS_NAVAL_MELEE' or PromotionClass='PROMOTION_CLASS_NAVAL_RANGED';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_MELEE'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_NAVAL_RAIDER' or PromotionClass='PROMOTION_CLASS_NAVAL_MELEE';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_RANGED'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_NAVAL_RANGED';
+	
+INSERT OR REPLACE INTO UnitAiInfos (UnitType, AiType)
+	SELECT UnitType, 'UNITTYPE_NAVAL'
+	FROM Units WHERE PromotionClass='PROMOTION_CLASS_NAVAL_RAIDER' or PromotionClass='PROMOTION_CLASS_NAVAL_MELEE' or PromotionClass='PROMOTION_CLASS_NAVAL_RANGED';
+	
+-----------------------------------------------
+-- Maps
+-----------------------------------------------
+
+/* Need more Continents */
+
+UPDATE Maps SET Continents = DefaultPlayers;
 
 /* Starting resources (last as this will cause a DB error if YnAMP is not activated */
 DELETE from CivilizationRequestedResource;

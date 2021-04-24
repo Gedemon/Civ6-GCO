@@ -8,7 +8,9 @@
 	-->
 	
 	<Equipment> <!-- Materiel (can be used as Equipment) -->
-		<Row ResourceType="RESOURCE_MATERIEL" ResourceClassType="RESOURCECLASS_MATERIEL" Size="10" /> <!-- Size 10 to compensate CITY_TRADE_INCOME_EQUIPMENT_RATIO (=0.1) applied to all equipment cost -->
+		<Row ResourceType="RESOURCE_MATERIEL"	ResourceClassType="RESOURCECLASS_MATERIEL" Size="10" /> <!-- Size 10 to compensate CITY_TRADE_INCOME_EQUIPMENT_RATIO (=0.1) applied to all equipment cost -->
+		<Row ResourceType="POPULATION_LOWER"	Desirability="10" /> 
+		<Row ResourceType="POPULATION_SLAVE"	Desirability="1" /> 
 	</Equipment>
 	<Equipment> <!-- Melee/Cavalry Weapons -->
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"												LogisticCost="0.05"	Toughness="1"	Desirability="11" 	AntiPersonnel="27"	ObsoleteTech="TECH_IRON_WORKING"	/>
@@ -111,6 +113,8 @@
 	
 	<EquipmentClasses> <!-- Specific to Unit types -->
 		<Row EquipmentClass="EQUIPMENTCLASS_MATERIEL"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_CIVILIAN"			/>
+		<Row EquipmentClass="EQUIPMENTCLASS_SLAVE"				/>
 		
 		<Row EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"		/>
 		
@@ -203,9 +207,13 @@
 	<EquipmentTypeClasses> <!-- Shared by Unit Types and Promotion Class -->
 		<Row ResourceType="RESOURCE_MATERIEL"			EquipmentClass="EQUIPMENTCLASS_MATERIEL"		/>
 		<Row ResourceType="RESOURCE_HORSES"				EquipmentClass="EQUIPMENTCLASS_SUPPLY_WAGONS"	/>
+		
+		<Row ResourceType="POPULATION_LOWER"			EquipmentClass="EQUIPMENTCLASS_CIVILIAN"		/>
+		<Row ResourceType="POPULATION_SLAVE"			EquipmentClass="EQUIPMENTCLASS_SLAVE"			/>
 	</EquipmentTypeClasses>
 	
-	<EquipmentTypeClasses> <!-- Specific to Unit types -->		
+	<EquipmentTypeClasses> <!-- Specific to Unit types -->
+		
 		<Row ResourceType="EQUIPMENT_WOODEN_CLUB"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_STONE_AXES"		EquipmentClass="EQUIPMENTCLASS_BLUNT_WEAPONS"	/>
 		<Row ResourceType="EQUIPMENT_BRONZE_SWORDS"		EquipmentClass="EQUIPMENTCLASS_SWORDS"			/>
@@ -458,10 +466,18 @@
 	</EquipmentEffects>	
 	
 	<UnitEquipmentClasses> <!-- Equipment Classes used by units of the Civilians PromotionClass -->
-	<!-- 
+	<!-- ->
 		<Row UnitType="UNIT_SETTLER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="30" />
 		<Row UnitType="UNIT_BUILDER"				EquipmentClass="EQUIPMENTCLASS_MATERIEL" 		PercentageOfPersonnel="100" />
-	-->		
+		
+		<Row UnitType="UNIT_SETTLER"			EquipmentClass="EQUIPMENTCLASS_MATERIEL"			Quantity="750" />
+		<Row UnitType="UNIT_BUILDER"			EquipmentClass="EQUIPMENTCLASS_MATERIEL"			Quantity="350" />
+	<!-- -->
+		<Row UnitType="UNIT_SETTLER"			EquipmentClass="EQUIPMENTCLASS_CIVILIAN"			Quantity="3500" /><!-- to do: replace CITY_STARTING_POPULATION_BONUS reference in GCO_CityScript.lua to this value (-1000 for accounting size 1 city population automatically added) --> 
+		<Row UnitType="UNIT_BUILDER"			EquipmentClass="EQUIPMENTCLASS_CIVILIAN"			Quantity="3000" />
+		<Row UnitType="UNIT_WORKER"				EquipmentClass="EQUIPMENTCLASS_SLAVE"				Quantity="300" />
+		<Row UnitType="UNIT_CARAVAN"			EquipmentClass="EQUIPMENTCLASS_CIVILIAN"			Quantity="100" />
+	<!-- -->		
 	</UnitEquipmentClasses>
 	<UnitEquipmentClasses> <!-- Equipment Classes used by units of the Skirmishers PromotionClass -->
 		
@@ -789,8 +805,11 @@
 	</UnitEquipmentClasses>
 	
 	<UnitConstructionResources>
-		<Row UnitType="UNIT_SETTLER"			ResourceType="RESOURCE_MATERIEL"	Quantity="750" />
 		<Row UnitType="UNIT_BUILDER"			ResourceType="RESOURCE_MATERIEL"	Quantity="350" />
+		<Row UnitType="UNIT_SETTLER"			ResourceType="RESOURCE_MATERIEL"	Quantity="750" />
+		<!-- ->
+		<Row UnitType="UNIT_SETTLER"			ResourceType="POPULATION_LOWER"		Quantity="3500" /><!-- to do: replace CITY_STARTING_POPULATION_BONUS reference in GCO_CityScript.lua to this value (-1000 for accounting size 1 city population automatically added) -> 
+		<Row UnitType="UNIT_BUILDER"			ResourceType="POPULATION_LOWER"		Quantity="3000" />
 		<!--
 		<Row UnitType="UNIT_GALLEY" 			ResourceType="RESOURCE_WOOD" 		Quantity="100" />
 		<Row UnitType="UNIT_QUADRIREME" 		ResourceType="RESOURCE_WOOD" 		Quantity="200" />
@@ -804,7 +823,7 @@
 		<Row UnitType="UNIT_BATTLESHIP" 		ResourceType="RESOURCE_STEEL" 		Quantity="1200" />
 		<Row UnitType="UNIT_AIRCRAFT_CARRIER" 	ResourceType="RESOURCE_STEEL" 		Quantity="1500" />
 		<Row UnitType="UNIT_MISSILE_CRUISER" 	ResourceType="RESOURCE_STEEL" 		Quantity="1000" />
-		-->
+		<!-- -->
 		
 	</UnitConstructionResources>
 	

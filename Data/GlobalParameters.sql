@@ -36,12 +36,19 @@ UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_DI
 
 -- Buff Research Agreement
 UPDATE GlobalParameters SET Value = 25		WHERE Name = 'DIPLOMACY_RESEARCH_AGREEMENT_BEAKER_PERCENTAGE';	-- default = 10
+
+-- Remove Barbarian Camps
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'BARBARIAN_CAMP_MAX_PER_MAJOR_CIV';			-- default = 3
+UPDATE GlobalParameters SET Value = 0		WHERE Name = 'BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING';	-- default = 2 
+
  
 /* Defines */
 
 -- diplomacy
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('DIPLO_RANSOM_OTHER_OWNER_FACTOR', 		1.5);	-- 
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('DIPLO_MERCENARY_CONTRACT_EXPIRE_TURN', 	5);		-- 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('DIPLO_MERCENARY_TRUCE_BASE_TURN', 		3);		-- How many turn a Mercenary unit remains peaceful after a contract
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('DIPLO_DEAL_TREASURY_COST_RATIO', 		0.10);	-- Add Ratio of Treasury current Gold to Diplomatic Deal Cost with Tribes
 
 -- city
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('CITY_HEAL_GARRISON_MAX_PER_TURN', 		25);	-- default = 20
@@ -260,6 +267,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_M
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_POPULATION_MIN_MIGRANT_PERCENT',	1.00);	-- Min percentage of PlotPopulation that can migrate each turn
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_BASE_EMPLOYMENT',				10);	-- Max employment from number of a specific resource on a plot
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_IMPROVED_EMPLOYMENT',			14);	-- Max employment from number of a specific resource on a plot improved for that resource
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('PLOT_MAX_STOCK_EQUIPMENT', 				900);	-- Max stock for equipment
 
 -- Resources
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_BASE_PILLAGE_MULTIPLIER',		4);		-- Multiplier for resources pillaged on a plot
@@ -281,6 +289,32 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('RESOURCE_FROM_FEA
 -- Research
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('BASE_TECH_COST',	1);								-- Cost to create one unit of tech resource
 
+-- Tribes
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_ORGANIZED_CIVILIZATION_FACTOR',	1.50);	-- Factor for number of Organized Settlements from Major Civilization number
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_BARBARIANS_CIVILIZATION_FACTOR',	1.75);	--
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MAX_SETTLEMENT_DISTANCE_MAJOR',		4);		--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MAX_SETTLEMENT_DISTANCE_BARBARIAN',	6);		--
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_POPULATION_FOR_VILLAGE_PERCENT',	8.50);	-- max % of Population migrating to a created/repaired village per turn.
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MINIMAL_POPULATION_LEFT',			100);	-- Minimal Population left after action
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_BARBARIAN_COLLECT_RATIO',			0.75);	--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MAJOR_COLLECT_RATIO',				1.00);	--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_GOLD_PER_LUXURY_RESOURCE',		5);		--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MAX_LUXURY_PER_TURN',				3);		-- max number used per Luxury type
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_POPULATION_CONVERTION_RATE',		0.02);	--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_POP_CONVERTION_RATE_PER_LUX',		0.002);	--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_ASSIMILATION_CONVERTION_FACTOR',	3);		--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_SLAVE_CONVERTION_RATE',			0.10);	-- Should be higher than TRIBES_POPULATION_CONVERTION_RATE * TRIBES_ASSIMILATION_CONVERTION_FACTOR
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_NORMAL_MAX_CONVERTION',			100);	--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_ASSIMILATION_MAX_CONVERTION',		300);	--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MINIMAL_CULTURE_PERCENT_CITY',	75);	-- Minimal percent of a plot's culture for an Ethnicity to be able to create a City
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MINIMAL_CULTURE_PERCENT_SETTLER',	45);	-- Minimal percent of a plot's culture for an Ethnicity to be able to create a Settler
+
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_FORCED_MIGRATION_RATE',			0.05);	--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_STARTING_MIGRATION_POP_RATE',		0.75);	-- Ratio of population in each Village that is added to the total migrating population when launching a Migration event.
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MIN_MATERIEL_STOCK_RESERVE',		40);	-- Minimal materiel stock to reserve before making equipment from it (overriden when prioritizing equipement)
 
 -- UI
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UI_MAX_PRISONERS_LINE_IN_TOOLTIP',		2);		-- Number of lines showing prisonners nationality in unit's flag 
@@ -293,3 +327,6 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_HP_HEALE
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_PERSONNEL_PERCENT_FROM_RESERVE',15);	-- Max percent of max personnel transfered from reserve to front line
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_MATERIEL_PERCENT_FROM_RESERVE',	15);	-- Max percent of max materiel transfered from reserve to front line
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_SUPPLY_LINE_DEFAULT_LENGTH_FACTOR',	0.85);	-- When calculating supply line efficiency relatively to length
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_MAX_DAMAGE_BEFORE_DISBAND',			50);	-- Disband when unit Damage > UNIT_MAX_DAMAGE_BEFORE_DISBAND
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('UNIT_WORKER_SLAVE_NEEDED',				300);	-- Number of Slaves needed to create a worker Unit
+--

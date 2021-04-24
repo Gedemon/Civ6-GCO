@@ -15,10 +15,12 @@
 -- Includes
 -----------------------------------------------------------------------------------------
 include( "GCO_SmallUtils" )
+include( "GCO_TypeEnum" )
 
 -----------------------------------------------------------------------------------------
 -- Defines
 -----------------------------------------------------------------------------------------
+--[[
 local FeatureResources				= {} -- cached table to list resources produced by a feature
 for row in GameInfo.FeatureResourcesProduced() do
 	local featureID		= GameInfo.Features[row.FeatureType].Index
@@ -34,6 +36,7 @@ for row in GameInfo.TerrainResourcesProduced() do
 	if not TerrainResources[terrainID] then TerrainResources[terrainID] = {} end
 	table.insert(TerrainResources[terrainID], {[resourceID] = row.NumPerTerrain})
 end
+--]]
 
 
 -----------------------------------------------------------------------------------------
@@ -623,7 +626,8 @@ function View( data:table )
 		end
 	end
 
-	-- GCO <<<<<	
+	-- GCO <<<<<
+	if not ExposedMembers.GCO_Initialized then return end
 	local plot = GCO.GetPlotByIndex(data.Index) -- to get a PlotScript context plot
 	
 	if m_isShowDebug then
@@ -653,6 +657,9 @@ function View( data:table )
 		end
 		table.insert(popDetails, sizeStr .. Locale.Lookup("LOC_PLOT_TOOLTIP_POPULATION_LINE", GCO.Round(population)) .. GCO.GetVariationStringNoColorHigh(popVariation))
 		
+		local cultureHeader = ""
+		culture, cultureHeader = plot:GetCultureString()
+		--[[
 		local cultureHeader = ""
 		if totalCulture > 0 then
 			local sortedCulture = {}
@@ -696,6 +703,7 @@ function View( data:table )
 				table.insert(culture, Indentation(Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER"), 15) .. "|" .. Indentation(other, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation("-", maxVarLen, bAlignRight) .. "|" .. Indentation("-", 6, bAlignRight) )	--
 			end
 		end
+		--]]
 		
 		-- Employment
 		if not data.IsCity then
@@ -1100,6 +1108,9 @@ end
 function FetchAdditionalData( pPlot:table, kPlotData:table )
 
 	-- GCO <<<<<
+	
+	if not ExposedMembers.GCO_Initialized then return end
+	
 	local localPlayerID = Game.GetLocalPlayer()
 	if localPlayerID == -1 then localPlayerID = 0 end
 	local localPlayer	= GCO.GetPlayer(localPlayerID)

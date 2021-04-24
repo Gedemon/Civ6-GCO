@@ -31,7 +31,7 @@ INSERT OR REPLACE INTO Players (CivilizationType, Domain, LeaderType, Civilizati
 		'',										-- LeaderAbilityIcon
 		'Portrait.dds',							-- Portrait
 		'PortraitBackground.dds'				-- PortraitBackground
-	FROM CivilizationConfiguration;
+	FROM CivilizationConfiguration WHERE IsTribe=0;
 
 -- <PlayerItems>
 DELETE FROM PlayerItems;

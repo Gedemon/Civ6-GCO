@@ -240,6 +240,7 @@ CREATE TABLE IF NOT EXISTS UnitsGCO (
 		AntiArmor 		integer,
 		AntiShip 		integer,
 		AntiAir 		integer,
+		NoReinforcement BOOLEAN,
 		PRIMARY KEY(UnitType),
 		FOREIGN KEY (Flavor) REFERENCES Flavors(FlavorType),
 		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType),
@@ -399,6 +400,7 @@ CREATE TABLE IF NOT EXISTS UnitsGCO (
 		
 -- Composition in personnel of an unit at full health (for units that doesn't use military organization level)
 ALTER TABLE Units ADD COLUMN Personnel integer DEFAULT '0';
+ALTER TABLE Units ADD COLUMN NoReinforcement BOOLEAN DEFAULT '0';
 
 -- Casualties modifier
 ALTER TABLE Units ADD COLUMN AntiPersonnel 	integer; -- 
@@ -420,6 +422,10 @@ ALTER TABLE Eras ADD COLUMN ArmyPersonnelPopulationRatio integer DEFAULT '1';			
 ALTER TABLE Policies ADD COLUMN ArmyMaxPercentBoost integer DEFAULT '0';				-- raise max percentage of total population in the army by this value (max personnel when at war)
 ALTER TABLE Policies ADD COLUMN ActiveTurnsLeftBoost integer DEFAULT '0';				-- raise max number of turn an unit can be drafted before disbanding 
 
+-- Starting Dates/Era
+ALTER TABLE Civilizations ADD COLUMN StartingDate INT;				-- 
+ALTER TABLE Civilizations ADD COLUMN StartingEra TEXT;				-- 
+
 -- Culture Diffusion modifiers
 ALTER TABLE Features ADD COLUMN CultureThreshold integer DEFAULT '0';
 ALTER TABLE Features ADD COLUMN CulturePenalty integer DEFAULT '0';
@@ -427,6 +433,9 @@ ALTER TABLE Features ADD COLUMN CultureMaxPercent integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CultureThreshold integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CulturePenalty integer DEFAULT '0';
 ALTER TABLE Terrains ADD COLUMN CultureMaxPercent integer DEFAULT '0';
+
+-- Improvements may stock resources
+ALTER TABLE Improvements ADD COLUMN MaxStock integer DEFAULT '0';
 
 -- Resources
 ALTER TABLE Resources ADD COLUMN FixedPrice 				BOOLEAN NOT NULL CHECK (FixedPrice IN (0,1)) DEFAULT 0; 	-- Not price variation after production
@@ -475,22 +484,18 @@ CREATE TABLE IF NOT EXISTS CultureGroups
 	(	CultureType TEXT NOT NULL,
 		Name TEXT,
 		Adjective TEXT,
-		StartDate INTEGER,
-		EndDate INTEGER,
-		PeakDate INTEGER,
-		PeakStrength INTEGER,
 		Agressivity INTEGER,
-		SpawnCivilization TEXT,
 		Ethnicity TEXT,
+		MajorCivilizations TEXT,	-- multiple entries (comma separated)
+		EraTypes TEXT,		 		-- 	" 			"			" 
+		StartingRegions TEXT,		-- 	" 			"			"
+		NearbyFeatures TEXT,		-- 	" 			"			"
+		NearbyTerrains TEXT,		-- 	" 			"			"
+		NearbyResources TEXT,		-- 	" 			"			"
 		PRIMARY KEY(CultureType)
-		--FOREIGN KEY (SpawnCivilization) REFERENCES Civilizations(CivilizationType)
+		--FOREIGN KEY (SpawnCivilizations) REFERENCES Civilizations(CivilizationType)
 	);
 	
-CREATE TABLE IF NOT EXISTS CultureGroupsStartingRegions
-	(	CultureType TEXT NOT NULL,
-		StartingRegion TEXT NOT NULL,
-		PRIMARY KEY(CultureType, StartingRegion)
-	);
 	
 CREATE TABLE IF NOT EXISTS BuildingConstructionResources (
 		BuildingType TEXT NOT NULL,
@@ -614,7 +619,7 @@ CREATE TABLE IF NOT EXISTS Equipment (
 		NotLoot BOOLEAN NOT NULL CHECK (NotLoot IN (0,1)) DEFAULT 0, 			-- Can't be captured when attacking cities
 		RevealedEra INTEGER NOT NULL DEFAULT 1,
 		PRIMARY KEY(ResourceType),
-		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType) ON DELETE CASCADE ON UPDATE CASCADE,
+		FOREIGN KEY (ResourceType) REFERENCES Resources(ResourceType),-- ON DELETE CASCADE ON UPDATE CASCADE,
 		FOREIGN KEY (PrereqTech) REFERENCES Technologies(TechnologyType) ON DELETE SET NULL ON UPDATE CASCADE
 	);
 	
@@ -627,6 +632,7 @@ CREATE TABLE IF NOT EXISTS EquipmentEffects (
 		
 CREATE TABLE IF NOT EXISTS UnitEquipmentClasses (
 		UnitType TEXT NOT NULL,
+		Quantity INTEGER,																		-- This value override "PercentageOfPersonnel" when not NULL
 		EquipmentClass TEXT, 																	-- 
 		PercentageOfPersonnel INTEGER NOT NULL CHECK (PercentageOfPersonnel >0) DEFAULT 100,	-- Percentage of equipement for personnel, for examples: 100% for 1:1 personnel:equipment ratio (ie "swords"), 50% for 2:1 (ie "chariot"), 25% for 4:1 (ie "tank")
 		IsRequired BOOLEAN NOT NULL CHECK (IsRequired IN (0,1)) DEFAULT 1,						-- If required, the equipement is part of the healing table
@@ -949,6 +955,7 @@ CREATE TABLE DiplomaticDealsGCO (
 		Name TEXT,
 		IsUnit BOOLEAN NOT NULL CHECK (IsUnit IN (0,1)) DEFAULT 0,
 		IsCivilian BOOLEAN NOT NULL CHECK (IsCivilian IN (0,1)) DEFAULT 0,
+		IsValueRelative BOOLEAN NOT NULL CHECK (IsValueRelative IN (0,1)) DEFAULT 0, -- Is the Deal value relative to the actor Treasury
 		BaseValue INT,
 		Duration INT,
 		RequiredRelationTypes TEXT,
@@ -996,6 +1003,79 @@ CREATE TABLE DiplomaticSuzeraintyForcedStatesGCO (
 		SuzerainStateTypes TEXT,
 		PRIMARY KEY(SuzeraintyType, StateType)
 	);
+	
+CREATE TABLE DiplomacyPowerModifiers
+     (  PowerType 	TEXT NOT NULL,
+        Name 		TEXT,
+		BaseValue 	INT,
+		Decay 		INT,
+		PRIMARY KEY(PowerType)
+	 );
+ 
+CREATE TABLE DiplomacyInterestModifiers
+     (  InterestType 	TEXT NOT NULL,
+        Name 			TEXT,
+		BaseValue 		INT,
+		Decay 			INT,
+		PRIMARY KEY(InterestType)
+	 );
+ 
+CREATE TABLE DiplomacyTrustModifiers
+     (  TrustType 	TEXT NOT NULL,
+        Name 		TEXT,
+		BaseValue 	INT,
+		Decay 		INT,
+		PRIMARY KEY(TrustType)
+	 );
+ 
+CREATE TABLE CultureRelationModifiers
+     (  RelationModifierType 	TEXT NOT NULL,
+        Name 					TEXT,
+		BaseValue 				INT,
+		PRIMARY KEY(RelationModifierType)
+	 );
+ 
+CREATE TABLE TribalVillageProductions
+     (  ProductionType 	TEXT NOT NULL,
+        Name 			TEXT,
+        Description		TEXT,
+		BaseTurns 		INT,
+		GoldCost	 	INT,
+		PopulationCost	INT,
+		MaterielCost	INT,
+		IsCentral 		BOOLEAN NOT NULL CHECK (IsCentral IN (0,1)) DEFAULT 0,
+		IsSatellite 	BOOLEAN NOT NULL CHECK (IsSatellite IN (0,1)) DEFAULT 0,
+		NoBarbarian 	BOOLEAN NOT NULL CHECK (NoBarbarian IN (0,1)) DEFAULT 0,
+		PRIMARY KEY(ProductionType)
+	 );
+ 
+CREATE TABLE TribalVillageActions
+     (  ActionType 		TEXT NOT NULL,
+        Name 			TEXT,
+        Description		TEXT,
+		GoldCost	 	INT,
+		PopulationCost	INT,
+		MaterielCost	INT,
+		IsCentral 		BOOLEAN NOT NULL CHECK (IsCentral IN (0,1)) DEFAULT 0,
+		IsSatellite 	BOOLEAN NOT NULL CHECK (IsSatellite IN (0,1)) DEFAULT 0,
+		NoBarbarian 	BOOLEAN NOT NULL CHECK (NoBarbarian IN (0,1)) DEFAULT 0,
+		PRIMARY KEY(ActionType)
+	 ); --TribalVillageResourcesConverted
+	 
+	
+CREATE TABLE IF NOT EXISTS TribalVillageResourcesConverted (
+		ImprovementType TEXT NOT NULL,
+		ResourceType TEXT NOT NULL,
+		ResourceCreated TEXT NOT NULL,
+		MaxConverted INTEGER NOT NULL DEFAULT 0,
+		Ratio REAL NOT NULL DEFAULT 1,
+		Era TEXT,
+		ProductionType TEXT,
+		RequiredTech TEXT,
+		IsBarbarian BOOLEAN NOT NULL CHECK (IsBarbarian IN (0,1)) DEFAULT 0,	-- Barbarian Only
+		NoBarbarian BOOLEAN NOT NULL CHECK (NoBarbarian IN (0,1)) DEFAULT 0	-- Barbarian Excluded
+	);
+
 
 		 
 -- Create a new Colors table because we need one accessible from gameplay 

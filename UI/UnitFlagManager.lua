@@ -331,6 +331,24 @@ function OnUnitFlagClick( playerID : number, unitID : number )
 		UI.DeselectAllUnits();
 		UI.DeselectAllCities();
 		UI.SelectUnit( pUnit );
+		-- GCO <<<<<
+		-- We may want to renew a Mercenary contract
+		do
+			local kParameters = {}
+			kParameters.PlayerID 	= pUnit:GetOwner()
+			kParameters.UnitID 		= unitID
+			kParameters.Begin 		= true
+			
+			if GameInfo.Units[pUnit:GetType()].UnitType == "UNIT_CARAVAN" then -- Show action screen, but will there be cases when we control some kind of mercenary caravan and want Diplomacy instead ?
+				local pPlot = Map.GetPlot(pUnit:GetX(), pUnit:GetY())
+				kParameters.PlotID = pPlot:GetIndex()
+				LuaEvents.ShowActionScreenGCO(kParameters)
+			else
+				LuaEvents.ShowDiploScreenGCO(kParameters)
+			end
+			return
+		end
+		-- GCO >>>>>
 	end
 end
 
@@ -884,8 +902,10 @@ function UnitFlag.UpdateName( self )
 			local toolTipString = Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_BEFORE_DISBANDING", activeTurnsLeft)
 			if pUnit:GetValue("UnitPersonnelType") == UnitPersonnelType.Conscripts then
 				local player = GCO.GetPlayer(pUnit:GetOwner())
-				if player:IsAtWar() then
+				if player:IsAtWar() and not player:IsBarbarian() then
 					toolTipString = Locale.Lookup("LOC_UNITFLAG_DISBANDING_LOCKED_BY_WAR", activeTurnsLeft)
+				elseif player:GetValue("MigrationTurn") ~= nil then
+					toolTipString = Locale.Lookup("LOC_UNITFLAG_DISBANDING_LOCKED_BY_MIGRATING", activeTurnsLeft)
 				elseif activeTurnsLeft >= 0 then
 					--self.m_Instance.ActiveTurnsLeftString:SetText(tostring(activeTurnsLeft).."[ICON_Turn]")
 					--self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Turn]")
@@ -983,19 +1003,26 @@ function UnitFlag.UpdateName( self )
 			-- Condition
 			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE")
 			nameString = nameString .. "[NEWLINE]" .. pUnit:GetMoraleString()
-			nameString = nameString .. "[NEWLINE][ICON_AntiPersonnel]" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnel")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_PersonnelArmor]" .. GCO.Round(pUnit:GetPropertyPercent("PersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_AntiArmor]" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_IgnorArmor]" .. GCO.Round(pUnit:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
+			nameString = nameString .. "[NEWLINE][ICON_AntiPersonnel]" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnel")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_PersonnelArmor]" .. GCO.Round(pUnit:GetPropertyPercent("PersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_AntiArmor]" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_IgnoreArmor]" .. GCO.Round(pUnit:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
 			if pUnit:GetLogisticCost() > 0 then
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_LOGISTIC_COST", pUnit:GetLogisticCost())
 			end
 			
 			--local bHasComponents = (unitInfo.Personnel + unitInfo.Equipment + unitInfo.Horses + unitInfo.Materiel > 0)
-			local personnel = pUnit:GetComponent("Personnel")
-			local bHasComponents = personnel > 0
+			local militaryPersonnel		= pUnit:GetComponent("Personnel")
+			local populationPersonnel	= pUnit:GetPopulation() -- Civilian units
+			local slavePersonnel		= pUnit:GetSlavePersonnel() -- Slave workers
+			local bHasComponents = militaryPersonnel > 0 or populationPersonnel > 0 or slavePersonnel > 0
 			if bHasComponents then
 				
 				-- "Frontline"
 				nameString = nameString .. "[NEWLINE]" .. frontlineStrTitle
-				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL", personnel, pUnit:GetMaxFrontLinePersonnel()) .. GCO.GetVariationString(pUnit:GetComponentVariation("Personnel"))
+				
+				-- Personnel is a special case, while Slaves and Civilians are handled has equipment in GetFrontLineEquipmentString()
+				if militaryPersonnel > 0 then
+					nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL", militaryPersonnel, pUnit:GetMaxFrontLinePersonnel()) .. GCO.GetVariationString(pUnit:GetComponentVariation("Personnel"))
+				end
+				
 				nameString = nameString .. pUnit:GetFrontLineEquipmentString()
 
 				local bestUnitType, percentageStr = pUnit:GetTypesFromEquipmentList()
@@ -1076,6 +1103,16 @@ function UnitFlag.UpdateName( self )
 							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", city:GetName(), unitData.SupplyLineEfficiency)
 						else
 							nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR", city:GetName())
+						end
+					else
+						-- Can be an Improvement
+						local village 	= GCO.GetTribalVillageAt(tonumber(unitData.SupplyLineCityKey))
+						if village and village.Owner == pUnit:GetOwner() then
+							if unitData.SupplyLineEfficiency > 0 then
+								nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_DETAILS", GameInfo.Improvements[village.Type].Name, unitData.SupplyLineEfficiency)
+							else
+								nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_SUPPLY_LINE_TOO_FAR", GameInfo.Improvements[village.Type].Name)
+							end
 						end
 					end
 				else
@@ -1225,6 +1262,13 @@ function UnitFlag.SetPosition( self, worldX : number, worldY : number, worldZ : 
 							cityBannerZOffset = -15;
 						end
 					end
+						
+					-- GCO <<<<<
+					if GCO.IsTribeImprovement(eImprovementType) then
+						cityBannerZOffset = -25;
+						bNearCityBanner = true
+					end
+					-- GCO >>>>>
 				end
 			end
 			
@@ -1486,6 +1530,10 @@ function UpdateIconStack( plotX:number, plotY:number )
 		local civilianOffsetX =  0;
 		local formationIndex = 0;
 		local DuoFlag;
+		-- GCO <<<<<
+		local landCombatOffsetX = 48;
+		local multiSpacingX 	= 24;
+		-- GCO >>>>>
 		for _, pUnit in ipairs(unitList) do
 			-- Cache commonly used values (optimization)
 			local unitID:number = pUnit:GetID();
@@ -1506,6 +1554,12 @@ function UpdateIconStack( plotX:number, plotY:number )
 						if (formationClassString == "FORMATION_CLASS_LAND_COMBAT") then
 							flag.m_Instance.FlagRoot:SetOffsetVal(landCombatOffsetX + m_FlagOffsets[1][1], m_FlagOffsets[1][2] );
 							landCombatOffsetX = landCombatOffsetX - multiSpacingX;
+						-- GCO <<<<<
+						elseif	(formationClassString == "FORMATION_CLASS_RANGED" or formationClassString == "FORMATION_CLASS_RECON") then
+							flag.m_Instance.FlagRoot:SetOffsetVal(landCombatOffsetX + m_FlagOffsets[1][1], m_FlagOffsets[1][2] );
+							landCombatOffsetX = landCombatOffsetX - multiSpacingX;
+						
+						-- GCO >>>>>
 						elseif	(formationClassString == "FORMATION_CLASS_CIVILIAN" or formationClassString == "FORMATION_CLASS_SUPPORT") then
 							flag.m_Instance.FlagRoot:SetOffsetVal(civilianOffsetX + m_FlagOffsets[2][1], m_FlagOffsets[2][2]);
 							civilianOffsetX = civilianOffsetX + multiSpacingX;

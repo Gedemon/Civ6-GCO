@@ -967,7 +967,7 @@ function View(data)
 		local instance:table = m_standardActionsIM:GetInstance();
 
 		instance.UnitActionIcon:SetTexture( 0, 0, "CityPanel_ActionTogglePanel" );
-		
+		instance.UnitActionButton:SetDisabled(false)
 		instance.UnitActionButton:SetToolTipString( Locale.Lookup("LOC_HUD_UNITPANEL_SHOW_HIDE_SETTINGS") );
 		instance.UnitActionButton:RegisterCallback( Mouse.eLClick, 
 			function()

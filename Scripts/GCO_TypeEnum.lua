@@ -7,6 +7,17 @@ print ("Loading GCO_TypeEnum.lua...")
 
 
 --=====================================================================================--
+-- Globals Defines
+--=====================================================================================--
+SEPARATIST_CULTURE 			= tostring(GameInfo.CultureGroups["CULTURE_SEPARATIST"].Index)	-- must use string for table keys for correct serialisation/deserialisation
+INDEPENDENT_CULTURE 		= tostring(GameInfo.CultureGroups["CULTURE_INDEPENDENT"].Index)
+NO_IMPROVEMENT 				= -1
+NO_FEATURE	 				= -1
+NO_OWNER 					= -1
+NO_PLAYER 					= -1
+NO_RESOURCE					= -1
+
+--=====================================================================================--
 -- Diplomacy Table Types
 --=====================================================================================--
 DiplomacyTypes	= {	-- ENUM for Diplomacy Table Types (string as it it used as a key for saved table)
