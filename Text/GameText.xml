@@ -1407,6 +1407,9 @@
 	<Replace Tag="LOC_VILLAGE_UNDER_CONTROL" Language="en_US">
       <Text>Under control of Settlement in the {1_Name}</Text>
     </Replace>
+	<Replace Tag="LOC_VILLAGE_PILLAGED_TURNS_LEFT" Language="en_US">
+      <Text>Pillaged ({1_Num}[ICON_Turn] left)</Text>
+    </Replace>
 	
   </LocalizedText>
 

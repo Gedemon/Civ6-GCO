@@ -43,7 +43,8 @@ local iMinCulturePercentCity	= tonumber(GameInfo.GlobalParameters["TRIBES_MINIMA
 local iMinCulturePercentSettler	= tonumber(GameInfo.GlobalParameters["TRIBES_MINIMAL_CULTURE_PERCENT_SETTLER"].Value)		-- 45
 local iForcedMigrationRate		= tonumber(GameInfo.GlobalParameters["TRIBES_FORCED_MIGRATION_RATE"].Value)					-- 0.05
 local iStartingMigrationRate	= tonumber(GameInfo.GlobalParameters["TRIBES_STARTING_MIGRATION_POP_RATE"].Value)			-- 0.75
-local iMinMaterielStock			= tonumber(GameInfo.GlobalParameters["TRIBES_MIN_MATERIEL_STOCK_RESERVE"].Value)			-- 30 -- overriden when specializing in equipment
+local iMinMaterielStock			= tonumber(GameInfo.GlobalParameters["TRIBES_MIN_MATERIEL_STOCK_RESERVE"].Value)			-- 30 -- overriden when specializing in equipment 
+local iMaxTurnsPillaged			= tonumber(GameInfo.GlobalParameters["TRIBES_MAX_TURNS_PILLAGED"].Value)					-- 10
 local iMaxRouteDistance			= iMaxSettlementDistance + 2
 
 local iNumSlavesForWorker		= nil 	-- defined in PostInitialize from unitEquipmentClasses[unitType][equipmentClassID]
@@ -139,11 +140,6 @@ end
 
 function OnLoadGameViewStateDone()
 	InitializeTribesOnMap() -- must wait for all script files to be fully initialized, which isn't the case in PostInitialize
-	
-	-- Do a first turn for major civs to initiate Village data
-	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
-		TribesTurn( playerID )
-	end
 end
 Events.LoadGameViewStateDone.Add( OnLoadGameViewStateDone ) -- Ready to start game
 
@@ -627,6 +623,44 @@ function GetTribeOutputFactor(pPlot)
 	return GCO.GetRealSizeAtPopulation(pPlot:GetPopulation() + (pPlot:GetStock(slaveClassID)*1.5)) -- to do : remove magic number (slave prod. factor)
 end
 
+function ConvertIndependentCulture(pPlot, convertionRatio)
+
+	local independents 		= pPlot:GetCulture(INDEPENDENT_CULTURE)
+	local convertionRatio	= math.min(1, convertionRatio or 1)
+	
+	if independents < pPlot:GetPopulation() and independents > 0 then -- there are other cultures than independents here, and there are some independents
+		local kCultures 	= pPlot:GetCultureTable()
+		local numCulture	= GCO.GetSize(kCultures) - 1
+		local perCulture	= math.floor(Div(math.ceil(independents*convertionRatio), numCulture))	
+		for cultureKey, value in pairs (kCultures) do
+			if cultureKey ~= INDEPENDENT_CULTURE then
+				local cultureID = tonumber(cultureKey)
+				pPlot:ChangeCulture(cultureID, perCulture)
+				pPlot:ChangeCulture(INDEPENDENT_CULTURE, -perCulture)
+				--Dprint( DEBUG_ALTHIST_SCRIPT, "    - Convert ", perCulture, "independents to ", Locale.Lookup(GameInfo.CultureGroups[cultureID].Name))
+			end
+		end
+	end
+end
+
+function ChangeVillageOwner(pPlot, playerID)
+
+	local village = GetTribalVillageAt(pPlot:GetIndex())
+	
+	Dprint( DEBUG_ALTHIST_SCRIPT, "   - Delete old improvement...")
+	ImprovementBuilder.SetImprovementType(pPlot, -1)
+	
+	Dprint( DEBUG_ALTHIST_SCRIPT, "   - Recreate improvement ", village.Type, playerID)
+	local iType = GameInfo.Improvements[village.Type].Index
+	ImprovementBuilder.SetImprovementType(pPlot, iType, playerID)
+	village.Owner = playerID
+	
+	-- change central plot reference
+	if playerID ~= NO_PLAYER and not village.IsCentral then
+		local newPlotID, dist	= GCO.FindNearestPlayerVillage( playerID, pPlot:GetX(), pPlot:GetY() )
+		village.CentralPlot		= dist <= iMaxBarbSettlementDist and newPlotID or nil
+	end
+end
 
 function GetPopulationMigrationPerTurnForVillage(pPlot, row)
 
@@ -647,6 +681,7 @@ function TribesTurn( playerID )
 end
 
 function TribesTurnP( playerID )
+
 	local DEBUG_ALTHIST_SCRIPT = playerID == 0 and "debug" or DEBUG_ALTHIST_SCRIPT
 	
 	Dprint( DEBUG_ALTHIST_SCRIPT, "- Do Tribal Village turn for Player#", playerID)
@@ -656,6 +691,9 @@ function TribesTurnP( playerID )
 	local pPlayer			= playerID ~= NO_PLAYER and GCO.GetPlayer(playerID) or nil	-- need to keep pPlayer nil for future check
 	local iDecayRate		= pPlayer and pPlayer:IsMajor() and 0.05 or 0.15			-- todo : remove magic numbers
 	for _, plotKey in ipairs(tVillages) do
+	
+		--local DEBUG_ALTHIST_SCRIPT = plotKey == "1006" and "debug" or DEBUG_ALTHIST_SCRIPT
+	
 		local plotID 				= tonumber(plotKey)
 		local pPlot					= GCO.GetPlotByIndex(plotID)
 		local village				= GetTribalVillageAt(plotID)
@@ -676,7 +714,7 @@ function TribesTurnP( playerID )
 			--
 			village.PillagedCounter = village.PillagedCounter + 1
 			-- remove or rest
-			if village.PillagedCounter == 10 then -- to do: remove magic number
+			if village.PillagedCounter == iMaxTurnsPillaged then -- to do: remove magic number
 				-- to do: handle is being repaired
 				if not (village.ProductionType == "VILLAGE_REBUILD" or village.ProductionType == "CENTER_CAPTURE") then
 					village.PillagedCounter = nil
@@ -1066,7 +1104,15 @@ function TribesTurnP( playerID )
 				--
 				Dprint( DEBUG_ALTHIST_SCRIPT, "   - Calculate Growth...")
 				
-				local foodProduced			= pPlot:GetYield(yieldFood)
+				local foodProduced	= pPlot:GetYield(yieldFood)
+				for __, adjacentPlotID in ipairs(GCO.GetAdjacentPlots(pPlot)) do
+					local adjacentPlot = GCO.GetPlotByIndex(adjacentPlotID)
+					if adjacentPlot then
+						foodProduced = foodProduced + (adjacentPlot:GetYield(yieldFood) * 0.25)
+					end
+				end
+				
+				foodProduced = math.floor(foodProduced)
 				
 				pPlot:ChangeStock(foodResourceID, foodProduced)
 			
@@ -1215,20 +1261,8 @@ function TribesTurnP( playerID )
 				--
 				-- Convert independents
 				--
-				local independents = pPlot:GetCulture(INDEPENDENT_CULTURE)
-				if independents < pPlot:GetPopulation() and independents > 0 then -- there are other cultures than independents here, and there are some independents
-					local kCultures 	= pPlot:GetCultureTable()
-					local numCulture	= GCO.GetSize(kCultures) - 1
-					local perCulture	= math.floor(Div(independents, numCulture))	
-					for cultureKey, value in pairs (kCultures) do
-						if cultureKey ~= INDEPENDENT_CULTURE then
-							local cultureID = tonumber(cultureKey)
-							pPlot:ChangeCulture(cultureID, perCulture)
-							pPlot:ChangeCulture(INDEPENDENT_CULTURE, -perCulture)
-							--Dprint( DEBUG_ALTHIST_SCRIPT, "    - Convert ", perCulture, "independents to ", Locale.Lookup(GameInfo.CultureGroups[cultureID].Name))
-						end
-					end
-				end
+				local convertionRatio = 0.25
+				ConvertIndependentCulture(pPlot, convertionRatio)
 				
 				--
 				-- Forced Migration
@@ -1331,23 +1365,30 @@ end
 
 function CheckVillageCapture(playerID, unitID, plotID)
 
-local pPlot = GCO.GetPlotByIndex(plotID)
-
 	local DEBUG_ALTHIST_SCRIPT = "debug"
 
 	local village = GetTribalVillageAt(plotID)
 
 	if village then
-		Dline("CheckVillageCapture, village.Owner, playerID", village.Owner, playerID)
+		Dprint( DEBUG_ALTHIST_SCRIPT, "CheckVillageCapture with village.Owner, playerID = ", village.Owner, playerID)
 	end
 	
 	if village and village.Owner ~= playerID then
+		local pPlot = GCO.GetPlotByIndex(plotID)
+		
+		if pPlot:IsPlotImprovementPillaged() and village.Owner == NO_PLAYER then -- can't capture neutral pillaged villages
+			return
+		end
+		
 		local pPlayer 		= GCO.GetPlayer(playerID)
 		local pPlayerDiplo	= pPlayer:GetDiplomacy()
 		if village.Owner == NO_PLAYER or pPlayerDiplo:IsAtWarWith( village.Owner ) then
 		
-			local pPlot = GCO.GetPlotByIndex(plotID)
 			local pUnit	= GCO.GetUnit(playerID, unitID)
+			if not pUnit:IsCombat() then
+				Dprint( DEBUG_ALTHIST_SCRIPT, "Capture is not possible with non-combat unit...", Locale.Lookup(pUnit:GetName()))
+				return
+			end
 			
 			--if not pPlot:IsPlotImprovementPillaged() then
 				Dprint( DEBUG_ALTHIST_SCRIPT, "--------------------------------------------------------------------")
@@ -1389,20 +1430,7 @@ local pPlot = GCO.GetPlotByIndex(plotID)
 				end
 				--
 				
-				Dprint( DEBUG_ALTHIST_SCRIPT, "   - Delete old improvement...")
-				ImprovementBuilder.SetImprovementType(pPlot, -1)
-				
-				Dprint( DEBUG_ALTHIST_SCRIPT, "   - Recreate improvement ", village.Type, playerID)
-				local iType = GameInfo.Improvements[village.Type].Index
-				ImprovementBuilder.SetImprovementType(pPlot, iType, playerID)
-				village.Owner = playerID
-				
-				-- change central plot reference
-				if not village.IsCentral then
-					local newPlotID, dist	= GCO.FindNearestPlayerVillage( playerID, pPlot:GetX(), pPlot:GetY() )
-					village.CentralPlot		= dist <= iMaxBarbSettlementDist and newPlotID or nil
-print(newPlotID, dist, iMaxBarbSettlementDist, village.CentralPlot)
-				end
+				ChangeVillageOwner(pPlot, playerID)
 				
 				Dprint( DEBUG_ALTHIST_SCRIPT, "   - Set Pillaged...")
 				ImprovementBuilder.SetImprovementPillaged(pPlot, true)
@@ -1544,6 +1572,7 @@ function InitializeTribeAt(kParameters)
 	local iIndepSettlements	= kParameters.IndSettlement
 	local iIndepMinRange	= kParameters.IndepMinRange or iRange
 	local iIndepMaxRange	= kParameters.IndepMaxRange or math.ceil(iRange*1.5)
+	local iFood				= kParameters.StartingFood
 
 	if cultureID == nil then
 		cultureID = pPlot:GetBestCultureGroup(bNoDuplicate)
@@ -1574,6 +1603,10 @@ function InitializeTribeAt(kParameters)
 			local pUnitAbility 	= pUnit:GetAbility(); 
 			local bResult 		= pUnitAbility:ChangeAbilityCount("ABILITY_NO_MOVEMENT", 1)
 		end
+	end
+	
+	if iFood then
+		pPlot:ChangeStock(foodResourceID, iFood)
 	end
 	
 	-- Set satellite settlements
@@ -1785,6 +1818,7 @@ function InitializeTribesOnMap()
 	kTribeParameters.IndepMinRange	= iMaxSettlementDistance - 1
 	kTribeParameters.IndepMaxRange	= iMaxSettlementDistance + 1
 	kTribeParameters.PlaceRoutes	= true
+	kTribeParameters.StartingFood	= 5
 	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
 		Dprint( DEBUG_ALTHIST_SCRIPT, GCO.Separator)
 		Dprint( DEBUG_ALTHIST_SCRIPT, " - Add Tribe settlements for Player #"..tostring(playerID))
@@ -1812,6 +1846,7 @@ function InitializeTribesOnMap()
 	kTribeParameters.MaxSettlement		= 4 
 	kTribeParameters.PlaceRoutes		= true
 	kTribeParameters.GarrisonUnitType	= "UNIT_LIGHT_SPEARMAN"
+	kTribeParameters.StartingFood		= 3
 		
 	local kFertilityParameters					= {}
 	kFertilityParameters.Range					= 2
@@ -1859,6 +1894,7 @@ function InitializeTribesOnMap()
 	kTribeParameters.MaxSettlement		= 4
 	kTribeParameters.PlaceRoutes		= false
 	kTribeParameters.GarrisonUnitType	= "UNIT_LIGHT_SPEARMAN"
+	kTribeParameters.StartingFood		= 2
 		
 	local kFertilityParameters					= {}
 	kFertilityParameters.Range					= 4
@@ -1919,6 +1955,27 @@ function InitializeTribesOnMap()
 		GCO.ShowTimer("Doing Migration")
 	end
 	GCO.ShowTimer("Simulating Migration")
+		
+	-- Do a first turn for major civs to initialize data
+	for _, playerID in ipairs(PlayerManager.GetWasEverAliveMajorIDs()) do
+	
+		-- normalize population
+		local tVillages = GetPlayerTribalVillages(playerID)
+		for _, plotKey in ipairs(tVillages) do
+			local plotID 		= tonumber(plotKey)
+			local pPlot			= GCO.GetPlotByIndex(plotID)
+			local iPopulation	= 900 + TerrainBuilder.GetRandomNumber(200, "Initial Population Variation")
+			
+			pPlot:MatchCultureToPopulation(iPopulation)
+		end
+	
+		-- remove independents before initiating data (to prevent immediate convertion to the Civilization culture)
+		local convertionRatio = 1
+		ConvertIndependentCulture(pPlot, convertionRatio)
+		
+		-- Do a fake first turn
+		TribesTurn( playerID )
+	end
 	
 	Game:SetProperty("TribeSettlementsInitialized", 1);
 end
@@ -2041,7 +2098,12 @@ function TribeCanDo(kParameters, row) -- bCanDo, bCanShow, sReason
 	end
 	
 	if not centralPlotID then
-		GCO.Error("Can't find centralPlot for TribeCanDo with [NEWLINE]Type: ".. tostring(sType).."[NEWLINE]PlayerID: "..tostring(kParameters.PlayerID).."[NEWLINE]PlotID: "..tostring(kParameters.PlotID) .."[NEWLINE]Position: ", pVillagePlot:GetX(), pVillagePlot:GetY())
+		if not kParameters.AI then
+			GCO.Error("Can't find centralPlot for TribeCanDo with [NEWLINE]Type: ".. tostring(sType).."[NEWLINE]PlayerID: "..tostring(kParameters.PlayerID).."[NEWLINE]PlotID: "..tostring(kParameters.PlotID) .."[NEWLINE]Position: ", pVillagePlot:GetX(), pVillagePlot:GetY())
+		end
+		bCanDo		= false
+		bCanShow	= false
+		return bCanDo, bShow
 	end
 	
 	local pCentralPlot 	= GCO.GetPlotByIndex(centralPlotID)
@@ -2511,31 +2573,40 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 					Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
 				end
 				
+				ChangeVillageOwner(pPlot, NO_PLAYER)
+				
 				ImprovementBuilder.SetImprovementPillaged(pPlot, true)
-				village.PillagedCounter = 0
+				village.PillagedCounter = 5
 				LuaEvents.TribeImprovementUpdated(iActor, kParameters.PlotID)
 				
 				local tVillages 		= GetPlayerTribalVillages(iActor)
 				for _, plotKey in ipairs(tVillages) do
 					local otherPlotID	= tonumber(plotKey)
 					local otherVillage	= GetTribalVillageAt(otherPlotID)
-					if otherVillage.CentralPlot == kParameters.PlotID then
-						local otherPlot 	= GCO.GetPlotByIndex(otherPlotID)
-						local plotMigrants	= math.floor(otherPlot:GetPopulation()*iStartingMigrationRate)
-						
-						Dprint( DEBUG_ALTHIST_SCRIPT, "- Adding Migrants from Other Village = ", plotMigrants)
-						
-						pUnit:GetPopulationFromPlot(otherPlot, plotMigrants)
-						
-						for resourceKey, value in pairs(otherPlot:GetResources()) do
-							local resourceID = tonumber(resourceKey)
-							pUnit:ChangeStock(resourceID,value)
-							otherPlot:ChangeStock(resourceID,-value)
-							Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
+					
+					if otherPlotID ~= kParameters.PlotID then 
+					
+						if otherVillage.CentralPlot == kParameters.PlotID then
+							local otherPlot 	= GCO.GetPlotByIndex(otherPlotID)
+							local plotMigrants	= math.floor(otherPlot:GetPopulation()*iStartingMigrationRate)
+							
+							Dprint( DEBUG_ALTHIST_SCRIPT, "- Adding Migrants from Other Village = ", plotMigrants)
+							
+							pUnit:GetPopulationFromPlot(otherPlot, plotMigrants)
+							
+							for resourceKey, value in pairs(otherPlot:GetResources()) do
+								local resourceID = tonumber(resourceKey)
+								pUnit:ChangeStock(resourceID,value)
+								otherPlot:ChangeStock(resourceID,-value)
+								Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
+							end
+							
 						end
 						
+						ChangeVillageOwner(otherPlot, NO_PLAYER)
+						
 						ImprovementBuilder.SetImprovementPillaged(otherPlot, true)
-						otherVillage.PillagedCounter 	= 0
+						otherVillage.PillagedCounter 	= 5
 						otherVillage.CentralPlot 		= nil
 						LuaEvents.TribeImprovementUpdated(iActor, otherPlotID)
 					end

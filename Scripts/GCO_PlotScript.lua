@@ -432,7 +432,6 @@ function SetOwner(self, ownerID, cityID)
 	end
 end
 
-
 function GetDirectionStringTo(self, otherPlot, iDistance)
 
 	local gridWidth, gridHeight = Map.GetGridSize()
@@ -440,7 +439,7 @@ function GetDirectionStringTo(self, otherPlot, iDistance)
 	local iX, iY	= self:GetX(), self:GetY()
 	local oX, oY	= otherPlot:GetX(), otherPlot:GetY()
 	
-	local iDistance = iDistance or 5
+	local iDistance = iDistance or 5 -- when this value is higher, you'll need a biger difference between xDiff and yDiff to return a one-axis direction
 	
 	local yDiff = self:GetY() - otherPlot:GetY()
 	local xDiff = self:GetX() - otherPlot:GetX()
@@ -451,23 +450,23 @@ function GetDirectionStringTo(self, otherPlot, iDistance)
 	
 	local ratioXY = yDiff ~= 0 and math.abs(xDiff) / math.abs(yDiff) or gridWidth
 	
-	if ratioXY > iDistance then --East/West only
+	if ratioXY > iDistance then -- East/West axis only
 	
 		return xDiff > 0 and "LOC_DIRECTION_WEST" or "LOC_DIRECTION_EAST"
 
 	elseif ratioXY > 1/iDistance then
 
-		if xDiff > 0 then
+		if xDiff > 0 then 		-- West and...
 		
 			return yDiff > 0 and "LOC_DIRECTION_SOUTH_WEST" or "LOC_DIRECTION_NORTH_WEST"
 		
-		else
+		else					-- East and...
 		
 			return yDiff > 0 and "LOC_DIRECTION_SOUTH_EAST" or "LOC_DIRECTION_NORTH_EAST"
 			
 		end
 	
-	else -- North/South only
+	else 						-- North/South axis only
 	
 		return yDiff > 0 and "LOC_DIRECTION_SOUTH" or "LOC_DIRECTION_NORTH"
 
@@ -1998,7 +1997,6 @@ function GetRoadPath(plot, destPlot, sRoute, maxRange, iPlayer, bAllowHiddenRout
 	
 end
 
-
 function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded, maxRange)
 	local DEBUG_PLOT_SCRIPT			= false	
 	--if sRoute == "Coastal" then DEBUG_PLOT_SCRIPT	= "debug" end
@@ -2185,7 +2183,6 @@ function GetPathToPlot(self, destPlot, pPlayer, sRoute, fBlockaded, maxRange)
 	end
 	--Dprint( DEBUG_PLOT_SCRIPT, "failed to find a path")
 end
-
 
 function GetSupplyPath(plot, destPlot, iPlayer, maxRange, fBlockaded, bAllowCoast, bAllowOcean, bAllowHiddenRoute)
 
@@ -3086,20 +3083,15 @@ end
 function GetMaxSize(self)
 	local maxSize = 0
 	if (not self:IsWater()) then
-		local food 			= math.ceil(self:GetPlotActualYield(GameInfo.Yields["YIELD_FOOD"].Index)/2)
+		local food 			= math.ceil(self:GetPlotActualYield(GameInfo.Yields["YIELD_FOOD"].Index)*0.5)
 		local bonus			= 0
 		local appeal		= self:GetPlotAppeal()
 		local numResource	= self:GetResourceCount()
-		local village 		= GCO.GetTribalVillageAt(self:GetIndex())
-		
-		if village then
-			maxSize = maxSize + 1
-		end
 		
 		if numResource > 0 then
 			local resourceID 	= self:GetResourceType()
 			if GCO.IsResourceFood(resourceID) then
-				food = food + numResource
+				food = food + math.ceil(numResource*0.5)
 			end
 		end
 		if food > 1 then
@@ -3243,7 +3235,7 @@ end
 function GetMigration(self)
 	local plotKey = self:GetKey()	
 	
-	local bInitialize	= false
+	local bInitialize = false
 	if not _cached[plotKey] then
 		_cached[plotKey] = {}
 		bInitialize = true
@@ -3507,6 +3499,10 @@ function SetMigrationValues(self)
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	
+	local village = GCO.GetTribalVillageAt(self:GetIndex())
+	if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
+	--if self:GetIndex() == 1006 then DEBUG_PLOT_SCRIPT = "debug" end
+	
 	local plotMigration = self:GetMigration()
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
@@ -3519,14 +3515,25 @@ function SetMigrationValues(self)
 	local population				= self:GetPopulation()
 	local employment				= self:GetMaxEmployment()
 	local maxPlotPopulation			= GCO.GetPopulationAtSize(self:GetMaxSize())
+	
+	if village then -- a village exploit its plot and all adjacent plot, use adjacent max for population/employment
+		--local numPlots = 1
+		for i, adjacentPlotID in ipairs(GCO.GetAdjacentPlots(self)) do
+			local adjacentPlot	= GCO.GetPlotByIndex(adjacentPlotID)
+			if adjacentPlot then
+				employment 			= math.max(employment, adjacentPlot:GetMaxEmployment()) -- employment + adjacentPlot:GetMaxEmployment()
+				maxPlotPopulation	= math.max(maxPlotPopulation, GCO.GetPopulationAtSize(adjacentPlot:GetMaxSize())) -- maxPlotPopulation, GCO.GetPopulationAtSize(adjacentPlot:GetMaxSize())
+				--numPlots			= numPlots + 1
+			end
+		end
+		--local divisor		= numPlots * 0.5
+		employment 			= math.floor(employment*1.05)--Div(employment, divisor)
+		maxPlotPopulation	= math.floor(maxPlotPopulation*1.05)--Div(maxPlotPopulation, divisor)
+	end
+	
 	local maxHousedPopulation		= math.floor((employment*0.25) + maxPlotPopulation) -- employment provides housing
 	local employed					= self:GetEmployed()
 	local unEmployed				= math.max(0, population - employment)
-	local village 					= GCO.GetTribalVillageAt(self:GetIndex())
-	
-	if village then
-		maxHousedPopulation = maxHousedPopulation + 5000 -- to do: remove magic number
-	end
 	
 	if population > 0 then
 		-- check Migration motivations, from lowest to most important :	
@@ -3574,7 +3581,7 @@ function SetMigrationValues(self)
 			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", plotMigration.Migrants.Food," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
 			
 		elseif village and village.Pull and village.Push then
-			plotMigration.Pull.Food	= village.Pull.Food or Div(maxPlotPopulation, population)
+			plotMigration.Pull.Food	= village.Pull.Food and (village.Pull.Food*0.25) + (Div(maxPlotPopulation, population)*0.75) or Div(maxPlotPopulation, population)
 			plotMigration.Push.Food	= village.Push.Food or Div(population, maxPlotPopulation)
 			
 			if plotMigration.Push.Food > 1 then 
@@ -3582,7 +3589,7 @@ function SetMigrationValues(self)
 				local starving				= population - Div(population, plotMigration.Push.Food)
 				plotMigration.Migrants.Food	= starving
 			end
-			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", plotMigration.Migrants.Food," foodNeeded : ", foodNeeded, " foodstock = ", foodstock)
+			Dprint( DEBUG_PLOT_SCRIPT, "  - Starving = ", plotMigration.Migrants.Food," foodNeeded : ", village.FoodRequired, " foodstock, produced = ", self:GetStock(foodResourceID), village.FoodProduced)
 		
 		else
 			plotMigration.Pull.Food	= Div(maxPlotPopulation, population) -- free plots use the population support value for Food when "pulling" migrants that are pushed out of a city influence by starvation 
@@ -3607,6 +3614,10 @@ function DoMigration(self)
 	
 	local DEBUG_PLOT_SCRIPT	= DEBUG_PLOT_SCRIPT
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
+	
+	local village = GCO.GetTribalVillageAt(self:GetIndex())
+	if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
+	--if self:GetIndex() == 1006 then DEBUG_PLOT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "- Population Migration from plot ".. self:GetX() ..",".. self:GetY())

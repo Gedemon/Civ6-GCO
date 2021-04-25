@@ -581,7 +581,9 @@
 		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_CITRUS" 		MaxConverted="5" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="3.2" CostFactor="1.8"/>
 		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_COCOA" 		MaxConverted="4" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2.5" CostFactor="2"/>
 		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_WINE" 		MaxConverted="4" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="1.5" CostFactor="1.2"/>
+	<!--->	
 		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_SUGAR" 		MaxConverted="5" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2" 	CostFactor="1.5"/>
+	<!---->	
 		<Row BuildingType="BUILDING_FRUIT_MARKET"	ResourceType="RESOURCE_BANANAS" 	MaxConverted="30" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="0.25"/>
 		
 		<Row BuildingType="BUILDING_GRANARY" 		ResourceType="RESOURCE_RICE" 		MaxConverted="5" 	ResourceCreated="RESOURCE_GRAIN" 	Ratio="1.00"/>
@@ -784,7 +786,9 @@
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_CITRUS" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="3.2" CostFactor="1.8"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_COCOA" 	MaxConverted="8" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2.5" CostFactor="2"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_WINE" 	MaxConverted="8" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="1.5" CostFactor="1.2"/>
+	<!--->	
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_SUGAR" 	MaxConverted="10" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2" 	CostFactor="1.5"/>
+	<!---->	
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_MEAT" 	MaxConverted="80" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION" 	ResourceType="RESOURCE_SALT"	MaxConverted="8" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_MARKET_EXTENSION"	ResourceType="RESOURCE_MEAT" 	MaxConverted="80" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
@@ -803,7 +807,9 @@
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_CITRUS" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="3.2" CostFactor="1.8"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_COCOA" 	MaxConverted="12" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2.5" CostFactor="2"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_WINE" 	MaxConverted="12" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="1.5" CostFactor="1.2"/>
+	<!--->	
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_SUGAR" 	MaxConverted="15" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2" 	CostFactor="1.5"/>
+	<!---->	
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_MEAT" 	MaxConverted="120" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET" 	ResourceType="RESOURCE_SALT"	MaxConverted="12" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_INDUSTRIAL_MARKET"	ResourceType="RESOURCE_MEAT" 	MaxConverted="120" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
@@ -822,7 +828,9 @@
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_CITRUS" 	MaxConverted="25" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="3.2" CostFactor="1.8"/>
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_COCOA" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2.5" CostFactor="2"/>
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_WINE" 	MaxConverted="20" 	ResourceCreated="RESOURCE_FRUITS" 	Ratio="1.5" CostFactor="1.2"/>
+	<!--->	
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_SUGAR" 	MaxConverted="25" 	ResourceCreated="RESOURCE_FOOD" 	Ratio="2" 	CostFactor="1.5"/>
+	<!---->	
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_MEAT" 	MaxConverted="180" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_HYPERMARKET" 		ResourceType="RESOURCE_SALT"	MaxConverted="18" 	ResourceCreated="RESOURCE_SALTED_MEAT" 		Ratio="10" 		MultiResRequired="1"/>
 		<Row BuildingType="BUILDING_HYPERMARKET"		ResourceType="RESOURCE_MEAT" 	MaxConverted="180" 	ResourceCreated="RESOURCE_SMOKED_MEAT" 		Ratio="1" 		MultiResRequired="1"/>

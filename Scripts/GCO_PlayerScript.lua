@@ -1251,13 +1251,21 @@ function DoPlayerTurnP( playerID )
 		--
 		player:SetPersonnelInCities()
 		
+		-- update flags after resources transfers
+		player:Define()
+		--player:UpdateUnitsFlags()
+		--player:UpdateCitiesBanners()
+		
 		--
 		LuaEvents.DoDiplomacyTurn( playerID )
 		
 		-- Call custom AI
 		if not player:IsHuman() then
 			if player:IsMajor() then
-				GameEvents.InitializePlayerAI.Call(playerID, playerConfig:GetValue("TypeAI") or "DefaultAI")
+			
+				local sDefaultAI	= player:GetCities():GetCount() == 0 and "TribeAI" or "DefaultAI"
+			
+				GameEvents.InitializePlayerAI.Call(playerID, playerConfig:GetValue("TypeAI") or sDefaultAI)
 			else
 				GameEvents.InitializePlayerAI.Call(playerID, playerConfig:GetValue("TypeAI") or "TribeAI")
 			end
@@ -1268,10 +1276,6 @@ function DoPlayerTurnP( playerID )
 			end
 		end
 		
-		-- update flags after resources transfers
-		player:Define()
-		--player:UpdateUnitsFlags()
-		--player:UpdateCitiesBanners()
 		player:SetCurrentTurn()
 		
 		LuaEvents.ShowTimerLog(playerID)

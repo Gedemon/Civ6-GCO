@@ -295,6 +295,7 @@ INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_BARBARIANS
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MAX_SETTLEMENT_DISTANCE_MAJOR',		4);		--
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MAX_SETTLEMENT_DISTANCE_BARBARIAN',	6);		--
+INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MAX_TURNS_PILLAGED',					10);	--
 
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_POPULATION_FOR_VILLAGE_PERCENT',	8.50);	-- max % of Population migrating to a created/repaired village per turn.
 INSERT OR REPLACE INTO GlobalParameters (Name, Value) VALUES ('TRIBES_MINIMAL_POPULATION_LEFT',			100);	-- Minimal Population left after action

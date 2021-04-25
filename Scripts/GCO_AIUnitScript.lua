@@ -140,7 +140,7 @@ function listen(...)
         print();
     end
 end
-Events.UnitTeleported.Add(listen)
+--Events.UnitTeleported.Add(listen)
 
 -- Lua callback for GCO test Behavior Operation.  Needs to always return true so not to fail the operation.
 function OnTest(targetInfo :table)

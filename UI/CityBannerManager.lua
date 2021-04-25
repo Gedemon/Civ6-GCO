@@ -31,6 +31,7 @@ end
 
 local bShownSupplyLine 			= false
 local foodResourceID 			= GameInfo.Resources["RESOURCE_FOOD"].Index
+local iMaxTurnsPillaged			= tonumber(GameInfo.GlobalParameters["TRIBES_MAX_TURNS_PILLAGED"].Value)
 local sCurrentResourceTooltip	= nil
 local currentBannerCity			= nil
 local m_TradeRoute 				= UILens.CreateLensLayerHash("TradeRoutes")
@@ -669,6 +670,7 @@ end
 function CityBanner.UpdateTribeBanner( self : CityBanner )
 	
 	self.m_Instance.TribeBannerContainer:SetHide(false);
+	self.m_Instance.TribeStateLabel:SetHide(true)
 
 	local pPlot 		= GCO.GetPlotByIndex(self.m_DistrictID) -- districtID is plotID for Tribe Banners
 	local cultureID		= pPlot:GetHighestCultureID()
@@ -681,6 +683,12 @@ function CityBanner.UpdateTribeBanner( self : CityBanner )
 	local iDistance		= tonumber(GameInfo.GlobalParameters["TRIBES_MAX_SETTLEMENT_DISTANCE_BARBARIAN"].Value)*0.5
 	local sName			= "Tribe" 	-- no locale, but this shouldn't be used
 	local suzerainty	= {} 		-- to do : get vassal/suzerain relation here
+	
+	if not village then
+		GCO.Warning("Can't find village at plot#", self.m_DistrictID)
+		return
+	end
+	
 	if row then
 		sName = row.Name
 	else
@@ -700,7 +708,7 @@ function CityBanner.UpdateTribeBanner( self : CityBanner )
 	end
 	
 	if village.IsCentral then
-		if self.m_Player:GetID() == Game.GetLocalPlayer() then
+		if self.m_Player and self.m_Player:GetID() == Game.GetLocalPlayer() then
 			self.m_Instance.TribeStateLabel:SetText("[ICON_Star]")
 		elseif bIsAtWar then
 			self.m_Instance.TribeStateLabel:SetText("[ICON_War]")
@@ -718,12 +726,6 @@ function CityBanner.UpdateTribeBanner( self : CityBanner )
 			self.m_Instance.TribeSuzeraintyLabel:SetHide(true)
 		end
 	else
-		if pPlot:IsImprovementPillaged() then
-			self.m_Instance.TribeStateLabel:SetText("[ICON_Pillaged]")
-			self.m_Instance.TribeStateLabel:SetHide(false)
-		else
-			self.m_Instance.TribeStateLabel:SetHide(true)
-		end
 		
 		if village.CentralPlot then
 			local centralPlot 	= Map.GetPlotByIndex(village.CentralPlot)
@@ -733,8 +735,13 @@ function CityBanner.UpdateTribeBanner( self : CityBanner )
 		else
 			self.m_Instance.TribeSuzeraintyLabel:SetHide(true)
 		end
-		
-		
+	end
+	
+	if pPlot:IsImprovementPillaged() then
+		local iTurnsLeft = iMaxTurnsPillaged - (village.PillagedCounter or 0)
+		self.m_Instance.TribeStateLabel:SetText("[ICON_Pillaged]")
+		self.m_Instance.TribeStateLabel:SetToolTipString(Locale.Lookup("LOC_VILLAGE_PILLAGED_TURNS_LEFT", iTurnsLeft))
+		self.m_Instance.TribeStateLabel:SetHide(false)
 	end
 	
 	
