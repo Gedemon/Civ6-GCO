@@ -846,6 +846,12 @@ local prevKey, prevValue, prevLine
 function ShowLastOrderedCall()
 	print("*** orderedNext previous call was:")
 	print("  - key :", prevKey, " - value = ", prevValue)
+	
+	if type(prevValue) == "table" then
+		Dump(prevValue)
+	end
+	
+	print("*** orderedNext previous trace was:")
 	print(prevLine)
 end
 
@@ -1521,6 +1527,42 @@ function KillUnit(unitID,playerID)
 	UnitManager.Kill(unit)
 end
 
+function InitUnit(playerID, unitType, iX, iY)
+	local unitRow			= GameInfo.Units[unitType]
+	local sUnitType			= unitRow.UnitType
+	local sFormationClass	= unitRow.FormationClass
+	local bIsSeaUnit		= unitRow.Domain == "DOMAIN_SEA"
+	local pPlot				= Map.GetPlot(iX, iY)
+	
+	local function TestPlot(pPlot, bTestWater)
+		local tUnits = Units.GetUnitsInPlot(pPlot)
+		for i, pUnit in ipairs(tUnits) do
+			if GameInfo.Units[pUnit:GetType()].FormationClass == sFormationClass then
+				return false
+			end
+		end
+		if bTestWater then -- check water area here
+			return (bIsSeaUnit and pPlot:IsWater())
+		else
+			return true
+		end
+	end
+	
+	if TestPlot(pPlot) then
+		return UnitManager.InitUnit(playerID, sUnitType, iX, iY) 
+	else
+		for i, adjacentPlotID in ipairs(GetAdjacentPlots(pPlot)) do
+			local adjacentPlot = Map.GetPlotByIndex(adjacentPlotID)
+			if TestPlot(adjacentPlot) then
+				return UnitManager.InitUnit(playerID, sUnitType, adjacentPlot:GetX(), adjacentPlot:GetY()) 
+			end
+		end
+	end
+	
+	-- force spawn, but this may eject garrison
+	GCO.Warning("No replacement plot found : forced spawn on occupied plot of new "..tostring(sUnitType).." at "..tostring(iX)..","..tostring(iY))
+	return UnitManager.InitUnit(playerID, sUnitType, iX, iY)
+end
 
 function CreateUnitWithEquipmentList(UnitType, playerID, iX, iY, personnel, equipmentList, organizationLevel, personnelType)
 	
@@ -1534,7 +1576,12 @@ function CreateUnitWithEquipmentList(UnitType, playerID, iX, iY, personnel, equi
 	local player		= GCO.GetPlayer(playerID)
 	local personnelType	= personnelType or UnitPersonnelType.Conscripts
 	local sUnitType		= GameInfo.Units[UnitType].UnitType
-	local unit 			= UnitManager.InitUnit(playerID, sUnitType, iX, iY)
+	local unit 			= InitUnit(playerID, sUnitType, iX, iY) --  -- UnitManager.InitUnit(playerID, sUnitType, iX, iY)
+	
+	if not unit then
+		GCO.Error("can't initialize new "..tostring(UnitType).." at "..tostring(iX)..","..tostring(iY))
+		return
+	end
 		
 	-- initialize at 0 HP...
 	Dprint( DEBUG, "Initializing unit...")
@@ -1992,6 +2039,7 @@ function Initialize()
 	ExposedMembers.GCO.GetEvaluationStringFromValue		= GetEvaluationStringFromValue
 	-- Units
 	ExposedMembers.GCO.CreateUnitWithEquipmentList		= CreateUnitWithEquipmentList
+	ExposedMembers.GCO.InitUnit							= InitUnit
 	-- Coroutines
 	ExposedMembers.GCO.CheckCoroutinePause				= CheckCoroutinePause
 	ExposedMembers.GCO.AddCoToList						= AddCoToList

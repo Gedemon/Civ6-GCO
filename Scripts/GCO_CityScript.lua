@@ -4467,7 +4467,7 @@ function RecruitUnits(self, UnitType, number, personnelType, equipmentList, pers
 	
 	for i = 1, number do
 	
-		local unit 				= UnitManager.InitUnit(playerID, UnitType, self:GetX(), self:GetY())
+		local unit  = GCO.InitUnit(playerID, UnitType, self:GetX(), self:GetY())
 		
 		-- initialize at 0 HP...
 		Dprint( DEBUG_CITY_SCRIPT, "Initializing unit...")

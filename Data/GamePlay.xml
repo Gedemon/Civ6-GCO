@@ -1047,6 +1047,7 @@
 		<Row ActionType="CREATE_CITY"		IsCentral="1"	MaterielCost="750" /> 			<!-- Convert to City -->
 		<Row ActionType="CREATE_SKIRMISHER"	IsCentral="1"	/> 														<!-- Create a Skirmisher unit -->
 		<Row ActionType="CREATE_MELEE"		IsCentral="1"	/> 														<!-- Create a Melee unit -->
+		<Row ActionType="CREATE_GARRISON"	IsCentral="1"	/> 														<!-- Garrison a Melee unit -->
 		<Row ActionType="CREATE_RANGED"		IsCentral="1"	/> 														<!-- Create a Ranged unit -->
 		<Row ActionType="CREATE_WORKER"		IsCentral="1"	/>						 								<!-- Create a Worker unit (from Slaves) -->
 		<Row ActionType="ABANDON_VILLAGE"	IsSatellite="1"	/> 														<!-- Abandon village (% of population will join the nearest central village if exists)  -->
@@ -1114,7 +1115,7 @@
 	<!--		AI OPERATIONS			***********************************************************************************************************************************************
 	
 		Lua-activated operations for the AI
-		Rally/Target plots must be visable to trigger movement
+		Rally/Target plots must be visible to trigger movement
 		
 		"TargetLuaScript" pass an empty table that can be used to update the target or distance
 		but no other OP parameters (like which Operation is calling the Events when multiple of the same type are running)
@@ -1140,6 +1141,10 @@
 		Decision Nodes	2		0		0		Decision nodes can never return running, and can output data to be used by other behavior tree nodes
 		Decorator Nodes	3		1		1		Decorator nodes have a single child and effects when/how it runs
 		Sub-tree Nodes	4		0		1		Sub-trees are references to other trees defined elsewhere in the behavior tree list
+		
+		
+		
+		NodeType="Operation Defend Units" -> This will fortify damaged units, something we don't want in the mod when moving
 
 		
 	-->
@@ -1170,35 +1175,82 @@
 	</BehaviorTrees>
 	<BehaviorTreeNodes>
 		<!-- "Selector" -->
-		<Row NodeType="Concurrent" 						NodeId="0" TreeName="GCO Move Behavior" JumpTo="5" /> 	<!-- Logical And node. Runs all children until it reaches a FAILURE (can allow multiple failures if desired.) -->
+		<Row NodeType="Concurrent" 						NodeId="0" TreeName="GCO Move Behavior" JumpTo="4" /> 	<!-- Logical And node. Runs all children until it reaches a FAILURE (can allow multiple failures if desired.) -->
 		<!-- "Action" -->
-		<Row NodeType="Operation Defend Units" 			NodeId="1" TreeName="GCO Move Behavior" />				<!-- As part of an operation, protect your units that might otherwise be destroyed. -->
+		<Row NodeType="Operation Attack Units" 			NodeId="1" TreeName="GCO Move Behavior" />				<!-- As part of an operation, attack enemy units during a move. -->
 		<!-- "Action" -->
-		<Row NodeType="Operation Attack Units" 			NodeId="2" TreeName="GCO Move Behavior" />				<!-- As part of an operation, attack enemy units during a move. -->
-		<!-- "Action" -->
-		<Row NodeType="Operation Move" 					NodeId="3" TreeName="GCO Move Behavior" />				<!-- Moves operation to the rally point. -->
+		<Row NodeType="Operation Move" 					NodeId="2" TreeName="GCO Move Behavior" />				<!-- Moves operation to the rally point. -->
 		<!-- "Decorator" -->
-		<Row NodeType="Turn Limiter" 					NodeId="4" TreeName="GCO Move Behavior" />				<!-- Only lets a child node run for a limited number of turns before failing. -->
+		<Row NodeType="Turn Limiter" 					NodeId="3" TreeName="GCO Move Behavior" />				<!-- Only lets a child node run for a limited number of turns before failing. -->
 		<!-- ->
 		<Row NodeType="LUA Script Condition" 			NodeId="4" TreeName="GCO Move Behavior" />
 		<!-- -->
 	</BehaviorTreeNodes>
 	<TreeData>
 		<!-- Operation Attack Units -->
-		<Row DefnId="0" NodeId="2" TreeName="GCO Move Behavior" DefaultData="true" />	<!-- Attack Nearby Units	-->
-		<Row DefnId="1" NodeId="2" TreeName="GCO Move Behavior" DefaultData="false" />	<!-- Attack Along March		-->
-		<Row DefnId="2" NodeId="2" TreeName="GCO Move Behavior" DefaultData="false" />	<!-- Allow Unequal Attacks	-->
+		<Row DefnId="0" NodeId="1" TreeName="GCO Move Behavior" DefaultData="true" />	<!-- Attack Nearby Units	-->
+		<Row DefnId="1" NodeId="1" TreeName="GCO Move Behavior" DefaultData="false" />	<!-- Attack Along March		-->
+		<Row DefnId="2" NodeId="1" TreeName="GCO Move Behavior" DefaultData="false" />	<!-- Allow Unequal Attacks	-->
 		<!-- Operation Move -->
-		<Row DefnId="0" NodeId="3" TreeName="GCO Move Behavior" DefaultData="5" />		<!-- Move To (enum) --> <!-- nb of units to reach rally point ?	-->
-		<Row DefnId="1" NodeId="3" TreeName="GCO Move Behavior" DefaultData="0" />		<!-- Range to goal	-->
-		<Row DefnId="3" NodeId="3" TreeName="GCO Move Behavior" DefaultData="1" />		<!-- Unit distance	-->	<!-- from each others ? from goal ?	-->
+		<Row DefnId="0" NodeId="2" TreeName="GCO Move Behavior" DefaultData="5" />		<!-- Move To (enum) --> <!-- nb of units to reach rally point ?	-->
+		<Row DefnId="1" NodeId="2" TreeName="GCO Move Behavior" DefaultData="0" />		<!-- Range to goal	-->
+		<Row DefnId="3" NodeId="2" TreeName="GCO Move Behavior" DefaultData="1" />		<!-- Unit distance	-->	<!-- from each others ? from goal ?	-->
 		<!-- Turn Limiter -->
-		<Row DefnId="0" NodeId="4" TreeName="GCO Move Behavior" DefaultData="10" />		<!-- Turns to Run	--> <!-- To prevent the Operation to continue running even if no units are left -->
-		<Row DefnId="1" NodeId="4" TreeName="GCO Move Behavior" DefaultData="true" />	<!-- Fail at Limit	-->
+		<Row DefnId="0" NodeId="3" TreeName="GCO Move Behavior" DefaultData="10" />		<!-- Turns to Run	--> <!-- To prevent the Operation to continue running even if no units are left -->
+		<Row DefnId="1" NodeId="3" TreeName="GCO Move Behavior" DefaultData="true" />	<!-- Fail at Limit	-->
 		<!-- ->
 		<Row DefnId="0" NodeId="4" TreeName="GCO Move Behavior" DefaultData="GCO_Test_Event" />	<!-- function attached to GameplayEvent.GCO_Test_Event must return "true" for the Operation to continue	-->
 		<!-- -->
 	</TreeData>
+
+	<!-- 	OPERATION "GCO Move Op Short"
+			Move with attack and defend
+			(Move to Rally plot)
+			3 turns limit
+	-->
+	<AllowedOperations>
+		<Row ListType="Default_List"	OperationDef="GCO Move Op Short"/>
+		<Row ListType="Barbarian Ops"	OperationDef="GCO Move Op Short"/>
+	</AllowedOperations>
+	<AiOperationDefs>
+		<Row OperationName="GCO Move Op Short"	TargetType="TARGET_SCRIPT_SUPPLIED" EnemyType="NONE" 	BehaviorTree="GCO Move Behavior Short" 	Priority="3" SelfStart="false"  MaxTargetDistInRegion="-1" MaxTargetDistInArea="-1" TargetLuaScript="GCO_Test_Goal"/>
+	</AiOperationDefs>
+	<AiOperationTeams>
+		<Row TeamName="GCO Team" OperationName="GCO Move Op Short"	InitialStrengthAdvantage="50" OngoingStrengthAdvantage="50" />
+	</AiOperationTeams>
+	<BehaviorTrees>
+		<Row TreeName="GCO Move Behavior Short" />
+	</BehaviorTrees>
+	<BehaviorTreeNodes>
+		<!-- "Selector" -->
+		<Row NodeType="Concurrent" 						NodeId="0" TreeName="GCO Move Behavior Short" JumpTo="4" /> 	<!-- Logical And node. Runs all children until it reaches a FAILURE (can allow multiple failures if desired.) -->
+		<!-- "Action" -->
+		<Row NodeType="Operation Attack Units" 			NodeId="1" TreeName="GCO Move Behavior Short" />				<!-- As part of an operation, attack enemy units during a move. -->
+		<!-- "Action" -->
+		<Row NodeType="Operation Move" 					NodeId="2" TreeName="GCO Move Behavior Short" />				<!-- Moves operation to the rally point. -->
+		<!-- "Decorator" -->
+		<Row NodeType="Turn Limiter" 					NodeId="3" TreeName="GCO Move Behavior Short" />				<!-- Only lets a child node run for a limited number of turns before failing. -->
+		<!-- ->
+		<Row NodeType="LUA Script Condition" 			NodeId="4" TreeName="GCO Move Behavior Short" />
+		<!-- -->
+	</BehaviorTreeNodes>
+	<TreeData>
+		<!-- Operation Attack Units -->
+		<Row DefnId="0" NodeId="1" TreeName="GCO Move Behavior Short" DefaultData="true" />	<!-- Attack Nearby Units	-->
+		<Row DefnId="1" NodeId="1" TreeName="GCO Move Behavior Short" DefaultData="false" />	<!-- Attack Along March		-->
+		<Row DefnId="2" NodeId="1" TreeName="GCO Move Behavior Short" DefaultData="false" />	<!-- Allow Unequal Attacks	-->
+		<!-- Operation Move -->
+		<Row DefnId="0" NodeId="2" TreeName="GCO Move Behavior Short" DefaultData="5" />		<!-- Move To (enum) --> <!-- nb of units to reach rally point ?	-->
+		<Row DefnId="1" NodeId="2" TreeName="GCO Move Behavior Short" DefaultData="0" />		<!-- Range to goal	-->
+		<Row DefnId="3" NodeId="2" TreeName="GCO Move Behavior Short" DefaultData="1" />		<!-- Unit distance	-->	<!-- from each others ? from goal ?	-->
+		<!-- Turn Limiter -->
+		<Row DefnId="0" NodeId="3" TreeName="GCO Move Behavior Short" DefaultData="5" />		<!-- Turns to Run	--> <!-- To prevent the Operation to continue running even if no units are left -->
+		<Row DefnId="1" NodeId="3" TreeName="GCO Move Behavior Short" DefaultData="true" />		<!-- Fail at Limit	-->
+		<!-- ->
+		<Row DefnId="0" NodeId="4" TreeName="GCO Move Behavior" DefaultData="GCO_Test_Event" />	<!-- function attached to GameplayEvent.GCO_Test_Event must return "true" for the Operation to continue	-->
+		<!-- -->
+	</TreeData>
+
 
 	<!-- 	OPERATION "GCO Run Op"
 			Move without attack and defend

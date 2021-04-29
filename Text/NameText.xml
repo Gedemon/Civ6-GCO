@@ -1280,6 +1280,7 @@
 		<Replace Tag="LOC_CREATE_CITY_NAME"			Text="Create City"			Language="en_US" />
 		<Replace Tag="LOC_CREATE_SKIRMISHER_NAME"	Text="Conscript Skirmisher"	Language="en_US" />
 		<Replace Tag="LOC_CREATE_MELEE_NAME"		Text="Conscript Melee"		Language="en_US" />
+		<Replace Tag="LOC_CREATE_GARRISON_NAME"		Text="Create Garrison"		Language="en_US" />
 		<Replace Tag="LOC_CREATE_RANGED_NAME"		Text="Conscript Ranged"		Language="en_US" />
 		<Replace Tag="LOC_CREATE_WORKER_NAME"		Text="Create Worker"		Language="en_US" />
 		<Replace Tag="LOC_ABANDON_VILLAGE_NAME"		Text="Abandon Village"		Language="en_US" />
@@ -1300,6 +1301,11 @@
 		<Replace Tag="LOC_RESEARCH_BRONZE_WORKING_NAME"		Text="Learn Bronze Working"		Language="en_US" />
 		<Replace Tag="LOC_RESEARCH_HORSEBACK_RIDING_NAME"	Text="Learn Horseback Riding"	Language="en_US" />
 		
+		
+		
+		<Replace Tag="LOC_CREATE_GARRISON_DESCRIPTION"	Language="en_US">
+			<Text>Create a Garrison Melee unit.[NEWLINE]Garrisoned unit will not disband but can not move from the Village.</Text>
+		</Replace>
 		
 		<Replace Tag="LOC_START_MIGRATION_DESCRIPTION"	Language="en_US">
 			<Text>Gather 75% of the total population of all your settlements and abandon your position to start a Migration.[NEWLINE]Conscripted units will not disband until you've settled again.</Text>

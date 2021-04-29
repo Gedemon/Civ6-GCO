@@ -2275,7 +2275,7 @@ function GetSupplyPath(plot, destPlot, iPlayer, maxRange, fBlockaded, bAllowCoas
 		local path 		= {}
 		local seen 		= {}
 		local current 	= currentNode
-		local score 	= gScore[current] --that's the total score of the path
+		local score 	= gScore[current] or 0 --that's the total score of the path
 		while true do
 			local prev = comeFrom[current]
 			if prev == nil then break end
@@ -3500,7 +3500,7 @@ function SetMigrationValues(self)
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	
 	local village = GCO.GetTribalVillageAt(self:GetIndex())
-	if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
+	--if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	--if self:GetIndex() == 1006 then DEBUG_PLOT_SCRIPT = "debug" end
 	
 	local plotMigration = self:GetMigration()
@@ -3616,7 +3616,7 @@ function DoMigration(self)
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
 	
 	local village = GCO.GetTribalVillageAt(self:GetIndex())
-	if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
+	--if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	--if self:GetIndex() == 1006 then DEBUG_PLOT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)

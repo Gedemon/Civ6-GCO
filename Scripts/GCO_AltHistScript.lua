@@ -363,6 +363,7 @@ function GetAllTribalVillages()
 end
 
 function GetPlayerTribalVillages(playerID)
+
 	local kVillages = GetAllTribalVillages()
 	local tList		= {}
 	for plotKey, village in pairs(kVillages) do
@@ -376,6 +377,12 @@ function GetPlayerTribalVillages(playerID)
 			table.insert(tList, plotKey)
 		end
 	end
+	--[[
+	if 	kVillages.__orderedIndex then
+		kVillages.__orderedIndex = nil  -- manual cleanup for orderedpair
+		GCO.Warning("Manual cleanup of __orderedIndex was required in[NEWLINE]for k, data in pairs(kVillages) do[NEWLINE]for player #".. tostring( playerID ))
+	end
+	--]]
 	return tList
 end
 
@@ -542,7 +549,7 @@ function TransferWithLinkedUnits(village)
 	for resourceID, value in pairs(UnitsSupplyDemand.Resources) do
 		Reinforcements.Resources[resourceID] 	= math.min(value, pPlot:GetStock(resourceID))
 		Reinforcements.ResPerUnit[resourceID] 	= math.floor(Div(Reinforcements.Resources[resourceID],UnitsSupplyDemand.NeedResources[resourceID]))
-		Dprint( DEBUG_ALTHIST_SCRIPT, "- Max transferable ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. " = ".. tostring(value), " for " .. tostring(UnitsSupplyDemand.NeedResources[resourceID]), " units, available = " .. tostring(pPlot:GetStock(resourceID)), ", send = ".. tostring(Reinforcements.Resources[resourceID]))
+		--Dprint( DEBUG_ALTHIST_SCRIPT, "- Max transferable ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)).. " = ".. tostring(value), " for " .. tostring(UnitsSupplyDemand.NeedResources[resourceID]), " units, available = " .. tostring(pPlot:GetStock(resourceID)), ", send = ".. tostring(Reinforcements.Resources[resourceID]))
 	end
 	
 	-- Share available resources to linked units
@@ -570,7 +577,7 @@ function TransferWithLinkedUnits(village)
 						unit:ChangeStock(resourceID, send)
 						pPlot:ChangeStock(resourceID, -send)						
 						
-						Dprint( DEBUG_ALTHIST_SCRIPT, "  - send ".. tostring(send)," ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (@ ".. tostring(efficiency), " percent efficiency) to unit key#".. tostring(unit:GetKey()), Locale.Lookup(UnitManager.GetTypeName(unit)))
+						--Dprint( DEBUG_ALTHIST_SCRIPT, "  - send ".. tostring(send)," ".. Indentation20(Locale.Lookup(GameInfo.Resources[resourceID].Name)) .." (@ ".. tostring(efficiency), " percent efficiency) to unit key#".. tostring(unit:GetKey()), Locale.Lookup(UnitManager.GetTypeName(unit)))
 					end
 				end
 			end
@@ -603,14 +610,14 @@ function TransferWithLinkedUnits(village)
 							pPlot:ChangeStock(resourceID, toTransfert)
 						end
 						
-						Dprint( DEBUG_ALTHIST_SCRIPT, "  - received " .. tostring(toTransfert) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." from ".. Locale.Lookup(unit:GetName()) .." that had an excedent of ".. tostring(value))
+						--Dprint( DEBUG_ALTHIST_SCRIPT, "  - received " .. tostring(toTransfert) .." ".. Locale.Lookup(GameInfo.Resources[resourceID].Name) .." from ".. Locale.Lookup(unit:GetName()) .." that had an excedent of ".. tostring(value))
 					end
 				end
 
 				-- Send prisoners to improvement as slaves
 				for playerKey, number in pairs(unitData.Prisoners) do
 					if number > 0 then
-						Dprint( DEBUG_ALTHIST_SCRIPT, "   - "..Indentation20(Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " Prisoners to Slave ").." = ", number)
+						--Dprint( DEBUG_ALTHIST_SCRIPT, "   - "..Indentation20(Locale.Lookup( PlayerConfigurations[tonumber(playerKey)]:GetPlayerName() ) .. " Prisoners to Slave ").." = ", number)
 						pPlot:ChangeStock(slaveClassID, number)
 					end
 				end
@@ -672,6 +679,22 @@ function GetPopulationMigrationPerTurnForVillage(pPlot, row)
 	return settlers
 end
 
+function UngarrisonAllUnits(playerID)
+	local pPlayer 		= GCO.GetPlayer(playerID)
+	local pPlayerUnits 	= pPlayer:GetUnits()
+	local turnsActive	= tonumber(GameInfo.GlobalParameters["ARMY_CONSCRIPTS_BASE_ACTIVE_TURNS"].Value)
+	for i, pUnit in pPlayerUnits:Members() do
+		local pUnitAbility 	= pUnit:GetAbility()
+		local iCurrentCount = pUnitAbility:GetAbilityCount("ABILITY_NO_MOVEMENT")
+		if iCurrentCount > 0 then
+			local bResult = pUnitAbility:ChangeAbilityCount("ABILITY_NO_MOVEMENT", -iCurrentCount)
+			if not pUnit:GetValue("ActiveTurnsLeft") then
+				pUnit:SetValue("ActiveTurnsLeft", turnsActive)
+			end
+		end
+	end
+end
+
 function OnNewTurn()
 	TribesTurn( NO_PLAYER )
 end
@@ -682,7 +705,7 @@ end
 
 function TribesTurnP( playerID )
 
-	local DEBUG_ALTHIST_SCRIPT = playerID == 0 and "debug" or DEBUG_ALTHIST_SCRIPT
+	--local DEBUG_ALTHIST_SCRIPT = playerID == 0 and "debug" or DEBUG_ALTHIST_SCRIPT
 	
 	Dprint( DEBUG_ALTHIST_SCRIPT, "- Do Tribal Village turn for Player#", playerID)
 	
@@ -1104,7 +1127,7 @@ function TribesTurnP( playerID )
 				--
 				Dprint( DEBUG_ALTHIST_SCRIPT, "   - Calculate Growth...")
 				
-				local foodProduced	= pPlot:GetYield(yieldFood)
+				local foodProduced	= pPlot:GetYield(yieldFood) * 0.50
 				for __, adjacentPlotID in ipairs(GCO.GetAdjacentPlots(pPlot)) do
 					local adjacentPlot = GCO.GetPlotByIndex(adjacentPlotID)
 					if adjacentPlot then
@@ -1445,8 +1468,8 @@ function CheckVillageCapture(playerID, unitID, plotID)
 end
 
 function OnUnitPathComplete(playerID, unitID, pathPlots)
-	local DEBUG_ALTHIST_SCRIPT = "debug"
-	Dprint( DEBUG_ALTHIST_SCRIPT, "- On Unit Path Complete : ", playerID, unitID, pathPlots)
+
+	--Dprint( DEBUG_ALTHIST_SCRIPT, "- On Unit Path Complete : ", playerID, unitID, pathPlots)
 	for pathIndex, plotID in ipairs(pathPlots) do
 		if pathIndex > 1 then -- ignore starting position
 			CheckVillageCapture(playerID, unitID, plotID)
@@ -2189,7 +2212,7 @@ function TribeCanDo(kParameters, row) -- bCanDo, bCanShow, sReason
 	--
 	
 	-- Create Units
-	local UnitCreation = UnitCreationType[sType]
+	local UnitCreation = sType == "CREATE_GARRISON" and UnitCreationType["CREATE_MELEE"] or UnitCreationType[sType]
 	if UnitCreation then
 		
 		local minRatio			= 0.5
@@ -2222,7 +2245,8 @@ function TribeCanDo(kParameters, row) -- bCanDo, bCanShow, sReason
 		local bUseRecruit		= false
 		local bUseBaseunit		= true
 		local tRecruitString	= {}
-		local tBaseString	= {}
+		local tBaseString		= {}
+		local unitRow			= nil
 		if recruitType then
 			--unitID = recruitType
 			bUseRecruit			= true
@@ -2242,12 +2266,15 @@ function TribeCanDo(kParameters, row) -- bCanDo, bCanShow, sReason
 		end
 			
 		if bUseRecruit then
-			table.insert(tReasons, Locale.Lookup("LOC_TRIBE_ENOUGH_EQUIPMENT_RECRUIT", GameInfo.Units[recruitType].Name))
+			unitRow = GameInfo.Units[recruitType]
+			table.insert(tReasons, Locale.Lookup("LOC_TRIBE_ENOUGH_EQUIPMENT_RECRUIT", unitRow.Name))
 			for _, sEquipmentString in ipairs(tRecruitString) do 
 				table.insert(tReasons, sEquipmentString)
 			end
 		else
 		
+			unitRow = GameInfo.Units[unitID]
+			
 			for equipmentClass, resourceTable in pairs(baseResTable) do
 				local totalNeeded 		= resourceTable.Value
 				local available			= GCO.GetNumEquipmentOfClassInList(equipmentClass, plotEquipment)
@@ -2263,15 +2290,25 @@ function TribeCanDo(kParameters, row) -- bCanDo, bCanShow, sReason
 			
 			if not bUseBaseunit then
 				bCanDo = false
-				table.insert(tReasons, Locale.Lookup("LOC_TRIBE_NO_EQUIPMENT_RECRUIT", GameInfo.Units[unitID].Name))
+				table.insert(tReasons, Locale.Lookup("LOC_TRIBE_NO_EQUIPMENT_RECRUIT", unitRow.Name))
 			else
-				table.insert(tReasons, Locale.Lookup("LOC_TRIBE_ENOUGH_EQUIPMENT_RECRUIT", GameInfo.Units[unitID].Name))
+				table.insert(tReasons, Locale.Lookup("LOC_TRIBE_ENOUGH_EQUIPMENT_RECRUIT", unitRow.Name))
 			end
 			
 			for _, sEquipmentString in ipairs(tBaseString) do 
 				table.insert(tReasons, sEquipmentString)
 			end
 		end
+
+		if sType == "CREATE_GARRISON" then
+			local tUnits = Units.GetUnitsInPlot(pVillagePlot)
+			for i, pUnit in ipairs(tUnits) do
+				if GameInfo.Units[pUnit:GetType()].FormationClass == unitRow.FormationClass then
+					bCanDo = false
+					table.insert(tReasons, Locale.Lookup("LOC_TRIBE_ANOTHER_UNIT_SAME_FORMATION_GARRISON"))
+				end
+			end
+		end	
 
 	--
 	elseif sType == "VILLAGE_REBUILD" then
@@ -2406,7 +2443,6 @@ function TribeCanDo(kParameters, row) -- bCanDo, bCanShow, sReason
 	--
 	end
 	
-	
 	return bCanDo, bCanShow, table.concat(tReasons, "[NEWLINE]")
 end
 
@@ -2498,7 +2534,7 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 		elseif row.ActionType then
 		
 			-- Create Unit
-			local UnitCreation = UnitCreationType[kParameters.Type]
+			local UnitCreation = kParameters.Type == "CREATE_GARRISON" and UnitCreationType["CREATE_MELEE"] or UnitCreationType[kParameters.Type] --UnitCreationType[kParameters.Type] --
 			if UnitCreation then
 				
 				Dprint( DEBUG_ALTHIST_SCRIPT, "  - Creating new Unit ", UnitCreation.BaseUnitType)
@@ -2509,12 +2545,12 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 				local personnel 		= math.min(unitOrganization.FrontLinePersonnel, plotPopulation - iMinPopulationLeft) -- TribeCanDo should have already checked there is enough Population
 				local resourceList		= {}
 				
-				Dprint( DEBUG_ALTHIST_SCRIPT, "  - Full plot equipment list : ", UnitCreation.BaseUnitType)
+				--Dprint( DEBUG_ALTHIST_SCRIPT, "  - Full plot equipment list : ", UnitCreation.BaseUnitType)
 				for resourceKey, value in pairs(pPlot:GetResources()) do
 					local resourceID = tonumber(resourceKey)
 					if GCO.IsResourceEquipment(resourceID) then
 						resourceList[resourceID] = value
-						Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
+						--Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
 					end
 				end
 				
@@ -2527,13 +2563,20 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 					-- << should this section be its own function ?
 					unit:SetValue("HomeCityKey", tostring(kParameters.PlotID))
 					unit:InitializeCultureFromPlot(pPlot)
-					Dprint( DEBUG_ALTHIST_SCRIPT, "  - Unit creation equipment list : ", UnitCreation.BaseUnitType)
+					--Dprint( DEBUG_ALTHIST_SCRIPT, "  - Unit creation equipment list : ", UnitCreation.BaseUnitType)
 					for resourceKey, value in pairs(equipmentList) do
 						local resourceID = tonumber(resourceKey)
 						pPlot:ChangeStock(resourceID, -value)
-						Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
+						--Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
 					end
 					pPlot:MatchCultureToPopulation(plotPopulation - personnel)
+					
+					if kParameters.Type == "CREATE_GARRISON" then
+						local pUnitAbility = unit:GetAbility()
+						pUnitAbility:ChangeAbilityCount("ABILITY_NO_MOVEMENT", 1)
+						unit:SetValue("ActiveTurnsLeft", nil)
+					end					
+					
 					LuaEvents.TribeImprovementUpdated(iActor, kParameters.PlotID)
 					if not kParameters.AI then
 						LuaEvents.RefreshActionScreenGCO()
@@ -2546,14 +2589,14 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 				
 			--	Create Worker
 			elseif row.ActionType == "CREATE_WORKER" then
-				local pUnit = UnitManager.InitUnit(iActor, "UNIT_WORKER", pPlot:GetX(), pPlot:GetY())
+				local pUnit = GCO.InitUnit(iActor, "UNIT_WORKER", pPlot:GetX(), pPlot:GetY())
 				--pUnit:InitializeCultureFromPlot(pPlot) -- slave does not belong to any culture group
 				pPlot:ChangeStock(slaveClassID, -iNumSlavesForWorker)
 				
 			--	Start Migration
 			elseif row.ActionType == "START_MIGRATION" then
 				
-				local pUnit = UnitManager.InitUnit(iActor, "UNIT_CARAVAN", pPlot:GetX(), pPlot:GetY())
+				local pUnit = GCO.InitUnit(iActor, "UNIT_CARAVAN", pPlot:GetX(), pPlot:GetY())
 				
 				GCO.AttachUnitFunctions(pUnit)
 				GCO.RegisterNewUnit(iActor, pUnit)
@@ -2586,28 +2629,36 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 					
 					if otherPlotID ~= kParameters.PlotID then 
 					
-						if otherVillage.CentralPlot == kParameters.PlotID then
-							local otherPlot 	= GCO.GetPlotByIndex(otherPlotID)
-							local plotMigrants	= math.floor(otherPlot:GetPopulation()*iStartingMigrationRate)
+						local otherPlot 	= GCO.GetPlotByIndex(otherPlotID)
 							
-							Dprint( DEBUG_ALTHIST_SCRIPT, "- Adding Migrants from Other Village = ", plotMigrants)
-							
-							pUnit:GetPopulationFromPlot(otherPlot, plotMigrants)
-							
-							for resourceKey, value in pairs(otherPlot:GetResources()) do
-								local resourceID = tonumber(resourceKey)
-								pUnit:ChangeStock(resourceID,value)
-								otherPlot:ChangeStock(resourceID,-value)
-								Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
+						if village.PillagedCounter == nil then
+						
+							if otherVillage.CentralPlot == kParameters.PlotID then
+								local plotMigrants	= math.floor(otherPlot:GetPopulation()*iStartingMigrationRate)
+								
+								Dprint( DEBUG_ALTHIST_SCRIPT, "- Adding Migrants from Other Village = ", plotMigrants)
+								
+								pUnit:GetPopulationFromPlot(otherPlot, plotMigrants)
+								
+								for resourceKey, value in pairs(otherPlot:GetResources()) do
+									local resourceID = tonumber(resourceKey)
+									pUnit:ChangeStock(resourceID,value)
+									otherPlot:ChangeStock(resourceID,-value)
+									Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
+								end
 							end
+							ImprovementBuilder.SetImprovementPillaged(otherPlot, true)
+							otherVillage.PillagedCounter 	= 5
+							
+						else
+							
+							otherVillage.PillagedCounter = math.min (otherVillage.PillagedCounter, 5)
 							
 						end
 						
 						ChangeVillageOwner(otherPlot, NO_PLAYER)
+						otherVillage.CentralPlot = nil
 						
-						ImprovementBuilder.SetImprovementPillaged(otherPlot, true)
-						otherVillage.PillagedCounter 	= 5
-						otherVillage.CentralPlot 		= nil
 						LuaEvents.TribeImprovementUpdated(iActor, otherPlotID)
 					end
 				end
@@ -2615,6 +2666,8 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 				local pPlayer = GCO.GetPlayer(iActor)
 				pPlayer:SetValue("MigrationTurn", Game.GetCurrentGameTurn())
 				LuaEvents.UnitsCompositionUpdated(unitOwner, unitID)
+				
+				UngarrisonAllUnits(iActor)
 				
 			--	Create City
 			elseif row.ActionType == "CREATE_CITY" then
@@ -2633,19 +2686,23 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 				--GetSatelliteVillages(centralPlotID)
 				RemoveTribalVillageAt(kParameters.PlotID) 
 				
+				UngarrisonAllUnits(iActor)
+				
 			--	Create Settler
 			elseif row.ActionType == "CREATE_SETTLER" then
 				
 				-- Remove Materiel used from the Plot
 				pPlot:ChangeStock(materielResourceID, -row.MaterielCost)
 				
-				local pUnit = UnitManager.InitUnit(iActor, "UNIT_SETTLER", pPlot:GetX(), pPlot:GetY())
+				local pUnit = GCO.InitUnit(iActor, "UNIT_SETTLER", pPlot:GetX(), pPlot:GetY())
 				
 				GCO.AttachUnitFunctions(pUnit)
 				GCO.RegisterNewUnit(iActor, pUnit)
 	
 				pUnit:InitializeCultureFromPlot(pPlot)
 				pUnit:GetPopulationFromPlot(pPlot, row.PopulationCost)
+				
+				UngarrisonAllUnits(iActor)
 			end
 		
 		else

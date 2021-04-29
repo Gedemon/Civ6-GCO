@@ -758,7 +758,7 @@ end
 function InitializeEquipment(self, equipmentList) -- equipmentList optional, equipmentList = { EquipmentID = equipmentID, Value = value, Desirability = desirability }
 
 	Dlog("InitializeEquipment /START")
-	local DEBUG_UNIT_SCRIPT = "debug"	
+	--local DEBUG_UNIT_SCRIPT = "debug"	
 	Dprint( DEBUG_UNIT_SCRIPT, "Initializing equipment for unit (".. Locale.Lookup(self:GetName()) ..") for player #".. tostring(self:GetOwner()).. " id#" .. tostring(self:GetKey()))
 	
 	local unitKey 	= self:GetKey()
@@ -1341,6 +1341,7 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 	local prevType				= oldUnit:GetType()
 	local changeMoves			= oldUnit:GetMaxMoves() - oldUnit:GetMovesRemaining()
 	local tAbilities 			= oldUnit:GetAbility():GetAbilities()
+	local iOperationID			= GCO.GetUnitOperation(oldUnit)
 	
 	-- Get previous promotions
 	for row in GameInfo.UnitPromotions() do
@@ -1350,6 +1351,8 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 			table.insert(newUnitPromotions, promotionID)
 		end
 	end
+	
+	GCO.SetUnitOperation(oldUnit:GetKey(), nil)
 	
 	-- Destroy old unit first to prevent stacking issues
 	prevPlayerUnits:Destroy(oldUnit)
@@ -1422,6 +1425,13 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 		
 		-- update base food stock value
 		newUnitData.BaseFoodStock = GetUnitTypeBaseFoodStock(newUnitData.unitType, organizationLevel)
+		
+		-- Add to operation
+		if iOperationID then
+			local pMilitaryAI = Players[playerID]:GetAi_Military()
+			pMilitaryAI:AddUnitToScriptedOperation(iOperationID, newUnit:GetID())
+			GCO.SetUnitOperation(newUnit:GetKey(), iOperationID)
+		end
 		
 		Dprint( DEBUG_UNIT_SCRIPT, "Returning new unit: "..Locale.Lookup(newUnit:GetName()).." id#".. tostring(newUnit:GetKey()).." player#"..tostring(newUnit:GetOwner()))
 		return newUnit
@@ -1592,7 +1602,10 @@ function Disband(self) -- Send everyone and everything back to the unit's home o
 			
 				local pPlot				= GCO.GetPlotByIndex(plotID)
 				local unitPlot 			= GCO.GetPlot(self:GetX(), self:GetY()) or GCO.GetPlot(self:GetValue("LastX"), self:GetValue("LastY"))
-				local supplyPath, cost 	= unitPlot:GetSupplyPath( pPlot, self:GetOwner())--, maxRange, GCO.SupplyPathBlocked, bAllowCoast, bAllowOcean, bAllowHiddenRoute)
+				local supplyPath, cost	= nil, 0
+				if unitPlot then
+					supplyPath, cost 	= unitPlot:GetSupplyPath( pPlot, self:GetOwner())--, maxRange, GCO.SupplyPathBlocked, bAllowCoast, bAllowOcean, bAllowHiddenRoute)
+				end
 				
 				Dprint( DEBUG_UNIT_SCRIPT, "     - Send everyone back to Village at ", pPlot:GetX(), pPlot:GetY())
 				
@@ -7305,6 +7318,7 @@ function ShareFunctions()
 	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
 	--
 	ExposedMembers.GCO.GetUnit 												= GetUnit
+	ExposedMembers.GCO.GetUnitKeyFromIDs									= GetUnitKeyFromIDs
 	ExposedMembers.GCO.GetUnitFromKey 										= GetUnitFromKey
 	ExposedMembers.GCO.AttachUnitFunctions 									= AttachUnitFunctions
 	ExposedMembers.GCO.GetBasePersonnelReserve 								= GetBasePersonnelReserve

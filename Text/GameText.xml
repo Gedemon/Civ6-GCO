@@ -1309,6 +1309,10 @@
       <Text>[COLOR_Civ6Red]There are no other Villages.[ENDCOLOR]</Text>
     </Replace>
 	
+	<Replace Tag="LOC_TRIBE_ANOTHER_UNIT_SAME_FORMATION_GARRISON" Language="en_US">
+		<Text>[COLOR_Civ6Red]Another unit of the same Formation Type is already here.[ENDCOLOR]</Text>
+    </Replace>
+	
 	<Replace Tag="LOC_TRIBE_ACTION_RESOURCE_NEEDED_TOTAL" Language="en_US">
       <Text>[ICON_Bullet] {3_Num} / {4_Num} {1_Name} {2_Name}</Text>
     </Replace>

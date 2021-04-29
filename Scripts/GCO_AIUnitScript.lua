@@ -14,7 +14,286 @@ include( "GCO_SmallUtils" )
 
 
 --=====================================================================================--
+-- Defines
+--=====================================================================================--
+
+DEBUG_AI_UNIT_SCRIPT 	= "debug"
+
+local _cached			= {}		-- cached table to reduce calculations
+
+local kOperationTurnLimit = {
+
+	["GCO Move Op"] 		= 10,
+	["GCO Move Op Short"] 	= 5,
+	["GCO Run Op"] 			= 10,
+
+}
+
+
+
+
+--=====================================================================================--
+-- Initialize Functions
+--=====================================================================================--
+
+local GCO 	= {}
+local pairs = pairs
+local Dprint, Dline, Dlog, Div, LuaEvents
+function InitializeUtilityFunctions() 	-- Get functions from other contexts
+	GCO 		= ExposedMembers.GCO		-- contains functions from other contexts 
+	LuaEvents	= GCO.LuaEvents
+	Dprint 		= GCO.Dprint				-- Dprint(bOutput, str) : print str if bOutput is true
+	Dline		= GCO.Dline					-- output current code line number to firetuner/log
+	Dlog		= GCO.Dlog					-- log a string entry, last 10 lines displayed after a call to GCO.Error()
+	Div			= GCO.Divide
+	pairs 		= GCO.OrderedPairs
+	GameEvents.InitializeGCO.Remove( InitializeUtilityFunctions )
+	print ("Exposed Functions from other contexts initialized...")
+	PostInitialize()
+end
+GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
+
+function PostInitialize() -- everything that may require other context to be loaded first
+	ExposedMembers.GCO.OperationData = GCO.LoadTableFromSlot("OperationData") or {} -- [PlayerKey][MissionKey] = { Type = OperationType, TurnsLeft = iTurn, Origin = plotID, Target = plotID, Rally = plotID, Units = {unitID, ...} }
+	ExposedMembers.GCO.UnitOperation = GCO.LoadTableFromSlot("UnitOperation") or {} 
+
+end
+
+function SaveTables()
+	Dprint("--------------------------- Saving OperationData ---------------------------")
+
+	GCO.StartTimer("Saving OperationData")
+	GCO.SaveTableToSlot(ExposedMembers.GCO.OperationData, "OperationData")
+	GCO.SaveTableToSlot(ExposedMembers.GCO.UnitOperation, "UnitOperation")
+	GCO.ShowTimer("Saving OperationData")
+end
+GameEvents.SaveTables.Add(SaveTables)
+
+
+--=====================================================================================--
 -- 
+--=====================================================================================--
+
+function GetCached(key)
+	return _cached[key]
+end
+
+function SetCached(key, value)
+	_cached[key] = value
+end
+
+function GetPlayerOperationData(iPlayer)
+	local Data 		= ExposedMembers.GCO.OperationData
+	local playerKey	= tostring(iPlayer)
+	if not Data then
+		GCO.Error("OperationData is nil for GetPlayerOperationData")
+		return nil
+	end
+	if not Data[playerKey] then
+		Data[playerKey] = {}
+	end
+	return Data[playerKey]
+end
+
+function GetUnitOperationData()
+	local Data = ExposedMembers.GCO.UnitOperation
+	if not Data then
+		GCO.Error("UnitOperation is nil for GetUnitOperationData")
+		return nil
+	end
+	return Data
+end
+
+
+function StartPlayerOperation(iPlayer, sOperationType, opponentPlayerID, targetPlotID, rallyPlotID, originPlotID)
+
+	Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Trying to launch operation ", sOperationType, opponentPlayerID, targetPlotID, rallyPlotID)
+	
+	local playerOperations = GetPlayerOperationData(iPlayer)
+
+	--[[
+	if 	playerOperations.__orderedIndex then
+		playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
+		GCO.Warning("Pre-iteration manual cleanup of __orderedIndex was required in[NEWLINE]for k, data in pairs(playerOperations) do[NEWLINE]for player #".. tostring( playerKey ))
+	end
+	--]]
+
+	for operationKey, operationData in pairs(playerOperations) do
+		if sOperationType == operationData.Type then
+			
+			-- to do : return existing operationID to use it if the target is the same
+			GCO.Warning("trying to launch another operation of Type [".. tostring(sOperationType).."] for player#".. tostring( iPlayer ).. ", running Op key = ".. tostring(operationKey))
+			
+			--
+			playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
+			return false
+		end
+	end
+
+	local operationID = Players[iPlayer]:GetAi_Military():StartScriptedOperationWithTargetAndRally(sOperationType, opponentPlayerID, targetPlotID, rallyPlotID)
+
+	if operationID ~= -1 then
+	
+		Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Launched operation #"..tostring(operationID))
+		
+		local operationData 	= {} --  { Type = OperationType, TurnsLeft = iTurn, Origin = plotID, Target = plotID, Rally = plotID, Units = {unitID, ...} }
+		operationData.Type		= sOperationType
+		operationData.Opponent	= opponentPlayerID
+		operationData.Origin	= originPlotID
+		operationData.Target	= targetPlotID
+		operationData.Rally		= rallyPlotID
+		operationData.Units		= {}
+		operationData.TurnsLeft	= kOperationTurnLimit[sOperationType] --
+		
+		AddPlayerOperation (iPlayer, operationID, operationData)
+
+		return operationID
+		
+	else
+		GCO.Warning("Failed to launch operation for player#".. tostring( iPlayer ).. ", ".. tostring(sOperationType))
+		return false
+	end
+	
+end
+
+function AddUnitToOperation(pUnit, operationID)
+	local playerID		= pUnit:GetOwner()
+	local unitID		= pUnit:GetID()
+	local operationData = GetPlayerOperation(playerID, operationID)
+	
+	table.insert(operationData.Units, unitID)
+	
+	Players[playerID]:GetAi_Military():AddUnitToScriptedOperation(operationID, unitID)
+	
+	SetUnitOperation(pUnit:GetKey(), operationID)
+end
+
+
+function AddPlayerOperation(iPlayer, operationID, operationData)
+
+	local playerOperations	= GetPlayerOperationData(iPlayer)
+	local operationKey		= tostring(operationID)
+	
+	playerOperations[operationKey] = operationData
+
+end
+
+function GetPlayerOperation(iPlayer, operationID)
+
+	local playerOperations	= GetPlayerOperationData(iPlayer)
+	local operationKey		= tostring(operationID)
+	
+	return playerOperations[operationKey]
+end
+
+
+function GetUnitOperation(pUnit)
+
+	local unitOperation	= GetUnitOperationData()
+	return unitOperation[pUnit:GetKey()]
+end
+
+function SetUnitOperation(unitKey, operationID)
+
+	local unitOperation	= GetUnitOperationData()
+	unitOperation[unitKey] = operationID
+end
+
+function UpdateOperations()
+	Dprint( DEBUG_AI_UNIT_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_AI_UNIT_SCRIPT, "- UpdateOperations...")
+		
+	local Data 	= ExposedMembers.GCO.OperationData
+	
+	if not Data then
+		GCO.Error("OperationData is nil for UpdateOperations")
+		return
+	end
+	
+	local temTable = {}
+	for playerKey, playerOperations in pairs(Data) do
+		table.insert(temTable, {PlayerKey = playerKey, Operations = playerOperations})
+	end
+	for _, tempRow in ipairs(temTable) do
+	
+		local playerKey 		= tempRow.PlayerKey
+		local playerOperations 	= tempRow.Operations
+
+		--[[
+		if 	playerOperations.__orderedIndex then
+			playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
+			GCO.Warning("Pre-iteration manual cleanup of __orderedIndex was required in[NEWLINE]for k, data in pairs(playerOperations) do[NEWLINE]for player #".. tostring( playerKey ))
+		end
+		--]]
+	
+		Dprint( DEBUG_AI_UNIT_SCRIPT, "   - Player #"..Indentation(playerKey,3, true))
+		local toRemove = {}
+		for operationKey, operationData in pairs(playerOperations) do
+			Dprint( DEBUG_AI_UNIT_SCRIPT, "      - operation #"..operationKey, "Type = ", Indentation(operationData.Type,25) .. " TurnsLeft = ", operationData.TurnsLeft, "Origin = ", operationData.Origin, "Target = ", operationData.Target)
+			operationData.TurnsLeft = operationData.TurnsLeft - 1
+			if operationData.TurnsLeft < 0 then
+				table.insert(toRemove, operationKey)
+			end
+		end
+		Dprint( DEBUG_AI_UNIT_SCRIPT, "      - toRemove #"..tostring(#toRemove))
+		
+		--[[
+		if 	playerOperations.__orderedIndex then
+			playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
+			GCO.Warning("Post-iteration manual cleanup of __orderedIndex was required in[NEWLINE]for k, data in pairs(playerOperations) do[NEWLINE]for player #".. tostring( playerKey ))
+		end
+		--]]
+	
+		for i, operationKey in ipairs(toRemove) do
+			Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Remove Operation #"..operationKey)
+			local tUnits = playerOperations[operationKey].Units
+			for ii, unitID in ipairs(tUnits) do
+			
+				local playerID 	= tonumber(playerKey)
+				local pUnit 	= GCO.GetUnit(playerID , unitID)
+				
+				if pUnit then
+					Dprint( DEBUG_AI_UNIT_SCRIPT, "          - Free unit #"..tostring(pUnit:GetKey()), Locale.Lookup(pUnit:GetName()))
+				
+					-- Remove entry in the UnitOperation table
+					SetUnitOperation(pUnit:GetKey(), nil)
+				
+					-- Recreate the unit, as its default AI may have been killed by being part of an operation...
+					local newUnit = GCO.ChangeUnitTo(pUnit, pUnit:GetType())
+					
+				else
+					local unitKey = GCO.GetUnitKeyFromIDs(playerID , unitID)
+					SetUnitOperation(unitKey, nil)
+				end
+			end
+			playerOperations[operationKey] = nil
+		end
+	end
+	
+end
+
+--=====================================================================================--
+-- Share functions for other contexts
+--=====================================================================================--
+function Initialize()
+	if not ExposedMembers.GCO then ExposedMembers.GCO = {} end
+	
+	ExposedMembers.GCO.GetPlayerOperationData 			= GetPlayerOperationData
+	ExposedMembers.GCO.GetPlayerOperation 				= GetPlayerOperation
+	ExposedMembers.GCO.AddPlayerOperation 				= AddPlayerOperation
+	ExposedMembers.GCO.GetUnitOperation 				= GetUnitOperation
+	ExposedMembers.GCO.SetUnitOperation 				= SetUnitOperation
+	ExposedMembers.GCO.UpdateOperations					= UpdateOperations
+	ExposedMembers.GCO.AddUnitToOperation				= AddUnitToOperation
+	ExposedMembers.GCO.StartPlayerOperation				= StartPlayerOperation
+	
+end
+Initialize()
+
+
+
+--=====================================================================================--
+-- Tests
 --=====================================================================================--
 
 --[[
