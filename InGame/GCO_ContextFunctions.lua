@@ -836,6 +836,8 @@ function Initialize()
 	
 	-- LuaEvents
 	ExposedMembers.GCO.LuaEvents					= LuaEvents
+	-- Network
+	ExposedMembers.GCO.Network						= Network
 	-- calendar
 	ExposedMembers.GCO.GetTurnYear					= GetTurnYear
 	-- cities

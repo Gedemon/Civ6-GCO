@@ -332,6 +332,7 @@ function OnUnitFlagClick( playerID : number, unitID : number )
 		UI.DeselectAllCities();
 		UI.SelectUnit( pUnit );
 		-- GCO <<<<<
+		--[[
 		-- We may want to renew a Mercenary contract
 		do
 			local kParameters = {}
@@ -348,6 +349,7 @@ function OnUnitFlagClick( playerID : number, unitID : number )
 			end
 			return
 		end
+		--]]
 		-- GCO >>>>>
 	end
 end

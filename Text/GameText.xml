@@ -1364,6 +1364,9 @@
     <Replace Tag="LOC_MIGRATION_CANT_REPLACE_IMPROVEMENT" Language="en_US">
       <Text>[COLOR_Civ6Red]Can't settle over an existing improvement[ENDCOLOR]</Text>
     </Replace>
+    <Replace Tag="LOC_MIGRATION_NO_MOVE_LEFT" Language="en_US">
+      <Text>[COLOR_Civ6Red]No move left[ENDCOLOR]</Text>
+    </Replace>
     <Replace Tag="LOC_MIGRATION_CANT_SETTLE_ADJACENT_SETTLEMENT" Language="en_US">
       <Text>[COLOR_Civ6Red]Can't settle here, there is an adjacent Village[ENDCOLOR]</Text>
     </Replace>

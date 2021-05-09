@@ -50,6 +50,17 @@ function OnOptionClicked(kOption)
 		kOption.OnStart = "PlayerDealAction" -- Send this GameEvent when processing the operation
 		UI.RequestPlayerOperation(Game.GetLocalPlayer(), PlayerOperations.EXECUTE_SCRIPT, kOption)
 		Close()
+		
+		-- Debug
+		for i = 1, 63 do
+		
+			local player 	= Players[i]
+			local treasury 	= player and player:GetTreasury()
+			if treasury then
+				print("treasury player#", i, " = ", treasury:GetGoldBalance())
+			end
+		end
+		--
 	end	
 end
 
@@ -112,7 +123,7 @@ function CreateDiploPanelP(kParameters)
 			local duration			= row.Duration or 0
 			local durationStr		= duration > 0 and " (+"..tostring(duration).."[ICON_Turn])" or ""
 			local text 				= Locale.Lookup(row.Name) .. valueStr .. durationStr
-			row.Cost				= value -- no need to calculate the cost again in GamePlay
+			--row.Cost				= value -- no need to calculate the cost again in GamePlay
 			local bEnable, sReason	= GCO.IsDealEnabled(kParameters, row)
 			-- DiplomacyTypes.Deals, DiplomacyTypes.Treaties, DiplomacyTypes.State
 			table.insert(tOptions, {Text = text, IsEnabled = bEnable, DisabledReason = sReason, PlayerID = iPlayer, UnitID = iUnit, DiplomacyType = DiplomacyTypes.Deals, DealType = row.DealType})
@@ -151,10 +162,25 @@ end
 
 
 function OnUnitSelectionChanged(playerID, unitID, x, y, i5, bSelect, b2)
+
 	if not Controls.CenterPanel:IsHidden() and not bSelect then
 		Close()
+		
 	elseif Controls.CenterPanel:IsHidden() and bSelect and playerID == g_playerID and unitID == g_unitID then
 		Controls.CenterPanel:SetHide(false)
+		
+	elseif bSelect then
+		local pUnit = GCO.GetUnit(playerID, unitID)
+		
+		if pUnit:GetValue("UnitPersonnelType") == UnitPersonnelType.Mercenary then
+
+			local kParameters 		= {}
+			kParameters.PlayerID 	= pUnit:GetOwner()
+			kParameters.UnitID 		= unitID
+			kParameters.Begin 		= true
+			
+			LuaEvents.ShowDiploScreenGCO(kParameters)
+		end
 	end
 end
 

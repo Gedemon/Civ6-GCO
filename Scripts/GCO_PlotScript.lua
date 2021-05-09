@@ -3232,17 +3232,17 @@ function GetPopulationBirthRate(self, populationID)
 	end
 end
 
-function GetMigration(self)
-	local plotKey = self:GetKey()	
+function GetMigration(self, bResetCache)
+
+	local plotKey 		= self:GetKey()
+	local bInitialize 	= false
 	
-	local bInitialize = false
 	if not _cached[plotKey] then
 		_cached[plotKey] = {}
-		bInitialize = true
 	end
-	if not _cached[plotKey].Migration then
+	if bResetCache or (not _cached[plotKey].Migration) then
 		_cached[plotKey].Migration = { Push = {}, Pull = {}, Migrants = {}}
-		bInitialize = true
+		bInitialize = not bResetCache
 	end
 	
 	if bInitialize then self:SetMigrationValues() end
@@ -3500,13 +3500,15 @@ function SetMigrationValues(self)
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	
 	local village = GCO.GetTribalVillageAt(self:GetIndex())
-	--if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
-	--if self:GetIndex() == 1006 then DEBUG_PLOT_SCRIPT = "debug" end
+	if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
+	--if self:GetIndex() == 1869 then DEBUG_PLOT_SCRIPT = "debug" end
 	
-	local plotMigration = self:GetMigration()
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLOT_SCRIPT, "- Set Migration values to plot ".. self:GetX() ..",".. self:GetY())
+	
+	local bResetCache				= true
+	local plotMigration 			= self:GetMigration(bResetCache)
 	local possibleDestination 		= {}
 	local city						= self:GetCity()
 	local migrantClasses			= {UpperClassID, MiddleClassID, LowerClassID}
@@ -3600,9 +3602,9 @@ function SetMigrationValues(self)
 		--
 		--
 		
-		if city then
+		--if city then
 		Dprint( DEBUG_PLOT_SCRIPT, "  - Pull.Food : ", GCO.ToDecimals(plotMigration.Pull.Food), " Push.Food = ", GCO.ToDecimals(plotMigration.Push.Food))
-		end	
+		--end	
 		Dprint( DEBUG_PLOT_SCRIPT, "  - Pull.Housing : ", GCO.ToDecimals(plotMigration.Pull.Housing), " Push.Housing = ", GCO.ToDecimals(plotMigration.Push.Housing))
 		Dprint( DEBUG_PLOT_SCRIPT, "  - Pull.Employment : ", GCO.ToDecimals(plotMigration.Pull.Employment), " Push.Employment = ", GCO.ToDecimals(plotMigration.Push.Employment))
 	end
@@ -3616,7 +3618,7 @@ function DoMigration(self)
 	--if self:GetOwner() == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end	
 	
 	local village = GCO.GetTribalVillageAt(self:GetIndex())
-	--if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
+	if village and village.Owner == Game.GetLocalPlayer() then DEBUG_PLOT_SCRIPT = "debug" end
 	--if self:GetIndex() == 1006 then DEBUG_PLOT_SCRIPT = "debug" end
 	
 	Dprint( DEBUG_PLOT_SCRIPT, GCO.Separator)

@@ -218,13 +218,6 @@ function UpdateOperations()
 	
 		local playerKey 		= tempRow.PlayerKey
 		local playerOperations 	= tempRow.Operations
-
-		--[[
-		if 	playerOperations.__orderedIndex then
-			playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
-			GCO.Warning("Pre-iteration manual cleanup of __orderedIndex was required in[NEWLINE]for k, data in pairs(playerOperations) do[NEWLINE]for player #".. tostring( playerKey ))
-		end
-		--]]
 	
 		Dprint( DEBUG_AI_UNIT_SCRIPT, "   - Player #"..Indentation(playerKey,3, true))
 		local toRemove = {}
@@ -236,13 +229,6 @@ function UpdateOperations()
 			end
 		end
 		Dprint( DEBUG_AI_UNIT_SCRIPT, "      - toRemove #"..tostring(#toRemove))
-		
-		--[[
-		if 	playerOperations.__orderedIndex then
-			playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
-			GCO.Warning("Post-iteration manual cleanup of __orderedIndex was required in[NEWLINE]for k, data in pairs(playerOperations) do[NEWLINE]for player #".. tostring( playerKey ))
-		end
-		--]]
 	
 		for i, operationKey in ipairs(toRemove) do
 			Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Remove Operation #"..operationKey)

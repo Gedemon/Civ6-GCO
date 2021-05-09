@@ -393,7 +393,7 @@ function DoStrategy(self)
 				if (iActiveTurnsLeft and iActiveTurnsLeft < 3) or unit:GetDamage() > 75 then
 				
 					-- to do : check stock ?
-					local iNeedBackHome = (5 - iActiveTurnsLeft) + (unit:GetDamage() * 0.1)
+					local iNeedBackHome = (5 - (iActiveTurnsLeft or 0)) + (unit:GetDamage() * 0.1)
 					if TerrainBuilder.GetRandomNumber(iNeedBackHome, "Check to go back home") >= 3 then
 					
 						Dprint( DEBUG_AI_SCRIPT, "        - Unit want to go back home : "..Locale.Lookup(unit:GetName()), ", pos = ", unit:GetX(), unit:GetY(), ", iNeedBackHome =", iNeedBackHome)

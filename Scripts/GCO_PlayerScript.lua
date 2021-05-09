@@ -873,8 +873,12 @@ end
 -- Proceed with a transaction (update player's gold)
 function ProceedTransaction(self, accountType, value)
 
-	--Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
-	--Dprint( DEBUG_PLAYER_SCRIPT, "Proceeding transaction for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))
+	local DEBUG_PLAYER_SCRIPT = DEBUG_PLAYER_SCRIPT
+	
+if self:IsHuman() then DEBUG_PLAYER_SCRIPT = "debug" end
+
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLAYER_SCRIPT, "Proceeding transaction for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()))
 	local playerData 		= self:GetData()
 	local turnKey 			= GCO.GetTurnKey()
 	local playerTreasury	= self:GetTreasury()
@@ -882,31 +886,31 @@ function ProceedTransaction(self, accountType, value)
 	local currentBalance	= math.max(0, goldBalance) -- When negative, GoldBalance is set back to 0 at some point in Core, but it can be < 0 when processing transactions, so assume 0 when negative.
 	local afterBalance		= currentBalance + value
 	
-	--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("transaction value") .. tostring(value))
-	--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("realBalance") .. tostring(goldBalance))
-	--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("virtualBalance") .. tostring(currentBalance))
-	--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("afterBalance") .. tostring(afterBalance))
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("transaction value") .. tostring(value))
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("realBalance") .. tostring(goldBalance))
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("virtualBalance") .. tostring(currentBalance))
+	Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("afterBalance") .. tostring(afterBalance))
 
 	if not playerData.Account[turnKey] then playerData.Account[turnKey] = {} end
 	playerData.Account[turnKey][accountType] = (playerData.Account[turnKey][accountType] or 0) + value
 
 	if afterBalance < 0 then
 	
-		--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt before") .. tostring(playerData.Debt))
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt before") .. tostring(playerData.Debt))
 		
 		playerData.Debt = playerData.Debt + afterBalance
 		
-		--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt after") .. tostring(playerData.Debt))
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Debt after") .. tostring(playerData.Debt))
 		
 		-- Core will add the base game income to the treasury before setting back the GoldBalance to 0
 		-- To prevent any loss, we do not remove from the treasury what has been added to the debt
 		value = value - afterBalance
-		--Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Value after") .. tostring(value))
+		Dprint( DEBUG_PLAYER_SCRIPT, Indentation20("Value after") .. tostring(value))
 	end	
 	
 	playerTreasury:ChangeGoldBalance(value)
 	
-	--Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
+	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 end
 
 -- Record a transaction already proceeded (do not update player's gold)

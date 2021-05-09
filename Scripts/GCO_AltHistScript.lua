@@ -377,12 +377,6 @@ function GetPlayerTribalVillages(playerID)
 			table.insert(tList, plotKey)
 		end
 	end
-	--[[
-	if 	kVillages.__orderedIndex then
-		kVillages.__orderedIndex = nil  -- manual cleanup for orderedpair
-		GCO.Warning("Manual cleanup of __orderedIndex was required in[NEWLINE]for k, data in pairs(kVillages) do[NEWLINE]for player #".. tostring( playerID ))
-	end
-	--]]
 	return tList
 end
 
@@ -705,7 +699,7 @@ end
 
 function TribesTurnP( playerID )
 
-	--local DEBUG_ALTHIST_SCRIPT = playerID == 0 and "debug" or DEBUG_ALTHIST_SCRIPT
+	local DEBUG_ALTHIST_SCRIPT = playerID == 0 and "debug" or DEBUG_ALTHIST_SCRIPT
 	
 	Dprint( DEBUG_ALTHIST_SCRIPT, "- Do Tribal Village turn for Player#", playerID)
 	
@@ -953,6 +947,7 @@ function TribesTurnP( playerID )
 							ImprovementBuilder.SetImprovementType(destPlot, iType, playerID)
 							local newVillage 			= SetTribalVillageAt(village.ProductionPlot)
 							newVillage.CentralPlot		= plotID
+							newVillage.Owner			= playerID
 							
 						--
 						elseif sProductionType == "VILLAGE_REBUILD" then
@@ -2007,7 +2002,7 @@ function OnImprovementOwnerChanged(iX, iY, iImprovementType, playerID, iA, iB)
 
 	-- this reset improvement owner to -1 on reloading 1st turn ?
 
-	--local DEBUG_ALTHIST_SCRIPT = "debug"
+	local DEBUG_ALTHIST_SCRIPT = "debug"
 	---[[
 	local pPlot		= GCO.GetPlot(iX, iY)
 	local plotID 	= pPlot:GetIndex()
@@ -2037,13 +2032,18 @@ end
 -- Actions & Productions
 -- ===================================================================================== --
 
-function CanCaravanSettle(pPlot, iPlayer)
+function CanCaravanSettle(pPlot, iPlayer, pUnit)
 	
 	--local DEBUG_ALTHIST_SCRIPT = "debug"
 	
 	local bCanSettle 	= true
 	local tReasonString	= {}
 	local pPlayer		= GCO.GetPlayer(iPlayer)
+	
+	if pUnit:GetMovesRemaining() <= 0 then
+		table.insert(tReasonString, Locale.Lookup("LOC_MIGRATION_NO_MOVE_LEFT"))
+		bCanSettle = false
+	end
 
 	if pPlot and (not pPlot:IsImpassable()) and (not pPlot:IsNaturalWonder()) and (not pPlot:IsWater()) and pPlot:GetFeatureType() ~= GameInfo.Features["FEATURE_OASIS"].Index then
 	
@@ -2471,8 +2471,9 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 	if kParameters.Type == "CREATE_NEW_SETTLEMENT" then
 	
 		local pPlot = GCO.GetPlotByIndex(kParameters.PlotID)
+		local pUnit	= GCO.GetUnit(iActor, kParameters.UnitID)
 		
-		if CanCaravanSettle(pPlot, iActor) then
+		if CanCaravanSettle(pPlot, iActor, pUnit) then
 		
 			local sImprovementType	= "IMPROVEMENT_BARBARIAN_CAMP_GCO"
 			
@@ -2485,13 +2486,12 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 			village.Type			= sImprovementType
 			local bIsBarbarian		= pPlayer:IsBarbarian()
 			village.ProductionType	= (bIsBarbarian and "PRODUCTION_EQUIPMENT") or "PRODUCTION_MATERIEL"
-			local pCaravanUnit		= GCO.GetUnit(iActor, kParameters.UnitID)
 			local pPlayerUnits 		= pPlayer:GetUnits()
 			
-			pCaravanUnit:SetValue("SupplyLineCityKey", tostring(kParameters.PlotID)) -- Set this plot as the target plot when disbanding
-			pCaravanUnit:Disband()
-			pPlayerUnits:Destroy(pCaravanUnit)
-			ExposedMembers.UnitData[pCaravanUnit:GetKey()] = nil
+			pUnit:SetValue("SupplyLineCityKey", tostring(kParameters.PlotID)) -- Set this plot as the target plot when disbanding
+			pUnit:Disband()
+			pPlayerUnits:Destroy(pUnit)
+			ExposedMembers.UnitData[pUnit:GetKey()] = nil
 			pPlayer:SetValue("MigrationTurn", nil)
 		else
 			GCO.Error("PlayerTribeDo called with invalid or disabled Type[NEWLINE]Type: ".. tostring(kParameters.Type).."[NEWLINE]PlayerID: "..tostring(kParameters.PlayerID) .."[NEWLINE]PlotID: "..tostring(kParameters.PlotID))
@@ -2647,7 +2647,6 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 									Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", Locale.Lookup(GameInfo.Resources[resourceID].Name), value)
 								end
 							end
-							ImprovementBuilder.SetImprovementPillaged(otherPlot, true)
 							otherVillage.PillagedCounter 	= 5
 							
 						else
@@ -2657,6 +2656,9 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 						end
 						
 						ChangeVillageOwner(otherPlot, NO_PLAYER)
+						
+						-- Set to pillaged after changing owner, as it has been respawned non-pillaged at this point...
+						ImprovementBuilder.SetImprovementPillaged(otherPlot, true)
 						otherVillage.CentralPlot = nil
 						
 						LuaEvents.TribeImprovementUpdated(iActor, otherPlotID)

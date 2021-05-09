@@ -172,7 +172,7 @@ print("bIsMigrating", bIsMigrating, pPlayer:GetValue("MigrationTurn") )
 			local pPlot = GCO.GetPlotByIndex(kParameters.PlotID)
 			
 			-- check if can create settlement here
-			local bCanSettle, sReason = GCO.CanCaravanSettle(pPlot, iPlayer)
+			local bCanSettle, sReason = GCO.CanCaravanSettle(pPlot, iPlayer, pUnit)
 			
 			local instance :table 	= buttonIM:GetInstance(stackControl)
 			instance.ButtonText:LocalizeAndSetText( "LOC_VILLAGE_SETTLE_HERE" ) 
@@ -457,10 +457,49 @@ end
 
 
 function OnUnitSelectionChanged(playerID, unitID, x, y, i5, bSelect, b2)
+
 	if not Controls.CenterPanel:IsHidden() and not bSelect then
 		Close()
+		
 	elseif Controls.CenterPanel:IsHidden() and bSelect and playerID == g_playerID and unitID == g_unitID then
 		Controls.CenterPanel:SetHide(false)
+		
+	elseif bSelect then
+		local pUnit = GCO.GetUnit(playerID, unitID)
+		
+		if GameInfo.Units[pUnit:GetType()].UnitType == "UNIT_CARAVAN" then
+			local pPlayer		= GCO.GetPlayer(playerID)
+			if pPlayer:GetValue("MigrationTurn") ~= nil then
+				local pPlot = Map.GetPlot(pUnit:GetX(), pUnit:GetY())
+				local kParameters = {}
+				kParameters.PlayerID 	= pUnit:GetOwner()
+				kParameters.UnitID 		= unitID
+				kParameters.Begin 		= true
+				kParameters.PlotID 		= pPlot:GetIndex()
+				LuaEvents.ShowActionScreenGCO(kParameters)
+			end
+		end
+	end
+end
+
+function OnUnitMoveComplete(playerID, unitID, iX, iY)
+
+	if playerID == Game.GetLocalPlayer() and (not Controls.CenterPanel:IsHidden()) then
+
+		local pUnit = GCO.GetUnit(playerID, unitID)
+		
+		if GameInfo.Units[pUnit:GetType()].UnitType == "UNIT_CARAVAN" then
+			local pPlayer		= GCO.GetPlayer(playerID)
+			if pPlayer:GetValue("MigrationTurn") ~= nil then
+				local pPlot = Map.GetPlot(pUnit:GetX(), pUnit:GetY())
+				local kParameters = {}
+				kParameters.PlayerID 	= pUnit:GetOwner()
+				kParameters.UnitID 		= unitID
+				kParameters.Begin 		= true
+				kParameters.PlotID 		= pPlot:GetIndex()
+				LuaEvents.ShowActionScreenGCO(kParameters)
+			end
+		end
 	end
 end
 
@@ -495,6 +534,7 @@ function Initialize()
 	LuaEvents.ShowActionScreenGCO.Add( CreateActionPanel )
 	LuaEvents.ShowDiploScreenGCO.Add( Close )
 	Events.UnitSelectionChanged.Add(OnUnitSelectionChanged)
+	Events.UnitMoveComplete.Add(OnUnitMoveComplete)
 	LuaEvents.RefreshActionScreenGCO.Add( Refresh )
 end
 Initialize()

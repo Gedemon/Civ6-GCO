@@ -20,10 +20,10 @@ DEBUG_DIPLOMACY_SCRIPT 	= "debug"
 local _cached			= {}	-- cached table to reduce calculations
 
 local iPeaceBarbarian 			= 62 -- GameDefines.MAX_PLAYERS - 2 <- would that be better ?
-local fRansomOtherOwnerFactor	= tonumber(GameInfo.GlobalParameters["DIPLO_RANSOM_OTHER_OWNER_FACTOR"].Value) 	or 1.5
-local iMercenaryTruceBaseTurn	= tonumber(GameInfo.GlobalParameters["DIPLO_MERCENARY_TRUCE_BASE_TURN"].Value)	or 3
-local iMercenaryContractExpire	= tonumber(GameInfo.GlobalParameters["DIPLO_MERCENARY_CONTRACT_EXPIRE_TURN"].Value)	or 5
-local fDealTreasuryCostRatio	= tonumber(GameInfo.GlobalParameters["DIPLO_DEAL_TREASURY_COST_RATIO"].Value)	or 0.1
+local fRansomOtherOwnerFactor	= tonumber(GameInfo.GlobalParameters["DIPLO_RANSOM_OTHER_OWNER_FACTOR"].Value) 		-- 1.5
+local iMercenaryTruceBaseTurn	= tonumber(GameInfo.GlobalParameters["DIPLO_MERCENARY_TRUCE_BASE_TURN"].Value)		-- 3
+local iMercenaryContractExpire	= tonumber(GameInfo.GlobalParameters["DIPLO_MERCENARY_CONTRACT_EXPIRE_TURN"].Value)	-- 5
+local fDealTreasuryCostRatio	= tonumber(GameInfo.GlobalParameters["DIPLO_DEAL_TREASURY_COST_RATIO"].Value)		-- 0.1
 
 --=====================================================================================--
 -- Initialize Functions
@@ -120,21 +120,38 @@ function SetInitialDiplomacy()
 		return
 	end
 	
+	
+	
 	-- Make the "Peaceful Barbs" Tribe at peace with every players
 	-- Pacified Units will be given to it for the duration of the pacification
-	for iPlayer = 0, PlayerManager.GetWasEverAliveCount() - 1 do
+	-- Other Tribes start at war with each others
+--if GCO.Network.IsGameHost() then -- debug
+	for iPlayer = 0, 63 do --PlayerManager.GetWasEverAliveCount() - 1 do
 		if iPlayer ~= iPeaceBarbarian then
 			local pPlayer	= Players[iPlayer]
 			local pDiplo 	= pPlayer and pPlayer:GetDiplomacy()
 			if pDiplo then
 				Dprint( DEBUG_DIPLOMACY_SCRIPT, "- Initialize Diplomacy for player#"..tostring(iPlayer))
-				pDiplo:MakePeaceWith(iPeaceBarbarian, true)
-				pDiplo:SetHasMet(iPeaceBarbarian)
+
+	Dline(pDiplo:IsAtWarWith( iPeaceBarbarian ))
+				if pDiplo:IsAtWarWith( iPeaceBarbarian ) then
+	Dline()
+					pDiplo:MakePeaceWith(iPeaceBarbarian, true)
+	Dline()
+				end
 				
-				for iOtherPlayer = 0, PlayerManager.GetWasEverAliveCount() - 1 do
+	Dline(not pDiplo:HasMet(iPeaceBarbarian))
+				if not pDiplo:HasMet(iPeaceBarbarian) then
+	Dline()
+					--pDiplo:SetHasMet(iPeaceBarbarian)
+	Dline()
+				end
+				
+				for iOtherPlayer = 0, 63 do --PlayerManager.GetWasEverAliveCount() - 1 do
+	Dline(iOtherPlayer)
 					if iOtherPlayer ~= iPlayer and iOtherPlayer ~= iPeaceBarbarian then
 						local pOtherPlayer = Players[iOtherPlayer]
-						if pOtherPlayer:IsBarbarian() and not pDiplo:IsAtWarWith( iOtherPlayer ) then
+						if pOtherPlayer and pOtherPlayer:IsBarbarian() and not pDiplo:IsAtWarWith( iOtherPlayer ) then
 							pDiplo:DeclareWarOn(iOtherPlayer, WarTypes.FORMAL_WAR, true);
 						end
 					end
@@ -142,8 +159,10 @@ function SetInitialDiplomacy()
 			end
 		end
 	end
+--end--debug
 	Game:SetProperty("DiplomacyInitialized", 1);
 end
+--Events.LoadScreenClose.Add(SetInitialDiplomacy);
 
 function InitializeDiplomacyCache()
 
@@ -204,7 +223,7 @@ function IsDealEnabled(kParameters, row)	-- kParameters from UI call, row from <
 		local playerID 	= kParameters.Sell and kParameters.PlayerID or kParameters.ActorID
 		local pPlayer	= GCO.GetPlayer(playerID)
 		local treasury	= pPlayer:GetTreasury():GetGoldBalance()
-		
+Dline("IsDealEnabled: player ID, treasury, cost = ", playerID, treasury, cost)		
 		if cost > treasury then
 			return false, Locale.Lookup("LOC_DIPLOMACY_NO_TREASURY_FOR_DEAL", cost-treasury )
 		end	
@@ -257,15 +276,17 @@ end
 function GetDealValue(kParameters, row)
 
 	local dealValue 	= row.BaseValue or 0
+	local treasury		= 0
 	
 	-- Some Deals are proportionnal to the Actor Treasury
 	if row.IsValueRelative then
 		local pPlayer	= GCO.GetPlayer(kParameters.ActorID)
-		local treasury	= pPlayer:GetTreasury():GetGoldBalance()
+		treasury		= pPlayer:GetTreasury():GetGoldBalance()
 		if treasury > 0 then
 			dealValue	= dealValue + (treasury * fDealTreasuryCostRatio)
 		end
 	end
+Dline("GetDealValue, actorID, treasury, dealValue", kParameters.ActorID, treasury, dealValue)
 	
 	-- Special cases when dealing with units
 	if row.IsUnit and kParameters.UnitID then
@@ -483,6 +504,22 @@ function OnPlayerDealAction(iActor : number, kParameters : table)
 	
 	else
 		GCO.Error("OnPlayerDealAction called with invalid or disabled Deal[NEWLINE]DealType: ".. tostring(kParameters.DealType).."[NEWLINE]PlayerID: "..tostring(kParameters.PlayerID) .."[NEWLINE]ActorID: "..tostring(iActor))
+		print("IsDealValid(kParameters, row)", IsDealValid(kParameters, row))
+		print("IsDealEnabled(kParameters, row)", IsDealEnabled(kParameters, row))
+		print("kParameters")
+		GCO.Dump(kParameters)
+		print("row")
+		GCO.Dump(row)
+		-- Debug
+		for i = 1, 63 do
+		
+			local player 	= Players[i]
+			local treasury 	= player and player:GetTreasury()
+			if treasury then
+				print("treasury player#", i, " = ", treasury:GetGoldBalance())
+			end
+		end
+		--
 	end
 	
 end
@@ -503,3 +540,48 @@ function Initialize()
 	
 end
 Initialize()
+
+--[[
+
+-- Open borders (10 turns)
+
+	DealManager.ClearWorkingDeal(DealDirection.OUTGOING, g_SelectedPlayer, g_DiplomaticPlayer);
+	local pDeal = DealManager.GetWorkingDeal(DealDirection.OUTGOING, g_SelectedPlayer, g_DiplomaticPlayer);
+	if pDeal then
+		pDealItem = pDeal:AddItemOfType(DealItemTypes.AGREEMENTS, g_SelectedPlayer);
+		if pDealItem then
+			pDealItem:SetSubType(DealAgreementTypes.OPEN_BORDERS);
+			pDealItem:SetValueType(-1);
+			pDealItem:SetFromPlayerID(g_SelectedPlayer);
+			pDealItem:SetToPlayerID(g_DiplomaticPlayer);
+			pDealItem:SetDuration(10);
+			pDealItem:SetLocked(true);
+		end
+		pDeal:Validate();
+		DealManager.EnactWorkingDeal(g_SelectedPlayer, g_DiplomaticPlayer);
+	end
+	
+
+-- Close borders
+
+	DealManager.ClearWorkingDeal(DealDirection.OUTGOING, g_SelectedPlayer, g_DiplomaticPlayer);
+	local pDeal = DealManager.GetWorkingDeal(DealDirection.OUTGOING, g_SelectedPlayer, g_DiplomaticPlayer);
+	if pDeal then
+		pDealItem = pDeal:AddItemOfType(DealItemTypes.AGREEMENTS, g_SelectedPlayer);
+		if pDealItem then
+			pDealItem:SetSubType(DealAgreementTypes.OPEN_BORDERS);
+			pDealItem:SetValueType(-1);
+			pDealItem:SetFromPlayerID(g_SelectedPlayer);
+			pDealItem:SetToPlayerID(g_DiplomaticPlayer);
+			pDealItem:SetDuration(0);
+			pDealItem:SetLocked(true);
+		end
+		pDeal:Validate();
+		DealManager.EnactWorkingDeal(g_SelectedPlayer, g_DiplomaticPlayer);
+	end
+	
+
+
+
+
+--]]

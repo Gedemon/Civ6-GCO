@@ -11,6 +11,11 @@ local LoadTimer = Automation.GetTime()
 include( "GCO_TypeEnum" )
 include( "GCO_SmallUtils" )
 
+
+--=====================================================================================--
+-- Debug Defines
+--=====================================================================================--
+
 local debugFilter = {
 	["debug"] 			= true,
 --	["CityScript"] 		= true,
@@ -25,6 +30,90 @@ bNoOutput 			= false
 bErrorToScreen 		= true
 bWarningToScreen	= false
 bNoWarningForUI		= true
+
+
+--=====================================================================================--
+-- http://lua-users.org/wiki/SortedIteration
+-- Ordered table iterator, allow to iterate on the natural order of the keys of a table.
+--=====================================================================================--
+
+local prevKey, prevValue, prevLine
+function ShowLastOrderedCall()
+	print("*** orderedNext previous call was:")
+	print("  - key :", prevKey, " - value = ", prevValue)
+	
+	if type(prevValue) == "table" then
+		Dump(prevValue)
+	end
+	
+	print("*** orderedNext previous trace was:")
+	print(prevLine)
+end
+
+function __genOrderedIndex( t )
+    local orderedIndex = {}
+    for key in pairs (t) do
+        table.insert ( orderedIndex, key )
+    end
+    table.sort ( orderedIndex )
+    return orderedIndex
+end
+
+function orderedNext(t, state)
+    -- Equivalent of the next function, but returns the keys in the alphabetic
+    -- order.  We use a temporary ordered key table that is stored in the
+    -- table being iterated.
+
+    local key = nil
+    --print("orderedNext: state = "..tostring(state) )
+    if state == nil and t.__orderedIndex then
+		ShowLastOrderedCall()
+		local errMsg = Error("__orderedIndex already exists on orderedNext first call")
+		if string.find(errMsg, "\\UI\\") then
+			Error("Called from UI context, may not be critical")
+		else
+			Error("Critical, please report with log")
+		end
+	end
+    if state == nil then
+        -- the first time, generate the index and log which function did the call
+		prevLine = LogFullLine()
+        t.__orderedIndex = __genOrderedIndex( t )
+        key = t.__orderedIndex[1]
+		
+    else
+        -- fetch the next value
+        for i = 1, #t.__orderedIndex do
+            if t.__orderedIndex[i] == state then
+                key = t.__orderedIndex[i+1]
+            end
+        end
+    end
+
+    if key and type(key) ~= "table" then
+		prevKey 	= key
+		prevValue	= t[key]
+        return key, t[key]
+    end
+
+	if key and type(key) == "table" then
+		Error("key = table in orderedPairs")
+		for k, v in pairs(key) do print(k,v) end
+	end
+	
+    -- no more value to return, cleanup
+    t.__orderedIndex = nil
+    return
+end
+
+function orderedPairs(t)
+    -- Equivalent of the pairs() function on tables.  Allows to iterate
+    -- in order
+    return orderedNext, t, nil
+end
+
+local oldPairs 	= pairs
+local pairs		= orderedPairs
 
 --=====================================================================================--
 -- Defines
@@ -834,87 +923,6 @@ function CheckTimer()
 	if #CoroutineList == 0 and not bDelayedStart then
 		StopScriptWithPause()
 	end
-end
-
-
---=====================================================================================--
--- http://lua-users.org/wiki/SortedIteration
--- Ordered table iterator, allow to iterate on the natural order of the keys of a table.
---=====================================================================================--
-
-local prevKey, prevValue, prevLine
-function ShowLastOrderedCall()
-	print("*** orderedNext previous call was:")
-	print("  - key :", prevKey, " - value = ", prevValue)
-	
-	if type(prevValue) == "table" then
-		Dump(prevValue)
-	end
-	
-	print("*** orderedNext previous trace was:")
-	print(prevLine)
-end
-
-function __genOrderedIndex( t )
-    local orderedIndex = {}
-    for key in pairs (t) do
-        table.insert ( orderedIndex, key )
-    end
-    table.sort ( orderedIndex )
-    return orderedIndex
-end
-
-function orderedNext(t, state)
-    -- Equivalent of the next function, but returns the keys in the alphabetic
-    -- order.  We use a temporary ordered key table that is stored in the
-    -- table being iterated.
-
-    local key = nil
-    --print("orderedNext: state = "..tostring(state) )
-    if state == nil and t.__orderedIndex then
-		ShowLastOrderedCall()
-		local errMsg = Error("__orderedIndex already exists on orderedNext first call")
-		if string.find(errMsg, "\\UI\\") then
-			Error("Called from UI context, may not be critical")
-		else
-			Error("Critical, please report with log")
-		end
-	end
-    if state == nil then
-        -- the first time, generate the index and log which function did the call
-		prevLine = LogFullLine()
-        t.__orderedIndex = __genOrderedIndex( t )
-        key = t.__orderedIndex[1]
-		
-    else
-        -- fetch the next value
-        for i = 1, #t.__orderedIndex do
-            if t.__orderedIndex[i] == state then
-                key = t.__orderedIndex[i+1]
-            end
-        end
-    end
-
-    if key and type(key) ~= "table" then
-		prevKey 	= key
-		prevValue	= t[key]
-        return key, t[key]
-    end
-
-	if key and type(key) == "table" then
-		Error("key = table in orderedPairs")
-		for k, v in pairs(key) do print(k,v) end
-	end
-	
-    -- no more value to return, cleanup
-    t.__orderedIndex = nil
-    return
-end
-
-function orderedPairs(t)
-    -- Equivalent of the pairs() function on tables.  Allows to iterate
-    -- in order
-    return orderedNext, t, nil
 end
 
 
