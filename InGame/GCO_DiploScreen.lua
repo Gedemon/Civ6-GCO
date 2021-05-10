@@ -123,7 +123,7 @@ function CreateDiploPanelP(kParameters)
 			local duration			= row.Duration or 0
 			local durationStr		= duration > 0 and " (+"..tostring(duration).."[ICON_Turn])" or ""
 			local text 				= Locale.Lookup(row.Name) .. valueStr .. durationStr
-			--row.Cost				= value -- no need to calculate the cost again in GamePlay
+			--row.Cost				= value -- no need to calculate the cost again in GamePlay <- this may be an issue in MP, need more test before enabling
 			local bEnable, sReason	= GCO.IsDealEnabled(kParameters, row)
 			-- DiplomacyTypes.Deals, DiplomacyTypes.Treaties, DiplomacyTypes.State
 			table.insert(tOptions, {Text = text, IsEnabled = bEnable, DisabledReason = sReason, PlayerID = iPlayer, UnitID = iUnit, DiplomacyType = DiplomacyTypes.Deals, DealType = row.DealType})

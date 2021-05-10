@@ -78,6 +78,14 @@ function CallPlayerContextFunction(playerID, sMethod, kArguments)
 	
 end
 
+function CallUnitContextFunction(pUnit, sMethod, kArguments)
+
+	local contextUnit = UnitManager.GetUnit(pUnit:GetOwner(), pUnit:GetID())
+	
+	return kArguments and contextUnit[sMethod](contextUnit,unpack(kArguments)) or contextUnit[sMethod](contextUnit)
+	
+end
+
 -- ===========================================================================
 -- Calendar functions
 -- ===========================================================================
@@ -873,6 +881,7 @@ function Initialize()
 	ExposedMembers.GCO.GetMoveToPath				= GetMoveToPath
 	ExposedMembers.GCO.SetUnitName					= SetUnitName
 	ExposedMembers.GCO.RequestOperation				= RequestOperation
+	ExposedMembers.GCO.CallUnitContextFunction		= CallUnitContextFunction
 	-- others
 	ExposedMembers.UI 								= UI
 	ExposedMembers.Calendar							= Calendar

@@ -94,4 +94,12 @@
 		
 	</TypeTags>
 	
+	<UnitCaptures>
+		<Delete/>
+		<Row CapturedUnitType="UNIT_SETTLER" 	BecomesUnitType="UNIT_SETTLER"	/>
+		<Row CapturedUnitType="UNIT_BUILDER" 	BecomesUnitType="UNIT_BUILDER"	/>
+		<Row CapturedUnitType="UNIT_CARAVAN" 	BecomesUnitType="UNIT_CARAVAN"	/>
+		<Row CapturedUnitType="UNIT_WORKER" 	BecomesUnitType="UNIT_WORKER"	/>
+	</UnitCaptures>
+	
 </GameInfo>

@@ -310,44 +310,19 @@ function DoStrategy(self)
 					
 					local targetVillage	= GCO.GetTribalVillageAt(iTarget)
 					
-					--Dprint( DEBUG_AI_SCRIPT, "        - Trying to launch operation ", sOperation, targetVillage.Owner, iTarget, iTarget)
-					
-					--local iOperationID	= pMilitaryAI:StartScriptedOperationWithTargetAndRally(sOperation, targetVillage.Owner, iTarget, iTarget)
 					local iOperationID	= GCO.StartPlayerOperation(self.PlayerID, sOperation,targetVillage.Owner, iTarget, iTarget, plotID)
-					
-					--if iOperationID ~= -1 then
 					
 					if iOperationID then
 					
-						--[[
-						Dprint( DEBUG_AI_SCRIPT, "        - Launched operation #"..tostring(iOperationID))
-						
-						local operationData 	= {} --  { Type = OperationType, TurnsLeft = iTurn, Origin = plotID, Target = plotID, Rally = plotID, Units = {unitID, ...} }
-						operationData.Type		= sOperation
-						operationData.Origin	= plotID
-						operationData.Target	= iTarget
-						operationData.Rally		= iTarget
-						operationData.Units		= tUnitList
-						operationData.TurnsLeft	= iTurnLimit
-						
-						GCO.AddPlayerOperation (self.PlayerID, iOperationID, operationData)
-						--]]
-						
-						
 						for _, unitID in ipairs(tUnitList) do
 						
 							local pUnit = GCO.GetUnit( self.PlayerID, unitID )
 						
 							Dprint( DEBUG_AI_SCRIPT, "           - Adding Unit : "..Locale.Lookup(pUnit:GetName()), ", pos = ", pUnit:GetX(), pUnit:GetY())
-							
-							--pMilitaryAI:AddUnitToScriptedOperation(iOperationID, unitID)
-							--GCO.SetUnitOperation(pUnit, iOperationID)
-														
+
 							GCO.AddUnitToOperation(pUnit, iOperationID)
 						end
 						
-					--else
-						--GCO.Warning("Failed to launch operation for player#".. tostring( self.PlayerID ).. ",".. tostring(sOperation))
 					end
 					
 				-- try to spawn unit for next turn check	
@@ -355,7 +330,7 @@ function DoStrategy(self)
 				
 					Dprint( DEBUG_AI_SCRIPT, "        - no unit found, try to spawn for next turn...")
 					self:AddToDecisionList( "CREATE_MELEE", "Offense", plotID, iNeutralOrder + math.ceil(bestPopulation*0.25) )
-					--self:AddToDecisionList( "CREATE_RANGED", "Offense", plotID, iNeutralOrder + iOrderDiff )
+					self:AddToDecisionList( "CREATE_RANGED", "Offense", plotID, iNeutralOrder + math.ceil(bestPopulation*0.25) )
 					
 				else
 					Dprint( DEBUG_AI_SCRIPT, "        - no unit found, abandon target...")
@@ -403,31 +378,11 @@ function DoStrategy(self)
 						local unitPlot		= Map.GetPlot(unit:GetX(), unit:GetY())
 						
 						if homePlotID then
-							--Dprint( DEBUG_AI_SCRIPT, "        - Trying to launch operation ", sOperation, NO_PLAYER, homePlotID, homePlotID)
-
-							--local iOperationID	= pMilitaryAI:StartScriptedOperationWithTargetAndRally(sOperation, NO_PLAYER, homePlotID, homePlotID)
+						
 							local iOperationID	= GCO.StartPlayerOperation(self.PlayerID, sOperation, NO_PLAYER, homePlotID, homePlotID, homePlotID)
 							
-							--if iOperationID ~= -1 then
 							if iOperationID then
 							
-								--Dprint( DEBUG_AI_SCRIPT, "        - Launched operation #"..tostring(iOperationID))
-								
-								--[[
-								pMilitaryAI:AddUnitToScriptedOperation(iOperationID, unit:GetID())
-								
-								local operationData 	= {} --  { Type = OperationType, TurnsLeft = iTurn, Origin = plotID, Target = plotID, Rally = plotID, Units = {unitID, ...} }
-								operationData.Type		= sOperation
-								operationData.Origin	= unitPlot:GetIndex()
-								operationData.Target	= homePlotID
-								operationData.Rally		= homePlotID
-								operationData.Units		= { unit:GetID() }
-								operationData.TurnsLeft	= iTurnLimit
-								
-								GCO.AddPlayerOperation (self.PlayerID, iOperationID, operationData)
-								GCO.SetUnitOperation(unit, iOperationID)
-								--]]
-								
 								GCO.AddUnitToOperation(unit, iOperationID)
 								
 							else
@@ -458,17 +413,36 @@ function DoStrategy(self)
 		if village and village.IsCentral then
 		
 			-- Get defense to threat
-			local combatDiff = 0
+			local combatDiff 	= 0
+			local rangedDiff	= 0
 			for i, otherPlotID in ipairs(GCO.GetPlotsInRange(pPlot, 4)) do
 				if pPlayerVis:GetState(otherPlotID) == RevealedState.VISIBLE then
 					local otherPlot = GCO.GetPlotByIndex(otherPlotID)
 					local tUnits 	= Units.GetUnitsInPlot(otherPlot)
 					for i, pUnit in ipairs(tUnits) do
 						if pUnit:IsCombat() then
+							local ranged = pUnit:GetRangedCombat()
+							local combat = pUnit:GetCombat()
 							if pUnit:GetOwner() == self.PlayerID then
-								combatDiff = combatDiff - (100 - pUnit:GetDamage())
+							
+								if combat > 0 then
+									combatDiff = combatDiff - ((100 - pUnit:GetDamage()) * combat)
+								end
+								
+								if ranged > 0 then
+									rangedDiff = rangedDiff - ((100 - pUnit:GetDamage()) * ranged)
+								end
+								
 							elseif pDiplomacy:IsAtWarWith( pUnit:GetOwner() ) then
-								combatDiff = combatDiff + (100 - pUnit:GetDamage())
+							
+								if combat > 0 then
+									combatDiff = combatDiff + ((100 - pUnit:GetDamage()) * combat)
+								end
+								
+								if ranged > 0 then
+									rangedDiff = rangedDiff + ((100 - pUnit:GetDamage()) * ranged)
+								end
+								
 							end
 						end
 					end
@@ -482,6 +456,15 @@ function DoStrategy(self)
 				
 					local iOrderDiff = math.ceil(Div(50,i))
 					self:AddToDecisionList( "CREATE_MELEE", "Defense", plotID, iNeutralOrder + iOrderDiff )
+					tDecisionFactor.Defense = tDecisionFactor.Defense + iOrderDiff
+				end
+			end
+			
+			if rangedDiff > 0 then
+				for i = 1, math.ceil(rangedDiff/100) do
+				
+					local iOrderDiff = math.ceil(Div(50,i))
+					self:AddToDecisionList( "CREATE_RANGED", "Defense", plotID, iNeutralOrder + iOrderDiff )
 					tDecisionFactor.Defense = tDecisionFactor.Defense + iOrderDiff
 				end
 			end

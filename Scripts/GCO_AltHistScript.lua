@@ -730,11 +730,12 @@ function TribesTurnP( playerID )
 			
 			--
 			village.PillagedCounter = village.PillagedCounter + 1
-			-- remove or rest
+			-- remove or restore
 			if village.PillagedCounter == iMaxTurnsPillaged then -- to do: remove magic number
 				-- to do: handle is being repaired
 				if not (village.ProductionType == "VILLAGE_REBUILD" or village.ProductionType == "CENTER_CAPTURE") then
 					village.PillagedCounter = nil
+					village.PillagedBy		= nil
 					local cultureID = pPlot:GetHighestCultureID()
 					local ownerID	= GetCultureTribePlayer(cultureID)
 					local pOwner	= ownerID and GCO.GetPlayer(ownerID) or nil
@@ -975,6 +976,7 @@ function TribesTurnP( playerID )
 							Dprint( DEBUG_ALTHIST_SCRIPT, "   - Capturing Center Village...")
 							ImprovementBuilder.SetImprovementPillaged(pPlot, false)
 							village.PillagedCounter	= nil
+							village.PillagedBy		= nil
 						end
 
 						
@@ -1394,7 +1396,8 @@ function CheckVillageCapture(playerID, unitID, plotID)
 	if village and village.Owner ~= playerID then
 		local pPlot = GCO.GetPlotByIndex(plotID)
 		
-		if pPlot:IsPlotImprovementPillaged() and village.Owner == NO_PLAYER then -- can't capture neutral pillaged villages
+		if pPlot:IsPlotImprovementPillaged() and village.PillagedBy == playerID then -- can't re-capture pillaged villages
+			Dprint( DEBUG_ALTHIST_SCRIPT, "Re-capture is not possible by pillage author...")
 			return
 		end
 		
@@ -1454,6 +1457,7 @@ function CheckVillageCapture(playerID, unitID, plotID)
 				ImprovementBuilder.SetImprovementPillaged(pPlot, true)
 				
 				village.PillagedCounter = 0
+				village.PillagedBy		= playerID
 				
 				LuaEvents.UnitsCompositionUpdated(playerID, unitID)
 				LuaEvents.TribeImprovementUpdated(playerID, plotID)
@@ -2620,6 +2624,7 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 				
 				ImprovementBuilder.SetImprovementPillaged(pPlot, true)
 				village.PillagedCounter = 5
+				village.PillagedBy 		= iActor
 				LuaEvents.TribeImprovementUpdated(iActor, kParameters.PlotID)
 				
 				local tVillages 		= GetPlayerTribalVillages(iActor)
@@ -2648,11 +2653,11 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 								end
 							end
 							otherVillage.PillagedCounter 	= 5
-							
+							otherVillage.PillagedBy 		= iActor
 						else
 							
-							otherVillage.PillagedCounter = math.min (otherVillage.PillagedCounter, 5)
-							
+							otherVillage.PillagedCounter 	= math.min (otherVillage.PillagedCounter, 5)
+							otherVillage.PillagedBy 		= iActor
 						end
 						
 						ChangeVillageOwner(otherPlot, NO_PLAYER)

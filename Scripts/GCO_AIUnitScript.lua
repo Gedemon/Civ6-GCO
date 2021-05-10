@@ -111,13 +111,6 @@ function StartPlayerOperation(iPlayer, sOperationType, opponentPlayerID, targetP
 	
 	local playerOperations = GetPlayerOperationData(iPlayer)
 
-	--[[
-	if 	playerOperations.__orderedIndex then
-		playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
-		GCO.Warning("Pre-iteration manual cleanup of __orderedIndex was required in[NEWLINE]for k, data in pairs(playerOperations) do[NEWLINE]for player #".. tostring( playerKey ))
-	end
-	--]]
-
 	for operationKey, operationData in pairs(playerOperations) do
 		if sOperationType == operationData.Type then
 			
