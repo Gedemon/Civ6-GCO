@@ -490,10 +490,11 @@ function ResetTribePlayer(playerID, cultureID)
 
 	local bRemove = true
 	SetTribePlayerCultureGroup(playerID, cultureID, bRemove)
+	GCO.DeletePlayerIDForCultureID(cultureID)
 
 	local kColorInUse			= GetValue("ColorInUse") or {}
 	local pPlayerConfig			= GCO.GetPlayerConfig(playerID)
-	local SecondaryColor			= pPlayerConfig:GetValue("SecondaryColor")
+	local SecondaryColor		= pPlayerConfig:GetValue("SecondaryColor")
 	kColorInUse[SecondaryColor]	= nil
 	pPlayerConfig:SetValue("PrimaryColor", nil)
 	pPlayerConfig:SetValue("SecondaryColor", nil)
@@ -1461,6 +1462,8 @@ function CheckVillageCapture(playerID, unitID, plotID)
 				
 				LuaEvents.UnitsCompositionUpdated(playerID, unitID)
 				LuaEvents.TribeImprovementUpdated(playerID, plotID)
+				
+				GameEvents.ChangeCultureInterest.Call(cultureGroupID, GCO.GetCultureIDFromPlayerID(playerID), "INTEREST_PILLAGED_VILLAGE")
 			--end
 		end
 	end
@@ -2636,7 +2639,7 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 					
 						local otherPlot 	= GCO.GetPlotByIndex(otherPlotID)
 							
-						if village.PillagedCounter == nil then
+						if otherVillage.PillagedCounter == nil then
 						
 							if otherVillage.CentralPlot == kParameters.PlotID then
 								local plotMigrants	= math.floor(otherPlot:GetPopulation()*iStartingMigrationRate)

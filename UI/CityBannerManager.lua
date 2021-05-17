@@ -730,7 +730,8 @@ function CityBanner.UpdateTribeBanner( self : CityBanner )
 		if village.CentralPlot then
 			local centralPlot 	= Map.GetPlotByIndex(village.CentralPlot)
 			local directionStr 	= pPlot:GetDirectionStringTo(centralPlot, iDistance)
-			self.m_Instance.TribeSuzeraintyLabel:SetToolTipString(Locale.Lookup("LOC_VILLAGE_UNDER_CONTROL", directionStr))
+			local fullDirection	= "[ICON_"..directionStr.."] " .. Locale.Lookup("LOC_"..directionStr)
+			self.m_Instance.TribeSuzeraintyLabel:SetToolTipString(Locale.Lookup("LOC_VILLAGE_UNDER_CONTROL", fullDirection))
 			self.m_Instance.TribeSuzeraintyLabel:SetHide(false)
 		else
 			self.m_Instance.TribeSuzeraintyLabel:SetHide(true)

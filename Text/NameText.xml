@@ -825,6 +825,74 @@
 	
 	</LocalizedText> 
 
+
+
+	<LocalizedText> <!-- Diplomacy -->
+
+
+		<Replace Tag="LOC_INTEREST_TRADE_ROUTE_NAME"					Text="Trade Route"					Language="en_US" />
+		<Replace Tag="LOC_INTEREST_TRIBUTE_PAID_NAME"					Text="Tribute Paid"					Language="en_US" />
+		<Replace Tag="LOC_INTEREST_TRIBUTE_RECEIVED_NAME"				Text="Tribute Received"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_SEND_DELEGATION_NAME"				Text="Send Delegation"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_AMBASSY_NAME"						Text="Ambassy"						Language="en_US" />
+		<Replace Tag="LOC_INTEREST_OPEN_BORDER_NAME"					Text="Open Border"					Language="en_US" />
+		<Replace Tag="LOC_INTEREST_OPEN_MARKET_NAME"					Text="Open Market"					Language="en_US" />
+		<Replace Tag="LOC_INTEREST_DEFENSIVE_PACT_NAME"					Text="Defensive Pact"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_NON_AGRESSION_PACT_NAME"				Text="Non Agression Pact"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_COMMON_FRIEND_NAME"					Text="Common Friend"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_COMMON_ENEMY_NAME"					Text="Common Enemy"					Language="en_US" />
+		<Replace Tag="LOC_INTEREST_FRIEND_OF_ENEMY_NAME"				Text="Friend Of Enemy"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_ALLY_OF_ENEMY_NAME"					Text="Ally Of Enemy"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_TERRITORY_GIVE_NAME"					Text="Territory Give"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_TERRITORY_TAKEN_NAME"				Text="Territory Taken"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_OCCUPY_TERRITORY_NAME" 				Text="Occupy Territory"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_OCCUPY_TERRITORY_FRIEND_NAME"		Text="Occupy Territory Friend"		Language="en_US" />
+		<Replace Tag="LOC_INTEREST_OCCUPY_CITY_NAME" 					Text="Occupy City" 					Language="en_US" />
+		<Replace Tag="LOC_INTEREST_OCCUPY_CITY_FRIEND_NAME"				Text="Occupy City Friend"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_TERRITORIAL_INTEGRITY_NAME"			Text="Territorial Integrity"		Language="en_US" />
+		<Replace Tag="LOC_INTEREST_RESEARCH_AGREEMENT_NAME"				Text="Research Agreement"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_SAME_SIDE_IN_WAR_NAME"				Text="Same Side In War"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_DECLARATION_OF_FRIENDSHIP_NAME"		Text="Declaration Of Friendship"	Language="en_US" />
+		<Replace Tag="LOC_INTEREST_INFORMATION_FROM_SPY_NAME"			Text="Information From Spy"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_INFORMATION_SHARING_NAME"			Text="Information Sharing"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_RESOURCE_ACCESS_BONUS_NAME"			Text="Resource Access Bonus"		Language="en_US" />
+		<Replace Tag="LOC_INTEREST_RESOURCE_ACCESS_STRATEGIC_NAME"		Text="Resource Access Strategic"	Language="en_US" />
+		<Replace Tag="LOC_INTEREST_RESOURCE_ACCESS_LUXURY_NAME"			Text="Resource Access Luxury"		Language="en_US" />
+		<Replace Tag="LOC_INTEREST_RESOURCE_ACCESS_EQUIPMENT_NAME"		Text="Resource Access Equipment"	Language="en_US" />
+		<Replace Tag="LOC_INTEREST_EMBARGO_BONUS_NAME"					Text="Embargo Bonus"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_EMBARGO_STRATEGIC_NAME"				Text="Embargo Strategic"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_EMBARGO_LUXURY_NAME"					Text="Embargo Luxury"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_DENOUNCIATION_NAME"					Text="Denounciation"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_AT_WAR_NAME"							Text="At War"						Language="en_US" />
+		<Replace Tag="LOC_INTEREST_BREAK_DELAYED_DEAL_NAME"				Text="Break Delayed Deal"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_BREAK_TERRITORIAL_INTEGRITY_NAME" 	Text="Break Territorial Integrity" 	Language="en_US" />
+		<Replace Tag="LOC_INTEREST_BREAK_DEFENSIVE_PACT_NAME"			Text="Break Defensive Pact"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_BREAK_NON AGRESSION_PACT_NAME"		Text="Break Non Agression Pact"		Language="en_US" />
+		<Replace Tag="LOC_INTEREST_BREAK_EMBARGO_NAME"					Text="Break Embargo"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_BREAK_OPEN_BORDER_NAME"				Text="Break Open Border"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_BREAK_DOF_NAME"						Text="Break Dof"					Language="en_US" />
+		<Replace Tag="LOC_INTEREST_REFUSE_TO_DENOUNCE_NAME"				Text="Refuse To Denounce"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_REFUSE_TO_REMOVE_EMBARGO_NAME"		Text="Refuse To Remove Embargo"		Language="en_US" />
+		<Replace Tag="LOC_INTEREST_REFUSE_TO_STOP_DOF_NAME"				Text="Refuse To Stop Dof"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_REFUSE_TO_STOP_DEF_PACT_NAME"		Text="Refuse To Stop Def Pact"		Language="en_US" />
+		<Replace Tag="LOC_INTEREST_REFUSE_TO_STOP_OPEN_BORDERS_NAME"	Text="Refuse To Stop Open Borders"	Language="en_US" />
+		<Replace Tag="LOC_INTEREST_REFUSE_TO_STOP_OPEN_MARKET_NAME"		Text="Refuse To Stop Open Market"	Language="en_US" />
+		<Replace Tag="LOC_INTEREST_REFUSE_TO_GIVE_GOLD_NAME"			Text="Refuse To Give Gold"			Language="en_US" />
+		<Replace Tag="LOC_INTEREST_PILLAGED_VILLAGE_NAME"				Text="Pillaged Village"				Language="en_US" />
+		<Replace Tag="LOC_INTEREST_KILLED_UNIT_NAME"					Text="Killed Unit"					Language="en_US" />
+		<Replace Tag="LOC_INTEREST_LOST_UNIT_NAME"						Text="Lost Unit"					Language="en_US" />
+		
+		<Replace Tag="LOC_RELATION_MODIFIER_SEPARATIST_NAME"			Text="Separatists"					Language="en_US" />
+		<Replace Tag="LOC_RELATION_MODIFIER_NATIONALIST_NAME"			Text="Nationalists"					Language="en_US" />
+		<Replace Tag="LOC_RELATION_MODIFIER_FOREIGN_NAME"				Text="Foreigners"					Language="en_US" />
+		<Replace Tag="LOC_RELATION_MODIFIER_BALANCE_NAME"				Text="Balance"						Language="en_US" />
+		<Replace Tag="LOC_RELATION_MODIFIER_GLOBAL_HAPPINESS_NAME"		Text="Global Happiness"				Language="en_US" />
+		<Replace Tag="LOC_RELATION_MODIFIER_HAPPINESS_DIFFERENCE_NAME"	Text="Happiness Difference"			Language="en_US" />
+		<Replace Tag="LOC_RELATION_MODIFIER_NATION_INTERESTS_NAME"		Text="Nation Interests"				Language="en_US" />
+		<Replace Tag="LOC_RELATION_MODIFIER_BROTHERS_IN_ARMS_NAME"		Text="Brothers in Arms"				Language="en_US" />
+		<Replace Tag="LOC_RELATION_MODIFIER_ATTACKING_BROTHERS_NAME"	Text="Attacking Brothers"			Language="en_US" />
+		
+	</LocalizedText>
 	
 	<LocalizedText> <!-- Equipment -->
 		

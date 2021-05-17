@@ -468,6 +468,7 @@ local unitTableEnum = {
 	LastEmployer				= 61,
 	LastEmploymentEndTurn		= 62,
 	CulturePercents				= 63,
+	PreviousActiveTurnsLeft		= 64,
 	
 	EndOfEnum				= 99
 }                           
@@ -1433,7 +1434,7 @@ function ChangeUnitTo(oldUnit, newUnitType, playerID, excludedPromotions, bLocke
 			GCO.SetUnitOperation(newUnit:GetKey(), iOperationID)
 		end
 		
-		Dprint( DEBUG_UNIT_SCRIPT, "Returning new unit: "..Locale.Lookup(newUnit:GetName()).." id#".. tostring(newUnit:GetKey()).." player#"..tostring(newUnit:GetOwner()))
+		Dprint( DEBUG_UNIT_SCRIPT, "Returning new unit: "..Locale.Lookup(newUnit:GetName()).." id#".. tostring(newUnit:GetKey()).." player#"..tostring(newUnit:GetOwner()).." old unit key#"..tostring(oldUnitKey))
 		return newUnit
 	else
 		GCO.Error("Failed to replace unit unitKey#"..tostring(oldUnitKey).." by unit type = "..tostring(newUnitType).." player ID#"..tostring(playerID))
@@ -3340,6 +3341,26 @@ function GivePopulationToPlot(self, plot, numPopulation)
 	end
 end
 
+function GetBestCultureGroup(self)
+
+	local kCultures	= self:GetValue("CulturePercents")
+	
+	if kCultures == nil then
+		GCO.Warning("CulturePercents is nil for " .. self:GetName(), self:GetKey()) -- this happens when replacing an unit before its flag was created 
+		return
+	end
+	
+	local cultureID		= nil
+	local maxPercent	= 0
+	for cultureKey, percent in pairs(kCultures) do
+		if percent > maxPercent then
+			cultureID 	= tonumber(cultureKey)
+			maxPercent	= percent
+		end
+	end
+	return cultureID
+end
+
 
 -- ======================================================================================
 -- Morale function
@@ -3448,29 +3469,29 @@ end
 function GetFoodConsumptionString(self)
 	local unitKey 			= self:GetKey()
 	local unitData 			= ExposedMembers.UnitData[unitKey]
-	local str 				= ""
+	local str 				= {}
 	local ratio 			= self:GetFoodConsumptionRatio()
 	local totalPersonnel 	= unitData.Personnel + unitData.PersonnelReserve
 	if totalPersonnel > 0 then 
 		local personnelFood = ( totalPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PERSONNEL_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL", GCO.ToDecimals(personnelFood * ratio), totalPersonnel) 
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PERSONNEL", GCO.ToDecimals(personnelFood * ratio), totalPersonnel) )
 	end	
 	local totalHorses = self:GetEquipmentClassFrontLine(horsesEquipmentClassID) + self:GetEquipmentClassReserve(horsesEquipmentClassID)
 	if totalHorses > 0 then 
 		local horsesFood = ( totalHorses * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_HORSES_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_HORSES", GCO.ToDecimals(horsesFood * ratio), totalHorses ) 
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_HORSES", GCO.ToDecimals(horsesFood * ratio), totalHorses ) )
 	end
 	
 	-- value belows may be nil
 	if unitData.WoundedPersonnel and unitData.WoundedPersonnel > 0 then 
 		local woundedFood = ( unitData.WoundedPersonnel * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_WOUNDED", GCO.ToDecimals(woundedFood * ratio), unitData.WoundedPersonnel ) 
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_WOUNDED", GCO.ToDecimals(woundedFood * ratio), unitData.WoundedPersonnel ) )
 	end
 	if unitData.Prisoners then	
 		local totalPrisoners = GCO.GetTotalPrisoners(unitData)		
 		if totalPrisoners > 0 then 
 			local prisonnersFood = ( totalPrisoners * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) )/1000
-			str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONERS", GCO.ToDecimals(prisonnersFood * ratio), totalPrisoners )
+			table.insert(str, Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_PRISONERS", GCO.ToDecimals(prisonnersFood * ratio), totalPrisoners ))
 		end
 	end
 	
@@ -3480,14 +3501,14 @@ function GetFoodConsumptionString(self)
 			
 	if population > 0 then 
 		local populationFood = (population * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_WOUNDED_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_POPULATION", GCO.ToDecimals(populationFood * ratio), population )
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_POPULATION", GCO.ToDecimals(populationFood * ratio), population ))
 	end
 	if slaves > 0 then 
 		local slavesFood = ( slaves * tonumber(GameInfo.GlobalParameters["FOOD_CONSUMPTION_PRISONERS_FACTOR"].Value) )/1000
-		str = str .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_SLAVES", GCO.ToDecimals(slavesFood * ratio), slaves )
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_FOOD_CONSUMPTION_SLAVES", GCO.ToDecimals(slavesFood * ratio), slaves ))
 	end
 	
-	return str
+	return table.concat(str,"[NEWLINE]")
 end
 
 function GetMoraleString(self) 
@@ -3499,65 +3520,66 @@ function GetMoraleString(self)
 	local unitMorale 		= unitData.Morale
 	local moraleVariation	= self:GetComponentVariation("Morale")--unitData.MoraleVariation
 	
-	local str = ""
+	local str 		= {}
+	local summary	= ""
 	-- summary, one line
 	if unitMorale < badMorale then
-		str = Locale.Lookup("LOC_UNITFLAG_BAD_MORALE", unitMorale, baseMorale)
+		summary = Locale.Lookup("LOC_UNITFLAG_BAD_MORALE", unitMorale, baseMorale)
 	elseif unitMorale < lowMorale then
-		str = Locale.Lookup("LOC_UNITFLAG_LOW_MORALE", unitMorale, baseMorale)
+		summary = Locale.Lookup("LOC_UNITFLAG_LOW_MORALE", unitMorale, baseMorale)
 	elseif unitMorale == baseMorale then
-		str = Locale.Lookup("LOC_UNITFLAG_HIGH_MORALE", unitMorale, baseMorale)
+		summary = Locale.Lookup("LOC_UNITFLAG_HIGH_MORALE", unitMorale, baseMorale)
 	else
-		str = Locale.Lookup("LOC_UNITFLAG_MORALE", unitMorale, baseMorale)
+		summary = Locale.Lookup("LOC_UNITFLAG_MORALE", unitMorale, baseMorale)
 	end	
 	if moraleVariation > 0 then
-		str = str .. " [ICON_PressureUp]"
+		summary = summary .. " [ICON_PressureUp]"
 	elseif moraleVariation < 0 then
-		str = str .. " [ICON_PressureDown]"
+		summary = summary .. " [ICON_PressureDown]"
 	end
 	
 	-- details, multiple lines
 	local moraleFromFood = self:GetMoraleFromFood()
 	if moraleFromFood > 0 then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WELL_FED", moraleFromFood)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_WELL_FED", moraleFromFood))
 	elseif moraleFromFood < 0 then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FOOD_RATIONING", moraleFromFood)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_FOOD_RATIONING", moraleFromFood))
 	end	
 	
 	local moraleFromCombat = self:GetMoraleFromLastCombat()
 	local turnLeft = tonumber(GameInfo.GlobalParameters["MORALE_COMBAT_EFFECT_NUM_TURNS"].Value) - (Game.GetCurrentGameTurn() - unitData.LastCombatTurn)
 	if moraleFromCombat > 0 then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_VICTORY", moraleFromCombat, turnLeft)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_VICTORY", moraleFromCombat, turnLeft))
 	elseif moraleFromCombat < 0 then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_DEFEAT", moraleFromCombat, turnLeft)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_DEFEAT", moraleFromCombat, turnLeft))
 	end			
 	
 	local moraleFromWounded = self:GetMoraleFromWounded()
 	if moraleFromWounded > 0 then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WOUNDED", moraleFromWounded)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WOUNDED", moraleFromWounded))
 	elseif moraleFromWounded < 0 then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_WOUNDED", moraleFromWounded)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_WOUNDED", moraleFromWounded))
 	end	
 	
 	local moraleFromHP = self:GetMoraleFromHP()
 	if moraleFromHP > 0 then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FULL_HP", moraleFromHP)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_FULL_HP", moraleFromHP))
 	elseif moraleFromHP < 0 then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_LOW_HP", moraleFromHP)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_LOW_HP", moraleFromHP))
 	end
 	
 	local moraleFromHome = self:GetMoraleFromHome()
 	if moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_NO_WAY_HOME"].Value) then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WAY_HOMEP", moraleFromHome)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_NO_WAY_HOMEP", moraleFromHome))
 	elseif moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_FAR_FROM_HOME"].Value) then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_FAR_FROM_HOME", moraleFromHome)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_FAR_FROM_HOME", moraleFromHome))
 	elseif moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_LINKED_TO_HOME"].Value) then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_LINKED_TO_HOME", moraleFromHome)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_LINKED_TO_HOME", moraleFromHome))
 	elseif moraleFromHome == tonumber(GameInfo.GlobalParameters["MORALE_CHANGE_CLOSE_TO_HOME"].Value) then
-		str = str .. Locale.Lookup("LOC_UNITFLAG_MORALE_CLOSE_TO_HOME", moraleFromHome)
+		table.insert(str, Locale.Lookup("LOC_UNITFLAG_MORALE_CLOSE_TO_HOME", moraleFromHome))
 	end
 	
-	return str
+	return summary, table.concat(str,"[NEWLINE]")
 end
 
 function GetFuelStockString(self) 
@@ -3634,7 +3656,7 @@ function GetFrontLineEquipmentString(self)
 		if classNum > 0 then
 			str = str .. "[NEWLINE]".. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_CLASS_FRONTLINE", classNum, maxClass, GameInfo.EquipmentClasses[classType].Name, GCO.GetResourceIcon())
 			local equipmentList = GetEquipmentTypes(classType)
-			--if #equipmentList > 1 then  -- show sub-entries only if there could be more than one equipment type in this class
+			if #equipmentList > 1 then  -- show sub-entries only if there could be more than one equipment type in this class
 				for _, equipmentData in ipairs(equipmentList) do
 					local equipmentID 	= equipmentData.EquipmentID
 					local equipmentNum 	= self:GetFrontLineEquipment( equipmentID )
@@ -3645,7 +3667,7 @@ function GetFrontLineEquipmentString(self)
 					end
 				end
 
-			--end
+			end
 		end
 	end
 	return str
@@ -3659,7 +3681,7 @@ function GetReserveEquipmentString(self)
 		if classNum > 0 then
 			str = str .. "[NEWLINE]".. Locale.Lookup("LOC_UNITFLAG_EQUIPMENT_CLASS_RESERVE", classNum, GameInfo.EquipmentClasses[classType].Name, GCO.GetResourceIcon())
 			local equipmentList = GetEquipmentTypes(classType)
-			--if #equipmentList > 1 then -- show sub-entries only if there could be more than one equipment type in this class
+			if #equipmentList > 1 then -- show sub-entries only if there could be more than one equipment type in this class
 				for _, equipmentData in ipairs(equipmentList) do
 					local equipmentID 	= equipmentData.EquipmentID
 					local equipmentNum 	= self:GetReserveEquipment(equipmentID)			
@@ -3668,7 +3690,7 @@ function GetReserveEquipmentString(self)
 						str = str .. "  " .. GCO.GetEquipmentPropertyString( equipmentID )
 					end
 				end
-			--end
+			end
 		end
 	end
 	return str
@@ -4788,7 +4810,17 @@ function OnCombat( combatResult )
 			LuaEvents.ResearchGCO("EVENT_ATTACK_VS", attacker.playerID, attacker[CombatResultParameters.LOCATION].x, attacker[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType, attacker.unit)
 			LuaEvents.ResearchGCO("EVENT_DEFEND_WITH", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType, defender.unit)
 			LuaEvents.ResearchGCO("EVENT_COMBAT_WITH", defender.playerID, defender[CombatResultParameters.LOCATION].x, defender[CombatResultParameters.LOCATION].y, GameInfo.Units[defender.unit:GetType()].UnitType, defender.unit)
-		end	
+		end
+		
+		if attacker.unitData.CulturePercents then
+			for cultureKey, percent in ipairs(attacker.unitData.CulturePercents) do
+				if percent >= 10 and defender.unitData.CulturePercents and defender.unitData.CulturePercents >= 10 then -- to do: remove magic numbers (percent threshold)
+					local attackedCultureID = tonumber(cultureKey)
+					GameEvents.SetCultureRelation.Call(GCO.GetCultureIDFromPlayerID(attacker.playerID), attackedCultureID, "RELATION_MODIFIER_ATTACKING_BROTHERS")
+				end
+			end
+		end
+		
 	end
 
 
@@ -7215,6 +7247,7 @@ function AttachUnitFunctions(unit)
 			u.GivePersonnelToPlot					= GivePersonnelToPlot
 			u.GivePopulationToPlot					= GivePopulationToPlot
 			u.GetPopulationFromPlot					= GetPopulationFromPlot
+			u.GetBestCultureGroup					= GetBestCultureGroup
 			--
 			u.GetMoraleFromFood						= GetMoraleFromFood
 			u.GetMoraleFromLastCombat				= GetMoraleFromLastCombat

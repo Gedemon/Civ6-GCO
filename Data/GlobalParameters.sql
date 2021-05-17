@@ -29,7 +29,6 @@ UPDATE GlobalParameters SET Value = -3000	WHERE Name = 'CITY_HOUSING_LEFT_ZERO_G
 
 -- Neutralize vanilla Debt
 UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_AMENITY_LOSS_LINE';			-- default = 0
-UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_DISBAND_UNIT_LINE';			-- default = -10
 UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_SUBSEQUENT_AMENITY_LOSS';	-- default = -10
 UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_SUBSEQUENT_DISBAND_UNIT';	-- default = -10
 UPDATE GlobalParameters SET Value = -9999	WHERE Name = 'GOLD_NEGATIVE_BALANCE_DISBAND_UNIT_LINE';			-- default = -10

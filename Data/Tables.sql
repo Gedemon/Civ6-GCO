@@ -1032,6 +1032,8 @@ CREATE TABLE CultureRelationModifiers
      (  RelationModifierType 	TEXT NOT NULL,
         Name 					TEXT,
 		BaseValue 				INT,
+		SetValue 				INT,
+		Decay 					INT,
 		PRIMARY KEY(RelationModifierType)
 	 );
  

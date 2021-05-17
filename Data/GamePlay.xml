@@ -993,26 +993,6 @@
 		<Row EffectType="NEW_COPY_TECH_RESOURCE" 				Name="LOC_NEW_COPY_TECH_RESOURCE" 				ValueString="LOC_VAR_NUMBER_0" 	Application = "LOC_MODIFIER_ADD_VALUE" />
 	</EffectsGCO>
 
-
-
-	<!--		CULTURE RELATION		***********************************************************************************************************************************************
-	
-	
-	-->
-	<CultureRelationModifiers>
-		<Row RelationModifierType="RELATION_MODIFIER_SEPARATIST"			BaseValue="-15"	/>
-		<Row RelationModifierType="RELATION_MODIFIER_NATIONALIST"			BaseValue="5"	/>	<!-- own Culture Group -->
-		<Row RelationModifierType="RELATION_MODIFIER_BALANCE"				/>					<!-- percentage of total removed/added to tend toward 0 -->
-		<Row RelationModifierType="RELATION_MODIFIER_FOREIGN"				BaseValue="-5"	/>
-		<Row RelationModifierType="RELATION_MODIFIER_GLOBAL_HAPPINESS"		/>					<!-- should we have this ? -->
-		<Row RelationModifierType="RELATION_MODIFIER_HAPPINESS_DIFFERENCE"	/>					<!-- difference between own and another civ global value -->
-		<Row RelationModifierType="RELATION_MODIFIER_WAR"					BaseValue="-15"	/>
-		<Row RelationModifierType="RELATION_MODIFIER_ENEMY"					BaseValue="-10"	/>
-		<Row RelationModifierType="RELATION_MODIFIER_DENOUNCED"				BaseValue="-5"	/>
-		<Row RelationModifierType="RELATION_MODIFIER_FRIEND"				BaseValue="5"	/>
-		<!-- modifiers from policies: use ModifierGCO ? -->
-	</CultureRelationModifiers> 
-	
 	
 	<!--		TRIBAL VILLAGES			***********************************************************************************************************************************************
 	

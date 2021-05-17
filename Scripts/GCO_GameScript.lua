@@ -271,6 +271,10 @@ function InitializeNewTurn()
 	GCO.UpdateOperations()
 	GCO.ShowTimer("UpdateOperations")
 	
+	GCO.StartTimer("UpdateDiplomacy")
+	GCO.UpdateDiplomacy()
+	GCO.ShowTimer("UpdateDiplomacy")
+	
 	--LuaEvents.StartPlayerTurn(0) -- calling that here makes the game crash (tested 25-Oct-17)
 end
 GameEvents.OnGameTurnStarted.Add(InitializeNewTurn)

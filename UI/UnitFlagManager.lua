@@ -26,8 +26,8 @@ end
 GameEvents.InitializeGCO.Add( InitializeUtilityFunctions )
 --]]
 
-local bShownSupplyLine = false
-
+local bShownSupplyLine 	= false
+local iPeaceBarbarian 	= 62
 -- GCO >>>>>
 
 -- ===========================================================================
@@ -331,26 +331,6 @@ function OnUnitFlagClick( playerID : number, unitID : number )
 		UI.DeselectAllUnits();
 		UI.DeselectAllCities();
 		UI.SelectUnit( pUnit );
-		-- GCO <<<<<
-		--[[
-		-- We may want to renew a Mercenary contract
-		do
-			local kParameters = {}
-			kParameters.PlayerID 	= pUnit:GetOwner()
-			kParameters.UnitID 		= unitID
-			kParameters.Begin 		= true
-			
-			if GameInfo.Units[pUnit:GetType()].UnitType == "UNIT_CARAVAN" then -- Show action screen, but will there be cases when we control some kind of mercenary caravan and want Diplomacy instead ?
-				local pPlot = Map.GetPlot(pUnit:GetX(), pUnit:GetY())
-				kParameters.PlotID = pPlot:GetIndex()
-				LuaEvents.ShowActionScreenGCO(kParameters)
-			else
-				LuaEvents.ShowDiploScreenGCO(kParameters)
-			end
-			return
-		end
-		--]]
-		-- GCO >>>>>
 	end
 end
 
@@ -884,8 +864,29 @@ function UnitFlag.UpdateName( self )
 			end
 		end
 		--]]
+		
 		GCO.AttachUnitFunctions(pUnit)
+		
+		-- Rebuild string
+		local nameString 		: string = ""
+		local statsTooltip 		= {}
+		local personnelTooltip	= {}
+		
+		local personnelType 	= pUnit:GetValue("UnitPersonnelType")
+		local cultureGroupID 	= pUnit:GetBestCultureGroup()
+		if cultureGroupID and personnelType == UnitPersonnelType.Mercenary then
+			local adjective	= GameInfo.CultureGroups[cultureGroupID].Adjective
+			nameString = Locale.Lookup("LOC_UNIT_MERCENARY_NAME", adjective ) .. " - " .. Locale.Lookup( unitName )	
+		else
+			nameString = Locale.Lookup( pPlayerCfg:GetCivilizationShortDescription() ) .. " - " .. Locale.Lookup( unitName )		
+		end
+		
 		nameString = nameString .. " " ..Locale.Lookup(pUnit:GetMilitaryFormationTypeName())
+		
+		
+		if personnelType == UnitPersonnelType.Mercenary and pUnit:GetOwner() ~= iPeaceBarbarian then
+			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNIT_MERCENARY_CONTRACTOR", pPlayerCfg:GetCivilizationDescription(), pUnit:GetValue("ActiveTurnsLeft") or 0)
+		end
 		
 		local militaryFormationString = pUnit:GetMilitaryFormationSizeString();
 		if string.len(militaryFormationString) > 0 then
@@ -899,61 +900,36 @@ function UnitFlag.UpdateName( self )
 		
 		local activeTurnsLeft = pUnit:GetValue("ActiveTurnsLeft")
 		if activeTurnsLeft then
-			self.m_Instance.ActiveTurnsLeft:SetHide(false);
-			self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Turn]")
-			local toolTipString = Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_BEFORE_DISBANDING", activeTurnsLeft)
+			self.m_Instance.StatisticsIcon:SetHide(false);
+			self.m_Instance.StatisticsIcon:SetText("[ICON_Turn]")
 			if pUnit:GetValue("UnitPersonnelType") == UnitPersonnelType.Conscripts then
 				local player = GCO.GetPlayer(pUnit:GetOwner())
 				if player:IsAtWar() and not player:IsBarbarian() then
-					toolTipString = Locale.Lookup("LOC_UNITFLAG_DISBANDING_LOCKED_BY_WAR", activeTurnsLeft)
+					table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_DISBANDING_LOCKED_BY_WAR", activeTurnsLeft))
 				elseif player:GetValue("MigrationTurn") ~= nil then
-					toolTipString = Locale.Lookup("LOC_UNITFLAG_DISBANDING_LOCKED_BY_MIGRATING", activeTurnsLeft)
+					table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_DISBANDING_LOCKED_BY_MIGRATING", activeTurnsLeft))
 				elseif activeTurnsLeft >= 0 then
-					--self.m_Instance.ActiveTurnsLeftString:SetText(tostring(activeTurnsLeft).."[ICON_Turn]")
-					--self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Turn]")
-					--self.m_Instance.ActiveTurnsLeftString:SetToolTipString(tostring(activeTurnsLeft).."[ICON_Turn] before disbanding")
+					table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_BEFORE_DISBANDING", activeTurnsLeft))
 				else
-					--self.m_Instance.ActiveTurnsLeftString:SetText("[COLOR_Civ6DarkRed]"..tostring(activeTurnsLeft).."[ENDCOLOR][ICON_Turn]")
-					self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_Disbanding]")
-					--self.m_Instance.ActiveTurnsLeftString:SetToolTipString("Disbanding since [COLOR_Civ6DarkRed]"..tostring(-activeTurnsLeft).."[ENDCOLOR][ICON_Turn] turns")
-					toolTipString = Locale.Lookup("LOC_UNITFLAG_CURRENTLY_DISBANDING", -activeTurnsLeft)
+					self.m_Instance.StatisticsIcon:SetText("[ICON_Disbanding]")
+					table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_CURRENTLY_DISBANDING", -activeTurnsLeft))
 				end
 			else -- Mercenaries
-				local iPeaceBarbarian = 62
 				if pUnit:GetOwner() == iPeaceBarbarian then
-					self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_PEACE]")
-					toolTipString = Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_TRUCE", activeTurnsLeft)
+					self.m_Instance.StatisticsIcon:SetText("[ICON_PEACE]")
+					table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_TRUCE", activeTurnsLeft))
 				elseif pUnit:GetValue("UnitPersonnelType") == UnitPersonnelType.Mercenary then
-					--self.m_Instance.ActiveTurnsLeftString:SetText("[ICON_RESOURCE_SCROLLS]")
-					toolTipString = Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_MERCENARY", activeTurnsLeft)
+					table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_TURNS_LEFT_MERCENARY", activeTurnsLeft))
+					if activeTurnsLeft <= 1 then
+						self.m_Instance.StatisticsIcon:SetText("[ICON_TIME_UP]")
+					end
 				end
 			end
-			self.m_Instance.ActiveTurnsLeftString:SetToolTipString(toolTipString)
 			
 		else
-			self.m_Instance.ActiveTurnsLeft:SetHide(true);
+			self.m_Instance.StatisticsIcon:SetText("[ICON_LIST_SMALL]")
 		end	
 		-- GCO >>>>>
-
-		-- DEBUG TEXT FOR SHOWING UNIT ACTIVITY TYPE
-		--[[
-		local activityType = UnitManager.GetActivityType(pUnit);
-		if (activityType == ActivityTypes.ACTIVITY_SENTRY) then
-			nameString = nameString .. TXT_UNITFLAG_ACTIVITY_ON_SENTRY;
-		elseif (activityType == ActivityTypes.ACTIVITY_INTERCEPT) then
-			nameString = nameString .. TXT_UNITFLAG_ACTIVITY_ON_INTERCEPT;
-		elseif (activityType == ActivityTypes.ACTIVITY_AWAKE) then
-			nameString = nameString .. TXT_UNITFLAG_ACTIVITY_AWAKE;
-		elseif (activityType == ActivityTypes.ACTIVITY_HOLD) then
-			nameString = nameString .. TXT_UNITFLAG_ACTIVITY_HOLD;
-		elseif (activityType == ActivityTypes.ACTIVITY_SLEEP) then
-			nameString = nameString .. TXT_UNITFLAG_ACTIVITY_SLEEP;
-		elseif (activityType == ActivityTypes.ACTIVITY_HEAL) then
-			nameString = nameString .. TXT_UNITFLAG_ACTIVITY_HEALING;
-		elseif (activityType == ActivityTypes.NO_ACTIVITY) then
-			nameString = nameString .. TXT_UNITFLAG_ACTIVITY_NO_ACTIVITY;
-		end
-		]]--
 
 		-- display archaeology info
 		local idArchaeologyHomeCity = pUnit:GetArchaeologyHomeCity();
@@ -1003,12 +979,68 @@ function UnitFlag.UpdateName( self )
 			end
 		
 			-- Condition
-			nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE")
-			nameString = nameString .. "[NEWLINE]" .. pUnit:GetMoraleString()
-			nameString = nameString .. "[NEWLINE][ICON_AntiPersonnel]" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnel")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_PersonnelArmor]" .. GCO.Round(pUnit:GetPropertyPercent("PersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_AntiArmor]" .. GCO.Round(pUnit:GetPropertyPercent("AntiPersonnelArmor")) .. "[COLOR_Grey]--[ENDCOLOR][ICON_IgnoreArmor]" .. GCO.Round(pUnit:GetPropertyPercent("IgnorePersonnelArmor")) .. " "
+			
+			local moraleSummary, moraleDetail = pUnit:GetMoraleString()
+			
+			local morale 		= pUnit:GetValue("Morale") or 0
+			local moraleEval	= GCO.GetEvaluationStringFromValue(morale, 100, 0)
+			
+			table.insert(personnelTooltip, Locale.Lookup("LOC_UNITFLAG_MORALE_TITLE"))
+			table.insert(personnelTooltip, GCO.GetPercentBarString(morale) .. "" .. moraleEval)
+			table.insert(personnelTooltip, moraleDetail)
+			nameString = nameString .. "[NEWLINE]" .. moraleSummary
+			
+			local antiPersonnel 		= pUnit:GetPropertyPercent("AntiPersonnel")
+			local personnelArmor 		= pUnit:GetPropertyPercent("PersonnelArmor")
+			local antiPersonnelArmor	= pUnit:GetPropertyPercent("AntiPersonnelArmor")
+			local ignorePersonnelArmor	= pUnit:GetPropertyPercent("IgnorePersonnelArmor")
+			
+			if antiPersonnel > 0 then
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_ANTI_PERSONNEL", GCO.Round(antiPersonnel))
+			end
+			if personnelArmor > 0 then
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_PERSONNEL_ARMOR", GCO.Round(personnelArmor))
+			end
+			if antiPersonnelArmor > 0 then
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_ANTI_PERSONNEL_ARMOR", GCO.Round(antiPersonnelArmor))
+			end
+			if ignorePersonnelArmor > 0 then
+				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_IGNORE_PERSONNEL_ARMOR", GCO.Round(ignorePersonnelArmor))
+			end
+			
 			if pUnit:GetLogisticCost() > 0 then
 				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_LOGISTIC_COST", pUnit:GetLogisticCost())
 			end
+			
+			-- Ethnicity
+			table.insert(personnelTooltip, Locale.Lookup("LOC_UNITFLAG_ETHNICITY_TITLE"))
+			local kCultures		= pUnit:GetValue("CulturePercents")
+			local tCultures		= {}
+			local ownCulture	= 0
+			local ownAdjective	= ""
+			local ownCultureID	= GCO.GetCultureIDFromPlayerID(pUnit:GetOwner())
+			for cultureKey, percent in pairs(kCultures) do
+				local cultureGroupID 	= tonumber(cultureKey)
+				local adjective			= Locale.Lookup(GameInfo.CultureGroups[cultureGroupID].Adjective)
+				table.insert(tCultures, { Percent = percent, Adjective = adjective, CultureID = cultureGroupID })
+				if ownCultureID == cultureGroupID then
+					ownCulture 		= percent
+					ownAdjective	= adjective
+				end
+			end
+			table.insert(personnelTooltip, GCO.GetPercentBarString(ownCulture) .. " " .. Locale.Lookup("LOC_UNITFLAG_ETHNICITY_PERCENT", ownCulture, ownAdjective) )
+			table.sort(tCultures, function(a,b) return a.Percent>b.Percent end)
+			for i, cultureData in ipairs(tCultures) do
+				local relationIcon = GCO.GetCultureRelationIcon(ownCultureID, cultureData.CultureID)
+				table.insert(personnelTooltip, relationIcon .. Locale.Lookup("LOC_UNITFLAG_ETHNICITY_PERCENT", cultureData.Percent, cultureData.Adjective))
+			end
+			
+			-- Loyalty
+			local loyalty 		= (ownCulture + morale) * 0.5 --pUnit:GetValue("Loyalty") or 100
+			local loyaltyEval	= GCO.GetEvaluationStringFromValue(loyalty, 100, 0)
+			
+			table.insert(personnelTooltip, Locale.Lookup("LOC_UNITFLAG_LOYALTY_TITLE"))
+			table.insert(personnelTooltip, GCO.GetPercentBarString(loyalty) .. "" .. loyaltyEval)
 			
 			--local bHasComponents = (unitInfo.Personnel + unitInfo.Equipment + unitInfo.Horses + unitInfo.Materiel > 0)
 			local militaryPersonnel		= pUnit:GetComponent("Personnel")
@@ -1074,11 +1106,10 @@ function UnitFlag.UpdateName( self )
 			local bHasStatistics = (unitData.TotalDeath + unitData.TotalHorsesLost > 0)				
 			if bHasStatistics then
 			
-				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_STATS_TITLE")					
-				if unitData.TotalDeath 			> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_DEATH", unitData.TotalDeath) end
-				if unitData.TotalKill 			> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_KILL", unitData.TotalKill) end
-				--if unitData.TotalEquipmentLost 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_EQUIPMENT_LOST", unitData.TotalEquipmentLost) end
-				if unitData.TotalHorsesLost 	> 0 then nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_TOTAL_HORSES_LOST", unitData.TotalHorsesLost) end
+				table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_STATS_TITLE"))
+				if unitData.TotalDeath 			> 0 then table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_TOTAL_DEATH", unitData.TotalDeath)) end
+				if unitData.TotalKill 			> 0 then table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_TOTAL_KILL", unitData.TotalKill)) end
+				if unitData.TotalHorsesLost 	> 0 then table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_TOTAL_HORSES_LOST", unitData.TotalHorsesLost)) end
 				
 			end
 				
@@ -1088,9 +1119,9 @@ function UnitFlag.UpdateName( self )
 			local bHasConsumption = ( foodConsumption + fuelConsumption > 0)				
 			if bHasConsumption then
 			
-				nameString = nameString .. "[NEWLINE]" .. Locale.Lookup("LOC_UNITFLAG_CONSUMPTION_TITLE")
-				if foodConsumption 				> 0 then nameString = nameString .. pUnit:GetFoodConsumptionString() end
-				if fuelConsumption 				> 0 then nameString = nameString .. pUnit:GetFuelConsumptionString() end
+				table.insert(statsTooltip, Locale.Lookup("LOC_UNITFLAG_CONSUMPTION_TITLE"))
+				if foodConsumption 				> 0 then table.insert(statsTooltip, pUnit:GetFoodConsumptionString()) end
+				if fuelConsumption 				> 0 then table.insert(statsTooltip, pUnit:GetFuelConsumptionString()) end
 				
 			end	
 
@@ -1123,6 +1154,42 @@ function UnitFlag.UpdateName( self )
 				
 			--end
 		end
+		
+		self.m_Instance.StatisticsIcon:SetToolTipString(table.concat(statsTooltip, "[NEWLINE]"))
+		self.m_Instance.PersonnelIcon:SetToolTipString(table.concat(personnelTooltip, "[NEWLINE]"))
+		
+		-- debug info
+		local operationID = GCO.GetUnitOperation(pUnit)
+		
+		if operationID then
+			nameString = nameString .. Locale.Lookup("LOC_TOOLTIP_SEPARATOR")
+			nameString = nameString .. "Debug : custom AI operation #"..tostring(operationID)
+			local operationData = GCO.GetPlayerOperation(pUnit:GetOwner(), operationID)
+			--[[
+					operationData.Type		= sOperationType
+		operationData.Opponent	= opponentPlayerID
+		operationData.Origin	= originPlotID
+		operationData.Target	= targetPlotID
+		operationData.Rally		= rallyPlotID
+		operationData.Units		= {}
+		operationData.TurnsLeft	= kOperationTurnLimit[sOperationType] --
+			--]]
+			if operationData then
+				local originPlot 	= Map.GetPlotByIndex(operationData.Origin)
+				local targetPlot 	= Map.GetPlotByIndex(operationData.Rally)
+				local originLoc		= originPlot and tostring(originPlot:GetX()) .. "," ..tostring(originPlot:GetY()) or "unknown"
+				local targetLoc		= targetPlot and tostring(targetPlot:GetX()) .. "," ..tostring(targetPlot:GetY()) or "unknown"
+				local numUnits		= #operationData.Units
+				local opponentCfg	= PlayerConfigurations[ opponentID ]
+				local opponentName	= opponentCfg and Locale.Lookup(opponentCfg:GetShortDescription()) or "none/unknown" 
+				nameString = nameString .. "[NEWLINE][ICON_BULLET] Type : "..tostring(operationData.Type).." ("..tostring(operationData.TurnsLeft).." turns [ICON_Turn] left)"
+				nameString = nameString .. "[NEWLINE][ICON_BULLET] Opponent : "..tostring(opponentName)
+				nameString = nameString .. "[NEWLINE][ICON_BULLET] Origin : "..tostring(originLoc)
+				nameString = nameString .. "[NEWLINE][ICON_BULLET] Target : "..tostring(targetLoc)
+				nameString = nameString .. "[NEWLINE][ICON_BULLET] Number of Units : "..tostring(numUnits)
+			end
+		end
+
 
 		function ShowSupplyLine()
 			if UI.GetInterfaceMode() == InterfaceModeTypes.CITY_MANAGEMENT or UI.GetInterfaceMode() == InterfaceModeTypes.MAKE_TRADE_ROUTE then return end
@@ -1410,6 +1477,15 @@ function OnUnitSelectionChanged( playerID : number, unitID : number, hexI : numb
 
 	if (bSelected) then
 		UpdateIconStack(hexI, hexJ);
+		-- GCO <<<<<
+		if (flagInstance ~= nil) then
+			flagInstance.m_Instance.Anchor:ChangeParent( m_SelectedContainer )
+		end
+	else
+		if (flagInstance ~= nil) then
+			flagInstance.m_Instance.Anchor:ChangeParent( flagInstance.m_InstanceManager.m_ParentControl )
+		end
+		-- GCO >>>>>
 	end
 end
 

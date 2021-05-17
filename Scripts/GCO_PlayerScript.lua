@@ -62,7 +62,7 @@ local OrganizationLevelToStandard 	= {		-- to get the normal MilitaryOrganisatio
 }
 local smallerUnitsPolicyID 			= GameInfo.Policies["POLICY_SMALLER_UNITS"].Index
 
-local PlayerFromCivilizationType	= {}	-- to get the PlayerID for a CivilizationType
+local PlayerFromCultureType	= {}	-- to get the PlayerID for a CultureType
 -----------------------------------------------------------------------------------------
 -- Initialize
 -----------------------------------------------------------------------------------------
@@ -117,7 +117,6 @@ function SetPlayerDefines()
 		if player then
 			player:Define()
 			local playerConfig	= player:GetConfig()
-			PlayerFromCivilizationType[playerConfig:GetCivilizationTypeName()] = playerID
 		end	
 	end
 end
@@ -249,7 +248,8 @@ end
 function Define(self)
 
 	--local DEBUG_PLAYER_SCRIPT = "debug"
-	
+if self:IsHuman() then DEBUG_PLAYER_SCRIPT = "debug" end
+
 	Dprint( DEBUG_PLAYER_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_PLAYER_SCRIPT, "Defining properties for "..Locale.Lookup(PlayerConfigurations[self:GetID()]:GetCivilizationShortDescription()), self:GetID())
 	
@@ -270,6 +270,8 @@ function Define(self)
 	
 	-- Check to update the player data for Tribe Culture
 	-- GetTribePlayerCulture is not the same as GetCultureIDFromPlayerID, which return any cultureID, including majors, based on what's defined here for "CivilizationTypeName" while GetTribePlayerCulture returns only a TribeCultureID based on what's defined in GCO_AltHistScript.lua
+	-- The cultureID is changed in GCO_AltHistScript
+	-- Then the other scripts get the ID using GetCultureIDFromPlayerID from this file
 	local cultureGroupID	= GCO.GetTribePlayerCulture(self:GetID()) 
 	if cultureGroupID then
 		civAdjective 		= GameInfo.CultureGroups[cultureGroupID].Adjective
@@ -350,9 +352,9 @@ function Define(self)
 	playerConfig:SetValue("CivilizationAdjective", 			civAdjective)
 	playerConfig:SetValue("CivilizationTypeName",			civTypeName)
 	
-	PlayerFromCivilizationType[civTypeName]	= self:GetID()
+	PlayerFromCultureType[civTypeName]	= self:GetID() -- civTypeName is also the CultureType Name at this point in code
 	
-	Dprint( DEBUG_PLAYER_SCRIPT, "- Setting Names : ", LeaderName, ShortDescription, Description)
+	Dprint( DEBUG_PLAYER_SCRIPT, "- Setting Names : ", LeaderName, ShortDescription, Description, civName, civAdjective, civTypeName)
 	
 	-- tests
 	--[[
@@ -1255,10 +1257,8 @@ function DoPlayerTurnP( playerID )
 		--
 		player:SetPersonnelInCities()
 		
-		-- update flags after resources transfers
+		-- update flags in Define(), after resources transfers
 		player:Define()
-		--player:UpdateUnitsFlags()
-		--player:UpdateCitiesBanners()
 		
 		--
 		LuaEvents.DoDiplomacyTurn( playerID )
@@ -1477,8 +1477,18 @@ function GetPlayer(playerID)
 	return player
 end
 
-function GetPlayerIDFromCivilizationType(CivilizationType)
-	return PlayerFromCivilizationType[CivilizationType]
+function GetPlayerIDFromCultureID(cultureID)
+	return GameInfo.CultureGroups[cultureID] and PlayerFromCultureType[GameInfo.CultureGroups[cultureID].CultureType]
+end
+
+function DeletePlayerIDForCultureID(cultureID)
+	PlayerFromCultureType[GameInfo.CultureGroups[cultureID].CultureType] = nil
+end
+
+function GetCultureIDFromPlayerID(playerID)
+	local playerConfig		= GCO.GetPlayerConfig(playerID)
+	local CivilizationType	= playerConfig:GetCivilizationTypeName() -- this should be set in define as the CultureGroupType
+	return GameInfo.CultureGroups[CivilizationType].Index
 end
 
 
@@ -1585,7 +1595,11 @@ function Initialize()
 	-- Sharing Functions for other contexts
 	if not ExposedMembers.GCO then ExposedMembers.GCO 	= {} end
 	ExposedMembers.GCO.GetPlayer 						= GetPlayer
-	ExposedMembers.GCO.GetPlayerIDFromCivilizationType	= GetPlayerIDFromCivilizationType
+	--
+	ExposedMembers.GCO.GetCultureIDFromPlayerID			= GetCultureIDFromPlayerID
+	ExposedMembers.GCO.GetPlayerIDFromCultureID			= GetPlayerIDFromCultureID
+	ExposedMembers.GCO.DeletePlayerIDForCultureID		= DeletePlayerIDForCultureID
+	--
 	ExposedMembers.GCO.InitializePlayerFunctions 		= InitializePlayerFunctions
 	ExposedMembers.GCO.PlayerTurnsDebugChecks 			= {}
 	ExposedMembers.PlayerScript_Initialized 			= true

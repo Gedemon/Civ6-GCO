@@ -192,6 +192,11 @@ function SetUnitOperation(unitKey, operationID)
 	unitOperation[unitKey] = operationID
 end
 
+
+--=====================================================================================--
+-- Turn functions
+--=====================================================================================--
+
 function UpdateOperations()
 	Dprint( DEBUG_AI_UNIT_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_AI_UNIT_SCRIPT, "- UpdateOperations...")

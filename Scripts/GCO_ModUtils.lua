@@ -788,7 +788,7 @@ function Dump(t,i)
 	seen[t]=true
 	local s={}
 	local n=0
-	for k, v in pairs(t) do
+	for k, v in oldPairs(t) do
 		print(i,k,v)
 		if type(v)=="table" and not seen[v] then
 			print(i.."num entries = "..#v)
@@ -1876,12 +1876,13 @@ end
 function GetEvaluationStringFromValue(value, maxValue, minValue, name, EvaluationStrings, EvaluationColors)
 	local EvaluationStrings	= EvaluationStrings or {"LOC_EVALUATION_VERY_BAD","LOC_EVALUATION_BAD","LOC_EVALUATION_AVERAGE","LOC_EVALUATION_GOOD","LOC_EVALUATION_VERY_GOOD"}
 	local EvaluationColors	= EvaluationColors or {"COLOR_Civ6DarkRed","COLOR_OperationChance_Orange","NONE","NONE","COLOR_Civ6Green"}
-	local range 			= maxValue - minValue -- 200 if (-100 to 100)
-	local valueInRange		= (range / 2) + (math.max(minValue, math.min(maxValue, value))) -- 100 if 0
-	local percentage		= (valueInRange / ((range > 0 and range) or valueInRange)) * 100 -- 50 if 0
-	local stringPosition	= math.max(1,Round(percentage * #EvaluationStrings / 100)) -- 3 if 0
-	local colorPosition		= math.max(1,Round(percentage * #EvaluationColors / 100)) -- 3 if 0
-	local returnString		= Locale.Lookup("LOC_EVALUATION_NUMBER", value) --(value > 0 and "+"..tostring(value)) or tostring(value)
+	-- assuming we don't use with max and min values both < 0
+	local range 			= maxValue - minValue
+	local diffWithMax		= maxValue - value
+	local percentage		= 100 - (diffWithMax/range) * 100
+	local stringPosition	= math.min(#EvaluationStrings,math.max(1,Round(percentage * #EvaluationStrings / 100)))
+	local colorPosition		= math.min(#EvaluationColors,math.max(1,Round(percentage * #EvaluationColors / 100))) 
+	local returnString		= Locale.Lookup("LOC_EVALUATION_NUMBER", value) 
 	if name then
 		returnString = returnString .. " " .. Locale.Lookup("LOC_EVALUATION_STRING_WITH_NAME", EvaluationStrings[stringPosition], name)
 	else
@@ -1995,7 +1996,7 @@ function Initialize()
 	ExposedMembers.GCO.TradePathBlocked 			= TradePathBlocked
 	ExposedMembers.GCO.GetAdjacentPlots				= GetAdjacentPlots
 	ExposedMembers.GCO.GetPlotsInRange				= GetPlotsInRange
-	ExposedMembers.GCO.NoAdjacentImprovement				= NoAdjacentImprovement
+	ExposedMembers.GCO.NoAdjacentImprovement		= NoAdjacentImprovement
 	-- Modifiers
 	ExposedMembers.GCO.GetEffectModifiers			= GetEffectModifiers
 	ExposedMembers.GCO.GetModifierEffects			= GetModifierEffects

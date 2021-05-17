@@ -452,23 +452,23 @@ function GetDirectionStringTo(self, otherPlot, iDistance)
 	
 	if ratioXY > iDistance then -- East/West axis only
 	
-		return xDiff > 0 and "LOC_DIRECTION_WEST" or "LOC_DIRECTION_EAST"
+		return xDiff > 0 and "DIRECTION_WEST" or "DIRECTION_EAST"
 
 	elseif ratioXY > 1/iDistance then
 
 		if xDiff > 0 then 		-- West and...
 		
-			return yDiff > 0 and "LOC_DIRECTION_SOUTH_WEST" or "LOC_DIRECTION_NORTH_WEST"
+			return yDiff > 0 and "DIRECTION_SOUTH_WEST" or "DIRECTION_NORTH_WEST"
 		
 		else					-- East and...
 		
-			return yDiff > 0 and "LOC_DIRECTION_SOUTH_EAST" or "LOC_DIRECTION_NORTH_EAST"
+			return yDiff > 0 and "DIRECTION_SOUTH_EAST" or "DIRECTION_NORTH_EAST"
 			
 		end
 	
 	else 						-- North/South axis only
 	
-		return yDiff > 0 and "LOC_DIRECTION_SOUTH" or "LOC_DIRECTION_NORTH"
+		return yDiff > 0 and "DIRECTION_SOUTH" or "DIRECTION_NORTH"
 
 	end
 
@@ -768,7 +768,7 @@ function GetPotentialOwner( self )
 	local plotCulture = self:GetCultureTable()
 	if plotCulture then
 		for cultureID, value in pairs (plotCulture) do
-			local playerID	= GetPlayerIDFromCultureID(cultureID)
+			local playerID	= GCO.GetPlayerIDFromCultureID(cultureID)
 			if playerID then
 				local player 	= Players[tonumber(playerID)]
 				if player and player:IsAlive() and value > topValue then
@@ -951,7 +951,7 @@ function UpdateCulture( self )
 	table.insert(textTable, "Check for city")
 	if self:IsCity() then
 		local city 			= self:GetCity() --Cities.GetCityInPlot(self:GetX(), self:GetY())
-		local cityCultureID = GetCultureIDFromPlayerID(city:GetOwner())
+		local cityCultureID = GCO.GetCultureIDFromPlayerID(city:GetOwner())
 		--local cityCulture = city:GetCulture()
 		table.insert(textTable, "----- ".. tostring(city:GetName()) .." -----")	
 		
@@ -967,8 +967,9 @@ function UpdateCulture( self )
 		
 		if (cultureConversionRatePer10000 > 0) then 
 			if plotCulture then
-				for cultureID, value in pairs (plotCulture) do
-					if GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() and cultureID ~= SEPARATIST_CULTURE then
+				for cultureKey, value in pairs (plotCulture) do
+					local cultureID = tonumber(cultureKey)
+					if GCO.GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() and cultureKey ~= SEPARATIST_CULTURE then
 						local converted = GCO.Round(value * cultureConversionRatePer10000 / 10000)
 						Dprint( DEBUG_PLOT_SCRIPT, "  - "..Indentation20("cultureID#"..tostring(cultureID)).. Indentation20(" converted = ".. tostring(converted)).. ", from Culture Value = " .. tostring(value))
 						if converted > 0 then
@@ -1042,7 +1043,7 @@ function UpdateOwnership( self )
 		debugTable["UpdateOwnership"] = nil
 		return
 	end
-	local bestValue = self:GetCulture(GetCultureIDFromPlayerID(bestPlayerID))
+	local bestValue = self:GetCulture(GCO.GetCultureIDFromPlayerID(bestPlayerID))
 	
 	
 	table.insert(textTable, "ActualOwner[".. self:GetOwner() .."] ~= PotentialOwner AND  bestValue[".. bestValue .."] > GetCultureMinimumForAcquisition( PotentialOwner )[".. GetCultureMinimumForAcquisition( PotentialOwner ) .."] ?" )
@@ -1249,16 +1250,20 @@ function GetCultureString(self)
 		local maxCultureLen		= math.max(string.len(totalCulture), string.len(iSlaves))
 		local maxVarLen			= string.len(totalCulture - totalPrevCulture) + 1
 		local bAlignRight		= true
+		local localCultureID	= GCO.GetCultureIDFromPlayerID(Game.GetLocalPlayer())
 		
 		-- 
 		--table.insert(popDetails, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_TOTAL", GCO.Round(totalCulture) ).. GCO.GetVariationStringNoColorHigh(totalCulture - totalPrevCulture))
 		
-		cultureHeader = Indentation("", 13) .. Indentation("", maxCultureLen, bAlignRight) .. "[ICON_Position]" .. Indentation("", 5 + maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%"
+		cultureHeader = "[ICON_INDENT]" ..Indentation("", 13) .. Indentation("", maxCultureLen, bAlignRight) .. "[ICON_Position]" .. Indentation("", 5 + maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%"
 		--table.insert(tCultureString, Indentation("", 15) .. Indentation("", math.max(1,maxCultureLen-2), bAlignRight) .. "[ICON_Position]" .. Indentation("", 4, bAlignRight) .. Indentation("", maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%" )
 		--table.insert(tCultureString, "[ICON_Culture]" .. Indentation(Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_GROUPS"), 13) .. Indentation("", math.max(1,maxCultureLen-2), bAlignRight) .. "[ICON_Position]" .. Indentation("", 4, bAlignRight) .. Indentation("", maxVarLen, bAlignRight) .. "[ICON_UP_DOWN]" .. Indentation("", 2, bAlignRight)  .. "[ICON_UP_DOWN]%" )
 		for i, t in ipairs(sortedCulture) do
 			if (iter <= numLines) or (#sortedCulture == numLines + 1) then
 				--local playerConfig 		= PlayerConfigurations[t.playerID]
+				
+				local relationIcon		= GCO.GetCultureRelationIcon(localCultureID, t.cultureID)
+			
 				local percentVariation 	= (self:GetCulturePer10000(t.cultureID) - self:GetPreviousCulturePer10000(t.cultureID)) / 100
 				local variation 		= (self:GetCulture(t.cultureID) - self:GetPreviousCulture(t.cultureID))
 				local cultureAdjective 	= GameInfo.CultureGroups[t.cultureID].Adjective	--playerConfig and Locale.Lookup(GameInfo.Civilizations[playerConfig:GetCivilizationTypeID()].Adjective) or "Independant"
@@ -1266,7 +1271,7 @@ function GetCultureString(self)
 					--table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE", t.value, cultureAdjective, t.value / totalCulture * 100) .. GCO.GetVariationString(variation))	-- GetVariationStringNoColorPercent
 					local percentStr 	= Locale.Lookup("LOC_PERCENT_1", t.value / totalCulture * 100)
 					local percentVarStr	= Locale.Lookup("LOC_VAR_NUMBER_2",percentVariation)
-					table.insert(tCultureString, Indentation(Locale.Lookup(cultureAdjective), 15) .. "|" .. Indentation(t.value, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation(variation, maxVarLen, bAlignRight) .. "|" .. Indentation(percentVarStr, 6, bAlignRight) )	--
+					table.insert(tCultureString, relationIcon .. Indentation(Locale.Lookup(cultureAdjective), 15) .. "|" .. Indentation(t.value, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation(variation, maxVarLen, bAlignRight) .. "|" .. Indentation(percentVarStr, 6, bAlignRight) )	--
 				end
 			else
 				other = other + t.value
@@ -1276,11 +1281,11 @@ function GetCultureString(self)
 		if other > 0 then
 			--table.insert(details, Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER", other))
 			local percentStr 	= Locale.Lookup("LOC_PERCENT_1", other / totalCulture * 100)
-			table.insert(tCultureString, Indentation(Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER"), 15) .. "|" .. Indentation(other, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation("-", maxVarLen, bAlignRight) .. "|" .. Indentation("-", 6, bAlignRight) )	--
+			table.insert(tCultureString, "[ICON_INDENT]" ..Indentation(Locale.Lookup("LOC_PLOT_TOOLTIP_CULTURE_LINE_OTHER"), 15) .. "|" .. Indentation(other, maxCultureLen, bAlignRight) .. "|" ..  Indentation(percentStr, 6, bAlignRight) .. "|" .. Indentation("-", maxVarLen, bAlignRight) .. "|" .. Indentation("-", 6, bAlignRight) )	--
 		end
 		
 		if iSlaves > 0 then
-			table.insert(tCultureString, Indentation(Locale.Lookup("LOC_POPULATION_SLAVE_NAME"), 15) .. "|" .. Indentation(iSlaves, maxCultureLen, bAlignRight) .. "|")
+			table.insert(tCultureString, "[ICON_INDENT]" ..Indentation(Locale.Lookup("LOC_POPULATION_SLAVE_NAME"), 15) .. "|" .. Indentation(iSlaves, maxCultureLen, bAlignRight) .. "|")
 		end
 	end
 	return tCultureString, cultureHeader
@@ -1291,17 +1296,6 @@ end
 -----------------------------------------------------------------------------------------
 -- Other Functions
 -----------------------------------------------------------------------------------------
-function GetPlayerIDFromCultureID(cultureID)
-if not GameInfo.CultureGroups[tonumber(cultureID)] then Dline(cultureID) end
-	local CivilizationType	= GameInfo.CultureGroups[tonumber(cultureID)].CultureType
-	return GCO.GetPlayerIDFromCivilizationType(CivilizationType)
-end
-
-function GetCultureIDFromPlayerID(playerID)
-	local playerConfig		= GCO.GetPlayerConfig(playerID)
-	local CivilizationType	= playerConfig:GetCivilizationTypeName()
-	return GameInfo.CultureGroups[CivilizationType].Index
-end
 
 function GetOppositeDirection(dir)
 	local numTypes = DirectionTypes.NUM_DIRECTION_TYPES;
@@ -1338,7 +1332,7 @@ function UpdateCultureOnCityCapture( originalOwnerID, originalCityID, newOwnerID
 		end
 		local cultureGained = GCO.Round(totalCultureLoss * tonumber(GameInfo.GlobalParameters["CULTURE_GAIN_CITY_CONQUEST"].Value) / 100)
 		Dprint( DEBUG_PLOT_SCRIPT, "   - player#"..tostring(newOwnerID).." gain culture = ", cultureGained)
-		plot:ChangeCulture(GetCultureIDFromPlayerID(newOwnerID), cultureGained)
+		plot:ChangeCulture(GCO.GetCultureIDFromPlayerID(newOwnerID), cultureGained)
 		local distance = Map.GetPlotDistance(iX, iY, plot:GetX(), plot:GetY())
 		local bRemoveOwnership = (tonumber(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value == 1 and distance > tonumber(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value)))
 		Dprint( DEBUG_PLOT_SCRIPT, "   - check for changing owner: CULTURE_REMOVE_PLOT_CITY_CONQUEST ="..tostring(GameInfo.GlobalParameters["CULTURE_REMOVE_PLOT_CITY_CONQUEST"].Value)..", distance["..tostring(distance).."] >  CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST["..tostring(GameInfo.GlobalParameters["CULTURE_MAX_DISTANCE_PLOT_CITY_CONQUEST"].Value).."]")
@@ -4220,8 +4214,6 @@ function Initialize()
 	ExposedMembers.GCO.GetRiverPath				= GetRiverPath
 	ExposedMembers.GCO.GetOppositeDirection		= GetOppositeDirection
 	--
-	ExposedMembers.GCO.GetCultureIDFromPlayerID	= GetCultureIDFromPlayerID
-	--
 	ExposedMembers.GCO.CleanPlotsData			= CleanPlotsData
 	--
 	ExposedMembers.PlotScript_Initialized 		= true
@@ -4251,7 +4243,7 @@ Initialize()
 				for cultureID, value in pairs (plotCulture) do
 					if value > 0 then
 						local cultureAdded = 0
-						if GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() then
+						if GCO.GetPlayerIDFromCultureID(cultureID) ~= city:GetOwner() then
 							if tonumber(GameInfo.GlobalParameters["CULTURE_OUTPUT_USE_LOG"].Value) > 0 then
 								cultureAdded = GCO.Round(city:GetSize() * math.log( value * tonumber(GameInfo.GlobalParameters["CULTURE_CITY_FACTOR"].Value) ,10))
 							else

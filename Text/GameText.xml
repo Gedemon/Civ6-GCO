@@ -1075,6 +1075,12 @@
     <Replace Tag="LOC_UNIT_PERSONNEL_DESERTION" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6DarkRed]{1_Num} [ENDCOLOR][ICON_Position] deserters</Text>
     </Replace>
+    <Replace Tag="LOC_UNIT_MERCENARY_NAME" Language="en_US">
+      <Text>{1_Name} Mercenaries</Text>
+    </Replace>
+    <Replace Tag="LOC_UNIT_MERCENARY_CONTRACTOR" Language="en_US">
+      <Text>Under contract with {1_Name}, {2_Num} [ICON_Turn] left.</Text>
+    </Replace>	
 	<!-- Fuel -->
     <Replace Tag="LOC_FUEL_CONSUMPTION" Language="en_US">
       <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR][ICON_RESOURCE_OIL] used</Text>
@@ -1550,6 +1556,12 @@
     <Replace Tag="LOC_UNITFLAG_SUPPLY_LINE_TITLE" Language="en_US">
       <Text>[COLOR_Grey]------------ Supply Line ---------[ENDCOLOR]</Text>
     </Replace>
+    <Replace Tag="LOC_UNITFLAG_ETHNICITY_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]------------- Ethnicity ----------[ENDCOLOR]</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_LOYALTY_TITLE" Language="en_US">
+      <Text>[COLOR_Grey]-------------- Loyalty -----------[ENDCOLOR]</Text>
+    </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_MORALE" Language="en_US">
       <Text>[ICON_Ability] {1_Num} / {2_Num} Morale</Text>
@@ -1564,40 +1576,53 @@
       <Text>[ICON_Ability] [COLOR_Civ6DarkRed]{1_Num}[ENDCOLOR] / {2_Num} [COLOR_Civ6DarkRed]Bad Morale[ENDCOLOR]</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_MORALE_WELL_FED" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being Well Fed [ICON_Food]</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being Well Fed [ICON_Food]</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_FOOD_RATIONING" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from food rationing [ICON_FoodDeficit]</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from food rationing [ICON_FoodDeficit]</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_MORALE_VICTORY" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from the last victory ({2_Num} [ICON_Turn] left)</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from the last victory ({2_Num} [ICON_Turn] left)</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_DEFEAT" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from the last defeat ({2_Num} [ICON_Turn] left)</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from the last defeat ({2_Num} [ICON_Turn] left)</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_MORALE_NO_WOUNDED" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from no wounded personnel</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from no wounded personnel</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_WOUNDED" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from % of wounded [ICON_UnderSiege]</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from % of wounded [ICON_UnderSiege]</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_MORALE_FULL_HP" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being 100% operationnal</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being 100% operationnal</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_LOW_HP" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from low operationnal %</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from low operationnal %</Text>
     </Replace>	
     <Replace Tag="LOC_UNITFLAG_MORALE_CLOSE_TO_HOME" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being close to Home</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from being close to Home</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_LINKED_TO_HOME" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from having a route to Home</Text>
+      <Text>[ICON_PressureUp][COLOR_Civ6Green]+{1_Num} [ENDCOLOR] from having a route to Home</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_FAR_FROM_HOME" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from being far from Home</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from being far from Home</Text>
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MORALE_NO_WAY_HOMEP" Language="en_US">
-      <Text>[NEWLINE][ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from no link to Home</Text>
+      <Text>[ICON_PressureDown][COLOR_Civ6Red]{1_Num} [ENDCOLOR] from no link to Home</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_ANTI_PERSONNEL" Language="en_US">
+      <Text>[ICON_AntiPersonnel] {1_Num} Anti Personnel</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_PERSONNEL_ARMOR" Language="en_US">
+      <Text>[ICON_PersonnelArmor] {1_Num} Personnel Armor</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_ANTI_PERSONNEL_ARMOR" Language="en_US">
+      <Text>[ICON_AntiArmor] {1_Num} Anti Personnel Armor</Text>
+    </Replace>
+    <Replace Tag="LOC_UNITFLAG_IGNORE_PERSONNEL_ARMOR" Language="en_US">
+      <Text>[ICON_IgnoreArmor] {1_Num} Ignore Personnel Armor</Text>
     </Replace>
   
     <Replace Tag="LOC_UNITFLAG_PERSONNEL" Language="en_US">
@@ -1646,6 +1671,10 @@
     </Replace>
     <Replace Tag="LOC_UNITFLAG_MEDICINE_STOCK" Language="en_US">
       <Text>[ICON_Damaged] {1_Num} Medicine</Text>
+    </Replace>
+	
+    <Replace Tag="LOC_UNITFLAG_ETHNICITY_PERCENT" Language="en_US">
+      <Text>{1_Num : number #}% {2_Name}</Text>
     </Replace>
 	
     <Replace Tag="LOC_UNITFLAG_FOOD_RATION" Language="en_US">

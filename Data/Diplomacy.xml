@@ -14,6 +14,9 @@
 
 	</DiplomaticStatesGCO>
 	
+	<!-- 
+		Diplomacy Relation is the level of relation based on the summation of all DiplomacyInterestModifiers
+	-->
 	<DiplomaticRelationsGCO>
 		
 		<Row RelationType="DIPLO_RELATION_FRIEND"	/>
@@ -81,16 +84,23 @@
 		<Row PowerType="POWER_TECH"/>
 	</DiplomacyPowerModifiers>
 	
+	<!-- 
+		Diplomacy Interests are international relations, which are mostly different than interculture relations, with a few overlap
+		International relations can change quicker than interculture relations
+		Used for Diplomatic interactions
+		It's a fixed value (summation of modifiers)
+	-->
 	<DiplomacyInterestModifiers>
 		<Row InterestType="INTEREST_TRADE_ROUTE"/>
-		<Row InterestType="INTEREST_TRIBUTE"/>
+		<Row InterestType="INTEREST_TRIBUTE_PAID"					BaseValue="-5"	/>	<!-- when active (paying a tribute) -->
+		<Row InterestType="INTEREST_TRIBUTE_RECEIVED"				BaseValue="5"	/>	<!-- when active (receiving a tribute) -->
 		<Row InterestType="INTEREST_SEND_DELEGATION"				BaseValue="5"	/>
 		<Row InterestType="INTEREST_AMBASSY"						BaseValue="10"	/>	<!-- when active -->
 		<Row InterestType="INTEREST_OPEN_BORDER"					BaseValue="5"	/>	<!-- when active -->
 		<Row InterestType="INTEREST_OPEN_MARKET"					BaseValue="15"	/>	<!-- when active -->
 		<Row InterestType="INTEREST_DEFENSIVE_PACT"					BaseValue="25"	/>	<!-- when active -->
 		<Row InterestType="INTEREST_NON_AGRESSION_PACT"				BaseValue="10"	/>	<!-- when active -->
-		<Row InterestType="INTEREST_COMMON_FRIEND"					BaseValue="5"	/>	<!-- per friend (RelatrionType) -->
+		<Row InterestType="INTEREST_COMMON_FRIEND"					BaseValue="5"	/>	<!-- per friend (RelationType) -->
 		<Row InterestType="INTEREST_COMMON_ENEMY"					BaseValue="10"	/>	<!-- per enemy (RelationType or Denounced) -->
 		<Row InterestType="INTEREST_FRIEND_OF_ENEMY"				BaseValue="-15"	/>	<!-- per friend -->
 		<Row InterestType="INTEREST_ALLY_OF_ENEMY"					BaseValue="-25"	/>	<!-- per ally -->
@@ -99,7 +109,7 @@
 		<Row InterestType="INTEREST_OCCUPY_TERRITORY" 				BaseValue="-2"	/>	<!-- per tile (occupied territory = tile captured with still a majority of the previous owner culture) -->
 		<Row InterestType="INTEREST_OCCUPY_TERRITORY_FRIEND"		BaseValue="-1"	/>	<!-- per tile -->
 		<Row InterestType="INTEREST_OCCUPY_CITY" 					BaseValue="-20"	/>	<!-- per city (occupied city = city captured with still a majority of the previous owner culture) -->
-		<Row InterestType="INTEREST_OCCUPY_CITY__FRIEND	"			BaseValue="-10"	/>	<!-- per city -->
+		<Row InterestType="INTEREST_OCCUPY_CITY_FRIEND"				BaseValue="-10"	/>	<!-- per city -->
 		<Row InterestType="INTEREST_TERRITORIAL_INTEGRITY"			BaseValue="10"	/>	<!-- when active -->
 		<Row InterestType="INTEREST_RESEARCH_AGREEMENT"				BaseValue="10"	/>	<!-- when active -->
 		<Row InterestType="INTEREST_SAME_SIDE_IN_WAR"				BaseValue="50"	/>	<!-- when active -->
@@ -129,9 +139,34 @@
 		<Row InterestType="INTEREST_REFUSE_TO_STOP_OPEN_BORDERS"	BaseValue="-10"		Decay="1" />
 		<Row InterestType="INTEREST_REFUSE_TO_STOP_OPEN_MARKET"		BaseValue="-10"		Decay="1" />
 		<Row InterestType="INTEREST_REFUSE_TO_GIVE_GOLD"			BaseValue="-10"		Decay="1" />
+		<Row InterestType="INTEREST_PILLAGED_VILLAGE"				BaseValue="-60"		Decay="3" />
+		<Row InterestType="INTEREST_KILLED_UNIT"					BaseValue="-10"		Decay="2" />
+		<Row InterestType="INTEREST_LOST_UNIT"						BaseValue="-10"		Decay="1" /> <!-- when loosing a mercenary unit -->
 		<!-- spy actions (Caught) --> 
 		<!-- opposing governments  --> 
 	</DiplomacyInterestModifiers>
+	
+
+	<!-- 
+		Culture relation modifier include the own player culture, as it represent people relation to a nation
+		Used to define Homeland stability and Units loyalty
+		It's a variable value (change by summation of modifiers each turn) with a balance tendency to 0 (= neutral)
+		
+	-->
+	<CultureRelationModifiers>
+		<Row RelationModifierType="RELATION_MODIFIER_SEPARATIST"			BaseValue="-15"	/>
+		<Row RelationModifierType="RELATION_MODIFIER_NATIONALIST"			BaseValue="5"	/>	<!-- "Nationalist" = own Culture Group -->
+		<Row RelationModifierType="RELATION_MODIFIER_FOREIGN"				BaseValue="-5"	/>
+		<Row RelationModifierType="RELATION_MODIFIER_BROTHERS_IN_ARMS"		BaseValue="0"	SetValue="10"	Decay="1" />
+		<Row RelationModifierType="RELATION_MODIFIER_ATTACKING_BROTHERS"	BaseValue="0"	SetValue="-20"	Decay="1" />
+		<Row RelationModifierType="RELATION_MODIFIER_BALANCE"				/>					<!-- percentage of total removed/added to tend toward 0 -->
+		<Row RelationModifierType="RELATION_MODIFIER_GLOBAL_HAPPINESS"		/>					<!-- should we have this ? -->
+		<Row RelationModifierType="RELATION_MODIFIER_HAPPINESS_DIFFERENCE"	/>					<!-- difference between own and another civ global value -->
+		<Row RelationModifierType="RELATION_MODIFIER_NATION_INTERESTS"		/>					<!-- variable modifier based on international relation -->
+		<!-- modifiers from policies: use ModifierGCO ? -->
+		
+	</CultureRelationModifiers> 
+		
 	
 	<DiplomacyTrustModifiers>
 		<Row TrustType="TRUST_BREAK_TREATY_ENEMY" 			BaseValue="-10"		Decay="1" /> <!-- (maybe use % rate of decay instead of fixed value) -->
