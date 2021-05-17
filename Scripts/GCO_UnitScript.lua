@@ -469,6 +469,7 @@ local unitTableEnum = {
 	LastEmploymentEndTurn		= 62,
 	CulturePercents				= 63,
 	PreviousActiveTurnsLeft		= 64,
+	PreviousUnitPersonnelType	= 65,
 	
 	EndOfEnum				= 99
 }                           

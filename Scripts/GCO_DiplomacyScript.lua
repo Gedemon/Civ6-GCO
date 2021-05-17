@@ -990,20 +990,26 @@ end
 -- ====================================================================================== --
 
 function RecruitUnit(pUnit, iPreviousOwner, iNewOwner, iDuration)
+
+	Dprint( DEBUG_DIPLOMACY_SCRIPT, "- RecruitUnit, give to player#"..tostring(iNewOwner))
+	
 	local newUnit = GCO.ChangeUnitTo(pUnit, pUnit:GetType(), iNewOwner)
 	
 	newUnit:SetValue("CanChangeOrganization", nil)
-	newUnit:SetValue("PreviousActiveTurnsLeft", newUnit:GetValue("ActiveTurnsLeft"))
+	newUnit:SetValue("PreviousActiveTurnsLeft", newUnit:GetValue("PreviousActiveTurnsLeft") or newUnit:GetValue("ActiveTurnsLeft"))
+	newUnit:SetValue("PreviousUnitPersonnelType", newUnit:GetValue("PreviousUnitPersonnelType") or newUnit:GetValue("UnitPersonnelType"))
 	newUnit:SetValue("ActiveTurnsLeft", iDuration)
 	newUnit:SetValue("UnitPersonnelType", UnitPersonnelType.Mercenary)
 	newUnit:SetValue("PreviousOwner", iPreviousOwner)
 	newUnit:SetValue("LastEmployer", iNewOwner)
-	
+		
 	return newUnit
 end
 
 function LiberateUnit(pUnit, iNewOwner)
 
+	Dprint( DEBUG_DIPLOMACY_SCRIPT, "- LiberateUnit, give to player#"..tostring(iNewOwner))
+	
 	local iPreviousOwner	= pUnit:GetOriginalOwner() -- old owner before capture
 	local newUnit 			= GCO.ChangeUnitTo(pUnit, pUnit:GetType(), iNewOwner)
 	
@@ -1021,6 +1027,7 @@ function PacifyUnit(pUnit, iPreviousOwner, iDuration)
 	
 	newUnit:SetValue("CanChangeOrganization", nil)
 	newUnit:SetValue("PreviousActiveTurnsLeft", newUnit:GetValue("PreviousActiveTurnsLeft") or newUnit:GetValue("ActiveTurnsLeft"))
+	newUnit:SetValue("PreviousUnitPersonnelType", newUnit:GetValue("PreviousUnitPersonnelType") or newUnit:GetValue("UnitPersonnelType"))
 	newUnit:SetValue("ActiveTurnsLeft", iDuration)
 	newUnit:SetValue("UnitPersonnelType", UnitPersonnelType.Mercenary)
 	newUnit:SetValue("PreviousOwner", iPreviousOwner)
@@ -1033,7 +1040,10 @@ function DisbandMercenary(pUnit)
 	
 	newUnit:SetValue("CanChangeOrganization", true)
 	newUnit:SetValue("ActiveTurnsLeft", newUnit:GetValue("PreviousActiveTurnsLeft"))
-	newUnit:SetValue("UnitPersonnelType", UnitPersonnelType.StandingArmy)
+	newUnit:SetValue("UnitPersonnelType", newUnit:GetValue("PreviousUnitPersonnelType") or UnitPersonnelType.StandingArmy)
+	newUnit:SetValue("PreviousUnitPersonnelType", nil)
+	newUnit:SetValue("PreviousActiveTurnsLeft", nil)
+	
 end
 
 -- ====================================================================================== --

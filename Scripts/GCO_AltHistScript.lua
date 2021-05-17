@@ -657,6 +657,12 @@ function ChangeVillageOwner(pPlot, playerID)
 	ImprovementBuilder.SetImprovementType(pPlot, iType, playerID)
 	village.Owner = playerID
 	
+	-- Reset production
+	local pPlayer			= playerID ~= NO_PLAYER and GCO.GetPlayer(playerID) or nil
+	local bIsBarbarian		= pPlayer == nil and true or pPlayer:IsBarbarian() -- no player means "barbarian"
+	village.ProductionType 	= bIsBarbarian and "PRODUCTION_EQUIPMENT" or "PRODUCTION_MATERIEL"
+	village.TurnsLeft		= nil
+	
 	-- change central plot reference
 	if playerID ~= NO_PLAYER and not village.IsCentral then
 		local newPlotID, dist	= GCO.FindNearestPlayerVillage( playerID, pPlot:GetX(), pPlot:GetY() )
@@ -900,7 +906,7 @@ function TribesTurnP( playerID )
 							local centerPlot	= Map.GetPlotByIndex(village.CentralPlot)
 							local roadPath		= centerPlot:GetRoadPath(pPlot, "Land", iMaxSettlementDistance + 1) 
 							if roadPath then
-								local settlers		= GetPopulationMigrationPerTurnForVillage(pPlot, prodRow)
+								local settlers		= GetPopulationMigrationPerTurnForVillage(centerPlot, prodRow)
 								local bRoutePlaced	= false
 								local currentPlot	= centerPlot
 								Dprint( DEBUG_ALTHIST_SCRIPT, "     - Moving " .. tostring(settlers) .. " settlers (min="..tostring(popPerTurn)..") to repaired village ("..tostring(pPlot:GetX())..","..tostring(pPlot:GetY())..")")

@@ -166,8 +166,8 @@ function OnUnitSelectionChanged(playerID, unitID, x, y, i5, bSelect, b2)
 	if not Controls.CenterPanel:IsHidden() and not bSelect then
 		Close()
 		
-	elseif Controls.CenterPanel:IsHidden() and bSelect and playerID == g_playerID and unitID == g_unitID then
-		Controls.CenterPanel:SetHide(false)
+	--elseif Controls.CenterPanel:IsHidden() and bSelect and playerID == g_playerID and unitID == g_unitID then
+	--	Controls.CenterPanel:SetHide(false)
 		
 	elseif bSelect then
 		local pUnit = GCO.GetUnit(playerID, unitID)
