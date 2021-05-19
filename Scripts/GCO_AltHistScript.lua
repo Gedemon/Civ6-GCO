@@ -139,7 +139,9 @@ function PostInitialize() -- everything that may require other context to be loa
 end
 
 function OnLoadGameViewStateDone()
+
 	InitializeTribesOnMap() -- must wait for all script files to be fully initialized, which isn't the case in PostInitialize
+	
 end
 Events.LoadGameViewStateDone.Add( OnLoadGameViewStateDone ) -- Ready to start game
 
@@ -652,9 +654,8 @@ function ChangeVillageOwner(pPlot, playerID)
 	Dprint( DEBUG_ALTHIST_SCRIPT, "   - Delete old improvement...")
 	ImprovementBuilder.SetImprovementType(pPlot, -1)
 	
-	Dprint( DEBUG_ALTHIST_SCRIPT, "   - Recreate improvement ", village.Type, playerID)
-	local iType = GameInfo.Improvements[village.Type].Index
-	ImprovementBuilder.SetImprovementType(pPlot, iType, playerID)
+	Dprint( DEBUG_ALTHIST_SCRIPT, "   - Recreate improvement ", GameInfo.Improvements[village.Type].ImprovementType, playerID)
+	ImprovementBuilder.SetImprovementType(pPlot, village.Type, playerID)
 	village.Owner = playerID
 	
 	-- Reset production
@@ -1593,6 +1594,7 @@ function InitializeTribeAt(kParameters)
 	local iCentralPlot		= pPlot:GetIndex()
 	local iRange			= kParameters.Range or 3
 	local sImprovementType	= kParameters.ImprovementType or "IMPROVEMENT_BARBARIAN_CAMP_GCO"
+	local iImprovement		= GameInfo.Improvements[sImprovementType].Index
 	local iFertilityRange	= 1
 	local iMinSettlements	= kParameters.MinSettlement or 0
 	local iMaxSettlements	= kParameters.MaxSettlement or 0
@@ -1619,11 +1621,11 @@ function InitializeTribeAt(kParameters)
 	
 	-- Set central settlement
 	pPlot:AddPopulationForTribalVillage(cultureID, bNoDuplicate)
-	ImprovementBuilder.SetImprovementType(pPlot, GameInfo.Improvements[sImprovementType].Index, playerID)
+	ImprovementBuilder.SetImprovementType(pPlot, iImprovement, playerID)
 	local village 			= SetTribalVillageAt(iCentralPlot)
 	village.IsCentral		= true
 	village.Owner			= playerID
-	village.Type			= sImprovementType
+	village.Type			= iImprovement
 	local bIsBarbarian		= pPlayer == nil and true or pPlayer:IsBarbarian() -- no player means "barbarian"
 	village.ProductionType	= (bIsBarbarian and "PRODUCTION_EQUIPMENT") or "PRODUCTION_MATERIEL"
 	
@@ -1749,7 +1751,7 @@ function InitializeTribeAt(kParameters)
 				local village 			= SetTribalVillageAt(pSatPlot:GetIndex())
 				village.IsCentral		= false
 				village.Owner			= playerID
-				village.Type			= sImprovementType
+				village.Type			= iType
 				village.CentralPlot 	= iCentralPlot
 				village.ProductionType	= (bIsBarbarian and "PRODUCTION_EQUIPMENT") or "PRODUCTION_MATERIEL"
 				
@@ -1820,8 +1822,12 @@ function InitializeTribeAt(kParameters)
 				bLoop = true
 				if GCO.NoAdjacentImprovement(settRow.Plot) then
 					local cultureID = settRow.Plot:GetBestCultureGroup(bNoDuplicate)
+					local iType		= GameInfo.Improvements["IMPROVEMENT_GOODY_HUT_GCO"].Index
 					settRow.Plot:AddPopulationForTribalVillage(cultureID, bNoDuplicate)
-					ImprovementBuilder.SetImprovementType(settRow.Plot, GameInfo.Improvements["IMPROVEMENT_GOODY_HUT_GCO"].Index, -1)
+					ImprovementBuilder.SetImprovementType(settRow.Plot, iType, -1)
+					local village 	= SetTribalVillageAt(settRow.Plot:GetIndex())
+					village.Owner	= -1
+					village.Type	= iType
 					toPlace	= toPlace - 1
 				end
 			end
@@ -1953,6 +1959,64 @@ function InitializeTribesOnMap()
 		end
 	end
 	
+	-- Spread culture
+	Dprint( DEBUG_ALTHIST_SCRIPT, "- Spreading Cultures...")
+	
+	local kVillages = GetAllTribalVillages()
+	local kPlots	= {}
+	for plotKey, village in pairs(kVillages) do
+	
+		local plotID	= tonumber(plotKey)
+		local pPlot 	= GCO.GetPlotByIndex(plotID)
+		local cultureID	= pPlot:GetHighestCultureID()
+		for i, otherPlotID in ipairs(GCO.GetPlotsInRange(pPlot, 6)) do
+			if GetTribalVillageAt(otherPlotID) == nil then
+			
+				local otherPlot = Map.GetPlotByIndex(otherPlotID)
+				if otherPlot:GetArea():GetID() == pPlot:GetArea():GetID() then
+					local path, score 				= pPlot:GetSupplyPath(otherPlot, nil, 10)
+					kPlots[otherPlotID] 			= kPlots[otherPlotID] or {}
+					kPlots[otherPlotID][cultureID] 	= score and score > 0 and math.max(0, 100 - (score*10)) or nil
+				end
+		
+			end
+		end
+	end
+	
+	for plotID, kCultureData in pairs(kPlots) do
+		
+		local totalPercent 	= GCO.TableSummation(kCultureData)
+		local pPlot 		= GCO.GetPlotByIndex(plotID) 
+		local kPlotCulture	= pPlot:GetCultureTable()
+		local population	= GCO.TableSummation(kPlotCulture)
+		
+		-- should be full independent at this point in the code
+		if population ~= kPlotCulture[INDEPENDENT_CULTURE] then
+			GCO.Warning("Population is > Independent culture value before culture spreading at plot (".. pPlot:GetX() ..",".. pPlot:GetY().."), Population = "..tostring(population) ..", Independents = "..tostring(kPlotCulture[INDEPENDENT_CULTURE]) )
+		end
+		
+		pPlot:SetCulture(INDEPENDENT_CULTURE, 0)
+		
+		if totalPercent <= 100 then
+			for cultureID, percent in pairs(kCultureData) do
+				pPlot:SetCulture(cultureID, math.floor( population * percent * 0.01) )
+			end
+		else
+			for cultureID, percent in pairs(kCultureData) do
+				local ratio = Div(percent, totalPercent)
+				pPlot:SetCulture(cultureID, math.floor( population * ratio) )
+			end
+		end
+		
+		local independents = population - pPlot:GetPopulation()
+		if independents > 0 then
+			pPlot:SetCulture(INDEPENDENT_CULTURE, independents)
+			Dprint( DEBUG_ALTHIST_SCRIPT, "  - Independents at plot (".. pPlot:GetX() ..",".. pPlot:GetY()..") = "..tostring(independents))
+		elseif independents < 0 then
+			GCO.Warning("Some population was added from culture spreading at plot (".. pPlot:GetX() ..",".. pPlot:GetY().."), Initial Population = "..tostring(population) ..", New Population = "..tostring(pPlot:GetPopulation()) )
+		end
+	end
+	
 	-- Simulate a few turns of migration
 	Dprint( DEBUG_ALTHIST_SCRIPT, GCO.Separator)
 	Dprint( DEBUG_ALTHIST_SCRIPT, "- Simulating Migration for a few turns...")
@@ -1969,6 +2033,7 @@ function InitializeTribesOnMap()
 	
 	GCO.StartTimer("Simulating Migration")
 	for iloop = 0, iNumLoop do
+
 		Dprint( DEBUG_ALTHIST_SCRIPT, "- Migration loop #"..tostring(iloop))
 		
 		GCO.StartTimer("Setting Migration Values")
@@ -2035,7 +2100,7 @@ function OnImprovementOwnerChanged(iX, iY, iImprovementType, playerID, iA, iB)
 	village.ProductionType	= village.ProductionType or (bIsBarbarian and "PRODUCTION_EQUIPMENT") or "PRODUCTION_MATERIEL"
 	
 	Dprint( DEBUG_ALTHIST_SCRIPT, "- OnImprovementOwnerChanged at ", iX, iY, playerID, iImprovementType, iA, iB )
-	Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", plotID, village, village.Type, village.Owner )
+	Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", plotID, village, GameInfo.Improvements[village.Type].ImprovementType, village.Owner )
 	Dprint( DEBUG_ALTHIST_SCRIPT, "    - ", GetTribalVillageAt(plotID) )
 	--]]
 end
@@ -2489,14 +2554,15 @@ function OnPlayerTribeDoP(iActor : number, kParameters : table)
 		if CanCaravanSettle(pPlot, iActor, pUnit) then
 		
 			local sImprovementType	= "IMPROVEMENT_BARBARIAN_CAMP_GCO"
+			local iImprovement		= GameInfo.Improvements[sImprovementType].Index
 			
-			ImprovementBuilder.SetImprovementType(pPlot, GameInfo.Improvements[sImprovementType].Index, iActor)
+			ImprovementBuilder.SetImprovementType(pPlot, iImprovement, iActor)
 			
 			local pPlayer			= GCO.GetPlayer(iActor)
 			local village 			= SetTribalVillageAt(kParameters.PlotID)
 			village.IsCentral		= true
 			village.Owner			= iActor
-			village.Type			= sImprovementType
+			village.Type			= iImprovement
 			local bIsBarbarian		= pPlayer:IsBarbarian()
 			village.ProductionType	= (bIsBarbarian and "PRODUCTION_EQUIPMENT") or "PRODUCTION_MATERIEL"
 			local pPlayerUnits 		= pPlayer:GetUnits()

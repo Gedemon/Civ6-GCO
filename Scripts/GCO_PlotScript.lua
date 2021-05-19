@@ -3006,6 +3006,7 @@ function SetInitialMapPopulation()
 			
 			local plotRegions 	= plot:GetRegions()
 			local plotCultures	= {}
+			--[[
 			local totalStrength	= 0
 
 			for r, region in pairs(plotRegions) do
@@ -3023,6 +3024,7 @@ function SetInitialMapPopulation()
 				end
 				--RegionCultures[row.StartingRegion][row.CultureType]
 			end
+			--]]
 			
 			local numCulture = #plotCultures
 			if numCulture > 0 then

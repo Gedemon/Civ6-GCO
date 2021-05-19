@@ -21,15 +21,7 @@ DEBUG_AI_UNIT_SCRIPT 	= "debug"
 
 local _cached			= {}		-- cached table to reduce calculations
 
-local kOperationTurnLimit = {
-
-	["GCO Move Op"] 		= 10,
-	["GCO Move Op Short"] 	= 5,
-	["GCO Run Op"] 			= 10,
-
-}
-
-
+local iMaxOperationDuplicate	= #GameInfo.AiEvents -- we're using <AiEvents> rowid to create duplicate of GCO operations in PostUpdate.sql
 
 
 --=====================================================================================--
@@ -105,26 +97,60 @@ function GetUnitOperationData()
 end
 
 
-function StartPlayerOperation(iPlayer, sOperationType, opponentPlayerID, targetPlotID, rallyPlotID, originPlotID)
+function StartPlayerOperation(iPlayer, sOperationType, opponentPlayerID, targetPlotID, rallyPlotID, originPlotID, sObjective)
 
-	Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Trying to launch operation ", sOperationType, opponentPlayerID, targetPlotID, rallyPlotID)
+	Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Trying to launch operation ", sOperationType, opponentPlayerID, targetPlotID, rallyPlotID, originPlotID, sObjective)
 	
-	local playerOperations = GetPlayerOperationData(iPlayer)
+	local playerOperations 		= GetPlayerOperationData(iPlayer)
+	local operationTypeActive	= {}
+	local bNeedDuplicate		= false
 
 	for operationKey, operationData in pairs(playerOperations) do
+	
+		if sObjective == operationData.Objective and operationData.Rally == rallyPlotID then
+		
+			Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Return existing operation #"..tostring(operationKey).." with same objective and rally plot")
+			playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
+			return tonumber(operationKey)
+		
+		end
+	
+		operationTypeActive[operationData.Type] = true
+	
 		if sOperationType == operationData.Type then
 			
-			-- to do : return existing operationID to use it if the target is the same
-			GCO.Warning("trying to launch another operation of Type [".. tostring(sOperationType).."] for player#".. tostring( iPlayer ).. ", running Op key = ".. tostring(operationKey))
+			bNeedDuplicate = true
+			-- we don't break the loop here as we want to get all running operation types in the operationTypeActive table
 			
-			--
-			playerOperations.__orderedIndex = nil  -- manual cleanup for orderedpair
-			return false
 		end
+	end
+	
+	if bNeedDuplicate then
+		Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Same operation type already running, trying to find a duplicate for "..tostring(sOperationType))
+		local bFoundReplacement = false
+		local baseOperationType	= sOperationType
+		
+		for i = 1, iMaxOperationDuplicate do
+			local testType = sOperationType .. tostring(i)
+			if operationTypeActive[testType] == nil then
+				Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Found available duplicate :"..tostring(testType))
+				sOperationType 		= testType
+				bFoundReplacement	= true
+				break
+			end
+		end
+		
+		if not bFoundReplacement then
+			GCO.Warning("can't find replacement to launch another operation of Type [".. tostring(baseOperationType).."] for player#".. tostring( iPlayer ))
+		end
+	end
+	
+	if GameInfo.AiOperationDefs[sOperationType] == nil then
+		GCO.Error("operation type not found in GameInfo.AiOperationDefs [".. tostring(sOperationType).."] for player#".. tostring( iPlayer ))
 	end
 
 	local operationID = Players[iPlayer]:GetAi_Military():StartScriptedOperationWithTargetAndRally(sOperationType, opponentPlayerID, targetPlotID, rallyPlotID)
-
+	
 	if operationID ~= -1 then
 	
 		Dprint( DEBUG_AI_UNIT_SCRIPT, "        - Launched operation #"..tostring(operationID))
@@ -135,8 +161,9 @@ function StartPlayerOperation(iPlayer, sOperationType, opponentPlayerID, targetP
 		operationData.Origin	= originPlotID
 		operationData.Target	= targetPlotID
 		operationData.Rally		= rallyPlotID
+		operationData.Objective	= sObjective
 		operationData.Units		= {}
-		operationData.TurnsLeft	= kOperationTurnLimit[sOperationType] --
+		operationData.TurnsLeft	= GameInfo.OperationTurnLimit[sOperationType].TurnLimit --
 		
 		AddPlayerOperation (iPlayer, operationID, operationData)
 

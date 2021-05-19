@@ -310,7 +310,7 @@ function DoStrategy(self)
 					
 					local targetVillage	= GCO.GetTribalVillageAt(iTarget)
 					
-					local iOperationID	= GCO.StartPlayerOperation(self.PlayerID, sOperation,targetVillage.Owner, iTarget, iTarget, plotID)
+					local iOperationID	= GCO.StartPlayerOperation(self.PlayerID, sOperation,targetVillage.Owner, iTarget, iTarget, plotID, "CAPTURE_VILLAGE")
 					
 					if iOperationID then
 					
@@ -379,7 +379,7 @@ function DoStrategy(self)
 						
 						if homePlotID then
 						
-							local iOperationID	= GCO.StartPlayerOperation(self.PlayerID, sOperation, NO_PLAYER, homePlotID, homePlotID, homePlotID)
+							local iOperationID	= GCO.StartPlayerOperation(self.PlayerID, sOperation, NO_PLAYER, homePlotID, homePlotID, homePlotID, "RETURN_HOME")
 							
 							if iOperationID then
 							

@@ -1123,10 +1123,12 @@
 		Sub-tree Nodes	4		0		1		Sub-trees are references to other trees defined elsewhere in the behavior tree list
 		
 		
-		
 		NodeType="Operation Defend Units" -> This will fortify damaged units, something we don't want in the mod when moving
 
-		
+		There can be only one OperationName running for a player at any time, else the game crashes (as of May 2021)
+		The mod set duplicate entries for <AiOperationDefs>, <AllowedOperations>, <AiOperationTeams> and <OperationTurnLimit> in PostUpdate.sql for all Operation with a name string using "GCO"
+
+		<OperationTurnLimit> is a custom table to expose the turn limit of GCO operations easily in the mod's Lua scripts
 	-->
 	<AiTeams>
 		<Row TeamName="GCO Team"/>
@@ -1182,6 +1184,9 @@
 		<Row DefnId="0" NodeId="4" TreeName="GCO Move Behavior" DefaultData="GCO_Test_Event" />	<!-- function attached to GameplayEvent.GCO_Test_Event must return "true" for the Operation to continue	-->
 		<!-- -->
 	</TreeData>
+	<OperationTurnLimit>
+		<Row OperationName="GCO Move Op"	TurnLimit="10" />
+	</OperationTurnLimit>
 
 	<!-- 	OPERATION "GCO Move Op Short"
 			Move with attack and defend
@@ -1230,7 +1235,9 @@
 		<Row DefnId="0" NodeId="4" TreeName="GCO Move Behavior" DefaultData="GCO_Test_Event" />	<!-- function attached to GameplayEvent.GCO_Test_Event must return "true" for the Operation to continue	-->
 		<!-- -->
 	</TreeData>
-
+	<OperationTurnLimit>
+		<Row OperationName="GCO Move Op Short"	TurnLimit="5" />
+	</OperationTurnLimit>
 
 	<!-- 	OPERATION "GCO Run Op"
 			Move without attack and defend
@@ -1268,6 +1275,9 @@
 		<Row DefnId="0" NodeId="2" TreeName="GCO Run Behavior" DefaultData="GCO_Run_Event" />
 		<!-- -->
 	</TreeData>
+	<OperationTurnLimit>
+		<Row OperationName="GCO Run Op"	TurnLimit="10" />
+	</OperationTurnLimit>
 
 	<!-- 	OPERATION "GCO Attack Adjacent City Op"
 			Attack adjacent city or other Combat District
@@ -1304,6 +1314,9 @@
 		<Row DefnId="0" NodeId="4"	TreeName="GCO Attack Adjacent City Behavior" DefaultData="GCO_Test_Event" />
 		<!-- -->
 	</TreeData>
+	<OperationTurnLimit>
+		<Row OperationName="GCO Attack Adjacent City Op"	TurnLimit="10" />
+	</OperationTurnLimit>
 	
 	<!-- 	OPERATION "GCO Attack City Op" (edited copy of "Free Cities Assault")
 			Move and Attack city or other Combat District
@@ -1387,6 +1400,9 @@
 		<Row DefnId="1" NodeId="16"	TreeName="GCO Attack City Behavior" DefaultData="true" />	<!-- Fail at Limit	-->
 
 	</TreeData>
+	<OperationTurnLimit>
+		<Row OperationName="GCO Attack City Op"	TurnLimit="10" />
+	</OperationTurnLimit>
 
 	<!-- 	OPERATION "GCO Pillage Op" 
 			(Move to Rally plot then Pillage)
@@ -1457,5 +1473,8 @@
 
 	</TreeData>
 
+	<OperationTurnLimit>
+		<Row OperationName="GCO Pillage Op"	TurnLimit="10" />
+	</OperationTurnLimit>
 	
 </GameInfo>

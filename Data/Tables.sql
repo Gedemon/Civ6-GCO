@@ -1077,9 +1077,14 @@ CREATE TABLE IF NOT EXISTS TribalVillageResourcesConverted (
 		IsBarbarian BOOLEAN NOT NULL CHECK (IsBarbarian IN (0,1)) DEFAULT 0,	-- Barbarian Only
 		NoBarbarian BOOLEAN NOT NULL CHECK (NoBarbarian IN (0,1)) DEFAULT 0	-- Barbarian Excluded
 	);
+	
+CREATE TABLE IF NOT EXISTS OperationTurnLimit (
+		OperationName TEXT NOT NULL,
+		TurnLimit INTEGER NOT NULL,
+		PRIMARY KEY(OperationName)
+	);
 
 
-		 
 -- Create a new Colors table because we need one accessible from gameplay 
 -- and if we use the old one the game seems to mess up (human player = full white)		 
 CREATE TABLE IF NOT EXISTS ColorsLegacy ('Type' text  not null , 'Color' text , 'Red' float , 'Green' float , 'Blue' float , 'Alpha' float , PRIMARY KEY (Type));

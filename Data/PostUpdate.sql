@@ -112,8 +112,28 @@ INSERT INTO CultureGroups (CultureType, Name, Adjective, Ethnicity)
 -----------------------------------------------
 -- Operations
 -----------------------------------------------
---
 
+/* Create duplicate operations using the number of rows in AiEvents (9 copies, use a larger table if more needed) */
+--
+INSERT OR REPLACE INTO AiOperationDefs (OperationName, TargetType, TargetParameter, EnemyType, BehaviorTree, Priority, MaxTargetDistInRegion, MaxTargetDistInArea, MaxTargetDistInWorld, MaxTargetStrength, MaxTargetDefense, MinOddsOfSuccess, SelfStart, MustBeAtWar, MustHaveNukes, MustHaveUnits, OperationType, AllowTargetUpdate, TargetLuaScript, ActiveEmergency)
+	SELECT DISTINCT	OperationName || AiEvents.rowid, TargetType, TargetParameter, EnemyType, BehaviorTree, Priority, MaxTargetDistInRegion, MaxTargetDistInArea, MaxTargetDistInWorld, MaxTargetStrength, MaxTargetDefense, MinOddsOfSuccess, SelfStart, MustBeAtWar, MustHaveNukes, MustHaveUnits, OperationType, AllowTargetUpdate, TargetLuaScript, ActiveEmergency
+	FROM AiOperationDefs JOIN AiEvents
+	WHERE OperationName LIKE "%GCO%";
+
+INSERT OR REPLACE INTO AllowedOperations (ListType, OperationDef)
+	SELECT DISTINCT	ListType, OperationDef || AiEvents.rowid
+	FROM AllowedOperations JOIN AiEvents
+	WHERE OperationDef LIKE "%GCO%";
+	
+INSERT OR REPLACE INTO AiOperationTeams (TeamName, OperationName, InitialStrengthAdvantage, OngoingStrengthAdvantage)
+	SELECT DISTINCT	TeamName, OperationName || AiEvents.rowid, InitialStrengthAdvantage, OngoingStrengthAdvantage
+	FROM AiOperationTeams JOIN AiEvents
+	WHERE OperationName LIKE "%GCO%";
+	
+INSERT OR REPLACE INTO OperationTurnLimit (OperationName, TurnLimit)
+	SELECT DISTINCT	OperationName || AiEvents.rowid, TurnLimit
+	FROM OperationTurnLimit JOIN AiEvents
+	WHERE OperationName LIKE "%GCO%";
 
 -----------------------------------------------
 -- Resources
