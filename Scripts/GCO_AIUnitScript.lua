@@ -52,7 +52,7 @@ function PostInitialize() -- everything that may require other context to be loa
 end
 
 function SaveTables()
-	Dprint("--------------------------- Saving OperationData ---------------------------")
+	Dprint(DEBUG_AI_UNIT_SCRIPT, "--------------------------- Saving OperationData ---------------------------")
 
 	GCO.StartTimer("Saving OperationData")
 	GCO.SaveTableToSlot(ExposedMembers.GCO.OperationData, "OperationData")
@@ -142,11 +142,13 @@ function StartPlayerOperation(iPlayer, sOperationType, opponentPlayerID, targetP
 		
 		if not bFoundReplacement then
 			GCO.Warning("can't find replacement to launch another operation of Type [".. tostring(baseOperationType).."] for player#".. tostring( iPlayer ))
+			return false
 		end
 	end
 	
 	if GameInfo.AiOperationDefs[sOperationType] == nil then
 		GCO.Error("operation type not found in GameInfo.AiOperationDefs [".. tostring(sOperationType).."] for player#".. tostring( iPlayer ))
+		return false
 	end
 
 	local operationID = Players[iPlayer]:GetAi_Military():StartScriptedOperationWithTargetAndRally(sOperationType, opponentPlayerID, targetPlotID, rallyPlotID)
@@ -283,6 +285,48 @@ function UpdateOperations()
 	
 end
 
+
+--=====================================================================================--
+-- Events
+--=====================================================================================--
+
+function OnPlayerTurnActivated( playerID, bFirstTime )
+
+	Dprint( DEBUG_AI_UNIT_SCRIPT, "Test OnPlayerTurnActivated for AI units, player #"..tostring(playerID), bFirstTime)
+	local player = Players[playerID]
+	local pPlayerUnits = player:GetUnits();
+	for i, pUnit in pPlayerUnits:Members() do
+	
+		GCO.AttachUnitFunctions(pUnit)
+		local operationID = GCO.GetUnitOperation(pUnit)
+		
+		if operationID then
+			if pUnit:GetMovesRemaining() == pUnit:GetMaxMoves() then
+				local operationData = GCO.GetPlayerOperation(playerID, operationID)
+				if operationData then
+					local unitPlot		= Map.GetPlot(pUnit:GetX(),pUnit:GetY())
+					local iDistance 	= Map.GetPlotDistance(unitPlot:GetIndex(), operationData.Rally)
+					Dprint( DEBUG_AI_UNIT_SCRIPT, " - unit ["..tostring(pUnit:GetKey()).."] in Operation #"..tostring(operationID).." is stopped at distance = ", iDistance)
+					if iDistance == 1 then
+						local destPlot = Map.GetPlotByIndex(operationData.Rally)
+						Dprint( DEBUG_AI_UNIT_SCRIPT, "    - trying to force move...")
+						UnitManager.MoveUnit( pUnit, destPlot:GetX(), destPlot:GetY() )
+						if pUnit:GetX() == destPlot:GetX() and pUnit:GetY() == destPlot:GetY() then
+							Dprint( DEBUG_AI_UNIT_SCRIPT, "    - SUCCESS")
+						else
+							Dprint( DEBUG_AI_UNIT_SCRIPT, "    - FAILED")
+						end
+					end
+				else
+					GCO.Error("operationData is nil for ID :", playerID, operationID)
+				end
+			end
+		end
+	end
+end
+Events.PlayerTurnActivated.Add( OnPlayerTurnActivated )
+
+
 --=====================================================================================--
 -- Share functions for other contexts
 --=====================================================================================--
@@ -306,6 +350,7 @@ Initialize()
 --=====================================================================================--
 -- Tests
 --=====================================================================================--
+
 
 --[[
 

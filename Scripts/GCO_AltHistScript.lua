@@ -739,8 +739,8 @@ function TribesTurnP( playerID )
 			--
 			village.PillagedCounter = village.PillagedCounter + 1
 			-- remove or restore
-			if village.PillagedCounter == iMaxTurnsPillaged then -- to do: remove magic number
-				-- to do: handle is being repaired
+			if village.PillagedCounter >= iMaxTurnsPillaged then -- to do: remove magic number
+			
 				if not (village.ProductionType == "VILLAGE_REBUILD" or village.ProductionType == "CENTER_CAPTURE") then
 					village.PillagedCounter = nil
 					village.PillagedBy		= nil
